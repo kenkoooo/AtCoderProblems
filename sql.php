@@ -41,4 +41,21 @@ class SQLConnect {
 		$query = "SELECT id,name FROM contests";
 		return $this->exectute ( $query );
 	}
+	
+	// コンテスト検索
+	public function getContest($id) {
+		$query = "SELECT name FROM contests WHERE id=$id";
+		return $this->exectute ( $query );
+	}
+	
+	// 問題を追加してくれる
+	public function insertProblem($contest_id, $name, $title) {
+		$query = "SELECT * FROM problems where name='$name'";
+		$data = $this->exectute ( $query );
+		if (! $data->fetch ( PDO::FETCH_ASSOC )) {
+			// 存在しない時
+			$query = "INSERT INTO problems (contest_id,name,title) VALUES ($contest_id,'$name','$title')";
+			$this->exectute ( $query );
+		}
+	}
 }

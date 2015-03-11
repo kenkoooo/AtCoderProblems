@@ -3,13 +3,29 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $sql = new SQLConnect ();
-$name = "hbpc2012";
-$url = "http://" . $name . ".contest.atcoder.jp/assignments";
-$html = file_get_html ( $url );
 
-// a要素のhref属性の抽出
-foreach ( $html->find ( "td.center a" ) as $element ) {
-	if (preg_match ( '/^\\/tasks/i', $element->href )) {
-		print $element->href . '<br>';
+$contests = $sql->pullContests ();
+foreach ( $contests as $c ) {
+	$contest_id = $c ["id"];
+	$name = $c ["name"];
+	
+	$url = "http://" . $name . ".contest.atcoder.jp/assignments";
+	$html = file_get_html ( $url );
+	
+	$title = "";
+	$cnt = 0;
+	foreach ( $html->find ( "td a" ) as $element ) {
+		if (preg_match ( '/^\\/task/i', $element->href )) {
+			$title = $title . $element->plaintext;
+			
+			if ($cnt % 2 == 0) {
+				$title = $title . ". ";
+			} else {
+				$pname = preg_replace ( '/^\\/tasks\\//i', '', $element->href );
+				$sql->insertProblem ( $contest_id, $pname, $title );
+				$title = "";
+			}
+			$cnt ++;
+		}
 	}
 }
