@@ -6,9 +6,11 @@ class SQLConnect {
 		$password = 'escherichia';
 		
 		try {
-			$dbh = new PDO ( $dsn, $user, $password );
+			$options = array (
+					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' 
+			);
+			$dbh = new PDO ( $dsn, $user, $password, $options );
 			
-			$dbh->query ( 'SET NAMES sjis' );
 			$stmt = $dbh->query ( $sql );
 			
 			return $stmt;
@@ -29,8 +31,8 @@ class SQLConnect {
 	}
 	
 	// コンテストの存在・開始時刻・終了時刻をアップデートする
-	public function updateContest($name, $bool, $start, $end) {
-		$query = "UPDATE contests SET exist=$bool, start=$start, end=$end WHERE name='$name'";
+	public function updateContest($name, $title, $bool, $start, $end) {
+		$query = "UPDATE contests SET exist=$bool, title='$title', start=$start, end=$end WHERE name='$name'";
 		$this->exectute ( $query );
 	}
 	

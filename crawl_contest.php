@@ -11,10 +11,11 @@ foreach ( $pull as $element ) {
 	
 	$start = $html->find ( 'time#contest-start-time', 0 )->plaintext;
 	$end = $html->find ( 'time#contest-end-time', 0 )->plaintext;
+	$title = $html->find ( 'span.contest-name', 0 )->plaintext;
 	
 	if ($start == NULL) {
-		$sql->updateContest ( $name, 0, 0, 0 );
+		$sql->updateContest ( $name, "", 0, 0, 0 );
 	} else {
-		$sql->updateContest ( $name, 1, date ( "YmdHis", strtotime ( $start ) ), date ( "YmdHis", strtotime ( $end ) ) );
+		$sql->updateContest ( $name, $title, 1, date ( "YmdHis", strtotime ( $start ) ), date ( "YmdHis", strtotime ( $end ) ) );
 	}
 }
