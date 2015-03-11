@@ -25,4 +25,9 @@ class SQLConnect {
 			$this->exectute ( $query );
 		}
 	}
+	public function updateContest($name, $bool, $start, $end) {
+		$query = "UPDATE contests SET exist=$bool, start=$start, end=$end WHERE name='$name'";
+		echo $query;
+		$this->exectute ( $query );
+	}
 }
