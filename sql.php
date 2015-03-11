@@ -38,7 +38,7 @@ class SQLConnect {
 	
 	// コンテスト一覧を引っ張ってくる
 	public function pullContests() {
-		$query = "SELECT id,name FROM contests";
+		$query = "SELECT * FROM contests";
 		return $this->exectute ( $query );
 	}
 	
