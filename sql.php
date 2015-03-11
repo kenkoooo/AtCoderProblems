@@ -17,6 +17,8 @@ class SQLConnect {
 			die ();
 		}
 	}
+	
+	// コンテストを追加してくれる
 	public function insertContest($name) {
 		$query = "SELECT * FROM contests where name='$name'";
 		$data = $this->exectute ( $query );
@@ -25,9 +27,16 @@ class SQLConnect {
 			$this->exectute ( $query );
 		}
 	}
+	
+	// コンテストの存在・開始時刻・終了時刻をアップデートする
 	public function updateContest($name, $bool, $start, $end) {
 		$query = "UPDATE contests SET exist=$bool, start=$start, end=$end WHERE name='$name'";
-		echo $query;
 		$this->exectute ( $query );
+	}
+	
+	// コンテスト一覧を引っ張ってくる
+	public function pullContests() {
+		$query = "SELECT id,name FROM contests";
+		return $this->exectute ( $query );
 	}
 }
