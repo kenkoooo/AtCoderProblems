@@ -2,9 +2,15 @@
 require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
-$sql = new SQLConnect ();
+$atcoder_mode = TRUE;
+$minutes = date ( "i", strtotime ( "now" ) );
+if ($minutes % 10 == 0) {
+	$atcoder_mode = FALSE;
+}
 
+$sql = new SQLConnect ();
 $contests = $sql->pullContests ();
+
 foreach ( $contests as $c ) {
 	$contest_id = $c ["id"];
 	$name = $c ["name"];
@@ -14,8 +20,8 @@ foreach ( $contests as $c ) {
 		continue;
 	}
 	echo $name . "\n";
-	// // 今回はARCとABCだけクロール
-	if (! preg_match ( '/^(arc|abc)[0-9]*$/', $name )) {
+	
+	if ($atcoder_mode && ! preg_match ( '/^(arc|abc)[0-9]*$/', $name )) {
 		continue;
 	}
 	
@@ -85,5 +91,9 @@ foreach ( $contests as $c ) {
 			// 追いついたら終了
 			break;
 		}
+	}
+	// コンテスト終わり
+	if (! $atcoder_mode) {
+		return;
 	}
 }

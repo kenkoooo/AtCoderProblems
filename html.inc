@@ -8,7 +8,7 @@
 <meta name="author" content="">
 <link rel="icon" href="../../favicon.ico">
 
-<title>Theme Template for Bootstrap</title>
+<title>AtCoder Problems</title>
 
 <!-- Bootstrap core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -27,7 +27,16 @@
 </head>
 
 <body role="document">
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+  ga('create', 'UA-60720107-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
 	<!-- Fixed navbar -->
 	<nav class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
@@ -39,11 +48,14 @@
 						class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#">AtCoder まとめサイト</a>
+				<span class="navbar-brand">AtCoder 非公式まとめサイト</span>
 			</div>
 			<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="./">Home</a></li>
+					<li><a href="http://atcoder.jp/">AtCoder</a></li>
+					<li><a href="http://ichyo.jp/aoj-icpc/">AOJ-ICPC</a></li>
+					<li><a href="http://twitter.com/kenkoooo">お問い合わせ</a></li>
 				</ul>
 			</div>
 			<!--/.nav-collapse -->
@@ -51,10 +63,22 @@
 	</nav>
 
 	<div class="container">
+		<form action="index.php" method="get" class="form-inline">
+			<div class="form-group"><?php
+			echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="name" value="' . $user_name . '">';
+			?>
+
+						</div>
+			<button type="submit" class="btn btn-default">Search</button>
+		</form>
+	</div>
+
+	<div class="container">
 		<div class="page-header">
 			<h1>AtCoder Beginner Contest</h1>
 		</div>
-		<table class="table  table-hover table-striped table-bordered">
+		<table
+			class="table table-hover table-striped table-bordered table-condensed">
 			<thead>
 				<tr>
 					<th>コンテスト</th>
@@ -74,7 +98,8 @@
 		<div class="page-header">
 			<h1>AtCoder Regular Contest</h1>
 		</div>
-		<table class="table  table-hover table-striped table-bordered">
+		<table
+			class="table  table-hover table-striped table-bordered  table-condensed">
 			<thead>
 				<tr>
 					<th>コンテスト</th>
@@ -90,12 +115,12 @@
 		</table>
 	</div>
 
-	<!--  
 	<div class="container">
 		<div class="page-header">
-			<h1>全部</h1>
+			<h1>その他のコンテスト（作りかけ）</h1>
 		</div>
-		<table class="table">
+		<table
+			class="table table-hover table-striped table-bordered table-condensed">
 			<thead>
 				<tr>
 					<th>コンテスト</th>
@@ -106,7 +131,6 @@
 			</tbody>
 		</table>
 	</div>
-	-->
 
 	<!-- /container -->
 

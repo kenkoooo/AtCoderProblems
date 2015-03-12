@@ -2,7 +2,7 @@
 require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
-$user_name = 'kenkoooo';
+$user_name = $_GET ["name"];
 
 $abcArray = getProblemArray ( '/abc[0-9]*/i', 2012, $user_name );
 $arcArray = getProblemArray ( '/arc[0-9]*/i', 2012, $user_name );
