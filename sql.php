@@ -36,6 +36,17 @@ class SQLConnect {
 		$this->exectute ( $query );
 	}
 	
+	// 該当するコンテストの問題はクロール済みかどうか
+	public function isProblemExisting($contest_id) {
+		$query = "SELECT * FROM problems where contest_id=$contest_id";
+		$data = $this->exectute ( $query );
+		if ($data->fetch ( PDO::FETCH_ASSOC )) {
+			// 存在する時
+			return TRUE;
+		}
+		return FALSE;
+	}
+	
 	// コンテスト一覧を引っ張ってくる
 	public function pullContests() {
 		$query = "SELECT * FROM contests WHERE exist=1";

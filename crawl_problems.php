@@ -8,6 +8,16 @@ $contests = $sql->pullContests ();
 foreach ( $contests as $c ) {
 	$contest_id = $c ["id"];
 	$name = $c ["name"];
+	$end = $c ["end"];
+	if (strtotime ( "now" ) <= strtotime ( $end )) {
+		// コンテストが終わっていない時はスルー
+		continue;
+	}
+	
+	if ($sql->isProblemExisting ( $contest_id )) {
+		// 既に問題が存在する時はスルー
+		continue;
+	}
 	
 	$url = "http://" . $name . ".contest.atcoder.jp/assignments";
 	$html = file_get_html ( $url );
