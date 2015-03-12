@@ -38,7 +38,7 @@ class SQLConnect {
 	
 	// コンテスト一覧を引っ張ってくる
 	public function pullContests() {
-		$query = "SELECT * FROM contests";
+		$query = "SELECT * FROM contests WHERE exist=1";
 		return $this->exectute ( $query );
 	}
 	
@@ -57,5 +57,11 @@ class SQLConnect {
 			$query = "INSERT INTO problems (contest_id,name,title) VALUES ($contest_id,'$name','$title')";
 			$this->exectute ( $query );
 		}
+	}
+	
+	// コンテストIDから問題を取得する
+	public function getProblems($contest_id) {
+		$query = "SELECT * FROM problems WHERE contest_id=$contest_id";
+		return $this->exectute ( $query );
 	}
 }
