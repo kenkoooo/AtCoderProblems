@@ -166,10 +166,6 @@
 			<thead>
 				<tr>
 					<th>コンテスト</th>
-					<th>A問題</th>
-					<th>B問題</th>
-					<th>C問題</th>
-					<th>D問題</th>
 				</tr>
 			</thead>
 			<tbody>

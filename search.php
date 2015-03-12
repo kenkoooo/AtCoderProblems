@@ -2,20 +2,25 @@
 require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
-$abcArray = getProblemArray ( '/abc[0-9]*/i' );
-$arcArray = getProblemArray ( '/arc[0-9]*/i' );
-$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/' );
+$user_name = 'kenkoooo';
+
+$abcArray = getProblemArray ( '/abc[0-9]*/i', 2012 );
+$arcArray = getProblemArray ( '/arc[0-9]*/i', 2012 );
+$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/', 2013 );
 
 include 'html.inc';
-function getProblemArray($pattern) {
+function getProblemArray($pattern, $year) {
 	// 正規表現にマッチするコンテストネームの問題集を返す
+	// $year以降のコンテストを返す
 	$array = array ();
 	$sql = new SQLConnect ();
 	$pull = $sql->pullContests ();
 	
 	foreach ( $pull as $element ) {
 		$name = $element ["name"];
-		if (preg_match ( $pattern, $element ["name"] )) {
+		$end = $element ["end"];
+		
+		if (preg_match ( $pattern, $element ["name"] ) && strtotime ( $end ) > strtotime ( $year . "/01/01" )) {
 			array_push ( $array, $element );
 		}
 	}

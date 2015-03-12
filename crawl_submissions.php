@@ -90,5 +90,6 @@ foreach ( $contests as $c ) {
 	
 	// TODO
 	// 1コンテストずつクロールする
+	echo 'finished' . "\n";
 	return;
 }
