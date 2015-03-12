@@ -50,78 +50,11 @@
 		</div>
 	</nav>
 
-	<div class="container theme-showcase" role="main">
-		<div class="page-header">
-			<h1>Labels</h1>
-		</div>
-		<h1>
-			<span class="label label-default">Default</span> <span
-				class="label label-primary">Primary</span> <span
-				class="label label-success">Success</span> <span
-				class="label label-info">Info</span> <span
-				class="label label-warning">Warning</span> <span
-				class="label label-danger">Danger</span>
-		</h1>
-		<h2>
-			<span class="label label-default">Default</span> <span
-				class="label label-primary">Primary</span> <span
-				class="label label-success">Success</span> <span
-				class="label label-info">Info</span> <span
-				class="label label-warning">Warning</span> <span
-				class="label label-danger">Danger</span>
-		</h2>
-		<h3>
-			<span class="label label-default">Default</span> <span
-				class="label label-primary">Primary</span> <span
-				class="label label-success">Success</span> <span
-				class="label label-info">Info</span> <span
-				class="label label-warning">Warning</span> <span
-				class="label label-danger">Danger</span>
-		</h3>
-		<h4>
-			<span class="label label-default">Default</span> <span
-				class="label label-primary">Primary</span> <span
-				class="label label-success">Success</span> <span
-				class="label label-info">Info</span> <span
-				class="label label-warning">Warning</span> <span
-				class="label label-danger">Danger</span>
-		</h4>
-		<h5>
-			<span class="label label-default">Default</span> <span
-				class="label label-primary">Primary</span> <span
-				class="label label-success">Success</span> <span
-				class="label label-info">Info</span> <span
-				class="label label-warning">Warning</span> <span
-				class="label label-danger">Danger</span>
-		</h5>
-		<h6>
-			<span class="label label-default">Default</span> <span
-				class="label label-primary">Primary</span> <span
-				class="label label-success">Success</span> <span
-				class="label label-info">Info</span> <span
-				class="label label-warning">Warning</span> <span
-				class="label label-danger">Danger</span>
-		</h6>
-		<p>
-			<span class="label label-default">Default</span> <span
-				class="label label-primary">Primary</span> <span
-				class="label label-success">Success</span> <span
-				class="label label-info">Info</span> <span
-				class="label label-warning">Warning</span> <span
-				class="label label-danger">Danger</span>
-		</p>
-
-
-
-
-
-	</div>
-
 	<div class="container">
 		<div class="page-header">
 			<h1>AtCoder Beginner Contest</h1>
 		</div>
-		<table class="table  table-hover">
+		<table class="table  table-hover table-striped table-bordered">
 			<thead>
 				<tr>
 					<th>コンテスト</th>
@@ -141,7 +74,7 @@
 		<div class="page-header">
 			<h1>AtCoder Regular Contest</h1>
 		</div>
-		<table class="table  table-hover">
+		<table class="table  table-hover table-striped table-bordered">
 			<thead>
 				<tr>
 					<th>コンテスト</th>

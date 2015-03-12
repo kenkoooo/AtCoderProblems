@@ -59,6 +59,11 @@ function listupARC($array) {
 		$contest_name = $contest ["name"];
 		$contest_title = $contest ["title"];
 		
+		// コンテストタイトルを短くする
+		$contest_title = str_replace ( "AtCoder Regular Contest", "ARC", $contest_title );
+		$contest_title = str_replace ( "AtCoder Beginner Contest", "ABC", $contest_title );
+		$contest_title = str_replace ( "#", "", $contest_title );
+		
 		echo "<td><a href='http://$contest_name.contest.atcoder.jp/'>";
 		echo "$contest_title";
 		echo "</a></td>";
@@ -67,12 +72,15 @@ function listupARC($array) {
 			$contest_problem_name = $contest_problem ["name"];
 			$contest_problem_title = $contest_problem ["title"];
 			
-			echo "<td><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
+			echo "<td ";
+			
+			if ($contest_problem ["solved"]) {
+				echo "class='success'";
+			}
+			
+			echo "><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
 			echo $contest_problem_title;
 			echo "</a>";
-			if ($contest_problem ["solved"]) {
-				echo "<br><span class='label label-success'>AC</span>";
-			}
 			echo "</td>";
 		}
 		
