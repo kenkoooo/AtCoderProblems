@@ -121,7 +121,7 @@
 		<div class="page-header">
 			<h1>AtCoder Beginner Contest</h1>
 		</div>
-		<table class="table">
+		<table class="table  table-hover">
 			<thead>
 				<tr>
 					<th>コンテスト</th>
@@ -141,7 +141,7 @@
 		<div class="page-header">
 			<h1>AtCoder Regular Contest</h1>
 		</div>
-		<table class="table">
+		<table class="table  table-hover">
 			<thead>
 				<tr>
 					<th>コンテスト</th>
@@ -157,7 +157,7 @@
 		</table>
 	</div>
 
-
+	<!--  
 	<div class="container">
 		<div class="page-header">
 			<h1>全部</h1>
@@ -173,6 +173,8 @@
 			</tbody>
 		</table>
 	</div>
+	-->
+
 	<!-- /container -->
 
 

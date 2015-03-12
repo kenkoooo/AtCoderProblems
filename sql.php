@@ -99,4 +99,10 @@ class SQLConnect {
 		$query = "SELECT * FROM problems WHERE contest_id=$contest_id";
 		return $this->exectute ( $query );
 	}
+	
+	// 正解状況を確認する
+	public function getSolved($user) {
+		$query = "SELECT * FROM submissions where user='$user'";
+		return $this->exectute ( $query );
+	}
 }

@@ -15,6 +15,7 @@ foreach ( $contests as $c ) {
 	}
 	
 	if ($sql->isProblemExisting ( $contest_id )) {
+	echo $name . "\n";
 		// 既に問題が存在する時はスルー
 		continue;
 	}

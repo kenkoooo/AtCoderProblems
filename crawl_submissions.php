@@ -14,8 +14,7 @@ foreach ( $contests as $c ) {
 		continue;
 	}
 	echo $name . "\n";
-	// TODO
-	// 今回はARCとABCだけクロール
+	// // 今回はARCとABCだけクロール
 	if (! preg_match ( '/^(arc|abc)[0-9]*$/', $name )) {
 		continue;
 	}
@@ -87,9 +86,4 @@ foreach ( $contests as $c ) {
 			break;
 		}
 	}
-	
-	// TODO
-	// 1コンテストずつクロールする
-	echo 'finished' . "\n";
-	return;
 }
