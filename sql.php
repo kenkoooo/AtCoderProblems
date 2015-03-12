@@ -70,6 +70,30 @@ class SQLConnect {
 		}
 	}
 	
+	// サブミッションを追加してくれる
+	public function insertSubmission($id, $contest_name, $problem_name, $user, $time) {
+		$query = "SELECT * FROM submissions where id=$id";
+		$data = $this->exectute ( $query );
+		if (! $data->fetch ( PDO::FETCH_ASSOC )) {
+			// 存在しない時
+			$query = "INSERT INTO submissions (id,contest_name,problem_name,user,submission_time) VALUES " . "($id,'$contest_name','$problem_name','$user','$time')";
+			$this->exectute ( $query );
+		}
+	}
+	
+	// 直近のクロールを確認する。submissionsのidを返す
+	public function checkPastCrawl($contest_name) {
+		$query = "SELECT id FROM submissions where contest_name='$contest_name' ORDER BY id DESC";
+		$data = $this->exectute ( $query );
+		$row = $data->fetch ( PDO::FETCH_ASSOC );
+		if (! $row) {
+			// 存在しない時
+			return 0;
+		} else {
+			return $row ["id"];
+		}
+	}
+	
 	// コンテストIDから問題を取得する
 	public function getProblems($contest_id) {
 		$query = "SELECT * FROM problems WHERE contest_id=$contest_id";
