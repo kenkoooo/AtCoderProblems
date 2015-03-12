@@ -2,31 +2,39 @@
 require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
-$sql = new SQLConnect ();
-$pull = $sql->pullContests ();
+$abcArray = getProblemArray ( '/abc[0-9]*/i' );
+$arcArray = getProblemArray ( '/arc[0-9]*/i' );
+$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/' );
 
-$array = array ();
-foreach ( $pull as $element ) {
-	$name = $element ["name"];
-	if (preg_match ( '/(abc|arc)[0-9]*/i', $element ["name"] )) {
-		array_push ( $array, $element );
-	}
-}
-
-// 列nameでソートしたい
-foreach ( $array as $key => $row ) {
-	$n [$key] = $row ["name"];
-}
-array_multisort ( $n, SORT_ASC, $array );
-
-for($i = 0; $i < count ( $array ); $i ++) {
-	$problems = $sql->getProblems ( $array [$i] ["id"] );
-	$array [$i] ["problems"] = array ();
-	foreach ( $problems as $p ) {
-		array_push ( $array [$i] ["problems"], $p );
-	}
-}
 include 'html.inc';
+function getProblemArray($pattern) {
+	// 正規表現にマッチするコンテストネームの問題集を返す
+	$array = array ();
+	$sql = new SQLConnect ();
+	$pull = $sql->pullContests ();
+	
+	foreach ( $pull as $element ) {
+		$name = $element ["name"];
+		if (preg_match ( $pattern, $element ["name"] )) {
+			array_push ( $array, $element );
+		}
+	}
+	
+	// // 列nameでソートしたい
+	// foreach ( $array as $key => $row ) {
+	// $n [$key] = $row ["name"];
+	// }
+	// array_multisort ( $n, SORT_ASC, $array );
+	
+	for($i = 0; $i < count ( $array ); $i ++) {
+		$problems = $sql->getProblems ( $array [$i] ["id"] );
+		$array [$i] ["problems"] = array ();
+		foreach ( $problems as $p ) {
+			array_push ( $array [$i] ["problems"], $p );
+		}
+	}
+	return $array;
+}
 function listupARC($array) {
 	foreach ( $array as $contest ) {
 		echo '<tr>';

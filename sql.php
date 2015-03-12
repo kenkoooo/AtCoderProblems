@@ -49,7 +49,7 @@ class SQLConnect {
 	
 	// コンテスト一覧を引っ張ってくる
 	public function pullContests() {
-		$query = "SELECT * FROM contests WHERE exist=1";
+		$query = "SELECT * FROM contests WHERE exist=1 ORDER BY contests.end ASC";
 		return $this->exectute ( $query );
 	}
 	
