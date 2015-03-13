@@ -49,7 +49,7 @@
 						class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<span class="navbar-brand">AtCoder 非公式まとめサイト</span>
+				<span class="navbar-brand">AtCoder Problems</span>
 			</div>
 			<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
@@ -62,16 +62,31 @@
 			<!--/.nav-collapse -->
 		</div>
 	</nav>
-
 	<div class="container">
-		<form action="index.php" method="get" class="form-inline">
-			<div class="form-group"><?php
-			echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="name" value="' . $user_name . '">';
-			?>
 
-						</div>
-			<button type="submit" class="btn btn-default">Search</button>
-		</form>
+		<div class="page-header">
+			<h1>AtCoder Problems</h1>
+			<p class="lead">
+				<a href="http://atcoder.jp/">AtCoder</a>の非公式過去問集です。User
+				IDからACした問題を検索できます。
+			</p>
+			<form action="index.php" method="get" class="form-inline">
+				<div class="form-group">
+					<label>User ID:</label>
+<?php
+echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="name" value="' . $user_name . '">';
+?>
+			</div>
+				<div class="form-group">
+					<label>年代:</label>
+<?php
+echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="2012" name="year" value="' . $year . '">';
+?>
+			</div>
+				<button type="submit" class="btn btn-default">Search</button>
+			</form>
+
+		</div>
 	</div>
 
 	<div class="container">
@@ -118,19 +133,9 @@
 
 	<div class="container">
 		<div class="page-header">
-			<h1>その他のコンテスト（作りかけ）</h1>
-		</div>
-		<table
-			class="table table-hover table-striped table-bordered table-condensed">
-			<thead>
-				<tr>
-					<th>コンテスト</th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php listupARC($allArray);?>
-			</tbody>
-		</table>
+			<h1>その他のコンテスト</h1>
+		</div>	
+				<?php listupAnother($allArray);?>
 	</div>
 
 	<!-- /container -->

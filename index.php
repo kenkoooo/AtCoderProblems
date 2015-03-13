@@ -3,10 +3,16 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $user_name = $_GET ["name"];
+$user_name = mb_strtolower ( $user_name );
 
-$abcArray = getProblemArray ( '/abc[0-9]*/i', 2012, $user_name );
-$arcArray = getProblemArray ( '/arc[0-9]*/i', 2012, $user_name );
-$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/', 2013, $user_name );
+$year = $_GET ["year"];
+if (! isset ( $_GET ["year"] ) || $year <= 2011) {
+	$year = 2012;
+}
+
+$abcArray = getProblemArray ( '/abc[0-9]*/i', $year, $user_name );
+$arcArray = getProblemArray ( '/arc[0-9]*/i', $year, $user_name );
+$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/', $year, $user_name );
 
 include 'html.inc';
 function getProblemArray($pattern, $year, $user_name) {
@@ -86,6 +92,44 @@ function listupARC($array) {
 		}
 		
 		echo '</tr>';
+	}
+}
+function listupAnother($array) {
+	foreach ( $array as $contest ) {
+		if (! array_key_exists ( "problems", $contest )) {
+			// 問題が存在しなければスルー
+			continue;
+		}
+		
+		$contest_name = $contest ["name"];
+		$contest_title = $contest ["title"];
+		
+		echo '<table class="table table-hover table-striped table-bordered table-condensed">';
+		echo '<thead><tr>';
+		
+		echo date ( "Y-m-d", strtotime ( $contest ["end"] ) );
+		echo "<a href='http://$contest_name.contest.atcoder.jp/'>";
+		echo "$contest_title";
+		echo "</a>";
+		
+		echo '</tr></thead>';
+		echo '<tbody><tr>';
+		foreach ( $contest ["problems"] as $contest_problem ) {
+			$contest_problem_name = $contest_problem ["name"];
+			$contest_problem_title = $contest_problem ["title"];
+			
+			echo "<td ";
+			if ($contest_problem ["solved"]) {
+				echo "class='success'";
+			}
+			echo "><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
+			echo $contest_problem_title;
+			echo "</a>";
+			echo "</td>";
+		}
+		
+		echo '</tr></tbody>';
+		echo '</table>';
 	}
 }
 
