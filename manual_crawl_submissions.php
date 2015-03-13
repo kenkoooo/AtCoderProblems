@@ -4,6 +4,7 @@ require_once 'sql.php';
 
 $sql = new SQLConnect ();
 $name = 'abc001';
+$restart = 110;
 
 // TODO
 // 手動用スクリプト
@@ -25,7 +26,7 @@ foreach ( $html->find ( "div.pagination-centered" ) as $element ) {
 
 $html->clear ();
 
-for($i = 1; $i <= $max; $i ++) {
+for($i = $restart; $i <= $max; $i ++) {
 	$url = "http://" . $name . ".contest.atcoder.jp/submissions/all/" . $i . "?status=AC";
 	echo $url . "\n";
 	$html = file_get_html ( $url );

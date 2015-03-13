@@ -2,12 +2,6 @@
 require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
-$atcoder_mode = TRUE;
-$minutes = date ( "i", strtotime ( "now" ) );
-if ($minutes % 10 == 0) {
-	$atcoder_mode = FALSE;
-}
-
 $sql = new SQLConnect ();
 $contests = $sql->pullContests ();
 
@@ -21,9 +15,10 @@ foreach ( $contests as $c ) {
 	}
 	echo $name . "\n";
 	
-	if ($atcoder_mode && ! preg_match ( '/^(arc|abc)[0-9]*$/', $name )) {
-		continue;
-	}
+	// abcかarc以外ならスルー
+	// if (! preg_match ( '/^(arc|abc)[0-9]*$/', $name )) {
+	// continue;
+	// }
 	
 	$url = "http://" . $name . ".contest.atcoder.jp/submissions/all/1?status=AC";
 	$html = file_get_html ( $url );
@@ -93,7 +88,4 @@ foreach ( $contests as $c ) {
 		}
 	}
 	// コンテスト終わり
-	if (! $atcoder_mode) {
-		return;
-	}
 }
