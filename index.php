@@ -46,7 +46,7 @@ function getProblemArray($pattern, $year, $user_name) {
 		foreach ( $solved as $sol ) {
 			$contest_name = $sol ["contest_name"];
 			$problem_name = $sol ["problem_name"];
-			if (array_key_exists ( $contest_name, $array )) {
+			if (array_key_exists ( $contest_name, $array ) && array_key_exists ( "problems", $array [$contest_name] )) {
 				$array [$contest_name] ["problems"] [$problem_name] ["solved"] = TRUE;
 			}
 		}
