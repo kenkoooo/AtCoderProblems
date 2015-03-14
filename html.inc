@@ -68,7 +68,7 @@
 			<h1>AtCoder Problems</h1>
 			<p class="lead">
 				<a href="http://atcoder.jp/">AtCoder</a>の非公式過去問集です。User
-				IDからACした問題を検索できます。
+				IDからACした問題を検索できます。(更新処理は5分ごと)
 			</p>
 			<form action="index.php" method="get" class="form-inline">
 				<div class="form-group">
