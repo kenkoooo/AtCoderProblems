@@ -3,7 +3,7 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $sql = new SQLConnect ();
-$pull = $sql->pullContests ();
+$pull = $sql->pullAllContests ();
 foreach ( $pull as $element ) {
 	$name = $element ["name"];
 	$url = "http://" . $name . ".contest.atcoder.jp/";
