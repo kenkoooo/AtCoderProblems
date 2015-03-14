@@ -52,11 +52,6 @@ class SQLConnect {
 		$query = "SELECT * FROM contests WHERE exist=1 ORDER BY contests.end ASC";
 		return $this->exectute ( $query );
 	}
-	// 全コンテスト一覧を引っ張ってくる
-	public function pullAllContests() {
-		$query = "SELECT * FROM contests ORDER BY contests.end ASC";
-		return $this->exectute ( $query );
-	}
 	
 	// コンテスト検索
 	public function getContest($id) {

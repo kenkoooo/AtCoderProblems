@@ -3,13 +3,13 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $sql = new SQLConnect ();
-$name = 'abc001';
-$restart = 110;
+$name = 'indeednow-quala';
+$restart = 24;
 
 // TODO
 // 手動用スクリプト
 // 緊急用
-return;
+// return;
 
 $url = "http://" . $name . ".contest.atcoder.jp/submissions/all/1?status=AC";
 $html = file_get_html ( $url );

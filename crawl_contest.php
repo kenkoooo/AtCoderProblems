@@ -3,10 +3,11 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $sql = new SQLConnect ();
-$pull = $sql->pullAllContests ();
+$pull = $sql->pullContests ();
 foreach ( $pull as $element ) {
 	$name = $element ["name"];
 	$url = "http://" . $name . ".contest.atcoder.jp/";
+	print $url . "\n";
 	$html = file_get_html ( $url );
 	
 	$start = $html->find ( 'time#contest-start-time', 0 )->plaintext;
@@ -19,3 +20,4 @@ foreach ( $pull as $element ) {
 		$sql->updateContest ( $name, $title, 1, date ( "YmdHis", strtotime ( $start ) ), date ( "YmdHis", strtotime ( $end ) ) );
 	}
 }
+print "finish" . "\n";
