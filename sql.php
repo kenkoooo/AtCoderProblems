@@ -1,4 +1,5 @@
 <?php
+require_once 'sql_config.php';
 class SQLConnect {
 	private function exectute($sql) {
 		$dsn = 'mysql:dbname=LAA0348733-atcoder;host=mysql022.phy.lolipop.lan';
@@ -9,7 +10,7 @@ class SQLConnect {
 			$options = array (
 					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' 
 			);
-			$dbh = new PDO ( $dsn, $user, $password, $options );
+			$dbh = new PDO ( $dsn, SQLUSER, SQLPASSWORD, $options );
 			
 			$stmt = $dbh->query ( $sql );
 			
