@@ -3,8 +3,8 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $sql = new SQLConnect ();
-$name = 'indeednow-quala';
-$restart = 24;
+$name = 'indeednow-qualb';
+$restart = 38;
 
 // TODO
 // 手動用スクリプト
