@@ -6,6 +6,11 @@ $sql = new SQLConnect ();
 $pull = $sql->pullContests ();
 foreach ( $pull as $element ) {
 	$name = $element ["name"];
+	$start = strtotime ( $element ["start"] );
+	if ($start > 0) {
+		continue;
+	}
+	
 	$url = "http://" . $name . ".contest.atcoder.jp/";
 	print $url . "\n";
 	$html = file_get_html ( $url );
