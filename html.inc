@@ -83,6 +83,12 @@ echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholde
 echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="2012" name="year" value="' . $year . '">';
 ?>
 			</div>
+				<div class="form-group">
+					<label>ライバル:</label>
+<?php
+echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="chokudai" name="rivals" value="' . $rivals . '">';
+?>
+			</div>
 				<button type="submit" class="btn btn-default">Search</button>
 			</form>
 
