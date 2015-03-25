@@ -156,9 +156,16 @@ function listupAnother($array) {
 				echo "class='danger'";
 			}
 			echo "><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
-			// 30で丸める
-			echo mb_strimwidth ( $contest_problem_title, 0, 30, "...", "UTF-8" );
+			
 			// echo $contest_problem_title;
+			if (strstr ( $contest_name, 'joisc2012' )) {
+				// joisc2012は多すぎる
+				echo mb_strimwidth ( $contest_problem_title, 0, 10, "...", "UTF-8" );
+			} else {
+				// 30で丸める
+				echo mb_strimwidth ( $contest_problem_title, 0, 30, "...", "UTF-8" );
+			}
+			
 			echo "</a>";
 			echo "</td>";
 		}

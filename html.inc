@@ -86,7 +86,7 @@ echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholde
 				<div class="form-group">
 					<label>ライバル:</label>
 <?php
-echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="chokudai" name="rivals" value="' . $rivals . '">';
+echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="rivals" value="' . $rivals . '">';
 ?>
 			</div>
 				<button type="submit" class="btn btn-default">Search</button>
