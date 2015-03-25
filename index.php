@@ -66,6 +66,9 @@ function getProblemArray($pattern, $year, $user_name, $rivals_array) {
 		}
 		
 		foreach ( $rivals_array as $rival_name ) {
+			if ($rival_name == "") {
+				continue;
+			}
 			$rival_solved = $sql->getSolved ( $rival_name );
 			foreach ( $rival_solved as $sol ) {
 				$contest_name = $sol ["contest_name"];
