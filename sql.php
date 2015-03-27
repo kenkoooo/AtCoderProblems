@@ -3,8 +3,6 @@ require_once 'sql_config.php';
 class SQLConnect {
 	private function exectute($sql) {
 		$dsn = 'mysql:dbname=LAA0348733-atcoder;host=mysql022.phy.lolipop.lan';
-		$user = 'LAA0348733';
-		$password = 'escherichia';
 		
 		try {
 			$options = array (
