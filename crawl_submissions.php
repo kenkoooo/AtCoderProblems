@@ -20,7 +20,7 @@ foreach ( $contests as $c ) {
 	// continue;
 	// }
 	
-	$url = "http://" . $name . ".contest.atcoder.jp/submissions/all/1?status=AC";
+	$url = "https://" . $name . ".contest.atcoder.jp/submissions/all/1?status=AC";
 	$html = file_get_html ( $url );
 	
 	$max = 0;
@@ -49,7 +49,7 @@ foreach ( $contests as $c ) {
 	}
 	
 	for($i = 1; $i <= $max; $i ++) {
-		$url = "http://" . $name . ".contest.atcoder.jp/submissions/all/" . $i . "?status=AC";
+		$url = "https://" . $name . ".contest.atcoder.jp/submissions/all/" . $i . "?status=AC";
 		echo $url . "\n";
 		$html = file_get_html ( $url );
 		

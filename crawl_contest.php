@@ -11,7 +11,7 @@ foreach ( $pull as $element ) {
 		continue;
 	}
 	
-	$url = "http://" . $name . ".contest.atcoder.jp/";
+	$url = "https://" . $name . ".contest.atcoder.jp/";
 	print $url . "\n";
 	$html = file_get_html ( $url );
 	

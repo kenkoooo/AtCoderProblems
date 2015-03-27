@@ -20,7 +20,7 @@ foreach ( $contests as $c ) {
 		continue;
 	}
 	
-	$url = "http://" . $name . ".contest.atcoder.jp/assignments";
+	$url = "https://" . $name . ".contest.atcoder.jp/assignments";
 	$html = file_get_html ( $url );
 	
 	$title = "";
