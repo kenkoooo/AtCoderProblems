@@ -13,6 +13,11 @@ foreach ( $contests as $c ) {
 		// コンテストが終わっていない時はスルー
 		continue;
 	}
+	$mode = date ( "i" ) % 5;
+	if ($mode * 40 > $contest_id || ($mode + 1) * 40 < $contest_id) {
+		continue;
+	}
+	
 	echo $name . "\n";
 	
 	// abcかarc以外ならスルー

@@ -3,8 +3,8 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $sql = new SQLConnect ();
-$name = 'indeednow-qualb';
-$restart = 38;
+$name = 'utpc2014';
+$restart = 1;
 
 // TODO
 // 手動用スクリプト
