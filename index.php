@@ -190,7 +190,7 @@ function listupAnother($array) {
  * リストモード
  */
 function listMode($array) {
-	echo '<table class="table table-hover table-striped table-bordered table-condensed">';
+	echo '<table id="example" class="table table-hover table-striped table-bordered table-condensed">';
 	echo '<thead><tr>';
 	echo '<th>問題名</th>';
 	echo '<th>コンテスト</th>';
@@ -220,24 +220,29 @@ function listMode($array) {
 			}
 			echo "><td><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
 			
-			echo $contest_problem_title;
+			// echo $contest_problem_title;
 			// if (strstr ( $contest_name, 'joisc2012' )) {
 			// // joisc2012は多すぎる
 			// echo mb_strimwidth ( $contest_problem_title, 0, 10, "...", "UTF-8" );
 			// } else {
 			// // 30で丸める
-			// echo mb_strimwidth ( $contest_problem_title, 0, 30, "...", "UTF-8" );
+			echo mb_strimwidth ( $contest_problem_title, 0, 40, "...", "UTF-8" );
 			// }
 			
 			echo "</a>";
 			echo "</td><td>";
-			echo " <a href='http://$contest_name.contest.atcoder.jp/'>";
+			echo "<a href='http://$contest_name.contest.atcoder.jp/'>";
 			echo "$contest_title";
 			echo "</a>";
 			echo "</td><td>";
 			echo date ( "Y-m-d", strtotime ( $contest ["end"] ) );
 			echo "</td><td>";
-			echo $contest_problem ["solvers"];
+			echo "<a href='http://$contest_name.contest.atcoder.jp/submissions/all?task_screen_name=$contest_problem_name&status=AC'>";
+			// echo $contest_problem ["solvers"];
+			// 4桁まで0埋め
+			echo str_pad ( $contest_problem ["solvers"], 4, "0", STR_PAD_LEFT );
+			
+			echo "</a>";
 			echo "</td>";
 			
 			echo "</tr>";

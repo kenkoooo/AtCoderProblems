@@ -14,6 +14,7 @@
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <!-- Bootstrap theme -->
 <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+<link href="css/dataTables.bootstrap.css" rel="stylesheet">
 
 <!-- Custom styles for this template -->
 <link href="theme.css" rel="stylesheet">
@@ -203,5 +204,20 @@ echo '>';
 	<script
 		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
+	<script src="js/dataTables.bootstrap.js"></script>
+	<script src="js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript">
+
+	$(document).ready(function() {
+	    $('#example').dataTable({
+	        "bPaginate": false,
+	        "bLengthChange": false,
+	        "bFilter": false,
+	        "bInfo": false,
+	        "bAutoWidth": false,
+			"aaSorting": [[ 2, "asc" ]]
+	      });
+	} );
+	</script>
 </body>
 </html>
