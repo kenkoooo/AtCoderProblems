@@ -3,7 +3,7 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $sql = new SQLConnect ();
-$name = 'utpc2014';
+$name = 'indeednow-finalb-open';
 $restart = 1;
 
 // TODO

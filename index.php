@@ -10,17 +10,26 @@ if (! isset ( $_GET ["year"] ) || $year <= 2011) {
 	$year = 2012;
 }
 
+$list_mode = $_GET ["list"];
+if (! isset ( $_GET ["list"] )) {
+	$list_mode = FALSE;
+}
+
 $rivals = "";
 if (isset ( $_GET ["rivals"] )) {
 	$rivals = $_GET ["rivals"];
 	$rivals_array = explode ( ',', $rivals );
 }
 
-$abcArray = getProblemArray ( '/abc[0-9]*/i', $year, $user_name, $rivals_array );
-$arcArray = getProblemArray ( '/arc[0-9]*/i', $year, $user_name, $rivals_array );
-$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/', $year, $user_name, $rivals_array );
-
-include 'html.inc';
+if ($list_mode) {
+	$problemArray = getProblemArray ( '/^.*$/', $year, $user_name, $rivals_array );
+	include 'view/list.inc';
+} else {
+	$abcArray = getProblemArray ( '/abc[0-9]*/i', $year, $user_name, $rivals_array );
+	$arcArray = getProblemArray ( '/arc[0-9]*/i', $year, $user_name, $rivals_array );
+	$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/', $year, $user_name, $rivals_array );
+	include 'view/html.inc';
+}
 function getProblemArray($pattern, $year, $user_name, $rivals_array) {
 	// 正規表現にマッチするコンテストネームの問題集を返す
 	// $year以降のコンテストを返す
