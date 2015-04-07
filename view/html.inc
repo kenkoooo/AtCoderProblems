@@ -215,7 +215,7 @@ echo '>';
 	        "bFilter": false,
 	        "bInfo": false,
 	        "bAutoWidth": false,
-			"aaSorting": [[ 2, "asc" ]]
+			"aaSorting": [[ 3, "asc" ]]
 	      });
 	} );
 	</script>

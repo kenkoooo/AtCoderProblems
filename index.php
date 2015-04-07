@@ -194,6 +194,7 @@ function listMode($array) {
 	echo '<thead><tr>';
 	echo '<th>問題名</th>';
 	echo '<th>コンテスト</th>';
+	echo '<th>状態</th>';
 	echo '<th>日付</th>';
 	echo '<th>解いた人数</th>';
 	echo '</tr></thead>';
@@ -235,14 +236,18 @@ function listMode($array) {
 			echo "$contest_title";
 			echo "</a>";
 			echo "</td><td>";
+			if ($contest_problem ["solved"]) {
+				echo '<div class="text-center"><span class="label label-success">AC</span></div>';
+			} 
+			echo "</td><td>";
 			echo date ( "Y-m-d", strtotime ( $contest ["end"] ) );
 			echo "</td><td>";
-			echo "<a href='http://$contest_name.contest.atcoder.jp/submissions/all?task_screen_name=$contest_problem_name&status=AC'>";
+			echo "<div class='text-right'><a href='http://$contest_name.contest.atcoder.jp/submissions/all?task_screen_name=$contest_problem_name&status=AC'>";
 			// echo $contest_problem ["solvers"];
 			// 4桁まで0埋め
 			echo str_pad ( $contest_problem ["solvers"], 4, "0", STR_PAD_LEFT );
 			
-			echo "</a>";
+			echo "</a></div>";
 			echo "</td>";
 			
 			echo "</tr>";
