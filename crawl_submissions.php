@@ -5,6 +5,16 @@ require_once 'sql.php';
 $sql = new SQLConnect ();
 $contests = $sql->pullContests ();
 
+$mode = date ( "i" ) % 5;
+if ($mode == 4) {
+	// 正解者数を更新
+	$pull = $sql->getNumSolvers ();
+	foreach ( $pull as $solvers ) {
+		echo $solvers ["solvers"] . " " . $solvers ["problem_name"] . "\n";
+		$sql->updateSolvers ( $solvers ["solvers"], $solvers ["problem_name"] );
+	}
+}
+
 foreach ( $contests as $c ) {
 	$contest_id = $c ["id"];
 	$name = $c ["name"];
@@ -13,7 +23,6 @@ foreach ( $contests as $c ) {
 		// コンテストが終わっていない時はスルー
 		continue;
 	}
-	$mode = date ( "i" ) % 5;
 	if ($mode * 40 > $contest_id || ($mode + 1) * 40 < $contest_id) {
 		continue;
 	}

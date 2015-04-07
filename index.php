@@ -23,13 +23,12 @@ if (isset ( $_GET ["rivals"] )) {
 
 if ($list_mode) {
 	$problemArray = getProblemArray ( '/^.*$/', $year, $user_name, $rivals_array );
-	include 'view/list.inc';
 } else {
 	$abcArray = getProblemArray ( '/abc[0-9]*/i', $year, $user_name, $rivals_array );
 	$arcArray = getProblemArray ( '/arc[0-9]*/i', $year, $user_name, $rivals_array );
 	$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/', $year, $user_name, $rivals_array );
-	include 'view/html.inc';
 }
+include 'view/html.inc';
 function getProblemArray($pattern, $year, $user_name, $rivals_array) {
 	// 正規表現にマッチするコンテストネームの問題集を返す
 	// $year以降のコンテストを返す
@@ -185,6 +184,67 @@ function listupAnother($array) {
 		echo '</tr></tbody>';
 		echo '</table>';
 	}
+}
+
+/*
+ * リストモード
+ */
+function listMode($array) {
+	echo '<table class="table table-hover table-striped table-bordered table-condensed">';
+	echo '<thead><tr>';
+	echo '<th>問題名</th>';
+	echo '<th>コンテスト</th>';
+	echo '<th>日付</th>';
+	echo '<th>解いた人数</th>';
+	echo '</tr></thead>';
+	echo '<tbody>';
+	
+	foreach ( $array as $contest ) {
+		if (! array_key_exists ( "problems", $contest )) {
+			// 問題が存在しなければスルー
+			continue;
+		}
+		
+		$contest_name = $contest ["name"];
+		$contest_title = $contest ["title"];
+		
+		foreach ( $contest ["problems"] as $contest_problem ) {
+			$contest_problem_name = $contest_problem ["name"];
+			$contest_problem_title = $contest_problem ["title"];
+			
+			echo "<tr ";
+			if ($contest_problem ["solved"]) {
+				echo "class='success'";
+			} elseif ($contest_problem ["rival_solved"]) {
+				echo "class='danger'";
+			}
+			echo "><td><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
+			
+			echo $contest_problem_title;
+			// if (strstr ( $contest_name, 'joisc2012' )) {
+			// // joisc2012は多すぎる
+			// echo mb_strimwidth ( $contest_problem_title, 0, 10, "...", "UTF-8" );
+			// } else {
+			// // 30で丸める
+			// echo mb_strimwidth ( $contest_problem_title, 0, 30, "...", "UTF-8" );
+			// }
+			
+			echo "</a>";
+			echo "</td><td>";
+			echo " <a href='http://$contest_name.contest.atcoder.jp/'>";
+			echo "$contest_title";
+			echo "</a>";
+			echo "</td><td>";
+			echo date ( "Y-m-d", strtotime ( $contest ["end"] ) );
+			echo "</td><td>";
+			echo $contest_problem ["solvers"];
+			echo "</td>";
+			
+			echo "</tr>";
+		}
+	}
+	echo '</tbody>';
+	echo '</table>';
 }
 
 

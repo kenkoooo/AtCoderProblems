@@ -85,9 +85,25 @@ echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholde
 			</div>
 				<div class="form-group">
 					<label>ライバル:</label>
-<?php
-echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="rivals" value="' . $rivals . '">';
-?>
+	<?php
+	echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="rivals" value="' . $rivals . '">';
+	?>
+			</div>
+				<div class="form-group">
+	<?php
+	echo '<input type="radio" name="list" value="0" ';
+	if (! $list_mode) {
+		echo 'checked';
+	}
+	echo '/>';
+	echo 'カテゴリ';
+	echo '<input type="radio" name="list" value="1" ';
+	if ($list_mode) {
+		echo 'checked';
+	}
+	echo '/>';
+	echo 'リスト';
+	?>
 			</div>
 				<button type="submit" class="btn btn-default">Search</button>
 			</form>
@@ -95,54 +111,88 @@ echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholde
 		</div>
 	</div>
 
-	<div class="container">
+	<!-- div class="container" style="visibility: hidden; height: 0;"-->
+	<?php
+	echo '<div class="container" ';
+	if ($list_mode) {
+		echo ' style="visibility: hidden; height: 0;"';
+	}
+	echo '>';
+	?>
 		<div class="page-header">
-			<h1>AtCoder Beginner Contest</h1>
-		</div>
-		<table
-			class="table table-hover table-striped table-bordered table-condensed">
-			<thead>
-				<tr>
-					<th>コンテスト</th>
-					<th>A問題</th>
-					<th>B問題</th>
-					<th>C問題</th>
-					<th>D問題</th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php listupARC($abcArray);?>
+		<h1>AtCoder Beginner Contest</h1>
+	</div>
+	<table
+		class="table table-hover table-striped table-bordered table-condensed">
+		<thead>
+			<tr>
+				<th>コンテスト</th>
+				<th>A問題</th>
+				<th>B問題</th>
+				<th>C問題</th>
+				<th>D問題</th>
+			</tr>
+		</thead>
+		<tbody>
+				<?php if(!$list_mode){listupARC ( $abcArray ); }?>
 			</tbody>
-		</table>
+	</table>
 	</div>
 
-	<div class="container">
-		<div class="page-header">
-			<h1>AtCoder Regular Contest</h1>
-		</div>
-		<table
-			class="table  table-hover table-striped table-bordered  table-condensed">
-			<thead>
-				<tr>
-					<th>コンテスト</th>
-					<th>A問題</th>
-					<th>B問題</th>
-					<th>C問題</th>
-					<th>D問題</th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php listupARC($arcArray);?>
+<?php
+echo '<div class="container" ';
+if ($list_mode) {
+	echo ' style="visibility: hidden; height: 0;"';
+}
+echo '>';
+?>		
+<div class="page-header">
+		<h1>AtCoder Regular Contest</h1>
+	</div>
+	<table
+		class="table  table-hover table-striped table-bordered  table-condensed">
+		<thead>
+			<tr>
+				<th>コンテスト</th>
+				<th>A問題</th>
+				<th>B問題</th>
+				<th>C問題</th>
+				<th>D問題</th>
+			</tr>
+		</thead>
+		<tbody>
+				<?php if(!$list_mode){listupARC($arcArray);}?>
 			</tbody>
-		</table>
+	</table>
 	</div>
 
-	<div class="container">
+	<?php
+	echo '<div class="container" ';
+	if ($list_mode) {
+		echo ' style="visibility: hidden; height: 0;"';
+	}
+	echo '>';
+	?>
+	
 		<div class="page-header">
-			<h1>その他のコンテスト</h1>
-		</div>	
-				<?php listupAnother($allArray);?>
+		<h1>その他のコンテスト</h1>
+	</div>	
+				<?php if(!$list_mode){listupAnother($allArray);}?>
 	</div>
+
+	
+		<?php
+		echo '<div class="container" ';
+		if (! $list_mode) {
+			echo ' style="visibility: hidden; height: 0;"';
+		}
+		echo '>';
+		?>
+<!-- list mode -->	
+				<?php if($list_mode){listMode($problemArray);}?>
+	</div>
+
+
 
 	<!-- /container -->
 

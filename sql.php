@@ -110,4 +110,14 @@ class SQLConnect {
 		$query = "SELECT * FROM submissions where user='$user'";
 		return $this->exectute ( $query );
 	}
+	
+	// 正解者数を返す
+	public function getNumSolvers() {
+		$query = "SELECT count( DISTINCT (user) ) as solvers, problem_name FROM submissions GROUP BY problem_name";
+		return $this->exectute ( $query );
+	}
+	public function updateSolvers($solvers, $problem_name) {
+		$query = "UPDATE problems SET solvers = $solvers WHERE name ='$problem_name'";
+		$this->exectute ( $query );
+	}
 }
