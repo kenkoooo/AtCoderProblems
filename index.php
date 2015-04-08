@@ -18,7 +18,7 @@ if (! isset ( $_GET ["list"] )) {
 $rivals = "";
 if (isset ( $_GET ["rivals"] )) {
 	$rivals = $_GET ["rivals"];
-	$rivals_array = explode ( ',', $rivals );
+	$rivals_array = array_unique ( explode ( ',', $rivals ) );
 }
 
 if ($list_mode) {
@@ -238,7 +238,12 @@ function listMode($array) {
 			echo "</td><td>";
 			if ($contest_problem ["solved"]) {
 				echo '<div class="text-center"><span class="label label-success">AC</span></div>';
-			} 
+			} elseif ($contest_problem ["rival_solved"]) {
+				$rivals_array = array_unique ( explode ( ',', $contest_problem ["rivals"] ) );
+				foreach ( $rivals_array as $rival_name ) {
+					echo '<div class="text-center"><span class="label label-danger">' . $rival_name . '</span></div>';
+				}
+			}
 			echo "</td><td>";
 			echo date ( "Y-m-d", strtotime ( $contest ["end"] ) );
 			echo "</td><td>";
