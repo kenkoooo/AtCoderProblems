@@ -55,7 +55,7 @@
 			<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="./">Home</a></li>
-					<li><a href="http://atcoder.jp/">AtCoder</a></li>
+					<li><a href="http://atcoder.jp/">AtCoder (公式)</a></li>
 					<li><a href="http://ichyo.jp/aoj-icpc/">AOJ-ICPC</a></li>
 					<li><a href="http://twitter.com/kenkoooo">お問い合わせ</a></li>
 				</ul>
