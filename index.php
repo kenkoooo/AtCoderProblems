@@ -8,16 +8,6 @@ if (! isset ( $_GET ["name"] )) {
 	$user_name = "";
 }
 
-$year = $_GET ["year"];
-if (! isset ( $_GET ["year"] ) || $year <= 2011) {
-	$year = 2012;
-}
-
-$list_mode = $_GET ["list"];
-if (! isset ( $_GET ["list"] )) {
-	$list_mode = 1;
-}
-
 $rivals = "";
 if (isset ( $_GET ["rivals"] )) {
 	$rivals = $_GET ["rivals"];
@@ -26,18 +16,11 @@ if (isset ( $_GET ["rivals"] )) {
 // ログ更新
 $sql = new SQLConnect ();
 $sql->insertLog ( $user_name, str_replace ( ',', ' ', $rivals ) );
-
-if ($list_mode) {
-	$problemArray = getProblemArray ( '/^.*$/', $year, $user_name, $rivals );
-} else {
-	$abcArray = getProblemArray ( '/abc[0-9]*/i', $year, $user_name, $rivals );
-	$arcArray = getProblemArray ( '/arc[0-9]*/i', $year, $user_name, $rivals );
-	$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/', $year, $user_name, $rivals );
-}
+$problemArray = getProblemArray ( $user_name, $rivals );
 include 'view/html.inc';
 
 // パターンに対応したコンテストの問題を返す
-function getProblemArray($pattern, $year, $user_name, $rivals) {
+function getProblemArray($user_name, $rivals) {
 	// 正規表現にマッチするコンテストネームの問題集を返す
 	// $year以降のコンテストを返す
 	$array = array ();
@@ -49,10 +32,7 @@ function getProblemArray($pattern, $year, $user_name, $rivals) {
 	foreach ( $pull as $element ) {
 		$name = $element ["name"];
 		$end = $element ["end"];
-		
-		if (preg_match ( $pattern, $name ) && strtotime ( $end ) > strtotime ( $year . "/01/01" )) {
-			$array [$name] = $element;
-		}
+		$array [$name] = $element;
 	}
 	
 	// 問題情報を取得
