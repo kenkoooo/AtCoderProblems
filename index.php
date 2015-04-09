@@ -4,6 +4,9 @@ require_once 'sql.php';
 
 $user_name = $_GET ["name"];
 $user_name = mb_strtolower ( $user_name );
+if (! isset ( $_GET ["name"] )) {
+	$user_name = "";
+}
 
 $year = $_GET ["year"];
 if (! isset ( $_GET ["year"] ) || $year <= 2011) {
@@ -12,29 +15,35 @@ if (! isset ( $_GET ["year"] ) || $year <= 2011) {
 
 $list_mode = $_GET ["list"];
 if (! isset ( $_GET ["list"] )) {
-	$list_mode = FALSE;
+	$list_mode = 1;
 }
 
 $rivals = "";
 if (isset ( $_GET ["rivals"] )) {
 	$rivals = $_GET ["rivals"];
-	$rivals_array = array_unique ( explode ( ',', $rivals ) );
 }
 
+// ログ更新
+$sql = new SQLConnect ();
+$sql->insertLog ( $user_name, $list_mode );
+
 if ($list_mode) {
-	$problemArray = getProblemArray ( '/^.*$/', $year, $user_name, $rivals_array );
+	$problemArray = getProblemArray ( '/^.*$/', $year, $user_name, $rivals );
 } else {
-	$abcArray = getProblemArray ( '/abc[0-9]*/i', $year, $user_name, $rivals_array );
-	$arcArray = getProblemArray ( '/arc[0-9]*/i', $year, $user_name, $rivals_array );
-	$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/', $year, $user_name, $rivals_array );
+	$abcArray = getProblemArray ( '/abc[0-9]*/i', $year, $user_name, $rivals );
+	$arcArray = getProblemArray ( '/arc[0-9]*/i', $year, $user_name, $rivals );
+	$allArray = getProblemArray ( '/^(?!.*(abc|arc)).*$/', $year, $user_name, $rivals );
 }
 include 'view/html.inc';
-function getProblemArray($pattern, $year, $user_name, $rivals_array) {
+
+// パターンに対応したコンテストの問題を返す
+function getProblemArray($pattern, $year, $user_name, $rivals) {
 	// 正規表現にマッチするコンテストネームの問題集を返す
 	// $year以降のコンテストを返す
 	$array = array ();
 	$sql = new SQLConnect ();
 	$pull = $sql->pullContests ();
+	$rivals_array = array_unique ( explode ( ',', $rivals ) );
 	
 	// コンテスト情報を取得
 	foreach ( $pull as $element ) {
@@ -48,7 +57,9 @@ function getProblemArray($pattern, $year, $user_name, $rivals_array) {
 	
 	// 問題情報を取得
 	foreach ( $array as $key => $contest ) {
+		// TODO SQL叩き過ぎ問題
 		$problems = $sql->getProblems ( $contest ["id"] );
+		
 		foreach ( $problems as $p ) {
 			$problem_name = $p ["name"];
 			$array [$key] ["problems"] [$problem_name] = $p;
@@ -59,39 +70,46 @@ function getProblemArray($pattern, $year, $user_name, $rivals_array) {
 	}
 	
 	// 自分のAC情報を取得
-	if (array_key_exists ( "name", $_GET ) && $user_name != "") {
-		$solved = $sql->getSolved ( $user_name );
-		foreach ( $solved as $sol ) {
-			$contest_name = $sol ["contest_name"];
-			$problem_name = $sol ["problem_name"];
-			if (array_key_exists ( $contest_name, $array ) && array_key_exists ( "problems", $array [$contest_name] )) {
-				$array [$contest_name] ["problems"] [$problem_name] ["solved"] = TRUE;
-			}
+	if ($user_name === "") {
+		return $array;
+	}
+	
+	$my_solved = $sql->getSolved ( $user_name );
+	foreach ( $my_solved as $solved_contest ) {
+		$contest_name = $solved_contest ["contest_name"];
+		$problem_name = $solved_contest ["problem_name"];
+		if (array_key_exists ( $contest_name, $array ) && array_key_exists ( "problems", $array [$contest_name] )) {
+			$array [$contest_name] ["problems"] [$problem_name] ["solved"] = TRUE;
+		}
+	}
+	
+	if (count ( $rivals_array ) == 0) {
+		return $array;
+	}
+	
+	foreach ( $rivals_array as $rival_name ) {
+		if ($rival_name === "") {
+			continue;
 		}
 		
-		if (count ( $rivals_array ) == 0) {
-			return $array;
-		}
-		
-		foreach ( $rivals_array as $rival_name ) {
-			if ($rival_name == "") {
+		$rival_solved = $sql->getSolved ( $rival_name );
+		foreach ( $rival_solved as $rival_contest ) {
+			$contest_name = $rival_contest ["contest_name"];
+			$problem_name = $rival_contest ["problem_name"];
+			
+			if (! array_key_exists ( $contest_name, $array ) || ! array_key_exists ( "problems", $array [$contest_name] )) {
 				continue;
 			}
-			$rival_solved = $sql->getSolved ( $rival_name );
-			foreach ( $rival_solved as $sol ) {
-				$contest_name = $sol ["contest_name"];
-				$problem_name = $sol ["problem_name"];
-				if (array_key_exists ( $contest_name, $array ) && array_key_exists ( "problems", $array [$contest_name] )) {
-					$array [$contest_name] ["problems"] [$problem_name] ["rival_solved"] = TRUE;
-					$tmp = $array [$contest_name] ["problems"] [$problem_name] ["rivals"];
-					$array [$contest_name] ["problems"] [$problem_name] ["rivals"] = $tmp . "," . $rival_name;
-				}
-			}
+			
+			$array [$contest_name] ["problems"] [$problem_name] ["rival_solved"] = TRUE;
+			$tmp = $array [$contest_name] ["problems"] [$problem_name] ["rivals"];
+			$array [$contest_name] ["problems"] [$problem_name] ["rivals"] = $tmp . "," . $rival_name;
 		}
 	}
 	
 	return $array;
 }
+
 // 表示する関数
 function listupARC($array) {
 	foreach ( $array as $contest ) {
@@ -219,23 +237,17 @@ function listMode($array) {
 			} elseif ($contest_problem ["rival_solved"]) {
 				echo "class='danger'";
 			}
-			echo "><td><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
+			echo ">";
 			
-			// echo $contest_problem_title;
-			// if (strstr ( $contest_name, 'joisc2012' )) {
-			// // joisc2012は多すぎる
-			// echo mb_strimwidth ( $contest_problem_title, 0, 10, "...", "UTF-8" );
-			// } else {
-			// // 30で丸める
+			echo "<td><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
 			echo mb_strimwidth ( $contest_problem_title, 0, 40, "...", "UTF-8" );
-			// }
+			echo "</a></td>";
 			
-			echo "</a>";
-			echo "</td><td>";
-			echo "<a href='http://$contest_name.contest.atcoder.jp/'>";
+			echo "<td><a href='http://$contest_name.contest.atcoder.jp/'>";
 			echo "$contest_title";
-			echo "</a>";
-			echo "</td><td>";
+			echo "</a></td>";
+			
+			echo "<td>";
 			if ($contest_problem ["solved"]) {
 				echo '<div class="text-center"><span class="label label-success">AC</span></div>';
 			} elseif ($contest_problem ["rival_solved"]) {
@@ -244,16 +256,18 @@ function listMode($array) {
 					echo '<div class="text-center"><span class="label label-danger">' . $rival_name . '</span></div>';
 				}
 			}
-			echo "</td><td>";
+			echo "</td>";
+			
+			echo "<td>";
 			echo date ( "Y-m-d", strtotime ( $contest ["end"] ) );
-			echo "</td><td>";
+			echo "</td>";
+			
+			echo "<td>";
 			echo "<div class='text-right'><a href='http://$contest_name.contest.atcoder.jp/submissions/all?task_screen_name=$contest_problem_name&status=AC'>";
 			// echo $contest_problem ["solvers"];
 			// 4桁まで0埋め
 			echo str_pad ( $contest_problem ["solvers"], 4, "0", STR_PAD_LEFT );
-			
-			echo "</a></div>";
-			echo "</td>";
+			echo "</a></div></td>";
 			
 			echo "</tr>";
 		}

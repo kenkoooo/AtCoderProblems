@@ -212,7 +212,7 @@ echo '>';
 	    $('#example').dataTable({
 	        "bPaginate": false,
 	        "bLengthChange": false,
-	        "bFilter": false,
+	        "bFilter": true,
 	        "bInfo": false,
 	        "bAutoWidth": false,
 			"aaSorting": [[ 3, "asc" ]]

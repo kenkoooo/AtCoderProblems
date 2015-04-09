@@ -116,8 +116,16 @@ class SQLConnect {
 		$query = "SELECT count( DISTINCT (user) ) as solvers, problem_name FROM submissions GROUP BY problem_name";
 		return $this->exectute ( $query );
 	}
+	
+	// 正解者数を更新する
 	public function updateSolvers($solvers, $problem_name) {
 		$query = "UPDATE problems SET solvers = $solvers WHERE name ='$problem_name'";
+		$this->exectute ( $query );
+	}
+	
+	// ログを更新する
+	public function insertLog($user_name, $list_mode) {
+		$query = "INSERT INTO log(user, mode) VALUES ('$user_name',$list_mode)";
 		$this->exectute ( $query );
 	}
 }
