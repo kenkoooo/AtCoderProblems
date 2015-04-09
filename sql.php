@@ -124,8 +124,8 @@ class SQLConnect {
 	}
 	
 	// ログを更新する
-	public function insertLog($user_name, $list_mode) {
-		$query = "INSERT INTO log(user, mode) VALUES ('$user_name',$list_mode)";
+	public function insertLog($user_name, $rivals) {
+		$query = "INSERT INTO log(user, rivals) VALUES ('$user_name','$rivals')";
 		$this->exectute ( $query );
 	}
 }

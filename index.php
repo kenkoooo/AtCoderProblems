@@ -25,7 +25,7 @@ if (isset ( $_GET ["rivals"] )) {
 
 // ログ更新
 $sql = new SQLConnect ();
-$sql->insertLog ( $user_name, $list_mode );
+$sql->insertLog ( $user_name, str_replace ( ',', ' ', $rivals ) );
 
 if ($list_mode) {
 	$problemArray = getProblemArray ( '/^.*$/', $year, $user_name, $rivals );
