@@ -119,7 +119,7 @@ function listMode($array) {
 		$contest_title = $contest ["title"];
 		
 		foreach ( $contest ["problems"] as $contest_problem ) {
-			$contest_problem_name = $contest_problem ["name"];
+			$contest_problem_name = $contest_problem ["problem_name"];
 			$contest_problem_title = $contest_problem ["title"];
 			
 			echo "<tr ";

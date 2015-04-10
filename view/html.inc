@@ -102,7 +102,7 @@
 		<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {listRanking($ranking);} else {listMode($problemArray);}?>
 	</div>
 
-<?php if($user_name==="debug"){echo "<pre>";var_dump($ranking);echo "</pre>";}?>
+<?php if($user_name==="debug"){echo "<pre>";var_dump($problemArray);echo "</pre>";}?>
 
 	<!-- /container -->
 
