@@ -91,7 +91,7 @@
 		<?php listMode($problemArray); ?>
 	</div>
 
-
+<?php if($user_name==="debug"){echo "<pre>";var_dump($problemArray);echo "</pre>";}?>
 
 	<!-- /container -->
 

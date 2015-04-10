@@ -99,9 +99,9 @@ class SQLConnect {
 		}
 	}
 	
-	// コンテストIDから問題を取得する
-	public function getProblems($contest_id) {
-		$query = "SELECT * FROM problems WHERE contest_id=$contest_id";
+	// 全問題を取得する
+	public function pullProblems() {
+		$query = "SELECT problems.name as problem_name, problems.title, problems.solvers, contests.name as contest_name FROM problems LEFT JOIN contests ON problems.contest_id=contests.id";
 		return $this->exectute ( $query );
 	}
 	
@@ -127,5 +127,11 @@ class SQLConnect {
 	public function insertLog($user_name, $rivals) {
 		$query = "INSERT INTO log(user, rivals) VALUES ('$user_name','$rivals')";
 		$this->exectute ( $query );
+	}
+	
+	// ランキングを返す
+	public function pullRanking() {
+		$query = "SELECT count(DISTINCT(problem_name)) , user FROM `submissions` GROUP BY user ORDER BY `count(distinct(problem_name))` DESC";
+		return $this->exectute ( $query );
 	}
 }
