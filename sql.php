@@ -131,7 +131,7 @@ class SQLConnect {
 	
 	// ランキングを返す
 	public function pullRanking() {
-		$query = "SELECT count(DISTINCT(problem_name)) , user FROM `submissions` GROUP BY user ORDER BY `count(distinct(problem_name))` DESC";
+		$query = "SELECT count(DISTINCT(problem_name)), user FROM `submissions` GROUP BY user ORDER BY `count(distinct(problem_name))` DESC";
 		return $this->exectute ( $query );
 	}
 }

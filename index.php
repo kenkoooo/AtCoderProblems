@@ -2,10 +2,10 @@
 require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
-$user_name = $_GET ["name"];
-$user_name = mb_strtolower ( $user_name );
-if (! isset ( $_GET ["name"] )) {
-	$user_name = "";
+$user_name = "";
+if (isset ( $_GET ["name"] )) {
+	$user_name = $_GET ["name"];
+	$user_name = mb_strtolower ( $user_name );
 }
 
 $rivals = "";
@@ -15,8 +15,20 @@ if (isset ( $_GET ["rivals"] )) {
 
 // ログ更新
 $sql = new SQLConnect ();
-$sql->insertLog ( $user_name, str_replace ( ',', ' ', $rivals ) );
-$problemArray = getProblemArray ( $user_name, $rivals );
+
+if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
+	$ranking = array ();
+	$r = $sql->pullRanking ();
+	foreach ( $r as $ranking_row ) {
+		array_push ( $ranking, $ranking_row );
+	}
+} else {
+	// 問題一覧取得
+	$sql->insertLog ( $user_name, str_replace ( ',', ' ', $rivals ) );
+	$problemArray = getProblemArray ( $user_name, $rivals );
+}
+
+// 表示
 include 'view/html.inc';
 
 // パターンに対応したコンテストの問題を返す
@@ -150,6 +162,43 @@ function listMode($array) {
 			
 			echo "</tr>";
 		}
+	}
+	echo '</tbody>';
+	echo '</table>';
+}
+/*
+ * ランキング表示モード
+ */
+
+/*
+ * リストモード
+ */
+function listRanking($array) {
+	echo '<table id="example" class="table table-hover table-striped table-bordered table-condensed">';
+	echo '<thead><tr>';
+	echo '<th>順位</th>';
+	echo '<th>AC数</th>';
+	echo '<th>ユーザー名</th>';
+	echo '</tr></thead>';
+	echo '<tbody>';
+	
+	$rank = 1;
+	foreach ( $array as $key => $user ) {
+		$user_name = $user ["user"];
+		$solves = $user [0];
+		
+		if ($solves != $array [$rank - 1] [0]) {
+			$rank = $key + 1;
+		}
+		if ($rank > 1000) {
+			break;
+		}
+		
+		echo "<tr>";
+		echo "<td>$rank</td>";
+		echo "<td>$solves</td>";
+		echo "<td><a href='./index.php?name=$user_name'>$user_name</a></td>";
+		echo "</tr>";
 	}
 	echo '</tbody>';
 	echo '</table>';

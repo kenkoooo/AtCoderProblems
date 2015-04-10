@@ -54,7 +54,12 @@
 			</div>
 			<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
-					<li class="active"><a href="./">Home</a></li>
+					<li
+						<?php if (!isset ($_GET ["ranking"]) || !$_GET ["ranking"]) echo ' class="active"';?>><a
+						href="./">Home</a></li>
+					<li
+						<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) echo ' class="active"';?>><a
+						href="./index.php?ranking=1">ランキング</a></li>
 					<li><a href="http://atcoder.jp/">AtCoder (公式)</a></li>
 					<li><a href="http://ichyo.jp/aoj-icpc/">AOJ-ICPC</a></li>
 					<li><a href="http://twitter.com/kenkoooo">お問い合わせ</a></li>
@@ -71,7 +76,13 @@
 				<a href="http://atcoder.jp/">AtCoder</a>の非公式過去問集です。User
 				IDからACした問題を検索できます。(更新処理は5分ごと)
 			</p>
-			<form action="index.php" method="get" class="form-inline">
+			<p>
+				<a href="https://twitter.com/share" class="twitter-share-button"
+					data-url="http://kenkoooo.com/atcoder/">Tweet</a>
+				<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+			</p>
+			<form action="index.php" method="get" class="form-inline"
+				<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) echo ' style="visibility: hidden; height: 0;"';?>>
 				<div class="form-group">
 					<label>User ID:</label>
 					<?php echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="name" value="' . $user_name . '">'; ?>
@@ -88,10 +99,10 @@
 
 	<!-- div class="container" style="visibility: hidden; height: 0;"-->
 	<div class="container">
-		<?php listMode($problemArray); ?>
+		<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {listRanking($ranking);} else {listMode($problemArray);}?>
 	</div>
 
-<?php if($user_name==="debug"){echo "<pre>";var_dump($problemArray);echo "</pre>";}?>
+<?php if($user_name==="debug"){echo "<pre>";var_dump($ranking);echo "</pre>";}?>
 
 	<!-- /container -->
 
