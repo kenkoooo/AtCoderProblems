@@ -31,7 +31,7 @@ if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
 // 表示
 include 'view/html.inc';
 
-// パターンに対応したコンテストの問題を返す
+// コンテストの問題を返す
 function getProblemArray($user_name, $rivals) {
 	// 正規表現にマッチするコンテストネームの問題集を返す
 	// $year以降のコンテストを返す
@@ -99,7 +99,8 @@ function getProblemArray($user_name, $rivals) {
  * リストモード
  */
 function listMode($array) {
-	echo '<table id="example" class="table table-hover table-striped table-bordered table-condensed">';
+	echo '<div class="container">';
+	echo '<table id="list" class="table table-hover table-striped table-bordered table-condensed">';
 	echo '<thead><tr>';
 	echo '<th>問題名</th>';
 	echo '<th>コンテスト</th>';
@@ -165,16 +166,14 @@ function listMode($array) {
 	}
 	echo '</tbody>';
 	echo '</table>';
+	echo '</div>';
 }
 /*
  * ランキング表示モード
  */
-
-/*
- * リストモード
- */
 function listRanking($array) {
-	echo '<table id="example" class="table table-hover table-striped table-bordered table-condensed">';
+	echo '<div class="container">';
+	echo '<table id="ranking" class="table table-hover table-striped table-bordered table-condensed">';
 	echo '<thead><tr>';
 	echo '<th>順位</th>';
 	echo '<th>AC数</th>';
@@ -202,7 +201,116 @@ function listRanking($array) {
 	}
 	echo '</tbody>';
 	echo '</table>';
+	echo '</div>';
 }
 
+/*
+ * カテゴリ表示モード
+ */
+function listABC($array, $pattern) {
+	echo '<div class="container">';
+	echo '<div class="page-header"><h1>AtCoder ';
+	if (preg_match ( $pattern, 'abc001' )) {
+		echo 'Beginner';
+	} else {
+		echo 'Regular';
+	}
+	echo ' Contest</h1></div>';
+	echo '<table id="category" class="table table-hover table-striped table-bordered table-condensed">';
+	echo '<thead><tr>';
+	echo '<th>コンテスト</th>';
+	echo '<th>A問題</th>';
+	echo '<th>B問題</th>';
+	echo '<th>C問題</th>';
+	echo '<th>D問題</th>';
+	echo '</tr></thead>';
+	echo '<tbody>';
+	
+	foreach ( $array as $contest ) {
+		if (! array_key_exists ( "problems", $contest )) {
+			// 問題が存在しなければスルー
+			continue;
+		}
+		
+		$contest_name = $contest ["name"];
+		$contest_title = $contest ["title"];
+		
+		if (! preg_match ( $pattern, $contest_name )) {
+			continue;
+		}
+		
+		echo "<tr>";
+		echo "<td><a href='http://$contest_name.contest.atcoder.jp/'>";
+		echo strtoupper ( $contest_name );
+		echo "</a></td>";
+		
+		foreach ( $contest ["problems"] as $contest_problem ) {
+			$contest_problem_name = $contest_problem ["problem_name"];
+			$contest_problem_title = $contest_problem ["title"];
+			
+			echo "<td ";
+			if ($contest_problem ["solved"]) {
+				echo "class='success'";
+			} elseif ($contest_problem ["rival_solved"]) {
+				echo "class='danger'";
+			}
+			echo "><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
+			echo mb_strimwidth ( $contest_problem_title, 0, 30, "...", "UTF-8" );
+			echo "</a></td>";
+		}
+		echo "</tr>";
+	}
+	echo '</tbody>';
+	echo '</table>';
+	echo '</div>';
+}
+function listOther($array) {
+	echo '<div class="container">';
+	echo '<div class="page-header"><h1>その他のコンテスト</h1></div>';
+	
+	foreach ( $array as $contest ) {
+		if (! array_key_exists ( "problems", $contest )) {
+			// 問題が存在しなければスルー
+			continue;
+		}
+		
+		$contest_name = $contest ["name"];
+		$contest_title = $contest ["title"];
+		
+		if (! preg_match ( '/^(?!.*(abc|arc)).*$/', $contest_name )) {
+			continue;
+		}
+		
+		echo date ( "Y-m-d", strtotime ( $contest ["end"] ) ) . " ";
+		echo "<strong><a href='http://$contest_name.contest.atcoder.jp/'>";
+		echo $contest_title;
+		echo "</a></strong>";
+		
+		echo '<table class="table table-hover table-striped table-bordered table-condensed">';
+		echo '<tbody><tr>';
+		foreach ( $contest ["problems"] as $contest_problem ) {
+			$contest_problem_name = $contest_problem ["problem_name"];
+			$contest_problem_title = $contest_problem ["title"];
+			
+			echo "<td ";
+			if ($contest_problem ["solved"]) {
+				echo "class='success'";
+			} elseif ($contest_problem ["rival_solved"]) {
+				echo "class='danger'";
+			}
+			echo "><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
+			if ($contest_name === 'joisc2012') {
+				echo mb_strimwidth ( $contest_problem_title, 0, 10, "...", "UTF-8" );
+			} else {
+				echo mb_strimwidth ( $contest_problem_title, 0, 30, "...", "UTF-8" );
+			}
+			echo "</a></td>";
+		}
+		echo "</tr>";
+		echo '</tbody>';
+		echo '</table>';
+	}
+	echo '</div>';
+}
 
 

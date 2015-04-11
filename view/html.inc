@@ -91,6 +91,22 @@
 					<label>ライバル:</label>
 					<?php echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="rivals" value="' . $rivals . '">'; ?>
 				</div>
+				<div class="form-group">
+					<?php
+					echo '<input type="radio" name="category" value="1" ';
+					if (isset ( $_GET ["category"] ) && $_GET ["category"]) {
+						echo 'checked';
+					}
+					echo '/>';
+					echo 'カテゴリ';
+					echo '<input type="radio" name="category" value="0" ';
+					if (! isset ( $_GET ["category"] ) || ! $_GET ["category"]) {
+						echo 'checked';
+					}
+					echo '/>';
+					echo 'リスト';
+					?>
+				</div>
 				<button type="submit" class="btn btn-default">Search</button>
 			</form>
 
@@ -98,9 +114,18 @@
 	</div>
 
 	<!-- div class="container" style="visibility: hidden; height: 0;"-->
-	<div class="container">
-		<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {listRanking($ranking);} else {listMode($problemArray);}?>
-	</div>
+		<?php
+		
+		if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
+			listRanking ( $ranking );
+		} else if (isset ( $_GET ["category"] ) && $_GET ["category"]) {
+			listABC ( $problemArray, '/abc[0-9]*/i' );
+			listABC ( $problemArray, '/arc[0-9]*/i' );
+			listOther ( $problemArray );
+		} else {
+			listMode ( $problemArray );
+		}
+		?>
 
 <?php if($user_name==="debug"){echo "<pre>";var_dump($problemArray);echo "</pre>";}?>
 
@@ -118,7 +143,7 @@
 	<script type="text/javascript">
 
 	$(document).ready(function() {
-	    $('#example').dataTable({
+	    $('#list').dataTable({
 	        "bPaginate": false,
 	        "bLengthChange": false,
 	        "bFilter": true,
@@ -127,6 +152,7 @@
 			"aaSorting": [[ 3, "asc" ]]
 	      });
 	} );
+	
 	</script>
 </body>
 </html>
