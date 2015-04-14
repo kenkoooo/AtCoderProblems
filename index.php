@@ -3,14 +3,18 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $user_name = "";
-if (isset ( $_GET ["name"] )) {
+if (isset ( $_GET ["name"] ) && preg_match ( '/^[\w]+$/', $_GET ["name"] )) {
 	$user_name = $_GET ["name"];
 	$user_name = mb_strtolower ( $user_name );
+} else {
+	$_GET ["name"] = "";
 }
 
 $rivals = "";
-if (isset ( $_GET ["rivals"] )) {
+if (isset ( $_GET ["rivals"] ) && preg_match ( '/^[\w\,]+$/', $_GET ["rivals"] )) {
 	$rivals = $_GET ["rivals"];
+} else {
+	$rivals = "";
 }
 
 // ログ更新
