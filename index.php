@@ -135,11 +135,11 @@ function listMode($array) {
 			}
 			echo ">";
 			
-			echo "<td><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
+			echo "<td><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name' target='_blank'>";
 			echo mb_strimwidth ( $contest_problem_title, 0, 40, "...", "UTF-8" );
 			echo "</a></td>";
 			
-			echo "<td><a href='http://$contest_name.contest.atcoder.jp/'>";
+			echo "<td><a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>";
 			echo "$contest_title";
 			echo "</a></td>";
 			
@@ -159,7 +159,7 @@ function listMode($array) {
 			echo "</td>";
 			
 			echo "<td>";
-			echo "<div class='text-right'><a href='http://$contest_name.contest.atcoder.jp/submissions/all?task_screen_name=$contest_problem_name&status=AC'>";
+			echo "<div class='text-right'><a href='http://$contest_name.contest.atcoder.jp/submissions/all?task_screen_name=$contest_problem_name&status=AC' target='_blank'>";
 			// echo $contest_problem ["solvers"];
 			// 4桁まで0埋め
 			echo str_pad ( $contest_problem ["solvers"], 4, "0", STR_PAD_LEFT );
@@ -200,7 +200,7 @@ function listRanking($array) {
 		echo "<tr>";
 		echo "<td>$rank</td>";
 		echo "<td>$solves</td>";
-		echo "<td><a href='./index.php?name=$user_name'>$user_name</a></td>";
+		echo "<td><a href='./index.php?name=$user_name' target='_blank'>$user_name</a></td>";
 		echo "</tr>";
 	}
 	echo '</tbody>';
@@ -244,7 +244,7 @@ function listABC($array, $pattern) {
 		}
 		
 		echo "<tr>";
-		echo "<td><a href='http://$contest_name.contest.atcoder.jp/'>";
+		echo "<td><a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>";
 		echo strtoupper ( $contest_name );
 		echo "</a></td>";
 		
@@ -258,7 +258,7 @@ function listABC($array, $pattern) {
 			} elseif ($contest_problem ["rival_solved"]) {
 				echo "class='danger'";
 			}
-			echo "><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
+			echo "><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name' target='_blank'>";
 			echo mb_strimwidth ( $contest_problem_title, 0, 30, "...", "UTF-8" );
 			echo "</a></td>";
 		}
@@ -286,7 +286,7 @@ function listOther($array) {
 		}
 		
 		echo date ( "Y-m-d", strtotime ( $contest ["end"] ) ) . " ";
-		echo "<strong><a href='http://$contest_name.contest.atcoder.jp/'>";
+		echo "<strong><a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>";
 		echo $contest_title;
 		echo "</a></strong>";
 		
@@ -302,7 +302,7 @@ function listOther($array) {
 			} elseif ($contest_problem ["rival_solved"]) {
 				echo "class='danger'";
 			}
-			echo "><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name'>";
+			echo "><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name' target='_blank'>";
 			if ($contest_name === 'joisc2012') {
 				echo mb_strimwidth ( $contest_problem_title, 0, 10, "...", "UTF-8" );
 			} else {
