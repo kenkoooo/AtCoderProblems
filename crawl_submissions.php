@@ -34,9 +34,11 @@ foreach ( $contests as $c ) {
 	// continue;
 	// }
 	
+	// 最初のページを取得
 	$url = "https://" . $name . ".contest.atcoder.jp/submissions/all/1?status=AC";
 	$html = file_get_html ( $url );
 	
+	// 最大ページ数を記録
 	$max = 0;
 	foreach ( $html->find ( "div.pagination-centered" ) as $element ) {
 		foreach ( $element->find ( "a" ) as $links ) {
@@ -46,6 +48,8 @@ foreach ( $contests as $c ) {
 			}
 		}
 	}
+	
+	// 現在の最新のサブミッションIDを記録
 	$maxsub = 0;
 	foreach ( $html->find ( "tr" ) as $element ) {
 		foreach ( $element->find ( "a" ) as $links ) {
@@ -57,6 +61,8 @@ foreach ( $contests as $c ) {
 	}
 	
 	$html->clear ();
+	
+	// クロール済みコンテストならスルー
 	$past = $sql->checkPastCrawl ( $name );
 	if ($past >= $maxsub) {
 		continue;
@@ -73,16 +79,42 @@ foreach ( $contests as $c ) {
 			$submission = 0;
 			$time = "";
 			$user = "";
+			$language = "";
+			$length = 0;
+			$exec = 0;
+			
+			// 時間を記録
 			foreach ( $element->find ( "time" ) as $links ) {
 				$time = date ( "YmdHis", strtotime ( $links->plaintext ) );
 			}
+			
+			// 長さを記録
+			foreach ( $element->find ( ".table-nwb" ) as $nwb ) {
+				if (preg_match ( '/[0-9]* Byte/', $nwb->plaintext )) {
+					$length = str_replace ( " Byte", "", $nwb->plaintext );
+					break;
+				}
+			}
+			
+			// 実行時間を記録
+			foreach ( $element->find ( ".right" ) as $nwb ) {
+				if (preg_match ( '/[0-9]* ms/', $nwb->plaintext )) {
+					$exec = str_replace ( " ms", "", $nwb->plaintext );
+					break;
+				}
+			}
+			
+			// リンクされている項目は拾いやすい
 			foreach ( $element->find ( "a" ) as $links ) {
+				// 問題ID
 				if (strstr ( $links->href, '/tasks/' )) {
 					$problem = preg_replace ( '/^\\/tasks\\//', '$1', $links->href );
 				}
+				// ユーザー
 				if (strstr ( $links->href, '/users/' )) {
 					$user = preg_replace ( '/^\\/users\\//', '$1', $links->href );
 				}
+				//
 				if (preg_match ( '/submissions\\/[0-9]+/', $links->href )) {
 					$submission = preg_replace ( '/^\\/submissions\\//', '$1', $links->href );
 				}
@@ -92,7 +124,7 @@ foreach ( $contests as $c ) {
 				continue;
 			}
 			
-			$sql->insertSubmission ( $submission, $name, $problem, $user, $time );
+			$sql->insertSubmission ( $submission, $name, $problem, $user, $time, $length, $exec );
 		}
 		
 		$html->clear ();

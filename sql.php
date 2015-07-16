@@ -76,12 +76,16 @@ class SQLConnect {
 	}
 	
 	// サブミッションを追加してくれる
-	public function insertSubmission($id, $contest_name, $problem_name, $user, $time) {
+	public function insertSubmission($id, $contest_name, $problem_name, $user, $time, $length, $exec) {
 		$query = "SELECT * FROM submissions where id=$id";
 		$data = $this->exectute ( $query );
 		if (! $data->fetch ( PDO::FETCH_ASSOC )) {
 			// 存在しない時
-			$query = "INSERT INTO submissions (id,contest_name,problem_name,user,submission_time) VALUES " . "($id,'$contest_name','$problem_name','$user','$time')";
+			$query = "INSERT INTO submissions (id,contest_name,problem_name,user,submission_time,length,exec) VALUES " . "($id,'$contest_name','$problem_name','$user','$time',$length,$exec)";
+			$this->exectute ( $query );
+		} else {
+			// 存在する時
+			$query = "UPDATE submissions SET length=$length, exec=$exec WHERE id=$id";
 			$this->exectute ( $query );
 		}
 	}
