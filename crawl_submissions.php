@@ -123,7 +123,6 @@ foreach ( $contests as $c ) {
 			if ($submission <= 0) {
 				continue;
 			}
-			
 			$sql->insertSubmission ( $submission, $name, $problem, $user, $time, $length, $exec );
 		}
 		

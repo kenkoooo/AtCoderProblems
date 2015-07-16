@@ -91,7 +91,7 @@ class SQLConnect {
 			$this->exectute ( $query );
 		} else {
 			// 存在する時
-			$query = "UPDATE submissions SET length=$length, exec=$exec WHERE id=$id";
+			$query = "UPDATE submissions SET length=$length,exec=$exec WHERE id=$id";
 			$this->exectute ( $query );
 		}
 	}
@@ -143,5 +143,48 @@ class SQLConnect {
 	public function pullRanking() {
 		$query = "SELECT count(DISTINCT(problem_name)), user FROM `submissions` GROUP BY user ORDER BY `count(distinct(problem_name))` DESC";
 		return $this->exectute ( $query );
+	}
+	
+	// ショートコーダーを返す
+	private function getShortCoder($problem_name) {
+		// 問題に対するショートコーダーを返す
+		$query = "SELECT * FROM submissions WHERE problem_name='$problem_name' ORDER BY `submissions`.`length` ASC LIMIT 1";
+		return $this->exectute ( $query );
+	}
+	
+	// ショートコーダーを更新する
+	public function updateShortCoder() {
+		$short_coder = array ();
+		$problems = $this->pullProblems ();
+		foreach ( $problems as $p ) {
+			array_push ( $short_coder, $p );
+		}
+		for($i = 0; $i < count ( $short_coder ); $i ++) {
+			$problem_name = $short_coder [$i] ["problem_name"];
+			$submission = $this->getShortCoder ( $problem_name );
+			foreach ( $submission as $s ) {
+				$short_coder [$i] ["submission"] = $s;
+			}
+		}
+		
+		foreach ( $short_coder as $s ) {
+			$problem_name = $s ["problem_name"];
+			$submission_id = $s ["submission"] ["id"];
+			$user_name = $s ["submission"] ["user"];
+			$length = $s ["submission"] ["length"];
+			$submission_time = $s ["submission"] ["submission_time"];
+			
+			$query = "SELECT * FROM short_coder where problem_name='$problem_name'";
+			$data = $this->exectute ( $query );
+			if (! $data->fetch ( PDO::FETCH_ASSOC )) {
+				// 存在しない時
+				$query = "INSERT INTO short_coder (problem_name,submission_id,user_name,length,submission_time) VALUES " . "('$problem_name',$submission_id,'$user_name',$length,'$submission_time')";
+				$this->exectute ( $query );
+			} else {
+				// 存在する時
+				$query = "UPDATE submissions SET submission_id=$submission_id,user_name=$user_name,length=$length,submission_time=$submission_time WHERE problem_name='$problem_name'";
+				$this->exectute ( $query );
+			}
+		}
 	}
 }

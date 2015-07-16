@@ -17,11 +17,6 @@ if (strtotime ( "now" ) <= strtotime ( $end )) {
 
 echo $name . "\n";
 
-// abcかarc以外ならスルー
-// if (! preg_match ( '/^(arc|abc)[0-9]*$/', $name )) {
-// continue;
-// }
-
 // 最初のページを取得
 $url = "https://" . $name . ".contest.atcoder.jp/submissions/all/1?status=AC";
 $html = file_get_html ( $url );
@@ -105,7 +100,7 @@ for($i = 1; $i <= $max; $i ++) {
 		if ($submission <= 0) {
 			continue;
 		}
-		
+
 		$sql->insertSubmission ( $submission, $name, $problem, $user, $time, $length, $exec );
 	}
 	

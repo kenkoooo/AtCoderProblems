@@ -118,6 +118,8 @@
 		
 		if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
 			listRanking ( $ranking );
+		} else if (isset ( $_GET ["short_coder"] ) && $_GET ["short_coder"]) {
+			listShort ( $short_coder );
 		} else if (isset ( $_GET ["category"] ) && $_GET ["category"]) {
 			listABC ( $problemArray, '/abc[0-9]*/i' );
 			listABC ( $problemArray, '/arc[0-9]*/i' );
