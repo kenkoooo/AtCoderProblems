@@ -3,10 +3,12 @@ require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 $sql = new SQLConnect ();
-$contests = $sql->pullContests ();
+$contests = $sql->pullOld ();
 
-$name = "abc001";
-$start = 215;
+$name = "";
+foreach ( $contests as $c ) {
+	$name = $c ["contest_name"];
+}
 
 if (strtotime ( "now" ) <= strtotime ( $end )) {
 	// コンテストが終わっていない時はスルー
@@ -48,7 +50,7 @@ foreach ( $html->find ( "tr" ) as $element ) {
 
 $html->clear ();
 
-for($i = $start; $i <= $max; $i ++) {
+for($i = 1; $i <= $max; $i ++) {
 	$url = "https://" . $name . ".contest.atcoder.jp/submissions/all/" . $i . "?status=AC";
 	echo $url . "\n";
 	$html = file_get_html ( $url );

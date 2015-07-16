@@ -52,6 +52,12 @@ class SQLConnect {
 		return $this->exectute ( $query );
 	}
 	
+	// コンテスト一覧を引っ張ってくる
+	public function pullOld() {
+		$query = "SELECT contest_name FROM `submissions` WHERE exec =0 LIMIT 1";
+		return $this->exectute ( $query );
+	}
+	
 	// 提出最新を引っ張ってくる
 	public function pullSubmissions($contest_name) {
 		$query = "SELECT * FROM submissions WHERE contest_name = '$contest_name' ORDER BY submission_time DESC LIMIT 20";
