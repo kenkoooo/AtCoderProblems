@@ -28,10 +28,11 @@ if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
 		array_push ( $ranking, $ranking_row );
 	}
 } else if (isset ( $_GET ["short_coder"] ) && $_GET ["short_coder"]) {
-	// TODO
+	$short_coder = array ();
+	$problems = $sql->pullProblems ();
+	$s = $sql->pullShorters (); // TODO
 } else {
 	// 問題一覧取得
-	$sql->insertLog ( $user_name, str_replace ( ',', ' ', $rivals ) );
 	$problemArray = getProblemArray ( $user_name, $rivals );
 }
 
@@ -336,8 +337,6 @@ function listShort($array) {
 	echo '<tbody>';
 	
 	foreach ( $array as $problem ) {
-		
-		$
 		
 		$contest_name = $contest ["name"];
 		$contest_title = $contest ["title"];

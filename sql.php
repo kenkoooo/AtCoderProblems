@@ -11,8 +11,28 @@ class SQLConnect {
 			$dbh = new PDO ( $dsn, SQLUSER, SQLPASSWORD, $options );
 			
 			$stmt = $dbh->query ( $sql );
-			
+			$dbh = null;
 			return $stmt;
+		} catch ( PDOException $e ) {
+			print ('Error:' . $e->getMessage ()) ;
+			die ();
+		}
+	}
+	private function exectuteArray($querySet) {
+		// クエリーセットを実行する
+		// 返り値はない
+		$dsn = 'mysql:dbname=LAA0348733-atcoder;host=mysql022.phy.lolipop.lan';
+		
+		try {
+			$options = array (
+					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' 
+			);
+			$dbh = new PDO ( $dsn, SQLUSER, SQLPASSWORD, $options );
+			
+			foreach ( $querySet as $query ) {
+				echo $query . "\n";
+				$dbh->query ( $query );
+			}
 		} catch ( PDOException $e ) {
 			print ('Error:' . $e->getMessage ()) ;
 			die ();
@@ -133,12 +153,6 @@ class SQLConnect {
 		$this->exectute ( $query );
 	}
 	
-	// ログを更新する
-	public function insertLog($user_name, $rivals) {
-		$query = "INSERT INTO log(user, rivals) VALUES ('$user_name','$rivals')";
-		$this->exectute ( $query );
-	}
-	
 	// ランキングを返す
 	public function pullRanking() {
 		$query = "SELECT count(DISTINCT(problem_name)), user FROM `submissions` GROUP BY user ORDER BY `count(distinct(problem_name))` DESC";
@@ -146,45 +160,68 @@ class SQLConnect {
 	}
 	
 	// ショートコーダーを返す
-	private function getShortCoder($problem_name) {
+	private function getShortCoder($problem_name, $type) {
+		// ショートコーダー $type="length"
+		// 実行速度 $type="exec"
+		
 		// 問題に対するショートコーダーを返す
-		$query = "SELECT * FROM submissions WHERE problem_name='$problem_name' ORDER BY `submissions`.`length` ASC LIMIT 1";
+		$query = "SELECT * FROM submissions WHERE problem_name='$problem_name' ORDER BY `submissions`.`$type` ASC LIMIT 1";
 		return $this->exectute ( $query );
 	}
 	
 	// ショートコーダーを更新する
-	public function updateShortCoder() {
+	public function updateShortCoder($type) {
+		// ショートコーダー $type="length"
+		// 実行速度 $type="exec"
+		$table = "";
+		if (strstr ( $type, "length" )) {
+			$table = "short_coder";
+		} else {
+			$table = "exec_faster";
+		}
+		
 		$short_coder = array ();
 		$problems = $this->pullProblems ();
 		foreach ( $problems as $p ) {
 			array_push ( $short_coder, $p );
 		}
 		for($i = 0; $i < count ( $short_coder ); $i ++) {
+			if ($short_coder [$i] ["solvers"] == 0) {
+				continue;
+			}
 			$problem_name = $short_coder [$i] ["problem_name"];
-			$submission = $this->getShortCoder ( $problem_name );
+			$submission = $this->getShortCoder ( $problem_name, $type );
 			foreach ( $submission as $s ) {
 				$short_coder [$i] ["submission"] = $s;
 			}
 		}
 		
+		$querySet = array ();
 		foreach ( $short_coder as $s ) {
+			if ($s ["solvers"] == 0) {
+				continue;
+			}
 			$problem_name = $s ["problem_name"];
 			$submission_id = $s ["submission"] ["id"];
-			$user_name = $s ["submission"] ["user"];
-			$length = $s ["submission"] ["length"];
-			$submission_time = $s ["submission"] ["submission_time"];
 			
-			$query = "SELECT * FROM short_coder where problem_name='$problem_name'";
+			$query = "SELECT * FROM $table where problem_name='$problem_name'";
 			$data = $this->exectute ( $query );
 			if (! $data->fetch ( PDO::FETCH_ASSOC )) {
 				// 存在しない時
-				$query = "INSERT INTO short_coder (problem_name,submission_id,user_name,length,submission_time) VALUES " . "('$problem_name',$submission_id,'$user_name',$length,'$submission_time')";
-				$this->exectute ( $query );
+				$query = "INSERT INTO $table (problem_name,submission_id) VALUES " . "('$problem_name',$submission_id)";
+				array_push ( $querySet, $query );
 			} else {
 				// 存在する時
-				$query = "UPDATE submissions SET submission_id=$submission_id,user_name=$user_name,length=$length,submission_time=$submission_time WHERE problem_name='$problem_name'";
-				$this->exectute ( $query );
+				$query = "UPDATE $table SET submission_id=$submission_id";
+				array_push ( $querySet, $query );
 			}
 		}
+		$this->exectuteArray ( $querySet );
+	}
+	
+	// ショートコーダーを返す
+	public function pullShorters($table) {
+		$query = "SELECT * FROM problems LEFT JOIN $table ON problems.name=$table.problem_name LEFT JOIN submissions ON submissions.id=$table.submission_id";
+		return $this->exectute ( $query );
 	}
 }
