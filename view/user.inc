@@ -67,7 +67,6 @@
 		</div>
 	</nav>
 	<div class="container">
-
 		<div class="page-header">
 			<h1><?php
 			if ($exist) {
@@ -82,24 +81,84 @@
 		<div class="row placeholders"
 			<?php if (!$exist)echo 'style="visibility: hidden; height: 0;"';?>>
 			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>Label</h4>
-				<h3><?php echo $acNum;?></h3>
-				<span class="text-muted">Something else</span>
+				<h4>AC問題数</h4>
+				<h3><?php echo $acNum;?>問</h3>
+				<span class="text-muted"><?php echo "$acRank 位 / $memberNum 人中";?></span>
+			</div>
+			<div class="col-xs-6 col-sm-3 placeholder">
+				<h4>ショートコード数</h4>
+				<h3><?php echo $shortNum;?>問</h3>
+				<span class="text-muted"><?php echo "$shortRank 位 / $memberNum 人中";?></span>
+			</div>
+			<div class="col-xs-6 col-sm-3 placeholder">
+				<h4>最速コード数</h4>
+				<h3><?php echo $fastNum;?>問</h3>
+				<span class="text-muted"><?php echo "$fastRank 位 / $memberNum 人中";?></span>
 			</div>
 			<div class="col-xs-6 col-sm-3 placeholder">
 				<h4>Label</h4>
-				<h3><?php echo $shortNum;?></h3>
+				<h3><?php echo $evaluate;?></h3>
 				<span class="text-muted">Something else</span>
 			</div>
+		</div>
+	</div>
+	<div class="container"
+		<?php if (!$exist)echo 'style="visibility: hidden; height: 0;"';?>>
+		<div class="page-header">
+			<h1>AtCoder Beginner Contest</h1>
+			<p class="lead"></p>
+
+		</div>
+		<div class="row placeholders">
 			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>Label</h4>
-				<h3><?php echo $fastNum;?></h3>
-				<span class="text-muted">Something else</span>
+				<h4>A問題</h4>
+				<h3><?php echo round($abc[0]*100/$abc[1]);?> %</h3>
+				<span class="text-muted"><?php echo "$abc[0] 問 / $abc[1] 問";?></span>
 			</div>
 			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>Label</h4>
-				<h3>Label</h3>
-				<span class="text-muted">Something else</span>
+				<h4>B問題</h4>
+				<h3><?php echo round($abc[2]*100/$abc[3]);?> %</h3>
+				<span class="text-muted"><?php echo "$abc[2] 問 / $abc[3] 問";?></span>
+			</div>
+			<div class="col-xs-6 col-sm-3 placeholder">
+				<h4>C問題</h4>
+				<h3><?php echo round($abc[4]*100/$abc[5]);?> %</h3>
+				<span class="text-muted"><?php echo "$abc[4] 問 / $abc[5] 問";?></span>
+			</div>
+			<div class="col-xs-6 col-sm-3 placeholder">
+				<h4>D問題</h4>
+				<h3><?php echo round($abc[6]*100/$abc[7]);?> %</h3>
+				<span class="text-muted"><?php echo "$abc[6] 問 / $abc[7] 問";?></span>
+			</div>
+		</div>
+	</div>
+	<div class="container"
+		<?php if (!$exist)echo 'style="visibility: hidden; height: 0;"';?>>
+		<div class="page-header">
+			<h1>AtCoder Regular Contest</h1>
+			<p class="lead"></p>
+
+		</div>
+		<div class="row placeholders">
+			<div class="col-xs-6 col-sm-3 placeholder">
+				<h4>A問題</h4>
+				<h3><?php echo round($arc[0]*100/$arc[1]);?> %</h3>
+				<span class="text-muted"><?php echo "$arc[0] 問 / $arc[1] 問";?></span>
+			</div>
+			<div class="col-xs-6 col-sm-3 placeholder">
+				<h4>B問題</h4>
+				<h3><?php echo round($arc[2]*100/$arc[3]);?> %</h3>
+				<span class="text-muted"><?php echo "$arc[2] 問 / $arc[3] 問";?></span>
+			</div>
+			<div class="col-xs-6 col-sm-3 placeholder">
+				<h4>C問題</h4>
+				<h3><?php echo round($arc[4]*100/$arc[5]);?> %</h3>
+				<span class="text-muted"><?php echo "$arc[4] 問 / $arc[5] 問";?></span>
+			</div>
+			<div class="col-xs-6 col-sm-3 placeholder">
+				<h4>D問題</h4>
+				<h3><?php echo round($arc[6]*100/$arc[7]);?> %</h3>
+				<span class="text-muted"><?php echo "$arc[6] 問 / $arc[7] 問";?></span>
 			</div>
 		</div>
 	</div>

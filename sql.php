@@ -182,9 +182,9 @@ INNER JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 		}
 	}
 	
-	// 正解問題数を返す
-	public function getACNum($user_name) {
-		$query = "SELECT count(DISTINCT(problem_name)) AS count FROM submissions WHERE user='kenkoooo' GROUP BY user";
+	// 条件に合う問題数を返す
+	public function likeProblemNum($like) {
+		$query = "SELECT COUNT(DISTINCT(name)) AS count FROM problems WHERE name LIKE '$like'";
 		$count = 0;
 		$data = $this->exectute ( $query );
 		foreach ( $data as $d ) {
@@ -192,7 +192,51 @@ INNER JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 		}
 		return $count;
 	}
-
+	
+	// 条件に合うAC数を返す
+	public function likeACNum($user_name, $like) {
+		$query = "SELECT COUNT(DISTINCT(problem_name)) AS count FROM submissions WHERE  user='$user_name' AND problem_name LIKE '$like'";
+		$count = 0;
+		$data = $this->exectute ( $query );
+		foreach ( $data as $d ) {
+			$count = max ( $count, $d ["count"] );
+		}
+		return $count;
+	}
+	
+	// 全問題数を返す
+	public function getProblemNum() {
+		$query = "SELECT COUNT(name) AS count FROM problems";
+		$count = 0;
+		$data = $this->exectute ( $query );
+		foreach ( $data as $d ) {
+			$count = max ( $count, $d ["count"] );
+		}
+		return $count;
+	}
+	
+	// 全会員数を返す
+	public function getMemberNum() {
+		$query = "SELECT COUNT(DISTINCT(user)) AS count FROM submissions";
+		$count = 0;
+		$data = $this->exectute ( $query );
+		foreach ( $data as $d ) {
+			$count = max ( $count, $d ["count"] );
+		}
+		return $count;
+	}
+	
+	// 正解問題数を返す
+	public function getACNum($user_name) {
+		$query = "SELECT count(DISTINCT(problem_name)) AS count FROM submissions WHERE user='$user_name' GROUP BY user";
+		$count = 0;
+		$data = $this->exectute ( $query );
+		foreach ( $data as $d ) {
+			$count = max ( $count, $d ["count"] );
+		}
+		return $count;
+	}
+	
 	// ショートコード数を返す
 	public function getShortNum($user_name) {
 		$query = "SELECT COUNT(user) AS count FROM short_coder AS list LEFT JOIN submissions ON list.submission_id=submissions.id WHERE user='$user_name' GROUP BY user";
@@ -213,6 +257,35 @@ INNER JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 			$count = max ( $count, $d ["count"] );
 		}
 		return $count;
+	}
+	
+	// ランキングで何位かを返す
+	public function getMyPlace($user_name, $flag) {
+		$ranking = array ();
+		if ($flag == 1) {
+			$r = $this->pullRanking ();
+		} elseif ($flag == 2) {
+			$r = $this->pullShortRanking ();
+		} else {
+			$r = $this->pullFastRanking ();
+		}
+		
+		foreach ( $r as $ranking_row ) {
+			array_push ( $ranking, $ranking_row );
+		}
+		
+		$rank = 1;
+		foreach ( $ranking as $key => $value ) {
+			$user = $value ["user"];
+			$solves = $value [0];
+			if ($solves != $array [$rank - 1] [0]) {
+				$rank = $key + 1;
+			}
+			if (stristr ( $user, $user_name )) {
+				return $rank;
+			}
+		}
+		return $this->getMemberNum ();
 	}
 	
 	// ファストランキングを返す
