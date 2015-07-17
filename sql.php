@@ -130,12 +130,12 @@ class SQLConnect {
 	
 	// 全問題を取得する
 	public function pullProblems() {
-		$query = "SELECT problems.name as problem_name, problems.title, problems.solvers, contests.name as contest_name, s1.length,s1.user AS short,s1.id AS short_id, s2.exec, s2.user AS fast,s2.id AS fast_id FROM problems
+		$query = "SELECT problems.name AS problem_name, problems.title, problems.solvers, contests.name as contest_name, s1.length,s1.user AS short,s1.id AS short_id, s2.exec, s2.user AS fast,s2.id AS fast_id FROM problems
 LEFT JOIN contests ON problems.contest_id=contests.id 
 LEFT JOIN short_coder ON short_coder.problem_name=problems.name
 LEFT JOIN submissions AS s1 ON short_coder.submission_id=s1.id
 LEFT JOIN exec_faster ON exec_faster.problem_name=problems.name
-INNER JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
+LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 		return $this->exectute ( $query );
 	}
 	

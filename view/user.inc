@@ -36,6 +36,7 @@
   ga('send', 'pageview');
 
 </script>
+<script src="./js/Chart.js"></script>
 </head>
 
 <body role="document">
@@ -58,23 +59,31 @@
 					<li><a href="./index.php?ranking=1">正解数ランキング</a></li>
 					<li><a href="./index.php?ranking=2">ショートコーダー</a></li>
 					<li><a href="./index.php?ranking=3">実行速度ランキング</a></li>
-					<li><a href="http://atcoder.jp/">AtCoder (公式)</a></li>
-					<li><a href="http://ichyo.jp/aoj-icpc/">AOJ-ICPC</a></li>
-					<li><a href="http://twitter.com/kenkoooo">お問い合わせ</a></li>
+					<li class="active"><a href="./user.php">ユーザーページ</a></li>
+					<li><a href="http://atcoder.jp/" target='_blank'>AtCoder (公式)</a></li>
+					<li><a href="http://ichyo.jp/aoj-icpc/" target='_blank'>AOJ-ICPC</a></li>
+					<li><a href="http://twitter.com/kenkoooo" target='_blank'>お問い合わせ</a></li>
 				</ul>
 			</div>
 			<!--/.nav-collapse -->
 		</div>
 	</nav>
 	<div class="container">
+		<form action="user.php" method="get" class="form-inline">
+			<div class="form-group">
+				<label>User ID:</label>
+					<?php echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="name" value="' . $user_name . '">'; ?>
+				</div>
+			<button type="submit" class="btn btn-default">Search</button>
+		</form>
 		<div class="page-header">
 			<h1><?php
 			if ($exist) {
 				echo $user_name;
 			} else {
-				echo "ユーザーが存在しません";
 			}
 			?></h1>
+
 			<p class="lead"></p>
 
 		</div>
@@ -82,23 +91,25 @@
 			<?php if (!$exist)echo 'style="visibility: hidden; height: 0;"';?>>
 			<div class="col-xs-6 col-sm-3 placeholder">
 				<h4>AC問題数</h4>
-				<h3><?php echo $acNum;?>問</h3>
+				<h3><?php echo $acNum;?> 問</h3>
 				<span class="text-muted"><?php echo "$acRank 位 / $memberNum 人中";?></span>
 			</div>
 			<div class="col-xs-6 col-sm-3 placeholder">
 				<h4>ショートコード数</h4>
-				<h3><?php echo $shortNum;?>問</h3>
+				<h3><?php echo $shortNum;?> 問</h3>
 				<span class="text-muted"><?php echo "$shortRank 位 / $memberNum 人中";?></span>
 			</div>
 			<div class="col-xs-6 col-sm-3 placeholder">
 				<h4>最速コード数</h4>
-				<h3><?php echo $fastNum;?>問</h3>
+				<h3><?php echo $fastNum;?> 問</h3>
 				<span class="text-muted"><?php echo "$fastRank 位 / $memberNum 人中";?></span>
 			</div>
 			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>Label</h4>
-				<h3><?php echo $evaluate;?></h3>
-				<span class="text-muted">Something else</span>
+				<h4>レベル</h4>
+				<h3>Lv. <?php echo level($score);?></h3>
+				<div class="text-muted">現在の経験値 <?php echo $score;?></div>
+				<div class="text-muted">次のレベルまで、あと <?php echo (nextScore($score)-$score);?></div>
+				<div class="text-muted"><a href="https://twitter.com/kenkoooo/status/622154927914115072" target='_blank'>スコアについて</a></div>
 			</div>
 		</div>
 	</div>
@@ -110,27 +121,43 @@
 
 		</div>
 		<div class="row placeholders">
-			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>A問題</h4>
-				<h3><?php echo round($abc[0]*100/$abc[1]);?> %</h3>
-				<span class="text-muted"><?php echo "$abc[0] 問 / $abc[1] 問";?></span>
-			</div>
-			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>B問題</h4>
-				<h3><?php echo round($abc[2]*100/$abc[3]);?> %</h3>
-				<span class="text-muted"><?php echo "$abc[2] 問 / $abc[3] 問";?></span>
-			</div>
-			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>C問題</h4>
-				<h3><?php echo round($abc[4]*100/$abc[5]);?> %</h3>
-				<span class="text-muted"><?php echo "$abc[4] 問 / $abc[5] 問";?></span>
-			</div>
-			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>D問題</h4>
-				<h3><?php echo round($abc[6]*100/$abc[7]);?> %</h3>
-				<span class="text-muted"><?php echo "$abc[6] 問 / $abc[7] 問";?></span>
-			</div>
-		</div>
+		<?php
+		
+		for($i = 0; $i < 4; $i ++) {
+			echo '<div class="col-xs-6 col-sm-3 placeholder">';
+			echo '<h4>' . chr ( 65 + $i ) . '問題</h4>';
+			echo "<div>
+					<canvas id='abc$i' height='100%' width='100%'></canvas>
+				</div>";
+			$j = $abc [$i * 2];
+			$k = $abc [$i * 2 + 1];
+			$l = $k - $j;
+			echo "<script>var doughnutData = [
+　　{
+　　　value: $j,
+　　　color:'#32CD32'
+　　},
+   {
+　　　value: $l,
+　　　color: '#A8BECB'
+　　}
+];
+ 
+var myDoughnut = new Chart(document.getElementById('abc$i').
+getContext('2d')).Doughnut(doughnutData);
+ 
+</script>";
+			echo "
+			<span class='text-muted'>$j 問 / $k 問</span>
+		</div>";
+		}
+		
+		?>
+		
+			
+
+		
+	</div>
 	</div>
 	<div class="container"
 		<?php if (!$exist)echo 'style="visibility: hidden; height: 0;"';?>>
@@ -140,28 +167,43 @@
 
 		</div>
 		<div class="row placeholders">
-			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>A問題</h4>
-				<h3><?php echo round($arc[0]*100/$arc[1]);?> %</h3>
-				<span class="text-muted"><?php echo "$arc[0] 問 / $arc[1] 問";?></span>
-			</div>
-			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>B問題</h4>
-				<h3><?php echo round($arc[2]*100/$arc[3]);?> %</h3>
-				<span class="text-muted"><?php echo "$arc[2] 問 / $arc[3] 問";?></span>
-			</div>
-			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>C問題</h4>
-				<h3><?php echo round($arc[4]*100/$arc[5]);?> %</h3>
-				<span class="text-muted"><?php echo "$arc[4] 問 / $arc[5] 問";?></span>
-			</div>
-			<div class="col-xs-6 col-sm-3 placeholder">
-				<h4>D問題</h4>
-				<h3><?php echo round($arc[6]*100/$arc[7]);?> %</h3>
-				<span class="text-muted"><?php echo "$arc[6] 問 / $arc[7] 問";?></span>
-			</div>
+		<?php
+		
+		for($i = 0; $i < 4; $i ++) {
+			echo '<div class="col-xs-6 col-sm-3 placeholder">';
+			echo '<h4>' . chr ( 65 + $i ) . '問題</h4>';
+			echo "<div>
+					<canvas id='arc$i' height='100%' width='100%'></canvas>
+				</div>";
+			$j = $arc [$i * 2];
+			$k = $arc [$i * 2 + 1];
+			$l = $k - $j;
+			echo "<script>var doughnutData = [
+　　{
+　　　value: $j,
+　　　color:'#32CD32'
+　　},
+   {
+　　　value: $l,
+　　　color: '#A8BECB'
+　　}
+];
+ 
+var myDoughnut = new Chart(document.getElementById('arc$i').
+getContext('2d')).Doughnut(doughnutData);
+ 
+</script>";
+			echo "
+			<span class='text-muted'>$j 問 / $k 問</span>
+		</div>";
+		}
+		
+		?>
+		
 		</div>
 	</div>
+
+	<?php if ($exist) listRecommend($recommend);?>
 
 	<!-- div class="container" style="visibility: hidden; height: 0;"-->
 	<!-- /container -->
@@ -177,7 +219,15 @@
 	<script src="js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript">
 
-	$(document).ready(function() {} );
+	$(document).ready(function() {
+	      $('#recommend').dataTable({
+		        "bPaginate": false,
+		        "bLengthChange": false,
+		        "bFilter": true,
+		        "bInfo": false,
+		        "bAutoWidth": false,
+				"aaSorting": [[ 3, "desc" ]]
+		      });} );
 	
 	</script>
 </body>

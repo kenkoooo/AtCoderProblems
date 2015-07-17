@@ -46,17 +46,6 @@ if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
 	foreach ( $s as $short ) {
 		array_push ( $short_fast, $short );
 	}
-} else if (isset ( $_GET ["recommend"] ) && $_GET ["recommend"] && isset ( $_GET ["name"] ) && $_GET ["name"]) {
-	// レコメンドエンジン
-	$pull = $sql->recommendEngine ( $user_name );
-	$evaluate = $sql->evaluateUser ( $user_name );
-	$recommend = array ();
-	foreach ( $pull as $r ) {
-		$solvers = $r ["solvers"] + 0.0;
-		if ($solvers < $evaluate) {
-			array_push ( $recommend, $r );
-		}
-	}
 } else {
 	// 問題一覧取得
 	$problemArray = getProblemArray ( $user_name, $rivals );
@@ -197,73 +186,24 @@ function listMode($array) {
 			echo str_pad ( $contest_problem ["solvers"], 4, "0", STR_PAD_LEFT );
 			echo "</a></div></td>";
 			
-			$fast = $contest_problem ["fast"];
-			$exec = $contest_problem ["exec"];
-			$fast_id = $contest_problem ["fast_id"];
-			echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$fast_id' target='_blank'>$fast ($exec ms)</a></td>";
-			
-			$short = $contest_problem ["short"];
-			$length = $contest_problem ["length"];
-			$short_id = $contest_problem ["short_id"];
-			echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$short_id' target='_blank'>$short ($length Byte)</a></td>";
+			if ($contest_problem ["solvers"] > 0) {
+				$fast = $contest_problem ["fast"];
+				$exec = $contest_problem ["exec"];
+				$fast_id = $contest_problem ["fast_id"];
+				echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$fast_id' target='_blank'>$fast ($exec ms)</a></td>";
+				
+				$short = $contest_problem ["short"];
+				$length = $contest_problem ["length"];
+				$short_id = $contest_problem ["short_id"];
+				echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$short_id' target='_blank'>$short ($length Byte)</a></td>";
+			} else {
+				echo "<td></td>";
+				echo "<td></td>";
+			}
 			
 			echo "</tr>";
 		}
 	}
-	echo '</tbody>';
-	echo '</table>';
-	echo '</div>';
-}
-/*
- * レコメンドエンジン
- */
-function listRecommend($array) {
-	// おすすめ度でソート
-	foreach ( $array as $key => $value ) {
-		$key_id [$key] = $value ['max'];
-	}
-	array_multisort ( $key_id, SORT_DESC, $array );
-	
-	$limit = 30;
-	
-	echo '<div class="container">';
-	echo '<table id="recommend" class="table table-hover table-striped table-bordered table-condensed">';
-	echo '<thead><tr>';
-	echo '<th>問題名</th>';
-	echo '<th>コンテスト</th>';
-	echo '<th>解いた人数</th>';
-	echo '<th>おすすめ度</th>';
-	echo '</tr></thead>';
-	echo '<tbody>';
-	
-	foreach ( $array as $problem ) {
-		$contest_name = $problem ["contest_name"];
-		$contest_title = $problem ["contest_title"];
-		$problem_name = $problem ["problem_name"];
-		$problem_title = $problem ["problem_title"];
-		$solvers = $problem ["solvers"];
-		$max = $problem ["max"];
-		
-		echo "<tr>";
-		echo "<td><a href='http://$contest_name.contest.atcoder.jp/tasks/$problem_name' target='_blank'>";
-		echo mb_strimwidth ( $problem_title, 0, 40, "...", "UTF-8" );
-		echo "</a></td>";
-		echo "<td><a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>";
-		echo mb_strimwidth ( $contest_title, 0, 40, "...", "UTF-8" );
-		echo "</a></td>";
-		echo "<td>";
-		echo "<div class='text-right'><a href='http://$contest_name.contest.atcoder.jp/submissions/all?task_screen_name=$problem_name&status=AC' target='_blank'>";
-		echo str_pad ( $solvers, 4, "0", STR_PAD_LEFT );
-		echo "</a></div></td>";
-		echo "<td>$max</td>";
-		echo "</tr>";
-		
-		$limit --;
-		if ($limit == 0) {
-			break;
-		}
-	}
-	
 	echo '</tbody>';
 	echo '</table>';
 	echo '</div>';

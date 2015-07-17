@@ -66,9 +66,10 @@
 					<li
 						<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]==3) echo ' class="active"';?>><a
 						href="./index.php?ranking=3">実行速度ランキング</a></li>
-					<li><a href="http://atcoder.jp/">AtCoder (公式)</a></li>
-					<li><a href="http://ichyo.jp/aoj-icpc/">AOJ-ICPC</a></li>
-					<li><a href="http://twitter.com/kenkoooo">お問い合わせ</a></li>
+					<li><a href="./user.php">ユーザーページ</a></li>
+					<li><a href="http://atcoder.jp/" target='_blank'>AtCoder (公式)</a></li>
+					<li><a href="http://ichyo.jp/aoj-icpc/" target='_blank'>AOJ-ICPC</a></li>
+					<li><a href="http://twitter.com/kenkoooo" target='_blank'>お問い合わせ</a></li>
 				</ul>
 			</div>
 			<!--/.nav-collapse -->
@@ -131,8 +132,6 @@
 			listRanking ( $ranking, $_GET ["ranking"] ); // ランキング
 		} else if (isset ( $_GET ["short_fast"] ) && $_GET ["short_fast"]) {
 			listShortFast ( $short_fast, $_GET ["short_fast"] ); // ショートコーダー
-		} else if (isset ( $_GET ["recommend"] ) && $_GET ["recommend"] && isset ( $_GET ["name"] ) && $_GET ["name"]) {
-			listRecommend ( $recommend );
 		} else if (isset ( $_GET ["category"] ) && $_GET ["category"]) {
 			listABC ( $problemArray, '/abc[0-9]*/i' );
 			listABC ( $problemArray, '/arc[0-9]*/i' );
