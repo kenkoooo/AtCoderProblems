@@ -27,10 +27,17 @@ if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
 	foreach ( $r as $ranking_row ) {
 		array_push ( $ranking, $ranking_row );
 	}
-} else if (isset ( $_GET ["short_coder"] ) && $_GET ["short_coder"]) {
-	$short_coder = array ();
-	$problems = $sql->pullProblems ();
-	$s = $sql->pullShorters (); // TODO
+} else if (isset ( $_GET ["short_fast"] ) && $_GET ["short_fast"]) {
+	$short_fast = array ();
+	
+	if ($_GET ["short_fast"] == 1) {
+		$s = $sql->pullShorters ( "short_coder" );
+	} else {
+		$s = $sql->pullShorters ( "exec_faster" );
+	}
+	foreach ( $s as $short ) {
+		array_push ( $short_fast, $short );
+	}
 } else {
 	// 問題一覧取得
 	$problemArray = getProblemArray ( $user_name, $rivals );
@@ -324,67 +331,44 @@ function listOther($array) {
 /*
  * ショートコーダー
  */
-function listShort($array) {
-	// TODO
+function listShortFast($array, $short_or_fast) {
+	// $short_or_fast=1のときショートコーダー、2のときfast
 	echo '<div class="container">';
-	echo '<table id="list" class="table table-hover table-striped table-bordered table-condensed">';
+	echo '<table id="short" class="table table-hover table-striped table-bordered table-condensed">';
 	echo '<thead><tr>';
 	echo '<th>問題名</th>';
 	echo '<th>ユーザー</th>';
-	echo '<th>コード長</th>';
+	if ($short_or_fast == 1) {
+		echo '<th>コード長 (Byte)</th>';
+	} else {
+		echo '<th>実行時間 (ms)</th>';
+	}
 	echo '<th>提出時間</th>';
 	echo '</tr></thead>';
 	echo '<tbody>';
 	
 	foreach ( $array as $problem ) {
+		$problem_name = $problem ["problem_name"];
+		$problem_title = $problem ["title"];
 		
-		$contest_name = $contest ["name"];
-		$contest_title = $contest ["title"];
-		
-		foreach ( $contest ["problems"] as $contest_problem ) {
-			$contest_problem_name = $contest_problem ["problem_name"];
-			$contest_problem_title = $contest_problem ["title"];
-			
-			echo "<tr ";
-			if ($contest_problem ["solved"]) {
-				echo "class='success'";
-			} elseif ($contest_problem ["rival_solved"]) {
-				echo "class='danger'";
-			}
-			echo ">";
-			
-			echo "<td><a href='http://$contest_name.contest.atcoder.jp/tasks/$contest_problem_name' target='_blank'>";
-			echo mb_strimwidth ( $contest_problem_title, 0, 40, "...", "UTF-8" );
-			echo "</a></td>";
-			
-			echo "<td><a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>";
-			echo "$contest_title";
-			echo "</a></td>";
-			
-			echo "<td>";
-			if ($contest_problem ["solved"]) {
-				echo '<div class="text-center"><span class="label label-success">AC</span></div>';
-			} elseif ($contest_problem ["rival_solved"]) {
-				$rivals_array = array_unique ( explode ( ',', $contest_problem ["rivals"] ) );
-				foreach ( $rivals_array as $rival_name ) {
-					echo '<div class="text-center"><span class="label label-danger">' . $rival_name . '</span></div>';
-				}
-			}
-			echo "</td>";
-			
-			echo "<td>";
-			echo date ( "Y-m-d", strtotime ( $contest ["end"] ) );
-			echo "</td>";
-			
-			echo "<td>";
-			echo "<div class='text-right'><a href='http://$contest_name.contest.atcoder.jp/submissions/all?task_screen_name=$contest_problem_name&status=AC' target='_blank'>";
-			// echo $contest_problem ["solvers"];
-			// 4桁まで0埋め
-			echo str_pad ( $contest_problem ["solvers"], 4, "0", STR_PAD_LEFT );
-			echo "</a></div></td>";
-			
-			echo "</tr>";
+		$contest_name = $problem ["contest_name"];
+		$submission_id = $problem ["submission_id"];
+		$submission_time = $problem ["submission_time"];
+		$user = $problem ["user"];
+		if ($short_or_fast == 1) {
+			$length = $problem ["length"];
+		} else {
+			$length = $problem ["exec"];
 		}
+		
+		echo "<tr>";
+		echo "<td><a href='http://$contest_name.contest.atcoder.jp/tasks/$problem_name' target='_blank'>";
+		echo mb_strimwidth ( $problem_title, 0, 40, "...", "UTF-8" );
+		echo "</a></td>";
+		echo "<td><a href='./index.php?name=$user_name' target='_blank'>$user</a></td>";
+		echo "<td>$length</td>";
+		echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$submission_id' target='_blank'>$submission_time</a></td>";
+		echo "</tr>";
 	}
 	echo '</tbody>';
 	echo '</table>';

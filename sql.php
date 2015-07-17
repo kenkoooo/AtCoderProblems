@@ -30,7 +30,6 @@ class SQLConnect {
 			$dbh = new PDO ( $dsn, SQLUSER, SQLPASSWORD, $options );
 			
 			foreach ( $querySet as $query ) {
-				echo $query . "\n";
 				$dbh->query ( $query );
 			}
 		} catch ( PDOException $e ) {
@@ -204,7 +203,7 @@ class SQLConnect {
 			$problem_name = $s ["problem_name"];
 			$submission_id = $s ["submission"] ["id"];
 			
-			$query = "SELECT * FROM $table where problem_name='$problem_name'";
+			$query = "SELECT * FROM $table WHERE problem_name='$problem_name'";
 			$data = $this->exectute ( $query );
 			if (! $data->fetch ( PDO::FETCH_ASSOC )) {
 				// 存在しない時
@@ -212,7 +211,7 @@ class SQLConnect {
 				array_push ( $querySet, $query );
 			} else {
 				// 存在する時
-				$query = "UPDATE $table SET submission_id=$submission_id";
+				$query = "UPDATE $table SET submission_id=$submission_id WHERE problem_name='$problem_name'";
 				array_push ( $querySet, $query );
 			}
 		}
@@ -221,7 +220,51 @@ class SQLConnect {
 	
 	// ショートコーダーを返す
 	public function pullShorters($table) {
-		$query = "SELECT * FROM problems LEFT JOIN $table ON problems.name=$table.problem_name LEFT JOIN submissions ON submissions.id=$table.submission_id";
+		$query = "SELECT * FROM problems LEFT JOIN $table ON problems.name=$table.problem_name LEFT JOIN submissions ON submissions.id=$table.submission_id WHERE problems.solvers>0";
 		return $this->exectute ( $query );
+	}
+	
+	// 問題を投げると、その問題を解いた人が解いた他の問題の人数を返す
+	private function getEdgeScores($problem_name) {
+		$query = "SELECT problem_name,COUNT(DISTINCT(user)) AS count FROM submissions WHERE submissions.user IN ( SELECT DISTINCT(user) FROM submissions WHERE problem_name='$problem_name' ) GROUP BY problem_name";
+		return $this->exectute ( $query );
+	}
+	
+	//
+	public function scoreEdge($target) {
+		$problems = $this->pullProblems ();
+		$count = 0;
+		$querySet = array ();
+		foreach ( $problems as $p ) {
+			if ($count != $target) {
+				$count ++;
+				continue;
+			}
+			
+			$problem_name = $p ["problem_name"];
+			$edges = $this->getEdgeScores ( $problem_name );
+			foreach ( $edges as $e ) {
+				$another_name = $e ["problem_name"];
+				$score = $e ["count"];
+				if (strstr ( $problem_name, $another_name )) {
+					continue;
+				}
+				
+				$query = "SELECT * FROM edges WHERE from_problem_name='$problem_name' AND to_problem_name='$another_name'";
+				$data = $this->exectute ( $query );
+				if (! $data->fetch ( PDO::FETCH_ASSOC )) {
+					// 存在しない時
+					$query = "INSERT INTO edges (from_problem_name,to_problem_name,score) VALUES " . "('$problem_name','$another_name',$score)";
+					array_push ( $querySet, $query );
+				} else {
+					// 存在する時
+					$query = "UPDATE edges SET score=$score WHERE from_problem_name='$problem_name' AND to_problem_name='$another_name'";
+					array_push ( $querySet, $query );
+				}
+			}
+			$count ++;
+		}
+		
+		$this->exectuteArray ( $querySet );
 	}
 }

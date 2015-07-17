@@ -82,7 +82,12 @@
 				<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 			</p>
 			<form action="index.php" method="get" class="form-inline"
-				<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) echo ' style="visibility: hidden; height: 0;"';?>>
+				<?php
+				if ((isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) || (isset ( $_GET ["short_fast"] ) && $_GET ["short_fast"])) {
+					echo ' style="visibility: hidden; height: 0;"';
+				}
+				
+				?>>
 				<div class="form-group">
 					<label>User ID:</label>
 					<?php echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="name" value="' . $user_name . '">'; ?>
@@ -118,8 +123,8 @@
 		
 		if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
 			listRanking ( $ranking );
-		} else if (isset ( $_GET ["short_coder"] ) && $_GET ["short_coder"]) {
-			listShort ( $short_coder );
+		} else if (isset ( $_GET ["short_fast"] ) && $_GET ["short_fast"]) {
+			listShortFast ( $short_fast, $_GET ["short_fast"] );
 		} else if (isset ( $_GET ["category"] ) && $_GET ["category"]) {
 			listABC ( $problemArray, '/abc[0-9]*/i' );
 			listABC ( $problemArray, '/arc[0-9]*/i' );
@@ -161,6 +166,14 @@
 	        "bAutoWidth": false,
 			"aaSorting": [[ 0, "asc" ]]
 	      });
+	      $('#short').dataTable({
+		        "bPaginate": false,
+		        "bLengthChange": false,
+		        "bFilter": true,
+		        "bInfo": false,
+		        "bAutoWidth": false,
+				"aaSorting": [[ 2, "asc" ]]
+		      });
 	} );
 	
 	</script>
