@@ -58,8 +58,14 @@
 						<?php if (!isset ($_GET ["ranking"]) || !$_GET ["ranking"]) echo ' class="active"';?>><a
 						href="./">Home</a></li>
 					<li
-						<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) echo ' class="active"';?>><a
-						href="./index.php?ranking=1">ランキング</a></li>
+						<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]==1) echo ' class="active"';?>><a
+						href="./index.php?ranking=1">正解数ランキング</a></li>
+					<li
+						<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]==2) echo ' class="active"';?>><a
+						href="./index.php?ranking=2">ショートコーダー</a></li>
+					<li
+						<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]==3) echo ' class="active"';?>><a
+						href="./index.php?ranking=3">実行速度ランキング</a></li>
 					<li><a href="http://atcoder.jp/">AtCoder (公式)</a></li>
 					<li><a href="http://ichyo.jp/aoj-icpc/">AOJ-ICPC</a></li>
 					<li><a href="http://twitter.com/kenkoooo">お問い合わせ</a></li>
@@ -83,7 +89,7 @@
 			</p>
 			<form action="index.php" method="get" class="form-inline"
 				<?php
-				if ((isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) || (isset ( $_GET ["short_fast"] ) && $_GET ["short_fast"])) {
+				if ((isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) || (isset ( $_GET ["short_fast"] ) && $_GET ["short_fast"]) || (isset ( $_GET ["recommend"] ) && $_GET ["recommend"] && isset ( $_GET ["name"] ) && $_GET ["name"])) {
 					echo ' style="visibility: hidden; height: 0;"';
 				}
 				
@@ -122,9 +128,11 @@
 		<?php
 		
 		if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
-			listRanking ( $ranking );
+			listRanking ( $ranking, $_GET ["ranking"] ); // ランキング
 		} else if (isset ( $_GET ["short_fast"] ) && $_GET ["short_fast"]) {
-			listShortFast ( $short_fast, $_GET ["short_fast"] );
+			listShortFast ( $short_fast, $_GET ["short_fast"] ); // ショートコーダー
+		} else if (isset ( $_GET ["recommend"] ) && $_GET ["recommend"] && isset ( $_GET ["name"] ) && $_GET ["name"]) {
+			listRecommend ( $recommend );
 		} else if (isset ( $_GET ["category"] ) && $_GET ["category"]) {
 			listABC ( $problemArray, '/abc[0-9]*/i' );
 			listABC ( $problemArray, '/arc[0-9]*/i' );
@@ -158,7 +166,7 @@
 	        "bAutoWidth": false,
 			"aaSorting": [[ 3, "asc" ]]
 	      });
-	    $('#ranking').dataTable({
+	          $('#ranking').dataTable({
 	        "bPaginate": false,
 	        "bLengthChange": false,
 	        "bFilter": true,
@@ -166,14 +174,22 @@
 	        "bAutoWidth": false,
 			"aaSorting": [[ 0, "asc" ]]
 	      });
-	      $('#short').dataTable({
-		        "bPaginate": false,
-		        "bLengthChange": false,
-		        "bFilter": true,
-		        "bInfo": false,
-		        "bAutoWidth": false,
-				"aaSorting": [[ 2, "asc" ]]
-		      });
+		      $('#short').dataTable({
+			        "bPaginate": false,
+			        "bLengthChange": false,
+			        "bFilter": true,
+			        "bInfo": false,
+			        "bAutoWidth": false,
+					"aaSorting": [[ 2, "asc" ]]
+			      });
+		      $('#recommend').dataTable({
+			        "bPaginate": false,
+			        "bLengthChange": false,
+			        "bFilter": true,
+			        "bInfo": false,
+			        "bAutoWidth": false,
+					"aaSorting": [[ 3, "desc" ]]
+			      });
 	} );
 	
 	</script>

@@ -130,7 +130,12 @@ class SQLConnect {
 	
 	// 全問題を取得する
 	public function pullProblems() {
-		$query = "SELECT problems.name as problem_name, problems.title, problems.solvers, contests.name as contest_name FROM problems LEFT JOIN contests ON problems.contest_id=contests.id";
+		$query = "SELECT problems.name as problem_name, problems.title, problems.solvers, contests.name as contest_name, s1.length,s1.user AS short,s1.id AS short_id, s2.exec, s2.user AS fast,s2.id AS fast_id FROM problems
+LEFT JOIN contests ON problems.contest_id=contests.id 
+LEFT JOIN short_coder ON short_coder.problem_name=problems.name
+LEFT JOIN submissions AS s1 ON short_coder.submission_id=s1.id
+LEFT JOIN exec_faster ON exec_faster.problem_name=problems.name
+INNER JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 		return $this->exectute ( $query );
 	}
 	
@@ -155,6 +160,64 @@ class SQLConnect {
 	// ランキングを返す
 	public function pullRanking() {
 		$query = "SELECT count(DISTINCT(problem_name)), user FROM `submissions` GROUP BY user ORDER BY `count(distinct(problem_name))` DESC";
+		return $this->exectute ( $query );
+	}
+	
+	// ショートコーダーランキングを返す
+	public function pullShortRanking() {
+		$query = "SELECT COUNT(DISTINCT(submissions.problem_name)),user FROM short_coder LEFT JOIN submissions ON submissions.id=submission_id GROUP BY user ORDER BY `COUNT(DISTINCT(submissions.problem_name))`  DESC";
+		return $this->exectute ( $query );
+	}
+	
+	// ユーザーが存在するかどうか
+	public function isExist($user_name) {
+		$query = "SELECT * FROM submissions WHERE user='$user_name'";
+		$data = $this->exectute ( $query );
+		if (! $data->fetch ( PDO::FETCH_ASSOC )) {
+			// 存在しない時
+			return FALSE;
+		} else {
+			// 存在する時
+			return TRUE;
+		}
+	}
+	
+	// 正解問題数を返す
+	public function getACNum($user_name) {
+		$query = "SELECT count(DISTINCT(problem_name)) AS count FROM submissions WHERE user='kenkoooo' GROUP BY user";
+		$count = 0;
+		$data = $this->exectute ( $query );
+		foreach ( $data as $d ) {
+			$count = max ( $count, $d ["count"] );
+		}
+		return $count;
+	}
+
+	// ショートコード数を返す
+	public function getShortNum($user_name) {
+		$query = "SELECT COUNT(user) AS count FROM short_coder AS list LEFT JOIN submissions ON list.submission_id=submissions.id WHERE user='$user_name' GROUP BY user";
+		$count = 0;
+		$data = $this->exectute ( $query );
+		foreach ( $data as $d ) {
+			$count = max ( $count, $d ["count"] );
+		}
+		return $count;
+	}
+	
+	// 最速数を返す
+	public function getFastNum($user_name) {
+		$query = "SELECT COUNT(user) AS count FROM exec_faster AS list LEFT JOIN submissions ON list.submission_id=submissions.id WHERE user='$user_name' GROUP BY user";
+		$count = 0;
+		$data = $this->exectute ( $query );
+		foreach ( $data as $d ) {
+			$count = max ( $count, $d ["count"] );
+		}
+		return $count;
+	}
+	
+	// ファストランキングを返す
+	public function pullFastRanking() {
+		$query = "SELECT COUNT(DISTINCT(submissions.problem_name)),user FROM exec_faster LEFT JOIN submissions ON submissions.id=submission_id GROUP BY user ORDER BY `COUNT(DISTINCT(submissions.problem_name))`  DESC";
 		return $this->exectute ( $query );
 	}
 	
@@ -268,9 +331,36 @@ class SQLConnect {
 		$this->exectuteArray ( $querySet );
 	}
 	
-	//
+	// ユーザー評価値の取得
+	public function evaluateUser($user) {
+		$query = "SELECT AVG( top100.solvers ) AS avg
+FROM (
+
+SELECT solvers
+FROM problems
+WHERE name
+IN (
+
+SELECT DISTINCT (
+problem_name
+)
+FROM submissions
+WHERE user = '$user'
+)
+ORDER BY problems.solvers ASC
+LIMIT 100
+)top100";
+		$data = $this->exectute ( $query );
+		$ret = 10000;
+		foreach ( $data as $value ) {
+			$ret = min ( $value ["avg"] + 0.0, $ret );
+		}
+		return $ret * 1.2;
+	}
+	
+	// レコメンドエンジン
 	public function recommendEngine($user) {
-		$query = "SELECT problems.name, contests.name, contests.title, problems.title, MAX( score ) max, problems.solvers FROM edges
+		$query = "SELECT problems.name AS problem_name, contests.name AS contest_name, contests.title AS contest_title, problems.title AS problem_title, MAX( score ) AS max, problems.solvers FROM edges
 LEFT JOIN problems ON to_problem_name = problems.name
 LEFT JOIN contests ON contests.id = problems.contest_id
 WHERE from_problem_name
@@ -290,27 +380,8 @@ problem_name
 FROM submissions
 WHERE user = '$user'
 )
-AND solvers < (
-SELECT AVG( top100.solvers )
-FROM (
-
-SELECT solvers
-FROM problems
-WHERE name
-IN (
-
-SELECT DISTINCT (
-problem_name
-)
-FROM submissions
-WHERE user = '$user' )
-ORDER BY `problems`.`solvers` ASC
-LIMIT 100
-)top100
-)
 GROUP BY problems.name
-ORDER BY max DESC
-LIMIT 30";
+ORDER BY max DESC";
 		return $this->exectute ( $query );
 	}
 }
