@@ -230,7 +230,7 @@ class SQLConnect {
 		return $this->exectute ( $query );
 	}
 	
-	//
+	// ターゲットとなる問題番号（配列で何番目にあるか）から出るエッジを評価する
 	public function scoreEdge($target) {
 		$problems = $this->pullProblems ();
 		$count = 0;
@@ -266,5 +266,51 @@ class SQLConnect {
 		}
 		
 		$this->exectuteArray ( $querySet );
+	}
+	
+	//
+	public function recommendEngine($user) {
+		$query = "SELECT problems.name, contests.name, contests.title, problems.title, MAX( score ) max, problems.solvers FROM edges
+LEFT JOIN problems ON to_problem_name = problems.name
+LEFT JOIN contests ON contests.id = problems.contest_id
+WHERE from_problem_name
+IN (
+SELECT DISTINCT (
+problem_name
+)
+FROM submissions
+WHERE user = '$user'
+)
+AND to_problem_name NOT
+IN (
+
+SELECT DISTINCT (
+problem_name
+)
+FROM submissions
+WHERE user = '$user'
+)
+AND solvers < (
+SELECT AVG( top100.solvers )
+FROM (
+
+SELECT solvers
+FROM problems
+WHERE name
+IN (
+
+SELECT DISTINCT (
+problem_name
+)
+FROM submissions
+WHERE user = '$user' )
+ORDER BY `problems`.`solvers` ASC
+LIMIT 100
+)top100
+)
+GROUP BY problems.name
+ORDER BY max DESC
+LIMIT 30";
+		return $this->exectute ( $query );
 	}
 }
