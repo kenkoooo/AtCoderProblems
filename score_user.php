@@ -5,10 +5,6 @@ require_once 'sql.php';
 $sql = new SQLConnect ();
 
 $time_start = microtime ( true );
-for($i = 705; $i < 830; $i ++) {
-	echo $i . " ";
-	$sql->scoreEdge ( $i );
-}
-
+$sql->cacheEvaluate ();
 $timelimit = microtime ( true ) - $time_start;
 echo $timelimit . ' seconds' . "\n";

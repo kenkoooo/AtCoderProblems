@@ -421,7 +421,7 @@ FROM submissions
 WHERE user = '$user'
 )
 ORDER BY problems.solvers ASC
-LIMIT 100
+LIMIT 30
 )top100";
 		$data = $this->exectute ( $query );
 		$ret = 10000;
@@ -455,6 +455,49 @@ WHERE user = '$user'
 )
 GROUP BY problems.name
 ORDER BY max DESC";
+		return $this->exectute ( $query );
+	}
+	
+	// 1ヶ月以内にACのあったユーザーの一覧を取得する
+	public function pullActiveUsers() {
+		$query = "SELECT user FROM submissions WHERE submission_time >= DATE_ADD(NOW(), INTERVAL -1 MONTH) GROUP BY user";
+		return $this->exectute ( $query );
+	}
+	
+	// ユーザー評価情報をキャッシュする
+	public function cacheEvaluate() {
+		$querySet = array ();
+		$r = $this->pullActiveUsers ();
+		foreach ( $r as $user ) {
+			$user_name = $user ["user"];
+			$acNum = $this->getACNum ( $user_name );
+			
+			if ($acNum > 30) {
+				$evaluate = round ( $this->evaluateUser ( $user_name ) );
+				
+				$query = "SELECT * FROM evaluate WHERE user='$user_name'";
+				$data = $this->exectute ( $query );
+				if (! $data->fetch ( PDO::FETCH_ASSOC )) {
+					// 存在しない時
+					$query = "INSERT INTO evaluate (user,evaluate) VALUES " . "('$user_name',$evaluate)";
+					array_push ( $querySet, $query );
+				} else {
+					// 存在する時
+					$query = "UPDATE evaluate SET evaluate=$evaluate WHERE user='$user_name'";
+					array_push ( $querySet, $query );
+				}
+			}
+		}
+		
+		$this->exectuteArray ( $querySet );
+	}
+	
+	// ライバルを探す
+	public function searchRivals($evaluate) {
+		$range = 0.1;
+		$floor = min ( $evaluate * (1.0 - $range), $evaluate - 20 );
+		$ceil = max ( $evaluate * (1.0 + $range), $evaluate + 20 );
+		$query = "SELECT user FROM evaluate WHERE evaluate>=$floor AND evaluate<=$ceil";
 		return $this->exectute ( $query );
 	}
 }

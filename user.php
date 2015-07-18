@@ -58,17 +58,6 @@ if ($exist) {
 	for($i = 0; $i < 4; $i ++) {
 		$score += $arc [$i * 2] * pow ( 2, ($i + 1) );
 	}
-	
-	// レコメンドエンジン
-	$pull = $sql->recommendEngine ( $user_name );
-	$evaluate = $sql->evaluateUser ( $user_name );
-	$recommend = array ();
-	foreach ( $pull as $r ) {
-		$solvers = $r ["solvers"] + 0.0;
-		if ($solvers < $evaluate) {
-			array_push ( $recommend, $r );
-		}
-	}
 }
 
 // 表示
@@ -77,7 +66,18 @@ include 'view/user.inc';
 /*
  * レコメンドエンジン
  */
-function listRecommend($array) {
+function listRecommend($user_name) {
+	$sql = new SQLConnect ();
+	// レコメンドエンジン
+	$pull = $sql->recommendEngine ( $user_name );
+	$evaluate = $sql->evaluateUser ( $user_name );
+	$array = array ();
+	foreach ( $pull as $r ) {
+		$solvers = $r ["solvers"] + 0.0;
+		if ($solvers < $evaluate) {
+			array_push ( $array, $r );
+		}
+	}
 	// おすすめ度でソート
 	foreach ( $array as $key => $value ) {
 		$key_id [$key] = $value ['max'];
@@ -88,16 +88,21 @@ function listRecommend($array) {
 	
 	$rand = rand ( 0, min ( count ( $array ), $limit ) - 1 );
 	
-	echo '<div class="container"><div class="page-header"><h1>ガチャ</h1><p class="lead">';
+	// ガチャ表示
+	echo '<div class="container"><div class="page-header"><h1>ガチャ</h1>';
+	echo '</div>';
+	echo '<p class="lead">';
 	$contest_name = $array [$rand] ["contest_name"];
 	$contest_title = $array [$rand] ["contest_title"];
 	$problem_name = $array [$rand] ["problem_name"];
 	$problem_title = $array [$rand] ["problem_title"];
 	echo "<a href='http://$contest_name.contest.atcoder.jp/tasks/$problem_name' target='_blank'>";
 	echo $problem_title;
-	echo "</a></p> <p class='lead'>(出典: <a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>$contest_title</a>)</p>";
-	echo '</div></div>';
+	echo "</a></p> <p>(出典: <a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>$contest_title</a>)</p>";
 	
+	echo '</div>';
+	
+	// レコメンド
 	echo '<div class="container">';
 	echo '<div class="page-header">
 			<h1>おすすめ問題</h1>
@@ -141,6 +146,24 @@ function listRecommend($array) {
 	
 	echo '</tbody>';
 	echo '</table>';
+	echo '</div>';
+}
+
+// ライバルたちを表示する
+function searchRivals($user_name) {
+	$sql = new SQLConnect ();
+	echo '<div class="container">';
+	echo '<div class="page-header"><h1>ライバル</h1></div>';
+	
+	$evaluate = $sql->evaluateUser ( $user_name );
+	$rivals = $sql->searchRivals ( $evaluate );
+	
+	foreach ( $rivals as $user ) {
+		if (! stristr ( $user_name, $user ["user"] )) {
+			echo "<a href='./user.php?name=" . $user ['user'] . "' target='_blank' class='btn btn-link btn-md' role='button' style='margin: 1px;'>" . $user ['user'] . "</a>";
+		}
+	}
+	
 	echo '</div>';
 }
 

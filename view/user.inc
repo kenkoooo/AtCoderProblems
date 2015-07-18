@@ -74,6 +74,23 @@
 				<label>User ID:</label>
 					<?php echo '<input type="text" class="form-control" id="exampleInputEmail1" placeholder="User ID" name="name" value="' . $user_name . '">'; ?>
 				</div>
+			<div class="form-group">
+				<label>レコメンド(α):</label>
+					<?php
+					echo '<input type="radio" name="recommend" value="1" ';
+					if (isset ( $_GET ["recommend"] ) && $_GET ["recommend"]) {
+						echo 'checked';
+					}
+					echo '/>';
+					echo 'ON';
+					echo '<input type="radio" name="recommend" value="0" ';
+					if (! isset ( $_GET ["recommend"] ) || ! $_GET ["recommend"]) {
+						echo 'checked';
+					}
+					echo '/>';
+					echo 'OFF';
+					?>
+				</div>
 			<button type="submit" class="btn btn-default">Search</button>
 		</form>
 		<div class="page-header">
@@ -107,9 +124,12 @@
 			<div class="col-xs-6 col-sm-3 placeholder">
 				<h4>レベル</h4>
 				<h3>Lv. <?php echo level($score);?></h3>
-				<div class="text-muted">現在の経験値 <?php echo $score;?></div>
-				<div class="text-muted">次のレベルまで、あと <?php echo (nextScore($score)-$score);?></div>
-				<div class="text-muted"><a href="https://twitter.com/kenkoooo/status/622154927914115072" target='_blank'>スコアについて</a></div>
+				<div class="text-muted">現在の経験値 <?php echo $score;?> pt.</div>
+				<div class="text-muted">次のレベルまで、あと <?php echo (nextScore($score)-$score);?> pt.</div>
+				<div class="text-muted">
+					<a href="https://twitter.com/kenkoooo/status/622154927914115072"
+						target='_blank'>スコアについて</a>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -171,7 +191,7 @@ getContext('2d')).Doughnut(doughnutData);
 		
 		for($i = 0; $i < 4; $i ++) {
 			echo '<div class="col-xs-6 col-sm-3 placeholder">';
-			echo '<h4>' . chr ( 65 + $i ) . '問題</h4>';
+			echo '<h4>' . chr ( 65 + $i ) . '問題 </h4>';
 			echo "<div>
 					<canvas id='arc$i' height='100%' width='100%'></canvas>
 				</div>";
@@ -203,7 +223,15 @@ getContext('2d')).Doughnut(doughnutData);
 		</div>
 	</div>
 
-	<?php if ($exist) listRecommend($recommend);?>
+	<?php
+	
+	if ($exist && isset ( $_GET ["recommend"] ) && $_GET ["recommend"]) {
+		listRecommend ( $user_name );
+	}
+	if ($exist) {
+		searchRivals ( $user_name );
+	}
+	?>
 
 	<!-- div class="container" style="visibility: hidden; height: 0;"-->
 	<!-- /container -->
