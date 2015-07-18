@@ -88,20 +88,19 @@ function listRecommend($array) {
 	
 	$rand = rand ( 0, min ( count ( $array ), $limit ) - 1 );
 	
-	echo '<div class="container"><div class="page-header"><h1>本日の1題</h1><p class="lead">';
+	echo '<div class="container"><div class="page-header"><h1>ガチャ</h1><p class="lead">';
 	$contest_name = $array [$rand] ["contest_name"];
 	$contest_title = $array [$rand] ["contest_title"];
 	$problem_name = $array [$rand] ["problem_name"];
 	$problem_title = $array [$rand] ["problem_title"];
 	echo "<a href='http://$contest_name.contest.atcoder.jp/tasks/$problem_name' target='_blank'>";
 	echo $problem_title;
-	echo "</a> (出典: <a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>$contest_title</a>)";
-	echo '</p></div></div>';
+	echo "</a></p> <p class='lead'>(出典: <a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>$contest_title</a>)</p>";
+	echo '</div></div>';
 	
 	echo '<div class="container">';
 	echo '<div class="page-header">
 			<h1>おすすめ問題</h1>
-			<p class="lead"></p>
 		</div>';
 	echo '<table id="recommend" class="table table-hover table-striped table-bordered table-condensed">';
 	echo '<thead><tr>';

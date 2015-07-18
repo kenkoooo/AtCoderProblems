@@ -5,7 +5,7 @@ require_once 'sql.php';
 $sql = new SQLConnect ();
 
 $time_start = microtime ( true );
-for($i = 408; $i < 830; $i ++) {
+for($i = 607; $i < 830; $i ++) {
 	echo $i . " ";
 	$sql->scoreEdge ( $i );
 }
