@@ -91,11 +91,20 @@ class SQLConnect {
 	
 	// 問題を追加してくれる
 	public function insertProblem($contest_id, $name, $title) {
-		$query = "SELECT * FROM problems where name='$name'";
+		$query = "SELECT * FROM problems WHERE name='$name'";
 		$data = $this->exectute ( $query );
 		if (! $data->fetch ( PDO::FETCH_ASSOC )) {
 			// 存在しない時
 			$query = "INSERT INTO problems (contest_id,name,title) VALUES ($contest_id,'$name','$title')";
+			$this->exectute ( $query );
+			
+			$query = "SELECT * FROM problem WHERE name='$name'";
+			$data = $this->exectute ( $query );
+			foreach ( $data as $p ) {
+				$problem_id = $p ["id"];
+			}
+			
+			$query = "INSERT INTO fa_user (problem_id) VALUES ($problem_id)";
 			$this->exectute ( $query );
 		}
 	}

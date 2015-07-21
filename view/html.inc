@@ -52,26 +52,7 @@
 				</button>
 				<span class="navbar-brand">AtCoder Problems</span>
 			</div>
-			<div id="navbar" class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-					<li
-						<?php if (!isset ($_GET ["ranking"]) || !$_GET ["ranking"]) echo ' class="active"';?>><a
-						href="./">Home</a></li>
-					<li
-						<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]==1) echo ' class="active"';?>><a
-						href="./index.php?ranking=1">正解数ランキング</a></li>
-					<li
-						<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]==2) echo ' class="active"';?>><a
-						href="./index.php?ranking=2">ショートコーダー</a></li>
-					<li
-						<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]==3) echo ' class="active"';?>><a
-						href="./index.php?ranking=3">実行速度ランキング</a></li>
-					<li><a href="./user.php">ユーザーページ</a></li>
-					<li><a href="http://atcoder.jp/" target='_blank'>AtCoder (公式)</a></li>
-					<li><a href="http://ichyo.jp/aoj-icpc/" target='_blank'>AOJ-ICPC</a></li>
-					<li><a href="http://twitter.com/kenkoooo" target='_blank'>お問い合わせ</a></li>
-				</ul>
-			</div>
+			<?php include 'view/navbar.inc';?>
 			<!--/.nav-collapse -->
 		</div>
 	</nav>

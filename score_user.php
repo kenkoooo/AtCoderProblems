@@ -8,3 +8,5 @@ $time_start = microtime ( true );
 $sql->cacheEvaluate ();
 $timelimit = microtime ( true ) - $time_start;
 echo $timelimit . ' seconds' . "\n";
+
+
