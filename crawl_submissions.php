@@ -29,11 +29,6 @@ foreach ( $contests as $c ) {
 	
 	echo $name . "\n";
 	
-	// abcかarc以外ならスルー
-	// if (! preg_match ( '/^(arc|abc)[0-9]*$/', $name )) {
-	// continue;
-	// }
-	
 	// 最初のページを取得
 	$url = "https://" . $name . ".contest.atcoder.jp/submissions/all/1?status=AC";
 	$html = file_get_html ( $url );
@@ -134,3 +129,6 @@ foreach ( $contests as $c ) {
 	}
 	// コンテスト終わり
 }
+
+$query = "UPDATE submissions AS S1 SET problem_id = (SELECT id FROM problems AS P1 WHERE S1.problem_name = P1.name) WHERE S1.problem_id=0";
+$sql->exectute ( $query );

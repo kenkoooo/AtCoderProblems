@@ -1,7 +1,7 @@
 <?php
 require_once 'sql_config.php';
 class SQLConnect {
-	private function exectute($sql) {
+	public function exectute($sql) {
 		$dsn = 'mysql:dbname=LAA0348733-atcoder;host=mysql022.phy.lolipop.lan';
 		
 		try {
@@ -18,7 +18,7 @@ class SQLConnect {
 			die ();
 		}
 	}
-	private function exectuteArray($querySet) {
+	public function exectuteArray($querySet) {
 		// クエリーセットを実行する
 		// 返り値はない
 		$dsn = 'mysql:dbname=LAA0348733-atcoder;host=mysql022.phy.lolipop.lan';
@@ -117,10 +117,6 @@ class SQLConnect {
 			// 存在しない時
 			$query = "INSERT INTO submissions (id,contest_name,problem_name,user,submission_time,length,exec) VALUES " . "($id,'$contest_name','$problem_name','$user','$time',$length,$exec)";
 			$this->exectute ( $query );
-		} else {
-			// 存在する時
-			$query = "UPDATE submissions SET length=$length,exec=$exec WHERE id=$id";
-			$this->exectute ( $query );
 		}
 	}
 	
@@ -139,7 +135,7 @@ class SQLConnect {
 	
 	// 全問題を取得する
 	public function pullProblems() {
-		$query = "SELECT problems.name AS problem_name, problems.title, problems.solvers, contests.name as contest_name, s1.length,s1.user AS short,s1.id AS short_id, s2.exec, s2.user AS fast,s2.id AS fast_id FROM problems
+		$query = "SELECT problems.id AS problem_id, problems.name AS problem_name, problems.title, problems.solvers, contests.name as contest_name, s1.length,s1.user AS short,s1.id AS short_id, s2.exec, s2.user AS fast,s2.id AS fast_id FROM problems
 LEFT JOIN contests ON problems.contest_id=contests.id 
 LEFT JOIN short_coder ON short_coder.problem_name=problems.name
 LEFT JOIN submissions AS s1 ON short_coder.submission_id=s1.id
@@ -370,8 +366,8 @@ LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 	}
 	
 	// 問題を投げると、その問題を解いた人が解いた他の問題の人数を返す
-	private function getEdgeScores($problem_name) {
-		$query = "SELECT problem_name,COUNT(DISTINCT(user)) AS count FROM submissions WHERE submissions.user IN ( SELECT DISTINCT(user) FROM submissions WHERE problem_name='$problem_name' ) GROUP BY problem_name";
+	private function getEdgeScores($problem_id) {
+		$query = "SELECT problem_id,COUNT(DISTINCT(user)) AS count FROM submissions WHERE submissions.user IN ( SELECT DISTINCT(user) FROM submissions WHERE problem_id=$problem_id ) GROUP BY problem_id";
 		return $this->exectute ( $query );
 	}
 	
@@ -386,24 +382,25 @@ LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 				continue;
 			}
 			
-			$problem_name = $p ["problem_name"];
-			$edges = $this->getEdgeScores ( $problem_name );
+			$problem_id = $p ["problem_id"];
+			$edges = $this->getEdgeScores ( $problem_id );
 			foreach ( $edges as $e ) {
-				$another_name = $e ["problem_name"];
+				$another_id = $e ["problem_id"];
+				echo $another_id . "\n";
 				$score = $e ["count"];
-				if (strstr ( $problem_name, $another_name )) {
+				if (strstr ( $problem_id, $another_id )) {
 					continue;
 				}
 				
-				$query = "SELECT * FROM edges WHERE from_problem_name='$problem_name' AND to_problem_name='$another_name'";
+				$query = "SELECT * FROM edges WHERE from_problem_id=$problem_id AND to_problem_id=$another_id";
 				$data = $this->exectute ( $query );
 				if (! $data->fetch ( PDO::FETCH_ASSOC )) {
 					// 存在しない時
-					$query = "INSERT INTO edges (from_problem_name,to_problem_name,score) VALUES " . "('$problem_name','$another_name',$score)";
+					$query = "INSERT INTO edges (from_problem_id,to_problem_id,score) VALUES " . "($problem_id , $another_id , $score)";
 					array_push ( $querySet, $query );
 				} else {
 					// 存在する時
-					$query = "UPDATE edges SET score=$score WHERE from_problem_name='$problem_name' AND to_problem_name='$another_name'";
+					$query = "UPDATE edges SET score=$score WHERE from_problem_id=$problem_id AND to_problem_id=$another_id";
 					array_push ( $querySet, $query );
 				}
 			}
