@@ -71,24 +71,6 @@ class SQLConnect {
 		return $this->exectute ( $query );
 	}
 	
-	// コンテスト一覧を引っ張ってくる
-	public function pullOld() {
-		$query = "SELECT contest_name FROM `submissions` WHERE exec =0 LIMIT 1";
-		return $this->exectute ( $query );
-	}
-	
-	// 提出最新を引っ張ってくる
-	public function pullSubmissions($contest_name) {
-		$query = "SELECT * FROM submissions WHERE contest_name = '$contest_name' ORDER BY submission_time DESC LIMIT 20";
-		return $this->exectute ( $query );
-	}
-	
-	// コンテスト検索
-	public function getContest($id) {
-		$query = "SELECT name FROM contests WHERE id=$id";
-		return $this->exectute ( $query );
-	}
-	
 	// 問題を追加してくれる
 	public function insertProblem($contest_id, $name, $title) {
 		$query = "SELECT * FROM problems WHERE name='$name'";
@@ -135,12 +117,20 @@ class SQLConnect {
 	
 	// 全問題を取得する
 	public function pullProblems() {
-		$query = "SELECT problems.id AS problem_id, problems.name AS problem_name, problems.title, problems.solvers, contests.name as contest_name, s1.length,s1.user AS short,s1.id AS short_id, s2.exec, s2.user AS fast,s2.id AS fast_id FROM problems
-LEFT JOIN contests ON problems.contest_id=contests.id 
-LEFT JOIN short_coder ON short_coder.problem_name=problems.name
-LEFT JOIN submissions AS s1 ON short_coder.submission_id=s1.id
-LEFT JOIN exec_faster ON exec_faster.problem_name=problems.name
-LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
+		$query = "SELECT
+				p.id AS problem_id,
+				p.name AS problem_name,
+				p.title,
+				p.solvers,
+contests.name as contest_name,
+sh.length,sh.user AS short,sh.id AS short_id,
+ex.exec, ex.user AS fast,ex.id AS fast_id,
+fa.user AS first_user,fa.id AS first_id
+FROM problems AS p
+LEFT JOIN contests ON p.contest_id=contests.id
+LEFT JOIN submissions AS fa ON fa.id=p.fa_user
+LEFT JOIN submissions AS sh ON sh.id=p.short_coder
+LEFT JOIN submissions AS ex ON ex.id=p.exec_faster";
 		return $this->exectute ( $query );
 	}
 	
@@ -162,7 +152,7 @@ LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 		$this->exectute ( $query );
 	}
 	
-	// ランキングを返す
+	// ACランキングを返す
 	public function pullRanking() {
 		$query = "SELECT count(DISTINCT(problem_name)), user FROM `submissions` GROUP BY user ORDER BY `count(distinct(problem_name))` DESC";
 		return $this->exectute ( $query );
@@ -170,7 +160,8 @@ LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 	
 	// ショートコーダーランキングを返す
 	public function pullShortRanking() {
-		$query = "SELECT COUNT(DISTINCT(submissions.problem_name)),user FROM short_coder LEFT JOIN submissions ON submissions.id=submission_id GROUP BY user ORDER BY `COUNT(DISTINCT(submissions.problem_name))`  DESC";
+		$query = "SELECT
+				COUNT(DISTINCT(submissions.problem_name)),user FROM problems LEFT JOIN submissions ON submissions.id=problems.short_coder GROUP BY user ORDER BY `COUNT(DISTINCT(submissions.problem_name))`  DESC";
 		return $this->exectute ( $query );
 	}
 	
@@ -220,16 +211,6 @@ LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 		return $count;
 	}
 	
-	// 全会員数を返す
-	public function getMemberNum() {
-		$query = "SELECT COUNT(DISTINCT(user)) AS count FROM submissions";
-		$count = 0;
-		$data = $this->exectute ( $query );
-		foreach ( $data as $d ) {
-			$count = max ( $count, $d ["count"] );
-		}
-		return $count;
-	}
 	
 	// 正解問題数を返す
 	public function getACNum($user_name) {
@@ -253,59 +234,33 @@ LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 		return $count;
 	}
 	
-	// 最速数を返す
-	public function getFastNum($user_name) {
-		$query = "SELECT COUNT(user) AS count FROM exec_faster AS list LEFT JOIN submissions ON list.submission_id=submissions.id WHERE user='$user_name' GROUP BY user";
-		$count = 0;
-		$data = $this->exectute ( $query );
-		foreach ( $data as $d ) {
-			$count = max ( $count, $d ["count"] );
-		}
-		return $count;
-	}
-	
-	// ランキングで何位かを返す
-	public function getMyPlace($user_name, $flag) {
-		$ranking = array ();
-		if ($flag == 1) {
-			$r = $this->pullRanking ();
-		} elseif ($flag == 2) {
-			$r = $this->pullShortRanking ();
-		} else {
-			$r = $this->pullFastRanking ();
-		}
-		
-		foreach ( $r as $ranking_row ) {
-			array_push ( $ranking, $ranking_row );
-		}
-		
-		$rank = 1;
-		foreach ( $ranking as $key => $value ) {
-			$user = $value ["user"];
-			$solves = $value [0];
-			if ($solves != $array [$rank - 1] [0]) {
-				$rank = $key + 1;
-			}
-			if (stristr ( $user, $user_name )) {
-				return $rank;
-			}
-		}
-		return $this->getMemberNum ();
-	}
-	
 	// ファストランキングを返す
 	public function pullFastRanking() {
-		$query = "SELECT COUNT(DISTINCT(submissions.problem_name)),user FROM exec_faster LEFT JOIN submissions ON submissions.id=submission_id GROUP BY user ORDER BY `COUNT(DISTINCT(submissions.problem_name))`  DESC";
+		$query = "SELECT 
+				COUNT(DISTINCT(submissions.problem_name)),user 
+				FROM problems 
+				LEFT JOIN submissions ON submissions.id=problems.exec_faster 
+				GROUP BY user ORDER BY `COUNT(DISTINCT(submissions.problem_name))` DESC";
+		return $this->exectute ( $query );
+	}
+	
+	// FAランキングを返す
+	public function pullFirstRanking() {
+		$query = "SELECT
+					COUNT(DISTINCT(submissions.problem_name)),user 
+				FROM problems
+				LEFT JOIN submissions ON submissions.id=problems.fa_user 
+				GROUP BY user ORDER BY `COUNT(DISTINCT(submissions.problem_name))` DESC";
 		return $this->exectute ( $query );
 	}
 	
 	// ショートコーダーを返す
-	private function getShortCoder($problem_name, $type) {
+	private function getShortCoder($problem_id, $type) {
 		// ショートコーダー $type="length"
 		// 実行速度 $type="exec"
 		
 		// 問題に対するショートコーダーを返す
-		$query = "SELECT * FROM submissions WHERE problem_name='$problem_name' ORDER BY `submissions`.`$type` ASC LIMIT 1";
+		$query = "SELECT * FROM submissions WHERE problem_id=$problem_id ORDER BY `submissions`.`$type` ASC LIMIT 1";
 		return $this->exectute ( $query );
 	}
 	
@@ -313,13 +268,7 @@ LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 	public function updateShortCoder($type) {
 		// ショートコーダー $type="length"
 		// 実行速度 $type="exec"
-		$table = "";
-		if (strstr ( $type, "length" )) {
-			$table = "short_coder";
-		} else {
-			$table = "exec_faster";
-		}
-		
+		// First Acceptance $type="id"
 		$short_coder = array ();
 		$problems = $this->pullProblems ();
 		foreach ( $problems as $p ) {
@@ -329,11 +278,19 @@ LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 			if ($short_coder [$i] ["solvers"] == 0) {
 				continue;
 			}
-			$problem_name = $short_coder [$i] ["problem_name"];
-			$submission = $this->getShortCoder ( $problem_name, $type );
+			$problem_id = $short_coder [$i] ["problem_id"];
+			$submission = $this->getShortCoder ( $problem_id, $type );
 			foreach ( $submission as $s ) {
 				$short_coder [$i] ["submission"] = $s;
 			}
+		}
+		
+		if (strstr ( $type, "id" )) {
+			$type = "fa_user";
+		} elseif (strstr ( $type, "length" )) {
+			$type = "short_coder";
+		} elseif (strstr ( $type, "exec" )) {
+			$type = "exec_faster";
 		}
 		
 		$querySet = array ();
@@ -341,20 +298,11 @@ LEFT JOIN submissions AS s2 ON exec_faster.submission_id=s2.id";
 			if ($s ["solvers"] == 0) {
 				continue;
 			}
-			$problem_name = $s ["problem_name"];
+			$problem_id = $s ["problem_id"];
 			$submission_id = $s ["submission"] ["id"];
 			
-			$query = "SELECT * FROM $table WHERE problem_name='$problem_name'";
-			$data = $this->exectute ( $query );
-			if (! $data->fetch ( PDO::FETCH_ASSOC )) {
-				// 存在しない時
-				$query = "INSERT INTO $table (problem_name,submission_id) VALUES " . "('$problem_name',$submission_id)";
-				array_push ( $querySet, $query );
-			} else {
-				// 存在する時
-				$query = "UPDATE $table SET submission_id=$submission_id WHERE problem_name='$problem_name'";
-				array_push ( $querySet, $query );
-			}
+			$query = "UPDATE problems SET $type=$submission_id WHERE id=$problem_id";
+			array_push ( $querySet, $query );
 		}
 		$this->exectuteArray ( $querySet );
 	}
@@ -462,40 +410,6 @@ WHERE user = '$user'
 GROUP BY problems.name
 ORDER BY max DESC";
 		return $this->exectute ( $query );
-	}
-	
-	// 1ヶ月以内にACのあったユーザーの一覧を取得する
-	public function pullActiveUsers() {
-		$query = "SELECT user FROM submissions WHERE submission_time >= DATE_ADD(NOW(), INTERVAL -1 MONTH) GROUP BY user";
-		return $this->exectute ( $query );
-	}
-	
-	// ユーザー評価情報をキャッシュする
-	public function cacheEvaluate() {
-		$querySet = array ();
-		$r = $this->pullActiveUsers ();
-		foreach ( $r as $user ) {
-			$user_name = $user ["user"];
-			$acNum = $this->getACNum ( $user_name );
-			
-			if ($acNum > 30) {
-				$evaluate = round ( $this->evaluateUser ( $user_name ) );
-				
-				$query = "SELECT * FROM evaluate WHERE user='$user_name'";
-				$data = $this->exectute ( $query );
-				if (! $data->fetch ( PDO::FETCH_ASSOC )) {
-					// 存在しない時
-					$query = "INSERT INTO evaluate (user,evaluate) VALUES " . "('$user_name',$evaluate)";
-					array_push ( $querySet, $query );
-				} else {
-					// 存在する時
-					$query = "UPDATE evaluate SET evaluate=$evaluate WHERE user='$user_name'";
-					array_push ( $querySet, $query );
-				}
-			}
-		}
-		
-		$this->exectuteArray ( $querySet );
 	}
 	
 	// ライバルを探す

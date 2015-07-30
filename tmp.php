@@ -5,23 +5,15 @@ require_once 'sql.php';
 $time_start = microtime ( true );
 
 $sql = new SQLConnect ();
-$contests = $sql->pullContests ();
 
-$query = "SELECT * FROM edges";
-$submissions = $sql->exectute ( $query );
+echo "aaaaaaa";
+$query = "SELECT * FROM problems ORDER BY id DESC";
+$data = $sql->exectute ( $query );
 $cnt = 0;
-$array = array ();
-foreach ( $submissions as $s ) {
-	array_push ( $array, $s );
+foreach ( $data as $s ) {
+	var_dump ( $s );
 	$cnt ++;
-	
-	if ($cnt == 30)
+	if ($cnt == 2) {
 		break;
+	}
 }
-
-var_dump ( $array );
-
-$time_end = microtime ( true );
-$time = $time_end - $time_start;
-
-echo "$time 秒掛かりました。\n";

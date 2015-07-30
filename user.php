@@ -19,10 +19,10 @@ if (! isset ( $_GET ["name"] ) || ! $_GET ["name"]) {
 }
 if ($exist) {
 	$problemNum = $sql->getProblemNum ();
-	$memberNum = $sql->getMemberNum ();
+	$memberNum = getMemberNum ();
 	
 	$acNum = $sql->getACNum ( $user_name );
-	$fastNum = $sql->getFastNum ( $user_name );
+	$fastNum = getFastNum ( $user_name );
 	$shortNum = $sql->getShortNum ( $user_name );
 	
 	$acRank = $sql->getMyPlace ( $user_name, 1 );
@@ -169,6 +169,63 @@ function searchRivals($user_name) {
 	echo '</div>';
 }
 
+// 最速数を返す
+function getFastNum($user_name) {
+	$sql = new SQLConnect ();
+	$query = "SELECT
+			COUNT(user) AS count
+			FROM problems
+			LEFT JOIN submissions ON problems.exec_faster=submissions.id
+			WHERE user='$user_name' GROUP BY user";
+	$count = 0;
+	$data = $sql->exectute ( $query );
+	foreach ( $data as $d ) {
+		$count = max ( $count, $d ["count"] );
+	}
+	return $count;
+}
+
+// ランキングで何位かを返す
+function getMyPlace($user_name, $flag) {
+	$sql = new SQLConnect ();
+	$ranking = array ();
+	if ($flag == 1) {
+		$r = $sql->pullRanking ();
+	} elseif ($flag == 2) {
+		$r = $sql->pullShortRanking ();
+	} else {
+		$r = $sql->pullFastRanking ();
+	}
+	
+	foreach ( $r as $ranking_row ) {
+		array_push ( $ranking, $ranking_row );
+	}
+	
+	$rank = 1;
+	foreach ( $ranking as $key => $value ) {
+		$user = $value ["user"];
+		$solves = $value [0];
+		if ($solves != $array [$rank - 1] [0]) {
+			$rank = $key + 1;
+		}
+		if (stristr ( $user, $user_name )) {
+			return $rank;
+		}
+	}
+	return getMemberNum ();
+}
+
+// 全会員数を返す
+function getMemberNum() {
+	$query = "SELECT COUNT(DISTINCT(user)) AS count FROM submissions";
+	$count = 0;
+	$data = $this->exectute ( $query );
+	foreach ( $data as $d ) {
+		$count = max ( $count, $d ["count"] );
+	}
+	return $count;
+}
+
 // レベル定義
 function level($score) {
 	if ($score == 0)
@@ -247,4 +304,5 @@ function nextScore($score) {
 	
 	return 4000;
 }
+
 ?>
