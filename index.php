@@ -27,8 +27,10 @@ if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]) {
 		$r = $sql->pullRanking ();
 	} elseif ($_GET ["ranking"] == 2) {
 		$r = $sql->pullShortRanking ();
-	} else {
+	} elseif ($_GET ["ranking"] == 3) {
 		$r = $sql->pullFastRanking ();
+	} else {
+		$r = $sql->pullFirstRanking ();
 	}
 	
 	foreach ( $r as $ranking_row ) {
@@ -132,6 +134,7 @@ function listMode($array) {
 	echo '<th>解いた人数</th>';
 	echo '<th>最速</th>';
 	echo '<th>最短</th>';
+	echo '<th>FA</th>';
 	echo '</tr></thead>';
 	echo '<tbody>';
 	
@@ -196,7 +199,12 @@ function listMode($array) {
 				$length = $contest_problem ["length"];
 				$short_id = $contest_problem ["short_id"];
 				echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$short_id' target='_blank'>$short ($length Byte)</a></td>";
+				
+				$first = $contest_problem ["first_user"];
+				$first_id = $contest_problem ["first_id"];
+				echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$first_id' target='_blank'>$first</a></td>";
 			} else {
+				echo "<td></td>";
 				echo "<td></td>";
 				echo "<td></td>";
 			}
@@ -220,8 +228,10 @@ function listRanking($array, $flag) {
 		echo '<th>AC数</th>';
 	} elseif ($flag == 2) {
 		echo '<th>ショートコード数</th>';
-	} else {
+	} elseif ($flag == 3) {
 		echo '<th>最速コード数</th>';
+	} else {
+		echo '<th>最速提出数</th>';
 	}
 	
 	echo '<th>ユーザー名</th>';
@@ -232,6 +242,9 @@ function listRanking($array, $flag) {
 	foreach ( $array as $key => $user ) {
 		$user_name = $user ["user"];
 		$solves = $user [0];
+		if ($solves < 1) {
+			continue;
+		}
 		
 		if ($solves != $array [$rank - 1] [0]) {
 			$rank = $key + 1;

@@ -22,12 +22,12 @@ if ($exist) {
 	$memberNum = getMemberNum ();
 	
 	$acNum = $sql->getACNum ( $user_name );
-	$fastNum = getFastNum ( $user_name );
-	$shortNum = $sql->getShortNum ( $user_name );
+	$fastNum = getNum ( $user_name, "exec_faster" );
+	$shortNum = getNum ( $user_name, "short_coder" );
 	
-	$acRank = $sql->getMyPlace ( $user_name, 1 );
-	$shortRank = $sql->getMyPlace ( $user_name, 2 );
-	$fastRank = $sql->getMyPlace ( $user_name, 3 );
+	$acRank = getMyPlace ( $user_name, 1 );
+	$shortRank = getMyPlace ( $user_name, 2 );
+	$fastRank = getMyPlace ( $user_name, 3 );
 	
 	$evaluate = $sql->evaluateUser ( $user_name );
 	
@@ -169,22 +169,6 @@ function searchRivals($user_name) {
 	echo '</div>';
 }
 
-// 最速数を返す
-function getFastNum($user_name) {
-	$sql = new SQLConnect ();
-	$query = "SELECT
-			COUNT(user) AS count
-			FROM problems
-			LEFT JOIN submissions ON problems.exec_faster=submissions.id
-			WHERE user='$user_name' GROUP BY user";
-	$count = 0;
-	$data = $sql->exectute ( $query );
-	foreach ( $data as $d ) {
-		$count = max ( $count, $d ["count"] );
-	}
-	return $count;
-}
-
 // ランキングで何位かを返す
 function getMyPlace($user_name, $flag) {
 	$sql = new SQLConnect ();
@@ -215,11 +199,27 @@ function getMyPlace($user_name, $flag) {
 	return getMemberNum ();
 }
 
+// ショートコード数を返す
+function getNum($user_name, $type) {
+	// $type=short_coder,exec_faster,fa_user
+	$sql = new SQLConnect ();
+	$query = "SELECT COUNT(user) AS count
+FROM problems LEFT JOIN submissions ON problems.$type=submissions.id
+WHERE user='$user_name' GROUP BY user";
+	$count = 0;
+	$data = $sql->exectute ( $query );
+	foreach ( $data as $d ) {
+		$count = max ( $count, $d ["count"] );
+	}
+	return $count;
+}
+
 // 全会員数を返す
 function getMemberNum() {
+	$sql = new SQLConnect ();
 	$query = "SELECT COUNT(DISTINCT(user)) AS count FROM submissions";
 	$count = 0;
-	$data = $this->exectute ( $query );
+	$data = $sql->exectute ( $query );
 	foreach ( $data as $d ) {
 		$count = max ( $count, $d ["count"] );
 	}

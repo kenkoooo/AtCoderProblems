@@ -122,10 +122,10 @@ class SQLConnect {
 				p.name AS problem_name,
 				p.title,
 				p.solvers,
-contests.name as contest_name,
-sh.length,sh.user AS short,sh.id AS short_id,
-ex.exec, ex.user AS fast,ex.id AS fast_id,
-fa.user AS first_user,fa.id AS first_id
+				contests.name as contest_name,
+				sh.length, sh.user AS short, sh.id AS short_id,
+				ex.exec, ex.user AS fast, ex.id AS fast_id,
+				fa.user AS first_user, fa.id AS first_id
 FROM problems AS p
 LEFT JOIN contests ON p.contest_id=contests.id
 LEFT JOIN submissions AS fa ON fa.id=p.fa_user
@@ -211,21 +211,9 @@ LEFT JOIN submissions AS ex ON ex.id=p.exec_faster";
 		return $count;
 	}
 	
-	
 	// 正解問題数を返す
 	public function getACNum($user_name) {
 		$query = "SELECT count(DISTINCT(problem_name)) AS count FROM submissions WHERE user='$user_name' GROUP BY user";
-		$count = 0;
-		$data = $this->exectute ( $query );
-		foreach ( $data as $d ) {
-			$count = max ( $count, $d ["count"] );
-		}
-		return $count;
-	}
-	
-	// ショートコード数を返す
-	public function getShortNum($user_name) {
-		$query = "SELECT COUNT(user) AS count FROM short_coder AS list LEFT JOIN submissions ON list.submission_id=submissions.id WHERE user='$user_name' GROUP BY user";
 		$count = 0;
 		$data = $this->exectute ( $query );
 		foreach ( $data as $d ) {

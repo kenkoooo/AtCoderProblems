@@ -8,7 +8,7 @@ $sql = new SQLConnect ();
 
 echo "aaaaaaa";
 $query = "SELECT * FROM problems ORDER BY id DESC";
-$data = $sql->exectute ( $query );
+$data = $sql->pullFirstRanking ();
 $cnt = 0;
 foreach ( $data as $s ) {
 	var_dump ( $s );
