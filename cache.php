@@ -4,20 +4,22 @@ require_once 'sql.php';
 
 $time_start = microtime ( true );
 
-echo 'starting scoring user...' . "\n";
-scoreUser ( $sql );
-$timelimit = microtime ( true ) - $time_start;
-echo $timelimit . ' seconds' . "\n";
-
-echo 'starting logging faster...' . "\n";
-execFaster ( $sql );
-$timelimit = microtime ( true ) - $time_start;
-echo $timelimit . ' seconds' . "\n";
-
-echo 'starting scoring edges...' . "\n";
-// scoreEdge ( $sql );
-$timelimit = microtime ( true ) - $time_start;
-echo $timelimit . ' seconds' . "\n";
+if (date ( "H" ) % 13 == 0 && date ( "i" ) / 10 >= 5) {
+	echo 'starting scoring user...' . "\n";
+	scoreUser ( $sql );
+	$timelimit = microtime ( true ) - $time_start;
+	echo $timelimit . ' seconds' . "\n";
+} else {
+	echo 'starting logging faster...' . "\n";
+	execFaster ( $sql );
+	$timelimit = microtime ( true ) - $time_start;
+	echo $timelimit . ' seconds' . "\n";
+	
+	echo 'starting scoring edges...' . "\n";
+	// scoreEdge ( $sql );
+	$timelimit = microtime ( true ) - $time_start;
+	echo $timelimit . ' seconds' . "\n";
+}
 
 // ユーザー評価をキャッシュする
 function scoreUser() {
@@ -51,14 +53,7 @@ function scoreEdge() {
 }
 function execFaster() {
 	$sql = new SQLConnect ();
-	$mode = date ( "i" ) / 10;
-	$mode = 0;
-	
-	if ($mode == 0) {
-		$sql->updateShortCoder ( "exec" );
-	} elseif ($mode == 1) {
-		$sql->updateShortCoder ( "length" );
-	} elseif ($mode == 2) {
-		$sql->updateShortCoder ( "id" );
-	}
+	$sql->updateShortCoder ( "exec" );
+	$sql->updateShortCoder ( "length" );
+	$sql->updateShortCoder ( "id" );
 }

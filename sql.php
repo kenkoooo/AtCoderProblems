@@ -79,15 +79,6 @@ class SQLConnect {
 			// 存在しない時
 			$query = "INSERT INTO problems (contest_id,name,title) VALUES ($contest_id,'$name','$title')";
 			$this->exectute ( $query );
-			
-			$query = "SELECT * FROM problem WHERE name='$name'";
-			$data = $this->exectute ( $query );
-			foreach ( $data as $p ) {
-				$problem_id = $p ["id"];
-			}
-			
-			$query = "INSERT INTO fa_user (problem_id) VALUES ($problem_id)";
-			$this->exectute ( $query );
 		}
 	}
 	
@@ -248,7 +239,11 @@ LEFT JOIN submissions AS ex ON ex.id=p.exec_faster";
 		// 実行速度 $type="exec"
 		
 		// 問題に対するショートコーダーを返す
-		$query = "SELECT * FROM submissions WHERE problem_id=$problem_id ORDER BY `submissions`.`$type` ASC LIMIT 1";
+		$query = "SELECT * FROM submissions WHERE problem_id=$problem_id ORDER BY `submissions`.`$type` ASC";
+		if (! strstr ( $type, "id" )) {
+			$query = $query . " ,id";
+		}
+		$query = $query . " LIMIT 1";
 		return $this->exectute ( $query );
 	}
 	
@@ -266,6 +261,12 @@ LEFT JOIN submissions AS ex ON ex.id=p.exec_faster";
 			if ($short_coder [$i] ["solvers"] == 0) {
 				continue;
 			}
+			
+			// FAは1回取ったら十分やろ
+			if (strstr ( $type, "id" ) && $short_coder [$i] ["first_id"] > 0) {
+				continue;
+			}
+			
 			$problem_id = $short_coder [$i] ["problem_id"];
 			$submission = $this->getShortCoder ( $problem_id, $type );
 			foreach ( $submission as $s ) {
