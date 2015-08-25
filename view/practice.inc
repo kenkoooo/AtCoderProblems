@@ -50,18 +50,48 @@
 						class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<span class="navbar-brand">AtCoder Problems</span>
+				<span class="navbar-brand"><a href="./practice.php">AtCoderのACが割と早めに反映される練習会専用システム</a></span>
 			</div>
 		</div>
 	</nav>
-	<div class="container"></div>
+	<div class="lead">
+		<ul>
+			<li><a href="https://atnd.org/events/69057" target=_blank>イベントサイトはこちら</a></li>
+			<li><a href="http://goo.gl/forms/tU4Plq8TSU" target=_blank>アンケート</a>にご回答ください！</li>
+		</ul>
+
+
+		<form action="practice.php" method="get" class="form-inline">
+			<div class="form-group">
+				<label>ユーザー絞り込み（カンマ区切り） </label>
+					<?php echo '<input type="text" class="form-control" style="width: 400px;" placeholder="User ID" name="search" value="' . $search . '">'; ?>
+			</div>
+			<div class="form-group" style="visibility: hidden; width: 0;">
+					<?php echo '<input type="text" name="date" value="' . $date . '">'; ?>
+			</div>
+			<button type="submit" class="btn btn-default">Search</button>
+		</form>
+	</div>
 
 	<!-- div class="container" style="visibility: hidden; height: 0;"-->
 		<?php
-		listAC ( $problem_set, $user_data, 0, 2 );
-		listAC ( $problem_set, $user_data, 3, 5 );
+		listAC ( $problem_set, $user_data, 0, 1 );
+		listAC ( $problem_set, $user_data, 2, 2 );
+		listAC ( $problem_set, $user_data, 3, 3 );
+		listAC ( $problem_set, $user_data, 4, 5 );
 		function listAC($problem_set, $user_data, $low, $high) {
 			echo '<div>';
+			
+			if ($high <= 1) {
+				echo '<div class="page-header"><h1>Aレベル問題</h1></div>';
+			} else if ($high <= 2) {
+				echo '<div class="page-header"><h1>Bレベル問題</h1></div>';
+			} else if ($high <= 3) {
+				echo '<div class="page-header"><h1>Cレベル問題</h1></div>';
+			} else {
+				echo '<div class="page-header"><h1>Dレベル問題</h1></div>';
+			}
+			
 			echo '<table class="table table-hover table-striped table-bordered table-condensed">';
 			echo '<thead><tr>';
 			echo '<th>タイトル</th>';
@@ -78,15 +108,24 @@
 				echo "<th><a href='http://$contest_name.contest.atcoder.jp/tasks/$problem_name' target=_blank>$title</a></th>";
 			}
 			echo '</tr>';
+			
 			echo '<tr>';
-			echo '<th>レベル</th>';
+			echo '<th>解いた人の数</th>';
 			foreach ( $problem_set as $set ) {
 				$level = $set ["level"];
 				if ($level < $low || $high < $level) {
 					continue;
 				}
 				
-				echo "<th>$level</th>";
+				// 解いた人数を出すだけのプロセス
+				$cnt = 0;
+				foreach ( $user_data as $user_name => $solves ) {
+					$problem_name = $set ["problem_name"];
+					if ($solves [$problem_name]) {
+						$cnt ++;
+					}
+				}
+				echo "<th>$cnt</th>";
 			}
 			echo '</tr>';
 			echo '</thead>';
@@ -138,30 +177,6 @@
 	        "bAutoWidth": false,
 			"aaSorting": [[ 3, "asc" ]]
 	      });
-	          $('#ranking').dataTable({
-	        "bPaginate": false,
-	        "bLengthChange": false,
-	        "bFilter": true,
-	        "bInfo": false,
-	        "bAutoWidth": false,
-			"aaSorting": [[ 0, "asc" ]]
-	      });
-		      $('#short').dataTable({
-			        "bPaginate": false,
-			        "bLengthChange": false,
-			        "bFilter": true,
-			        "bInfo": false,
-			        "bAutoWidth": false,
-					"aaSorting": [[ 2, "asc" ]]
-			      });
-		      $('#recommend').dataTable({
-			        "bPaginate": false,
-			        "bLengthChange": false,
-			        "bFilter": true,
-			        "bInfo": false,
-			        "bAutoWidth": false,
-					"aaSorting": [[ 3, "desc" ]]
-			      });
 	} );
 	
 	</script>

@@ -12,6 +12,12 @@ if (preg_match ( "/^[0-9]+$/", $_GET ["date"] )) {
 	$date = $_GET ["date"];
 }
 
+// ユーザー絞り込み
+$search = "";
+if (preg_match ( "/^[0-9a-zA-Z,_]+$/", $_GET ["search"] )) {
+	$search = $_GET ["search"];
+}
+
 // イベント問題情報
 $problem_set = array ();
 $query = "SELECT
@@ -20,7 +26,7 @@ $query = "SELECT
 		LEFT JOIN problems AS p ON e.problem_name=p.name
 		LEFT JOIN contests AS c ON p.contest_id=c.id
 		WHERE e.event_id=$date
-		ORDER BY e.level ASC ";
+		ORDER BY e.level ASC";
 $data = $sql->exectute ( $query );
 foreach ( $data as $p ) {
 	array_push ( $problem_set, $p );
@@ -29,7 +35,25 @@ foreach ( $data as $p ) {
 // ユーザー情報
 $user_data = array ();
 $query = "SELECT * FROM member WHERE event_id=$date";
+
+// 絞りこみ有効時
+if (strlen ( $search ) > 0) {
+	$search_array = explode ( ',', $search );
+	$query .= " AND user_id IN (";
+	for($i = 0; $i < count ( $search_array ); $i ++) {
+		$query .= "'$search_array[$i]'";
+		if ($i != count ( $search_array ) - 1) {
+			$query .= ",";
+		}
+	}
+	$query .= ")";
+}
+
+// アルファベット順
+$query .= " ORDER BY user_id ASC";
 $event = $sql->exectute ( $query );
+
+// イベント用問題のAC or not を配列に記録していく
 foreach ( $event as $e ) {
 	$user_name = $e ["user_id"];
 	foreach ( $problem_set as $set ) {
