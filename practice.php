@@ -1,4 +1,5 @@
 <?php
+require_once 'simple_html_dom.php';
 require_once 'sql.php';
 
 // sqlを呼ぶ
@@ -70,6 +71,16 @@ foreach ( $event as $e ) {
 			}
 		}
 	}
+}
+
+// ユーザー名を記録していく
+foreach ( $user_data as $user_name => $value ) {
+	$screen_name = "";
+	$html = file_get_html ( "http://arc001.contest.atcoder.jp/users/" . $user_name );
+	foreach ( $html->find ( h3 ) as $h3 ) {
+		$screen_name = $h3->plaintext;
+	}
+	$user_data [$user_name] ["screen_name"] = $screen_name;
 }
 
 include 'view/practice.inc';

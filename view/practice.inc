@@ -75,10 +75,13 @@
 
 	<!-- div class="container" style="visibility: hidden; height: 0;"-->
 		<?php
-		listAC ( $problem_set, $user_data, 0, 1 );
-		listAC ( $problem_set, $user_data, 2, 2 );
-		listAC ( $problem_set, $user_data, 3, 3 );
-		listAC ( $problem_set, $user_data, 4, 5 );
+		if (isset ( $_GET ["all"] )) {
+		} else {
+			listAC ( $problem_set, $user_data, 1, 1 );
+			listAC ( $problem_set, $user_data, 2, 2 );
+			listAC ( $problem_set, $user_data, 3, 3 );
+			listAC ( $problem_set, $user_data, 4, 4 );
+		}
 		function listAC($problem_set, $user_data, $low, $high) {
 			echo '<div>';
 			
@@ -133,7 +136,7 @@
 			
 			foreach ( $user_data as $user_name => $solves ) {
 				echo "<tr>";
-				echo "<td>$user_name</td>";
+				echo "<td>" . $user_data [$user_name] ["screen_name"] . "</td>";
 				foreach ( $problem_set as $set ) {
 					$level = $set ["level"];
 					if ($level < $low || $high < $level) {
