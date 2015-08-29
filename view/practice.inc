@@ -58,6 +58,7 @@
 		<ul>
 			<li><a href="https://atnd.org/events/69057" target=_blank>イベントサイトはこちら</a></li>
 			<li><a href="http://goo.gl/forms/tU4Plq8TSU" target=_blank>アンケート</a>にご回答ください！</li>
+			<li><a href="./" target=_blank>詳細な提出状況はこちら</a></li>
 		</ul>
 
 
@@ -82,6 +83,8 @@
 			listAC ( $problem_set, $user_data, 3, 3 );
 			listAC ( $problem_set, $user_data, 4, 4 );
 		}
+		
+		// リストを表示する関数
 		function listAC($problem_set, $user_data, $low, $high) {
 			echo '<div>';
 			
@@ -96,6 +99,8 @@
 			}
 			
 			echo '<table class="table table-hover table-striped table-bordered table-condensed">';
+			
+			// 表のヘッダーを作っていく
 			echo '<thead><tr>';
 			echo '<th>タイトル</th>';
 			
@@ -134,9 +139,10 @@
 			echo '</thead>';
 			echo '<tbody>';
 			
+			// 行を作っていく
 			foreach ( $user_data as $user_name => $solves ) {
 				echo "<tr>";
-				echo "<td>" . $user_data [$user_name] ["screen_name"] . "</td>";
+				echo "<td>" . $user_data [$user_name] ["screen_name"] . " ($user_name)</td>"; // ユーザー名を表示
 				foreach ( $problem_set as $set ) {
 					$level = $set ["level"];
 					if ($level < $low || $high < $level) {
