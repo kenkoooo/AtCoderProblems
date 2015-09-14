@@ -57,7 +57,6 @@
 	<div class="lead">
 		<ul>
 			<li><a href="https://atnd.org/events/69057" target=_blank>イベントサイトはこちら</a></li>
-			<li><a href="http://goo.gl/forms/tU4Plq8TSU" target=_blank>アンケート</a>にご回答ください！</li>
 			<li><a href="./" target=_blank>詳細な提出状況はこちら</a></li>
 		</ul>
 

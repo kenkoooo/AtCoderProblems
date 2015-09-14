@@ -91,13 +91,13 @@
 						echo 'checked';
 					}
 					echo '/>';
-					echo 'カテゴリ';
+					echo 'カテゴリ表示';
 					echo '<input type="radio" name="category" value="0" ';
 					if (! isset ( $_GET ["category"] ) || ! $_GET ["category"]) {
 						echo 'checked';
 					}
 					echo '/>';
-					echo 'リスト';
+					echo 'リスト表示';
 					?>
 				</div>
 				<button type="submit" class="btn btn-default">Search</button>

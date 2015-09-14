@@ -27,7 +27,7 @@ $query = "SELECT
 		LEFT JOIN problems AS p ON e.problem_name=p.name
 		LEFT JOIN contests AS c ON p.contest_id=c.id
 		WHERE e.event_id=$date
-		ORDER BY e.level ASC";
+		ORDER BY problem_name ASC";
 $data = $sql->exectute ( $query );
 foreach ( $data as $p ) {
 	array_push ( $problem_set, $p );
