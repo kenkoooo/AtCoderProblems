@@ -137,12 +137,6 @@ LEFT JOIN submissions AS ex ON ex.id=p.exec_faster";
 		return $this->exectute ( $query );
 	}
 	
-	// 正解者数を更新する
-	public function updateSolvers($solvers, $problem_name) {
-		$query = "UPDATE problems SET solvers = $solvers WHERE name ='$problem_name'";
-		$this->exectute ( $query );
-	}
-	
 	// ACランキングを返す
 	public function pullRanking() {
 		$query = "SELECT count(DISTINCT(problem_name)), user FROM `submissions` GROUP BY user ORDER BY `count(distinct(problem_name))` DESC";

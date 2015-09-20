@@ -9,10 +9,13 @@ $mode = date ( "i" ) % 5;
 if ($mode == 4) {
 	// 正解者数を更新
 	$pull = $sql->getNumSolvers ();
+	$query = "";
 	foreach ( $pull as $solvers ) {
-		echo $solvers ["solvers"] . " " . $solvers ["problem_name"] . "\n";
-		$sql->updateSolvers ( $solvers ["solvers"], $solvers ["problem_name"] );
+		$problem_name = $solvers ["problem_name"];
+		$solvers_num = $solvers ["solvers"];
+		$query = $query . "UPDATE problems SET solvers=$solvers_num WHERE name='$problem_name';";
 	}
+	$sql->exectute ( $query );
 }
 
 foreach ( $contests as $c ) {
@@ -68,7 +71,7 @@ foreach ( $contests as $c ) {
 		echo $url . "\n";
 		$html = file_get_html ( $url );
 		
-		$submission = 0;
+		$query = "";
 		foreach ( $html->find ( "tr" ) as $element ) {
 			$problem = "";
 			$submission = 0;
@@ -118,8 +121,11 @@ foreach ( $contests as $c ) {
 			if ($submission <= 0) {
 				continue;
 			}
-			$sql->insertSubmission ( $submission, $name, $problem, $user, $time, $length, $exec );
+			$query = $query . "INSERT INTO submissions 
+			(id, contest_name, problem_name, user, submission_time, length, exec) VALUES 
+			($submission,'$name','$problem','$user','$time',$length,$exec);";
 		}
+		$sql->exectute ( $query );
 		
 		$html->clear ();
 		if ($past >= $submission) {
