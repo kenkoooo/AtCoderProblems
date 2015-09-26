@@ -217,9 +217,6 @@ getContext('2d')).Doughnut(doughnutData);
 	if ($exist && isset ( $_GET ["recommend"] ) && $_GET ["recommend"]) {
 		// listRecommend ( $user_name );
 	}
-	if ($exist) {
-		searchRivals ( $user_name );
-	}
 	?>
 
 	<!-- div class="container" style="visibility: hidden; height: 0;"-->

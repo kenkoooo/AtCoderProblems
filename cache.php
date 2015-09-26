@@ -6,17 +6,12 @@ $time_start = microtime ( true );
 
 if (date ( "H" ) % 13 == 0 && date ( "i" ) / 10 >= 5) {
 	echo 'starting scoring user...' . "\n";
-	scoreUser ( $sql );
+	scoreUser ();
 	$timelimit = microtime ( true ) - $time_start;
 	echo $timelimit . ' seconds' . "\n";
 } else {
 	echo 'starting logging faster...' . "\n";
-	execFaster ( $sql );
-	$timelimit = microtime ( true ) - $time_start;
-	echo $timelimit . ' seconds' . "\n";
-	
-	echo 'starting scoring edges...' . "\n";
-	// scoreEdge ( $sql );
+	execFaster ();
 	$timelimit = microtime ( true ) - $time_start;
 	echo $timelimit . ' seconds' . "\n";
 }
@@ -42,14 +37,6 @@ function scoreUser() {
 	}
 	
 	$sql->exectuteArray ( $querySet );
-}
-function scoreEdge() {
-	$sql = new SQLConnect ();
-	$hour = date ( "H" );
-	$minute = date ( "i" );
-	$time = 60 * $hour + $minute;
-	
-	$sql->scoreEdge ( $time );
 }
 function execFaster() {
 	$sql = new SQLConnect ();

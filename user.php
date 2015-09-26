@@ -63,112 +63,6 @@ if ($exist) {
 // 表示
 include 'view/user.inc';
 
-/*
- * レコメンドエンジン
- */
-function listRecommend($user_name) {
-	$sql = new SQLConnect ();
-	// レコメンドエンジン
-	$pull = $sql->recommendEngine ( $user_name );
-	$evaluate = $sql->evaluateUser ( $user_name );
-	$array = array ();
-	foreach ( $pull as $r ) {
-		$solvers = $r ["solvers"] + 0.0;
-		if ($solvers < $evaluate) {
-			array_push ( $array, $r );
-		}
-	}
-	
-	$limit = 20;
-	
-	$rand = rand ( 0, min ( count ( $array ), $limit ) - 1 );
-	
-	if (count ( $array ) > 0) {
-		// ガチャ表示
-		echo '<div class="container"><div class="page-header"><h1>ガチャ</h1>';
-		echo '</div>';
-		echo '<p class="lead">';
-		$contest_name = $array [$rand] ["contest_name"];
-		$contest_title = $array [$rand] ["contest_title"];
-		$problem_name = $array [$rand] ["problem_name"];
-		$problem_title = $array [$rand] ["problem_title"];
-		echo "<a href='http://$contest_name.contest.atcoder.jp/tasks/$problem_name' target='_blank'>";
-		echo $problem_title;
-		echo "</a></p> <p>(出典: <a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>$contest_title</a>)</p>";
-		
-		echo '</div>';
-	}
-	
-	// レコメンド
-	echo '<div class="container">';
-	echo '<div class="page-header">
-			<h1>おすすめ問題</h1>
-		</div>';
-	if (count ( $array ) == 0) {
-		echo "<p>解いた問題が少なすぎるみたいです。AtCoder Beginner ContestのA問題・B問題あたりにチャレンジしてみてください。（開発中の機能につき、不十分な実装で申し訳ありません……）</p>";
-		echo "</div>";
-		return;
-	}
-	echo '<table id="recommend" class="table table-hover table-striped table-bordered table-condensed">';
-	echo '<thead><tr>';
-	echo '<th>問題名</th>';
-	echo '<th>コンテスト</th>';
-	echo '<th>解いた人数</th>';
-	echo '<th>おすすめ度</th>';
-	echo '</tr></thead>';
-	echo '<tbody>';
-	
-	foreach ( $array as $problem ) {
-		$contest_name = $problem ["contest_name"];
-		$contest_title = $problem ["contest_title"];
-		$problem_name = $problem ["problem_name"];
-		$problem_title = $problem ["problem_title"];
-		$solvers = $problem ["solvers"];
-		$max = $problem ["max"];
-		
-		echo "<tr>";
-		echo "<td><a href='http://$contest_name.contest.atcoder.jp/tasks/$problem_name' target='_blank'>";
-		echo mb_strimwidth ( $problem_title, 0, 40, "...", "UTF-8" );
-		echo "</a></td>";
-		echo "<td><a href='http://$contest_name.contest.atcoder.jp/' target='_blank'>";
-		echo mb_strimwidth ( $contest_title, 0, 40, "...", "UTF-8" );
-		echo "</a></td>";
-		echo "<td>";
-		echo "<div class='text-right'><a href='http://$contest_name.contest.atcoder.jp/submissions/all?task_screen_name=$problem_name&status=AC' target='_blank'>";
-		echo str_pad ( $solvers, 4, "0", STR_PAD_LEFT );
-		echo "</a></div></td>";
-		echo "<td>$max</td>";
-		echo "</tr>";
-		
-		$limit --;
-		if ($limit == 0) {
-			break;
-		}
-	}
-	
-	echo '</tbody>';
-	echo '</table>';
-	echo '</div>';
-}
-
-// ライバルたちを表示する
-function searchRivals($user_name) {
-	$sql = new SQLConnect ();
-	echo '<div class="container">';
-	echo '<div class="page-header"><h1>ライバル</h1></div>';
-	
-	$evaluate = $sql->evaluateUser ( $user_name );
-	$rivals = $sql->searchRivals ( $evaluate );
-	
-	foreach ( $rivals as $user ) {
-		if (! stristr ( $user_name, $user ["user"] )) {
-			echo "<a href='./user.php?name=" . $user ['user'] . "' target='_blank' class='btn btn-link btn-md' role='button' style='margin: 1px;'>" . $user ['user'] . "</a>";
-		}
-	}
-	
-	echo '</div>';
-}
-
 // ランキングで何位かを返す
 function getMyPlace($user_name, $flag) {
 	$sql = new SQLConnect ();
@@ -189,7 +83,7 @@ function getMyPlace($user_name, $flag) {
 	foreach ( $ranking as $key => $value ) {
 		$user = $value ["user"];
 		$solves = $value [0];
-		if ($solves != $array [$rank - 1] [0]) {
+		if ($solves != $ranking [$rank - 1] [0]) {
 			$rank = $key + 1;
 		}
 		if (stristr ( $user, $user_name )) {
@@ -204,8 +98,8 @@ function getNum($user_name, $type) {
 	// $type=short_coder,exec_faster,fa_user
 	$sql = new SQLConnect ();
 	$query = "SELECT COUNT(user) AS count
-FROM problems LEFT JOIN submissions ON problems.$type=submissions.id
-WHERE user='$user_name' GROUP BY user";
+				FROM problems LEFT JOIN submissions ON problems.$type=submissions.id
+				WHERE user='$user_name' GROUP BY user";
 	$count = 0;
 	$data = $sql->exectute ( $query );
 	foreach ( $data as $d ) {
@@ -217,7 +111,7 @@ WHERE user='$user_name' GROUP BY user";
 // 全会員数を返す
 function getMemberNum() {
 	$sql = new SQLConnect ();
-	$query = "SELECT COUNT(DISTINCT(user)) AS count FROM submissions";
+	$query = "SELECT COUNT(DISTINCT(user)) AS count FROM submissions;";
 	$count = 0;
 	$data = $sql->exectute ( $query );
 	foreach ( $data as $d ) {
