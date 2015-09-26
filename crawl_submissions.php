@@ -71,7 +71,6 @@ foreach ( $contests as $c ) {
 		echo $url . "\n";
 		$html = file_get_html ( $url );
 		
-		$query = "";
 		foreach ( $html->find ( "tr" ) as $element ) {
 			$problem = "";
 			$submission = 0;
@@ -121,11 +120,11 @@ foreach ( $contests as $c ) {
 			if ($submission <= 0) {
 				continue;
 			}
-			$query = $query . "INSERT INTO submissions 
+			$query = "INSERT INTO submissions 
 			(id, contest_name, problem_name, user, submission_time, length, exec) VALUES 
 			($submission,'$name','$problem','$user','$time',$length,$exec);";
+			$sql->exectute ( $query );
 		}
-		$sql->exectute ( $query );
 		
 		$html->clear ();
 		if ($past >= $submission) {
@@ -133,6 +132,7 @@ foreach ( $contests as $c ) {
 			break;
 		}
 	}
+	
 	// コンテスト終わり
 }
 
