@@ -1,9 +1,6 @@
 <div id="navbar" class="navbar-collapse collapse">
 	<ul class="nav navbar-nav">
 		<li
-			<?php if ((!isset ($_GET ["ranking"]) || !$_GET ["ranking"])&&!$exist) echo ' class="active"';?>><a
-			href="./index.php?name=<?php echo $user_name;?>">Home</a></li>
-		<li
 			<?php if (isset ( $_GET ["ranking"] ) && $_GET ["ranking"]==1) echo ' class="active"';?>><a
 			href="./index.php?ranking=1">AC数</a></li>
 		<li

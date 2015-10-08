@@ -50,7 +50,7 @@
 						class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<span class="navbar-brand">AtCoder Problems</span>
+				<a class="navbar-brand" href="./index.php?name=<?php echo $user_name;?>">AtCoder Problems</a>
 			</div>
 			<?php include 'view/navbar.inc';?>
 			<!--/.nav-collapse -->
