@@ -42,16 +42,6 @@
 	<!-- Fixed navbar -->
 	<nav class="navbar navbar-inverse navbar-fixed-top">
 		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed"
-					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
-					aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span> <span
-						class="icon-bar"></span> <span class="icon-bar"></span> <span
-						class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="./index.php?name=<?php echo $user_name;?>">AtCoder Problems</a>
-			</div>
 			<?php include 'view/navbar.inc';?>
 			<!--/.nav-collapse -->
 		</div>
@@ -86,14 +76,14 @@
 				</div>
 				<div class="form-group">
 					<?php
-					echo '<input type="radio" name="category" value="1" ';
-					if (isset ( $_GET ["category"] ) && $_GET ["category"]) {
+					echo '<input type="radio" name="list" value="1" ';
+					if (!isset ( $_GET ["list"] ) || !$_GET ["list"]) {
 						echo 'checked';
 					}
 					echo '/>';
 					echo 'カテゴリ表示';
-					echo '<input type="radio" name="category" value="0" ';
-					if (! isset ( $_GET ["category"] ) || ! $_GET ["category"]) {
+					echo '<input type="radio" name="list" value="0" ';
+					if ( isset ( $_GET ["list"] ) ||  $_GET ["list"]) {
 						echo 'checked';
 					}
 					echo '/>';
@@ -113,12 +103,12 @@
 			listRanking ( $ranking, $_GET ["ranking"] ); // ランキング
 		} else if (isset ( $_GET ["short_fast"] ) && $_GET ["short_fast"]) {
 			listShortFast ( $short_fast, $_GET ["short_fast"] ); // ショートコーダー
-		} else if (isset ( $_GET ["category"] ) && $_GET ["category"]) {
+		} else if (isset ( $_GET ["list"] ) && $_GET ["list"]) {
+			listMode ( $problemArray );
+		} else {
 			listABC ( $problemArray, '/abc[0-9]*/i' );
 			listABC ( $problemArray, '/arc[0-9]*/i' );
 			listOther ( $problemArray );
-		} else {
-			listMode ( $problemArray );
 		}
 		?>
 
@@ -144,7 +134,7 @@
 	        "bFilter": true,
 	        "bInfo": false,
 	        "bAutoWidth": false,
-			"aaSorting": [[ 3, "asc" ]]
+			"aaSorting": [[ 3, "desc" ]]
 	      });
 	          $('#ranking').dataTable({
 	        "bPaginate": false,

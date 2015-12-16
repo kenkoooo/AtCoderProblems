@@ -132,9 +132,9 @@ function listMode($array) {
 	echo '<th>状態</th>';
 	echo '<th>日付</th>';
 	echo '<th>解いた人数</th>';
-	echo '<th>最速</th>';
-	echo '<th>最短</th>';
-	echo '<th>FA</th>';
+	echo '<th>最速実行</th>';
+	echo '<th>ショートコード</th>';
+	echo '<th>最速提出</th>';
 	echo '</tr></thead>';
 	echo '<tbody>';
 	
@@ -193,12 +193,12 @@ function listMode($array) {
 				$fast = $contest_problem ["fast"];
 				$exec = $contest_problem ["exec"];
 				$fast_id = $contest_problem ["fast_id"];
-				echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$fast_id' target='_blank'>$fast ($exec ms)</a></td>";
+				echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$fast_id' target='_blank'>$exec ms ($fast)</a></td>";
 				
 				$short = $contest_problem ["short"];
 				$length = $contest_problem ["length"];
 				$short_id = $contest_problem ["short_id"];
-				echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$short_id' target='_blank'>$short ($length Byte)</a></td>";
+				echo "<td><a href='http://$contest_name.contest.atcoder.jp/submissions/$short_id' target='_blank'>$length Byte ($short)</a></td>";
 				
 				$first = $contest_problem ["first_user"];
 				$first_id = $contest_problem ["first_id"];

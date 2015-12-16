@@ -56,7 +56,7 @@
 	</nav>
 	<div class="lead">
 		<ul>
-			<li><a href="https://atnd.org/events/69057" target=_blank>イベントサイトはこちら</a></li>
+			<li><a href="https://atnd.org/events/70702" target=_blank>イベントサイトはこちら</a></li>
 			<li><a href="./" target=_blank>詳細な提出状況はこちら</a></li>
 		</ul>
 
