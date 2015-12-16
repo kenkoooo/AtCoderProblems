@@ -83,7 +83,7 @@
 					echo '/>';
 					echo 'カテゴリ表示';
 					echo '<input type="radio" name="list" value="0" ';
-					if ( isset ( $_GET ["list"] ) ||  $_GET ["list"]) {
+					if ( isset ( $_GET ["list"] ) &&  $_GET ["list"]) {
 						echo 'checked';
 					}
 					echo '/>';
