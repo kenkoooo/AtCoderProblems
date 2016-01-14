@@ -1,11 +1,11 @@
 package main
 
 import (
-	"./crawler"
-	"./sqlconnect"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/kenkoooo/AtCoderProblems/crawler"
+	"github.com/kenkoooo/AtCoderProblems/sqlconnect"
 )
 
 func main() {
