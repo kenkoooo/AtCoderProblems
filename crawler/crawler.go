@@ -11,6 +11,7 @@ const atcoder = "http://atcoder.jp/"
 
 type Submit struct {
 	id            int
+	problem_id    string
 	user          string
 	language      string
 	source_length int
@@ -57,16 +58,20 @@ func GetSubmissions(contest string) []Submit {
 	url := "http://" + contest + ".contest.atcoder.jp/submissions/all"
 	doc, _ := goquery.NewDocument(url)
 	rep := regexp.MustCompile(`^/submissions/([0-9]*)$`)
+	prep := regexp.MustCompile(`^/tasks/([0-9_a-z]*)$`)
 
 	x := []Submit{}
 	doc.Find("tbody").Each(func(_ int, s *goquery.Selection) {
 		s.Find("tr").Each(func(_ int, s *goquery.Selection) {
 			var key int
+			var problem_id string
 			s.Find("a").Each(func(_ int, t *goquery.Selection) {
 				url, _ := t.Attr("href")
 				if rep.Match([]byte(url)) {
 					url = rep.ReplaceAllString(url, "$1")
 					key, _ = strconv.Atoi(url)
+				} else if prep.Match([]byte(url)) {
+					problem_id = rep.ReplaceAllString(url, "$1")
 				}
 			})
 
@@ -77,6 +82,7 @@ func GetSubmissions(contest string) []Submit {
 			length, _ := strconv.Atoi(strings.Replace(data[5], " Byte", "", -1))
 			t := Submit{
 				id:            key,
+				problem_id:    problem_id,
 				user:          data[2],
 				language:      data[3],
 				source_length: length,
