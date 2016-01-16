@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Submit struct {
@@ -136,7 +137,7 @@ func GetMySQL(user string, pass string) (db *sql.DB) {
 }
 
 func NewRecord(table, column, key string, db *sql.DB) bool {
-	query, args, _ := sq.Select(column).From(table).Where(sq.Eq{column: key}).ToSql()
+	query, args, _ := sq.Select(column).From(table).Where(sq.Eq{column: key}).Limit(1).ToSql()
 	row, _ := db.Query(query, args...)
 	defer row.Close()
 	for row.Next() {
@@ -155,46 +156,70 @@ func main() {
 
 	urls := GetContestUrls()
 	for _, contest := range urls {
-		if NewRecord("contests", "id", contest, db) {
-			problems := GetProblemSet(contest)
-			if len(problems) == 0 {
-				continue
-			}
-			query, args, _ := sq.Insert("contests").Columns("id").Values(contest).ToSql()
-			db.Exec(query, args...)
-			q := sq.Insert("problems").Columns("id", "contest")
-			for _, problem := range problems {
-				if NewRecord("problems", "id", problem, db) {
-					q = q.Values(problem, contest)
-				}
-			}
-			query, args, _ = q.ToSql()
-			db.Exec(query, args...)
+		if !NewRecord("contests", "id", contest, db) {
+			continue
 		}
+
+		problems := GetProblemSet(contest)
+		if len(problems) == 0 {
+			continue
+		}
+		query, args, _ := sq.Insert("contests").Columns("id").Values(contest).ToSql()
+		db.Exec(query, args...)
+		q := sq.Insert("problems").Columns("id", "contest")
+		for _, problem := range problems {
+			if NewRecord("problems", "id", problem, db) {
+				q = q.Values(problem, contest)
+			}
+		}
+		query, args, _ = q.ToSql()
+		db.Exec(query, args...)
 	}
 
-	contest := "abc031"
-	m := 1
-	for i := 1; i <= m; i++ {
-		submissions, max := GetSubmissions(contest, i)
-		if max > m {
-			m = max
-		}
-		q := sq.Insert("submissions")
-		q = q.Columns(
-			"id", "problem_id", "contest_id",
-			"user_name", "status", "source_length", "language",
-			"exec_time", "created_time")
-		for _, s := range submissions {
-			if NewRecord("submissions", "id", s.IdStr(), db) {
-				q = q.Values(
-					s.Id, s.ProblemId, contest,
-					s.User, s.Status, s.SourceLength, s.Language,
-					s.ExecTime, s.CreatedAt)
+	for loop := 0; loop < 1000; loop++ {
+
+		var contest string
+		{
+			query, args, _ := sq.Select("id").From("contests").OrderBy("last_crawled").Limit(1).ToSql()
+			row, _ := db.Query(query, args...)
+			for row.Next() {
+				row.Scan(&contest)
+				fmt.Println(contest)
 			}
 		}
-		query, args, _ := q.ToSql()
+
+		M := 1
+		for i := 1; i <= M; i++ {
+			crawled_flag := false
+
+			submissions, max := GetSubmissions(contest, i)
+			if max > M {
+				M = max
+			}
+			q := sq.Insert("submissions")
+			q = q.Columns(
+				"id", "problem_id", "contest_id",
+				"user_name", "status", "source_length", "language",
+				"exec_time", "created_time")
+			for _, s := range submissions {
+				if NewRecord("submissions", "id", s.IdStr(), db) {
+					q = q.Values(
+						s.Id, s.ProblemId, contest,
+						s.User, s.Status, s.SourceLength, s.Language,
+						s.ExecTime, s.CreatedAt)
+				} else {
+					crawled_flag = true
+				}
+			}
+			query, args, _ := q.ToSql()
+			db.Exec(query, args...)
+			fmt.Println(i)
+			if crawled_flag {
+				break
+			}
+		}
+
+		query, args, _ := sq.Update("contests").Set("last_crawled", time.Now().Format("2006-01-02 15:04:05")).Where(sq.Eq{"id": contest}).ToSql()
 		db.Exec(query, args...)
-		fmt.Println(i)
 	}
 }
