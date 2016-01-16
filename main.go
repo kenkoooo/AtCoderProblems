@@ -2,10 +2,13 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -146,14 +149,7 @@ func NewRecord(table, column, key string, db *sql.DB) bool {
 	return true
 }
 
-func main() {
-	var u string
-	var p string
-	fmt.Scan(&u)
-	fmt.Scan(&p)
-	db := GetMySQL(u, p)
-	defer db.Close()
-
+func UpdateProblemSet(db *sql.DB, logger *logrus.Logger) {
 	urls := GetContestUrls()
 	for _, contest := range urls {
 		if !NewRecord("contests", "id", contest, db) {
@@ -164,6 +160,7 @@ func main() {
 		if len(problems) == 0 {
 			continue
 		}
+		logger.WithFields(logrus.Fields{"contest": contest}).Info("crawling problems")
 		query, args, _ := sq.Insert("contests").Columns("id").Values(contest).ToSql()
 		db.Exec(query, args...)
 		q := sq.Insert("problems").Columns("id", "contest")
@@ -175,51 +172,84 @@ func main() {
 		query, args, _ = q.ToSql()
 		db.Exec(query, args...)
 	}
+}
 
-	for loop := 0; loop < 1000; loop++ {
+func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
+	contest := ""
+	{
+		query, args, _ := sq.Select("id").From("contests").OrderBy("last_crawled").Limit(1).ToSql()
+		row, _ := db.Query(query, args...)
+		for row.Next() {
+			row.Scan(&contest)
+			fmt.Println(contest)
+		}
+	}
 
-		var contest string
-		{
-			query, args, _ := sq.Select("id").From("contests").OrderBy("last_crawled").Limit(1).ToSql()
-			row, _ := db.Query(query, args...)
-			for row.Next() {
-				row.Scan(&contest)
-				fmt.Println(contest)
+	M := 1
+	for i := 1; i <= M; i++ {
+		submissions, max := GetSubmissions(contest, i)
+		logger.WithFields(logrus.Fields{"contest": contest, "page": strconv.Itoa(i)}).Info("crawling page")
+		if max > M {
+			M = max
+		}
+		q := sq.Insert("submissions")
+		q = q.Columns(
+			"id", "problem_id", "contest_id",
+			"user_name", "status", "source_length", "language",
+			"exec_time", "created_time")
+
+		crawled_flag := false
+		for _, s := range submissions {
+			if NewRecord("submissions", "id", s.IdStr(), db) {
+				q = q.Values(
+					s.Id, s.ProblemId, contest,
+					s.User, s.Status, s.SourceLength, s.Language,
+					s.ExecTime, s.CreatedAt)
+			} else {
+				crawled_flag = true
 			}
 		}
-
-		M := 1
-		for i := 1; i <= M; i++ {
-			crawled_flag := false
-
-			submissions, max := GetSubmissions(contest, i)
-			if max > M {
-				M = max
-			}
-			q := sq.Insert("submissions")
-			q = q.Columns(
-				"id", "problem_id", "contest_id",
-				"user_name", "status", "source_length", "language",
-				"exec_time", "created_time")
-			for _, s := range submissions {
-				if NewRecord("submissions", "id", s.IdStr(), db) {
-					q = q.Values(
-						s.Id, s.ProblemId, contest,
-						s.User, s.Status, s.SourceLength, s.Language,
-						s.ExecTime, s.CreatedAt)
-				} else {
-					crawled_flag = true
-				}
-			}
-			query, args, _ := q.ToSql()
-			db.Exec(query, args...)
-			fmt.Println(i)
-			if crawled_flag {
-				break
-			}
-		}
-
-		query, args, _ := sq.Update("contests").Set("last_crawled", time.Now().Format("2006-01-02 15:04:05")).Where(sq.Eq{"id": contest}).ToSql()
+		query, args, _ := q.ToSql()
 		db.Exec(query, args...)
+		fmt.Println(i)
+		if crawled_flag {
+			break
+		}
+	}
+
+	query, args, _ := sq.Update("contests").Set("last_crawled", time.Now().Format("2006-01-02 15:04:05")).Where(sq.Eq{"id": contest}).ToSql()
+	db.Exec(query, args...)
+}
+
+const cycle = 24 * 3600
+const onesec_nano = 1000000000
+
+func main() {
+	u := flag.String("u", "user", "user name to connect to MySQL server")
+	p := flag.String("p", "password", "password to connect to MySQL server")
+	flag.Parse()
+
+	db := GetMySQL(*u, *p)
+	defer db.Close()
+
+	logger := logrus.New()
+	logger.Formatter = new(logrus.JSONFormatter)
+	if err := os.Mkdir("log", 0777); err != nil {
+		fmt.Println(err)
+	}
+
+	for i := 0; ; i++ {
+		i %= cycle
+
+		f, _ := os.OpenFile("log/"+time.Now().Format("2006-01-02")+".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		logger.Out = f
+		if i == 0 {
+			UpdateProblemSet(db, logger)
+		} else {
+			UpdateSubmissions(db, logger)
+		}
+		f.Close()
+
+		time.Sleep(onesec_nano)
 	}
 }
