@@ -221,7 +221,7 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 	db.Exec(query, args...)
 }
 
-const cycle = 24 * 3600
+const cycle = 1800
 const onesec_nano = 1000000000
 
 func main() {
