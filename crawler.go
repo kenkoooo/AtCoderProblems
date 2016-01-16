@@ -65,7 +65,6 @@ func GetProblemSet(contest string) []string {
 }
 
 func GetSubmissions(contest string, i int) ([]Submit, int) {
-	x := []Submit{}
 	max := 1
 
 	url := "http://" + contest + ".contest.atcoder.jp/submissions/all/" + strconv.Itoa(i)
@@ -86,7 +85,10 @@ func GetSubmissions(contest string, i int) ([]Submit, int) {
 	rep := regexp.MustCompile(`^/submissions/([0-9]*)$`)
 	prep := regexp.MustCompile(`^/tasks/([0-9_a-z]*)$`)
 	urep := regexp.MustCompile(`^/users/([0-9_a-zA-Z]*)$`)
+	jrep := regexp.MustCompile(`^[0-9]*/[0-9]*$`)
 
+	x := []Submit{}
+	judging := false
 	doc.Find("tbody").Each(func(_ int, s *goquery.Selection) {
 		s.Find("tr").Each(func(_ int, s *goquery.Selection) {
 			var key int
@@ -108,6 +110,7 @@ func GetSubmissions(contest string, i int) ([]Submit, int) {
 			s.Find("td").Each(func(_ int, s *goquery.Selection) {
 				data = append(data, s.Text())
 			})
+
 			length, _ := strconv.Atoi(strings.Replace(data[5], " Byte", "", -1))
 			t := Submit{
 				Id:           key,
@@ -123,10 +126,17 @@ func GetSubmissions(contest string, i int) ([]Submit, int) {
 				exec_time, _ := strconv.Atoi(strings.Replace(data[7], " ms", "", -1))
 				t.ExecTime = exec_time
 			}
+			if jrep.Match([]byte(t.Status)) {
+				judging = true
+			}
 			x = append(x, t)
 		})
 	})
+	if judging {
+		y := []Submit{}
+		return y, max
 
+	}
 	return x, max
 }
 
@@ -189,6 +199,9 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 	for i := 1; i <= M; i++ {
 		submissions, max := GetSubmissions(contest, i)
 		logger.WithFields(logrus.Fields{"contest": contest, "page": strconv.Itoa(i)}).Info("crawling page")
+		if len(submissions) == 0 {
+			break
+		}
 		if max > M {
 			M = max
 		}
