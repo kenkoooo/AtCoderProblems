@@ -126,7 +126,7 @@ func GetSubmissions(contest string, i int) ([]Submit, int) {
 				exec_time, _ := strconv.Atoi(strings.Replace(data[7], " ms", "", -1))
 				t.ExecTime = exec_time
 			}
-			if jrep.Match([]byte(t.Status)) {
+			if jrep.Match([]byte(t.Status)) || (t.Status == "WJ") {
 				judging = true
 			}
 			x = append(x, t)
