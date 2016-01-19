@@ -23,6 +23,10 @@ type Problem struct {
 	Fastest  string `json:"fastest"`
 	First    string `json:"first"`
 
+	ShortestUser string
+	FastestUser  string
+	FirstUser    string
+
 	Status string              `json:"status"`
 	Rivals map[string]struct{} `json:"rivals"`
 }
@@ -42,7 +46,19 @@ type Submission struct {
 func GetProblemList(db *sql.DB, user, rivals string) map[string]Problem {
 	ret := make(map[string]Problem)
 	{
-		rows, _ := sq.Select("*").From("problems").RunWith(db).Query()
+		rows, _ := sq.Select(
+			"p.id",
+			"p.contest",
+			"p.shortest_submission_id",
+			"p.fastest_submission_id",
+			"p.first_submission_id",
+			"sh.user_name",
+			"fs.user_name",
+			"fa.user_name",
+		).From("problems AS p").LeftJoin(
+			"submissions AS sh ON sh.id=p.shortest_submission_id").LeftJoin(
+			"submissions AS fs ON fs.id=p.fastest_submission_id").LeftJoin(
+			"submissions AS fa ON fa.id=p.first_submission_id").RunWith(db).Query()
 		for rows.Next() {
 			x := Problem{}
 			rows.Scan(
@@ -51,6 +67,9 @@ func GetProblemList(db *sql.DB, user, rivals string) map[string]Problem {
 				&x.Shortest,
 				&x.Fastest,
 				&x.First,
+				&x.ShortestUser,
+				&x.FastestUser,
+				&x.FirstUser,
 			)
 			x.Rivals = make(map[string]struct{})
 			x.Status = ""
@@ -147,6 +166,7 @@ func main() {
 		if tool == "problems" {
 			problems := GetProblemList(db, user, rivals)
 			b, _ := json.Marshal(problems)
+			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
 		}
 	})
