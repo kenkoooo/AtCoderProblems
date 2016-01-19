@@ -38,6 +38,8 @@ func main() {
 		} else {
 			sqlget.UpdateSubmissions(db, logger)
 		}
+
+		sqlget.MaintainDatabase(db, logger)
 		f.Close()
 
 		time.Sleep(onesec_nano)

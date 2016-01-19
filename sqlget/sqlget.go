@@ -214,6 +214,56 @@ func ExtraUpdateSubmissions(db *sql.DB, contest string) {
 
 }
 
+func MaintainDatabase(db *sql.DB, logger *logrus.Logger) {
+	rows, _ := sq.Select(
+		"id", "problem_id", "source_length", "exec_time",
+	).From("submissions").Where(sq.And{
+		sq.Expr("created_time > ?", time.Now().Add(-9*time.Hour-5*time.Minute).Format("2006-01-02 15:04:05")),
+		sq.Eq{"status": "AC"},
+	}).RunWith(db).Query()
+
+	for rows.Next() {
+		id, problem, length, exec := 0, 0, 0, 0
+		rows.Scan(&id, &problem, &length, &exec)
+
+		short_id, fast_id, first_id := 0, 0, 0
+		sq.Select("shortest_submission_id", "fastest_submission_id", "first_submission_id").From("problems").Where(
+			sq.Eq{"id": problem}).RunWith(db).QueryRow().Scan(&short_id, &fast_id, &first_id)
+
+		//Update Shortest
+		if short_id != 0 {
+			shortest := 0
+			sq.Select("source_length").From("submissions").Where(sq.Eq{"id": short_id}).RunWith(db).QueryRow().Scan(&shortest)
+			if shortest > length {
+				short_id = 0
+			}
+		}
+		if short_id == 0 {
+			sq.Update("problems").Set("shortest_submission_id", id).Where(sq.Eq{"id": problem}).RunWith(db).Exec()
+			logger.WithFields(logrus.Fields{"submission_id": id, "problem": problem}).Info("shortest code")
+		}
+
+		//Update Fastest
+		if fast_id != 0 {
+			fastest := 0
+			sq.Select("exec_time").From("submissions").Where(sq.Eq{"id": fast_id}).RunWith(db).QueryRow().Scan(&fastest)
+			if fastest > exec {
+				fast_id = 0
+			}
+		}
+		if fast_id == 0 {
+			sq.Update("problems").Set("fastest_submission_id", id).Where(sq.Eq{"id": problem}).RunWith(db).Exec()
+			logger.WithFields(logrus.Fields{"submission_id": id, "problem": problem}).Info("fastest code")
+		}
+
+		//Update FA
+		if first_id == 0 {
+			sq.Update("problems").Set("first_submission_id", id).Where(sq.Eq{"id": problem}).RunWith(db).Exec()
+			logger.WithFields(logrus.Fields{"submission_id": id, "problem": problem}).Info("first code")
+		}
+	}
+}
+
 func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 	contest := ""
 	{
