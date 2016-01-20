@@ -23,9 +23,9 @@ type Problem struct {
 	Fastest  string `json:"fastest"`
 	First    string `json:"first"`
 
-	ShortestUser string
-	FastestUser  string
-	FirstUser    string
+	ShortestUser string `json:"shortest_user"`
+	FastestUser  string `json:"fastest_user"`
+	FirstUser    string `json:"first_user"`
 
 	Status string              `json:"status"`
 	Rivals map[string]struct{} `json:"rivals"`
@@ -165,7 +165,7 @@ func main() {
 		}
 		if tool == "problems" {
 			problems := GetProblemList(db, user, rivals)
-			b, _ := json.Marshal(problems)
+			b, _ := json.MarshalIndent(problems, "", "\t")
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
 		}

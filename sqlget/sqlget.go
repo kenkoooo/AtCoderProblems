@@ -224,14 +224,16 @@ func MaintainDatabase(db *sql.DB, logger *logrus.Logger) {
 		problem := ""
 		rows.Scan(&problem)
 
+		p := sq.Eq{"problem_id": problem}
+		ac := sq.Eq{"status": "AC"}
 		short := 0
-		sq.Select("id").From("submissions").Where(sq.Eq{"problem_id": problem}).OrderBy("source_length", "id").RunWith(db).QueryRow().Scan(&short)
+		sq.Select("id").From("submissions").Where(sq.And{p, ac}).OrderBy("source_length", "id").RunWith(db).QueryRow().Scan(&short)
 
 		fast := 0
-		sq.Select("id").From("submissions").Where(sq.Eq{"problem_id": problem}).OrderBy("exec_time", "id").RunWith(db).QueryRow().Scan(&fast)
+		sq.Select("id").From("submissions").Where(sq.And{p, ac}).OrderBy("exec_time", "id").RunWith(db).QueryRow().Scan(&fast)
 
 		first := 0
-		sq.Select("id").From("submissions").Where(sq.Eq{"problem_id": problem}).OrderBy("id").RunWith(db).QueryRow().Scan(&first)
+		sq.Select("id").From("submissions").Where(sq.And{p, ac}).OrderBy("id").RunWith(db).QueryRow().Scan(&first)
 
 		sq.Update("problems").SetMap(sq.Eq{"shortest_submission_id": short, "fastest_submission_id": fast, "first_submission_id": first}).Where(sq.Eq{"id": problem}).RunWith(db).Exec()
 	}
