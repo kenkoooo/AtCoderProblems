@@ -62,24 +62,40 @@ func GetContestUrls() []string {
 	return x
 }
 
-func GetProblemSet(contest string) []string {
-	set := make(map[string]bool)
+func GetProblemSet(contest string) ([]string, []string, []string, string) {
+	fmt.Println(contest)
+	set := make(map[string]string)
 	url := "http://" + contest + ".contest.atcoder.jp/assignments"
 	doc, _ := goquery.NewDocument(url)
-	rep := regexp.MustCompile(`^/tasks/([0-9_a-z]*)$`)
+	rep := regexp.MustCompile(`^/tasks/([0-9_a-zA-Z]*)$`)
 	doc.Find("a").Each(func(_ int, s *goquery.Selection) {
 		url, _ := s.Attr("href")
 		if rep.Match([]byte(url)) {
 			url = rep.ReplaceAllString(url, "$1")
-			set[url] = true
+			set[url] = s.Text()
 		}
 	})
 
+	times := []string{}
+	doc.Find("span").Each(func(_ int, s *goquery.Selection) {
+		s.Find("time").Each(func(_ int, t *goquery.Selection) {
+			times = append(times, t.Text())
+		})
+	})
+
+	contest_name := ""
+	doc.Find(".contest-name").Each(func(_ int, s *goquery.Selection) {
+		contest_name = s.Text()
+	})
+	fmt.Println(contest_name)
+
 	x := []string{}
-	for key := range set {
+	problem_names := []string{}
+	for key, name := range set {
 		x = append(x, key)
+		problem_names = append(problem_names, name)
 	}
-	return x
+	return x, problem_names, times, contest_name
 }
 
 func GetSubmissions(contest string, i int, ac bool) ([]Submit, int) {
@@ -106,7 +122,7 @@ func GetSubmissions(contest string, i int, ac bool) ([]Submit, int) {
 	})
 
 	rep := regexp.MustCompile(`^/submissions/([0-9]*)$`)
-	prep := regexp.MustCompile(`^/tasks/([0-9_a-z]*)$`)
+	prep := regexp.MustCompile(`^/tasks/([0-9_a-zA-Z]*)$`)
 	urep := regexp.MustCompile(`^/users/([0-9_a-zA-Z]*)$`)
 	jrep := regexp.MustCompile(`^[0-9]*/[0-9]*$`)
 
@@ -170,16 +186,23 @@ func UpdateProblemSet(db *sql.DB, logger *logrus.Logger) {
 			continue
 		}
 
-		problems := GetProblemSet(contest)
+		problems, problem_names, times, contest_name := GetProblemSet(contest)
 		if len(problems) == 0 {
+			fmt.Println(problems)
 			continue
 		}
-		logger.WithFields(logrus.Fields{"contest": contest}).Info("crawling problems")
-		sq.Insert("contests").Columns("id").Values(contest).RunWith(db).Exec()
-		q := sq.Insert("problems").Columns("id", "contest")
-		for _, problem := range problems {
+		logger.WithFields(logrus.Fields{
+			"contest": contest,
+			"name":    contest_name,
+			"start":   times[0],
+			"end":     times[1],
+		}).Info("crawling problems")
+		sq.Insert("contests").Columns("id", "name", "start", "end").Values(contest, contest_name, times[0], times[1]).RunWith(db).Exec()
+
+		q := sq.Insert("problems").Columns("id", "contest", "name")
+		for i, problem := range problems {
 			if NewRecord("problems", "id", problem, db) {
-				q = q.Values(problem, contest)
+				q = q.Values(problem, contest, problem_names[i])
 			}
 		}
 		q.RunWith(db).Exec()
