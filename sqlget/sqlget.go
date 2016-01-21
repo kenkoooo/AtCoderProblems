@@ -123,7 +123,7 @@ func GetSubmissions(contest string, i int, ac bool) ([]Submit, int) {
 
 	rep := regexp.MustCompile(`^/submissions/([0-9]*)$`)
 	prep := regexp.MustCompile(`^/tasks/([0-9_a-zA-Z]*)$`)
-	urep := regexp.MustCompile(`^/users/([0-9_a-zA-Z]*)$`)
+	urep := regexp.MustCompile(`^/users/([0-9_a-zA-Z\-]*)$`)
 	jrep := regexp.MustCompile(`^[0-9]*/[0-9]*$`)
 
 	x := []Submit{}
