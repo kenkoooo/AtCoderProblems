@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>
+            AtCoder Problems
+        </title>
+        <!-- Bootstrap core CSS -->
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css"/>
+        <!-- Custom styles for this template -->
+        <link href="dashboard.css" rel="stylesheet"/>
+        <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    </head>
+    <body>
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed"
+                        data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+                        aria-controls="navbar">
+                        <span class="sr-only">
+                            Toggle navigation
+                        </span>
+                        <span class="icon-bar">
+                        </span>
+                        <span class="icon-bar">
+                        </span>
+                        <span class="icon-bar">
+                        </span>
+                    </button>
+                    <a class="navbar-brand"href="./">
+                        AtCoder Problems
+                    </a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown">
+                            <a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                ランキング
+                                <span class="caret">
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="./?ranking=1">
+                                        AC数
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="./?ranking=2">
+                                        ショートコード数
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="./?ranking=3">
+                                        最速実行コード数
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="./?ranking=4">
+                                        First Acceptance
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li  >
+                            <a class="user-page-link" href="./?kind=user">
+                                ユーザーページ
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a aria-expanded="false" aria-haspopup="true"
+                                role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                リンク
+                                <span class="caret">
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="http://atcoder.jp/" target='_blank'>
+                                        AtCoder (公式)
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="http://ichyo.jp/aoj-icpc/" target='_blank'>
+                                        AOJ-ICPC
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="http://twitter.com/kenkoooo" target='_blank'>
+                                        お問い合わせ
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <h1 class="page-header">
+                    AtCoder Problems
+                </h1>
+                <p class="lead">
+                    <a href="http://atcoder.jp/">
+                        AtCoder
+                    </a>
+                    の非公式過去問集です。User IDからACした問題を検索できます。
+                </p>
+                <form action="./" method="get" class="form-inline">
+                    <div class="form-group">
+                        <label>
+                            User ID:
+                        </label>
+                        <input type="text" class="form-control" id="user_name_text" placeholder="User ID" name="name" value="kenkoooo"/>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            ライバル:
+                        </label>
+                        <input type="text" class="form-control" id="rival_text" placeholder="User ID,User ID,User ID,..." name="rivals" value="kenkoooo"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="radio" name="list" value="0" />
+                        カテゴリ表示
+                        <input type="radio" name="list" value="1"/>
+                        リスト表示
+                    </div>
+                    <button type="submit" class="btn btn-default">
+                        Search
+                    </button>
+                </form>
+            </div>
+            <div id="problem-list">
+                <div class="table-responsive">
+                    <table id="all-problems" class="table table-striped" data-toggle="table"
+                        data-search="true"
+                        data-sort-name="id"
+                        data-sort-order="asc">
+                        <thead>
+                            <tr>
+                                <th data-field="problem_name" data-sortable="true">
+                                    問題名
+                                </th>
+                                <th data-field="contest_name" data-sortable="true">
+                                    コンテスト
+                                </th>
+                                <th data-field="status" data-sortable="true">
+                                    状態
+                                </th>
+                                <th data-field="exec" data-sortable="true">
+                                    最速実行
+                                </th>
+                                <th data-field="length" data-sortable="true">
+                                    ショートコード
+                                </th>
+                                <th data-field="first" data-sortable="true">
+                                    最速提出
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="problem-category">
+                <div class="page-header">
+                    <h1>
+                        AtCoder Beginner Contest
+                    </h1>
+                </div>
+                <div class="table">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>
+                                    コンテスト
+                                </th>
+                                <th>
+                                    A 問題
+                                </th>
+                                <th>
+                                    B 問題
+                                </th>
+                                <th>
+                                    C 問題
+                                </th>
+                                <th>
+                                    D 問題
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="beginner">
+                            <tr>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="page-header">
+                    <h1>
+                        AtCoder Regular Contest
+                    </h1>
+                </div>
+                <div class="table">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>
+                                    コンテスト
+                                </th>
+                                <th>
+                                    A 問題
+                                </th>
+                                <th>
+                                    B 問題
+                                </th>
+                                <th>
+                                    C 問題
+                                </th>
+                                <th>
+                                    D 問題
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="regular">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="page-header">
+                    <h1>
+                        その他のコンテスト
+                    </h1>
+                </div>
+                <div id="others">
+                </div>
+            </div>
+            <div id="ranking">
+                <div class="table-responsive">
+                    <table id="all-ranking" class="table table-striped" data-toggle="table"
+                        data-search="true"
+                        data-sort-name="id"
+                        data-sort-order="asc">
+                        <thead>
+                            <tr>
+                                <th data-field="rank" data-sortable="true">
+                                    #
+                                </th>
+                                <th data-field="user_name" data-sortable="true">
+                                    ユーザー名
+                                </th>
+                                <th data-field="count" data-sortable="true">
+                                    獲得数
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--
+            Bootstrap core JavaScript
+            ==================================================
+        -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+        </script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js">
+        </script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js">
+        </script>
+        <script src="./Chart.js/Chart.js">
+        </script>
+        <script src="./atcoder.js">
+        </script>
+    </body>
+</html>
