@@ -1,39 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="utf-8"/>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-        <title>
-            AtCoder Problems
-        </title>
+        <title>AtCoder Problems</title>
         <!-- Bootstrap core CSS -->
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
         <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css"/>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css" />
         <!-- Custom styles for this template -->
-        <link href="dashboard.css" rel="stylesheet"/>
+        <link href="dashboard.css" rel="stylesheet" />
         <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     </head>
     <body>
         <nav class="navbar navbar-inverse navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed"
-                        data-toggle="collapse" data-target="#navbar" aria-expanded="false"
-                        aria-controls="navbar">
-                        <span class="sr-only">
-                            Toggle navigation
-                        </span>
-                        <span class="icon-bar">
-                        </span>
-                        <span class="icon-bar">
-                        </span>
-                        <span class="icon-bar">
-                        </span>
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">
+                        Toggle navigation
+                    </span>
+                    <span class="icon-bar">
+                    </span>
+                    <span class="icon-bar">
+                    </span>
+                    <span class="icon-bar">
+                    </span>
                     </button>
-                    <a class="navbar-brand"href="./">
+                    <a class="navbar-brand" href="./?kind=index" id="header-link">
                         AtCoder Problems
                     </a>
                 </div>
@@ -68,14 +64,13 @@
                                 </li>
                             </ul>
                         </li>
-                        <li  >
-                            <a class="user-page-link" href="./?kind=user">
+                        <li>
+                            <a id="user-page-link" href="./?kind=user">
                                 ユーザーページ
                             </a>
                         </li>
                         <li class="dropdown">
-                            <a aria-expanded="false" aria-haspopup="true"
-                                role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
                                 リンク
                                 <span class="caret">
                                 </span>
@@ -103,46 +98,56 @@
             </div>
         </nav>
         <div class="container">
-            <div class="row">
-                <h1 class="page-header">
-                    AtCoder Problems
+            <div class="row" id="header-block">
+                <h1 class="page-header" id="header-title">
+                AtCoder Problems
                 </h1>
-                <p class="lead">
+                <p class="lead" id="lead-text">
                     <a href="http://atcoder.jp/">
                         AtCoder
-                    </a>
-                    の非公式過去問集です。User IDからACした問題を検索できます。
+                    </a> の非公式過去問集です。User IDからACした問題を検索できます。
                 </p>
-                <form action="./" method="get" class="form-inline">
+                <form action="./" method="get" class="form-inline" id="problem-search-block">
                     <div class="form-group">
                         <label>
                             User ID:
                         </label>
-                        <input type="text" class="form-control" id="user_name_text" placeholder="User ID" name="name" value="kenkoooo"/>
+                        <input type="text" class="form-control" id="user_name_text" placeholder="User ID" name="name" value="kenkoooo" />
                     </div>
                     <div class="form-group">
                         <label>
                             ライバル:
                         </label>
-                        <input type="text" class="form-control" id="rival_text" placeholder="User ID,User ID,User ID,..." name="rivals" value="kenkoooo"/>
+                        <input type="text" class="form-control" id="rival_text" placeholder="User ID,User ID,User ID,..." name="rivals" value="kenkoooo" />
                     </div>
                     <div class="form-group">
-                        <input type="radio" name="list" value="0" />
-                        カテゴリ表示
-                        <input type="radio" name="list" value="1"/>
-                        リスト表示
+                        <input type="radio" name="list" value="0" /> カテゴリ表示
+                        <input type="radio" name="list" value="1" /> リスト表示
                     </div>
                     <button type="submit" class="btn btn-default">
-                        Search
+                    Search
                     </button>
                 </form>
+                <form action="./" method="get" class="form-inline page-header" id="user-search-block">
+                    <div class="form-group">
+                        <label>
+                            User ID:
+                        </label>
+                        <input type="text" class="form-control" id="user_name_text" placeholder="User ID" name="name" value="kenkoooo" />
+                        <input type="hidden" name="kind" value="user" />
+                    </div>
+                    <button type="submit" class="btn btn-default">
+                    Search
+                    </button>
+                </form>
+
+                <h1 id="header-user">
+                AtCoder Problems
+                </h1>
             </div>
-            <div id="problem-list">
+            <div id="problem-list" class="row">
                 <div class="table-responsive">
-                    <table id="all-problems" class="table table-striped" data-toggle="table"
-                        data-search="true"
-                        data-sort-name="id"
-                        data-sort-order="asc">
+                    <table id="all-problems" class="table table-striped" data-toggle="table" data-search="true" data-sort-name="id" data-sort-order="asc">
                         <thead>
                             <tr>
                                 <th data-field="problem_name" data-sortable="true">
@@ -170,10 +175,10 @@
                     </table>
                 </div>
             </div>
-            <div id="problem-category">
+            <div id="problem-category" class="row">
                 <div class="page-header">
                     <h1>
-                        AtCoder Beginner Contest
+                    AtCoder Beginner Contest
                     </h1>
                 </div>
                 <div class="table">
@@ -205,7 +210,7 @@
                 </div>
                 <div class="page-header">
                     <h1>
-                        AtCoder Regular Contest
+                    AtCoder Regular Contest
                     </h1>
                 </div>
                 <div class="table">
@@ -235,18 +240,15 @@
                 </div>
                 <div class="page-header">
                     <h1>
-                        その他のコンテスト
+                    その他のコンテスト
                     </h1>
                 </div>
                 <div id="others">
                 </div>
             </div>
-            <div id="ranking">
+            <div id="ranking" class="row">
                 <div class="table-responsive">
-                    <table id="all-ranking" class="table table-striped" data-toggle="table"
-                        data-search="true"
-                        data-sort-name="id"
-                        data-sort-order="asc">
+                    <table id="all-ranking" class="table table-striped" data-toggle="table" data-search="true" data-sort-name="id" data-sort-order="asc">
                         <thead>
                             <tr>
                                 <th data-field="rank" data-sortable="true">
@@ -267,8 +269,8 @@
             </div>
         </div>
         <!--
-            Bootstrap core JavaScript
-            ==================================================
+        Bootstrap core JavaScript
+        ==================================================
         -->
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">

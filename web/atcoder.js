@@ -3,6 +3,15 @@ $(document).ready(function() {
     if (params['kind'] !== "list") $("#problem-list").remove();
     if (params['kind'] !== "index") $("#problem-category").remove();
     if (params['kind'] !== "ranking") $("#ranking").remove();
+    if (params['kind'] !== "user") {
+        $("#header-user").remove();
+        $("#user-search-block").remove();
+    }
+    if (params['kind'] === "user" || params['kind'] === "ranking") {
+        $("#problem-search-block").remove();
+        $("#lead-text").remove();
+    }
+
     user = params['name'];
     rivals = params['rivals'].replace(/\%2C/g, ",");
     $("#user_name_text").val(user);
@@ -60,6 +69,7 @@ $(document).ready(function() {
         }).fail(function() {
             console.log('error');
         });
+
     } else if (params['kind'] === 'list') {
         $.when($.getJSON("../atcoder-api/contests"), $.getJSON("../atcoder-api/problems", {
             "user": user,
@@ -112,10 +122,22 @@ $(document).ready(function() {
         });
     } else if (params['kind'] === 'ranking') {
         var k = "";
-        if (params["ranking"] == 1) k = ""
-        if (params["ranking"] == 2) k = "short"
-        if (params["ranking"] == 3) k = "fast"
-        if (params["ranking"] == 4) k = "fa"
+        if (params["ranking"] == 1) {
+            k = "";
+            $("#header-title").text('AtCoder AC 数ランキング');
+        }
+        if (params["ranking"] == 2) {
+            k = "short";
+            $("#header-title").text('AtCoder コードゴルフランキング');
+        }
+        if (params["ranking"] == 3) {
+            k = "fast";
+            $("#header-title").text('AtCoder 実行速度ランキング');
+        }
+        if (params["ranking"] == 4) {
+            k = "fa";
+            $("#header-title").text('AtCoder 最速提出ランキング');
+        }
         $.when($.getJSON("../atcoder-api/ranking", {
             "kind": k,
         })).done(function(ranking_json) {
@@ -132,11 +154,16 @@ $(document).ready(function() {
         }).fail(function() {
             console.log('error');
         });
+    } else if (params['kind'] === 'user') {
+        $("#header-user").text(params["name"]);
+        $("#header-title").remove();
     }
-    $("a.user-page-link").each(function() {
-        var _href = $(this).attr("href");
-        $(this).attr("href", _href + '&name=' + params["name"]);
-    });
+
+    var user_href = $("#user-page-link").attr("href");
+    $("#user-page-link").attr("href", user_href + '&name=' + params["name"]);
+    var header_href = $("#header-link").attr("href");
+    $("#header-link").attr("href", header_href + '&name=' + params["name"]);
+
 });
 
 function getParam() {
@@ -153,7 +180,7 @@ function getParam() {
         paramsArray[neet[0]] = neet[1];
     }
     if (url.indexOf('user.php') != -1) paramsArray["kind"] = "user";
-    if (paramsArray["list"] == 1) paramsArray["kind"] = "list";
+    if (paramsArray["list"] == 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
     if (paramsArray["ranking"] > 0) paramsArray["kind"] = "ranking";
     return paramsArray;
 }
