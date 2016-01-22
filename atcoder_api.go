@@ -8,21 +8,33 @@ import (
 	"net"
 	"net/http"
 	"net/http/fcgi"
+	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	sqlget "./sqlget"
 	sq "github.com/Masterminds/squirrel"
+	"github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type Problem struct {
-	Id       string `json:"-"`
-	Contest  string `json:"contest"`
-	Name     string `json:"name"`
-	Shortest int    `json:"shortest"`
-	Fastest  int    `json:"fastest"`
-	First    int    `json:"first"`
+	Id      string `json:"-"`
+	Contest string `json:"contest"`
+	Name    string `json:"name"`
+
+	Shortest string `json:"-"`
+	Fastest  string `json:"-"`
+	First    string `json:"-"`
+
+	ShortestContest string `json:"-"`
+	FastestContest  string `json:"-"`
+	FirstContest    string `json:"-"`
+
+	ShortestURL string `json:"shortest_url"`
+	FastestURL  string `json:"fastest_url"`
+	FirstURL    string `json:"first_url"`
 
 	ShortestUser string `json:"shortest_user"`
 	FastestUser  string `json:"fastest_user"`
@@ -87,7 +99,7 @@ func GetRanking(db *sql.DB, kind string) []Ranking {
 	return ret
 }
 
-func GetProblemList(db *sql.DB, user, rivals string) map[string]Problem {
+func GetProblemList(db *sql.DB, logger *logrus.Logger, user, rivals string) map[string]Problem {
 	ret := make(map[string]Problem)
 	{
 		rows, _ := sq.Select(
@@ -100,6 +112,9 @@ func GetProblemList(db *sql.DB, user, rivals string) map[string]Problem {
 			"sh.user_name",
 			"fs.user_name",
 			"fa.user_name",
+			"sh.contest_id",
+			"fs.contest_id",
+			"fa.contest_id",
 			"sh.source_length",
 			"fs.exec_time",
 		).From("problems AS p").LeftJoin(
@@ -118,9 +133,18 @@ func GetProblemList(db *sql.DB, user, rivals string) map[string]Problem {
 				&x.ShortestUser,
 				&x.FastestUser,
 				&x.FirstUser,
+				&x.ShortestContest,
+				&x.FastestContest,
+				&x.FirstContest,
 				&x.SourceLength,
 				&x.ExecTime,
 			)
+			if x.SourceLength > 0 {
+
+				x.ShortestURL = "http://" + x.ShortestContest + ".contest.atcoder.jp/submissions/" + x.Shortest
+				x.FastestURL = "http://" + x.FastestContest + ".contest.atcoder.jp/submissions/" + x.Fastest
+				x.FirstURL = "http://" + x.FirstContest + ".contest.atcoder.jp/submissions/" + x.First
+			}
 			x.Rivals = make(map[string]struct{})
 			x.Status = ""
 			ret[x.Id] = x
@@ -174,6 +198,10 @@ func GetProblemList(db *sql.DB, user, rivals string) map[string]Problem {
 		}
 	}
 
+	logger.WithFields(logrus.Fields{
+		"user":   user,
+		"rivals": rivals,
+	}).Info("API request")
 	return ret
 }
 
@@ -185,6 +213,12 @@ func main() {
 	l, err := net.Listen("tcp", ":55555")
 	if err != nil {
 		return
+	}
+
+	logger := logrus.New()
+	logger.Formatter = new(logrus.JSONFormatter)
+	if err := os.Mkdir("log", 0777); err != nil {
+		fmt.Println(err)
 	}
 
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
@@ -225,8 +259,11 @@ func main() {
 			}
 		}
 
+		f, _ := os.OpenFile("log/api-"+time.Now().Format("2006-01-02")+".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		logger.Out = f
+
 		if tool == "problems" {
-			problems := GetProblemList(db, user, rivals)
+			problems := GetProblemList(db, logger, user, rivals)
 			b, _ := json.MarshalIndent(problems, "", "\t")
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
@@ -247,6 +284,8 @@ func main() {
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
 		}
+		fmt.Println("Close!")
+		f.Close()
 	})
 	fcgi.Serve(l, nil)
 }

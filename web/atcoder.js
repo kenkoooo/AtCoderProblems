@@ -88,13 +88,21 @@ $(document).ready(function() {
                 } else {
                     s = "";
                 }
+                var e = "";
+                var l = "";
+                var f = "";
+                if (p["source_length"] > 0) {
+                    e = "<a target='_blank' href='" + p["fastest_url"] + "'>" + p["exec_time"] + " ms (" + p["fastest_user"] + ")</a>";
+                    l = "<a target='_blank' href='" + p["shortest_url"] + "'>" + p["source_length"] + " Bytes (" + p["shortest_user"] + ")</a>";
+                    f = "<a target='_blank' href='" + p["first_url"] + "'>" + p["first_user"] + "</a>";
+                }
                 rows.push({
                     problem_name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/tasks/" + problem + "'>" + p["name"] + "</a>",
                     contest_name: contestList[contest],
                     status: s,
-                    exec: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/" + p["fastest"] + "'>" + p["exec_time"] + " ms (" + p["fastest_user"] + ")</a>",
-                    length: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/" + p["shortest"] + "'>" + p["source_length"] + " Bytes (" + p["shortest_user"] + ")</a>",
-                    first: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/" + p["first"] + "'>" + p["first_user"] + "</a>",
+                    exec: e,
+                    length: l,
+                    first: f,
                 });
             }
             var $table = $('#all-problems');

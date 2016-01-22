@@ -98,14 +98,10 @@ func GetProblemSet(contest string) ([]string, []string, []string, string) {
 	return x, problem_names, times, contest_name
 }
 
-func GetSubmissions(contest string, i int, ac bool) ([]Submit, int) {
+func GetSubmissions(contest string, i int) ([]Submit, int) {
 	max := 1
-	suffix := ""
-	if ac {
-		suffix = "?status=AC"
-	}
 
-	url := "http://" + contest + ".contest.atcoder.jp/submissions/all/" + strconv.Itoa(i) + suffix
+	url := "http://" + contest + ".contest.atcoder.jp/submissions/all/" + strconv.Itoa(i)
 	fmt.Println(url)
 	doc, _ := goquery.NewDocument(url)
 
@@ -213,7 +209,7 @@ func ExtraUpdateSubmissions(db *sql.DB, contest string) {
 	fmt.Println(contest)
 	M := 1
 	for i := 1; i <= M; i++ {
-		submissions, max := GetSubmissions(contest, i, true)
+		submissions, max := GetSubmissions(contest, i)
 		if max > M {
 			M = max
 		}
@@ -274,7 +270,7 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 
 	M := 1
 	for i := 1; i <= M; i++ {
-		submissions, max := GetSubmissions(contest, i, false)
+		submissions, max := GetSubmissions(contest, i)
 		logger.WithFields(logrus.Fields{"contest": contest, "page": strconv.Itoa(i)}).Info("crawling page")
 		if max >= 500 && i == 1 {
 			logger.WithFields(logrus.Fields{"contest": contest, "max": strconv.Itoa(max)}).Info("max exceeded")
