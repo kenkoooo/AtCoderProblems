@@ -72,6 +72,109 @@ type Ranking struct {
 	Count int    `json:"count"`
 }
 
+type User struct {
+	ACRank    int `json:"ac_rank"`
+	ShortRank int `json:"short_rank"`
+	FastRank  int `json:"fast_rank"`
+	FirstRank int `json:"first_rank"`
+	ACNum     int `json:"ac_num"`
+	ShortNum  int `json:"short_num"`
+	FastNum   int `json:"fast_num"`
+	FirstNum  int `json:"first_num"`
+
+	AbcA int `json:"abc_a"`
+	AbcB int `json:"abc_b"`
+	AbcC int `json:"abc_c"`
+	AbcD int `json:"abc_d"`
+	ArcA int `json:"arc_a"`
+	ArcB int `json:"arc_b"`
+	ArcC int `json:"arc_c"`
+	ArcD int `json:"arc_d"`
+}
+
+func GetUser(db *sql.DB, logger *logrus.Logger, user_name string) User {
+	user := User{}
+	if user_name == "" {
+		return user
+	}
+
+	ac := GetRanking(db, "")
+	for _, r := range ac {
+		if r.User == user_name {
+			user.ACRank = r.Rank
+			user.ACNum = r.Count
+			break
+		}
+	}
+	if user.ACNum == 0 {
+		return user
+	}
+	short := GetRanking(db, "short")
+	for _, r := range short {
+		if r.User == user_name {
+			user.ShortRank = r.Rank
+			user.ShortNum = r.Count
+			break
+		}
+	}
+	fast := GetRanking(db, "fast")
+	for _, r := range fast {
+		if r.User == user_name {
+			user.FastRank = r.Rank
+			user.FastNum = r.Count
+			break
+		}
+	}
+	fa := GetRanking(db, "fa")
+	for _, r := range fa {
+		if r.User == user_name {
+			user.FirstRank = r.Rank
+			user.FirstNum = r.Count
+			break
+		}
+	}
+
+	arc := regexp.MustCompile(`^arc[0-9]{3}_[0-9]*$`)
+	abc := regexp.MustCompile(`^abc[0-9]{3}_[0-9]*$`)
+	pa := regexp.MustCompile(`^a[rb]c[0-9]{3}_[a1]$`)
+	pb := regexp.MustCompile(`^a[rb]c[0-9]{3}_[b2]$`)
+	pc := regexp.MustCompile(`^a[rb]c[0-9]{3}_[c3]$`)
+	rows, _ := sq.Select("DISTINCT(problem_id)").From("submissions").Where(sq.And{
+		sq.Eq{"user_name": user_name},
+		sq.Eq{"status": "AC"},
+	}).GroupBy("problem_id").RunWith(db).Query()
+	for rows.Next() {
+		p_id := ""
+		rows.Scan(&p_id)
+		if arc.MatchString(p_id) {
+			if pa.MatchString(p_id) {
+				user.ArcA++
+			} else if pb.MatchString(p_id) {
+				user.ArcB++
+			} else if pc.MatchString(p_id) {
+				user.ArcC++
+			} else {
+				user.ArcD++
+			}
+		} else if abc.MatchString(p_id) {
+			if pa.MatchString(p_id) {
+				user.AbcA++
+			} else if pb.MatchString(p_id) {
+				user.AbcB++
+			} else if pc.MatchString(p_id) {
+				user.AbcC++
+			} else {
+				user.AbcD++
+			}
+		}
+	}
+
+	logger.WithFields(logrus.Fields{
+		"user": user_name,
+	}).Info("API request")
+	return user
+}
+
 func GetRanking(db *sql.DB, kind string) []Ranking {
 	ret := []Ranking{}
 	s := sq.Select()
@@ -85,7 +188,7 @@ func GetRanking(db *sql.DB, kind string) []Ranking {
 		s = s.Column("COUNT(DISTINCT(problem_id)) AS c").Column("user_name").From("submissions").Where(sq.Eq{"status": "AC"})
 	}
 
-	rows, _ := s.GroupBy("user_name").OrderBy("c DESC").Limit(300).RunWith(db).Query()
+	rows, _ := s.GroupBy("user_name").OrderBy("c DESC").RunWith(db).Query()
 	now := 0
 	for rows.Next() {
 		r := Ranking{Rank: 0, User: "", Count: 0}
@@ -281,6 +384,11 @@ func main() {
 		} else if tool == "ranking" {
 			ranking := GetRanking(db, kind)
 			b, _ := json.MarshalIndent(ranking, "", "\t")
+			res.Header().Set("Content-Type", "application/json")
+			fmt.Fprint(res, string(b))
+		} else if tool == "user" {
+			userStruct := GetUser(db, logger, user)
+			b, _ := json.MarshalIndent(userStruct, "", "\t")
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
 		}

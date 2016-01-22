@@ -2,14 +2,11 @@ $(document).ready(function() {
     params = getParam();
     if (params['kind'] !== "list") $("#problem-list").remove();
     if (params['kind'] !== "index") $("#problem-category").remove();
-    if (params['kind'] !== "ranking") $("#ranking").remove();
-    if (params['kind'] !== "user") {
-        $("#header-user").remove();
-        $("#user-search-block").remove();
+    if (params['kind'] !== "ranking") {
+        $("#ranking").remove();
     }
-    if (params['kind'] === "user" || params['kind'] === "ranking") {
-        $("#problem-search-block").remove();
-        $("#lead-text").remove();
+    if (params['kind'] !== "user") {
+        $("#user-container").remove();
     }
 
     user = params['name'];
@@ -121,6 +118,8 @@ $(document).ready(function() {
             console.log('error');
         });
     } else if (params['kind'] === 'ranking') {
+        $("#problem-search-block").remove();
+        $("#lead-text").remove();
         var k = "";
         if (params["ranking"] == 1) {
             k = "";
@@ -156,7 +155,7 @@ $(document).ready(function() {
         });
     } else if (params['kind'] === 'user') {
         $("#header-user").text(params["name"]);
-        $("#header-title").remove();
+        $("#problem-container").remove();
     }
 
     var user_href = $("#user-page-link").attr("href");

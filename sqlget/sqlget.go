@@ -272,9 +272,6 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 	for i := 1; i <= M; i++ {
 		submissions, max := GetSubmissions(contest, i)
 		logger.WithFields(logrus.Fields{"contest": contest, "page": strconv.Itoa(i)}).Info("crawling page")
-		if max >= 500 && i == 1 {
-			logger.WithFields(logrus.Fields{"contest": contest, "max": strconv.Itoa(max)}).Info("max exceeded")
-		}
 		if len(submissions) == 0 {
 			break
 		}
