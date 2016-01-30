@@ -116,20 +116,85 @@
                     Search
                     </button>
                 </form>
-                <h1 id="header-user">
-                AtCoder Problems
-                </h1>
             </div>
             <div class="row">
                 <div class="page-header">
-                    <h1>
-                    AtCoder Beginner Contest
+                    <h1 id="header-user">
+                    AtCoder Problems
                     </h1>
                 </div>
-                <div id="user-achievements">
-                    
+                <div id="user-achievements" class="row placeholders">
+                    <div class="col-xs-6 col-sm-3">
+                        <h4>AC問題数</h4>
+                        <h3 id="ac-num">1e9+7 問</h3>
+                        <span class="text-muted" id="ac-rank"></span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3">
+                        <h4>ショートコード数</h4>
+                        <h3 id="short-num">1e9+7 問</h3>
+                        <span class="text-muted" id="short-rank"></span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3">
+                        <h4>最速コード数</h4>
+                        <h3 id="fast-num">1e9+7 問</h3>
+                        <span class="text-muted" id="fast-rank"></span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3">
+                        <h4>最速提出数</h4>
+                        <h3 id="first-num">1e9+7 問</h3>
+                        <span class="text-muted" id="first-rank"></span>
+                    </div>
                 </div>
-                
+                <h1 class="sub-header">
+                AtCoder Beginner Contest
+                </h1>
+                <div class="row placeholders">
+                    <div class="col-xs-6 col-sm-3 placeholder">
+                        <canvas id="abc_a_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                        <h4>A 問題</h4>
+                        <span class="text-muted" id="abc_a_num"></span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 placeholder">
+                        <canvas id="abc_b_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                        <h4>B 問題</h4>
+                        <span class="text-muted" id="abc_b_num"></span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 placeholder">
+                        <canvas id="abc_c_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                        <h4>C 問題</h4>
+                        <span class="text-muted" id="abc_c_num"></span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 placeholder">
+                        <canvas id="abc_d_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                        <h4>D 問題</h4>
+                        <span class="text-muted" id="abc_d_num"></span>
+                    </div>
+                </div>
+                <h1 class="sub-header">
+                AtCoder Regular Contest
+                </h1>
+                <div class="row placeholders">
+                    <div class="col-xs-6 col-sm-3 placeholder">
+                        <canvas id="arc_a_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                        <h4>A 問題</h4>
+                        <span class="text-muted" id="arc_a_num"></span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 placeholder">
+                        <canvas id="arc_b_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                        <h4>B 問題</h4>
+                        <span class="text-muted" id="arc_b_num"></span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 placeholder">
+                        <canvas id="arc_c_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                        <h4>C 問題</h4>
+                        <span class="text-muted" id="arc_c_num"></span>
+                    </div>
+                    <div class="col-xs-6 col-sm-3 placeholder">
+                        <canvas id="arc_d_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                        <h4>D 問題</h4>
+                        <span class="text-muted" id="arc_d_num"></span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="container" id="problem-container">
@@ -167,7 +232,7 @@
             </div>
             <div id="problem-list" class="row">
                 <div class="table-responsive">
-                    <table id="all-problems" class="table table-striped" data-toggle="table" data-search="true" data-sort-name="id" data-sort-order="asc">
+                    <table id="all-problems" class="table table-striped" data-toggle="table" data-search="true" data-sort-name="id" data-sort-order="asc" data-row-style="listStyle">
                         <thead>
                             <tr>
                                 <th data-field="problem_name" data-sortable="true">
@@ -178,6 +243,9 @@
                                 </th>
                                 <th data-field="status" data-sortable="true">
                                     状態
+                                </th>
+                                <th data-field="solvers" data-sortable="true" data-align="right">
+                                    解いた人数
                                 </th>
                                 <th data-field="exec" data-sortable="true">
                                     最速実行

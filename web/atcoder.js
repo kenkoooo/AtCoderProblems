@@ -83,12 +83,14 @@ $(document).ready(function() {
             for (problem in problems_json) {
                 p = problems_json[problem];
                 contest = p["contest"];
+                rival_num = 0;
                 if (p["status"] === 'AC') {
                     s = "<div class='text-center'><span class='label label-success'>AC</span></div>";
                 } else if (Object.keys(p["rivals"]).length > 0) {
                     s = "";
                     for (rival in p["rivals"]) {
                         s += "<div class='text-center'><span class='label label-danger'>" + rival + "</span></div>";
+                        rival_num++;
                     }
                 } else if (p["status"] !== '') {
                     s = "<div class='text-center'><span class='label label-warning'>" + p["status"] + "</span></div>";
@@ -107,9 +109,12 @@ $(document).ready(function() {
                     problem_name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/tasks/" + problem + "'>" + p["name"] + "</a>",
                     contest_name: contestList[contest],
                     status: s,
+                    solvers: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/all?task_screen_name=" + problem + "&language_screen_name=&status=AC'>" + p["solvers"] + "</a>",
                     exec: e,
                     length: l,
                     first: f,
+                    raw_status: p["status"],
+                    raw_rivals: rival_num,
                 });
             }
             var $table = $('#all-problems');
@@ -154,8 +159,57 @@ $(document).ready(function() {
             console.log('error');
         });
     } else if (params['kind'] === 'user') {
+        // User Page
         $("#header-user").text(params["name"]);
         $("#problem-container").remove();
+
+        $.when($.getJSON("../atcoder-api/user", {
+            "user": user
+        })).done(function(json) {
+            $("#ac-num").text(json["ac_num"] + " 問");
+            $("#short-num").text(json["short_num"] + " 問");
+            $("#fast-num").text(json["fast_num"] + " 問");
+            $("#first-num").text(json["first_num"] + " 問");
+
+            if (json["ac_rank"] > 0) $("#ac-rank").text(json["ac_rank"] + " 位");
+            if (json["short_rank"] > 0) $("#short-rank").text(json["short_rank"] + " 位");
+            if (json["fast_rank"] > 0) $("#fast-rank").text(json["fast_rank"] + " 位");
+            if (json["first_rank"] > 0) $("#first-rank").text(json["first_rank"] + " 位");
+
+            var abcs = [
+                "abc_a", "abc_b", "abc_c", "abc_d",
+            ];
+            for (var i = 0; i < abcs.length; i++) {
+                var doughnutData = [{
+                    value: json[abcs[i]],
+                    color: "#32CD32",
+                    label: 'Accepted',
+                }, {
+                    value: json["abc_num"] - json[abcs[i]],
+                    color: "#58616A",
+                }];
+                new Chart(document.getElementById(abcs[i] + "_donuts").getContext("2d")).Doughnut(doughnutData);
+                $("#" + abcs[i] + "_num").text(json[abcs[i]] + "問 / " + json["abc_num"] + " 問");
+            }
+            var arcs = [
+                "arc_a", "arc_b", "arc_c", "arc_d",
+            ];
+            for (var i = 0; i < arcs.length; i++) {
+                var doughnutData = [{
+                    value: json[arcs[i]],
+                    color: "#32CD32",
+                    label: 'Accepted',
+                }, {
+                    value: json["arc_num"] - json[arcs[i]],
+                    color: "#58616A",
+                }];
+                new Chart(document.getElementById(arcs[i] + "_donuts").getContext("2d")).Doughnut(doughnutData);
+                $("#" + arcs[i] + "_num").text(json[arcs[i]] + "問 / " + json["arc_num"] + " 問");
+            }
+
+        }).fail(function() {
+            console.log('error');
+        });
     }
 
     var user_href = $("#user-page-link").attr("href");
@@ -182,4 +236,22 @@ function getParam() {
     if (paramsArray["list"] == 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
     if (paramsArray["ranking"] > 0) paramsArray["kind"] = "ranking";
     return paramsArray;
+}
+
+function listStyle(row, index) {
+    if (row.raw_status === "AC") {
+        return {
+            classes: "success"
+        };
+    } else if (row.raw_rivals > 0) {
+        return {
+            classes: "danger"
+        };
+    } else if (row.raw_status !== "") {
+        return {
+            classes: "warning"
+        };
+    } else {
+        return {};
+    }
 }

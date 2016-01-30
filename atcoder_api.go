@@ -43,6 +43,8 @@ type Problem struct {
 	SourceLength int `json:"source_length"`
 	ExecTime     int `json:"exec_time"`
 
+	Solvers int `json:"solvers"`
+
 	Status string              `json:"status"`
 	Rivals map[string]struct{} `json:"rivals"`
 }
@@ -73,14 +75,15 @@ type Ranking struct {
 }
 
 type User struct {
-	ACRank    int `json:"ac_rank"`
-	ShortRank int `json:"short_rank"`
-	FastRank  int `json:"fast_rank"`
-	FirstRank int `json:"first_rank"`
-	ACNum     int `json:"ac_num"`
-	ShortNum  int `json:"short_num"`
-	FastNum   int `json:"fast_num"`
-	FirstNum  int `json:"first_num"`
+	Name      string `json:"user"`
+	ACRank    int    `json:"ac_rank"`
+	ShortRank int    `json:"short_rank"`
+	FastRank  int    `json:"fast_rank"`
+	FirstRank int    `json:"first_rank"`
+	ACNum     int    `json:"ac_num"`
+	ShortNum  int    `json:"short_num"`
+	FastNum   int    `json:"fast_num"`
+	FirstNum  int    `json:"first_num"`
 
 	AbcA int `json:"abc_a"`
 	AbcB int `json:"abc_b"`
@@ -90,6 +93,9 @@ type User struct {
 	ArcB int `json:"arc_b"`
 	ArcC int `json:"arc_c"`
 	ArcD int `json:"arc_d"`
+
+	AbcNum int `json:"abc_num"`
+	ArcNum int `json:"arc_num"`
 }
 
 func GetUser(db *sql.DB, logger *logrus.Logger, user_name string) User {
@@ -109,6 +115,7 @@ func GetUser(db *sql.DB, logger *logrus.Logger, user_name string) User {
 	if user.ACNum == 0 {
 		return user
 	}
+	user.Name = user_name
 	short := GetRanking(db, "short")
 	for _, r := range short {
 		if r.User == user_name {
@@ -134,8 +141,8 @@ func GetUser(db *sql.DB, logger *logrus.Logger, user_name string) User {
 		}
 	}
 
-	arc := regexp.MustCompile(`^arc[0-9]{3}_[0-9]*$`)
-	abc := regexp.MustCompile(`^abc[0-9]{3}_[0-9]*$`)
+	arc := regexp.MustCompile(`^arc[0-9]{3}_[0-9a-d]*$`)
+	abc := regexp.MustCompile(`^abc[0-9]{3}_[0-9a-d]*$`)
 	pa := regexp.MustCompile(`^a[rb]c[0-9]{3}_[a1]$`)
 	pb := regexp.MustCompile(`^a[rb]c[0-9]{3}_[b2]$`)
 	pc := regexp.MustCompile(`^a[rb]c[0-9]{3}_[c3]$`)
@@ -168,6 +175,9 @@ func GetUser(db *sql.DB, logger *logrus.Logger, user_name string) User {
 			}
 		}
 	}
+
+	sq.Select("COUNT(id)").From("contests").Where("id LIKE 'arc%'").RunWith(db).QueryRow().Scan(&user.ArcNum)
+	sq.Select("COUNT(id)").From("contests").Where("id LIKE 'abc%'").RunWith(db).QueryRow().Scan(&user.AbcNum)
 
 	logger.WithFields(logrus.Fields{
 		"user": user_name,
@@ -251,6 +261,19 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user, rivals string) map[
 			x.Rivals = make(map[string]struct{})
 			x.Status = ""
 			ret[x.Id] = x
+		}
+	}
+	{
+		rows, _ := sq.Select("COUNT(DISTINCT(user_name))", "problem_id").From("submissions").Where(sq.Eq{"status": "AC"}).GroupBy("problem_id").RunWith(db).Query()
+		for rows.Next() {
+			s := ""
+			solver := 0
+			rows.Scan(&solver, &s)
+			x, ok := ret[s]
+			if ok {
+				x.Solvers = solver
+				ret[s] = x
+			}
 		}
 	}
 	if user != "" {
