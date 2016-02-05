@@ -13,40 +13,40 @@ import (
 	"strings"
 	"time"
 
-	sqlget "./sqlget"
+	ct "./crawl_tools"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type Problem struct {
-	Id      string `json:"-"`
-	Contest string `json:"contest"`
-	Name    string `json:"name"`
+	Id              string `json:"-"`
+	Contest         string `json:"contest"`
+	Name            string `json:"name"`
 
-	Shortest string `json:"-"`
-	Fastest  string `json:"-"`
-	First    string `json:"-"`
+	Shortest        string `json:"-"`
+	Fastest         string `json:"-"`
+	First           string `json:"-"`
 
 	ShortestContest string `json:"-"`
 	FastestContest  string `json:"-"`
 	FirstContest    string `json:"-"`
 
-	ShortestURL string `json:"shortest_url"`
-	FastestURL  string `json:"fastest_url"`
-	FirstURL    string `json:"first_url"`
+	ShortestURL     string `json:"shortest_url"`
+	FastestURL      string `json:"fastest_url"`
+	FirstURL        string `json:"first_url"`
 
-	ShortestUser string `json:"shortest_user"`
-	FastestUser  string `json:"fastest_user"`
-	FirstUser    string `json:"first_user"`
+	ShortestUser    string `json:"shortest_user"`
+	FastestUser     string `json:"fastest_user"`
+	FirstUser       string `json:"first_user"`
 
-	SourceLength int `json:"source_length"`
-	ExecTime     int `json:"exec_time"`
+	SourceLength    int `json:"source_length"`
+	ExecTime        int `json:"exec_time"`
 
-	Solvers int `json:"solvers"`
+	Solvers         int `json:"solvers"`
 
-	Status string              `json:"status"`
-	Rivals map[string]struct{} `json:"rivals"`
+	Status          string              `json:"status"`
+	Rivals          map[string]struct{} `json:"rivals"`
 }
 
 type Submission struct {
@@ -85,17 +85,17 @@ type User struct {
 	FastNum   int    `json:"fast_num"`
 	FirstNum  int    `json:"first_num"`
 
-	AbcA int `json:"abc_a"`
-	AbcB int `json:"abc_b"`
-	AbcC int `json:"abc_c"`
-	AbcD int `json:"abc_d"`
-	ArcA int `json:"arc_a"`
-	ArcB int `json:"arc_b"`
-	ArcC int `json:"arc_c"`
-	ArcD int `json:"arc_d"`
+	AbcA      int `json:"abc_a"`
+	AbcB      int `json:"abc_b"`
+	AbcC      int `json:"abc_c"`
+	AbcD      int `json:"abc_d"`
+	ArcA      int `json:"arc_a"`
+	ArcB      int `json:"arc_b"`
+	ArcC      int `json:"arc_c"`
+	ArcD      int `json:"arc_d"`
 
-	AbcNum int `json:"abc_num"`
-	ArcNum int `json:"arc_num"`
+	AbcNum    int `json:"abc_num"`
+	ArcNum    int `json:"arc_num"`
 }
 
 func GetUser(db *sql.DB, logger *logrus.Logger, user_name string) User {
@@ -189,13 +189,17 @@ func GetRanking(db *sql.DB, kind string) []Ranking {
 	ret := []Ranking{}
 	s := sq.Select()
 	if kind == "short" {
-		s = s.Column("COUNT(submissions.id) AS c").Column("user_name").From("problems").LeftJoin("submissions ON submissions.id=problems.shortest_submission_id")
+		s = s.Column("COUNT(submissions.id) AS c").Column("user_name").From("problems").LeftJoin(
+			"submissions ON submissions.id=problems.shortest_submission_id")
 	} else if kind == "fast" {
-		s = s.Column("COUNT(submissions.id) AS c").Column("user_name").From("problems").LeftJoin("submissions ON submissions.id=problems.fastest_submission_id")
+		s = s.Column("COUNT(submissions.id) AS c").Column("user_name").From("problems").LeftJoin(
+			"submissions ON submissions.id=problems.fastest_submission_id")
 	} else if kind == "fa" {
-		s = s.Column("COUNT(submissions.id) AS c").Column("user_name").From("problems").LeftJoin("submissions ON submissions.id=problems.first_submission_id")
+		s = s.Column("COUNT(submissions.id) AS c").Column("user_name").From("problems").LeftJoin(
+			"submissions ON submissions.id=problems.first_submission_id")
 	} else {
-		s = s.Column("COUNT(DISTINCT(problem_id)) AS c").Column("user_name").From("submissions").Where(sq.Eq{"status": "AC"})
+		s = s.Column("COUNT(DISTINCT(problem_id)) AS c").Column("user_name").From("submissions").Where(
+			sq.Eq{"status": "AC"})
 	}
 
 	rows, _ := s.GroupBy("user_name").OrderBy("c DESC").RunWith(db).Query()
@@ -203,7 +207,7 @@ func GetRanking(db *sql.DB, kind string) []Ranking {
 	for rows.Next() {
 		r := Ranking{Rank: 0, User: "", Count: 0}
 		rows.Scan(&r.Count, &r.User)
-		if len(ret) == 0 || r.Count != ret[now-1].Count {
+		if len(ret) == 0 || r.Count != ret[now - 1].Count {
 			now = len(ret) + 1
 		}
 		r.Rank = now
@@ -264,7 +268,8 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user, rivals string) map[
 		}
 	}
 	{
-		rows, _ := sq.Select("COUNT(DISTINCT(user_name))", "problem_id").From("submissions").Where(sq.Eq{"status": "AC"}).GroupBy("problem_id").RunWith(db).Query()
+		rows, _ := sq.Select("COUNT(DISTINCT(user_name))", "problem_id").From("submissions").Where(
+			sq.Eq{"status": "AC"}).GroupBy("problem_id").RunWith(db).Query()
 		for rows.Next() {
 			s := ""
 			solver := 0
@@ -348,7 +353,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
-		db := sqlget.GetMySQL(*u, *p)
+		db := ct.GetMySQL(*u, *p)
 		defer db.Close()
 		req.ParseForm()
 		path := strings.Split(req.URL.Path, "/")
@@ -385,7 +390,8 @@ func main() {
 			}
 		}
 
-		f, _ := os.OpenFile("log/api-"+time.Now().Format("2006-01-02")+".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		f, _ := os.OpenFile(
+			"log/api-" + time.Now().Format("2006-01-02") + ".log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
 		logger.Out = f
 
 		if tool == "problems" {

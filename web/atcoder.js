@@ -109,7 +109,7 @@ $(document).ready(function() {
                     problem_name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/tasks/" + problem + "'>" + p["name"] + "</a>",
                     contest_name: contestList[contest],
                     status: s,
-                    solvers: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/all?task_screen_name=" + problem + "&language_screen_name=&status=AC'>" + p["solvers"] + "</a>",
+                    solvers: p["solvers"],
                     exec: e,
                     length: l,
                     first: f,
@@ -149,7 +149,7 @@ $(document).ready(function() {
             for (var i = 0; i < Math.min(ranking_json.length, 500) && ranking_json[i]['count'] > 0; i++) {
                 rows.push({
                     rank: ranking_json[i]['rank'],
-                    user_name: ranking_json[i]['user'],
+                    user_name: "<a href='./?kind=list&name=" + ranking_json[i]['user'] + "'>" + ranking_json[i]['user'] + "</a>",
                     count: ranking_json[i]['count'],
                 });
             }
@@ -166,6 +166,10 @@ $(document).ready(function() {
         $.when($.getJSON("../atcoder-api/user", {
             "user": user
         })).done(function(json) {
+            if (json["ac_rank"] == 0) {
+                $("#user-contents").remove();
+                return;
+            }
             $("#ac-num").text(json["ac_num"] + " 問");
             $("#short-num").text(json["short_num"] + " 問");
             $("#fast-num").text(json["fast_num"] + " 問");
