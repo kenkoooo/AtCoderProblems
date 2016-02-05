@@ -34,9 +34,9 @@ func main() {
 		logger.Out = f
 		if i == 0 {
 			ct.UpdateProblemSet(db, logger)
+			ct.UpdateContestResult(db)
 		} else {
 			ct.UpdateSubmissions(db, logger)
-
 		}
 
 		ct.MaintainDatabase(db, logger)
