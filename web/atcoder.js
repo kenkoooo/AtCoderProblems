@@ -109,6 +109,7 @@ $(document).ready(function() {
                     l = "<a target='_blank' href='" + p["shortest_url"] + "'>" + p["source_length"] + " Bytes (" + p["shortest_user"] + ")</a>";
                     f = "<a target='_blank' href='" + p["first_url"] + "'>" + p["first_user"] + "</a>";
                 }
+
                 rows.push({
                     problem_name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/tasks/" + problem + "'>" + p["name"] + "</a>",
                     contest_name: contestList[contest],
@@ -116,6 +117,7 @@ $(document).ready(function() {
                     solvers: p["solvers"],
                     exec: e,
                     length: l,
+                    date: contests_json[contest]["start"].replace(/ .*$/g, ''),
                     first: f,
                     raw_status: p["status"],
                     raw_rivals: rival_num,
