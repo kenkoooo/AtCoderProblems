@@ -13,8 +13,10 @@ $(document).ready(function() {
     rivals = params['rivals'].replace(/\%2C/g, ",");
     $("#user_name_text").val(user);
     $("#rival_text").val(rivals);
+
     //Category Mode
     if (params['kind'] === 'index') {
+        $('input[name=list]').val(['0']);
         $.when($.getJSON("../atcoder-api/contests"), $.getJSON("../atcoder-api/problems", {
             "user": user,
             "rivals": rivals,
@@ -68,6 +70,8 @@ $(document).ready(function() {
         });
 
     } else if (params['kind'] === 'list') {
+        // List Mode
+        $('input[name=list]').val(['1']);
         $.when($.getJSON("../atcoder-api/contests"), $.getJSON("../atcoder-api/problems", {
             "user": user,
             "rivals": rivals,
