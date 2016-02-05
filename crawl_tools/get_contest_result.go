@@ -5,10 +5,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"database/sql"
-	sq "github.com/Masterminds/squirrel"
 	"fmt"
+
+	sq "github.com/Masterminds/squirrel"
+	"github.com/PuerkitoBio/goquery"
 )
 
 type ContestUser struct {
