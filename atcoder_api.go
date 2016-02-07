@@ -63,18 +63,7 @@ type Submission struct {
 	CreatedAt    string
 }
 
-type Contest struct {
-	Id    string `json:"-"`
-	Name  string `json:"name"`
-	Start string `json:"start"`
-	End   string `json:"end"`
-}
-
-// func GetContestResultList(db *sql.DB, logger *logrus.Logger, user, rivals string) {
-
-// }
-
-func GetProblemList(db *sql.DB, logger *logrus.Logger, user, rivals string) map[string]Problem {
+func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []string) map[string]Problem {
 	ret := make(map[string]Problem)
 	{
 		rows, _ := sq.Select(
@@ -161,10 +150,9 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user, rivals string) map[
 			}
 		}
 	}
-	if rivals != "" {
-		r := strings.Split(rivals, ",")
+	if len(rivals) > 0 {
 		rows, _ := sq.Select("*").From("submissions").Where(sq.And{
-			sq.Eq{"user_name": r}, sq.Eq{"status": "AC"},
+			sq.Eq{"user_name": rivals}, sq.Eq{"status": "AC"},
 		}).RunWith(db).Query()
 		for rows.Next() {
 			x := Submission{}
@@ -223,14 +211,15 @@ func main() {
 				}
 			}
 		}
-		rivals := ""
+		rivals := []string{}
 		{
 			_, ok := req.Form["rivals"]
 			if ok {
 				rrep := regexp.MustCompile(`^[0-9_a-zA-Z,\-]*$`)
 				req.Form["rivals"][0] = strings.Replace(req.Form["rivals"][0], "%2C", ",", -1)
 				if rrep.Match([]byte(req.Form["rivals"][0])) {
-					rivals = req.Form["rivals"][0]
+					r := req.Form["rivals"][0]
+					rivals = strings.Split(r, ",")
 				}
 			}
 		}
@@ -285,13 +274,7 @@ func main() {
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
 		} else if tool == "contests" {
-			contests := make(map[string]Contest)
-			rows, _ := sq.Select("id", "name", "start", "end").From("contests").RunWith(db).Query()
-			for rows.Next() {
-				c := Contest{}
-				rows.Scan(&c.Id, &c.Name, &c.Start, &c.End)
-				contests[c.Id] = c
-			}
+			contests := as.GetContestResult(db, logger, user, rivals)
 			b, _ := json.MarshalIndent(contests, "", "\t")
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))

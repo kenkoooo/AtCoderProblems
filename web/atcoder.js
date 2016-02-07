@@ -2,6 +2,7 @@ $(document).ready(function() {
     params = getParam();
     if (params['kind'] !== "list") $("#problem-list").remove();
     if (params['kind'] !== "index") $("#problem-category").remove();
+    if (params['kind'] !== "battle") $("#battle-list").remove();
     if (params['kind'] !== "ranking") {
         $("#ranking").remove();
     }
@@ -71,6 +72,8 @@ $(document).ready(function() {
 
     } else if (params['kind'] === 'list') {
         showList(user, rivals);
+    } else if (params['kind'] === 'battle') {
+        showBattle(user, rivals);
     } else if (params['kind'] === 'ranking') {
         // Ranking Mode
         showRanking(params);
@@ -83,6 +86,71 @@ $(document).ready(function() {
     var header_href = $("#header-link").attr("href");
     $("#header-link").attr("href", header_href + '&name=' + params["name"]);
 });
+
+function showBattle(user, rivals) {
+    $('input[name=list]').val(['2']);
+    $.when($.getJSON("../atcoder-api/contests", {
+        "user": user,
+        "rivals": rivals,
+    })).done(function(contests_json) {
+        var rows = [];
+        var win_cnt = 0;
+        var lose_cnt = 0;
+        var draw_cnt = 0;
+        for (contest in contests_json) {
+            var rival = "";
+            var rival_rank = 0;
+            for (r in contests_json[contest]["rival_ranks"]) {
+                if (rival_rank == 0 || contests_json[contest]["rival_ranks"][r] < rival_rank) {
+                    rival_rank = contests_json[contest]["rival_ranks"][r];
+                    rival = r;
+                }
+            }
+
+            if (Object.keys(contests_json[contest]["rival_ranks"]).length > 1) {
+                rival = rival_rank + " (" + rival + ")";
+            } else if (rival_rank > 0) {
+                rival = rival_rank + "";
+            }
+
+            var my_rank = contests_json[contest]["rank"];
+            var result = "";
+            if (my_rank > 0 && rival_rank > 0) {
+                if (my_rank > rival_rank) {
+                    result = "LOSE";
+                    lose_cnt++;
+                } else if (my_rank < rival_rank) {
+                    result = "WIN";
+                    win_cnt++;
+                } else {
+                    result = "DRAW";
+                    draw_cnt++;
+                }
+            }
+            if (my_rank == 0) {
+                my_rank = "";
+            }
+            rows.push({
+                name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + contests_json[contest]["name"] + "</a>",
+                date: contests_json[contest]["start"].replace(/[0-9:]*$/g, ""),
+                rank: my_rank,
+                rival: rival,
+                result: result,
+            });
+        }
+
+        rows.sort(function(a, b) {
+            if (a.date < b.date) return 1;
+            if (a.date > b.date) return -1;
+            return 0;
+        });
+        var $table = $('#battle-result');
+        $table.bootstrapTable('append', rows);
+        $("#lead-text").text(win_cnt + " 勝 " + lose_cnt + " 敗 " + draw_cnt + " 分");
+    }).fail(function() {
+        console.log('error');
+    });
+}
 
 function showList(user, rivals) {
     // List Mode
@@ -129,7 +197,7 @@ function showList(user, rivals) {
                 problem_name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/tasks/" + problem + "'>" + p["name"] + "</a>",
                 contest_name: contestList[contest],
                 status: s,
-                solvers: p["solvers"],
+                solvers: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/all?task_screen_name=" + problem + "&status=AC'>" + p["solvers"] + "</a>",
                 exec: e,
                 length: l,
                 date: contests_json[contest]["start"].replace(/ .*$/g, ''),
@@ -218,8 +286,6 @@ function showUserPage(user) {
             });
         };
 
-
-        // 表示サイズを設定
         var margin = {
             top: 40,
             right: 40,
@@ -360,8 +426,27 @@ function getParam() {
     }
     if (url.indexOf('user.php') != -1) paramsArray["kind"] = "user";
     if (paramsArray["list"] == 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
+    if (paramsArray["list"] == 2 && paramsArray["kind"] === "index") paramsArray["kind"] = "battle";
     if (paramsArray["ranking"] > 0) paramsArray["kind"] = "ranking";
     return paramsArray;
+}
+
+function battleStyle(row, index) {
+    if (row.result === "WIN") {
+        return {
+            classes: "success"
+        };
+    } else if (row.result === "LOSE") {
+        return {
+            classes: "danger"
+        };
+    } else if (row.result === "DRAW") {
+        return {
+            classes: "warning"
+        };
+    } else {
+        return {};
+    }
 }
 
 function listStyle(row, index) {
@@ -380,4 +465,12 @@ function listStyle(row, index) {
     } else {
         return {};
     }
+}
+
+function numSorter(a, b) {
+    a = Number(a.replace(/^.*?<a.*?>([0-9]*).*$/g, "$1"));
+    b = Number(b.replace(/^<a.*?>([0-9]*).*$/g, "$1"));
+    if (a > b) return 1;
+    if (a < b) return -1;
+    return 0;
 }

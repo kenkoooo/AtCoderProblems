@@ -229,12 +229,39 @@
                 <div class="form-group">
                     <input type="radio" name="list" value="0" /> カテゴリ表示
                     <input type="radio" name="list" value="1" /> リスト表示
+                    <input type="radio" name="list" value="2" /> バトル
                 </div>
                 <button type="submit" class="btn btn-default">
                 Search
                 </button>
             </form>
-            
+        </div>
+        <div id="battle-list" class="row">
+            <div class="table-responsive">
+                <table id="battle-result" class="table table-striped" data-toggle="table" data-search="true" data-sort-name="date" data-sort-order="desc" data-row-style="battleStyle">
+                    <thead>
+                        <tr>
+                            <th data-field="name" data-sortable="true">
+                                コンテスト
+                            </th>
+                            <th data-field="date" data-sortable="true">
+                                開催日
+                            </th>
+                            <th data-field="rank" data-sortable="true" data-align="right">
+                                順位
+                            </th>
+                            <th data-field="rival" data-sortable="true" data-align="right">
+                                ライバル
+                            </th>
+                            <th data-field="result" data-sortable="true" data-align="center">
+                                結果
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div id="problem-list" class="row">
             <div class="table-responsive">
@@ -253,13 +280,13 @@
                             <th data-field="status" data-sortable="true">
                                 状態
                             </th>
-                            <th data-field="solvers" data-sortable="true" data-align="right">
+                            <th data-field="solvers" data-sortable="true" data-align="right" data-sorter="numSorter">
                                 解いた人数
                             </th>
-                            <th data-field="exec" data-sortable="true">
+                            <th data-field="exec" data-sortable="true" data-align="right" data-sorter="numSorter">
                                 最速実行
                             </th>
-                            <th data-field="length" data-sortable="true">
+                            <th data-field="length" data-sortable="true" data-align="right" data-sorter="numSorter">
                                 ショートコード
                             </th>
                             <th data-field="first" data-sortable="true">
