@@ -116,6 +116,6 @@ func GetUser(db *sql.DB, logger *logrus.Logger, user_name string) User {
 
 	logger.WithFields(logrus.Fields{
 		"user": user_name,
-	}).Info("API request")
+	}).Info("User API request")
 	return user
 }

@@ -47,6 +47,7 @@ type Problem struct {
 	Solvers int `json:"solvers"`
 
 	Status string              `json:"status"`
+	ACTime string              `json:"ac_time"`
 	Rivals map[string]struct{} `json:"rivals"`
 }
 
@@ -68,6 +69,10 @@ type Contest struct {
 	Start string `json:"start"`
 	End   string `json:"end"`
 }
+
+// func GetContestResultList(db *sql.DB, logger *logrus.Logger, user, rivals string) {
+
+// }
 
 func GetProblemList(db *sql.DB, logger *logrus.Logger, user, rivals string) map[string]Problem {
 	ret := make(map[string]Problem)
@@ -135,26 +140,23 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user, rivals string) map[
 		}
 	}
 	if user != "" {
-		rows, _ := sq.Select("*").From("submissions").Where(sq.Eq{
+		rows, _ := sq.Select("problem_id", "status", "created_time").From("submissions").Where(sq.Eq{
 			"user_name": user,
 		}).RunWith(db).Query()
 		for rows.Next() {
 			x := Submission{}
 			rows.Scan(
-				&x.Id,
 				&x.ProblemId,
-				&x.ContestId,
-				&x.User,
 				&x.Status,
-				&x.SourceLength,
-				&x.Language,
-				&x.ExecTime,
 				&x.CreatedAt,
 			)
 
 			if ret[x.ProblemId].Status != "AC" {
 				tmp := ret[x.ProblemId]
 				tmp.Status = x.Status
+				if x.Status == "AC" {
+					tmp.ACTime = x.CreatedAt
+				}
 				ret[x.ProblemId] = tmp
 			}
 		}
@@ -242,6 +244,36 @@ func main() {
 				}
 			}
 		}
+		status := ""
+		{
+			_, ok := req.Form["status"]
+			if ok {
+				rrep := regexp.MustCompile(`^[A-Z]*$`)
+				if rrep.Match([]byte(req.Form["status"][0])) {
+					status = req.Form["status"][0]
+				}
+			}
+		}
+		contest := ""
+		{
+			_, ok := req.Form["contest"]
+			if ok {
+				rrep := regexp.MustCompile(`^[a-z_0-9A-Z\-]*$`)
+				if rrep.Match([]byte(req.Form["contest"][0])) {
+					contest = req.Form["contest"][0]
+				}
+			}
+		}
+		problem := ""
+		{
+			_, ok := req.Form["problem"]
+			if ok {
+				rrep := regexp.MustCompile(`^[0-9_a-zA-Z\-]*$`)
+				if rrep.Match([]byte(req.Form["problem"][0])) {
+					problem = req.Form["problem"][0]
+				}
+			}
+		}
 
 		f, _ := os.OpenFile(
 			"log/api-"+time.Now().Format("2006-01-02")+".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -273,7 +305,13 @@ func main() {
 			b, _ := json.MarshalIndent(userStruct, "", "\t")
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
+		} else if tool == "submissions" {
+			submissions := as.GetSubmissionList(db, logger, user, contest, problem, status)
+			b, _ := json.MarshalIndent(submissions, "", "\t")
+			res.Header().Set("Content-Type", "application/json")
+			fmt.Fprint(res, string(b))
 		}
+
 		fmt.Println("Close!")
 		f.Close()
 	})

@@ -10,6 +10,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/Sirupsen/logrus"
 )
 
 type ContestUser struct {
@@ -49,7 +50,7 @@ func GetContestResultJSON(contest string) string {
 	return re.ReplaceAllString(text, "$1")
 }
 
-func UpdateContestResult(db *sql.DB) {
+func UpdateContestResult(db *sql.DB, logger *logrus.Logger) {
 	contests := GetContestUrls()
 	for _, contest := range contests {
 		if NewRecord("contests", "id", contest, db) {
@@ -63,6 +64,7 @@ func UpdateContestResult(db *sql.DB) {
 			}
 			for _, user := range users {
 				s = s.Values(contest, user.user_screen_name, user.rank)
+				logger.WithFields(logrus.Fields{"contest": contest, "user_screen_name": user.user_screen_name, "rank": user.rank}).Info("contest result")
 			}
 			_, err := s.RunWith(db).Exec()
 			if err != nil {

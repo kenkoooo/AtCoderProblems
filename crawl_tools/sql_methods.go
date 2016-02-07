@@ -121,8 +121,8 @@ func MaintainDatabase(db *sql.DB, logger *logrus.Logger) {
 
 		sq.Update("problems").SetMap(sq.Eq{
 			"shortest_submission_id": short,
-			"fastest_submission_id": fast,
-			"first_submission_id": first,
+			"fastest_submission_id":  fast,
+			"first_submission_id":    first,
 		}).Where(sq.Eq{"id": problem}).RunWith(db).Exec()
 	}
 }

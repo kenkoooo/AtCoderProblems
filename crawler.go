@@ -27,14 +27,14 @@ func main() {
 		fmt.Println(err)
 	}
 
-	for i := 0;; i++ {
+	for i := 0; ; i++ {
 		i %= cycle
 
-		f, _ := os.OpenFile("log/" + time.Now().Format("2006-01-02") + ".log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+		f, _ := os.OpenFile("log/"+time.Now().Format("2006-01-02")+".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		logger.Out = f
 		if i == 0 {
 			ct.UpdateProblemSet(db, logger)
-			ct.UpdateContestResult(db)
+			ct.UpdateContestResult(db, logger)
 		} else {
 			ct.UpdateSubmissions(db, logger)
 		}
