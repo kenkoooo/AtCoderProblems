@@ -195,184 +195,191 @@
                         <span class="text-muted" id="arc_d_num"></span>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="container" id="problem-container">
-            <div class="row" id="header-block">
-                <h1 class="page-header" id="header-title">
-                AtCoder Problems
+                <h1 class="sub-header">
+                解いた問題数の推移
                 </h1>
-                <p class="lead" id="lead-text">
-                    <a href="http://atcoder.jp/">
-                        AtCoder
-                    </a> の非公式過去問集です。User IDからACした問題を検索できます。
-                </p>
-                <form action="./" method="get" class="form-inline" id="problem-search-block">
-                    <div class="form-group">
-                        <label>
-                            User ID:
-                        </label>
-                        <input type="text" class="form-control" id="user_name_text" placeholder="User ID" name="name" value="kenkoooo" />
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            ライバル:
-                        </label>
-                        <input type="text" class="form-control" id="rival_text" placeholder="User ID,User ID,User ID,..." name="rivals" value="kenkoooo" />
-                    </div>
-                    <div class="form-group">
-                        <input type="radio" name="list" value="0" /> カテゴリ表示
-                        <input type="radio" name="list" value="1" /> リスト表示
-                    </div>
-                    <button type="submit" class="btn btn-default">
-                    Search
-                    </button>
-                </form>
-                
-            </div>
-            <div id="problem-list" class="row">
-                <div class="table-responsive">
-                    <table id="all-problems" class="table table-striped" data-toggle="table" data-search="true" data-sort-name="id" data-sort-order="asc" data-row-style="listStyle">
-                        <thead>
-                            <tr>
-                                <th data-field="problem_name" data-sortable="true">
-                                    問題名
-                                </th>
-                                <th data-field="contest_name" data-sortable="true">
-                                    コンテスト
-                                </th>
-                                <th data-field="date" data-sortable="true">
-                                    出題日
-                                </th>
-                                <th data-field="status" data-sortable="true">
-                                    状態
-                                </th>
-                                <th data-field="solvers" data-sortable="true" data-align="right">
-                                    解いた人数
-                                </th>
-                                <th data-field="exec" data-sortable="true">
-                                    最速実行
-                                </th>
-                                <th data-field="length" data-sortable="true">
-                                    ショートコード
-                                </th>
-                                <th data-field="first" data-sortable="true">
-                                    最速提出
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div id="problem-category" class="row">
-                <div class="page-header">
-                    <h1>
-                    AtCoder Beginner Contest
-                    </h1>
-                </div>
-                <div class="table">
-                    <table class="table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th>
-                                    コンテスト
-                                </th>
-                                <th>
-                                    A 問題
-                                </th>
-                                <th>
-                                    B 問題
-                                </th>
-                                <th>
-                                    C 問題
-                                </th>
-                                <th>
-                                    D 問題
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="beginner">
-                            <tr>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="page-header">
-                    <h1>
-                    AtCoder Regular Contest
-                    </h1>
-                </div>
-                <div class="table">
-                    <table class="table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th>
-                                    コンテスト
-                                </th>
-                                <th>
-                                    A 問題
-                                </th>
-                                <th>
-                                    B 問題
-                                </th>
-                                <th>
-                                    C 問題
-                                </th>
-                                <th>
-                                    D 問題
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="regular">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="page-header">
-                    <h1>
-                    その他のコンテスト
-                    </h1>
-                </div>
-                <div id="others">
-                </div>
-            </div>
-            <div id="ranking" class="row">
-                <div class="table-responsive">
-                    <table id="all-ranking" class="table table-striped" data-toggle="table" data-search="true" data-sort-name="id" data-sort-order="asc">
-                        <thead>
-                            <tr>
-                                <th data-field="rank" data-sortable="true">
-                                    #
-                                </th>
-                                <th data-field="user_name" data-sortable="true">
-                                    ユーザー名
-                                </th>
-                                <th data-field="count" data-sortable="true">
-                                    獲得数
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="row placeholders" id="user-solved-parent">
+                <svg id="user-solved-problems" ></svg>
             </div>
         </div>
-        <!--
-        Bootstrap core JavaScript
-        ==================================================
-        -->
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
-        </script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js">
-        </script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js">
-        </script>
-        <script src="./Chart.js/Chart.js">
-        </script>
-        <script src="./atcoder.js">
-        </script>
-    </body>
+    </div>
+    <div class="container" id="problem-container">
+        <div class="row" id="header-block">
+            <h1 class="page-header" id="header-title">
+            AtCoder Problems
+            </h1>
+            <p class="lead" id="lead-text">
+                <a href="http://atcoder.jp/">
+                    AtCoder
+                </a> の非公式過去問集です。User IDからACした問題を検索できます。
+            </p>
+            <form action="./" method="get" class="form-inline" id="problem-search-block">
+                <div class="form-group">
+                    <label>
+                        User ID:
+                    </label>
+                    <input type="text" class="form-control" id="user_name_text" placeholder="User ID" name="name" value="kenkoooo" />
+                </div>
+                <div class="form-group">
+                    <label>
+                        ライバル:
+                    </label>
+                    <input type="text" class="form-control" id="rival_text" placeholder="User ID,User ID,User ID,..." name="rivals" value="kenkoooo" />
+                </div>
+                <div class="form-group">
+                    <input type="radio" name="list" value="0" /> カテゴリ表示
+                    <input type="radio" name="list" value="1" /> リスト表示
+                </div>
+                <button type="submit" class="btn btn-default">
+                Search
+                </button>
+            </form>
+            
+        </div>
+        <div id="problem-list" class="row">
+            <div class="table-responsive">
+                <table id="all-problems" class="table table-striped" data-toggle="table" data-search="true" data-sort-name="id" data-sort-order="asc" data-row-style="listStyle">
+                    <thead>
+                        <tr>
+                            <th data-field="problem_name" data-sortable="true">
+                                問題名
+                            </th>
+                            <th data-field="contest_name" data-sortable="true">
+                                コンテスト
+                            </th>
+                            <th data-field="date" data-sortable="true">
+                                出題日
+                            </th>
+                            <th data-field="status" data-sortable="true">
+                                状態
+                            </th>
+                            <th data-field="solvers" data-sortable="true" data-align="right">
+                                解いた人数
+                            </th>
+                            <th data-field="exec" data-sortable="true">
+                                最速実行
+                            </th>
+                            <th data-field="length" data-sortable="true">
+                                ショートコード
+                            </th>
+                            <th data-field="first" data-sortable="true">
+                                最速提出
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="problem-category" class="row">
+            <div class="page-header">
+                <h1>
+                AtCoder Beginner Contest
+                </h1>
+            </div>
+            <div class="table">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>
+                                コンテスト
+                            </th>
+                            <th>
+                                A 問題
+                            </th>
+                            <th>
+                                B 問題
+                            </th>
+                            <th>
+                                C 問題
+                            </th>
+                            <th>
+                                D 問題
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="beginner">
+                        <tr>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="page-header">
+                <h1>
+                AtCoder Regular Contest
+                </h1>
+            </div>
+            <div class="table">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>
+                                コンテスト
+                            </th>
+                            <th>
+                                A 問題
+                            </th>
+                            <th>
+                                B 問題
+                            </th>
+                            <th>
+                                C 問題
+                            </th>
+                            <th>
+                                D 問題
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="regular">
+                    </tbody>
+                </table>
+            </div>
+            <div class="page-header">
+                <h1>
+                その他のコンテスト
+                </h1>
+            </div>
+            <div id="others">
+            </div>
+        </div>
+        <div id="ranking" class="row">
+            <div class="table-responsive">
+                <table id="all-ranking" class="table table-striped" data-toggle="table" data-search="true" data-sort-name="id" data-sort-order="asc">
+                    <thead>
+                        <tr>
+                            <th data-field="rank" data-sortable="true">
+                                #
+                            </th>
+                            <th data-field="user_name" data-sortable="true">
+                                ユーザー名
+                            </th>
+                            <th data-field="count" data-sortable="true">
+                                獲得数
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!--
+    Bootstrap core JavaScript
+    ==================================================
+    -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+    </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js">
+    </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js">
+    </script>
+    <script src="./Chart.js/Chart.js">
+    </script>
+    <script src="./atcoder.js">
+    </script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+</body>
 </html>
