@@ -99,31 +99,50 @@ func ExtraUpdateSubmissions(db *sql.DB, contest string) {
 }
 
 func MaintainDatabase(db *sql.DB, logger *logrus.Logger) {
-	rows, _ := sq.Select("problem_id").From("submissions").Where(sq.And{
-		sq.Expr("created_time > ?", time.Now().Add(-9*time.Hour-5*time.Minute).Format("2006-01-02 15:04:05")),
-		sq.Eq{"status": "AC"},
-	}).RunWith(db).Query()
+	length_id := map[string]int{}
+	length := map[string]int{}
+	exec_id := map[string]int{}
+	exec := map[string]int{}
+	first_id := map[string]int{}
+	{
+		rows, _ := sq.Select("id").From("problems").RunWith(db).Query()
+		for rows.Next() {
+			p := ""
+			rows.Scan(&p)
+			length_id[p] = 0
+			exec_id[p] = 0
+			first_id[p] = 0
+		}
+	}
+	{
+		rows, _ := sq.Select("id", "problem_id", "source_length", "exec_time").From("submissions").Where(sq.Eq{"status": "AC"}).RunWith(db).Query()
+		for rows.Next() {
+			id := 0
+			problem_id := ""
+			source_length := 0
+			exec_time := 0
+			rows.Scan(&id, &problem_id, &source_length, &exec_time)
 
-	for rows.Next() {
-		problem := ""
-		rows.Scan(&problem)
+			if first_id[problem_id] == 0 {
+				first_id[problem_id] = id
+			}
+			if exec_id[problem_id] == 0 || exec[problem_id] > exec_time {
+				exec_id[problem_id] = id
+				exec[problem_id] = exec_time
+			}
+			if length_id[problem_id] == 0 || length[problem_id] > source_length {
+				length_id[problem_id] = id
+				length[problem_id] = source_length
+			}
+		}
+	}
 
-		p := sq.Eq{"problem_id": problem}
-		ac := sq.Eq{"status": "AC"}
-		short := 0
-		sq.Select("id").From("submissions").Where(sq.And{p, ac}).OrderBy("source_length", "id").RunWith(db).QueryRow().Scan(&short)
-
-		fast := 0
-		sq.Select("id").From("submissions").Where(sq.And{p, ac}).OrderBy("exec_time", "id").RunWith(db).QueryRow().Scan(&fast)
-
-		first := 0
-		sq.Select("id").From("submissions").Where(sq.And{p, ac}).OrderBy("id").RunWith(db).QueryRow().Scan(&first)
-
+	for key, value := range first_id {
 		sq.Update("problems").SetMap(sq.Eq{
-			"shortest_submission_id": short,
-			"fastest_submission_id":  fast,
-			"first_submission_id":    first,
-		}).Where(sq.Eq{"id": problem}).RunWith(db).Exec()
+			"shortest_submission_id": length_id[key],
+			"fastest_submission_id":  exec_id[key],
+			"first_submission_id":    value,
+		}).Where(sq.Eq{"id": key}).RunWith(db).Exec()
 	}
 }
 

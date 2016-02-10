@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    params = getParam();
+    var params = getParam();
     if (params['kind'] !== "list") $("#problem-list").remove();
     if (params['kind'] !== "index") $("#problem-category").remove();
     if (params['kind'] !== "battle") $("#battle-list").remove();
@@ -10,66 +10,14 @@ $(document).ready(function() {
         $("#user-container").remove();
     }
 
-    user = params['name'];
-    rivals = params['rivals'].replace(/\%2C/g, ",");
+    var user = params['name'];
+    var rivals = params['rivals'].replace(/\%2C/g, ",");
     $("#user_name_text").val(user);
     $("#rival_text").val(rivals);
 
     //Category Mode
     if (params['kind'] === 'index') {
-        $('input[name=list]').val(['0']);
-        $.when($.getJSON("../atcoder-api/contests"), $.getJSON("../atcoder-api/problems", {
-            "user": user,
-            "rivals": rivals,
-        })).done(function(data_c, data_p) {
-            contests_json = data_c[0];
-            problems_json = data_p[0];
-            contestArray = {};
-            for (contest in contests_json) {
-                link = "<td><a href='http://" + contest + ".contest.atcoder.jp/' target='_blank'>" + contest + "</a></td>";
-                if (contest.match(/^a[br]c[0-9]*$/)) {
-                    contestArray[contest] = link
-                } else {
-                    link = "<strong><a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + contests_json[contest]["name"] + "</a></strong><table class='table table-bordered'><tbody><tr>";
-                    contestArray[contest] = link;
-                }
-            }
-            for (problem in problems_json) {
-                contest = problems_json[problem]["contest"];
-                contestArray[contest] += "<td ";
-                if (problems_json[problem]["status"] === 'AC') {
-                    contestArray[contest] += "class='success'"
-                } else if (Object.keys(problems_json[problem]["rivals"]).length > 0) {
-                    contestArray[contest] += "class='danger'"
-                } else if (problems_json[problem]["status"] !== '') {
-                    contestArray[contest] += "class='warning'"
-                }
-                contestArray[contest] += "><a href='http://" + contest + ".contest.atcoder.jp/tasks/" + problem + "' target='_blank'>" + problems_json[problem]["name"] + "</a></td>";
-            }
-            var sortedKeys = [];
-            for (key in contestArray) {
-                if (contestArray.hasOwnProperty(key)) {
-                    sortedKeys.push(key);
-                }
-            }
-            sortedKeys.sort();
-            for (var i = sortedKeys.length - 1; i >= 0; i--) {
-                contest = sortedKeys[i];
-                if (contest.match(/^abc[0-9]*$/)) {
-                    tr = "<tr>" + contestArray[contest] + "</tr>"
-                    $('#beginner').append(tr);
-                } else if (contest.match(/^arc[0-9]*$/)) {
-                    tr = "<tr>" + contestArray[contest] + "</tr>"
-                    $('#regular').append(tr);
-                } else {
-                    table = contestArray[contest] + "</tr></tbody></table>"
-                    $('#others').append(table);
-                }
-            }
-        }).fail(function() {
-            console.log('error');
-        });
-
+        showCategory(user, rivals);
     } else if (params['kind'] === 'list') {
         showList(user, rivals);
     } else if (params['kind'] === 'battle') {
@@ -86,6 +34,70 @@ $(document).ready(function() {
     var header_href = $("#header-link").attr("href");
     $("#header-link").attr("href", header_href + '&name=' + params["name"]);
 });
+
+function showCategory(user, rivals) {
+    $('input[name=list]').val(['0']);
+    $.when($.getJSON("../atcoder-api/contests"),
+        $.getJSON("../atcoder-api/problems", {
+            "user": user,
+            "rivals": rivals,
+        })).done(function(data_c, data_p) {
+        var contests_json = data_c[0];
+        var problems_json = data_p[0];
+        var contestArray = {};
+        for (contest in contests_json) {
+            var link = "<td><a href='http://" + contest + ".contest.atcoder.jp/' target='_blank'>" +
+                contest + "</a></td>";
+
+            if (contest.match(/^a[br]c[0-9]*$/)) {
+                contestArray[contest] = link
+            } else {
+                link = "<strong><a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" +
+                    contests_json[contest]["name"] + "</a></strong><table class='table table-bordered'><tbody><tr>";
+                contestArray[contest] = link;
+            }
+        }
+
+        for (problem in problems_json) {
+            var contest = problems_json[problem]["contest"];
+            contestArray[contest] += "<td ";
+            if (problems_json[problem]["status"] === 'AC') {
+                contestArray[contest] += "class='success'"
+            } else if (Object.keys(problems_json[problem]["rivals"]).length > 0) {
+                contestArray[contest] += "class='danger'"
+            } else if (problems_json[problem]["status"] !== '') {
+                contestArray[contest] += "class='warning'"
+            }
+            contestArray[contest] += "><a href='http://" + contest + ".contest.atcoder.jp/tasks/" +
+                problem + "' target='_blank'>" + problems_json[problem]["name"] + "</a></td>";
+        }
+
+        var sortedKeys = [];
+        for (key in contestArray) {
+            if (contestArray.hasOwnProperty(key)) {
+                sortedKeys.push(key);
+            }
+        }
+
+        sortedKeys.sort();
+
+        for (var i = sortedKeys.length - 1; i >= 0; i--) {
+            contest = sortedKeys[i];
+            if (contest.match(/^abc[0-9]*$/)) {
+                tr = "<tr>" + contestArray[contest] + "</tr>"
+                $('#beginner').append(tr);
+            } else if (contest.match(/^arc[0-9]*$/)) {
+                tr = "<tr>" + contestArray[contest] + "</tr>"
+                $('#regular').append(tr);
+            } else {
+                table = contestArray[contest] + "</tr></tbody></table>"
+                $('#others').append(table);
+            }
+        }
+    }).fail(function() {
+        console.log('error');
+    });
+}
 
 function showBattle(user, rivals) {
     $('input[name=list]').val(['2']);
@@ -131,7 +143,8 @@ function showBattle(user, rivals) {
                 my_rank = "";
             }
             rows.push({
-                name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + contests_json[contest]["name"] + "</a>",
+                name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" +
+                    contests_json[contest]["name"] + "</a>",
                 date: contests_json[contest]["start"].replace(/[0-9:]*$/g, ""),
                 rank: my_rank,
                 rival: rival,
@@ -159,18 +172,18 @@ function showList(user, rivals) {
         "user": user,
         "rivals": rivals,
     })).done(function(data_c, data_p) {
-        contests_json = data_c[0];
-        problems_json = data_p[0];
-        contestList = [];
+        var contests_json = data_c[0];
+        var problems_json = data_p[0];
+        var contestList = [];
         for (contest in contests_json) {
             link = "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + contests_json[contest]["name"] + "</a>";
             contestList[contest] = link;
         }
-        rows = [];
+        var rows = [];
         for (problem in problems_json) {
-            p = problems_json[problem];
-            contest = p["contest"];
-            rival_num = 0;
+            var p = problems_json[problem];
+            var contest = p["contest"];
+            var rival_num = 0;
             if (p["status"] === 'AC') {
                 s = "<div class='text-center'><span class='label label-success'>AC</span></div>";
             } else if (Object.keys(p["rivals"]).length > 0) {
@@ -293,7 +306,6 @@ function showUserPage(user) {
             left: 40
         };
         var width = $("#user-solved-parent").width();
-        console.log(width);
         var size = {
             width: width,
             height: 400
@@ -416,14 +428,17 @@ function getParam() {
     paramsArray["kind"] = "index";
     paramsArray["name"] = "";
     paramsArray["rivals"] = "";
+
     var url = location.href;
     parameters = url.split("?");
     if (parameters.length == 1) return paramsArray;
+
     params = parameters[1].split("&");
     for (i = 0; i < params.length; i++) {
         neet = params[i].split("=");
         paramsArray[neet[0]] = neet[1];
     }
+
     if (url.indexOf('user.php') != -1) paramsArray["kind"] = "user";
     if (paramsArray["list"] == 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
     if (paramsArray["list"] == 2 && paramsArray["kind"] === "index") paramsArray["kind"] = "battle";

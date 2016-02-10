@@ -18,7 +18,12 @@ func GetProblemSet(contest string) ([]string, []string, []string, string) {
 		url, _ := s.Attr("href")
 		if rep.Match([]byte(url)) {
 			url = rep.ReplaceAllString(url, "$1")
-			set[url] = s.Text()
+			_, ok := set[url]
+			if !ok {
+				set[url] = s.Text()
+			} else {
+				set[url] += ". " + s.Text()
+			}
 		}
 	})
 
@@ -35,11 +40,11 @@ func GetProblemSet(contest string) ([]string, []string, []string, string) {
 	})
 	fmt.Println(contest_name)
 
-	x := []string{}
+	problems := []string{}
 	problem_names := []string{}
 	for key, name := range set {
-		x = append(x, key)
+		problems = append(problems, key)
 		problem_names = append(problem_names, name)
 	}
-	return x, problem_names, times, contest_name
+	return problems, problem_names, times, contest_name
 }
