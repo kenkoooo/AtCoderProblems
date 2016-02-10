@@ -299,11 +299,18 @@ function showUserPage(user) {
         dateKeys.sort();
         var data = [];
         for (var i = 0; i < dateKeys.length; i++) {
+            if (i < dateKeys.length - 1 && dateKeys[i].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, "") === dateKeys[i + 1].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, "")) continue;
             data.push({
                 date: dateKeys[i],
                 value: (i + 1)
             });
         };
+
+        var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+        data.forEach(function(d) {
+            d.date = parseDate(d.date);
+            d.value = +d.value;
+        });
 
         var margin = {
             top: 40,
@@ -316,21 +323,17 @@ function showUserPage(user) {
             width: width,
             height: 400
         };
+        var x = d3.time.scale()
+            .range([0, size.width - margin.left - margin.right]);
 
-
-        var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+        var y = d3.scale.linear()
+            .range([size.height - margin.top - margin.bottom, 0]);
 
         var svg = d3.select("#user-solved-problems")
             .attr("width", size.width)
             .attr("height", size.height)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        var x = d3.time.scale()
-            .range([0, size.width - margin.left - margin.right]);
-
-        var y = d3.scale.linear()
-            .range([size.height - margin.top - margin.bottom, 0]);
 
         var xAxis = d3.svg.axis()
             .scale(x)
@@ -348,12 +351,6 @@ function showUserPage(user) {
             .y(function(d) {
                 return y(d.value);
             });
-
-
-        data.forEach(function(d) {
-            d.date = parseDate(d.date);
-            d.value = +d.value;
-        });
 
         x.domain(d3.extent(data, function(d) {
             return d.date;
@@ -381,6 +378,66 @@ function showUserPage(user) {
             .datum(data)
             .attr("class", "line")
             .attr("d", line);
+
+        svg.selectAll("dot")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d) {
+                return x(d.date);
+            })
+            .attr("cy", function(d) {
+                return y(d.value);
+            })
+            .attr("r", 0)
+            .attr("stroke", "#black")
+            .attr("stroke-width", "1px")
+            .attr("fill", "#FFA500")
+            .transition()
+            .duration(1000)
+            .attr("r", 4);
+
+        var tooltip = d3.select("#user-solved-tooltip")
+            .append("div")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .style("color", "white")
+            .style("padding", "8px")
+            .style("background-color", "#FFA500")
+            .style("border-radius", "4px");
+
+        //テキスト
+        svg.selectAll("dot")
+            .data(data)
+            .enter()
+            .append("circle") //各位置ごとにX軸、Y軸の値を指定
+            .attr("cx", function(d) {
+                return x(d.date);
+            })
+            .attr("cy", function(d) {
+                return y(d.value);
+            })
+            .attr("r", 4)
+            .attr('fill', 'transparent')
+            .on("mouseover", function() {
+                tooltip.style("visibility", "visible");
+            })
+            .on("mousemove", function(d) {
+                var D = new Date(d.date);
+                tooltip
+                    .style("top", (d3.event.pageY - 10) + "px")
+                    .style("left", (d3.event.pageX + 10) + "px")
+                    .html(
+                        "<span>" + D.getUTCFullYear() + "/" + (D.getMonth() + 1) + "/" + D.getDate() + "</span>" +
+                        "<h4>" + d.value + "</h4>"
+                    );
+            })
+            .on("mouseout", function() {
+                tooltip.style("visibility", "hidden");
+            })
+
+
 
     }).fail(function() {
         console.log('error');

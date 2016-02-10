@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-        <title>AtCoder Problems</title>
-        <!-- Bootstrap core CSS -->
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
-        <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css" />
-        <!-- Custom styles for this template -->
-        <link href="dashboard.css" rel="stylesheet" />
-        <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-    </head>
-    <body>
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>AtCoder Problems</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css" />
+    <!-- Custom styles for this template -->
+    <link href="dashboard.css" rel="stylesheet" />
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                     <span class="sr-only">
                         Toggle navigation
                     </span>
@@ -28,178 +30,177 @@
                     </span>
                     <span class="icon-bar">
                     </span>
-                    </button>
-                    <a class="navbar-brand" href="./?kind=index" id="header-link">
+                </button>
+                <a class="navbar-brand" href="./?kind=index" id="header-link">
                         AtCoder Problems
                     </a>
-                </div>
-                <div id="navbar" class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        <li class="dropdown">
-                            <a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
                                 ランキング
                                 <span class="caret">
                                 </span>
                             </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="./?ranking=1">
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="./?ranking=1">
                                         AC数
                                     </a>
-                                </li>
-                                <li>
-                                    <a href="./?ranking=2">
+                            </li>
+                            <li>
+                                <a href="./?ranking=2">
                                         ショートコード数
                                     </a>
-                                </li>
-                                <li>
-                                    <a href="./?ranking=3">
+                            </li>
+                            <li>
+                                <a href="./?ranking=3">
                                         最速実行コード数
                                     </a>
-                                </li>
-                                <li>
-                                    <a href="./?ranking=4">
+                            </li>
+                            <li>
+                                <a href="./?ranking=4">
                                         First Acceptance
                                     </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a id="user-page-link" href="./?kind=user">
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a id="user-page-link" href="./?kind=user">
                                 ユーザーページ
                             </a>
-                        </li>
-                        <li class="dropdown">
-                            <a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
+                    </li>
+                    <li class="dropdown">
+                        <a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
                                 リンク
                                 <span class="caret">
                                 </span>
                             </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="http://atcoder.jp/" target='_blank'>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="http://atcoder.jp/" target='_blank'>
                                         AtCoder (公式)
                                     </a>
-                                </li>
-                                <li>
-                                    <a href="http://ichyo.jp/aoj-icpc/" target='_blank'>
+                            </li>
+                            <li>
+                                <a href="http://ichyo.jp/aoj-icpc/" target='_blank'>
                                         AOJ-ICPC
                                     </a>
-                                </li>
-                                <li>
-                                    <a href="http://twitter.com/kenkoooo" target='_blank'>
+                            </li>
+                            <li>
+                                <a href="http://twitter.com/kenkoooo" target='_blank'>
                                         お問い合わせ
                                     </a>
-                                </li>
-                                <li>
-                                    <a href="https://gist.github.com/kenkoooo/4618461adf0f5b4d3e3e" target='_blank'>
+                            </li>
+                            <li>
+                                <a href="https://gist.github.com/kenkoooo/4618461adf0f5b4d3e3e" target='_blank'>
                                         非公式 API
                                     </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container" id="user-container">
+        <div class="row" id="header-block">
+            <form action="./" method="get" class="form-inline page-header" id="user-search-block">
+                <div class="form-group">
+                    <label>
+                        User ID:
+                    </label>
+                    <input type="text" class="form-control" id="user_name_text" placeholder="User ID" name="name" value="kenkoooo" />
+                    <input type="hidden" name="kind" value="user" />
                 </div>
-            </div>
-        </nav>
-        <div class="container" id="user-container">
-            <div class="row" id="header-block">
-                <form action="./" method="get" class="form-inline page-header" id="user-search-block">
-                    <div class="form-group">
-                        <label>
-                            User ID:
-                        </label>
-                        <input type="text" class="form-control" id="user_name_text" placeholder="User ID" name="name" value="kenkoooo" />
-                        <input type="hidden" name="kind" value="user" />
-                    </div>
-                    <button type="submit" class="btn btn-default">
+                <button type="submit" class="btn btn-default">
                     Search
-                    </button>
-                </form>
-            </div>
-            <div class="row" id="user-contents">
-                <div class="page-header">
-                    <h1 id="header-user">
+                </button>
+            </form>
+        </div>
+        <div class="row" id="user-contents">
+            <div class="page-header">
+                <h1 id="header-user">
                     AtCoder Problems
                     </h1>
+            </div>
+            <div id="user-achievements" class="row placeholders">
+                <div class="col-xs-6 col-sm-3">
+                    <h4>AC問題数</h4>
+                    <h3 id="ac-num">1e9+7 問</h3>
+                    <span class="text-muted" id="ac-rank"></span>
                 </div>
-                <div id="user-achievements" class="row placeholders">
-                    <div class="col-xs-6 col-sm-3">
-                        <h4>AC問題数</h4>
-                        <h3 id="ac-num">1e9+7 問</h3>
-                        <span class="text-muted" id="ac-rank"></span>
-                    </div>
-                    <div class="col-xs-6 col-sm-3">
-                        <h4>ショートコード数</h4>
-                        <h3 id="short-num">1e9+7 問</h3>
-                        <span class="text-muted" id="short-rank"></span>
-                    </div>
-                    <div class="col-xs-6 col-sm-3">
-                        <h4>最速コード数</h4>
-                        <h3 id="fast-num">1e9+7 問</h3>
-                        <span class="text-muted" id="fast-rank"></span>
-                    </div>
-                    <div class="col-xs-6 col-sm-3">
-                        <h4>最速提出数</h4>
-                        <h3 id="first-num">1e9+7 問</h3>
-                        <span class="text-muted" id="first-rank"></span>
-                    </div>
+                <div class="col-xs-6 col-sm-3">
+                    <h4>ショートコード数</h4>
+                    <h3 id="short-num">1e9+7 問</h3>
+                    <span class="text-muted" id="short-rank"></span>
                 </div>
-                <h1 class="sub-header">
+                <div class="col-xs-6 col-sm-3">
+                    <h4>最速コード数</h4>
+                    <h3 id="fast-num">1e9+7 問</h3>
+                    <span class="text-muted" id="fast-rank"></span>
+                </div>
+                <div class="col-xs-6 col-sm-3">
+                    <h4>最速提出数</h4>
+                    <h3 id="first-num">1e9+7 問</h3>
+                    <span class="text-muted" id="first-rank"></span>
+                </div>
+            </div>
+            <h1 class="sub-header">
                 AtCoder Beginner Contest
                 </h1>
-                <div class="row placeholders">
-                    <div class="col-xs-6 col-sm-3 placeholder">
-                        <canvas id="abc_a_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
-                        <h4>A 問題</h4>
-                        <span class="text-muted" id="abc_a_num"></span>
-                    </div>
-                    <div class="col-xs-6 col-sm-3 placeholder">
-                        <canvas id="abc_b_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
-                        <h4>B 問題</h4>
-                        <span class="text-muted" id="abc_b_num"></span>
-                    </div>
-                    <div class="col-xs-6 col-sm-3 placeholder">
-                        <canvas id="abc_c_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
-                        <h4>C 問題</h4>
-                        <span class="text-muted" id="abc_c_num"></span>
-                    </div>
-                    <div class="col-xs-6 col-sm-3 placeholder">
-                        <canvas id="abc_d_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
-                        <h4>D 問題</h4>
-                        <span class="text-muted" id="abc_d_num"></span>
-                    </div>
+            <div class="row placeholders">
+                <div class="col-xs-6 col-sm-3 placeholder">
+                    <canvas id="abc_a_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <h4>A 問題</h4>
+                    <span class="text-muted" id="abc_a_num"></span>
                 </div>
-                <h1 class="sub-header">
+                <div class="col-xs-6 col-sm-3 placeholder">
+                    <canvas id="abc_b_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <h4>B 問題</h4>
+                    <span class="text-muted" id="abc_b_num"></span>
+                </div>
+                <div class="col-xs-6 col-sm-3 placeholder">
+                    <canvas id="abc_c_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <h4>C 問題</h4>
+                    <span class="text-muted" id="abc_c_num"></span>
+                </div>
+                <div class="col-xs-6 col-sm-3 placeholder">
+                    <canvas id="abc_d_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <h4>D 問題</h4>
+                    <span class="text-muted" id="abc_d_num"></span>
+                </div>
+            </div>
+            <h1 class="sub-header">
                 AtCoder Regular Contest
                 </h1>
-                <div class="row placeholders">
-                    <div class="col-xs-6 col-sm-3 placeholder">
-                        <canvas id="arc_a_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
-                        <h4>A 問題</h4>
-                        <span class="text-muted" id="arc_a_num"></span>
-                    </div>
-                    <div class="col-xs-6 col-sm-3 placeholder">
-                        <canvas id="arc_b_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
-                        <h4>B 問題</h4>
-                        <span class="text-muted" id="arc_b_num"></span>
-                    </div>
-                    <div class="col-xs-6 col-sm-3 placeholder">
-                        <canvas id="arc_c_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
-                        <h4>C 問題</h4>
-                        <span class="text-muted" id="arc_c_num"></span>
-                    </div>
-                    <div class="col-xs-6 col-sm-3 placeholder">
-                        <canvas id="arc_d_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
-                        <h4>D 問題</h4>
-                        <span class="text-muted" id="arc_d_num"></span>
-                    </div>
+            <div class="row placeholders">
+                <div class="col-xs-6 col-sm-3 placeholder">
+                    <canvas id="arc_a_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <h4>A 問題</h4>
+                    <span class="text-muted" id="arc_a_num"></span>
                 </div>
-                <h1 class="sub-header">
-                解いた問題数の推移
-                </h1>
-                <div class="row placeholders" id="user-solved-parent">
-                <svg id="user-solved-problems" ></svg>
+                <div class="col-xs-6 col-sm-3 placeholder">
+                    <canvas id="arc_b_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <h4>B 問題</h4>
+                    <span class="text-muted" id="arc_b_num"></span>
+                </div>
+                <div class="col-xs-6 col-sm-3 placeholder">
+                    <canvas id="arc_c_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <h4>C 問題</h4>
+                    <span class="text-muted" id="arc_c_num"></span>
+                </div>
+                <div class="col-xs-6 col-sm-3 placeholder">
+                    <canvas id="arc_d_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <h4>D 問題</h4>
+                    <span class="text-muted" id="arc_d_num"></span>
+                </div>
+            </div>
+            <h1 class="sub-header">解いた問題数の推移</h1>
+            <div class="row placeholders" id="user-solved-parent">
+                <div id="user-solved-tooltip"></div>
+                <svg id="user-solved-problems"></svg>
             </div>
         </div>
     </div>
@@ -209,9 +210,7 @@
             AtCoder Problems
             </h1>
             <p class="lead" id="lead-text">
-                <a href="http://atcoder.jp/">
-                    AtCoder
-                </a> の非公式過去問集です。User IDからACした問題を検索できます。
+                <a href="http://atcoder.jp/">AtCoder</a> の非公式過去問集です。User IDからACした問題を検索できます。
             </p>
             <form action="./" method="get" class="form-inline" id="problem-search-block">
                 <div class="form-group">
@@ -232,7 +231,7 @@
                     <input type="radio" name="list" value="2" /> バトル
                 </div>
                 <button type="submit" class="btn btn-default">
-                Search
+                    Search
                 </button>
             </form>
         </div>
@@ -409,4 +408,5 @@
     </script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 </body>
+
 </html>
