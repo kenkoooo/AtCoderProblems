@@ -21,7 +21,7 @@ import (
 )
 
 type Problem struct {
-	Id      string `json:"-"`
+	Id      string `json:"id"`
 	Contest string `json:"contest"`
 	Name    string `json:"name"`
 
@@ -63,7 +63,7 @@ type Submission struct {
 	CreatedAt    string
 }
 
-func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []string) map[string]Problem {
+func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []string) []Problem {
 	ret := make(map[string]Problem)
 	{
 		rows, _ := sq.Select(
@@ -172,11 +172,15 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []str
 		}
 	}
 
+	ret_slice := []Problem{}
+	for _, value := range ret {
+		ret_slice = append(ret_slice, value)
+	}
 	logger.WithFields(logrus.Fields{
 		"user":   user,
 		"rivals": rivals,
 	}).Info("API request")
-	return ret
+	return ret_slice
 }
 
 func main() {
@@ -217,7 +221,7 @@ func main() {
 			if ok {
 				rrep := regexp.MustCompile(`^[0-9_a-zA-Z,\-]*$`)
 				req.Form["rivals"][0] = strings.Replace(req.Form["rivals"][0], "%2C", ",", -1)
-				if rrep.Match([]byte(req.Form["rivals"][0])) {
+				if rrep.Match([]byte(req.Form["rivals"][0])) && req.Form["rivals"][0] != "" {
 					r := req.Form["rivals"][0]
 					rivals = strings.Split(r, ",")
 				}

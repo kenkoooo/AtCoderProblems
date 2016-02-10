@@ -44,6 +44,13 @@ function showCategory(user, rivals) {
         })).done(function(data_c, data_p) {
         var contests_json = data_c[0];
         var problems_json = data_p[0];
+
+        problems_json.sort(function(a, b) {
+            if (a.name < b.name) return -1;
+            if (a.name > b.name) return 1;
+            return 0;
+        });
+
         var contestArray = {};
         for (contest in contests_json) {
             var link = "<td><a href='http://" + contest + ".contest.atcoder.jp/' target='_blank'>" +
@@ -58,18 +65,19 @@ function showCategory(user, rivals) {
             }
         }
 
-        for (problem in problems_json) {
-            var contest = problems_json[problem]["contest"];
+        for (var i = 0; i < problems_json.length; i++) {
+            var problem = problems_json[i]["id"];
+            var contest = problems_json[i]["contest"];
             contestArray[contest] += "<td ";
-            if (problems_json[problem]["status"] === 'AC') {
+            if (problems_json[i]["status"] === 'AC') {
                 contestArray[contest] += "class='success'"
-            } else if (Object.keys(problems_json[problem]["rivals"]).length > 0) {
+            } else if (Object.keys(problems_json[i]["rivals"]).length > 0) {
                 contestArray[contest] += "class='danger'"
-            } else if (problems_json[problem]["status"] !== '') {
+            } else if (problems_json[i]["status"] !== '') {
                 contestArray[contest] += "class='warning'"
             }
             contestArray[contest] += "><a href='http://" + contest + ".contest.atcoder.jp/tasks/" +
-                problem + "' target='_blank'>" + problems_json[problem]["name"] + "</a></td>";
+                problem + "' target='_blank'>" + problems_json[i]["name"] + "</a></td>";
         }
 
         var sortedKeys = [];
@@ -180,8 +188,8 @@ function showList(user, rivals) {
             contestList[contest] = link;
         }
         var rows = [];
-        for (problem in problems_json) {
-            var p = problems_json[problem];
+        for (var i = 0; i < problems_json.length; i++) {
+            var p = problems_json[i];
             var contest = p["contest"];
             var rival_num = 0;
             if (p["status"] === 'AC') {
@@ -207,10 +215,10 @@ function showList(user, rivals) {
             }
 
             rows.push({
-                problem_name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/tasks/" + problem + "'>" + p["name"] + "</a>",
+                problem_name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/tasks/" + p["id"] + "'>" + p["name"] + "</a>",
                 contest_name: contestList[contest],
                 status: s,
-                solvers: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/all?task_screen_name=" + problem + "&status=AC'>" + p["solvers"] + "</a>",
+                solvers: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/all?task_screen_name=" + p["id"] + "&status=AC'>" + p["solvers"] + "</a>",
                 exec: e,
                 length: l,
                 date: contests_json[contest]["start"].replace(/ .*$/g, ''),
@@ -237,8 +245,8 @@ function showUserPage(user) {
     }), $.getJSON("../atcoder-api/problems", {
         "user": user
     })).done(function(json_u, json_p) {
-        user_json = json_u[0];
-        problems_json = json_p[0];
+        var user_json = json_u[0];
+        var problems_json = json_p[0];
         if (user_json["ac_rank"] == 0) {
             $("#user-contents").remove();
             return;
@@ -282,12 +290,10 @@ function showUserPage(user) {
         }
 
         var dateKeys = [];
-        for (key in problems_json) {
-            if (problems_json.hasOwnProperty(key)) {
-                var date = problems_json[key]["ac_time"];
-                if (date.length > 0) {
-                    dateKeys.push(problems_json[key]["ac_time"]);
-                }
+        for (var i = 0; i < problems_json.length; i++) {
+            var date = problems_json[i]["ac_time"];
+            if (date.length > 0) {
+                dateKeys.push(problems_json[i]["ac_time"]);
             }
         }
         dateKeys.sort();
