@@ -99,13 +99,34 @@ func ExtraUpdateSubmissions(db *sql.DB, contest string) {
 }
 
 func MaintainDatabase(db *sql.DB, logger *logrus.Logger) {
+	changed_problems := []string{}
+	{
+		tmp := map[string]struct{}{}
+		rows, _ := sq.Select("problem_id").From("submissions").Where(sq.And{
+			sq.Expr("created_time > ?", time.Now().Add(-9*time.Hour-5*time.Minute).Format("2006-01-02 15:04:05")),
+			sq.Eq{"status": "AC"},
+		}).RunWith(db).Query()
+		for rows.Next() {
+			s := ""
+			rows.Scan(&s)
+			tmp[s] = struct{}{}
+		}
+		for p := range tmp {
+			changed_problems = append(changed_problems, p)
+		}
+	}
+	if len(changed_problems) == 0 {
+		return
+	}
+	fmt.Println(changed_problems)
+
 	length_id := map[string]int{}
 	length := map[string]int{}
 	exec_id := map[string]int{}
 	exec := map[string]int{}
 	first_id := map[string]int{}
 	{
-		rows, _ := sq.Select("id").From("problems").RunWith(db).Query()
+		rows, _ := sq.Select("id").From("problems").Where(sq.Eq{"id": changed_problems}).RunWith(db).Query()
 		for rows.Next() {
 			p := ""
 			rows.Scan(&p)
@@ -115,7 +136,12 @@ func MaintainDatabase(db *sql.DB, logger *logrus.Logger) {
 		}
 	}
 	{
-		rows, _ := sq.Select("id", "problem_id", "source_length", "exec_time").From("submissions").Where(sq.Eq{"status": "AC"}).RunWith(db).Query()
+		rows, _ := sq.Select("id", "problem_id", "source_length", "exec_time").From("submissions").Where(
+			sq.And{
+				sq.Eq{"status": "AC"},
+				sq.Eq{"problem_id": changed_problems},
+			},
+		).RunWith(db).Query()
 		for rows.Next() {
 			id := 0
 			problem_id := ""
