@@ -22,7 +22,7 @@ $(document).ready(function() {
     } else if (params["kind"] === "battle") {
         showBattle(user, rivals);
     } else if (params["kind"] === "ranking") {
-        showRanking(params);
+        showRanking(params["ranking"]);
     } else if (params["kind"] === "user") {
         showUserPage(user)
     }
@@ -401,27 +401,25 @@ function showUserPage(user) {
 
 }
 
-function showRanking(params) {
+function showRanking(k) {
     // Ranking Mode
     $("#problem-search-block").remove();
     $("#lead-text").remove();
 
-    var k = "";
-    if (params["ranking"] === 1) {
-        k = "";
-        $("#header-title").text("AtCoder AC 数ランキング");
-    }
-    if (params["ranking"] === 2) {
+    if (k === "2") {
         k = "short";
         $("#header-title").text("AtCoder コードゴルフランキング");
     }
-    if (params["ranking"] === 3) {
+    if (k === "3") {
         k = "fast";
         $("#header-title").text("AtCoder 実行速度ランキング");
     }
-    if (params["ranking"] === 4) {
+    if (k === "4") {
         k = "fa";
         $("#header-title").text("AtCoder 最速提出ランキング");
+    } else {
+        k = "";
+        $("#header-title").text("AtCoder AC 数ランキング");
     }
 
     $.when($.getJSON("/atcoder-api/ranking", {
