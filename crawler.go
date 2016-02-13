@@ -26,6 +26,12 @@ func main() {
 	if err := os.Mkdir("log", 0777); err != nil {
 		fmt.Println(err)
 	}
+	{
+		f, _ := os.OpenFile("log/"+time.Now().Format("2006-01-02")+".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		logger.Out = f
+		logger.Info("Crawler Start")
+		f.Close()
+	}
 
 	for i := 0; ; i++ {
 		i %= cycle
