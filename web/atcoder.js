@@ -85,19 +85,20 @@ function showCategory(user, rivals) {
                 sortedKeys.push(key);
             }
         }
+        
 
         sortedKeys.sort();
 
         for (var i = sortedKeys.length - 1; i >= 0; i--) {
-            contest = sortedKeys[i];
+            var contest = sortedKeys[i];
             if (contest.match(/^abc[0-9]*$/)) {
-                tr = "<tr>" + contestArray[contest] + "</tr>"
+                var tr = "<tr>" + contestArray[contest] + "</tr>"
                 $("#beginner").append(tr);
             } else if (contest.match(/^arc[0-9]*$/)) {
-                tr = "<tr>" + contestArray[contest] + "</tr>"
+                var tr = "<tr>" + contestArray[contest] + "</tr>"
                 $("#regular").append(tr);
             } else {
-                table = contestArray[contest] + "</tr></tbody></table>"
+                var table = contestArray[contest] + "</tr></tbody></table>"
                 $("#others").append(table);
             }
         }
@@ -185,7 +186,7 @@ function showList(user, rivals) {
         var problems_json = data_p[0];
         var contestList = [];
         for (var contest in contests_json) {
-            link = "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + contests_json[contest]["name"] + "</a>";
+            var link = "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + contests_json[contest]["name"] + "</a>";
             contestList[contest] = link;
         }
         var rows = [];
@@ -193,11 +194,12 @@ function showList(user, rivals) {
             var p = problems_json[i];
             var contest = p["contest"];
             var rival_num = 0;
+            var s = "";
             if (p["status"] === "AC") {
                 s = "<div class='text-center'><span class='label label-success'>AC</span></div>";
             } else if (Object.keys(p["rivals"]).length > 0) {
                 s = "";
-                for (rival in p["rivals"]) {
+                for (var rival in p["rivals"]) {
                     s += "<div class='text-center'><span class='label label-danger'>" + rival + "</span></div>";
                     rival_num++;
                 }
@@ -409,12 +411,10 @@ function showRanking(k) {
     if (k === "2") {
         k = "short";
         $("#header-title").text("AtCoder コードゴルフランキング");
-    }
-    if (k === "3") {
+    } else if (k === "3") {
         k = "fast";
         $("#header-title").text("AtCoder 実行速度ランキング");
-    }
-    if (k === "4") {
+    } else if (k === "4") {
         k = "fa";
         $("#header-title").text("AtCoder 最速提出ランキング");
     } else {
@@ -445,6 +445,7 @@ function getParam() {
     paramsArray["kind"] = "index";
     paramsArray["name"] = "";
     paramsArray["rivals"] = "";
+    paramsArray["ranking"] = 0;
 
     var url = location.href;
     var parameters = url.split("?");
@@ -453,7 +454,7 @@ function getParam() {
     var splitparams = parameters[1].split("&");
     for (
         var i = 0; i < splitparams.length; i++) {
-        neet = splitparams[i].split("=");
+        var neet = splitparams[i].split("=");
         paramsArray[neet[0]] = neet[1];
     }
 
