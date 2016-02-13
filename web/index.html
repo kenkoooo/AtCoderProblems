@@ -8,9 +8,10 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>AtCoder Problems</title>
     <!-- Bootstrap core CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.css" />
     <!-- Custom styles for this template -->
     <link href="dashboard.css" rel="stylesheet" />
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
@@ -152,22 +153,22 @@
                 </h1>
             <div class="row placeholders">
                 <div class="col-xs-6 col-sm-3 placeholder">
-                    <canvas id="abc_a_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <div id="abc_a_donuts"></div>
                     <h4>A 問題</h4>
                     <span class="text-muted" id="abc_a_num"></span>
                 </div>
                 <div class="col-xs-6 col-sm-3 placeholder">
-                    <canvas id="abc_b_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <div id="abc_b_donuts"></div>
                     <h4>B 問題</h4>
                     <span class="text-muted" id="abc_b_num"></span>
                 </div>
                 <div class="col-xs-6 col-sm-3 placeholder">
-                    <canvas id="abc_c_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <div id="abc_c_donuts"></div>
                     <h4>C 問題</h4>
                     <span class="text-muted" id="abc_c_num"></span>
                 </div>
                 <div class="col-xs-6 col-sm-3 placeholder">
-                    <canvas id="abc_d_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <div id="abc_d_donuts"></div>
                     <h4>D 問題</h4>
                     <span class="text-muted" id="abc_d_num"></span>
                 </div>
@@ -177,30 +178,28 @@
                 </h1>
             <div class="row placeholders">
                 <div class="col-xs-6 col-sm-3 placeholder">
-                    <canvas id="arc_a_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <div id="arc_a_donuts"></div>
                     <h4>A 問題</h4>
                     <span class="text-muted" id="arc_a_num"></span>
                 </div>
                 <div class="col-xs-6 col-sm-3 placeholder">
-                    <canvas id="arc_b_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <div id="arc_b_donuts"></div>
                     <h4>B 問題</h4>
                     <span class="text-muted" id="arc_b_num"></span>
                 </div>
                 <div class="col-xs-6 col-sm-3 placeholder">
-                    <canvas id="arc_c_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <div id="arc_c_donuts"></div>
                     <h4>C 問題</h4>
                     <span class="text-muted" id="arc_c_num"></span>
                 </div>
                 <div class="col-xs-6 col-sm-3 placeholder">
-                    <canvas id="arc_d_donuts" style="width: 200px; height: 200px;" height="200" width="200"></canvas>
+                    <div id="arc_d_donuts"></div>
                     <h4>D 問題</h4>
                     <span class="text-muted" id="arc_d_num"></span>
                 </div>
             </div>
             <h1 class="sub-header">解いた問題数の推移</h1>
-            <div class="row placeholders" id="user-solved-parent">
-                <div id="user-solved-tooltip"></div>
-                <svg id="user-solved-problems"></svg>
+            <div class="row placeholders" id="user-solved-problems">
             </div>
         </div>
     </div>
@@ -396,17 +395,12 @@
     ==================================================
     -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
-    </script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js">
-    </script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js">
-    </script>
-    <script src="./Chart.js/Chart.js">
-    </script>
-    <script src="./atcoder.js">
-    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.js" charset="utf-8"></script>
+    <script src="./atcoder.js"></script>
 </body>
 
 </html>

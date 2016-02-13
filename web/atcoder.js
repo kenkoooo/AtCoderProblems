@@ -6,39 +6,38 @@ $(document).ready(function() {
     if (params['kind'] !== "ranking") {
         $("#ranking").remove();
     }
-    if (params['kind'] !== "user") {
+    if (params["kind"] !== "user") {
         $("#user-container").remove();
     }
 
-    var user = params['name'];
-    var rivals = params['rivals'].replace(/\%2C/g, ",");
+    var user = params["name"];
+    var rivals = params["rivals"];
     $("#user_name_text").val(user);
     $("#rival_text").val(rivals);
 
-    //Category Mode
-    if (params['kind'] === 'index') {
+    if (params["kind"] === "index") {
         showCategory(user, rivals);
-    } else if (params['kind'] === 'list') {
+    } else if (params["kind"] === "list") {
         showList(user, rivals);
-    } else if (params['kind'] === 'battle') {
+    } else if (params["kind"] === "battle") {
         showBattle(user, rivals);
-    } else if (params['kind'] === 'ranking') {
-        // Ranking Mode
+    } else if (params["kind"] === "ranking") {
         showRanking(params);
-    } else if (params['kind'] === 'user') {
+    } else if (params["kind"] === "user") {
         showUserPage(user)
     }
 
     var user_href = $("#user-page-link").attr("href");
-    $("#user-page-link").attr("href", user_href + '&name=' + params["name"]);
+    $("#user-page-link").attr("href", user_href + "&name=" + params["name"]);
     var header_href = $("#header-link").attr("href");
-    $("#header-link").attr("href", header_href + '&name=' + params["name"]);
+    $("#header-link").attr("href", header_href + "&name=" + params["name"]);
 });
 
 function showCategory(user, rivals) {
-    $('input[name=list]').val(['0']);
-    $.when($.getJSON("../atcoder-api/contests"),
-        $.getJSON("../atcoder-api/problems", {
+    $("input[name=list]").val(["0"]);
+    $.when(
+        $.getJSON("/atcoder-api/contests"),
+        $.getJSON("/atcoder-api/problems", {
             "user": user,
             "rivals": rivals,
         })).done(function(data_c, data_p) {
@@ -52,12 +51,12 @@ function showCategory(user, rivals) {
         });
 
         var contestArray = {};
-        for (contest in contests_json) {
+        for (var contest in contests_json) {
             var link = "<td><a href='http://" + contest + ".contest.atcoder.jp/' target='_blank'>" +
                 contest + "</a></td>";
 
             if (contest.match(/^a[br]c[0-9]*$/)) {
-                contestArray[contest] = link
+                contestArray[contest] = link;
             } else {
                 link = "<strong><a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" +
                     contests_json[contest]["name"] + "</a></strong><table class='table table-bordered'><tbody><tr>";
@@ -69,11 +68,11 @@ function showCategory(user, rivals) {
             var problem = problems_json[i]["id"];
             var contest = problems_json[i]["contest"];
             contestArray[contest] += "<td ";
-            if (problems_json[i]["status"] === 'AC') {
+            if (problems_json[i]["status"] === "AC") {
                 contestArray[contest] += "class='success'"
             } else if (Object.keys(problems_json[i]["rivals"]).length > 0) {
                 contestArray[contest] += "class='danger'"
-            } else if (problems_json[i]["status"] !== '') {
+            } else if (problems_json[i]["status"] !== "") {
                 contestArray[contest] += "class='warning'"
             }
             contestArray[contest] += "><a href='http://" + contest + ".contest.atcoder.jp/tasks/" +
@@ -81,7 +80,7 @@ function showCategory(user, rivals) {
         }
 
         var sortedKeys = [];
-        for (key in contestArray) {
+        for (var key in contestArray) {
             if (contestArray.hasOwnProperty(key)) {
                 sortedKeys.push(key);
             }
@@ -93,23 +92,23 @@ function showCategory(user, rivals) {
             contest = sortedKeys[i];
             if (contest.match(/^abc[0-9]*$/)) {
                 tr = "<tr>" + contestArray[contest] + "</tr>"
-                $('#beginner').append(tr);
+                $("#beginner").append(tr);
             } else if (contest.match(/^arc[0-9]*$/)) {
                 tr = "<tr>" + contestArray[contest] + "</tr>"
-                $('#regular').append(tr);
+                $("#regular").append(tr);
             } else {
                 table = contestArray[contest] + "</tr></tbody></table>"
-                $('#others').append(table);
+                $("#others").append(table);
             }
         }
     }).fail(function() {
-        console.log('error');
+        console.log("error");
     });
 }
 
 function showBattle(user, rivals) {
-    $('input[name=list]').val(['2']);
-    $.when($.getJSON("../atcoder-api/contests", {
+    $("input[name=list]").val(["2"]);
+    $.when($.getJSON("/atcoder-api/contests", {
         "user": user,
         "rivals": rivals,
     })).done(function(contests_json) {
@@ -117,11 +116,11 @@ function showBattle(user, rivals) {
         var win_cnt = 0;
         var lose_cnt = 0;
         var draw_cnt = 0;
-        for (contest in contests_json) {
+        for (var contest in contests_json) {
             var rival = "";
             var rival_rank = 0;
-            for (r in contests_json[contest]["rival_ranks"]) {
-                if (rival_rank == 0 || contests_json[contest]["rival_ranks"][r] < rival_rank) {
+            for (var r in contests_json[contest]["rival_ranks"]) {
+                if (rival_rank === 0 || contests_json[contest]["rival_ranks"][r] < rival_rank) {
                     rival_rank = contests_json[contest]["rival_ranks"][r];
                     rival = r;
                 }
@@ -147,7 +146,7 @@ function showBattle(user, rivals) {
                     draw_cnt++;
                 }
             }
-            if (my_rank == 0) {
+            if (my_rank === 0) {
                 my_rank = "";
             }
             rows.push({
@@ -165,25 +164,27 @@ function showBattle(user, rivals) {
             if (a.date > b.date) return -1;
             return 0;
         });
-        var $table = $('#battle-result');
-        $table.bootstrapTable('append', rows);
+        var $table = $("#battle-result");
+        $table.bootstrapTable("append", rows);
         $("#lead-text").text(win_cnt + " 勝 " + lose_cnt + " 敗 " + draw_cnt + " 分");
     }).fail(function() {
-        console.log('error');
+        console.log("error");
     });
 }
 
 function showList(user, rivals) {
     // List Mode
-    $('input[name=list]').val(['1']);
-    $.when($.getJSON("../atcoder-api/contests"), $.getJSON("../atcoder-api/problems", {
-        "user": user,
-        "rivals": rivals,
-    })).done(function(data_c, data_p) {
+    $("input[name=list]").val(["1"]);
+    $.when(
+        $.getJSON("/atcoder-api/contests"),
+        $.getJSON("/atcoder-api/problems", {
+            "user": user,
+            "rivals": rivals,
+        })).done(function(data_c, data_p) {
         var contests_json = data_c[0];
         var problems_json = data_p[0];
         var contestList = [];
-        for (contest in contests_json) {
+        for (var contest in contests_json) {
             link = "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + contests_json[contest]["name"] + "</a>";
             contestList[contest] = link;
         }
@@ -192,7 +193,7 @@ function showList(user, rivals) {
             var p = problems_json[i];
             var contest = p["contest"];
             var rival_num = 0;
-            if (p["status"] === 'AC') {
+            if (p["status"] === "AC") {
                 s = "<div class='text-center'><span class='label label-success'>AC</span></div>";
             } else if (Object.keys(p["rivals"]).length > 0) {
                 s = "";
@@ -200,7 +201,7 @@ function showList(user, rivals) {
                     s += "<div class='text-center'><span class='label label-danger'>" + rival + "</span></div>";
                     rival_num++;
                 }
-            } else if (p["status"] !== '') {
+            } else if (p["status"] !== "") {
                 s = "<div class='text-center'><span class='label label-warning'>" + p["status"] + "</span></div>";
             } else {
                 s = "";
@@ -221,16 +222,16 @@ function showList(user, rivals) {
                 solvers: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/all?task_screen_name=" + p["id"] + "&status=AC'>" + p["solvers"] + "</a>",
                 exec: e,
                 length: l,
-                date: contests_json[contest]["start"].replace(/ .*$/g, ''),
+                date: contests_json[contest]["start"].replace(/ .*$/g, ""),
                 first: f,
                 raw_status: p["status"],
                 raw_rivals: rival_num,
             });
         }
-        var $table = $('#all-problems');
-        $table.bootstrapTable('append', rows);
+        var $table = $("#all-problems");
+        $table.bootstrapTable("append", rows);
     }).fail(function() {
-        console.log('error');
+        console.log("error");
     });
 
 }
@@ -240,14 +241,77 @@ function showUserPage(user) {
     $("#header-user").text(user);
     $("#problem-container").remove();
 
-    $.when($.getJSON("../atcoder-api/user", {
+    var abc_charts = [];
+    var abcs = ["abc_a", "abc_b", "abc_c", "abc_d", ];
+    for (var i = 0; i < abcs.length; i++) {
+        abc_charts.push(c3.generate({
+            bindto: "#" + abcs[i] + "_donuts",
+            size: {
+                height: 200,
+                width: 200
+            },
+            data: {
+                columns: [
+                    ["Accepted", 0],
+                    ["Trying", 0],
+                ],
+                type: "pie",
+                colors: {
+                    Accepted: "#32CD32",
+                    Trying: "#58616A",
+                },
+                order: null
+            },
+        }));
+    }
+    var arc_charts = [];
+    var arcs = ["arc_a", "arc_b", "arc_c", "arc_d", ];
+    for (var i = 0; i < arcs.length; i++) {
+        arc_charts.push(c3.generate({
+            bindto: "#" + arcs[i] + "_donuts",
+            size: {
+                height: 200,
+                width: 200
+            },
+            data: {
+                columns: [
+                    ["Accepted", 0],
+                    ["Trying", 0],
+                ],
+                type: "pie",
+                colors: {
+                    Accepted: "#32CD32",
+                    Trying: "#58616A",
+                },
+                order: null
+            }
+        }));
+    }
+    var line_chart = c3.generate({
+        bindto: "#user-solved-problems",
+        data: {
+            x: "x",
+            columns: []
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    count: 10,
+                    format: '%Y-%m-%d'
+                }
+            }
+        }
+    });
+
+    $.when($.getJSON("/atcoder-api/user", {
         "user": user
-    }), $.getJSON("../atcoder-api/problems", {
+    }), $.getJSON("/atcoder-api/problems", {
         "user": user
     })).done(function(json_u, json_p) {
         var user_json = json_u[0];
         var problems_json = json_p[0];
-        if (user_json["ac_rank"] == 0) {
+        if (user_json["ac_rank"] === 0) {
             $("#user-contents").remove();
             return;
         }
@@ -261,31 +325,23 @@ function showUserPage(user) {
         if (user_json["fast_rank"] > 0) $("#fast-rank").text(user_json["fast_rank"] + " 位");
         if (user_json["first_rank"] > 0) $("#first-rank").text(user_json["first_rank"] + " 位");
 
-        var abcs = ["abc_a", "abc_b", "abc_c", "abc_d", ];
         for (var i = 0; i < abcs.length; i++) {
-            var doughnutData = [{
-                value: user_json[abcs[i]],
-                color: "#32CD32",
-                label: 'Accepted',
-            }, {
-                value: user_json["abc_num"] - user_json[abcs[i]],
-                color: "#58616A",
-            }];
-            new Chart(document.getElementById(abcs[i] + "_donuts").getContext("2d")).Doughnut(doughnutData);
+            abc_charts[i].load({
+                columns: [
+                    ["Accepted", user_json[abcs[i]]],
+                    ["Trying", user_json["abc_num"] - user_json[abcs[i]]],
+                ],
+            });
             $("#" + abcs[i] + "_num").text(user_json[abcs[i]] + "問 / " + user_json["abc_num"] + " 問");
         }
 
-        var arcs = ["arc_a", "arc_b", "arc_c", "arc_d", ];
         for (var i = 0; i < arcs.length; i++) {
-            var doughnutData = [{
-                value: user_json[arcs[i]],
-                color: "#32CD32",
-                label: 'Accepted',
-            }, {
-                value: user_json["arc_num"] - user_json[arcs[i]],
-                color: "#58616A",
-            }];
-            new Chart(document.getElementById(arcs[i] + "_donuts").getContext("2d")).Doughnut(doughnutData);
+            arc_charts[i].load({
+                columns: [
+                    ["Accepted", user_json[arcs[i]]],
+                    ["Trying", user_json["arc_num"] - user_json[arcs[i]]],
+                ],
+            });
             $("#" + arcs[i] + "_num").text(user_json[arcs[i]] + "問 / " + user_json["arc_num"] + " 問");
         }
 
@@ -297,150 +353,20 @@ function showUserPage(user) {
             }
         }
         dateKeys.sort();
-        var data = [];
+        var x_ticks = ["x"];
+        var data = ["Accepted"];
         for (var i = 0; i < dateKeys.length; i++) {
             if (i < dateKeys.length - 1 && dateKeys[i].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, "") === dateKeys[i + 1].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, "")) continue;
-            data.push({
-                date: dateKeys[i],
-                value: (i + 1)
-            });
+            x_ticks.push(dateKeys[i].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, ""));
+            data.push(i + 1);
         };
-
-        var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
-        data.forEach(function(d) {
-            d.date = parseDate(d.date);
-            d.value = +d.value;
+        line_chart.load({
+            columns: [x_ticks, data]
         });
-
-        var margin = {
-            top: 40,
-            right: 40,
-            bottom: 40,
-            left: 40
-        };
-        var width = $("#user-solved-parent").width();
-        var size = {
-            width: width,
-            height: 400
-        };
-        var x = d3.time.scale()
-            .range([0, size.width - margin.left - margin.right]);
-
-        var y = d3.scale.linear()
-            .range([size.height - margin.top - margin.bottom, 0]);
-
-        var svg = d3.select("#user-solved-problems")
-            .attr("width", size.width)
-            .attr("height", size.height)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
-            .tickFormat(d3.time.format("%Y-%b"));
-
-        var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left");
-
-        var line = d3.svg.line()
-            .x(function(d) {
-                return x(d.date);
-            })
-            .y(function(d) {
-                return y(d.value);
-            });
-
-        x.domain(d3.extent(data, function(d) {
-            return d.date;
-        }));
-        y.domain(d3.extent(data, function(d) {
-            return d.value;
-        }));
-
-        svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0, " + (size.height - margin.top - margin.bottom) + ")")
-            .call(xAxis);
-
-        svg.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", ".7em")
-            .style("text-anchor", "end")
-            .text("Solved");
-
-        svg.append("path")
-            .datum(data)
-            .attr("class", "line")
-            .attr("d", line);
-
-        svg.selectAll("dot")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("cx", function(d) {
-                return x(d.date);
-            })
-            .attr("cy", function(d) {
-                return y(d.value);
-            })
-            .attr("r", 0)
-            .attr("stroke", "#black")
-            .attr("stroke-width", "1px")
-            .attr("fill", "#FFA500")
-            .transition()
-            .duration(1000)
-            .attr("r", 4);
-
-        var tooltip = d3.select("#user-solved-tooltip")
-            .append("div")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden")
-            .style("color", "white")
-            .style("padding", "8px")
-            .style("background-color", "#FFA500")
-            .style("border-radius", "4px");
-
-        //テキスト
-        svg.selectAll("dot")
-            .data(data)
-            .enter()
-            .append("circle") //各位置ごとにX軸、Y軸の値を指定
-            .attr("cx", function(d) {
-                return x(d.date);
-            })
-            .attr("cy", function(d) {
-                return y(d.value);
-            })
-            .attr("r", 4)
-            .attr('fill', 'transparent')
-            .on("mouseover", function() {
-                tooltip.style("visibility", "visible");
-            })
-            .on("mousemove", function(d) {
-                var D = new Date(d.date);
-                tooltip
-                    .style("top", (d3.event.pageY - 10) + "px")
-                    .style("left", (d3.event.pageX + 10) + "px")
-                    .html(
-                        "<span>" + D.getUTCFullYear() + "/" + (D.getMonth() + 1) + "/" + D.getDate() + "</span>" +
-                        "<h4>" + d.value + "</h4>"
-                    );
-            })
-            .on("mouseout", function() {
-                tooltip.style("visibility", "hidden");
-            })
-
 
 
     }).fail(function() {
-        console.log('error');
+        console.log("error");
     });
 
 }
@@ -451,61 +377,63 @@ function showRanking(params) {
     $("#lead-text").remove();
 
     var k = "";
-    if (params["ranking"] == 1) {
+    if (params["ranking"] === 1) {
         k = "";
-        $("#header-title").text('AtCoder AC 数ランキング');
+        $("#header-title").text("AtCoder AC 数ランキング");
     }
-    if (params["ranking"] == 2) {
+    if (params["ranking"] === 2) {
         k = "short";
-        $("#header-title").text('AtCoder コードゴルフランキング');
+        $("#header-title").text("AtCoder コードゴルフランキング");
     }
-    if (params["ranking"] == 3) {
+    if (params["ranking"] === 3) {
         k = "fast";
-        $("#header-title").text('AtCoder 実行速度ランキング');
+        $("#header-title").text("AtCoder 実行速度ランキング");
     }
-    if (params["ranking"] == 4) {
+    if (params["ranking"] === 4) {
         k = "fa";
-        $("#header-title").text('AtCoder 最速提出ランキング');
+        $("#header-title").text("AtCoder 最速提出ランキング");
     }
 
-    $.when($.getJSON("../atcoder-api/ranking", {
+    $.when($.getJSON("/atcoder-api/ranking", {
         "kind": k
     })).done(function(ranking_json) {
-        rows = [];
-        for (var i = 0; i < Math.min(ranking_json.length, 500) && ranking_json[i]['count'] > 0; i++) {
+        var rows = [];
+        for (var i = 0; i < Math.min(ranking_json.length, 500) && ranking_json[i]["count"] > 0; i++) {
             rows.push({
-                rank: ranking_json[i]['rank'],
-                user_name: "<a href='./?kind=list&name=" + ranking_json[i]['user'] + "'>" + ranking_json[i]['user'] + "</a>",
-                count: ranking_json[i]['count'],
+                rank: ranking_json[i]["rank"],
+                user_name: "<a href='./?kind=list&name=" + ranking_json[i]["user"] + "'>" + ranking_json[i]["user"] + "</a>",
+                count: ranking_json[i]["count"],
             });
         }
-        var $table = $('#all-ranking');
-        $table.bootstrapTable('append', rows);
+        var $table = $("#all-ranking");
+        $table.bootstrapTable("append", rows);
     }).fail(function() {
-        console.log('error');
+        console.log("error");
     });
 }
 
 function getParam() {
-    var paramsArray = [];
+    var paramsArray = {};
     paramsArray["kind"] = "index";
     paramsArray["name"] = "";
     paramsArray["rivals"] = "";
 
     var url = location.href;
-    parameters = url.split("?");
-    if (parameters.length == 1) return paramsArray;
+    var parameters = url.split("?");
+    if (parameters.length === 1) return paramsArray;
 
-    params = parameters[1].split("&");
-    for (i = 0; i < params.length; i++) {
-        neet = params[i].split("=");
+    var splitparams = parameters[1].split("&");
+    for (
+        var i = 0; i < splitparams.length; i++) {
+        neet = splitparams[i].split("=");
         paramsArray[neet[0]] = neet[1];
     }
 
-    if (url.indexOf('user.php') != -1) paramsArray["kind"] = "user";
-    if (paramsArray["list"] == 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
-    if (paramsArray["list"] == 2 && paramsArray["kind"] === "index") paramsArray["kind"] = "battle";
+    if (url.indexOf("user.php") != -1) paramsArray["kind"] = "user";
+    if (paramsArray["list"] === 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
+    if (paramsArray["list"] === 2 && paramsArray["kind"] === "index") paramsArray["kind"] = "battle";
     if (paramsArray["ranking"] > 0) paramsArray["kind"] = "ranking";
+    paramsArray["rivals"] = paramsArray["rivals"].replace(/\%2C/g, ",");
     return paramsArray;
 }
 

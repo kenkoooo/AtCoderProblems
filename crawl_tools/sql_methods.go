@@ -198,7 +198,7 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 			"user_name", "status", "source_length", "language",
 			"exec_time", "created_time")
 
-		crawled_flag := false
+		already_crawled := false
 		for _, s := range submissions {
 			if NewRecord("submissions", "id", s.IdStr(), db) {
 				q = q.Values(
@@ -206,12 +206,11 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 					s.User, s.Status, s.SourceLength, s.Language,
 					s.ExecTime, s.CreatedAt)
 			} else {
-				crawled_flag = true
+				already_crawled = true
 			}
 		}
 		q.RunWith(db).Exec()
-		fmt.Println(i)
-		if crawled_flag {
+		if already_crawled {
 			break
 		}
 	}
