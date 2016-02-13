@@ -303,6 +303,31 @@ function showUserPage(user) {
             }
         }
     });
+    var bar_chart = c3.generate({
+        bindto: "#user-solved-daily",
+        data: {
+            x: "x",
+            columns: [],
+            type: 'bar',
+            colors: {
+                Accepted: "#32CD32",
+            },
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    count: 10,
+                    format: '%Y-%m-%d'
+                }
+            }
+        },
+        bar: {
+            width: {
+                ratio: 0.02 // this makes bar width 50% of length between ticks
+            }
+        }
+    });
 
     $.when($.getJSON("/atcoder-api/user", {
         "user": user
@@ -363,6 +388,11 @@ function showUserPage(user) {
         line_chart.load({
             columns: [x_ticks, data]
         });
+        for (var i = data.length - 1; i >= 2; i--) data[i] -= data[i - 1];
+        bar_chart.load({
+            columns: [x_ticks, data]
+        });
+
 
 
     }).fail(function() {
