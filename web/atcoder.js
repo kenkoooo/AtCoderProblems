@@ -85,7 +85,7 @@ function showCategory(user, rivals) {
                 sortedKeys.push(key);
             }
         }
-        
+
 
         sortedKeys.sort();
 
@@ -458,9 +458,9 @@ function getParam() {
         paramsArray[neet[0]] = neet[1];
     }
 
-    if (url.indexOf("user.php") != -1) paramsArray["kind"] = "user";
-    if (paramsArray["list"] === 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
-    if (paramsArray["list"] === 2 && paramsArray["kind"] === "index") paramsArray["kind"] = "battle";
+    if (url.indexOf("user.php") !== -1) paramsArray["kind"] = "user";
+    if (paramsArray["list"] == 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
+    if (paramsArray["list"] == 2 && paramsArray["kind"] === "index") paramsArray["kind"] = "battle";
     if (paramsArray["ranking"] > 0) paramsArray["kind"] = "ranking";
     paramsArray["rivals"] = paramsArray["rivals"].replace(/\%2C/g, ",");
     return paramsArray;
