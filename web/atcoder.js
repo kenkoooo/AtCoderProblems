@@ -44,27 +44,35 @@ function showCategory(user, rivals) {
         var contests_json = data_c[0];
         var problems_json = data_p[0];
 
+        var contestArray = {};
+        var dateSorter = [];
+        for (var i = 0; i < contests_json.length; i++) {
+            var date = contests_json[i]["start"].replace(/[0-9:]*$/g, "");
+            var contest = contests_json[i]["id"];
+            var link = "<td><a href='http://" + contest + ".contest.atcoder.jp/' target='_blank'>" +
+                contest.toUpperCase() + "</a></td>";
+
+            if (contest.match(/^a[br]c[0-9]*$/)) {
+                contestArray[contest] = link;
+            } else {
+                link = "<strong>" + date + " <a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" +
+                    contests_json[i]["name"] + "</a></strong><table class='table table-bordered'><tbody><tr>";
+                contestArray[contest] = link;
+            }
+            dateSorter.push({ date: date, id: contest });
+        }
+        dateSorter.sort(function(a, b) {
+            if (a.date < b.date) return 1;
+            if (a.date > b.date) return -1;
+            return 0;
+        });
+        console.table(dateSorter);
+
         problems_json.sort(function(a, b) {
             if (a.name < b.name) return -1;
             if (a.name > b.name) return 1;
             return 0;
         });
-
-        var contestArray = {};
-        for (var i = 0; i < contests_json.length; i++) {
-            var contest = contests_json[i]["id"];
-            var link = "<td><a href='http://" + contest + ".contest.atcoder.jp/' target='_blank'>" +
-                contest + "</a></td>";
-
-            if (contest.match(/^a[br]c[0-9]*$/)) {
-                contestArray[contest] = link;
-            } else {
-                link = "<strong><a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" +
-                    contests_json[i]["name"] + "</a></strong><table class='table table-bordered'><tbody><tr>";
-                contestArray[contest] = link;
-            }
-        }
-
         for (var i = 0; i < problems_json.length; i++) {
             var problem = problems_json[i]["id"];
             var contest = problems_json[i]["contest"];
@@ -80,18 +88,9 @@ function showCategory(user, rivals) {
                 problem + "' target='_blank'>" + problems_json[i]["name"] + "</a></td>";
         }
 
-        var sortedKeys = [];
-        for (var key in contestArray) {
-            if (contestArray.hasOwnProperty(key)) {
-                sortedKeys.push(key);
-            }
-        }
 
-
-        sortedKeys.sort();
-
-        for (var i = sortedKeys.length - 1; i >= 0; i--) {
-            var contest = sortedKeys[i];
+        for (var i = 0; i < dateSorter.length; i++) {
+            var contest = dateSorter[i].id;
             if (contest.match(/^abc[0-9]*$/)) {
                 var tr = "<tr>" + contestArray[contest] + "</tr>"
                 $("#beginner").append(tr);
