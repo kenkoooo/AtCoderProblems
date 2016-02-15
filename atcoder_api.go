@@ -297,6 +297,7 @@ func main() {
 			b, _ := json.MarshalIndent(submissions, "", "\t")
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
+		} else if tool == "test" {
 		}
 
 		fmt.Println("Close!")

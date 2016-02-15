@@ -8,7 +8,7 @@ import (
 )
 
 type Contest struct {
-	Id         string         `json:"-"`
+	Id         string         `json:"id"`
 	Name       string         `json:"name"`
 	Start      string         `json:"start"`
 	End        string         `json:"end"`
@@ -16,7 +16,7 @@ type Contest struct {
 	RivalRanks map[string]int `json:"rival_ranks"`
 }
 
-func GetContestResult(db *sql.DB, logger *logrus.Logger, user_name string, rivals []string) map[string]Contest {
+func GetContestResult(db *sql.DB, logger *logrus.Logger, user_name string, rivals []string) []Contest {
 	contests := make(map[string]Contest)
 	{
 		rows, _ := sq.Select("id", "name", "start", "end").From("contests").RunWith(db).Query()
@@ -53,5 +53,11 @@ func GetContestResult(db *sql.DB, logger *logrus.Logger, user_name string, rival
 		}
 
 	}
-	return contests
+
+	ret := []Contest{}
+	for _, v := range contests {
+		ret = append(ret, v)
+	}
+
+	return ret
 }
