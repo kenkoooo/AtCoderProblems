@@ -189,7 +189,9 @@ function showList(user, rivals) {
         var dateList = {};
         for (var i = 0; i < contests_json.length; i++) {
             var contest = contests_json[i]["id"];
-            var link = "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + contests_json[i]["name"] + "</a>";
+            var name = contests_json[i]["name"];
+            if (name.length > 25) { name = contest.toUpperCase(); }
+            var link = "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + name + "</a>";
             contestList[contest] = link;
             dateList[contest] = contests_json[i]["start"].replace(/ .*$/g, "");
         }
