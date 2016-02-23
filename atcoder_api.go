@@ -44,7 +44,8 @@ type Problem struct {
 	SourceLength int `json:"source_length"`
 	ExecTime     int `json:"exec_time"`
 
-	Solvers int `json:"solvers"`
+	Solvers    int `json:"solvers"`
+	Difficulty int `json:"difficulty"`
 
 	Status string              `json:"status"`
 	ACTime string              `json:"ac_time"`
@@ -73,6 +74,7 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []str
 			"p.shortest_submission_id",
 			"p.fastest_submission_id",
 			"p.first_submission_id",
+			"p.difficulty",
 			"sh.user_name",
 			"fs.user_name",
 			"fa.user_name",
@@ -94,6 +96,7 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []str
 				&x.Shortest,
 				&x.Fastest,
 				&x.First,
+				&x.Difficulty,
 				&x.ShortestUser,
 				&x.FastestUser,
 				&x.FirstUser,

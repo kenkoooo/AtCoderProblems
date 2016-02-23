@@ -229,6 +229,7 @@ function showList(user, rivals) {
                 solvers: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/all?task_screen_name=" + p["id"] + "&status=AC'>" + p["solvers"] + "</a>",
                 exec: e,
                 length: l,
+                difficulty: p["difficulty"],
                 date: dateList[contest],
                 first: f,
                 raw_status: p["status"],
