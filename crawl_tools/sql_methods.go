@@ -186,11 +186,11 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 	for i := 1; i <= M; i++ {
 		submissions, max := GetSubmissions(contest, i)
 		logger.WithFields(logrus.Fields{"contest": contest, "page": strconv.Itoa(i)}).Info("crawling page")
-		if len(submissions) == 0 {
-			break
-		}
 		if max > M {
 			M = max
+		}
+		if len(submissions) == 0 {
+			break
 		}
 		q := sq.Insert("submissions")
 		q = q.Columns(
@@ -217,8 +217,7 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 	sq.Update("contests").Set("last_crawled", time.Now().Format("2006-01-02 15:04:05")).Where(sq.Eq{"id": contest}).RunWith(db).Exec()
 
 	t := 0
-	row := sq.Select("COUNT(id)").From("submissions").Where(sq.Eq{"contest_id": contest}).RunWith(db).QueryRow()
-	row.Scan(t)
+	sq.Select("COUNT(id)").From("submissions").Where(sq.Eq{"contest_id": contest}).RunWith(db).QueryRow().Scan(&t)
 	if (M-1)*20 > t {
 		ExtraUpdateSubmissions(db, contest)
 	}
