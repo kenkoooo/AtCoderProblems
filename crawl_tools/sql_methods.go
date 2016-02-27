@@ -37,14 +37,14 @@ func UpdateProblemSet(db *sql.DB, logger *logrus.Logger) {
 			continue
 		}
 
-		problems, problem_names, times, contest_name := GetProblemSet(contest)
+		problems, problemNames, times, contestName := GetProblemSet(contest)
 		if len(problems) == 0 {
 			fmt.Println(problems)
 			continue
 		}
 		logger.WithFields(logrus.Fields{
 			"contest": contest,
-			"name":    contest_name,
+			"name":    contestName,
 			"start":   times[0],
 			"end":     times[1],
 		}).Info("crawling problems")
@@ -55,7 +55,7 @@ func UpdateProblemSet(db *sql.DB, logger *logrus.Logger) {
 			"end",
 		).Values(
 			contest,
-			contest_name,
+			contestName,
 			times[0],
 			times[1],
 		).RunWith(db).Exec()
@@ -63,7 +63,7 @@ func UpdateProblemSet(db *sql.DB, logger *logrus.Logger) {
 		q := sq.Insert("problems").Columns("id", "contest", "name")
 		for i, problem := range problems {
 			if NewRecord("problems", "id", problem, db) {
-				q = q.Values(problem, contest, problem_names[i])
+				q = q.Values(problem, contest, problemNames[i])
 			}
 		}
 		q.RunWith(db).Exec()
@@ -215,4 +215,11 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 		}
 	}
 	sq.Update("contests").Set("last_crawled", time.Now().Format("2006-01-02 15:04:05")).Where(sq.Eq{"id": contest}).RunWith(db).Exec()
+
+	t := 0
+	row := sq.Select("COUNT(id)").From("submissions").Where(sq.Eq{"contest_id": contest}).RunWith(db).QueryRow()
+	row.Scan(t)
+	if (M-1)*20 > t {
+		ExtraUpdateSubmissions(db, contest)
+	}
 }
