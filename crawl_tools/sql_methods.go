@@ -104,7 +104,7 @@ func MaintainDatabase(db *sql.DB, logger *logrus.Logger) {
 		tmp := map[string]struct{}{}
 		{
 			rows, _ := sq.Select("problem_id").From("submissions").Where(sq.And{
-				sq.Expr("created_time > ?", time.Now().Add(-9*time.Hour-5*time.Minute).Format("2006-01-02 15:04:05")),
+				sq.Expr("created_time > ?", time.Now().Add(-9*time.Hour-5*time.Hour).Format("2006-01-02 15:04:05")),
 				sq.Eq{"status": "AC"},
 			}).RunWith(db).Query()
 			for rows.Next() {
@@ -230,7 +230,7 @@ func UpdateSubmissions(db *sql.DB, logger *logrus.Logger) {
 
 	t := 0
 	sq.Select("COUNT(id)").From("submissions").Where(sq.Eq{"contest_id": contest}).RunWith(db).QueryRow().Scan(&t)
-	if (M-1)*20 > t {
+	if (M-2)*20 > t {
 		ExtraUpdateSubmissions(db, contest)
 	}
 }
