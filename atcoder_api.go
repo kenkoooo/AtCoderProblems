@@ -64,6 +64,10 @@ type Submission struct {
 	CreatedAt    string
 }
 
+func GetCurrentTimeSec() int64 {
+	return time.Now().UnixNano() / int64(time.Second)
+}
+
 func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []string) []Problem {
 	ret := make(map[string]Problem)
 	{
@@ -187,6 +191,9 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []str
 }
 
 func main() {
+	problem_last_generate := make(map[string]int64)
+	problem_cache := make(map[string][]Problem)
+
 	u := flag.String("u", "user", "user name to connect to MySQL server")
 	p := flag.String("p", "password", "password to connect to MySQL server")
 	flag.Parse()
@@ -276,10 +283,25 @@ func main() {
 		logger.Out = f
 
 		if tool == "problems" {
-			problems := GetProblemList(db, logger, user, rivals)
-			b, _ := json.MarshalIndent(problems, "", "\t")
-			res.Header().Set("Content-Type", "application/json")
-			fmt.Fprint(res, string(b))
+			key := "problem^" + user + "^"
+			for _, v := range rivals {
+				key = key + v + ","
+			}
+			last_generate, ok := problem_last_generate[key]
+			if ok && GetCurrentTimeSec()-last_generate < 180 {
+				problems := problem_cache[key]
+				b, _ := json.MarshalIndent(problems, "", "\t")
+				res.Header().Set("Content-Type", "application/json")
+				fmt.Fprint(res, string(b))
+			} else {
+				problems := GetProblemList(db, logger, user, rivals)
+				b, _ := json.MarshalIndent(problems, "", "\t")
+				res.Header().Set("Content-Type", "application/json")
+				fmt.Fprint(res, string(b))
+
+				problem_cache[key] = problems
+				problem_last_generate[key] = GetCurrentTimeSec()
+			}
 		} else if tool == "contests" {
 			contests := as.GetContestResult(db, logger, user, rivals)
 			b, _ := json.MarshalIndent(contests, "", "\t")

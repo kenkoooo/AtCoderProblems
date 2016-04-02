@@ -66,7 +66,6 @@ function showCategory(user, rivals) {
             if (a.date > b.date) return -1;
             return 0;
         });
-        console.table(dateSorter);
 
         problems_json.sort(function(a, b) {
             if (a.name < b.name) return -1;
