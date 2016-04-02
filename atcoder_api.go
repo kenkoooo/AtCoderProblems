@@ -11,6 +11,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	as "./api_server"
@@ -191,6 +192,7 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []str
 }
 
 func main() {
+	var mu sync.RWMutex = sync.RWMutex{}
 	problem_last_generate := make(map[string]int64)
 	problem_cache := make(map[string][]Problem)
 
@@ -283,6 +285,8 @@ func main() {
 		logger.Out = f
 
 		if tool == "problems" {
+			mu.Lock()
+			defer mu.Unlock()
 			key := "problem^" + user + "^"
 			for _, v := range rivals {
 				key = key + v + ","
@@ -301,6 +305,12 @@ func main() {
 
 				problem_cache[key] = problems
 				problem_last_generate[key] = GetCurrentTimeSec()
+				time.AfterFunc(time.Minute*3, func() {
+					mu.Lock()
+					defer mu.Unlock()
+					delete(problem_cache, key)
+					delete(problem_last_generate, key)
+				})
 			}
 		} else if tool == "contests" {
 			contests := as.GetContestResult(db, logger, user, rivals)
