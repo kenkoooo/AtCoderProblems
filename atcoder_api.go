@@ -65,10 +65,6 @@ type Submission struct {
 	CreatedAt    string
 }
 
-func GetCurrentTimeSec() int64 {
-	return time.Now().UnixNano() / int64(time.Second)
-}
-
 func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []string) []Problem {
 	ret := make(map[string]Problem)
 	{
@@ -192,9 +188,11 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []str
 }
 
 func main() {
-	var mu sync.RWMutex = sync.RWMutex{}
-	problem_last_generate := make(map[string]int64)
+	mu := sync.RWMutex{}
 	problem_cache := make(map[string][]Problem)
+	contest_cache := make(map[string][]as.Contest)
+	ranking_cache := make(map[string][]as.Ranking)
+	user_cache := make(map[string]as.User)
 
 	u := flag.String("u", "user", "user name to connect to MySQL server")
 	p := flag.String("p", "password", "password to connect to MySQL server")
@@ -291,39 +289,70 @@ func main() {
 			for _, v := range rivals {
 				key = key + v + ","
 			}
-			last_generate, ok := problem_last_generate[key]
-			if ok && GetCurrentTimeSec()-last_generate < 180 {
-				problems := problem_cache[key]
-				b, _ := json.MarshalIndent(problems, "", "\t")
-				res.Header().Set("Content-Type", "application/json")
-				fmt.Fprint(res, string(b))
-			} else {
-				problems := GetProblemList(db, logger, user, rivals)
-				b, _ := json.MarshalIndent(problems, "", "\t")
-				res.Header().Set("Content-Type", "application/json")
-				fmt.Fprint(res, string(b))
-
+			problems, ok := problem_cache[key]
+			if !ok {
+				problems = GetProblemList(db, logger, user, rivals)
 				problem_cache[key] = problems
-				problem_last_generate[key] = GetCurrentTimeSec()
 				time.AfterFunc(time.Minute*3, func() {
 					mu.Lock()
 					defer mu.Unlock()
 					delete(problem_cache, key)
-					delete(problem_last_generate, key)
 				})
 			}
+			b, _ := json.MarshalIndent(problems, "", "\t")
+			res.Header().Set("Content-Type", "application/json")
+			fmt.Fprint(res, string(b))
 		} else if tool == "contests" {
-			contests := as.GetContestResult(db, logger, user, rivals)
+			mu.Lock()
+			defer mu.Unlock()
+			key := "problem^" + user + "^"
+			for _, v := range rivals {
+				key = key + v + ","
+			}
+			contests, ok := contest_cache[key]
+			if !ok {
+				contests = as.GetContestResult(db, logger, user, rivals)
+				contest_cache[key] = contests
+				time.AfterFunc(time.Minute*3, func() {
+					mu.Lock()
+					defer mu.Unlock()
+					delete(contest_cache, key)
+				})
+			}
 			b, _ := json.MarshalIndent(contests, "", "\t")
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
 		} else if tool == "ranking" {
-			ranking := as.GetRanking(db, kind)
+			mu.Lock()
+			defer mu.Unlock()
+			key := "ranking^" + kind
+			ranking, ok := ranking_cache[key]
+			if !ok {
+				ranking = as.GetRanking(db, kind)
+				ranking_cache[key] = ranking
+				time.AfterFunc(time.Minute*3, func() {
+					mu.Lock()
+					defer mu.Unlock()
+					delete(ranking_cache, key)
+				})
+			}
 			b, _ := json.MarshalIndent(ranking, "", "\t")
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
 		} else if tool == "user" {
-			userStruct := as.GetUser(db, logger, user)
+			mu.Lock()
+			defer mu.Unlock()
+			key := "user^" + user
+			userStruct, ok := user_cache[key]
+			if !ok {
+				userStruct = as.GetUser(db, logger, user)
+				user_cache[key] = userStruct
+				time.AfterFunc(time.Minute*3, func() {
+					mu.Lock()
+					defer mu.Unlock()
+					delete(user_cache, key)
+				})
+			}
 			b, _ := json.MarshalIndent(userStruct, "", "\t")
 			res.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(res, string(b))
