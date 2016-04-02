@@ -48,6 +48,6 @@ func main() {
 		ct.MaintainDatabase(db, logger)
 		f.Close()
 
-		time.Sleep(1000000000)
+		time.Sleep(100000000)
 	}
 }
