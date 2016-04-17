@@ -42,7 +42,7 @@ func GetUser(db *sql.DB, logger *logrus.Logger, user_name string) User {
 
 	ac := GetRanking(db, "")
 	for _, r := range ac {
-		if r.User == user_name {
+		if strings.ToUpper(r.User) == strings.ToUpper(user_name) {
 			user.ACRank = r.Rank
 			user.ACNum = r.Count
 			break
