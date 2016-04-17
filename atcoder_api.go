@@ -117,13 +117,13 @@ func main() {
 		if tool == "problems" {
 			mu.Lock()
 			defer mu.Unlock()
-			key := "problem^" + user + "^"
+			key := "problems^" + user + "^"
 			for _, v := range rivals {
 				key = key + v + ","
 			}
 			problems, ok := problem_cache[key]
 			if !ok {
-				problems = as.GetProblemList(db, logger, user, rivals)
+				problems = as.GetProblemList(db, user, rivals, true)
 				problem_cache[key] = problems
 				time.AfterFunc(time.Minute*3, func() {
 					mu.Lock()
@@ -137,7 +137,7 @@ func main() {
 		} else if tool == "contests" {
 			mu.Lock()
 			defer mu.Unlock()
-			key := "problem^" + user + "^"
+			key := "contests^" + user + "^"
 			for _, v := range rivals {
 				key = key + v + ","
 			}

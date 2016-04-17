@@ -3,6 +3,7 @@ package api_server
 import (
 	"database/sql"
 	"regexp"
+	"strings"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/Sirupsen/logrus"
@@ -82,7 +83,7 @@ func GetUser(db *sql.DB, logger *logrus.Logger, user_name string) User {
 	pb := regexp.MustCompile(`^a[rb]c[0-9]{3}_[b2]$`)
 	pc := regexp.MustCompile(`^a[rb]c[0-9]{3}_[c3]$`)
 	rows, _ := sq.Select("DISTINCT(problem_id)").From("submissions").Where(sq.And{
-		sq.Eq{"user_name": user_name},
+		sq.Eq{"UPPER(user_name)": strings.ToUpper(user_name)},
 		sq.Eq{"status": "AC"},
 	}).GroupBy("problem_id").RunWith(db).Query()
 	for rows.Next() {

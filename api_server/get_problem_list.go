@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/Sirupsen/logrus"
 )
 
 type Problem struct {
@@ -39,7 +38,7 @@ type Problem struct {
 	Rivals map[string]struct{} `json:"rivals"`
 }
 
-func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []string) []Problem {
+func GetProblemList(db *sql.DB, user string, rivals []string, withSolverNum bool) []Problem {
 	ret := make(map[string]Problem)
 	{
 		rows, _ := sq.Select(
@@ -92,7 +91,7 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []str
 			ret[x.Id] = x
 		}
 	}
-	{
+	if withSolverNum {
 		rows, _ := sq.Select("COUNT(DISTINCT(user_name))", "problem_id").From("submissions").Where(
 			sq.Eq{"status": "AC"}).GroupBy("problem_id").RunWith(db).Query()
 		for rows.Next() {
@@ -154,9 +153,5 @@ func GetProblemList(db *sql.DB, logger *logrus.Logger, user string, rivals []str
 	for _, value := range ret {
 		ret_slice = append(ret_slice, value)
 	}
-	logger.WithFields(logrus.Fields{
-		"user":   user,
-		"rivals": rivals,
-	}).Info("API request")
 	return ret_slice
 }
