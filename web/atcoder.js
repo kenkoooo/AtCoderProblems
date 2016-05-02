@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
     var params = getParam();
     if (params['kind'] !== "list") $("#problem-list").remove();
     if (params['kind'] !== "index") $("#problem-category").remove();
@@ -40,7 +40,7 @@ function showCategory(user, rivals) {
         $.getJSON("/atcoder-api/problems", {
             "user": user,
             "rivals": rivals,
-        })).done(function(data_c, data_p) {
+        })).done(function (data_c, data_p) {
         var contests_json = data_c[0];
         var problems_json = data_p[0];
 
@@ -59,15 +59,15 @@ function showCategory(user, rivals) {
                     contests_json[i]["name"] + "</a></strong><table class='table table-bordered'><tbody><tr>";
                 contestArray[contest] = link;
             }
-            dateSorter.push({ date: date, id: contest });
+            dateSorter.push({date: date, id: contest});
         }
-        dateSorter.sort(function(a, b) {
+        dateSorter.sort(function (a, b) {
             if (a.date < b.date) return 1;
             if (a.date > b.date) return -1;
             return 0;
         });
 
-        problems_json.sort(function(a, b) {
+        problems_json.sort(function (a, b) {
             if (a.name < b.name) return -1;
             if (a.name > b.name) return 1;
             return 0;
@@ -101,7 +101,7 @@ function showCategory(user, rivals) {
                 $("#others").append(table);
             }
         }
-    }).fail(function() {
+    }).fail(function () {
         console.log("error");
     });
 }
@@ -112,7 +112,7 @@ function showBattle(user, rivals) {
         $.getJSON("/atcoder-api/contests", {
             "user": user,
             "rivals": rivals,
-        })).done(function(contests_json) {
+        })).done(function (contests_json) {
         var rows = [];
         var win_cnt = 0;
         var lose_cnt = 0;
@@ -152,7 +152,7 @@ function showBattle(user, rivals) {
             }
             rows.push({
                 name: "<a target='_blank' href='http://" + contests_json[i]["id"] + ".contest.atcoder.jp/'>" +
-                    contests_json[i]["name"] + "</a>",
+                contests_json[i]["name"] + "</a>",
                 date: contests_json[i]["start"].replace(/[0-9:]*$/g, ""),
                 rank: my_rank,
                 rival: rival,
@@ -160,7 +160,7 @@ function showBattle(user, rivals) {
             });
         }
 
-        rows.sort(function(a, b) {
+        rows.sort(function (a, b) {
             if (a.date < b.date) return 1;
             if (a.date > b.date) return -1;
             return 0;
@@ -168,7 +168,7 @@ function showBattle(user, rivals) {
         var $table = $("#battle-result");
         $table.bootstrapTable("append", rows);
         $("#lead-text").text(win_cnt + " 勝 " + lose_cnt + " 敗 " + draw_cnt + " 分");
-    }).fail(function() {
+    }).fail(function () {
         console.log("error");
     });
 }
@@ -181,7 +181,7 @@ function showList(user, rivals) {
         $.getJSON("/atcoder-api/problems", {
             "user": user,
             "rivals": rivals,
-        })).done(function(data_c, data_p) {
+        })).done(function (data_c, data_p) {
         var contests_json = data_c[0];
         var problems_json = data_p[0];
         var contestList = {};
@@ -189,7 +189,9 @@ function showList(user, rivals) {
         for (var i = 0; i < contests_json.length; i++) {
             var contest = contests_json[i]["id"];
             var name = contests_json[i]["name"];
-            if (name.length > 25) { name = contest.toUpperCase(); }
+            if (name.length > 25) {
+                name = contest.toUpperCase();
+            }
             var link = "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + name + "</a>";
             contestList[contest] = link;
             dateList[contest] = contests_json[i]["start"].replace(/ .*$/g, "");
@@ -237,7 +239,7 @@ function showList(user, rivals) {
                 raw_rivals: rival_num,
             });
         }
-        rows.sort(function(a, b) {
+        rows.sort(function (a, b) {
             if (a.date < b.date) return 1;
             if (a.date > b.date) return -1;
             if (a.problem_name_string < b.problem_name_string) return -1;
@@ -246,7 +248,7 @@ function showList(user, rivals) {
         });
         var $table = $("#all-problems");
         $table.bootstrapTable("append", rows);
-    }).fail(function() {
+    }).fail(function () {
         console.log("error");
     });
 
@@ -258,7 +260,7 @@ function showUserPage(user) {
     $("#problem-container").remove();
 
     var abc_charts = [];
-    var abcs = ["abc_a", "abc_b", "abc_c", "abc_d", ];
+    var abcs = ["abc_a", "abc_b", "abc_c", "abc_d",];
     for (var i = 0; i < abcs.length; i++) {
         abc_charts.push(c3.generate({
             bindto: "#" + abcs[i] + "_donuts",
@@ -281,7 +283,7 @@ function showUserPage(user) {
         }));
     }
     var arc_charts = [];
-    var arcs = ["arc_a", "arc_b", "arc_c", "arc_d", ];
+    var arcs = ["arc_a", "arc_b", "arc_c", "arc_d",];
     for (var i = 0; i < arcs.length; i++) {
         arc_charts.push(c3.generate({
             bindto: "#" + arcs[i] + "_donuts",
@@ -349,7 +351,7 @@ function showUserPage(user) {
         "user": user
     }), $.getJSON("/atcoder-api/problems", {
         "user": user
-    })).done(function(json_u, json_p) {
+    })).done(function (json_u, json_p) {
         var user_json = json_u[0];
         var problems_json = json_p[0];
         if (user_json["ac_rank"] === 0) {
@@ -400,7 +402,8 @@ function showUserPage(user) {
             if (i < dateKeys.length - 1 && dateKeys[i].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, "") === dateKeys[i + 1].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, "")) continue;
             x_ticks.push(dateKeys[i].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, ""));
             data.push(i + 1);
-        };
+        }
+        ;
         line_chart.load({
             columns: [x_ticks, data]
         });
@@ -410,8 +413,7 @@ function showUserPage(user) {
         });
 
 
-
-    }).fail(function() {
+    }).fail(function () {
         console.log("error");
     });
 
@@ -438,7 +440,7 @@ function showRanking(k) {
 
     $.when($.getJSON("/atcoder-api/ranking", {
         "kind": k
-    })).done(function(ranking_json) {
+    })).done(function (ranking_json) {
         var rows = [];
         for (var i = 0; i < Math.min(ranking_json.length, 500) && ranking_json[i]["count"] > 0; i++) {
             rows.push({
@@ -449,7 +451,7 @@ function showRanking(k) {
         }
         var $table = $("#all-ranking");
         $table.bootstrapTable("append", rows);
-    }).fail(function() {
+    }).fail(function () {
         console.log("error");
     });
 }
