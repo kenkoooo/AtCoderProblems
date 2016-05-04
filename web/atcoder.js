@@ -38,7 +38,7 @@ function showCategory(user, rivals) {
     $.when(
         $.getJSON("/atcoder/json/problems_simple.json"),
         $.getJSON("/atcoder/json/contests.json"),
-        $.getJSON("/atcoder-api-test/problems", {
+        $.getJSON("/atcoder-api/problems", {
             "user": user,
             "rivals": rivals
         })).done(function (json_simple, json_contests, json_problems) {
@@ -132,8 +132,16 @@ function showCategory(user, rivals) {
                     var table = "<table class='table table-bordered'><tbody><tr>";
                     for (var i = 0; i < contest.problems.length; i++) {
                         var problem = problems_unified[contest.problems[i]];
+                        var classes = "";
+                        if (problem.classes == "classes_success") {
+                            classes = "success";
+                        } else if (problem.classes == "classes_warning") {
+                            classes = "warning";
+                        } else if (problem.classes == "classes_danger") {
+                            classes = "danger";
+                        }
                         table += "<td class='" +
-                            problem.classes +
+                            classes +
                             "'>" +
                             "<a href='http://" +
                             contest.id +
@@ -195,66 +203,86 @@ function categoryCellStyle(value, row, index) {
 function showBattle(user, rivals) {
     $("input[name=list]").val(["2"]);
     $.when(
-        $.getJSON("/atcoder-api/contests", {
+        $.getJSON("/atcoder-api/results", {
             "user": user,
             "rivals": rivals,
-        })).done(function (contests_json) {
-        var rows = [];
-        var win_cnt = 0;
-        var lose_cnt = 0;
-        var draw_cnt = 0;
-        for (var i = 0; i < contests_json.length; i++) {
-            var rival = "";
-            var rival_rank = 0;
-            for (var r in contests_json[i]["rival_ranks"]) {
-                if (rival_rank === 0 || contests_json[i]["rival_ranks"][r] < rival_rank) {
-                    rival_rank = contests_json[i]["rival_ranks"][r];
-                    rival = r;
-                }
+        }),
+        $.getJSON("/atcoder/json/contests.json")
+    ).done(function (json_results, json_contests) {
+            json_results = json_results[0];
+            json_contests = json_contests[0];
+
+            var result_map = {};
+            for (var i = 0; i < json_contests.length; i++)
+                result_map[json_contests[i].id] = [];
+            for (var i = 0; i < json_results.length; i++) {
+                var result = json_results[i];
+                result_map[result.contest].push({
+                    "user": result.user,
+                    "rank": result.rank
+                });
             }
 
-            if (Object.keys(contests_json[i]["rival_ranks"]).length > 1) {
-                rival = rival_rank + " (" + rival + ")";
-            } else if (rival_rank > 0) {
-                rival = rival_rank + "";
+            var rows = [];
+            var win_cnt = 0;
+            var lose_cnt = 0;
+            var draw_cnt = 0;
+            for (var i = 0; i < json_contests.length; i++) {
+                var contest = json_contests[i];
+                var rival = "";
+                var rival_rank = 0;
+                var my_rank = 0;
+                for (var j = 0; j < result_map[contest.id].length; j++) {
+                    var result = result_map[contest.id][j];
+                    if (result.user.toLowerCase() === user.toLowerCase()) {
+                        my_rank = result.rank;
+                    } else if (rival_rank == 0 || result.rank < rival_rank) {
+                        rival_rank = result.rank;
+                        rival = result.user;
+                    }
+                }
+                if (result_map[contest.id].length >= 3) {
+                    rival = rival_rank + " (" + rival + ")";
+                } else if (rival_rank > 0) {
+                    rival = rival_rank + "";
+                }
+
+                var result = "";
+                if (my_rank > 0 && rival_rank > 0) {
+                    if (my_rank > rival_rank) {
+                        result = "LOSE";
+                        lose_cnt++;
+                    } else if (my_rank < rival_rank) {
+                        result = "WIN";
+                        win_cnt++;
+                    } else {
+                        result = "DRAW";
+                        draw_cnt++;
+                    }
+                }
+                if (my_rank === 0) {
+                    my_rank = "";
+                }
+                rows.push({
+                    name: "<a target='_blank' href='http://" + contest.id + ".contest.atcoder.jp/'>" +
+                    contest.name + "</a>",
+                    date: contest.start,
+                    rank: my_rank,
+                    rival: rival,
+                    result: result
+                });
             }
 
-            var my_rank = contests_json[i]["rank"];
-            var result = "";
-            if (my_rank > 0 && rival_rank > 0) {
-                if (my_rank > rival_rank) {
-                    result = "LOSE";
-                    lose_cnt++;
-                } else if (my_rank < rival_rank) {
-                    result = "WIN";
-                    win_cnt++;
-                } else {
-                    result = "DRAW";
-                    draw_cnt++;
-                }
-            }
-            if (my_rank === 0) {
-                my_rank = "";
-            }
-            rows.push({
-                name: "<a target='_blank' href='http://" + contests_json[i]["id"] + ".contest.atcoder.jp/'>" +
-                contests_json[i]["name"] + "</a>",
-                date: contests_json[i]["start"].replace(/[0-9:]*$/g, ""),
-                rank: my_rank,
-                rival: rival,
-                result: result,
+            rows.sort(function (a, b) {
+                if (a.date < b.date) return 1;
+                if (a.date > b.date) return -1;
+                return 0;
             });
+            var $table = $("#battle-result");
+            $table.bootstrapTable("append", rows);
+            $("#lead-text").text(win_cnt + " 勝 " + lose_cnt + " 敗 " + draw_cnt + " 分");
         }
-
-        rows.sort(function (a, b) {
-            if (a.date < b.date) return 1;
-            if (a.date > b.date) return -1;
-            return 0;
-        });
-        var $table = $("#battle-result");
-        $table.bootstrapTable("append", rows);
-        $("#lead-text").text(win_cnt + " 勝 " + lose_cnt + " 敗 " + draw_cnt + " 分");
-    }).fail(function () {
+    ).fail(function () {
         console.log("error");
     });
 }
@@ -263,66 +291,92 @@ function showList(user, rivals) {
     // List Mode
     $("input[name=list]").val(["1"]);
     $.when(
-        $.getJSON("/atcoder-api/contests"),
+        $.getJSON("/atcoder/json/problems.json"),
+        $.getJSON("/atcoder/json/contests.json"),
         $.getJSON("/atcoder-api/problems", {
             "user": user,
             "rivals": rivals,
-        })).done(function (data_c, data_p) {
-        var contests_json = data_c[0];
-        var problems_json = data_p[0];
-        var contestList = {};
-        var dateList = {};
-        for (var i = 0; i < contests_json.length; i++) {
-            var contest = contests_json[i]["id"];
-            var name = contests_json[i]["name"];
-            if (name.length > 25) {
-                name = contest.toUpperCase();
-            }
-            var link = "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" + name + "</a>";
-            contestList[contest] = link;
-            dateList[contest] = contests_json[i]["start"].replace(/ .*$/g, "");
+        })).done(function (json_detailed_problems, json_contests, json_problems) {
+        json_detailed_problems = json_detailed_problems[0];
+        json_contests = json_contests[0];
+        json_problems = json_problems[0];
+
+        var user_result_map = {};
+        for (var i = 0; i < json_problems.length; i++) {
+            var obj = json_problems[i];
+            user_result_map[obj.id] = obj;
         }
+        var contest_dict = {};
+        for (var i = 0; i < json_contests.length; i++) {
+            var contest = json_contests[i];
+            contest_dict[contest.id] = contest;
+        }
+
         var rows = [];
-        for (var i = 0; i < problems_json.length; i++) {
-            var p = problems_json[i];
-            var contest = p["contest"];
+        for (var i = 0; i < json_detailed_problems.length; i++) {
+            var p = json_detailed_problems[i];
+            var status = "";
+            var raw_status = "";
             var rival_num = 0;
-            var s = "";
-            if (p["status"] === "AC") {
-                s = "<div class='text-center'><span class='label label-success'>AC</span></div>";
-            } else if (Object.keys(p["rivals"]).length > 0) {
-                s = "";
-                for (var rival in p["rivals"]) {
-                    s += "<div class='text-center'><span class='label label-danger'>" + rival + "</span></div>";
-                    rival_num++;
+            if (p.id in user_result_map) {
+                var result = user_result_map[p.id];
+                raw_status = result.status;
+                if (result.status === "AC") {
+                    status = "<div class='text-center'><span class='label label-success'>AC</span></div>";
+                } else if (result.rivals.length > 0) {
+                    for (var j = 0; j < result.rivals.length; j++)
+                        status += "<div class='text-center'><span class='label label-danger'>" +
+                            result.rivals[j] + "</span></div>";
+                } else if (result.status !== "") {
+                    status = "<div class='text-center'><span class='label label-warning'>" + result.status + "</span></div>";
                 }
-            } else if (p["status"] !== "") {
-                s = "<div class='text-center'><span class='label label-warning'>" + p["status"] + "</span></div>";
-            } else {
-                s = "";
+                rival_num = result.rivals.length;
             }
-            var e = "";
-            var l = "";
-            var f = "";
-            if (p["source_length"] > 0) {
-                e = "<a target='_blank' href='" + p["fastest_url"] + "'>" + p["exec_time"] + " ms (" + p["fastest_user"] + ")</a>";
-                l = "<a target='_blank' href='" + p["shortest_url"] + "'>" + p["source_length"] + " Bytes (" + p["shortest_user"] + ")</a>";
-                f = "<a target='_blank' href='" + p["first_url"] + "'>" + p["first_user"] + "</a>";
+
+            var fastest = "";
+            var first = "";
+            var shortest = "";
+            if (p.source_length > 0) {
+                fastest = "<a href='http://";
+                if (p.fastest_contest === "")
+                    p.fastest_contest = p.contest;
+                fastest += p.fastest_contest + ".contest.atcoder.jp/submissions/" +
+                    p.fastest_id + "' target='_blank'>" +
+                    p.exec_time + " ms (" +
+                    p.fastest_user + ")</a>";
+
+                first = "<a href='http://";
+                if (p.first_contest === "")
+                    p.first_contest = p.contest;
+                first += p.first_contest + ".contest.atcoder.jp/submissions/" +
+                    p.first_id + "' target='_blank'>" +
+                    p.first_user + "</a>";
+
+                shortest = "<a href='http://";
+                if (p.shortest_contest === "")
+                    p.shortest_contest = p.contest;
+                shortest += p.shortest_contest + ".contest.atcoder.jp/submissions/" +
+                    p.shortest_id + "' target='_blank'>" +
+                    p.source_length + " bytes (" +
+                    p.shortest_user + ")</a>";
             }
 
             rows.push({
-                problem_name_string: p["name"],
-                problem_name: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/tasks/" + p["id"] + "'>" + p["name"] + "</a>",
-                contest_name: contestList[contest],
-                status: s,
-                solvers: "<a target='_blank' href='http://" + contest + ".contest.atcoder.jp/submissions/all?task_screen_name=" + p["id"] + "&status=AC'>" + p["solvers"] + "</a>",
-                exec: e,
-                length: l,
-                difficulty: p["difficulty"],
-                date: dateList[contest],
-                first: f,
-                raw_status: p["status"],
-                raw_rivals: rival_num,
+                problem_name_string: p.name,
+                problem_name: "<a target='_blank' href='http://" + p.contest + ".contest.atcoder.jp/tasks/" +
+                p.id + "'>" + p.name + "</a>",
+                contest_name: contest_dict[p.contest].name,
+                status: status,
+                solvers: "<a target='_blank' href='http://" + p.contest +
+                ".contest.atcoder.jp/submissions/all?task_screen_name=" + p.id + "&status=AC'>" + p.solvers +
+                "</a>",
+                exec: fastest,
+                length: shortest,
+                difficulty: p.difficulty,
+                date: contest_dict[p.contest].start.substring(0, 10),
+                first: first,
+                raw_status: raw_status,
+                raw_rivals: rival_num
             });
         }
         rows.sort(function (a, b) {
@@ -437,9 +491,9 @@ function showUserPage(user) {
         "user": user
     }), $.getJSON("/atcoder-api/problems", {
         "user": user
-    })).done(function (json_u, json_p) {
-        var user_json = json_u[0];
-        var problems_json = json_p[0];
+    })).done(function (user_json, problems_json) {
+        user_json = user_json[0];
+        problems_json = problems_json[0];
         if (user_json["ac_rank"] === 0) {
             $("#user-contents").remove();
             return;
@@ -459,7 +513,7 @@ function showUserPage(user) {
                 columns: [
                     ["Accepted", user_json[abcs[i]]],
                     ["Trying", user_json["abc_num"] - user_json[abcs[i]]],
-                ],
+                ]
             });
             $("#" + abcs[i] + "_num").text(user_json[abcs[i]] + "問 / " + user_json["abc_num"] + " 問");
         }
@@ -469,7 +523,7 @@ function showUserPage(user) {
                 columns: [
                     ["Accepted", user_json[arcs[i]]],
                     ["Trying", user_json["arc_num"] - user_json[arcs[i]]],
-                ],
+                ]
             });
             $("#" + arcs[i] + "_num").text(user_json[arcs[i]] + "問 / " + user_json["arc_num"] + " 問");
         }
@@ -489,7 +543,6 @@ function showUserPage(user) {
             x_ticks.push(dateKeys[i].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, ""));
             data.push(i + 1);
         }
-        ;
         line_chart.load({
             columns: [x_ticks, data]
         });
@@ -517,10 +570,10 @@ function showRanking(k) {
         k = "fast";
         $("#header-title").text("AtCoder 実行速度ランキング");
     } else if (k === "4") {
-        k = "fa";
+        k = "first";
         $("#header-title").text("AtCoder 最速提出ランキング");
     } else {
-        k = "";
+        k = "ac";
         $("#header-title").text("AtCoder AC 数ランキング");
     }
 

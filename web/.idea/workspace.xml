@@ -25,8 +25,8 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="230">
-              <caret line="348" column="30" selection-start-line="348" selection-start-column="30" selection-end-line="348" selection-end-column="30" />
+            <state relative-caret-position="286">
+              <caret line="274" column="86" selection-start-line="274" selection-start-column="77" selection-end-line="274" selection-end-column="86" />
               <folding />
             </state>
           </provider>
@@ -35,13 +35,13 @@
       <file leaf-file-name="atcoder.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/atcoder.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="596">
-              <caret line="135" column="45" selection-start-line="135" selection-start-column="45" selection-end-line="135" selection-end-column="45" />
+            <state relative-caret-position="294">
+              <caret line="295" column="31" selection-start-line="295" selection-start-column="31" selection-end-line="295" selection-end-column="31" />
               <folding>
-                <marker date="1462378944000" expanded="true" signature="4290:4303" placeholder="..." />
-                <marker date="1462378944000" expanded="true" signature="4600:4613" placeholder="..." />
-                <marker date="1462378944000" expanded="true" signature="4910:4923" placeholder="..." />
-                <marker date="1462378944000" expanded="true" signature="5220:5233" placeholder="..." />
+                <marker date="1462386829000" expanded="true" signature="4285:4298" placeholder="..." />
+                <marker date="1462386829000" expanded="true" signature="4595:4608" placeholder="..." />
+                <marker date="1462386829000" expanded="true" signature="4905:4918" placeholder="..." />
+                <marker date="1462386829000" expanded="true" signature="5215:5228" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -110,7 +110,7 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="editing.templates" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
   <component name="RunManager">
@@ -709,12 +709,12 @@
       <option name="presentableId" value="Default" />
       <updated>1462204475882</updated>
       <workItem from="1462204477294" duration="70000" />
-      <workItem from="1462364207222" duration="10261000" />
+      <workItem from="1462364207222" duration="15868000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10331000" />
+    <option name="totallyTimeSpent" value="15938000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="962" y="23" width="958" height="1057" extended-state="0" />
@@ -731,7 +731,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3290735" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" x="892" y="732" width="916" height="309" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24344978" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24344978" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -753,6 +753,10 @@
     <breakpoint-manager />
     <watches-manager />
   </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
@@ -767,10 +771,10 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1462378944000" expanded="true" signature="4290:4303" placeholder="..." />
-            <marker date="1462378944000" expanded="true" signature="4600:4613" placeholder="..." />
-            <marker date="1462378944000" expanded="true" signature="4910:4923" placeholder="..." />
-            <marker date="1462378944000" expanded="true" signature="5220:5233" placeholder="..." />
+            <marker date="1462386829000" expanded="true" signature="4285:4298" placeholder="..." />
+            <marker date="1462386829000" expanded="true" signature="4595:4608" placeholder="..." />
+            <marker date="1462386829000" expanded="true" signature="4905:4918" placeholder="..." />
+            <marker date="1462386829000" expanded="true" signature="5215:5228" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -793,21 +797,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="348" column="30" selection-start-line="348" selection-start-column="30" selection-end-line="348" selection-end-column="30" />
+        <state relative-caret-position="286">
+          <caret line="274" column="86" selection-start-line="274" selection-start-column="77" selection-end-line="274" selection-end-column="86" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/atcoder.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="596">
-          <caret line="135" column="45" selection-start-line="135" selection-start-column="45" selection-end-line="135" selection-end-column="45" />
+        <state relative-caret-position="294">
+          <caret line="295" column="31" selection-start-line="295" selection-start-column="31" selection-end-line="295" selection-end-column="31" />
           <folding>
-            <marker date="1462378944000" expanded="true" signature="4290:4303" placeholder="..." />
-            <marker date="1462378944000" expanded="true" signature="4600:4613" placeholder="..." />
-            <marker date="1462378944000" expanded="true" signature="4910:4923" placeholder="..." />
-            <marker date="1462378944000" expanded="true" signature="5220:5233" placeholder="..." />
+            <marker date="1462386829000" expanded="true" signature="4285:4298" placeholder="..." />
+            <marker date="1462386829000" expanded="true" signature="4595:4608" placeholder="..." />
+            <marker date="1462386829000" expanded="true" signature="4905:4918" placeholder="..." />
+            <marker date="1462386829000" expanded="true" signature="5215:5228" placeholder="..." />
           </folding>
         </state>
       </provider>

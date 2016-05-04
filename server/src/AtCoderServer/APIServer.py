@@ -104,7 +104,8 @@ def ranking():
 def user():
     username = request.query.user.lower()
     if re.match(r"^[a-zA-Z0-9_\-]*$", username) is None:
-        return ""
+        response.content_type = 'application/json'
+        return json.dumps({"ac_rank": 0}, ensure_ascii=False, separators=(',', ':'))
 
     ac_rank = -1
     ac_num = 0
@@ -115,7 +116,8 @@ def user():
             username = rank["user_name"]
             break
     if ac_rank < 0:
-        return ""
+        response.content_type = 'application/json'
+        return json.dumps({"ac_rank": 0}, ensure_ascii=False, separators=(',', ':'))
 
     user_dict = {
         "user": username,
@@ -222,4 +224,4 @@ if __name__ == "__main__":
     sql_user = args.u
     sql_password = args.p
 
-    run(host='0.0.0.0', port=11451, debug=True, reloader=True)
+    run(host='0.0.0.0', port=55555, debug=True, reloader=True)
