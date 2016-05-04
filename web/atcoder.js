@@ -584,7 +584,8 @@ function showRanking(k) {
         for (var i = 0; i < Math.min(ranking_json.length, 500) && ranking_json[i]["count"] > 0; i++) {
             rows.push({
                 rank: ranking_json[i]["rank"],
-                user_name: "<a href='./?kind=list&name=" + ranking_json[i]["user"] + "'>" + ranking_json[i]["user"] + "</a>",
+                user_name: "<a href='./?kind=list&name=" + ranking_json[i]["user_name"] + "'>" +
+                ranking_json[i]["user_name"] + "</a>",
                 count: ranking_json[i]["count"],
             });
         }
