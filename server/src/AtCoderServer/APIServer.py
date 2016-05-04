@@ -1,24 +1,14 @@
 # -*- encoding:utf8 -*-
+
+import ServerTools
 import argparse
 import json
 import re
 
-import pymysql.cursors
 from bottle import get, run, response, request
 
-user = ""
-password = ""
-
-
-def connect_my_sql():
-    connection = pymysql.connect(
-        host="localhost",
-        user=user,
-        password=password,
-        db="atcoder",
-        charset="utf8",
-        cursorclass=pymysql.cursors.DictCursor)
-    return connection
+sql_user = ""
+sql_password = ""
 
 
 @get("/problems")
@@ -38,18 +28,19 @@ def problems():
     if "" in searcher:
         searcher.remove("")
     if len(searcher) == 0:
-        return ""
+        response.content_type = 'application/json'
+        return json.dumps([], ensure_ascii=False, separators=(',', ':'))
 
-    connection = connect_my_sql()
-    resmap = {}
+    connection = ServerTools.connect_my_sql(user=sql_user, password=sql_password)
+    response_map = {}
     with connection.cursor() as cursor:
         query = "SELECT status,problem_id,user_name,created_time FROM submissions WHERE user_name IN %s"
         cursor.execute(query, ((searcher),))
         rows = cursor.fetchall()
         for row in rows:
             problem_id = row["problem_id"]
-            if problem_id not in resmap:
-                resmap[problem_id] = {
+            if problem_id not in response_map:
+                response_map[problem_id] = {
                     "id": problem_id,
                     "status": "",
                     "ac_time": "",
@@ -57,18 +48,18 @@ def problems():
                 }
 
             if row["user_name"] == username:
-                if resmap[problem_id]["status"] == "AC":
+                if response_map[problem_id]["status"] == "AC":
                     continue
                 if row["status"] == "AC":
-                    resmap[problem_id]["status"] = "AC"
-                    resmap[problem_id]["ac_time"] = row["created_time"].isoformat(" ")
+                    response_map[problem_id]["status"] = "AC"
+                    response_map[problem_id]["ac_time"] = row["created_time"].isoformat(" ")
                 else:
-                    resmap[problem_id]["status"] = row["status"]
+                    response_map[problem_id]["status"] = row["status"]
             elif row["status"] == "AC":
-                resmap[problem_id]["rivals"].append(row["user_name"])
+                response_map[problem_id]["rivals"].append(row["user_name"])
     connection.close()
     ret = []
-    for k, v in resmap.items():
+    for k, v in response_map.items():
         v["rivals"] = list(set(v["rivals"]))
         ret.append(v)
     response.content_type = 'application/json'
@@ -88,7 +79,7 @@ def get_ranking(kind, lim=100000):
     else:
         return []
     query += " GROUP BY user_name ORDER BY count DESC LIMIT %s"
-    connection = connect_my_sql()
+    connection = ServerTools.connect_my_sql(user=sql_user, password=sql_password)
     with connection.cursor() as cursor:
         cursor.execute(query, ((lim),))
         rows = cursor.fetchall()
@@ -166,7 +157,7 @@ def user():
             user_dict["short_num"] = rank["count"]
             break
 
-    connection = connect_my_sql()
+    connection = ServerTools.connect_my_sql(user=sql_user, password=sql_password)
     with connection.cursor() as cursor:
         query = "SELECT id FROM contests"
         cursor.execute(query)
@@ -213,7 +204,7 @@ def results():
     if len(searcher) == 0:
         return ""
 
-    connection = connect_my_sql()
+    connection = ServerTools.connect_my_sql(user=sql_user, password=sql_password)
     with connection.cursor() as cursor:
         query = "SELECT * FROM results WHERE user IN %s"
         cursor.execute(query, ((searcher),))
@@ -228,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", type=str)
     parser.add_argument("-u", type=str)
     args = parser.parse_args()
-    user = args.u
-    password = args.p
+    sql_user = args.u
+    sql_password = args.p
 
     run(host='0.0.0.0', port=11451, debug=True, reloader=True)

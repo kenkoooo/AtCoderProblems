@@ -36,74 +36,160 @@ $(document).ready(function () {
 function showCategory(user, rivals) {
     $("input[name=list]").val(["0"]);
     $.when(
-        $.getJSON("/atcoder-api/contests"),
-        $.getJSON("/atcoder-api/problems", {
+        $.getJSON("/atcoder/json/problems_simple.json"),
+        $.getJSON("/atcoder/json/contests.json"),
+        $.getJSON("/atcoder-api-test/problems", {
             "user": user,
-            "rivals": rivals,
-        })).done(function (data_c, data_p) {
-        var contests_json = data_c[0];
-        var problems_json = data_p[0];
+            "rivals": rivals
+        })).done(function (json_simple, json_contests, json_problems) {
+            json_simple = json_simple[0];
+            json_contests = json_contests[0];
+            json_problems = json_problems[0];
 
-        var contestArray = {};
-        var dateSorter = [];
-        for (var i = 0; i < contests_json.length; i++) {
-            var date = contests_json[i]["start"].replace(/[0-9:]*$/g, "");
-            var contest = contests_json[i]["id"];
-            var link = "<td><a href='http://" + contest + ".contest.atcoder.jp/' target='_blank'>" +
-                contest.toUpperCase() + "</a></td>";
-
-            if (contest.match(/^a[br]c[0-9]*$/)) {
-                contestArray[contest] = link;
-            } else {
-                link = "<strong>" + date + " <a target='_blank' href='http://" + contest + ".contest.atcoder.jp/'>" +
-                    contests_json[i]["name"] + "</a></strong><table class='table table-bordered'><tbody><tr>";
-                contestArray[contest] = link;
+            var contest_map = {};
+            for (var i = 0; i < json_contests.length; i++) {
+                var contest = json_contests[i];
+                contest_map[contest["id"]] = {
+                    "id": contest["id"],
+                    "name": contest["name"],
+                    "start": contest["start"].substring(0, 10),
+                    "problems": []
+                };
             }
-            dateSorter.push({date: date, id: contest});
-        }
-        dateSorter.sort(function (a, b) {
-            if (a.date < b.date) return 1;
-            if (a.date > b.date) return -1;
-            return 0;
-        });
 
-        problems_json.sort(function (a, b) {
-            if (a.name < b.name) return -1;
-            if (a.name > b.name) return 1;
-            return 0;
-        });
-        for (var i = 0; i < problems_json.length; i++) {
-            var problem = problems_json[i]["id"];
-            var contest = problems_json[i]["contest"];
-            contestArray[contest] += "<td ";
-            if (problems_json[i]["status"] === "AC") {
-                contestArray[contest] += "class='success'"
-            } else if (Object.keys(problems_json[i]["rivals"]).length > 0) {
-                contestArray[contest] += "class='danger'"
-            } else if (problems_json[i]["status"] !== "") {
-                contestArray[contest] += "class='warning'"
+            var problems_unified = {};
+            for (var i = 0; i < json_simple.length; i++) {
+                var problem = json_simple[i];
+                problems_unified[problem["id"]] = {
+                    "name": problem["name"],
+                    "id": problem["id"],
+                    "contest": problem["contest"],
+                    "classes": ""
+                };
+                contest_map[problem["contest"]]["problems"].push(problem["id"]);
             }
-            contestArray[contest] += "><a href='http://" + contest + ".contest.atcoder.jp/tasks/" +
-                problem + "' target='_blank'>" + problems_json[i]["name"] + "</a></td>";
-        }
-
-
-        for (var i = 0; i < dateSorter.length; i++) {
-            var contest = dateSorter[i].id;
-            if (contest.match(/^abc[0-9]*$/)) {
-                var tr = "<tr>" + contestArray[contest] + "</tr>"
-                $("#beginner").append(tr);
-            } else if (contest.match(/^arc[0-9]*$/)) {
-                var tr = "<tr>" + contestArray[contest] + "</tr>"
-                $("#regular").append(tr);
-            } else {
-                var table = contestArray[contest] + "</tr></tbody></table>"
-                $("#others").append(table);
+            for (var i = 0; i < json_problems.length; i++) {
+                var problem = json_problems[i];
+                problems_unified[problem["id"]]["status"] = problem["status"];
+                if (problem["status"] === "AC") {
+                    problems_unified[problem["id"]]["classes"] = "classes_success";
+                } else if (problem["rivals"].length > 0) {
+                    problems_unified[problem["id"]]["classes"] = "classes_danger";
+                } else {
+                    problems_unified[problem["id"]]["classes"] = "classes_warning";
+                }
             }
+
+            var beginner = [];
+            var regular = [];
+            var other = [];
+            for (var key in contest_map) {
+                var contest = contest_map[key];
+                contest.problems = contest.problems.sort();
+                if (key.match(/^a[br]c[0-9]*$/)) {
+                    var ps = [
+                        problems_unified[contest.problems[0]],
+                        problems_unified[contest.problems[1]],
+                        problems_unified[contest.problems[2]],
+                        problems_unified[contest.problems[3]],
+                    ];
+                    var row = {
+                        "contest": "<a href='https://" +
+                        contest.id + ".contest.atcoder.jp/' target='_blank'>" +
+                        contest.id.toUpperCase() + "</a>",
+
+                        "problem_a": "<a href='https://" +
+                        contest.id + ".contest.atcoder.jp/tasks/" +
+                        ps[0].id + "' target='_blank'>" +
+                        ps[0].name + "</a><span style='display:none;'>" +
+                        ps[0].classes + "</span>",
+                        "problem_b": "<a href='https://" +
+                        contest.id + ".contest.atcoder.jp/tasks/" +
+                        ps[1].id + "' target='_blank'>" +
+                        ps[1].name + "</a><span style='display:none;'>" +
+                        ps[1].classes + "</span>",
+                        "problem_c": "<a href='https://" +
+                        contest.id + ".contest.atcoder.jp/tasks/" +
+                        ps[2].id + "' target='_blank'>" +
+                        ps[2].name + "</a><span style='display:none;'>" +
+                        ps[2].classes + "</span>",
+                        "problem_d": "<a href='https://" +
+                        contest.id + ".contest.atcoder.jp/tasks/" +
+                        ps[3].id + "' target='_blank'>" +
+                        ps[3].name + "</a><span style='display:none;'>" +
+                        ps[3].classes + "</span>",
+
+                        "start": contest.start
+                    };
+                    if (key.indexOf("abc") != -1)
+                        beginner.push(row);
+                    else
+                        regular.push(row);
+                } else {
+                    var header = "<strong>" + contest.start + " <a target='_blank' href='http://" + contest.id +
+                        ".contest.atcoder.jp/'>" + contest.name + "</a></strong>";
+
+                    var table = "<table class='table table-bordered'><tbody><tr>";
+                    for (var i = 0; i < contest.problems.length; i++) {
+                        var problem = problems_unified[contest.problems[i]];
+                        table += "<td class='" +
+                            problem.classes +
+                            "'>" +
+                            "<a href='http://" +
+                            contest.id +
+                            ".contest.atcoder.jp/tasks/" +
+                            problem.id +
+                            "' target='_blank'>" +
+                            problem.name +
+                            "</a>" +
+                            "</td>";
+                    }
+                    table += "</tr></tbody></table>";
+                    other.push({
+                        "header": header,
+                        "table": table,
+                        "start": contest.start
+                    });
+                }
+            }
+
+            beginner.sort(function (a, b) {
+                if (a.start > b.start) return -1;
+                if (a.start < b.start) return 1;
+                return 0;
+            });
+            regular.sort(function (a, b) {
+                if (a.start > b.start) return -1;
+                if (a.start < b.start) return 1;
+                return 0;
+            });
+            other.sort(function (a, b) {
+                if (a.start > b.start) return -1;
+                if (a.start < b.start) return 1;
+                return 0;
+            });
+            $("#beginner").bootstrapTable("append", beginner);
+            $("#regular").bootstrapTable("append", regular);
+
+            other.forEach(function (element, index, array) {
+                $("#others").append(element.header);
+                $("#others").append(element.table);
+            });
+
         }
-    }).fail(function () {
+    ).fail(function () {
         console.log("error");
     });
+}
+
+function categoryCellStyle(value, row, index) {
+    if (value.indexOf("classes_warning") != -1)
+        return {classes: "warning"};
+    if (value.indexOf("classes_success") != -1)
+        return {classes: "success"};
+    if (value.indexOf("classes_danger") != -1)
+        return {classes: "danger"};
+    return {};
 }
 
 function showBattle(user, rivals) {
