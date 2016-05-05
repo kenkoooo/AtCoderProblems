@@ -85,8 +85,8 @@ function showCategory(user, rivals) {
             var other = [];
             for (var key in contest_map) {
                 var contest = contest_map[key];
-                contest.problems = contest.problems.sort();
                 if (key.match(/^a[br]c[0-9]*$/)) {
+                    contest.problems = contest.problems.sort();
                     var ps = [
                         problems_unified[contest.problems[0]],
                         problems_unified[contest.problems[1]],
@@ -126,6 +126,13 @@ function showCategory(user, rivals) {
                     else
                         regular.push(row);
                 } else {
+                    contest.problems = contest.problems.sort(function (a, b) {
+                        var problem_a = problems_unified[a];
+                        var problem_b = problems_unified[b];
+                        if (problem_a.name < problem_b.name) return -1;
+                        if (problem_a.name > problem_b.name) return 1;
+                        return 0;
+                    });
                     var header = "<strong>" + contest.start + " <a target='_blank' href='http://" + contest.id +
                         ".contest.atcoder.jp/'>" + contest.name + "</a></strong>";
 
