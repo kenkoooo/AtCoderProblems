@@ -1,5 +1,8 @@
 import argparse
+import logging
+import os
 from datetime import datetime
+import time
 
 import CrawlTools
 import ServerTools
@@ -48,6 +51,7 @@ def update_submissions(connection, only_diff=True):
             if submission["id"] <= latest_id and only_diff:
                 max_page = 0
                 break
+
             with connection.cursor() as cursor:
                 if ServerTools.is_in_record(connection, "submissions", "id", submission["id"]):
                     continue
@@ -72,6 +76,7 @@ def update_submissions(connection, only_diff=True):
         query = "UPDATE contests SET last_crawled=%s WHERE id=%s"
         cursor.execute(query, (datetime.now().strftime("%Y/%m/%d %H:%M:%S"), contest))
         connection.commit()
+    logging.info(datetime.now().strftime("%Y/%m/%d %H:%M:%S") + ": Submission Crawled " + contest)
 
 
 def update_contests(connection):
@@ -82,6 +87,7 @@ def update_contests(connection):
         problems, times, contest_name = CrawlTools.get_problem_set(contest)
         if len(problems) == 0:
             continue
+
         with connection.cursor() as cursor:
             for problem_id, problem_name in problems.items():
                 query = "INSERT INTO problems(id,contest,name)"
@@ -99,6 +105,29 @@ def update_contests(connection):
             connection.commit()
 
 
+def crawler_main(user, password):
+    crawl_log_dir = "crawl_log/"
+    if not os.path.exists(crawl_log_dir):
+        os.makedirs(crawl_log_dir)
+
+    i = 0
+    while True:
+        logging.basicConfig(filename=crawl_log_dir + datetime.now().strftime("%Y-%m-%d") + ".log", level=logging.DEBUG)
+        try:
+            conn = ServerTools.connect_my_sql(user, password)
+            if i == 3600 * 3:
+                update_results(conn)
+                update_contests(conn)
+                i = 0
+            else:
+                update_submissions(conn, only_diff=True)
+                i += 1
+            conn.close()
+        except Exception as e:
+            logging.error(datetime.now().strftime("%Y/%m/%d %H:%M:%S") + ": Submission Crawled " + e)
+        time.sleep(1)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Server Application for AtCoder API.')
     parser.add_argument("-p", type=str)
@@ -106,9 +135,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     sql_user = args.u
     sql_password = args.p
-
-    conn = ServerTools.connect_my_sql(sql_user, sql_password)
-    update_results(conn)
-    update_submissions(conn, only_diff=True)
-    update_contests(conn)
-    conn.close()
+    crawler_main(sql_user, sql_password)
