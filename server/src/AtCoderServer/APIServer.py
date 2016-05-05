@@ -47,7 +47,7 @@ def problems():
                     "rivals": [],
                 }
 
-            if row["user_name"] == username:
+            if row["user_name"].lower() == username.lower():
                 if response_map[problem_id]["status"] == "AC":
                     continue
                 if row["status"] == "AC":
