@@ -1,9 +1,8 @@
 # -*- encoding:utf8 -*-
-import ServerTools
 import argparse
-import io
 import json
-import sys
+
+import ServerTools
 
 json_dir = "/usr/share/atcoder/json/"
 

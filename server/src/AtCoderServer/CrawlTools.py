@@ -16,7 +16,7 @@ def get_contest_list():
     bs = get_html_bs("http://atcoder.jp/")
     contests = []
     for link in bs.find_all("a"):
-        pattern = r"^http://([a-z0-9\-_]*)\.contest\.atcoder\.jp/"
+        pattern = r"^http://([a-z0-9\-_]*)\.contest\.atcoder.*$"
         if link.get("href") is None:
             continue
         if re.match(pattern, link["href"]):
@@ -127,11 +127,3 @@ def get_results(contest):
     for standing in standings:
         results.append((standing["user_screen_name"], standing["rank"]))
     return results
-
-
-def main():
-    print(json.dumps(get_results("arc053"), indent=2))
-
-
-if __name__ == "__main__":
-    main()

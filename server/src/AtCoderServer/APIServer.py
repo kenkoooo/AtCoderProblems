@@ -103,7 +103,7 @@ def ranking():
 @get("/user")
 def user():
     username = request.query.user.lower()
-    if re.match(r"^[a-zA-Z0-9_\-]*$", username) is None:
+    if re.match(r"^[a-zA-Z0-9_\-]*$", username) is None or username == "":
         response.content_type = 'application/json'
         return json.dumps({"ac_rank": 0}, ensure_ascii=False, separators=(',', ':'))
 
