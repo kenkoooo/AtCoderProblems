@@ -91,7 +91,7 @@ def get_submissions(contest, page):
                 "status": tds[6],
                 "exec_time": tds[7],
                 "memory_usage": tds[8],
-                "id": tds[9],
+                "id": int(tds[9]),
             }
         elif len(tds) == 8:
             td_map = {
@@ -102,7 +102,9 @@ def get_submissions(contest, page):
                 "point": tds[4],
                 "source_length": tds[5],
                 "status": tds[6],
-                "id": tds[7],
+                "exec_time": 0,
+                "memory_usage": 0,
+                "id": int(tds[7]),
             }
         else:
             continue
@@ -123,6 +125,8 @@ def get_results(contest):
     if json_str == "":
         return []
     standings = json.loads(json_str)
+    if standings is None:
+        return []
     results = []
     for standing in standings:
         results.append((standing["user_screen_name"], standing["rank"]))
