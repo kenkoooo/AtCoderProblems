@@ -71,6 +71,45 @@ def update_solver_num(connection):
             connection.commit()
 
 
+def update_hornorable_submissions(connection):
+    with connection.cursor() as cursor:
+        query = "SELECT id,problem_id,source_length,exec_time FROM submissions WHERE status='AC'"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+    honorable_map = {}
+    for row in rows:
+        if row["problem_id"] not in honorable_map:
+            honorable_map[row["problem_id"]] = {
+                "shortest": row["id"],
+                "fastest": row["id"],
+                "first": row["id"],
+                "source_length": row["source_length"],
+                "exec_time": row["exec_time"]
+            }
+        if row["source_length"] < honorable_map[row["problem_id"]]["source_length"]:
+            honorable_map[row["problem_id"]]["source_length"] = row["source_length"]
+            honorable_map[row["problem_id"]]["shortest"] = row["id"]
+        if row["exec_time"] < honorable_map[row["problem_id"]]["exec_time"]:
+            honorable_map[row["problem_id"]]["exec_time"] = row["exec_time"]
+            honorable_map[row["problem_id"]]["fastest"] = row["id"]
+
+    for problem_id, honor in honorable_map.items():
+        with connection.cursor() as cursor:
+            query = "UPDATE problems SET " \
+                    "shortest_submission_id=%(shortest)s," \
+                    "fastest_submission_id=%(fastest)s," \
+                    "first_submission_id=%(first)s" \
+                    " WHERE id=%(problem_id)s"
+            cursor.execute(query, {
+                "shortest": honor["shortest"],
+                "fastest": honor["fastest"],
+                "first": honor["first"],
+                "problem_id": problem_id
+            })
+            connection.commit()
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Server Application for AtCoder API.')
     parser.add_argument("-p", type=str)
@@ -81,8 +120,10 @@ if __name__ == "__main__":
 
     conn = ServerTools.connect_my_sql(sql_user, sql_password)
     update_solver_num(conn)
+    update_hornorable_submissions(conn)
 
     generate_contests(conn)
     generate_problems(conn)
     generate_problems_simple(conn)
+
     conn.close()

@@ -28,3 +28,13 @@ def get_all_submissions(connection):
         cursor.execute(query)
         rows = cursor.fetchall()
     return rows
+
+
+def is_in_record(connection, table_name, column_name, value):
+    with connection.cursor() as cursor:
+        query = "SELECT " + column_name + " FROM " + table_name + " WHERE " + column_name + "=%s"
+        cursor.execute(query, (value))
+        rows = cursor.fetchall()
+        if len(rows) == 0:
+            return False
+        return True

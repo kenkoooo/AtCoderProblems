@@ -22,7 +22,7 @@ def update_results(connection):
                 connection.commit()
 
 
-def update_submissions(connection):
+def update_submissions(connection, only_diff=True):
     with connection.cursor() as cursor:
         query = "SELECT id FROM contests ORDER BY last_crawled ASC LIMIT 1"
         cursor.execute(query)
@@ -45,10 +45,12 @@ def update_submissions(connection):
         if len(submissions) == 0:
             break
         for submission in submissions:
-            if submission["id"] <= latest_id:
+            if submission["id"] <= latest_id and only_diff:
                 max_page = 0
                 break
             with connection.cursor() as cursor:
+                if ServerTools.is_in_record(connection, "submissions", "id", submission["id"]):
+                    continue
                 query = "INSERT INTO submissions"
                 query += "(id,problem_id,contest_id,user_name,status,source_length,language,exec_time,created_time)" \
                          " VALUES (%(id)s,%(problem_id)s,%(contest_id)s,%(user_name)s,%(status)s,%(source_length)s," \
@@ -65,7 +67,6 @@ def update_submissions(connection):
                     "created_time": submission["created_time"]
                 })
                 connection.commit()
-                print(submission["id"])
         i += 1
     with connection.cursor() as cursor:
         query = "UPDATE contests SET last_crawled=%s WHERE id=%s"
@@ -74,11 +75,28 @@ def update_submissions(connection):
 
 
 def update_contests(connection):
-    pass
-
-
-def update_problems(connection):
-    pass
+    contests = CrawlTools.get_contest_list()
+    for contest in contests:
+        if ServerTools.is_in_record(connection, "contests", "id", contest):
+            continue
+        problems, times, contest_name = CrawlTools.get_problem_set(contest)
+        if len(problems) == 0:
+            continue
+        with connection.cursor() as cursor:
+            for problem_id, problem_name in problems.items():
+                query = "INSERT INTO problems(id,contest,name)"
+                query += " VALUES (%(id)s,%(contest)s,%(name)s)"
+                cursor.execute(query, {"id": problem_id, "contest": contest, "name": problem_name})
+                connection.commit()
+            query = "INSERT INTO `contests`(`id`, `name`, `start`, `end`)"
+            query += " VALUES (%(id)s,%(name)s,%(start)s,%(end)s)"
+            cursor.execute(query, {
+                "id": contest,
+                "name": contest_name,
+                "start": times["start"],
+                "end": times["end"]
+            })
+            connection.commit()
 
 
 if __name__ == "__main__":
@@ -90,6 +108,7 @@ if __name__ == "__main__":
     sql_password = args.p
 
     conn = ServerTools.connect_my_sql(sql_user, sql_password)
-    # update_results(conn)
-    update_submissions(conn)
+    update_results(conn)
+    update_submissions(conn, only_diff=True)
+    update_contests(conn)
     conn.close()

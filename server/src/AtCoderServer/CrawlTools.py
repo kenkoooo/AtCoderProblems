@@ -50,6 +50,7 @@ def get_problem_set(contest):
 
     for k, v in problem_map.items():
         problem_map[k] = v[0] + ". " + v[1]
+    print(times)
     return problem_map, times, contest_name
 
 
@@ -87,9 +88,9 @@ def get_submissions(contest, page):
                 "user_name": tds[2],
                 "language": tds[3],
                 "point": tds[4],
-                "source_length": tds[5],
+                "source_length": tds[5].replace("Byte", ""),
                 "status": tds[6],
-                "exec_time": tds[7],
+                "exec_time": tds[7].replace("ms", ""),
                 "memory_usage": tds[8],
                 "id": int(tds[9]),
             }
@@ -100,7 +101,7 @@ def get_submissions(contest, page):
                 "user_name": tds[2],
                 "language": tds[3],
                 "point": tds[4],
-                "source_length": tds[5],
+                "source_length": tds[5].replace("Byte", ""),
                 "status": tds[6],
                 "exec_time": 0,
                 "memory_usage": 0,
