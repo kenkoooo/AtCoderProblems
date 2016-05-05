@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9b519b68-0cc2-47a3-aac8-c7b829df69cf" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/atcoder.js" afterPath="$PROJECT_DIR$/atcoder.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../server/src/AtCoderServer/DataUpdater.py" afterPath="$PROJECT_DIR$/../server/src/AtCoderServer/DataUpdater.py" />
     </list>
     <ignored path="web.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -724,12 +722,12 @@
       <updated>1462204475882</updated>
       <workItem from="1462204477294" duration="70000" />
       <workItem from="1462364207222" duration="16128000" />
-      <workItem from="1462455271832" duration="227000" />
+      <workItem from="1462455271832" duration="751000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="16425000" />
+    <option name="totallyTimeSpent" value="16949000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="722" y="23" width="958" height="1027" extended-state="0" />

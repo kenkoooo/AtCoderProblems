@@ -1,6 +1,10 @@
 # -*- encoding:utf8 -*-
 import argparse
 import json
+import logging
+import os
+import time
+from datetime import datetime
 
 import ServerTools
 
@@ -110,6 +114,32 @@ def update_hornorable_submissions(connection):
             connection.commit()
 
 
+def data_updater_main(user, password):
+    updater_log_dir = "update_log/"
+    if not os.path.exists(updater_log_dir):
+        os.makedirs(updater_log_dir)
+
+    while True:
+        logging.basicConfig(filename=updater_log_dir + datetime.now().strftime("%Y-%m-%d") + ".log",
+                            level=logging.DEBUG)
+        try:
+            conn = ServerTools.connect_my_sql(user, password)
+
+            update_solver_num(conn)
+            update_hornorable_submissions(conn)
+
+            generate_contests(conn)
+            generate_problems(conn)
+            generate_problems_simple(conn)
+
+            conn.close()
+            logging.info(datetime.now().strftime("%Y/%m/%d %H:%M:%S") + ": Updated")
+        except Exception as e:
+            logging.error(datetime.now().strftime("%Y/%m/%d %H:%M:%S") + ": Update Error " + e)
+
+        time.sleep(600)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Server Application for AtCoder API.')
     parser.add_argument("-p", type=str)
@@ -118,12 +148,4 @@ if __name__ == "__main__":
     sql_user = args.u
     sql_password = args.p
 
-    conn = ServerTools.connect_my_sql(sql_user, sql_password)
-    update_solver_num(conn)
-    update_hornorable_submissions(conn)
-
-    generate_contests(conn)
-    generate_problems(conn)
-    generate_problems_simple(conn)
-
-    conn.close()
+    data_updater_main(sql_user, sql_password)
