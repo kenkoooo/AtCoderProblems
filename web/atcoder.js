@@ -217,10 +217,11 @@ function showBattle(user, rivals) {
                 result_map[json_contests[i].id] = [];
             for (var i = 0; i < json_results.length; i++) {
                 var result = json_results[i];
-                result_map[result.contest].push({
-                    "user": result.user,
-                    "rank": result.rank
-                });
+                if (result.contest in result_map)
+                    result_map[result.contest].push({
+                        "user": result.user,
+                        "rank": result.rank
+                    });
             }
 
             var rows = [];
