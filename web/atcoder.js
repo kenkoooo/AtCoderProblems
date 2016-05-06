@@ -373,7 +373,8 @@ function showList(user, rivals) {
                 problem_name_string: p.name,
                 problem_name: "<a target='_blank' href='http://" + p.contest + ".contest.atcoder.jp/tasks/" +
                 p.id + "'>" + p.name + "</a>",
-                contest_name: contest_dict[p.contest].name,
+                contest_name: "<a href='http://" + p.contest + ".contest.atcoder.jp/' target='_blank'>" +
+                contest_dict[p.contest].name + "</a>",
                 status: status,
                 solvers: "<a target='_blank' href='http://" + p.contest +
                 ".contest.atcoder.jp/submissions/all?task_screen_name=" + p.id + "&status=AC'>" + p.solvers +
