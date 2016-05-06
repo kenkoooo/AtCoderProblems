@@ -75,7 +75,7 @@ def get_ranking(kind, lim=100000):
     elif kind == "short":
         query += " LEFT JOIN submissions ON submissions.id=problems.shortest_submission_id"
     elif kind == "ac":
-        query = "SELECT COUNT(DISTINCT(problem_id)) AS count, user_name FROM submissions WHERE status='AC'"
+        query = "SELECT count, user_name FROM ac_ranking"
     else:
         return []
     query += " GROUP BY user_name ORDER BY count DESC LIMIT %s"
