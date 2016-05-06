@@ -75,7 +75,7 @@ def update_solver_num(connection):
             connection.commit()
 
 
-def update_hornorable_submissions(connection):
+def update_honorable_submissions(connection):
     with connection.cursor() as cursor:
         query = "SELECT id,problem_id,source_length,exec_time FROM submissions WHERE status='AC'"
         cursor.execute(query)
@@ -114,6 +114,18 @@ def update_hornorable_submissions(connection):
             connection.commit()
 
 
+def update_ac_ranking(connection):
+    with connection.cursor() as cursor:
+        query = "SELECT COUNT(DISTINCT(problem_id)) AS count, user_name FROM submissions WHERE status='AC' GROUP BY user_name ORDER BY count DESC"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        for row in rows:
+            query = "INSERT INTO ac_ranking (user_name,count) VALUES (%(user_name)s,%(count)s)" \
+                    " ON DUPLICATE KEY UPDATE count=%(count)s"
+            cursor.execute(query, row)
+            connection.commit()
+
+
 def data_updater_main(user, password):
     updater_log_dir = "update_log/"
     if not os.path.exists(updater_log_dir):
@@ -125,8 +137,9 @@ def data_updater_main(user, password):
         try:
             conn = ServerTools.connect_my_sql(user, password)
 
+            update_ac_ranking(conn)
             update_solver_num(conn)
-            update_hornorable_submissions(conn)
+            update_honorable_submissions(conn)
 
             generate_contests(conn)
             generate_problems(conn)
