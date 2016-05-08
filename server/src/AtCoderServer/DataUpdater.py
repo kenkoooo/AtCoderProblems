@@ -5,6 +5,8 @@ import logging
 import os
 import time
 from datetime import datetime
+import numpy
+import re
 
 import ServerTools
 
@@ -124,6 +126,52 @@ def update_ac_ranking(connection):
                     " ON DUPLICATE KEY UPDATE count=%(count)s"
             cursor.execute(query, row)
             connection.commit()
+
+
+def update_difficulty(connection):
+    tekito = 20
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "Select id, problem_id, contest_id, user_name FROM submissions WHERE status='AC'"
+        )
+        rows = cursor.fetchall()
+
+    solvers_set = {}
+    for row in rows:
+        if row["problem_id"] not in solvers_set:
+            solvers_set[row["problem_id"]] = set()
+        solvers_set[row["problem_id"]].add(row["user_name"])
+
+    user_points = {}
+    for problem_id, solvers in solvers_set.items():
+        solver_num = len(solvers)
+        for user in solvers:
+            if user not in user_points:
+                user_points[user] = []
+            user_points[user].append(solver_num)
+
+    user_rating = {}
+    for user_name, solved in user_points.items():
+        solved = sorted(solved)
+        if len(solved) < tekito:
+            continue
+        user_rating[user_name] = numpy.mean([solved[i] for i in range(0, tekito)])
+
+    difficulties = []
+    for problem_id, users in solvers_set.items():
+        rating = []
+        for user in users:
+            if user in user_rating:
+                rating.append(user_rating[user])
+        rating.sort(reverse=True)
+        if len(rating) == 0:
+            continue
+
+        difficulties.append((numpy.mean([rating[i] for i in range(0, min(tekito, len(rating)))]), problem_id))
+    for difficulty, problem_id in sorted(difficulties):
+        if re.match(r"^abc", problem_id):
+            print(difficulty, problem_id)
 
 
 def data_updater_main(user, password):

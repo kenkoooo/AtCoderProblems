@@ -350,7 +350,7 @@ function showList(user, rivals) {
                     p.fastest_contest = p.contest;
                 fastest += p.fastest_contest + ".contest.atcoder.jp/submissions/" +
                     p.fastest_id + "' target='_blank'>" +
-                    p.exec_time + " ms (" +
+                    p.exec_time + " ms <br/>(" +
                     p.fastest_user + ")</a>";
 
                 first = "<a href='http://";
@@ -365,16 +365,26 @@ function showList(user, rivals) {
                     p.shortest_contest = p.contest;
                 shortest += p.shortest_contest + ".contest.atcoder.jp/submissions/" +
                     p.shortest_id + "' target='_blank'>" +
-                    p.source_length + " bytes (" +
+                    p.source_length + " bytes <br/>(" +
                     p.shortest_user + ")</a>";
             }
+
+            var contest_name = contest_dict[p.contest].name;
+            if (contest_name.length > 30) {
+                contest_name = p.contest.toUpperCase();
+            }
+            var problem_name = p.name;
+            if (problem_name.length > 30) {
+                problem_name = problem_name.substring(0, 27) + "...";
+            }
+
 
             rows.push({
                 problem_name_string: p.name,
                 problem_name: "<a target='_blank' href='http://" + p.contest + ".contest.atcoder.jp/tasks/" +
-                p.id + "'>" + p.name + "</a>",
+                p.id + "'>" + problem_name + "</a>",
                 contest_name: "<a href='http://" + p.contest + ".contest.atcoder.jp/' target='_blank'>" +
-                contest_dict[p.contest].name + "</a>",
+                contest_name + "</a>",
                 status: status,
                 solvers: "<a target='_blank' href='http://" + p.contest +
                 ".contest.atcoder.jp/submissions/all?task_screen_name=" + p.id + "&status=AC'>" + p.solvers +
