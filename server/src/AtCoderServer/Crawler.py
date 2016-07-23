@@ -1,8 +1,8 @@
 import argparse
 import logging
 import os
-from datetime import datetime
 import time
+from datetime import datetime
 
 import CrawlTools
 import ServerTools

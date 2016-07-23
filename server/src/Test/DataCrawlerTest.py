@@ -7,10 +7,10 @@ import unittest
 
 class TestCalc(unittest.TestCase):
     def test_get_problem_set(self):
-        problem_map, times, contest_name = CrawlTools.get_problem_set("arc052")
-        self.assertEqual(len(problem_map), 4)
+        problem_map, times, contest_name = CrawlTools.get_problem_set("agc001")
+        self.assertEqual(len(problem_map), 6)
         self.assertEqual(len(times), 2)
-        self.assertEqual(contest_name, 'AtCoder Regular Contest 052')
+        self.assertEqual(contest_name, 'AtCoder Grand Contest 001')
 
         problem_map, times, contest_name = CrawlTools.get_problem_set("arc999")
         self.assertEqual(len(problem_map), 0)
