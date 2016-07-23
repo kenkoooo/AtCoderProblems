@@ -25,13 +25,16 @@ def update_results(connection):
                 connection.commit()
 
 
-def update_submissions(connection, only_diff=True):
+def update_submissions(connection):
     with connection.cursor() as cursor:
         query = "SELECT id FROM contests ORDER BY last_crawled ASC LIMIT 1"
         cursor.execute(query)
         rows = cursor.fetchall()
         contest = rows[0]["id"]
+    update_contest_submissions(connection, contest)
 
+
+def update_contest_submissions(connection, contest, only_diff=True):
     with connection.cursor() as cursor:
         query = "SELECT id FROM submissions WHERE contest_id=%s ORDER BY id DESC LIMIT 1"
         cursor.execute(query, (contest))
@@ -120,7 +123,7 @@ def crawler_main(user, password):
                 update_contests(conn)
                 i = 0
             else:
-                update_submissions(conn, only_diff=True)
+                update_submissions(conn)
                 i += 1
             conn.close()
         except Exception as e:
