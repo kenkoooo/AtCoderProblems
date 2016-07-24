@@ -103,10 +103,13 @@ function showCategory(user, rivals) {
                         contest.id.toUpperCase() + "</a>",
                         "start": contest.start
                     };
-                    row["problem_a"] = ps.length > 0 ? ps[0] : "-";
-                    row["problem_b"] = ps.length > 1 ? ps[1] : "-";
-                    row["problem_c"] = ps.length > 2 ? ps[2] : "-";
-                    row["problem_d"] = ps.length > 3 ? ps[3] : "-";
+                    {
+                        var k = ps.length;
+                        row["problem_d"] = k > 0 ? ps[--k] : "-";
+                        row["problem_c"] = k > 0 ? ps[--k] : "-";
+                        row["problem_b"] = k > 0 ? ps[--k] : "-";
+                        row["problem_a"] = k > 0 ? ps[--k] : "-";
+                    }
 
                     if (key.indexOf("abc") != -1)
                         beginner.push(row);
