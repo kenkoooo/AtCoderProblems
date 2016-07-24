@@ -122,7 +122,7 @@ def crawler_main(user, password):
 
             if i >= 3600 * 3:
                 logging.info("Update Contests")
-                update_results(conn)
+                # update_results(conn)
                 update_contests(conn)
                 i = 0
             else:
