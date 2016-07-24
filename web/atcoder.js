@@ -87,40 +87,27 @@ function showCategory(user, rivals) {
                 var contest = contest_map[key];
                 if (key.match(/^a[br]c[0-9]*$/)) {
                     contest.problems = contest.problems.sort();
-                    var ps = [
-                        problems_unified[contest.problems[0]],
-                        problems_unified[contest.problems[1]],
-                        problems_unified[contest.problems[2]],
-                        problems_unified[contest.problems[3]],
-                    ];
+                    var ps = [];
+                    for (var i = 0; i < contest.problems.length; i++) {
+                        var pu = problems_unified[contest.problems[i]];
+                        var p_str = "<a href='https://" +
+                            contest.id + ".contest.atcoder.jp/tasks/" +
+                            pu[i].id + "' target='_blank'>" +
+                            pu[i].name + "</a><span style='display:none;'>" +
+                            pu[i].classes + "</span>";
+                        ps.push(p_str);
+                    }
                     var row = {
                         "contest": "<a href='https://" +
                         contest.id + ".contest.atcoder.jp/' target='_blank'>" +
                         contest.id.toUpperCase() + "</a>",
-
-                        "problem_a": "<a href='https://" +
-                        contest.id + ".contest.atcoder.jp/tasks/" +
-                        ps[0].id + "' target='_blank'>" +
-                        ps[0].name + "</a><span style='display:none;'>" +
-                        ps[0].classes + "</span>",
-                        "problem_b": "<a href='https://" +
-                        contest.id + ".contest.atcoder.jp/tasks/" +
-                        ps[1].id + "' target='_blank'>" +
-                        ps[1].name + "</a><span style='display:none;'>" +
-                        ps[1].classes + "</span>",
-                        "problem_c": "<a href='https://" +
-                        contest.id + ".contest.atcoder.jp/tasks/" +
-                        ps[2].id + "' target='_blank'>" +
-                        ps[2].name + "</a><span style='display:none;'>" +
-                        ps[2].classes + "</span>",
-                        "problem_d": "<a href='https://" +
-                        contest.id + ".contest.atcoder.jp/tasks/" +
-                        ps[3].id + "' target='_blank'>" +
-                        ps[3].name + "</a><span style='display:none;'>" +
-                        ps[3].classes + "</span>",
-
                         "start": contest.start
                     };
+                    if (ps.length > 1) row["problem_a"] = ps[0];
+                    if (ps.length > 2) row["problem_b"] = ps[1];
+                    if (ps.length > 3) row["problem_c"] = ps[2];
+                    if (ps.length > 4) row["problem_d"] = ps[3];
+
                     if (key.indexOf("abc") != -1)
                         beginner.push(row);
                     else
