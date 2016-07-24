@@ -528,13 +528,15 @@ function showUserPage(user) {
         }
 
         for (var i = 0; i < arcs.length; i++) {
+            var arc_problems_num = user_json["arc_num"];
+            if (i < 2)arc_problems_num = 57;
             arc_charts[i].load({
                 columns: [
                     ["Accepted", user_json[arcs[i]]],
-                    ["Trying", user_json["arc_num"] - user_json[arcs[i]]],
+                    ["Trying", arc_problems_num - user_json[arcs[i]]]
                 ]
             });
-            $("#" + arcs[i] + "_num").text(user_json[arcs[i]] + "問 / " + user_json["arc_num"] + " 問");
+            $("#" + arcs[i] + "_num").text(user_json[arcs[i]] + "問 / " + arc_problems_num + " 問");
         }
 
         var dateKeys = [];
