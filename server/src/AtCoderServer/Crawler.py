@@ -121,14 +121,14 @@ def crawler_main(user, password):
             conn = ServerTools.connect_my_sql(user, password)
 
             if i >= 3600 * 3:
+                logging.info("Update Contests")
                 update_results(conn)
                 update_contests(conn)
                 i = 0
-                logging.info("Update Contests")
             else:
+                logging.info("Update Submissions")
                 update_submissions(conn)
                 i += 1
-                logging.info("Update Submissions")
 
             conn.close()
 
