@@ -113,19 +113,25 @@ def crawler_main(user, password):
     if not os.path.exists(crawl_log_dir):
         os.makedirs(crawl_log_dir)
 
-    i = 0
+    i = 100000
     while True:
         logging.basicConfig(filename=crawl_log_dir + datetime.now().strftime("%Y-%m-%d") + ".log", level=logging.DEBUG)
+        logging.info("i=" + str(i))
         try:
             conn = ServerTools.connect_my_sql(user, password)
-            if i == 3600 * 3:
+
+            if i >= 3600 * 3:
                 update_results(conn)
                 update_contests(conn)
                 i = 0
+                logging.info("Update Contests")
             else:
                 update_submissions(conn)
                 i += 1
+                logging.info("Update Submissions")
+
             conn.close()
+
         except Exception as e:
             logging.error(datetime.now().strftime("%Y/%m/%d %H:%M:%S") + ": Submission Crawled " + e)
         time.sleep(1)
