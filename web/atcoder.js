@@ -92,9 +92,9 @@ function showCategory(user, rivals) {
                         var pu = problems_unified[contest.problems[i]];
                         var p_str = "<a href='https://" +
                             contest.id + ".contest.atcoder.jp/tasks/" +
-                            pu[i].id + "' target='_blank'>" +
-                            pu[i].name + "</a><span style='display:none;'>" +
-                            pu[i].classes + "</span>";
+                            pu.id + "' target='_blank'>" +
+                            pu.name + "</a><span style='display:none;'>" +
+                            pu.classes + "</span>";
                         ps.push(p_str);
                     }
                     var row = {
