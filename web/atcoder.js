@@ -104,9 +104,9 @@ function showCategory(user, rivals) {
                         "start": contest.start
                     };
                     row["problem_a"] = ps.length > 0 ? ps[0] : "-";
-                    row["problem_a"] = ps.length > 1 ? ps[1] : "-";
-                    row["problem_a"] = ps.length > 2 ? ps[2] : "-";
-                    row["problem_a"] = ps.length > 3 ? ps[3] : "-";
+                    row["problem_b"] = ps.length > 1 ? ps[1] : "-";
+                    row["problem_c"] = ps.length > 2 ? ps[2] : "-";
+                    row["problem_d"] = ps.length > 3 ? ps[3] : "-";
 
                     if (key.indexOf("abc") != -1)
                         beginner.push(row);
