@@ -13,15 +13,15 @@ def get_html_bs(url):
 
 
 def get_contest_list():
-    bs = get_html_bs("http://atcoder.jp/")
+    bs = get_html_bs("https://atcoder.jp/contest/archive?categories=&mode=check&showLocal=true")
     contests = []
     for link in bs.find_all("a"):
-        pattern = r"^http://([a-z0-9\-_]*)\.contest\.atcoder.*$"
+        pattern = r"^https://([a-z0-9\-_]*)\.contest\.atcoder.*$"
         if link.get("href") is None:
             continue
         if re.match(pattern, link["href"]):
             contests.append(re.sub(pattern, r"\1", link["href"]))
-    return contests
+    return list(set(contests))
 
 
 def get_problem_set(contest):
