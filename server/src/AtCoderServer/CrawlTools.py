@@ -76,7 +76,7 @@ def get_submissions(contest, page):
                 td = td.find("a").get("href")
                 td = re.sub(r"^/submissions/([0-9]*)$", r"\1", td)
                 td = re.sub(r"^/tasks/(.*)$", r"\1", td)
-                td = re.sub(r"^/user/(.*)$", r"\1", td)
+                td = re.sub(r"^https://atcoder\.jp/user/(.*)$", r"\1", td)
                 tds.append(td)
             else:
                 tds.append(td.text)
