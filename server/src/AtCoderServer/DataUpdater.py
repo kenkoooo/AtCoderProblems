@@ -5,8 +5,8 @@ import logging
 import os
 import time
 from datetime import datetime
+
 import numpy
-import re
 
 import ServerTools
 
@@ -170,8 +170,16 @@ def update_difficulty(connection):
 
         difficulties.append((numpy.mean([rating[i] for i in range(0, min(tekito, len(rating)))]), problem_id))
     for difficulty, problem_id in sorted(difficulties):
-        if re.match(r"^abc", problem_id):
-            print(difficulty, problem_id)
+        difficulty = int(difficulty)
+        with connection.cursor() as cursor:
+            query = "UPDATE problems SET " \
+                    "difficulty=%(difficulty)s" \
+                    " WHERE id=%(problem_id)s"
+            cursor.execute(query, {
+                "difficulty": difficulty,
+                "problem_id": problem_id
+            })
+            connection.commit()
 
 
 def data_updater_main(user, password):
@@ -188,6 +196,7 @@ def data_updater_main(user, password):
             update_ac_ranking(conn)
             update_solver_num(conn)
             update_honorable_submissions(conn)
+            update_difficulty(conn)
 
             generate_contests(conn)
             generate_problems(conn)
