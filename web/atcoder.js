@@ -224,6 +224,7 @@ function showCategory(user, rivals) {
 }
 
 function categoryCellStyle(value, row, index) {
+    console.log(value);
     if (value.indexOf("classes_warning") != -1)
         return {classes: "warning"};
     if (value.indexOf("classes_success") != -1)
