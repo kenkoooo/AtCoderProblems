@@ -529,7 +529,10 @@ function showUserPage(user) {
 
         for (var i = 0; i < arcs.length; i++) {
             var arc_problems_num = user_json["arc_num"];
-            if (i < 2)arc_problems_num = 57;
+            // 58th 以降の AtCoder Regular Contest は CD 問題しか存在しない。
+            if (i < 2) {
+                arc_problems_num = 57;
+            }
             arc_charts[i].load({
                 columns: [
                     ["Accepted", user_json[arcs[i]]],

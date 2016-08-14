@@ -1,11 +1,12 @@
 # -*- encoding:utf8 -*-
 
-import ServerTools
 import argparse
 import json
 import re
 
 from bottle import get, run, response, request
+
+import ServerTools
 
 sql_user = ""
 sql_password = ""
@@ -177,7 +178,18 @@ def user():
             key = key.replace("_2", "_b")
             key = key.replace("_3", "_c")
             key = key.replace("_4", "_d")
+
+            # ARC058 以降の AB 問題は ABC の CD 問題ということにする
+            if re.match(r"^arc[0-9]*_[ab]$", key):
+                num = re.sub(r"^arc([0-9]*)_([ab])$", r"\1", key)
+                num = int(num)
+                if num >= 58:
+                    key = key.replace("_a", "_c")
+                    key = key.replace("_b", "_d")
+                    key = key.replace("arc", "abc")
+
             key = re.sub(r"^(a[br]c)[0-9]*_([a-d])$", r"\1_\2", key)
+
             if key not in user_dict:
                 continue
             user_dict[key] += 1
