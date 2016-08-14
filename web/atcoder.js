@@ -80,12 +80,42 @@ function showCategory(user, rivals) {
                 }
             }
 
+            var grand = [];
             var beginner = [];
             var regular = [];
             var other = [];
             for (var key in contest_map) {
                 var contest = contest_map[key];
-                if (key.match(/^a[br]c[0-9]*$/)) {
+                if (key.match(/^agc[0-9]*$/)) {
+                    contest.problems = contest.problems.sort();
+                    var ps = [];
+                    for (var i = 0; i < contest.problems.length; i++) {
+                        var pu = problems_unified[contest.problems[i]];
+                        var p_str = "<a href='https://" +
+                            contest.id + ".contest.atcoder.jp/tasks/" +
+                            pu.id + "' target='_blank'>" +
+                            pu.name + "</a><span style='display:none;'>" +
+                            pu.classes + "</span>";
+                        ps.push(p_str);
+                    }
+                    var row = {
+                        "contest": "<a href='https://" +
+                        contest.id + ".contest.atcoder.jp/' target='_blank'>" +
+                        contest.id.toUpperCase() + "</a>",
+                        "start": contest.start
+                    };
+                    {
+                        var k = ps.length;
+                        row["problem_f"] = k > 0 ? ps[--k] : "-";
+                        row["problem_e"] = k > 0 ? ps[--k] : "-";
+                        row["problem_d"] = k > 0 ? ps[--k] : "-";
+                        row["problem_c"] = k > 0 ? ps[--k] : "-";
+                        row["problem_b"] = k > 0 ? ps[--k] : "-";
+                        row["problem_a"] = k > 0 ? ps[--k] : "-";
+                    }
+                    grand.push(row);
+
+                } else if (key.match(/^a[br]c[0-9]*$/)) {
                     contest.problems = contest.problems.sort();
                     var ps = [];
                     for (var i = 0; i < contest.problems.length; i++) {
@@ -158,6 +188,11 @@ function showCategory(user, rivals) {
                 }
             }
 
+            grand.sort(function (a, b) {
+                if (a.start > b.start) return -1;
+                if (a.start < b.start) return 1;
+                return 0;
+            });
             beginner.sort(function (a, b) {
                 if (a.start > b.start) return -1;
                 if (a.start < b.start) return 1;
@@ -173,6 +208,7 @@ function showCategory(user, rivals) {
                 if (a.start < b.start) return 1;
                 return 0;
             });
+            $("#grand").bootstrapTable("append", beginner);
             $("#beginner").bootstrapTable("append", beginner);
             $("#regular").bootstrapTable("append", regular);
 
