@@ -18,7 +18,7 @@ $(document).ready(function () {
     if (params["kind"] === "index") {
         showCategory(user, rivals);
     } else if (params["kind"] === "list") {
-        showList(user, rivals);
+        showList(user, rivals, params["trying"] == 1);
     } else if (params["kind"] === "battle") {
         showBattle(user, rivals);
     } else if (params["kind"] === "ranking") {
@@ -38,7 +38,7 @@ $(document).ready(function () {
     // 問題一覧ページでのみ、リストモードのオプションの表示・非表示を切り替えられる
     if (document.getElementById("problem-container") != null) {
         var list_options = $("#list-options");
-        list_options.hide();
+        if (params["trying"] != 1) list_options.hide();
 
         $("input[name=list]").change(function () {
             if ($("input[name=list]:checked").val() == 1) {
@@ -340,7 +340,7 @@ function showBattle(user, rivals) {
     });
 }
 
-function showList(user, rivals) {
+function showList(user, rivals, tryingOnly) {
     // List Mode
     $("input[name=list]").val(["1"]);
     $.when(
@@ -671,6 +671,7 @@ function getParam() {
     paramsArray["name"] = "";
     paramsArray["rivals"] = "";
     paramsArray["ranking"] = 0;
+    paramsArray["trying"] = 0;
 
     var url = location.href;
     var parameters = url.split("?");
@@ -684,6 +685,7 @@ function getParam() {
     }
 
     if (url.indexOf("user.php") !== -1) paramsArray["kind"] = "user";
+    if (paramsArray["trying"] != 0)paramsArray["trying"] = 1;
     if (paramsArray["list"] == 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
     if (paramsArray["list"] == 2 && paramsArray["kind"] === "index") paramsArray["kind"] = "battle";
     if (paramsArray["ranking"] > 0) paramsArray["kind"] = "ranking";
