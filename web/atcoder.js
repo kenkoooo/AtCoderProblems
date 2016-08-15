@@ -27,10 +27,26 @@ $(document).ready(function () {
         showUserPage(user)
     }
 
-    var user_href = $("#user-page-link").attr("href");
-    $("#user-page-link").attr("href", user_href + "&name=" + params["name"]);
-    var header_href = $("#header-link").attr("href");
-    $("#header-link").attr("href", header_href + "&name=" + params["name"]);
+    var user_page_link = $("#user-page-link");
+    var user_href = user_page_link.attr("href");
+    user_page_link.attr("href", user_href + "&name=" + params["name"]);
+
+    var header_link = $("#header-link");
+    var header_href = header_link.attr("href");
+    header_link.attr("href", header_href + "&name=" + params["name"]);
+
+    if (document.getElementById("problem-container") != null) {
+        $("input[name=list]").change(function () {
+            if ($("input[name=list]:checked").val() == 0) {
+                // 表示
+                console.log("show");
+            }
+            else {
+                // 非表示
+                console.log("hide");
+            }
+        });
+    }
 });
 
 function showCategory(user, rivals) {
