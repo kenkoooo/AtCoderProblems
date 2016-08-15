@@ -38,7 +38,7 @@ $(document).ready(function () {
     // 問題一覧ページでのみ、リストモードのオプションの表示・非表示を切り替えられる
     if (document.getElementById("problem-container") != null) {
         var list_options = $("#list-options");
-        if (params["trying"] != 1) list_options.hide();
+        if ($("input[name=list]:checked").val() != 1) list_options.hide();
 
         $("input[name=list]").change(function () {
             if ($("input[name=list]:checked").val() == 1) {
@@ -343,6 +343,7 @@ function showBattle(user, rivals) {
 function showList(user, rivals, tryingOnly) {
     // List Mode
     $("input[name=list]").val(["1"]);
+    if (tryingOnly) $("input[name=trying]").prop("checked", true);
     $.when(
         $.getJSON("/atcoder/json/problems.json"),
         $.getJSON("/atcoder/json/contests.json"),
