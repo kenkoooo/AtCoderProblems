@@ -35,15 +35,18 @@ $(document).ready(function () {
     var header_href = header_link.attr("href");
     header_link.attr("href", header_href + "&name=" + params["name"]);
 
+    // 問題一覧ページでのみ、リストモードのオプションの表示・非表示を切り替えられる
     if (document.getElementById("problem-container") != null) {
+        var list_options = $("#list-options");
+        list_options.hide();
+
         $("input[name=list]").change(function () {
-            if ($("input[name=list]:checked").val() == 0) {
+            if ($("input[name=list]:checked").val() == 1) {
                 // 表示
-                console.log("show");
-            }
-            else {
+                list_options.show();
+            } else {
                 // 非表示
-                console.log("hide");
+                list_options.hide();
             }
         });
     }
