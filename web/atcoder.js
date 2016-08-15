@@ -17,10 +17,13 @@ $(document).ready(function () {
 
     if (params["kind"] === "index") {
         showCategory(user, rivals);
+        toggleListOptions();
     } else if (params["kind"] === "list") {
         showList(user, rivals);
+        toggleListOptions();
     } else if (params["kind"] === "battle") {
         showBattle(user, rivals);
+        toggleListOptions();
     } else if (params["kind"] === "ranking") {
         showRanking(params["ranking"]);
     } else if (params["kind"] === "user") {
@@ -31,8 +34,21 @@ $(document).ready(function () {
     $("#user-page-link").attr("href", user_href + "&name=" + params["name"]);
     var header_href = $("#header-link").attr("href");
     $("#header-link").attr("href", header_href + "&name=" + params["name"]);
+
 });
 
+$('input[id=list]').change(toggleListOptions());
+
+
+function toggleListOptions() {
+    if ($('input[id=list]:checked').val() == 1) {
+        // 表示
+        $('list-options').show();
+    } else {
+        // 非表示
+        $('list-options').hide();
+    }
+}
 function showCategory(user, rivals) {
     $("input[name=list]").val(["0"]);
     $.when(
