@@ -376,6 +376,7 @@ function showList(user, rivals, tryingOnly) {
                 var result = user_result_map[p.id];
                 raw_status = result.status;
                 if (result.status === "AC") {
+                    if (tryingOnly)continue;
                     status = "<div class='text-center'><span class='label label-success'>AC</span></div>";
                 } else if (result.rivals.length > 0) {
                     for (var j = 0; j < result.rivals.length; j++)
