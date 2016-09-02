@@ -1,1 +1,6 @@
 /sql_config.php
+.idea
+web/json/
+*.iml
+atcoder-api/
+
