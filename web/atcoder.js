@@ -3,12 +3,10 @@ $(document).ready(function () {
     if (params['kind'] !== "list") $("#problem-list").remove();
     if (params['kind'] !== "index") $("#problem-category").remove();
     if (params['kind'] !== "battle") $("#battle-list").remove();
-    if (params['kind'] !== "ranking") {
-        $("#ranking").remove();
-    }
-    if (params["kind"] !== "user") {
-        $("#user-container").remove();
-    }
+    if (params['kind'] !== "practice") $("#practice-container").remove();
+    if (params['kind'] !== "ranking") $("#ranking").remove();
+    if (params["kind"] !== "user") $("#user-container").remove();
+
 
     var user = params["name"];
     var rivals = params["rivals"];
@@ -24,7 +22,9 @@ $(document).ready(function () {
     } else if (params["kind"] === "ranking") {
         showRanking(params["ranking"]);
     } else if (params["kind"] === "user") {
-        showUserPage(user)
+        showUserPage(user);
+    } else if (params["kind"] === "practice") {
+        showPractice(user, rivals);
     }
 
     var user_page_link = $("#user-page-link");
@@ -52,12 +52,75 @@ $(document).ready(function () {
     }
 });
 
+function showPractice(problems_string, rivals) {
+    $("input[name=list]").val(["3"]);
+
+    $.when(
+        $.getJSON("./json/problems_simple.json"),
+        $.getJSON("../atcoder-api/problems", {
+            "user": "",
+            "rivals": rivals
+        })
+    ).done(
+        function (json_simple, json_problems) {
+            json_simple = json_simple[0];
+            json_problems = json_problems[0];
+
+            var problems = [];
+            json_simple.forEach(function (element) {
+                if (problems_string.indexOf(element["id"]) != -1) {
+                    problems.push(element);
+                }
+            });
+
+            var statuses = {};
+            var user_set = new Set();
+            json_problems.forEach(function (element) {
+                if (problems_string.indexOf(element["id"]) != -1) {
+                    statuses[element["id"]] = element;
+                    element["rivals"].forEach(function (e) {
+                        user_set.add(e);
+                    })
+                }
+            });
+
+            var header = "<th>#</th>";
+            problems.forEach(function (e) {
+                header += "<th>" +
+                    "<a href='https://" + e["contest"] + ".contest.atcoder.jp/tasks/" + e["id"] + "' target='_blank'>" +
+                    e["name"] +
+                    "</a>" +
+                    "</th>";
+            });
+            header = "<thead><tr>" + header + "</tr></thead>"
+
+            var body = "";
+            user_set.forEach(function (u) {
+                body += "<tr><th scope='row'>" + u + "</th>";
+                problems.forEach(function (e) {
+                    var ac = "";
+                    if (statuses[e["id"]]["rivals"].indexOf(u) != -1) {
+                        ac = "<span class='label label-success'>AC</span>";
+                    }
+                    body += "<td>" + ac + "</td>";
+                });
+                body += "</tr>";
+            });
+            body = "<tbody>" + body + "</tbody>";
+
+            $("#practice-container").append("<table class='table table-sm'>" + header + body + "</table>");
+        }
+    ).fail(function () {
+        console.log("error");
+    });
+}
+
 function showCategory(user, rivals) {
     $("input[name=list]").val(["0"]);
     $.when(
-        $.getJSON("/atcoder/json/problems_simple.json"),
-        $.getJSON("/atcoder/json/contests.json"),
-        $.getJSON("/atcoder-api/problems", {
+        $.getJSON("./json/problems_simple.json"),
+        $.getJSON("./json/contests.json"),
+        $.getJSON("../atcoder-api/problems", {
             "user": user,
             "rivals": rivals
         })).done(function (json_simple, json_contests, json_problems) {
@@ -255,11 +318,11 @@ function categoryCellStyle(value, row, index) {
 function showBattle(user, rivals) {
     $("input[name=list]").val(["2"]);
     $.when(
-        $.getJSON("/atcoder-api/results", {
+        $.getJSON("../atcoder-api/results", {
             "user": user,
             "rivals": rivals,
         }),
-        $.getJSON("/atcoder/json/contests.json")
+        $.getJSON("./json/contests.json")
     ).done(function (json_results, json_contests) {
             json_results = json_results[0];
             json_contests = json_contests[0];
@@ -345,9 +408,9 @@ function showList(user, rivals, tryingOnly) {
     $("input[name=list]").val(["1"]);
     if (tryingOnly) $("input[name=trying]").prop("checked", true);
     $.when(
-        $.getJSON("/atcoder/json/problems.json"),
-        $.getJSON("/atcoder/json/contests.json"),
-        $.getJSON("/atcoder-api/problems", {
+        $.getJSON("./json/problems.json"),
+        $.getJSON("./json/contests.json"),
+        $.getJSON("../atcoder-api/problems", {
             "user": user,
             "rivals": rivals,
         })).done(function (json_detailed_problems, json_contests, json_problems) {
@@ -553,9 +616,9 @@ function showUserPage(user) {
         }
     });
 
-    $.when($.getJSON("/atcoder-api/user", {
+    $.when($.getJSON("../atcoder-api/user", {
         "user": user
-    }), $.getJSON("/atcoder-api/problems", {
+    }), $.getJSON("../atcoder-api/problems", {
         "user": user
     })).done(function (user_json, problems_json) {
         user_json = user_json[0];
@@ -648,7 +711,7 @@ function showRanking(k) {
         $("#header-title").text("AtCoder AC 数ランキング");
     }
 
-    $.when($.getJSON("/atcoder-api/ranking", {
+    $.when($.getJSON("../atcoder-api/ranking", {
         "kind": k
     })).done(function (ranking_json) {
         var rows = [];
@@ -690,8 +753,10 @@ function getParam() {
     if (paramsArray["trying"] != 0)paramsArray["trying"] = 1;
     if (paramsArray["list"] == 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
     if (paramsArray["list"] == 2 && paramsArray["kind"] === "index") paramsArray["kind"] = "battle";
+    if (paramsArray["list"] == 3 && paramsArray["kind"] === "index") paramsArray["kind"] = "practice";
     if (paramsArray["ranking"] > 0) paramsArray["kind"] = "ranking";
     paramsArray["rivals"] = paramsArray["rivals"].replace(/\%2C/g, ",");
+    paramsArray["name"] = paramsArray["name"].replace(/\%2C/g, ",");
     return paramsArray;
 }
 
