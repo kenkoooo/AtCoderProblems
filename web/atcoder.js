@@ -131,19 +131,17 @@ function showCategory(user, rivals) {
             json_problems = json_problems[0];
 
             var contest_map = {};
-            for (var i = 0; i < json_contests.length; i++) {
-                var contest = json_contests[i];
+            json_contests.forEach(function (contest) {
                 contest_map[contest["id"]] = {
                     "id": contest["id"],
                     "name": contest["name"],
                     "start": contest["start"].substring(0, 10),
                     "problems": []
                 };
-            }
+            });
 
             var problems_unified = {};
-            for (var i = 0; i < json_simple.length; i++) {
-                var problem = json_simple[i];
+            json_simple.forEach(function (problem) {
                 problems_unified[problem["id"]] = {
                     "name": problem["name"],
                     "id": problem["id"],
@@ -151,9 +149,9 @@ function showCategory(user, rivals) {
                     "classes": ""
                 };
                 contest_map[problem["contest"]]["problems"].push(problem["id"]);
-            }
-            for (var i = 0; i < json_problems.length; i++) {
-                var problem = json_problems[i];
+            });
+
+            json_problems.forEach(function (problem) {
                 problems_unified[problem["id"]]["status"] = problem["status"];
                 if (problem["status"] === "AC") {
                     problems_unified[problem["id"]]["classes"] = "classes_success";
@@ -162,7 +160,7 @@ function showCategory(user, rivals) {
                 } else {
                     problems_unified[problem["id"]]["classes"] = "classes_warning";
                 }
-            }
+            });
 
             var grand = [];
             var beginner = [];
