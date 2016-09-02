@@ -92,7 +92,7 @@ function showPractice(problems_string, rivals) {
                     "</a>" +
                     "</th>";
             });
-            header = "<thead><tr>" + header + "</tr></thead>"
+            header = "<thead><tr>" + header + "</tr></thead>";
 
             var body = "";
             user_set.forEach(function (u) {
@@ -109,6 +109,8 @@ function showPractice(problems_string, rivals) {
             body = "<tbody>" + body + "</tbody>";
 
             $("#practice-container").append("<table class='table table-sm'>" + header + body + "</table>");
+            $("#user_id_label").text("問題ID");
+            $("#rival-label").text("ユーザーID");
         }
     ).fail(function () {
         console.log("error");
