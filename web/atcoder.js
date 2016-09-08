@@ -511,6 +511,8 @@ function showList(user, rivals, tryingOnly) {
         rows.sort(function (a, b) {
             if (a.date < b.date) return 1;
             if (a.date > b.date) return -1;
+            if (a.contest_name < b.contest_name) return -1;
+            if (a.contest_name > b.contest_name) return 1;
             if (a.problem_name_string < b.problem_name_string) return -1;
             if (a.problem_name_string > b.problem_name_string) return 1;
             return 0;
