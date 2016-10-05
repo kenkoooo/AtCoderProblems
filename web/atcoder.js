@@ -99,7 +99,7 @@ function showPractice(problems_string, rivals) {
                 body += "<tr><th scope='row'>" + u + "</th>";
                 problems.forEach(function (e) {
                     var ac = "";
-                    if (statuses[e["id"]]["rivals"].indexOf(u) != -1) {
+                    if (statuses["id"] === e["id"] && statuses["rivals"].indexOf(u) != -1) {
                         ac = "<span class='label label-success'>AC</span>";
                     }
                     body += "<td>" + ac + "</td>";
