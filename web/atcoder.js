@@ -66,10 +66,11 @@ function showPractice(problems_string, rivals) {
             json_simple = json_simple[0];
             json_problems = json_problems[0];
 
-            var problems = [];
+            var problem_ids = problems_string.split(",");
+            var problems = {};
             json_simple.forEach(function (element) {
                 if (problems_string.indexOf(element["id"]) != -1) {
-                    problems.push(element);
+                    problems[element["id"]] = element;
                 }
             });
 
@@ -82,7 +83,9 @@ function showPractice(problems_string, rivals) {
             });
 
             var header = "<th>#</th>";
-            problems.forEach(function (e) {
+            problem_ids.forEach(function (problem_id) {
+                if (!(problem_id in problems))return;
+                var e = problems[problem_id];
                 header += "<th>" +
                     "<a href='https://" + e["contest"] + ".contest.atcoder.jp/tasks/" + e["id"] + "' target='_blank'>" +
                     e["name"] +
