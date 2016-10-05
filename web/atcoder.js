@@ -104,7 +104,7 @@ function showPractice(problems_string, rivals) {
                     if (e["id"] in statuses && statuses[e["id"]]["rivals"].indexOf(u) != -1) {
                         ac = "<span class='label label-success'>AC</span>";
                     }
-                    body += "<td>" + ac + "</td>";
+                    body += "<td class='text-center'>" + ac + "</td>";
                 });
                 body += "</tr>";
             });
