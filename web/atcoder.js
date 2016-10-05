@@ -97,7 +97,9 @@ function showPractice(problems_string, rivals) {
             var body = "";
             user_set.forEach(function (u) {
                 body += "<tr><th scope='row'>" + u + "</th>";
-                problems.forEach(function (e) {
+                problem_ids.forEach(function (problem_id) {
+                    if (!(problem_id in problems))return;
+                    var e = problems[problem_id];
                     var ac = "";
                     if (e["id"] in statuses && statuses[e["id"]]["rivals"].indexOf(u) != -1) {
                         ac = "<span class='label label-success'>AC</span>";
