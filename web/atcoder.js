@@ -74,13 +74,10 @@ function showPractice(problems_string, rivals) {
             });
 
             var statuses = {};
-            var user_set = new Set();
+            var user_set = rivals.split(',');
             json_problems.forEach(function (element) {
                 if (problems_string.indexOf(element["id"]) != -1) {
                     statuses[element["id"]] = element;
-                    element["rivals"].forEach(function (e) {
-                        user_set.add(e);
-                    })
                 }
             });
 
