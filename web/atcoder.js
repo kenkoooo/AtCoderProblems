@@ -57,7 +57,7 @@ function showPractice(problems_string, rivals) {
 
     $.when(
         $.getJSON("./json/problems_simple.json"),
-        $.getJSON("../atcoder-api/problems", {
+        $.getJSON("/atcoder-api/problems", {
             "user": "",
             "rivals": rivals
         })
@@ -124,7 +124,7 @@ function showCategory(user, rivals) {
     $.when(
         $.getJSON("./json/problems_simple.json"),
         $.getJSON("./json/contests.json"),
-        $.getJSON("../atcoder-api/problems", {
+        $.getJSON("/atcoder-api/problems", {
             "user": user,
             "rivals": rivals
         })).done(function (json_simple, json_contests, json_problems) {
@@ -320,7 +320,7 @@ function categoryCellStyle(value, row, index) {
 function showBattle(user, rivals) {
     $("input[name=list]").val(["2"]);
     $.when(
-        $.getJSON("../atcoder-api/results", {
+        $.getJSON("/atcoder-api/results", {
             "user": user,
             "rivals": rivals,
         }),
@@ -412,7 +412,7 @@ function showList(user, rivals, tryingOnly) {
     $.when(
         $.getJSON("./json/problems.json"),
         $.getJSON("./json/contests.json"),
-        $.getJSON("../atcoder-api/problems", {
+        $.getJSON("/atcoder-api/problems", {
             "user": user,
             "rivals": rivals,
         })).done(function (json_detailed_problems, json_contests, json_problems) {
@@ -620,9 +620,9 @@ function showUserPage(user) {
         }
     });
 
-    $.when($.getJSON("../atcoder-api/user", {
+    $.when($.getJSON("/atcoder-api/user", {
         "user": user
-    }), $.getJSON("../atcoder-api/problems", {
+    }), $.getJSON("/atcoder-api/problems", {
         "user": user
     })).done(function (user_json, problems_json) {
         user_json = user_json[0];
@@ -715,7 +715,7 @@ function showRanking(k) {
         $("#header-title").text("AtCoder AC 数ランキング");
     }
 
-    $.when($.getJSON("../atcoder-api/ranking", {
+    $.when($.getJSON("/atcoder-api/ranking", {
         "kind": k
     })).done(function (ranking_json) {
         var rows = [];
