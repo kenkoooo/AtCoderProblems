@@ -719,6 +719,7 @@ function showUserPage(user) {
             } else {
                 $("#now-days").text("0日");
             }
+            $("#last-date").text(x_ticks[x_ticks.length - 1]);
         } else {
             $("#now-days").text("0日");
         }
