@@ -670,15 +670,21 @@ function showUserPage(user) {
         for (var i = 0; i < problems_json.length; i++) {
             var date = problems_json[i]["ac_time"];
             if (date.length > 0) {
-                dateKeys.push(problems_json[i]["ac_time"]);
+                var dateObject = new Date(problems_json[i]["ac_time"]);
+                dateObject.setTime(dateObject.getTime() + 9 * 60 * 60 * 1000);//UTC->JST
+                var year = dateObject.getFullYear();
+                var month = dateObject.getMonth() + 1;
+                var day = dateObject.getDate();
+                var date_str = year + " " + month + " " + day;
+                dateKeys.push(date_str);
             }
         }
         dateKeys.sort();
         var x_ticks = ["x"];
         var data = ["Accepted"];
         for (var i = 0; i < dateKeys.length; i++) {
-            if (i < dateKeys.length - 1 && dateKeys[i].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, "") === dateKeys[i + 1].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, "")) continue;
-            x_ticks.push(dateKeys[i].replace(/ [0-9]*:[0-9]*:[0-9]*$/g, ""));
+            if (i < dateKeys.length - 1 && dateKeys[i] === dateKeys[i + 1]) continue;
+            x_ticks.push(dateKeys[i]);
             data.push(i + 1);
         }
         line_chart.load({
