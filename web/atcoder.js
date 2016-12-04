@@ -695,6 +695,31 @@ function showUserPage(user) {
             columns: [x_ticks, data]
         });
 
+        var consecutive_ac = 1;
+        var max_consecutive = 0;
+        for (var i = 2; i < x_ticks.length; i++) {
+            var day = new Date(x_ticks[i]);
+            var prev = new Date(x_ticks[i - 1]);
+            if (prev.getDate() + 1 == day.getDate()) {
+                consecutive_ac++;
+            } else {
+                consecutive_ac = 1;
+                max_consecutive = Math.max(consecutive_ac, max_consecutive);
+            }
+        }
+        max_consecutive = Math.max(consecutive_ac, max_consecutive);
+        if (x_ticks.length > 1) {
+            var last_date = new Date(x_ticks[x_ticks.length - 1]).getDate();
+            var today_date = new Date().getDate();
+            if (last_date + 1 >= today_date) {
+                $("#now-days").text(consecutive_ac + "日");
+            } else {
+                $("#now-days").text("0日");
+            }
+        } else {
+            $("#now-days").text("0日");
+        }
+        $("#ac-days").text(max_consecutive + "日");
 
     }).fail(function () {
         console.log("error");
