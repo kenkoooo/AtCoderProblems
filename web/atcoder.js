@@ -703,8 +703,8 @@ function showUserPage(user) {
             if (prev.getDate() + 1 == day.getDate()) {
                 consecutive_ac++;
             } else {
-                consecutive_ac = 1;
                 max_consecutive = Math.max(consecutive_ac, max_consecutive);
+                consecutive_ac = 1;
             }
         }
         max_consecutive = Math.max(consecutive_ac, max_consecutive);
