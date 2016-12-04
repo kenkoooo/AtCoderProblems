@@ -672,10 +672,10 @@ function showUserPage(user) {
             if (date.length > 0) {
                 var dateObject = new Date(problems_json[i]["ac_time"]);
                 dateObject.setTime(dateObject.getTime() + 9 * 60 * 60 * 1000);//UTC->JST
-                var year = dateObject.getFullYear();
-                var month = dateObject.getMonth() + 1;
-                var day = dateObject.getDate();
-                var date_str = year + "-" + month + "-" + day;
+                var y = dateObject.getFullYear();
+                var m = dateObject.getMonth() + 1;
+                var d = dateObject.getDate();
+                var date_str = y + "-" + ("0" + m).slice(-2) + "-" + ("0" + d).slice(-2);
                 dateKeys.push(date_str);
             }
         }
