@@ -670,8 +670,11 @@ function showUserPage(user) {
         for (var i = 0; i < problems_json.length; i++) {
             var date = problems_json[i]["ac_time"];
             if (date.length > 0) {
-                var dateObject = new Date(problems_json[i]["ac_time"]);
-                dateObject.setTime(dateObject.getTime() + 9 * 60 * 60 * 1000);//UTC->JST
+                var utc_date_str = problems_json[i]["ac_time"];
+                utc_date_str = utc_date_str.replace(" ", "T");
+                utc_date_str = utc_date_str + "+00:00";
+                var dateObject = new Date(utc_date_str);
+                dateObject.setTime(dateObject.getTime() + 9 * 60 * 60 * 1000); // UTC->JST
                 var y = dateObject.getFullYear();
                 var m = dateObject.getMonth() + 1;
                 var d = dateObject.getDate();
