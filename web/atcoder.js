@@ -675,7 +675,7 @@ function showUserPage(user) {
                 var year = dateObject.getFullYear();
                 var month = dateObject.getMonth() + 1;
                 var day = dateObject.getDate();
-                var date_str = year + " " + month + " " + day;
+                var date_str = year + "-" + month + "-" + day;
                 dateKeys.push(date_str);
             }
         }
