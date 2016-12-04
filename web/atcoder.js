@@ -754,7 +754,7 @@ function getParam() {
     }
 
     if (url.indexOf("user.php") !== -1) paramsArray["kind"] = "user";
-    if (paramsArray["trying"] != 0)paramsArray["trying"] = 1;
+    if (paramsArray["trying"] != 0) paramsArray["trying"] = 1;
     if (paramsArray["list"] == 1 && paramsArray["kind"] === "index") paramsArray["kind"] = "list";
     if (paramsArray["list"] == 2 && paramsArray["kind"] === "index") paramsArray["kind"] = "battle";
     if (paramsArray["list"] == 3 && paramsArray["kind"] === "index") paramsArray["kind"] = "practice";
