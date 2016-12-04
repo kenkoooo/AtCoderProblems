@@ -674,7 +674,6 @@ function showUserPage(user) {
                 utc_date_str = utc_date_str.replace(" ", "T");
                 utc_date_str = utc_date_str + "+00:00";
                 var dateObject = new Date(utc_date_str);
-                dateObject.setTime(dateObject.getTime() + 9 * 60 * 60 * 1000); // UTC->JST
                 var y = dateObject.getFullYear();
                 var m = dateObject.getMonth() + 1;
                 var d = dateObject.getDate();
