@@ -3,4 +3,7 @@
 web/json/
 *.iml
 atcoder-api/
+*/node_modules/
+*.DS_Store
+*.log
 
