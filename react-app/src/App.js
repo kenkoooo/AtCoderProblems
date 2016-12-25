@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Arguments from './Arguments';
+import UserSearchBox from './UserSearchBox';
 import logo from './logo.svg';
 import './App.css';
 
@@ -23,7 +24,7 @@ class App extends Component {
   render() {
     const args = new Arguments();
     console.log(args);
-    return hoge();
+    return new UserSearchBox().render();
   }
 }
 
