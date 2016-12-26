@@ -35,7 +35,30 @@ class UserPage extends Component {
 
   componentDidMount() {
     getAPIPromise("user", this.name).then(json => this.setState({user: json}));
-    getAPIPromise("problems", this.name).then(json => this.setState({problems: json}));
+    getAPIPromise("problems", this.name).then(json => this.setState({problems: this.getUniqueAcProblems(json)}));
+  }
+
+  getUniqueAcProblems(problems) {
+    problems.sort((a, b) => {
+      if (a.ac_time > b.ac_time) {
+        return 1;
+      }
+      if (a.ac_time < b.ac_time) {
+        return -1;
+      }
+      return 0;
+    });
+    const problemsSet = new Set();
+    const uniqueList = [];
+    problems.forEach(problem => {
+      if (problem.status !== "AC")
+        return;
+      if (problemsSet.has(problem.id))
+        return;
+      problemsSet.add(problem.id);
+      uniqueList.push(problem);
+    });
+    return uniqueList;
   }
 
   achievements(props) {
@@ -68,23 +91,76 @@ class UserPage extends Component {
     ];
     if (props.state.user != null) {
       const user = props.state.user;
-      console.log(user);
       scheme[0].value = `${user.ac_num} 問`;
-      if (user.ac_rank > 0)
+      if (user.ac_rank > 0) {
         scheme[0].text = `${user.ac_rank} 位`;
+      }
 
       scheme[1].value = `${user.short_num} 問`;
-      if (user.short_rank > 0)
+      if (user.short_rank > 0) {
         scheme[1].text = `${user.short_rank} 位`;
+      }
 
       scheme[2].value = `${user.fast_num} 問`;
-      if (user.fast_rank > 0)
+      if (user.fast_rank > 0) {
         scheme[2].text = `${user.fast_rank} 位`;
+      }
 
       scheme[3].value = `${user.first_num} 問`;
-      if (user.first_rank > 0) 
+      if (user.first_rank > 0) {
         scheme[3].text = `${user.first_rank} 位`;
       }
+    }
+
+    if (props.state.problems != null) {
+      const problems = props.state.problems;
+      const strDates = [];
+      problems.forEach(problem => {
+        const utcDateStr = problem.ac_time.replace(" ", "T") + "+00:00";
+        const date = new Date(utcDateStr);
+        const y = date.getFullYear();
+        const m = date.getMonth() + 1;
+        const d = date.getDate();
+        const dateStr = `${y}-${ ("0" + m).slice(-2)}-${ ("0" + d).slice(-2)}`;
+        strDates.push(dateStr);
+      });
+      strDates.sort();
+
+      let consecutiveAc = 1;
+      let max = 0;
+      const dates = [new Date(strDates[0])];
+      for (let i = 1; i < strDates.length; i++) {
+        const day = new Date(strDates[i]);
+        const prev = new Date(strDates[i - 1]);
+        if (day.getTime() == prev.getTime())
+          continue;
+        dates.push(day);
+        prev.setDate(prev.getDate() + 1);
+        if (day.getTime() == prev.getTime()) {
+          consecutiveAc++;
+        } else {
+          max = Math.max(max, consecutiveAc);
+          consecutiveAc = 1;
+        }
+      }
+      max = Math.max(max, consecutiveAc);
+
+      scheme[4].value = `${max} 日`;
+
+      const yesterday = new Date();
+      yesterday.setSeconds(0);
+      yesterday.setMinutes(0);
+      yesterday.setHours(0);
+
+      const lastDate = dates[dates.length - 1];
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (lastDate.getTime() >= yesterday.getTime()) {
+        scheme[5].value = `${consecutiveAc} 日`;
+      } else {
+        scheme[5].value = "0 日";
+      }
+      scheme[5].text = `Last AC: ${strDates[strDates.length - 1]}`;
+    }
 
     const columns = [];
     scheme.forEach(s => {
@@ -105,13 +181,18 @@ class UserPage extends Component {
   }
 
   render() {
+    if (this.state.problems != null) {
+      return (
+        <Row>
+          <PageHeader>
+            {this.name}
+          </PageHeader>
+          <this.achievements state={this.state}/>
+        </Row>
+      );
+    }
     return (
-      <Row>
-        <PageHeader>
-          {this.name}
-        </PageHeader>
-        <this.achievements state={this.state}/>
-      </Row>
+      <Row></Row>
     );
   }
 }
