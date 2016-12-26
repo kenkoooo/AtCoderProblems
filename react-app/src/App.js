@@ -3,19 +3,25 @@ import React, {Component} from 'react';
 import Arguments from './Arguments';
 import UserSearch from './UserSearch';
 import UserPage from './UserPage';
+import HeadBox from './HeadBox';
 import './App.css';
 
 class App extends Component {
   render() {
     const args = new Arguments();
-    const name = args.name != null
-      ? args.name
-      : "";
+
+    if (args.isUserPage()) {
+      return (
+        <Grid>
+          <UserSearch name={args.name}/>
+          <UserPage name={args.name}/>
+        </Grid>
+      );
+    }
 
     return (
       <Grid>
-        <UserSearch name={name}/>
-        <UserPage name={name}/>
+        <HeadBox name={args.name} rivals={args.rivals} kind={args.kind}></HeadBox>
       </Grid>
     );
   }
