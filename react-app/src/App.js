@@ -21,7 +21,7 @@ class App extends Component {
 
     return (
       <Grid>
-        <HeadBox name={args.name} rivals={args.rivals} kind={args.kind}></HeadBox>
+        <HeadBox name={args.name} rivals={args.rivals} kind={args.kind} trying={args.trying}/>
       </Grid>
     );
   }

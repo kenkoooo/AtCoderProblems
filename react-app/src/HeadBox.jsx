@@ -6,7 +6,8 @@ import {
   PageHeader,
   Row,
   Form,
-  Radio
+  Radio,
+  Checkbox
 } from 'react-bootstrap';
 import React, {Component} from 'react';
 
@@ -16,12 +17,15 @@ class HeadBox extends Component {
     this.state = {
       value: props.name,
       rivals: props.rivals,
-      kind: props.kind
+      kind: props.kind,
+      trying: props.trying
     };
 
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleRadio = this.handleRadio.bind(this);
     this.handleRivalsChange = this.handleRivalsChange.bind(this);
+    this.handleTrying = this.handleTrying.bind(this);
+    this.onlyAc = this.onlyAc.bind(this);
   }
 
   handleNameChange(event) {
@@ -32,6 +36,24 @@ class HeadBox extends Component {
   }
   handleRadio(event) {
     this.setState({kind: event.target.value});
+  }
+  handleTrying(event) {
+    this.setState({
+      trying: !this.state.trying
+    });
+  }
+  onlyAc() {
+    if (this.state.kind === "list") {
+      return (
+        <FormGroup>
+          <Checkbox name="trying" value="1" checked={this.state.trying} onChange={this.handleTrying}>
+            AC していない問題のみ表示</Checkbox>
+        </FormGroup>
+      );
+    }
+    return (
+      <div></div>
+    );
   }
 
   render() {
@@ -76,6 +98,7 @@ class HeadBox extends Component {
             {' '}
           </FormGroup>
           <Button type="submit">Search</Button>
+          <this.onlyAc/>
         </Form>
       </Row>
     );

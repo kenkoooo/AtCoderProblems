@@ -20,6 +20,8 @@ class Arguments {
         if (args.list != null && args.list === 1) this.kind = "list";
         if (args.list != null && args.list === 2) this.kind = "battle";
         if (args.list != null && args.list === 3) this.kind = "practice";
+
+        this.trying = args.trying != null;
     }
 
     isRanking() {
