@@ -1,4 +1,4 @@
-import {Row, PageHeader, Col} from 'react-bootstrap';
+import {Col} from 'react-bootstrap';
 import React, {Component} from 'react';
 import c3 from 'c3';
 
@@ -10,7 +10,7 @@ class PieChart extends Component {
     this._updateChart();
   }
   _updateChart() {
-    const chart = c3.generate({
+    c3.generate({
       bindto: `#${this.props.name}`,
       size: {
         height: 200,

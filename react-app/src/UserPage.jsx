@@ -2,6 +2,8 @@ import {Row, PageHeader, Col} from 'react-bootstrap';
 import React, {Component} from 'react';
 import request from 'superagent';
 import PieChart from './PieChart';
+import LineChart from './LineChart';
+import BarChart from './BarChart';
 
 function getAPIPromise(url, name) {
   return new Promise((resolve, reject) => {
@@ -38,10 +40,24 @@ function getUniqueAcProblems(problems) {
   return uniqueList;
 }
 
+function getStrDates(problems) {
+  const strDates = [];
+  problems.forEach(problem => {
+    const utcDateStr = problem.ac_time.replace(" ", "T") + "+00:00";
+    const date = new Date(utcDateStr);
+    const y = date.getFullYear();
+    const m = date.getMonth() + 1;
+    const d = date.getDate();
+    const dateStr = `${y}-${ ("0" + m).slice(-2)}-${ ("0" + d).slice(-2)}`;
+    strDates.push(dateStr);
+  });
+  strDates.sort();
+  return strDates;
+}
+
 class UserPage extends Component {
   constructor(props) {
     super(props);
-
     this.name = props.name;
     this.state = {
       name: this.name
@@ -49,8 +65,13 @@ class UserPage extends Component {
   }
 
   componentDidMount() {
-    getAPIPromise("user", this.name).then(json => this.setState({user: json}));
-    getAPIPromise("problems", this.name).then(json => this.setState({problems: getUniqueAcProblems(json)}));
+    getAPIPromise("/atcoder-api/user", this.name).then(json => this.setState({user: json}));
+    getAPIPromise("/atcoder-api/problems", this.name).then(json => {
+      this.setState({problems: getUniqueAcProblems(json)});
+      this.setState({
+        strDates: getStrDates(this.state.problems)
+      });
+    });
   }
 
   achievements(props) {
@@ -104,34 +125,19 @@ class UserPage extends Component {
       }
     }
 
-    if (props.state.problems != null) {
-      const problems = props.state.problems;
-      const strDates = [];
-      problems.forEach(problem => {
-        const utcDateStr = problem.ac_time.replace(" ", "T") + "+00:00";
-        const date = new Date(utcDateStr);
-        const y = date.getFullYear();
-        const m = date.getMonth() + 1;
-        const d = date.getDate();
-        const dateStr = `${y}-${ ("0" + m).slice(-2)}-${ ("0" + d).slice(-2)}`;
-        strDates.push(dateStr);
-      });
-      strDates.sort();
+    if (props.state.strDates != null) {
+      const strDates = props.state.strDates;
 
       let consecutiveAc = 1;
       let max = 0;
-      let todaysAc = 1;
       const dates = [new Date(strDates[0])];
-      const acNums = [];
       for (let i = 1; i < strDates.length; i++) {
         const day = new Date(strDates[i]);
         const prev = new Date(strDates[i - 1]);
         if (day.getTime() === prev.getTime()) {
-          todaysAc++;
           continue;
         }
         dates.push(day);
-        acNums.push(todaysAc);
 
         prev.setDate(prev.getDate() + 1);
         if (day.getTime() === prev.getTime()) {
@@ -182,8 +188,49 @@ class UserPage extends Component {
     return (<PieChart name={props.name} ac={props.ac} total={props.total} title={props.title}/>);
   }
 
+  lineChart(props) {
+    const ticks = ["x"];
+    const data = ["Accepted"];
+    const strDates = props.strDates;
+    if (strDates == null) {
+      return (
+        <div></div>
+      );
+    }
+    for (let i = 0; i < strDates.length; i++) {
+      if (i > 0 && strDates[i] === strDates[i - 1]) {
+        continue;
+      }
+      ticks.push(strDates[i]);
+      data.push(i + 1);
+    }
+    return (<LineChart name="Climbing" ticks={ticks} data={data}/>);
+  }
+
+  barChart(props) {
+    const ticks = ["x"];
+    const data = ["Accepted"];
+    const strDates = props.strDates;
+    if (strDates == null) {
+      return (
+        <div></div>
+      );
+    }
+    for (let i = 0; i < strDates.length; i++) {
+      if (i > 0 && strDates[i] === strDates[i - 1]) {
+        continue;
+      }
+      ticks.push(strDates[i]);
+      data.push(i + 1);
+    }
+    for (let i = data.length - 1; i > 1; i--) {
+      data[i] -= data[i - 1];
+    }
+    return (<BarChart name="effort" ticks={ticks} data={data}/>);
+  }
+
   render() {
-    if (this.state.problems == null || this.state.problems.length == 0) {
+    if (this.state.problems == null || this.state.problems.length === 0) {
       return (
         <Row></Row>
       );
@@ -209,6 +256,14 @@ class UserPage extends Component {
         <this.pieCharts name="arc_b" ac={user.arc_b} total={57} title="B 問題"/>
         <this.pieCharts name="arc_c" ac={user.arc_c} total={user.arc_num} title="C 問題"/>
         <this.pieCharts name="arc_d" ac={user.arc_d} total={user.arc_num} title="D 問題"/>
+        <PageHeader>
+          Climbing
+        </PageHeader>
+        <this.lineChart strDates={this.state.strDates}/>
+        <PageHeader>
+          Daily Effort
+        </PageHeader>
+        <this.barChart strDates={this.state.strDates}/>
       </Row>
     );
   }
