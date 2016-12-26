@@ -1,21 +1,9 @@
 import {Row, PageHeader, Col} from 'react-bootstrap';
 import React, {Component} from 'react';
-import request from 'superagent';
 import PieChart from './PieChart';
 import LineChart from './LineChart';
 import BarChart from './BarChart';
-
-function getAPIPromise(url, name) {
-  return new Promise((resolve, reject) => {
-    request.get(url).query({user: name}).end((err, res) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(JSON.parse(res.text));
-      }
-    });
-  });
-}
+import MyUtils from './MyUtils';
 
 function getUniqueAcProblems(problems) {
   problems.sort((a, b) => {
@@ -65,8 +53,8 @@ class UserPage extends Component {
   }
 
   componentDidMount() {
-    getAPIPromise("/atcoder-api/user", this.name).then(json => this.setState({user: json}));
-    getAPIPromise("/atcoder-api/problems", this.name).then(json => {
+    MyUtils.getAPIPromise("/atcoder-api/user", {user: this.name}).then(json => this.setState({user: json}));
+    MyUtils.getAPIPromise("/atcoder-api/problems", {user: this.name}).then(json => {
       this.setState({problems: getUniqueAcProblems(json)});
       this.setState({
         strDates: getStrDates(this.state.problems)

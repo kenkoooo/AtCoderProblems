@@ -4,6 +4,7 @@ import Arguments from './Arguments';
 import UserSearch from './UserSearch';
 import UserPage from './UserPage';
 import HeadBox from './HeadBox';
+import ProblemMainTable from './ProblemMainTable';
 import './App.css';
 
 class App extends Component {
@@ -22,6 +23,7 @@ class App extends Component {
     return (
       <Grid>
         <HeadBox name={args.name} rivals={args.rivals} kind={args.kind} trying={args.trying}/>
+        <ProblemMainTable user={args.name} rivals={args.rivals}/>
       </Grid>
     );
   }

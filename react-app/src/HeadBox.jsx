@@ -24,7 +24,6 @@ class HeadBox extends Component {
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleRadio = this.handleRadio.bind(this);
     this.handleRivalsChange = this.handleRivalsChange.bind(this);
-    this.handleTrying = this.handleTrying.bind(this);
     this.onlyAc = this.onlyAc.bind(this);
   }
 
@@ -42,12 +41,16 @@ class HeadBox extends Component {
       trying: !this.state.trying
     });
   }
+
   onlyAc() {
     if (this.state.kind === "list") {
       return (
         <FormGroup>
-          <Checkbox name="trying" value="1" checked={this.state.trying} onChange={this.handleTrying}>
-            AC していない問題のみ表示</Checkbox>
+          <Checkbox name="trying" value="1" checked={this.state.trying} onChange={e => this.setState({
+            trying: !this.state.trying
+          })}>
+            AC していない問題のみ表示
+          </Checkbox>
         </FormGroup>
       );
     }
