@@ -6,6 +6,7 @@
     "react-scripts": "0.8.4"
   },
   "dependencies": {
+    "c3": "^0.4.11",
     "query-string": "^4.2.3",
     "react": "^15.4.1",
     "react-bootstrap": "^0.30.7",

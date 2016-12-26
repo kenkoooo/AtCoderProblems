@@ -1,15 +1,7 @@
-import {
-  FormGroup,
-  FormControl,
-  Button,
-  ControlLabel,
-  Row,
-  Form,
-  PageHeader,
-  Col
-} from 'react-bootstrap';
+import {Row, PageHeader, Col} from 'react-bootstrap';
 import React, {Component} from 'react';
 import request from 'superagent';
+import PieChart from './PieChart';
 
 function getAPIPromise(url, name) {
   return new Promise((resolve, reject) => {
@@ -21,6 +13,29 @@ function getAPIPromise(url, name) {
       }
     });
   });
+}
+
+function getUniqueAcProblems(problems) {
+  problems.sort((a, b) => {
+    if (a.ac_time > b.ac_time) {
+      return 1;
+    }
+    if (a.ac_time < b.ac_time) {
+      return -1;
+    }
+    return 0;
+  });
+  const problemsSet = new Set();
+  const uniqueList = [];
+  problems.forEach(problem => {
+    if (problem.status !== "AC")
+      return;
+    if (problemsSet.has(problem.id))
+      return;
+    problemsSet.add(problem.id);
+    uniqueList.push(problem);
+  });
+  return uniqueList;
 }
 
 class UserPage extends Component {
@@ -35,30 +50,7 @@ class UserPage extends Component {
 
   componentDidMount() {
     getAPIPromise("user", this.name).then(json => this.setState({user: json}));
-    getAPIPromise("problems", this.name).then(json => this.setState({problems: this.getUniqueAcProblems(json)}));
-  }
-
-  getUniqueAcProblems(problems) {
-    problems.sort((a, b) => {
-      if (a.ac_time > b.ac_time) {
-        return 1;
-      }
-      if (a.ac_time < b.ac_time) {
-        return -1;
-      }
-      return 0;
-    });
-    const problemsSet = new Set();
-    const uniqueList = [];
-    problems.forEach(problem => {
-      if (problem.status !== "AC")
-        return;
-      if (problemsSet.has(problem.id))
-        return;
-      problemsSet.add(problem.id);
-      uniqueList.push(problem);
-    });
-    return uniqueList;
+    getAPIPromise("problems", this.name).then(json => this.setState({problems: getUniqueAcProblems(json)}));
   }
 
   achievements(props) {
@@ -128,15 +120,21 @@ class UserPage extends Component {
 
       let consecutiveAc = 1;
       let max = 0;
+      let todaysAc = 1;
       const dates = [new Date(strDates[0])];
+      const acNums = [];
       for (let i = 1; i < strDates.length; i++) {
         const day = new Date(strDates[i]);
         const prev = new Date(strDates[i - 1]);
-        if (day.getTime() == prev.getTime())
+        if (day.getTime() === prev.getTime()) {
+          todaysAc++;
           continue;
+        }
         dates.push(day);
+        acNums.push(todaysAc);
+
         prev.setDate(prev.getDate() + 1);
-        if (day.getTime() == prev.getTime()) {
+        if (day.getTime() === prev.getTime()) {
           consecutiveAc++;
         } else {
           max = Math.max(max, consecutiveAc);
@@ -180,19 +178,38 @@ class UserPage extends Component {
     );
   }
 
+  pieCharts(props) {
+    return (<PieChart name={props.name} ac={props.ac} total={props.total} title={props.title}/>);
+  }
+
   render() {
-    if (this.state.problems != null) {
+    if (this.state.problems == null || this.state.problems.length == 0) {
       return (
-        <Row>
-          <PageHeader>
-            {this.name}
-          </PageHeader>
-          <this.achievements state={this.state}/>
-        </Row>
+        <Row></Row>
       );
     }
+    const user = this.state.user;
     return (
-      <Row></Row>
+      <Row>
+        <PageHeader>
+          {this.name}
+        </PageHeader>
+        <this.achievements state={this.state}/>
+        <PageHeader>
+          AtCoder Beginner Contest
+        </PageHeader>
+        <this.pieCharts name="abc_a" ac={user.abc_a} total={user.abc_num} title="A 問題"/>
+        <this.pieCharts name="abc_b" ac={user.abc_b} total={user.abc_num} title="B 問題"/>
+        <this.pieCharts name="abc_c" ac={user.abc_c} total={user.abc_num} title="C 問題"/>
+        <this.pieCharts name="abc_d" ac={user.abc_d} total={user.abc_num} title="D 問題"/>
+        <PageHeader>
+          AtCoder Regular Contest
+        </PageHeader>
+        <this.pieCharts name="arc_a" ac={user.arc_a} total={57} title="A 問題"/>
+        <this.pieCharts name="arc_b" ac={user.arc_b} total={57} title="B 問題"/>
+        <this.pieCharts name="arc_c" ac={user.arc_c} total={user.arc_num} title="C 問題"/>
+        <this.pieCharts name="arc_d" ac={user.arc_d} total={user.arc_num} title="D 問題"/>
+      </Row>
     );
   }
 }
