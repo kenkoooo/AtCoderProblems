@@ -1,30 +1,57 @@
 import React, {Component} from 'react';
 import Arguments from './Arguments';
-import UserSearchBox from './UserSearchBox';
-import logo from './logo.svg';
+import {
+  FormGroup,
+  FormControl,
+  Button,
+  ControlLabel,
+  Row,
+  Grid,
+  Form
+} from 'react-bootstrap';
 import './App.css';
 
-function hoge() {
-  return (
-    <div className="App">
-      <div className="App-header">
-        <img src={logo} className="App-logo" alt="logo"/>
-        <h2>Welcome to Hoge!!</h2>
-      </div>
-      <p className="App-intro">
-        To get started, edit
-        <code>src/App.js</code>
-        and save to reload.
-      </p>
-    </div>
-  );
+class UserSearch extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: props.name
+    };
+
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({value: event.target.value});
+  }
+
+  render() {
+    return (
+      <Grid>
+        <Row>
+          <Form action="./" method="get" inline>
+            <FormGroup>
+              <ControlLabel>User ID:</ControlLabel>
+              <FormControl type="text" name="name" value={this.state.value} onChange={this.handleChange}/>
+              <FormControl type="hidden" name="kind" value="user"/>
+            </FormGroup>
+            <Button type="submit">Search</Button>
+          </Form>
+        </Row>
+      </Grid>
+    );
+  }
 }
 
 class App extends Component {
   render() {
     const args = new Arguments();
-    console.log(args);
-    return new UserSearchBox().render();
+    const name = args.name != null
+      ? args.name
+      : "";
+    return (
+      <div><UserSearch name={name}/></div>
+    );
   }
 }
 
