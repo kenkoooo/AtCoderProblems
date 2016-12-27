@@ -18,7 +18,13 @@ class HeadBox extends Component {
       value: props.name,
       rivals: props.rivals,
       kind: props.kind,
-      trying: props.trying
+      trying: props.trying,
+      idBoxLabel: props.kind === "practice"
+        ? "問題ID:"
+        : "User ID:",
+      rivalBoxLabel: props.kind === "practice"
+        ? "User ID:"
+        : "ライバル:"
     };
 
     this.handleNameChange = this.handleNameChange.bind(this);
@@ -35,6 +41,13 @@ class HeadBox extends Component {
   }
   handleRadio(event) {
     this.setState({kind: event.target.value});
+    if (event.target.value === "practice") {
+      this.setState({idBoxLabel: "問題ID:"});
+      this.setState({rivalBoxLabel: "User ID:"});
+    } else {
+      this.setState({idBoxLabel: "User ID:"});
+      this.setState({rivalBoxLabel: "ライバル:"});
+    }
   }
   handleTrying(event) {
     this.setState({
@@ -73,12 +86,12 @@ class HeadBox extends Component {
         </p>
         <Form action="./" method="get" inline>
           <FormGroup>
-            <ControlLabel>User ID:</ControlLabel>
+            <ControlLabel>{this.state.idBoxLabel}</ControlLabel>
             <FormControl type="text" name="name" value={this.state.value} onChange={this.handleNameChange} placeholder="User ID"/>
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>ライバル:</ControlLabel>
+            <ControlLabel>{this.state.rivalBoxLabel}</ControlLabel>
             <FormControl type="text" name="rivals" value={this.state.rivals} onChange={this.handleRivalsChange} placeholder="User ID,User ID,User ID,..."/>
           </FormGroup>
 
