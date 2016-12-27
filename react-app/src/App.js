@@ -8,6 +8,7 @@ import ProblemMainTable from './ProblemMainTable';
 import BattleTable from './BattleTable';
 import ListTable from './ListTable';
 import PracticeTable from './PracticeTable';
+import Ranking from './Ranking';
 import './App.css';
 
 class App extends Component {
@@ -59,10 +60,17 @@ class App extends Component {
         </Grid>
       );
     }
+
+    if (args.isRanking()) {
+      return (
+        <Grid>
+          <Ranking ranking={args.ranking}/>
+        </Grid>
+      );
+    }
+
     return (
-      <Grid>
-        <HeadBox name={args.name} rivals={args.rivals} kind={args.kind} trying={args.trying}/>
-      </Grid>
+      <Grid>React はつらいよ (jQuery の五億倍ラク)</Grid>
     );
 
   }

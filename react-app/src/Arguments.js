@@ -31,7 +31,7 @@ class Arguments {
         return this.kind === "user";
     }
     isIndex() {
-        return this.kind === "index";
+        return this.kind === "index" && !this.isRanking();
     }
     isList() {
         return this.kind === "list";
