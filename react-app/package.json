@@ -1,23 +1,24 @@
 {
-  "name": "react-app",
-  "version": "0.1.0",
-  "private": true,
-  "devDependencies": {
-    "react-scripts": "0.8.4"
-  },
-  "dependencies": {
-    "c3": "^0.4.11",
-    "query-string": "^4.2.3",
-    "react": "^15.4.1",
-    "react-bootstrap": "^0.30.7",
-    "react-bootstrap-table": "^2.8.0",
-    "react-dom": "^15.4.1",
-    "superagent": "^3.3.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  }
+    "name": "react-app",
+    "version": "0.1.0",
+    "private": true,
+    "devDependencies": {
+        "react-scripts": "0.8.4"
+    },
+    "dependencies": {
+        "c3": "^0.4.11",
+        "query-string": "^4.2.3",
+        "react": "^15.4.1",
+        "react-bootstrap": "^0.30.7",
+        "react-bootstrap-table": "^2.8.0",
+        "react-dom": "^15.4.1",
+        "superagent": "^3.3.1"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test --env=jsdom",
+        "eject": "react-scripts eject"
+    },
+    "homepage": "http://kenkoooo.com/atcoder/"
 }
