@@ -45,7 +45,7 @@ class App extends Component {
       return (
         <Grid>
           <HeadBox name={args.name} rivals={args.rivals} kind={args.kind} trying={args.trying}/>
-          <ListTable user={args.name} rivals={args.rivals}/>
+          <ListTable user={args.name} rivals={args.rivals} trying={args.trying}/>
         </Grid>
       );
     }

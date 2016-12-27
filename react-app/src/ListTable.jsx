@@ -12,11 +12,9 @@ function statusFormatter(cell, row) {
     );
   }
   if (row.rivals.length > 0) {
-    const rivals = new Array(row.rivals.length).fill(0).map((_, i) => <h5 key={i}>
-      <Label bsStyle="danger">{row.rivals[i]}</Label>
-    </h5>);
+    const rivals = new Array(row.rivals.length).fill(0).map((_, i) => <Label key={i} bsStyle="danger">{row.rivals[i]}</Label>);
     return (
-      <div>{rivals}</div>
+      <h5>{rivals}</h5>
     );
   }
   if (cell !== "") {
@@ -52,7 +50,7 @@ function solversFormatter(cell, row) {
   );
 }
 function firstFormatter(cell, row) {
-  if (row.first_user === "") {
+  if (cell === "" || cell == null) {
     return (
       <a></a>
     );
@@ -62,12 +60,12 @@ function firstFormatter(cell, row) {
     : row.contest;
   return (
     <a href={`http://${contest}.contest.atcoder.jp/submissions/${row.first_id}`} target="_blank">
-      {row.first_user}
+      {cell}
     </a>
   );
 }
 function fastestFormatter(cell, row) {
-  if (row.fastest_user === "") {
+  if (cell === "" || cell == null) {
     return (
       <a></a>
     );
@@ -77,14 +75,14 @@ function fastestFormatter(cell, row) {
     : row.contest;
   return (
     <a href={`http://${contest}.contest.atcoder.jp/submissions/${row.fastest_id}`} target="_blank">
-      {row.fastest_user}
+      {cell}
       ({row.exec_time}{" "}
       ms)
     </a>
   );
 }
 function shortestFormatter(cell, row) {
-  if (row.shortest_user === "") {
+  if (cell === "" || cell == null) {
     return (
       <a></a>
     );
@@ -119,7 +117,8 @@ class ListTable extends Component {
     super(props);
     this.state = {
       user: props.user,
-      rivals: props.rivals
+      rivals: props.rivals,
+      trying: props.trying
     };
   }
 
@@ -153,8 +152,8 @@ class ListTable extends Component {
       );
     }
 
-    const problems = this.state.problems;
-    problems.forEach(p => {
+    const problems = [];
+    this.state.problems.forEach(p => {
       const contest = this.state.contests.get(p.contest);
       p.date = contest.start.substring(0, 10);
       p.contestName = contest.name;
@@ -162,11 +161,13 @@ class ListTable extends Component {
       p.status = "";
       p.rivals = [];
       const result = this.state.results.get(p.id);
-      if (result == null) {
-        return;
+      if (result != null) {
+        p.status = result.status;
+        p.rivals = result.rivals;
       }
-      p.status = result.status;
-      p.rivals = result.rivals;
+      if (!this.state.trying || p.status === "AC") {
+        problems.push(p);
+      }
     });
 
     return (
