@@ -1,4 +1,4 @@
-import {PageHeader, Row, Table} from 'react-bootstrap';
+import {PageHeader, Row} from 'react-bootstrap';
 import React, {Component} from 'react';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import MyUtils from './MyUtils'
@@ -86,21 +86,21 @@ class BattleTable extends Component {
         return;
       }
       value.id = key;
-      if (value.me != -1 && value.you != -1) {
+      if (value.me !== -1 && value.you !== -1) {
         if (value.me < value.you) {
           value.result = "WIN";
         }
         if (value.me > value.you) {
           value.result = "LOSE";
         }
-        if (value.me == value.you) {
+        if (value.me === value.you) {
           value.result = "DRAW";
         }
       }
-      if (value.me == -1) {
+      if (value.me === -1) {
         value.me = "";
       }
-      if (value.you == -1) {
+      if (value.you === -1) {
         value.you = "";
       }
       data.push(value);

@@ -6,6 +6,7 @@ import UserPage from './UserPage';
 import HeadBox from './HeadBox';
 import ProblemMainTable from './ProblemMainTable';
 import BattleTable from './BattleTable';
+import ListTable from './ListTable';
 import './App.css';
 
 class App extends Component {
@@ -37,6 +38,14 @@ class App extends Component {
         <Grid>
           <HeadBox name={args.name} rivals={args.rivals} kind={args.kind} trying={args.trying}/>
           <BattleTable user={args.name} rival={rival}/>
+        </Grid>
+      );
+    }
+    if (args.isList()) {
+      return (
+        <Grid>
+          <HeadBox name={args.name} rivals={args.rivals} kind={args.kind} trying={args.trying}/>
+          <ListTable user={args.name} rivals={args.rivals}/>
         </Grid>
       );
     }
