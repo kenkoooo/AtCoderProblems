@@ -7,6 +7,7 @@ import HeadBox from './HeadBox';
 import ProblemMainTable from './ProblemMainTable';
 import BattleTable from './BattleTable';
 import ListTable from './ListTable';
+import PracticeTable from './PracticeTable';
 import './App.css';
 
 class App extends Component {
@@ -46,6 +47,15 @@ class App extends Component {
         <Grid>
           <HeadBox name={args.name} rivals={args.rivals} kind={args.kind} trying={args.trying}/>
           <ListTable user={args.name} rivals={args.rivals} trying={args.trying}/>
+        </Grid>
+      );
+    }
+
+    if (args.isPractice()) {
+      return (
+        <Grid>
+          <HeadBox name={args.name} rivals={args.rivals} kind={args.kind} trying={args.trying}/>
+          <PracticeTable problems={args.name} users={args.rivals}/>
         </Grid>
       );
     }
