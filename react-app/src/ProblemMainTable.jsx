@@ -1,15 +1,4 @@
-import {
-  FormGroup,
-  FormControl,
-  Button,
-  ControlLabel,
-  PageHeader,
-  Row,
-  Form,
-  Radio,
-  Checkbox,
-  Table
-} from 'react-bootstrap';
+import {PageHeader, Row, Table} from 'react-bootstrap';
 import React, {Component} from 'react';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import MyUtils from './MyUtils';
