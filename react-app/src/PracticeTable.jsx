@@ -1,4 +1,4 @@
-import {Row, PageHeader, Col, Label} from 'react-bootstrap';
+import {Label} from 'react-bootstrap';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import React, {Component} from 'react';
 import MyUtils from './MyUtils';
@@ -75,7 +75,7 @@ class PracticeTable extends Component {
       }
       const result = this.state.results.get(x);
       users.forEach(user => {
-        if (result.rivals.indexOf(user.user) != -1) {
+        if (result.rivals.indexOf(user.user) !== -1) {
           user[key] = true;
         } else {
           user[key] = false;
