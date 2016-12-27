@@ -7,7 +7,8 @@ import {
   Row,
   Form,
   Radio,
-  Checkbox
+  Checkbox,
+  Table
 } from 'react-bootstrap';
 import React, {Component} from 'react';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
@@ -42,9 +43,9 @@ function mergeProblems(problems, regex) {
   });
   contests.forEach((v, k) => {
     v.sort((a, b) => {
-      if (a.id > b.id)
+      if (a.name > b.name)
         return 1;
-      if (a.id < b.id)
+      if (a.name < b.name)
         return -1;
       return 0;
     });
@@ -63,6 +64,7 @@ class ProblemMainTable extends Component {
     this.filterAndRender = this.filterAndRender.bind(this);
     this.getTableColumns = this.getTableColumns.bind(this);
     this.columnClassNameFormatter = this.columnClassNameFormatter.bind(this);
+    this.otherContests = this.otherContests.bind(this);
   }
 
   componentDidMount() {
@@ -98,7 +100,6 @@ class ProblemMainTable extends Component {
       return 'warning';
     if (this.state.lost.has(value.id))
       return 'danger';
-
     }
 
   getTableColumns(props) {
@@ -127,8 +128,6 @@ class ProblemMainTable extends Component {
   }
 
   filterAndRender(props) {
-    if (this.state.problems == null)
-      return (<Row/>);
     const contests = mergeProblems(this.state.problems, props.regex);
     const data = [];
     contests.forEach((v, k) => {
@@ -152,13 +151,69 @@ class ProblemMainTable extends Component {
     return (<this.getTableColumns num={props.num} data={data} header={props.header}/>);
   }
 
+  otherContests() {
+    const contests = mergeProblems(this.state.problems, /^((?!a[rgb]c).)*$/);
+
+    this.state.contests.sort((a, b) => {
+      if (a.start > b.start)
+        return -1;
+      if (a.start < b.start)
+        return 1;
+      return 0;
+    });
+
+    const outer = [];
+    this.state.contests.forEach((contest, i) => {
+      if (!contests.has(contest.id)) {
+        return;
+      }
+
+      const inner = [];
+      contests.get(contest.id).forEach((problem, j) => {
+        inner.push(
+          <td key={j} className={this.columnClassNameFormatter(problem)}>
+            <a href={`https://${contest.id}.contest.atcoder.jp/tasks/${problem.id}`}>{problem.name}</a>
+          </td>
+        );
+      });
+      outer.push(
+        <Row key={i}>
+          <strong>
+            {contest.start.substring(0, 10)}
+            {" "}
+            <a href={`https://${contest.id}.contest.atcoder.jp/`}>
+              {contest.name}
+            </a>
+          </strong>
+          <Table striped bordered condensed hover>
+            <tbody>
+              <tr>{inner}</tr>
+            </tbody>
+          </Table>
+        </Row>
+      );
+    });
+    return (
+      <Row>
+        <PageHeader>
+          その他のコンテスト
+        </PageHeader>
+        {outer}
+      </Row>
+    );
+  }
+
   render() {
+    if (this.state.problems == null || this.state.contests == null)
+      return (<Row/>);
     const r = [/^agc[0-9]*$/, /^abc[0-9]*$/, /^arc[0-9]*$/];
+
     return (
       <Row>
         <this.filterAndRender regex={r[0]} num={6} header="AtCoder Grand Contest"/>
         <this.filterAndRender regex={r[1]} num={4} header="AtCoder Beginner Contest"/>
         <this.filterAndRender regex={r[2]} num={4} header="AtCoder Regular Contest"/>
+        <this.otherContests/>
       </Row>
     );
   }
