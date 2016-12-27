@@ -29,6 +29,29 @@ function contestLinkFormatter(cell, row) {
   );
 }
 
+function mergeProblems(problems, regex) {
+  const contests = new Map();
+  problems.forEach(problem => {
+    const contest = problem.contest;
+    if (contest.match(regex)) {
+      if (!contests.has(contest)) {
+        contests.set(contest, []);
+      }
+      contests.get(contest).push({id: problem.id, name: problem.name});
+    }
+  });
+  contests.forEach((v, k) => {
+    v.sort((a, b) => {
+      if (a.id > b.id)
+        return 1;
+      if (a.id < b.id)
+        return -1;
+      return 0;
+    });
+  });
+  return contests;
+}
+
 class ProblemMainTable extends Component {
   constructor(props) {
     super(props);
@@ -104,26 +127,11 @@ class ProblemMainTable extends Component {
   }
 
   filterAndRender(props) {
-    const contests = new Map();
-    if (this.state.problems != null)
-      this.state.problems.forEach(problem => {
-        const contest = problem.contest;
-        if (contest.match(props.regex)) {
-          if (!contests.has(contest)) {
-            contests.set(contest, []);
-          }
-          contests.get(contest).push({id: problem.id, name: problem.name});
-        }
-      });
+    if (this.state.problems == null)
+      return (<Row/>);
+    const contests = mergeProblems(this.state.problems, props.regex);
     const data = [];
     contests.forEach((v, k) => {
-      v.sort((a, b) => {
-        if (a.id > b.id)
-          return 1;
-        if (a.id < b.id)
-          return -1;
-        return 0;
-      });
       if (v.length > 4) {
         data.push({
           id: k,
@@ -139,10 +147,8 @@ class ProblemMainTable extends Component {
       } else {
         data.push({id: k, c: v[0], d: v[1]});
       }
-
     });
     data.reverse();
-
     return (<this.getTableColumns num={props.num} data={data} header={props.header}/>);
   }
 
