@@ -165,7 +165,7 @@ class ListTable extends Component {
         p.status = result.status;
         p.rivals = result.rivals;
       }
-      if (!this.state.trying || p.status === "AC") {
+      if (!this.state.trying || p.status !== "AC") {
         problems.push(p);
       }
     });
