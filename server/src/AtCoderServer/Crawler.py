@@ -8,23 +8,6 @@ import CrawlTools
 import ServerTools
 
 
-def update_results(connection):
-    contest_set = set(CrawlTools.get_contest_list())
-    with connection.cursor() as cursor:
-        query = "SELECT DISTINCT(contest) AS contest FROM results"
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        contest_set -= set([row["contest"] for row in rows])
-        for contest in contest_set:
-            results = CrawlTools.get_results(contest)
-            if len(results) == 0:
-                continue
-            for result in results:
-                query = "INSERT INTO results(contest,user,rank) VALUES (%s,%s,%s)"
-                cursor.execute(query, (contest, result[0], result[1]))
-                connection.commit()
-
-
 def update_submissions(connection):
     with connection.cursor() as cursor:
         query = "SELECT id FROM contests ORDER BY last_crawled ASC LIMIT 1"
