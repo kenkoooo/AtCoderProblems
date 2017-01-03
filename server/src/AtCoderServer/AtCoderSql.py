@@ -92,3 +92,13 @@ def update_honor(connection, honor):
 def get_solver_nums(connection):
     query = "SELECT COUNT(DISTINCT(user_name)) AS solvers, problem_id FROM submissions WHERE status='AC' GROUP BY problem_id"
     return connection.execute(query, ())
+
+
+def insert_results(connection, contest, results):
+    query = "INSERT INTO results(contest,user,rank) VALUES "
+    for result in results:
+        query += "('{contest}','{user}', {rank}),".format(contest=contest,
+                                                          user=result["user"],
+                                                          rank=result["rank"])
+    query = query[:-1]
+    connection.execute(query, ())

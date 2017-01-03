@@ -58,6 +58,13 @@ class AtCoderSqlTest(unittest.TestCase):
         self.assertEqual(self.sql.execute.call_args[0][0],
                          "SELECT COUNT(DISTINCT(user_name)) AS solvers, problem_id FROM submissions WHERE status='AC' GROUP BY problem_id")
 
+    def test_insert_results(self):
+        results = [{"user": "kenkoooo", "rank": 1}, {"user": "chokudai", "rank": 114514}]
+        insert_results(self.sql, "arc999", results)
+        print(self.sql.execute.call_args[0][0], )
+        self.assertEqual(self.sql.execute.call_args[0][0],
+                         "INSERT INTO results(contest,user,rank) VALUES ('arc999','kenkoooo', 1),('arc999','chokudai', 114514)")
+
 
 if __name__ == '__main__':
     unittest.main()

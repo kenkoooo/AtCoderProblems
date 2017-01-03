@@ -132,3 +132,19 @@ def get_results(contest):
     for standing in standings:
         results.append((standing["user_screen_name"], standing["rank"]))
     return results
+
+
+def get_result_json(contest):
+    url = "http://{}.contest.atcoder.jp/standings/json".format(contest)
+    try:
+        request = urllib.request.Request(url)
+        content = urllib.request.urlopen(request).read().decode("utf8")
+        results = json.loads(content)["response"]
+        for i in range(0, len(results)):
+            if "rank" in results[i] and results[i]["rank"] == 0:
+                results.pop(i)
+                break
+        return results
+    except Exception as e:
+        print(e)
+        return []
