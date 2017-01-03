@@ -1,3 +1,5 @@
+import re
+
 import pymysql.cursors
 
 
@@ -10,6 +12,10 @@ def connect_my_sql(user, password):
         charset="utf8",
         cursorclass=pymysql.cursors.DictCursor)
     return connection
+
+
+def is_alphanumeric(phrase):
+    return re.match(r"^[a-zA-Z0-9_\-]*$", phrase)
 
 
 def get_all_submissions(connection):

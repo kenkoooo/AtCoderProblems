@@ -7,6 +7,9 @@ import re
 from bottle import get, run, response, request
 
 import ServerTools
+from ServerTools import is_alphanumeric
+
+from AtCoderSql import AtCoderSql, get_results, get_problems
 
 sql_user = ""
 sql_password = ""
@@ -15,7 +18,7 @@ sql_password = ""
 @get("/problems")
 def problems():
     username = request.query.user.lower()
-    if re.match(r"^[a-zA-Z0-9_\-]*$", username) is None:
+    if not is_alphanumeric(username):
         username = ""
 
     rivals = request.query.rivals.lower()
@@ -32,33 +35,31 @@ def problems():
         response.content_type = 'application/json'
         return json.dumps([], ensure_ascii=False, separators=(',', ':'))
 
-    connection = ServerTools.connect_my_sql(user=sql_user, password=sql_password)
     response_map = {}
-    with connection.cursor() as cursor:
-        query = "SELECT status,problem_id,user_name,created_time FROM submissions WHERE user_name IN %s"
-        cursor.execute(query, ((searcher),))
-        rows = cursor.fetchall()
-        for row in rows:
-            problem_id = row["problem_id"]
-            if problem_id not in response_map:
-                response_map[problem_id] = {
-                    "id": problem_id,
-                    "status": "",
-                    "ac_time": "",
-                    "rivals": [],
-                }
+    rows = get_problems(AtCoderSql(sql_user, sql_password), searcher)
 
-            if row["user_name"].lower() == username.lower():
-                if response_map[problem_id]["status"] == "AC":
-                    continue
-                if row["status"] == "AC":
-                    response_map[problem_id]["status"] = "AC"
-                    response_map[problem_id]["ac_time"] = row["created_time"].isoformat(" ")
-                else:
-                    response_map[problem_id]["status"] = row["status"]
-            elif row["status"] == "AC":
-                response_map[problem_id]["rivals"].append(row["user_name"])
-    connection.close()
+    for row in rows:
+        problem_id = row["problem_id"]
+        if problem_id not in response_map:
+            response_map[problem_id] = {
+                "id": problem_id,
+                "status": "",
+                "ac_time": "",
+                "rivals": [],
+            }
+
+        if row["user_name"].lower() == username.lower():
+            if response_map[problem_id]["status"] == "AC":
+                continue
+
+            if row["status"] == "AC":
+                response_map[problem_id]["status"] = "AC"
+                response_map[problem_id]["ac_time"] = row["created_time"].isoformat(" ")
+            else:
+                response_map[problem_id]["status"] = row["status"]
+        elif row["status"] == "AC":
+            response_map[problem_id]["rivals"].append(row["user_name"])
+
     ret = []
     for k, v in response_map.items():
         v["rivals"] = list(set(v["rivals"]))
@@ -202,30 +203,23 @@ def user():
 @get("/results")
 def results():
     username = request.query.user.lower()
-    if re.match(r"^[a-zA-Z0-9_\-]*$", username) is None:
+    if not is_alphanumeric(username):
         username = ""
 
-    rivals = request.query.rivals.lower()
-    if re.match(r"^[a-z0-9_\-,]*$", rivals):
-        rivals = rivals.strip().split(",")
-    else:
-        rivals = []
+    rivals = request.query.rivals.lower().split(",")
+    searcher = [x.strip() for x in rivals if is_alphanumeric(x.strip())]
+    searcher.append(username)
 
-    searcher = set(rivals)
-    searcher.add(username)
     if "" in searcher:
         searcher.remove("")
     if len(searcher) == 0:
-        return ""
-
-    connection = ServerTools.connect_my_sql(user=sql_user, password=sql_password)
-    with connection.cursor() as cursor:
-        query = "SELECT * FROM results WHERE user IN %s"
-        cursor.execute(query, ((searcher),))
-        rows = cursor.fetchall()
-        connection.close()
         response.content_type = 'application/json'
-        return json.dumps(rows, ensure_ascii=False, separators=(',', ':'))
+        return json.dumps([], ensure_ascii=False, separators=(',', ':'))
+
+    connection = AtCoderSql(sql_user, sql_password)
+    rows = get_results(connection, searcher)
+    response.content_type = 'application/json'
+    return json.dumps(rows, ensure_ascii=False, separators=(',', ':'))
 
 
 if __name__ == "__main__":
