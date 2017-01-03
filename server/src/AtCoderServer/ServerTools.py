@@ -39,7 +39,7 @@ def get_all_submissions(connection):
 def is_in_record(connection, table_name, column_name, value):
     with connection.cursor() as cursor:
         query = "SELECT " + column_name + " FROM " + table_name + " WHERE " + column_name + "=%s"
-        cursor.execute(query, (value))
+        cursor.execute(query, (value,))
         rows = cursor.fetchall()
         if len(rows) == 0:
             return False

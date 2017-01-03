@@ -6,7 +6,6 @@ import re
 
 from bottle import get, run, response, request
 
-import ServerTools
 from ServerTools import is_alphanumeric
 
 from AtCoderSql import AtCoderSql, get_results, get_problems, get_ranking
@@ -115,53 +114,56 @@ def user():
         "arc_num": 0,
     }
 
-    for rank in get_ranking(connection, kind="first"):
+    for rank in get_ranking(connection, "first"):
         if rank["user_name"] == username:
             user_dict["first_rank"] = rank["rank"]
             user_dict["first_num"] = rank["count"]
             break
 
-    for rank in get_ranking(connection, kind="fast"):
+    for rank in get_ranking(connection, "fast"):
         if rank["user_name"] == username:
             user_dict["fast_rank"] = rank["rank"]
             user_dict["fast_num"] = rank["count"]
             break
 
-    for rank in get_ranking(connection, kind="short"):
+    for rank in get_ranking(connection, "short"):
         if rank["user_name"] == username:
             user_dict["short_rank"] = rank["rank"]
             user_dict["short_num"] = rank["count"]
             break
 
+    # ABC/ARC の数をカウント
     query = "SELECT id FROM contests"
     for contest in connection.execute(query, ()):
         key = re.sub(r"^(a[br]c)[0-9]*$", r"\1_num", contest["id"])
-        if key not in user_dict:
+        if key in user_dict:
+            user_dict[key] += 1
+
+    problem_set = set()
+    for problem in get_problems(connection, [username]):
+        if problem["status"] != "AC":
             continue
-        user_dict[key] += 1
+        problem_id = problem["problem_id"]
+        problem_id = problem_id.replace("_1", "_a")
+        problem_id = problem_id.replace("_2", "_b")
+        problem_id = problem_id.replace("_3", "_c")
+        problem_id = problem_id.replace("_4", "_d")
+        problem_set.add(problem_id)
 
-    query = "SELECT DISTINCT(problem_id) FROM submissions WHERE user_name=%s AND status='AC'"
-    for contest in connection.execute(query, (username,)):
-        key = contest["problem_id"]
-        key = key.replace("_1", "_a")
-        key = key.replace("_2", "_b")
-        key = key.replace("_3", "_c")
-        key = key.replace("_4", "_d")
-
+    for problem_id in problem_set:
         # ARC058 以降の AB 問題は ABC の CD 問題ということにする
-        if re.match(r"^arc[0-9]*_[ab]$", key):
-            num = re.sub(r"^arc([0-9]*)_([ab])$", r"\1", key)
+        if re.match(r"^arc[0-9]*_[ab]$", problem_id):
+            num = re.sub(r"^arc([0-9]*)_([ab])$", r"\1", problem_id)
             num = int(num)
             if num >= 58:
-                key = key.replace("_a", "_c")
-                key = key.replace("_b", "_d")
-                key = key.replace("arc", "abc")
+                problem_id = problem_id.replace("_a", "_c")
+                problem_id = problem_id.replace("_b", "_d")
+                problem_id = problem_id.replace("arc", "abc")
 
-        key = re.sub(r"^(a[br]c)[0-9]*_([a-d])$", r"\1_\2", key)
+        problem_id = re.sub(r"^(a[br]c)[0-9]*_([a-d])$", r"\1_\2", problem_id)
 
-        if key not in user_dict:
-            continue
-        user_dict[key] += 1
+        if problem_id in user_dict:
+            user_dict[problem_id] += 1
 
     response.content_type = 'application/json'
     return json.dumps(user_dict, ensure_ascii=False, separators=(',', ':'))
