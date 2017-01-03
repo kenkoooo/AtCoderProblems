@@ -93,26 +93,9 @@ def user():
         return json.dumps({"ac_rank": 0}, ensure_ascii=False, separators=(',', ':'))
 
     user_dict = {
-        "user": username,
-        "ac_rank": ac_rank,
-        "short_rank": 0,
-        "fast_rank": 0,
-        "first_rank": 0,
-        "ac_num": ac_num,
-        "short_num": 0,
-        "fast_num": 0,
-        "first_num": 0,
-        "abc_a": 0,
-        "abc_b": 0,
-        "abc_c": 0,
-        "abc_d": 0,
-        "arc_a": 0,
-        "arc_b": 0,
-        "arc_c": 0,
-        "arc_d": 0,
-        "abc_num": 0,
-        "arc_num": 0,
-    }
+        "user": username, "ac_rank": ac_rank, "short_rank": 0, "fast_rank": 0, "first_rank": 0, "ac_num": ac_num,
+        "short_num": 0, "fast_num": 0, "first_num": 0, "abc_a": 0, "abc_b": 0, "abc_c": 0, "abc_d": 0, "arc_a": 0,
+        "arc_b": 0, "arc_c": 0, "arc_d": 0, "abc_num": 0, "arc_num": 0, }
 
     for rank in get_ranking(connection, "first"):
         if rank["user_name"] == username:
