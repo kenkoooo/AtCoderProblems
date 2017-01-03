@@ -1,4 +1,4 @@
-import {PageHeader, Row} from 'react-bootstrap';
+import {PageHeader, Row, Label} from 'react-bootstrap';
 import React, {Component} from 'react';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import MyUtils from './MyUtils'
@@ -20,6 +20,26 @@ function columnClassNameFormatter(value, row, rowIndex, columnIndex) {
     return 'warning';
   }
   return "";
+}
+
+function resultFormatter(cell, row) {
+  let style = "";
+  if (row.result === "WIN") {
+    style = 'success';
+  } else if (row.result === "LOSE") {
+    style = 'danger';
+  } else if (row.result === "DRAW") {
+    style = 'warning';
+  } else {
+    return (
+      <h5></h5>
+    );
+  }
+  return (
+    <h5>
+      <Label bsStyle={style}>{cell}</Label>
+    </h5>
+  );
 }
 
 class BattleTable extends Component {
@@ -148,7 +168,7 @@ class BattleTable extends Component {
           <TableHeaderColumn dataSort={true} dataField='you' columnClassName={columnClassNameFormatter}>
             ライバル
           </TableHeaderColumn>
-          <TableHeaderColumn dataSort={true} dataField='result' columnClassName={columnClassNameFormatter}>
+          <TableHeaderColumn dataSort={true} dataField='result' dataFormat={resultFormatter} columnClassName={columnClassNameFormatter}>
             結果
           </TableHeaderColumn>
         </BootstrapTable>
