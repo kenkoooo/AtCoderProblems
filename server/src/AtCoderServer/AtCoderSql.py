@@ -21,6 +21,7 @@ class AtCoderSql:
         with self.connection.cursor() as cursor:
             cursor.execute(query, params)
             rows = cursor.fetchall()
+        self.connection.commit()
         self.connection.close()
         self.connection = None
 
@@ -54,6 +55,35 @@ def get_results(connection, users):
     return connection.execute(query, (users,))
 
 
+def get_all_submissions(connection):
+    query = "SELECT" + \
+            " problems.id, problems.contest, problems.name, difficulty, solvers," \
+            " shortest.id AS shortest_id, shortest.contest_id AS shortest_contest, shortest.source_length," \
+            " shortest.user_name AS shortest_user," \
+            " fastest.id AS fastest_id, fastest.contest_id AS fastest_contest, fastest.exec_time," \
+            " fastest.user_name AS fastest_user," \
+            " first.id AS first_id, first.contest_id AS first_contest, first.user_name AS first_user" \
+            " FROM problems" \
+            " LEFT JOIN submissions AS shortest ON problems.shortest_submission_id=shortest.id" \
+            " LEFT JOIN submissions AS fastest ON problems.fastest_submission_id=fastest.id" \
+            " LEFT JOIN submissions AS first ON problems.first_submission_id=first.id"
+    return connection.execute(query, ())
+
+
 def get_problems(connection, users):
     query = "SELECT status,problem_id,user_name,created_time FROM submissions WHERE user_name IN %s"
     return connection.execute(query, (users,))
+
+
+def get_submissions(connection):
+    query = "SELECT id,problem_id,source_length,exec_time FROM submissions WHERE status='AC'"
+    return connection.execute(query, ())
+
+
+def update_honor(connection, honor):
+    query = "UPDATE problems SET " \
+            "shortest_submission_id=%(shortest)s," \
+            "fastest_submission_id=%(fastest)s," \
+            "first_submission_id=%(first)s" \
+            " WHERE id=%(problem_id)s"
+    connection.execute(query, honor)

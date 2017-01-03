@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import Mock
 
-from AtCoderSql import get_ranking, get_results
+from AtCoderSql import *
 
 
 class AtCoderSqlTest(unittest.TestCase):
@@ -31,6 +31,27 @@ class AtCoderSqlTest(unittest.TestCase):
         users = ["kenkoooo"]
         get_results(self.sql, users)
         self.assertEqual(self.sql.execute.call_args[0][0], "SELECT * FROM results WHERE user IN %s")
+
+    def test_problems(self):
+        users = ["kenkoooo"]
+        get_problems(self.sql, users)
+        self.assertEqual(self.sql.execute.call_args[0][0],
+                         "SELECT status,problem_id,user_name,created_time FROM submissions WHERE user_name IN %s")
+
+    def test_all_submissions(self):
+        get_all_submissions(self.sql)
+        self.assertEqual(self.sql.execute.call_args[0][0],
+                         "SELECT problems.id, problems.contest, problems.name, difficulty, solvers, shortest.id AS shortest_id, shortest.contest_id AS shortest_contest, shortest.source_length, shortest.user_name AS shortest_user, fastest.id AS fastest_id, fastest.contest_id AS fastest_contest, fastest.exec_time, fastest.user_name AS fastest_user, first.id AS first_id, first.contest_id AS first_contest, first.user_name AS first_user FROM problems LEFT JOIN submissions AS shortest ON problems.shortest_submission_id=shortest.id LEFT JOIN submissions AS fastest ON problems.fastest_submission_id=fastest.id LEFT JOIN submissions AS first ON problems.first_submission_id=first.id")
+
+    def test_submissions(self):
+        get_submissions(self.sql)
+        self.assertEqual(self.sql.execute.call_args[0][0],
+                         "SELECT id,problem_id,source_length,exec_time FROM submissions WHERE status='AC'")
+
+    def test_honor(self):
+        update_honor(self.sql, {})
+        self.assertEqual(self.sql.execute.call_args[0][0],
+                         "UPDATE problems SET shortest_submission_id=%(shortest)s,fastest_submission_id=%(fastest)s,first_submission_id=%(first)s WHERE id=%(problem_id)s")
 
 
 if __name__ == '__main__':

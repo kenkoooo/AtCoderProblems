@@ -9,6 +9,7 @@ from datetime import datetime
 import numpy
 
 import ServerTools
+from AtCoderSql import *
 
 json_dir = "/usr/share/atcoder/json/"
 
@@ -78,10 +79,7 @@ def update_solver_num(connection):
 
 
 def update_honorable_submissions(connection):
-    with connection.cursor() as cursor:
-        query = "SELECT id,problem_id,source_length,exec_time FROM submissions WHERE status='AC'"
-        cursor.execute(query)
-        rows = cursor.fetchall()
+    rows = get_submissions(connection)
 
     honorable_map = {}
     for row in rows:
@@ -93,6 +91,7 @@ def update_honorable_submissions(connection):
                 "source_length": row["source_length"],
                 "exec_time": row["exec_time"]
             }
+
         if row["source_length"] < honorable_map[row["problem_id"]]["source_length"]:
             honorable_map[row["problem_id"]]["source_length"] = row["source_length"]
             honorable_map[row["problem_id"]]["shortest"] = row["id"]
@@ -101,111 +100,39 @@ def update_honorable_submissions(connection):
             honorable_map[row["problem_id"]]["fastest"] = row["id"]
 
     for problem_id, honor in honorable_map.items():
-        with connection.cursor() as cursor:
-            query = "UPDATE problems SET " \
-                    "shortest_submission_id=%(shortest)s," \
-                    "fastest_submission_id=%(fastest)s," \
-                    "first_submission_id=%(first)s" \
-                    " WHERE id=%(problem_id)s"
-            cursor.execute(query, {
-                "shortest": honor["shortest"],
-                "fastest": honor["fastest"],
-                "first": honor["first"],
-                "problem_id": problem_id
-            })
-            connection.commit()
+        update_honor(connection, {
+            "shortest": honor["shortest"],
+            "fastest": honor["fastest"],
+            "first": honor["first"],
+            "problem_id": problem_id
+        })
 
 
 def update_ac_ranking(connection):
-    with connection.cursor() as cursor:
-        query = "SELECT COUNT(DISTINCT(problem_id)) AS count, user_name FROM submissions WHERE status='AC' GROUP BY user_name ORDER BY count DESC"
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        for row in rows:
-            query = "INSERT INTO ac_ranking (user_name,count) VALUES (%(user_name)s,%(count)s)" \
-                    " ON DUPLICATE KEY UPDATE count=%(count)s"
-            cursor.execute(query, row)
-            connection.commit()
+    connection.execute("TRUNCATE TABLE ac_ranking", ())
 
-
-def update_difficulty(connection):
-    tekito = 20
-
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "Select id, problem_id, contest_id, user_name FROM submissions WHERE status='AC'"
-        )
-        rows = cursor.fetchall()
-
-    solvers_set = {}
+    select = "SELECT COUNT(DISTINCT(problem_id)) AS count, user_name FROM submissions WHERE status='AC' GROUP BY user_name"
+    rows = connection.execute(select, ())
+    query = "INSERT INTO ac_ranking (user_name,count) VALUES "
     for row in rows:
-        if row["problem_id"] not in solvers_set:
-            solvers_set[row["problem_id"]] = set()
-        solvers_set[row["problem_id"]].add(row["user_name"])
-
-    user_points = {}
-    for problem_id, solvers in solvers_set.items():
-        solver_num = len(solvers)
-        for user in solvers:
-            if user not in user_points:
-                user_points[user] = []
-            user_points[user].append(solver_num)
-
-    user_rating = {}
-    for user_name, solved in user_points.items():
-        solved = sorted(solved)
-        if len(solved) < tekito:
-            continue
-        user_rating[user_name] = numpy.mean([solved[i] for i in range(0, tekito)])
-
-    difficulties = []
-    for problem_id, users in solvers_set.items():
-        rating = []
-        for user in users:
-            if user in user_rating:
-                rating.append(user_rating[user])
-        rating.sort(reverse=True)
-        if len(rating) == 0:
-            continue
-
-        difficulties.append((numpy.mean([rating[i] for i in range(0, min(tekito, len(rating)))]), problem_id))
-    for difficulty, problem_id in sorted(difficulties):
-        difficulty = int(difficulty)
-        with connection.cursor() as cursor:
-            query = "UPDATE problems SET " \
-                    "difficulty=%(difficulty)s" \
-                    " WHERE id=%(problem_id)s"
-            cursor.execute(query, {
-                "difficulty": difficulty,
-                "problem_id": problem_id
-            })
-            connection.commit()
+        user_name = row["user_name"]
+        count = row["count"]
+        query += "('{}',{}),".format(user_name, count)
+    query = query[:-1]
+    connection.execute(query, ())
 
 
 def data_updater_main(user, password):
-    updater_log_dir = "update_log/"
-    if not os.path.exists(updater_log_dir):
-        os.makedirs(updater_log_dir)
-
     while True:
-        logging.basicConfig(filename=updater_log_dir + datetime.now().strftime("%Y-%m-%d") + ".log",
-                            level=logging.DEBUG)
+        start = time.time()
         try:
-            conn = ServerTools.connect_my_sql(user, password)
+            connection = AtCoderSql(user, password)
+            update_ac_ranking(connection)
+            update_honorable_submissions(connection)
+            print(time.time() - start)
 
-            update_ac_ranking(conn)
-            update_solver_num(conn)
-            update_honorable_submissions(conn)
-            update_difficulty(conn)
-
-            generate_contests(conn)
-            generate_problems(conn)
-            generate_problems_simple(conn)
-
-            conn.close()
-            logging.info(datetime.now().strftime("%Y/%m/%d %H:%M:%S") + ": Updated")
         except Exception as e:
-            logging.error(datetime.now().strftime("%Y/%m/%d %H:%M:%S") + ": Update Error " + e)
+            print(e)
 
         time.sleep(600)
 
