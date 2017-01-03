@@ -53,6 +53,11 @@ class AtCoderSqlTest(unittest.TestCase):
         self.assertEqual(self.sql.execute.call_args[0][0],
                          "UPDATE problems SET shortest_submission_id=%(shortest)s,fastest_submission_id=%(fastest)s,first_submission_id=%(first)s WHERE id=%(problem_id)s")
 
+    def test_solver_nums(self):
+        get_solver_nums(self.sql)
+        self.assertEqual(self.sql.execute.call_args[0][0],
+                         "SELECT COUNT(DISTINCT(user_name)) AS solvers, problem_id FROM submissions WHERE status='AC' GROUP BY problem_id")
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -87,3 +87,8 @@ def update_honor(connection, honor):
             "first_submission_id=%(first)s" \
             " WHERE id=%(problem_id)s"
     connection.execute(query, honor)
+
+
+def get_solver_nums(connection):
+    query = "SELECT COUNT(DISTINCT(user_name)) AS solvers, problem_id FROM submissions WHERE status='AC' GROUP BY problem_id"
+    return connection.execute(query, ())
