@@ -54,7 +54,7 @@ def update_contest_submissions(connection, contest, only_diff=True):
                     "source_length": submission["source_length"],
                     "language": submission["language"],
                     "exec_time": submission["exec_time"],
-                    "created_time": submission["created_time"]
+                    "created_time": submission["created_time"][:-6]
                 })
                 connection.commit()
         i += 1
