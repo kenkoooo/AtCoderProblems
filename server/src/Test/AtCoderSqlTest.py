@@ -30,8 +30,7 @@ class AtCoderSqlTest(unittest.TestCase):
     def test_results(self):
         users = ["kenkoooo"]
         get_results(self.sql, users)
-        self.assertEqual(self.sql.execute.call_args[0][0],
-                         "SELECT * FROM results WHERE user IN %s")
+        self.assertEqual(self.sql.execute.call_args[0][0], "SELECT * FROM results WHERE user IN %s")
 
 
 if __name__ == '__main__':

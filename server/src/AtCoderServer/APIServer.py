@@ -9,7 +9,7 @@ from bottle import get, run, response, request
 import ServerTools
 from ServerTools import is_alphanumeric
 
-from AtCoderSql import AtCoderSql, get_results, get_problems
+from AtCoderSql import AtCoderSql, get_results, get_problems, get_ranking
 
 sql_user = ""
 sql_password = ""
@@ -21,14 +21,10 @@ def problems():
     if not is_alphanumeric(username):
         username = ""
 
-    rivals = request.query.rivals.lower()
-    if re.match(r"^[a-z0-9_\-,]*$", rivals):
-        rivals = rivals.strip().split(",")
-    else:
-        rivals = []
-
-    searcher = set(rivals)
+    rivals = request.query.rivals.lower().split(",")
+    searcher = set([x.strip() for x in rivals if is_alphanumeric(x.strip())])
     searcher.add(username)
+
     if "" in searcher:
         searcher.remove("")
     if len(searcher) == 0:
@@ -68,36 +64,10 @@ def problems():
     return json.dumps(ret, ensure_ascii=False, separators=(',', ':'))
 
 
-def get_ranking(kind, lim=100000):
-    query = "SELECT COUNT(submissions.id) AS count, user_name FROM problems"
-    if kind == "fast":
-        query += " LEFT JOIN submissions ON submissions.id=problems.fastest_submission_id"
-    elif kind == "first":
-        query += " LEFT JOIN submissions ON submissions.id=problems.first_submission_id"
-    elif kind == "short":
-        query += " LEFT JOIN submissions ON submissions.id=problems.shortest_submission_id"
-    elif kind == "ac":
-        query = "SELECT count, user_name FROM ac_ranking"
-    else:
-        return []
-    query += " GROUP BY user_name ORDER BY count DESC LIMIT %s"
-    connection = ServerTools.connect_my_sql(user=sql_user, password=sql_password)
-    with connection.cursor() as cursor:
-        cursor.execute(query, ((lim),))
-        rows = cursor.fetchall()
-        connection.close()
-        for i in range(0, len(rows)):
-            if i > 0 and rows[i - 1]["count"] == rows[i]["count"]:
-                rows[i]["rank"] = rows[i - 1]["rank"]
-            else:
-                rows[i]["rank"] = i + 1
-        return rows
-
-
 @get("/ranking")
 def ranking():
     kind = request.query.kind
-    rows = get_ranking(kind=kind, lim=300)
+    rows = get_ranking(AtCoderSql(sql_user, sql_password), kind=kind, lim=300)
     response.content_type = 'application/json'
     return json.dumps(rows, ensure_ascii=False, separators=(',', ':'))
 
@@ -105,18 +75,20 @@ def ranking():
 @get("/user")
 def user():
     username = request.query.user.lower()
-    if re.match(r"^[a-zA-Z0-9_\-]*$", username) is None or username == "":
+    if not is_alphanumeric(username) or username == "":
         response.content_type = 'application/json'
         return json.dumps({"ac_rank": 0}, ensure_ascii=False, separators=(',', ':'))
 
     ac_rank = -1
     ac_num = 0
-    for rank in get_ranking(kind="ac"):
+    connection = AtCoderSql(sql_user, sql_password)
+    for rank in get_ranking(connection, kind="ac"):
         if rank["user_name"].lower() == username:
             ac_rank = rank["rank"]
             ac_num = rank["count"]
             username = rank["user_name"]
             break
+
     if ac_rank < 0:
         response.content_type = 'application/json'
         return json.dumps({"ac_rank": 0}, ensure_ascii=False, separators=(',', ':'))
@@ -143,58 +115,53 @@ def user():
         "arc_num": 0,
     }
 
-    for rank in get_ranking(kind="first"):
+    for rank in get_ranking(connection, kind="first"):
         if rank["user_name"] == username:
             user_dict["first_rank"] = rank["rank"]
             user_dict["first_num"] = rank["count"]
             break
 
-    for rank in get_ranking(kind="fast"):
+    for rank in get_ranking(connection, kind="fast"):
         if rank["user_name"] == username:
             user_dict["fast_rank"] = rank["rank"]
             user_dict["fast_num"] = rank["count"]
             break
 
-    for rank in get_ranking(kind="short"):
+    for rank in get_ranking(connection, kind="short"):
         if rank["user_name"] == username:
             user_dict["short_rank"] = rank["rank"]
             user_dict["short_num"] = rank["count"]
             break
 
-    connection = ServerTools.connect_my_sql(user=sql_user, password=sql_password)
-    with connection.cursor() as cursor:
-        query = "SELECT id FROM contests"
-        cursor.execute(query)
-        for contest in cursor.fetchall():
-            key = re.sub(r"^(a[br]c)[0-9]*$", r"\1_num", contest["id"])
-            if key not in user_dict:
-                continue
-            user_dict[key] += 1
-    with connection.cursor() as cursor:
-        query = "SELECT DISTINCT(problem_id) FROM submissions WHERE user_name=%s AND status='AC'"
-        cursor.execute(query, ((username),))
-        for contest in cursor.fetchall():
-            key = contest["problem_id"]
-            key = key.replace("_1", "_a")
-            key = key.replace("_2", "_b")
-            key = key.replace("_3", "_c")
-            key = key.replace("_4", "_d")
+    query = "SELECT id FROM contests"
+    for contest in connection.execute(query, ()):
+        key = re.sub(r"^(a[br]c)[0-9]*$", r"\1_num", contest["id"])
+        if key not in user_dict:
+            continue
+        user_dict[key] += 1
 
-            # ARC058 以降の AB 問題は ABC の CD 問題ということにする
-            if re.match(r"^arc[0-9]*_[ab]$", key):
-                num = re.sub(r"^arc([0-9]*)_([ab])$", r"\1", key)
-                num = int(num)
-                if num >= 58:
-                    key = key.replace("_a", "_c")
-                    key = key.replace("_b", "_d")
-                    key = key.replace("arc", "abc")
+    query = "SELECT DISTINCT(problem_id) FROM submissions WHERE user_name=%s AND status='AC'"
+    for contest in connection.execute(query, (username,)):
+        key = contest["problem_id"]
+        key = key.replace("_1", "_a")
+        key = key.replace("_2", "_b")
+        key = key.replace("_3", "_c")
+        key = key.replace("_4", "_d")
 
-            key = re.sub(r"^(a[br]c)[0-9]*_([a-d])$", r"\1_\2", key)
+        # ARC058 以降の AB 問題は ABC の CD 問題ということにする
+        if re.match(r"^arc[0-9]*_[ab]$", key):
+            num = re.sub(r"^arc([0-9]*)_([ab])$", r"\1", key)
+            num = int(num)
+            if num >= 58:
+                key = key.replace("_a", "_c")
+                key = key.replace("_b", "_d")
+                key = key.replace("arc", "abc")
 
-            if key not in user_dict:
-                continue
-            user_dict[key] += 1
-    connection.close()
+        key = re.sub(r"^(a[br]c)[0-9]*_([a-d])$", r"\1_\2", key)
+
+        if key not in user_dict:
+            continue
+        user_dict[key] += 1
 
     response.content_type = 'application/json'
     return json.dumps(user_dict, ensure_ascii=False, separators=(',', ':'))
@@ -207,8 +174,8 @@ def results():
         username = ""
 
     rivals = request.query.rivals.lower().split(",")
-    searcher = [x.strip() for x in rivals if is_alphanumeric(x.strip())]
-    searcher.append(username)
+    searcher = set([x.strip() for x in rivals if is_alphanumeric(x.strip())])
+    searcher.add(username)
 
     if "" in searcher:
         searcher.remove("")
