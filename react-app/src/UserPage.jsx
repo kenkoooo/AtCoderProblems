@@ -235,7 +235,7 @@ class UserPage extends Component {
   }
 
   render() {
-    if (this.state.problems == null || this.state.problems.length === 0 || this.state.problemMap == null) {
+    if (this.state.problems == null || this.state.problems.length === 0 || this.state.problemMap == null || this.state.user == null) {
       return (
         <Row></Row>
       );
