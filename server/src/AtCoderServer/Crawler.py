@@ -1,8 +1,7 @@
 import argparse
-import os
 import time
 import traceback
-from datetime import datetime
+from datetime import datetime, sys
 
 import CrawlTools
 import ServerTools
@@ -93,10 +92,6 @@ def update_contests(connection):
 
 
 def crawler_main(user, password):
-    crawl_log_dir = "crawl_log/"
-    if not os.path.exists(crawl_log_dir):
-        os.makedirs(crawl_log_dir)
-
     i = 100000
     while True:
         try:
@@ -112,8 +107,9 @@ def crawler_main(user, password):
 
             conn.close()
 
-        except Exception as e:
-            traceback.print_tb(e)
+        except:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
         time.sleep(1)
 
 
