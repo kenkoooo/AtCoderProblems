@@ -112,8 +112,8 @@ def crawler_main(user, password):
 
             conn.close()
 
-        except:
-            traceback.format_exc()
+        except Exception as e:
+            traceback.print_tb(e)
         time.sleep(1)
 
 
