@@ -1,7 +1,8 @@
 import argparse
 import time
 import traceback
-from datetime import datetime, sys
+from datetime import datetime
+import sys
 
 import CrawlTools
 import ServerTools
