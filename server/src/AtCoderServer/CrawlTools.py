@@ -41,8 +41,8 @@ def get_problem_set(contest):
         return {}, {}, ""
 
     times = {
-        "start": bs.find("time", attrs={"id": "contest-start-time"}).text,
-        "end": bs.find("time", attrs={"id": "contest-end-time"}).text,
+        "start": bs.find("time", attrs={"id": "contest-start-time"}).text.replace("+0000", ""),
+        "end": bs.find("time", attrs={"id": "contest-end-time"}).text.replace("+0000", ""),
     }
     contest_name = ""
     for span in bs.find_all("span", attrs={"class": "contest-name"}):

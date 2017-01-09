@@ -77,8 +77,7 @@ def update_contests(connection):
             for problem_id, problem_name in problems.items():
                 if ServerTools.is_in_record(connection, "problems", "id", problem_id):
                     continue
-                query = "INSERT INTO problems(id,contest,name)"
-                query += " VALUES (%(id)s,%(contest)s,%(name)s)"
+                query = "INSERT INTO problems(id,contest,name) VALUES (%(id)s,%(contest)s,%(name)s)"
                 cursor.execute(query, {"id": problem_id, "contest": contest, "name": problem_name})
                 connection.commit()
             query = "INSERT INTO `contests`(`id`, `name`, `start`, `end`)"
