@@ -54,7 +54,7 @@ def update_contest_submissions(connection, contest, only_diff=True):
                     "source_length": submission["source_length"],
                     "language": submission["language"],
                     "exec_time": submission["exec_time"],
-                    "created_time": submission["created_time"][:-6]
+                    "created_time": submission["created_time"]
                 })
                 connection.commit()
         i += 1
@@ -62,7 +62,6 @@ def update_contest_submissions(connection, contest, only_diff=True):
         query = "UPDATE contests SET last_crawled=%s WHERE id=%s"
         cursor.execute(query, (datetime.now().strftime("%Y/%m/%d %H:%M:%S"), contest))
         connection.commit()
-    logging.info(datetime.now().strftime("%Y/%m/%d %H:%M:%S") + ": Submission Crawled " + contest)
 
 
 def update_contests(connection):
@@ -100,25 +99,21 @@ def crawler_main(user, password):
 
     i = 100000
     while True:
-        logging.basicConfig(filename=crawl_log_dir + datetime.now().strftime("%Y-%m-%d") + ".log", level=logging.DEBUG)
-        logging.info("i=" + str(i))
         try:
             conn = ServerTools.connect_my_sql(user, password)
 
             if i >= 3600 * 3:
-                logging.info("Update Contests")
                 # update_results(conn)
                 update_contests(conn)
                 i = 0
             else:
-                logging.info("Update Submissions")
                 update_submissions(conn)
                 i += 1
 
             conn.close()
 
         except Exception as e:
-            logging.error(datetime.now().strftime("%Y/%m/%d %H:%M:%S") + ": Submission Crawled " + e)
+            print(e)
         time.sleep(1)
 
 

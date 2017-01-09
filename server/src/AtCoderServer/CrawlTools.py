@@ -80,7 +80,8 @@ def get_submissions(contest, page):
                 tds.append(td)
             else:
                 tds.append(td.text)
-
+        if len(tds) > 0:
+            tds[0] = tds[0].replace("+0000", "")
         if len(tds) == 10:
             td_map = {
                 "created_time": tds[0],
