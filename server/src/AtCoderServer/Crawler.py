@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+import traceback
 from datetime import datetime
 
 import CrawlTools
@@ -111,8 +112,8 @@ def crawler_main(user, password):
 
             conn.close()
 
-        except Exception as e:
-            print(e)
+        except:
+            traceback.format_exc()
         time.sleep(1)
 
 
