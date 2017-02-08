@@ -1,10 +1,10 @@
-import {Row, PageHeader, Col} from 'react-bootstrap';
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import React, {Component} from 'react';
-import PieChart from './PieChart';
-import LineChart from './LineChart';
-import BarChart from './BarChart';
-import MyUtils from './MyUtils';
+import {Row, PageHeader, Col} from "react-bootstrap";
+import {BootstrapTable, TableHeaderColumn} from "react-bootstrap-table";
+import React, {Component} from "react";
+import PieChart from "./PieChart";
+import LineChart from "./LineChart";
+import BarChart from "./BarChart";
+import MyUtils from "./MyUtils";
 
 function getUniqueAcProblems(problems) {
   problems.sort((a, b) => {
@@ -50,7 +50,8 @@ function getStrDates(problems) {
 
 function problemFormatter(cell, row) {
   return (
-    <a href={`https://${row.problem.contest}.contest.atcoder.jp/tasks/${row.problem.id}`} target="_blank">{row.problem.name}</a>
+    <a href={`https://${row.problem.contest}.contest.atcoder.jp/tasks/${row.problem.id}`}
+       target="_blank">{row.problem.name}</a>
   )
 }
 
@@ -260,6 +261,7 @@ class UserPage extends Component {
     })
 
     const user = this.state.user;
+    const newAbc = user.abc_num - (user.arc_num - 57);
     return (
       <Row>
         <PageHeader>
@@ -275,16 +277,16 @@ class UserPage extends Component {
         <Row>
           <this.pieCharts name="abc_a" ac={user.abc_a} total={user.abc_num} title="A 問題"/>
           <this.pieCharts name="abc_b" ac={user.abc_b} total={user.abc_num} title="B 問題"/>
-          <this.pieCharts name="abc_c" ac={user.abc_c} total={user.abc_num} title="C 問題"/>
-          <this.pieCharts name="abc_d" ac={user.abc_d} total={user.abc_num} title="D 問題"/>
+          <this.pieCharts name="abc_c" ac={user.abc_c} total={newAbc} title="C 問題"/>
+          <this.pieCharts name="abc_d" ac={user.abc_d} total={newAbc} title="D 問題"/>
         </Row>
 
         <PageHeader>
           AtCoder Regular Contest
         </PageHeader>
         <Row>
-          <this.pieCharts name="arc_a" ac={user.arc_a} total={57} title="A 問題"/>
-          <this.pieCharts name="arc_b" ac={user.arc_b} total={57} title="B 問題"/>
+          <this.pieCharts name="arc_a" ac={user.arc_a} total={user.arc_num} title="A 問題"/>
+          <this.pieCharts name="arc_b" ac={user.arc_b} total={user.arc_num} title="B 問題"/>
           <this.pieCharts name="arc_c" ac={user.arc_c} total={user.arc_num} title="C 問題"/>
           <this.pieCharts name="arc_d" ac={user.arc_d} total={user.arc_num} title="D 問題"/>
         </Row>
