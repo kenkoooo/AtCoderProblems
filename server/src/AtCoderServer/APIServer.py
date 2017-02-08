@@ -6,9 +6,8 @@ import re
 
 from bottle import get, run, response, request
 
-from ServerTools import is_alphanumeric
-
 from AtCoderSql import AtCoderSql, get_results, get_problems, get_ranking
+from ServerTools import is_alphanumeric
 
 sql_user = ""
 sql_password = ""
@@ -134,15 +133,6 @@ def user():
         problem_set.add(problem_id)
 
     for problem_id in problem_set:
-        # ARC058 以降の AB 問題は ABC の CD 問題ということにする
-        if re.match(r"^arc[0-9]*_[ab]$", problem_id):
-            num = re.sub(r"^arc([0-9]*)_([ab])$", r"\1", problem_id)
-            num = int(num)
-            if num >= 58:
-                problem_id = problem_id.replace("_a", "_c")
-                problem_id = problem_id.replace("_b", "_d")
-                problem_id = problem_id.replace("arc", "abc")
-
         problem_id = re.sub(r"^(a[br]c)[0-9]*_([a-d])$", r"\1_\2", problem_id)
 
         if problem_id in user_dict:
