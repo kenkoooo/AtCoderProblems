@@ -120,7 +120,7 @@ class ProblemMainTable extends Component {
     const contests = mergeProblems(this.state.problems, props.regex);
     const data = [];
     contests.forEach((v, k) => {
-      if (v.length > 4) {
+      if (v.length == 6) {
         data.push({
           id: k,
           a: v[0],
@@ -130,10 +130,19 @@ class ProblemMainTable extends Component {
           e: v[4],
           f: v[5]
         });
-      } else if (v.length > 2) {
+      } else if (v.length == 5) {
+        data.push({
+          id: k,
+          a: v[0],
+          b: v[1],
+          c: v[2],
+          d: v[3],
+          e: v[4]
+        });
+      } else if (v.length == 4) {
         data.push({id: k, a: v[0], b: v[1], c: v[2], d: v[3]});
       } else {
-        data.push({id: k, c: v[0], d: v[1]});
+        data.push({id: k, a: v[0], b: v[1]});
       }
     });
     data.reverse();
