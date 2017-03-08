@@ -13,14 +13,20 @@ def get_html_bs(url):
 
 
 def get_contest_list():
-    bs = get_html_bs("https://atcoder.jp/contest/archive?categories=&mode=check&showLocal=true")
+    url = "https://atcoder.jp/contest/archive?showLocal=true&mode=tmp&p={}"
     contests = []
-    for link in bs.find_all("a"):
-        pattern = r"^https://([a-z0-9\-_]*)\.contest\.atcoder.*$"
-        if link.get("href") is None:
-            continue
-        if re.match(pattern, link["href"]):
-            contests.append(re.sub(pattern, r"\1", link["href"]))
+    for page in range(1, 100):
+        bs = get_html_bs(url.format(page))
+        tmp = []
+        for link in bs.find_all("a"):
+            pattern = r"^https://([a-z0-9\-_]*)\.contest\.atcoder.*$"
+            if link.get("href") is None:
+                continue
+            if re.match(pattern, link["href"]):
+                tmp.append(re.sub(pattern, r"\1", link["href"]))
+        if len(tmp) == 0:
+            break
+        contests += tmp
     return list(set(contests))
 
 
