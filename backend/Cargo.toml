@@ -1,0 +1,6 @@
+[package]
+name = "atcoder_problems"
+version = "0.1.0"
+authors = ["kenkoooo <kenkou.n@gmail.com>"]
+
+[dependencies]
