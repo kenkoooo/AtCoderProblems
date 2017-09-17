@@ -4,3 +4,5 @@ version = "0.1.0"
 authors = ["kenkoooo <kenkou.n@gmail.com>"]
 
 [dependencies]
+select = "0.4.2"
+reqwest = "0.7.3"
