@@ -158,7 +158,7 @@ mod test {
     #[test]
     fn get_contest_list_test() {
         let contest_list = get_contest_list();
-        assert!(contest_list.contains(&"jag2017summer - day1".to_string()));
+        assert!(contest_list.contains(&"jag2017summer-day1".to_string()));
         assert!(contest_list.contains(&"joi2006ho".to_string()));
         assert!(contest_list.len() >= 382);
     }
