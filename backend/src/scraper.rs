@@ -84,6 +84,34 @@ fn get_contest_time(contest_name: &str) -> (i64, i64) {
     }
 }
 
+fn get_submissions(contest_name: &str, page: usize) -> Vec<Submission> {
+    let url = format!("{}/contests/{}/submissions?page={}", URL_PREFIX, contest_name, page);
+    let content = request_html_string(&url);
+    let document = Document::from(content.as_str());
+
+    let problem_prefix = format!("/contests/{}/tasks/", contest_name);
+    let submission_prefix = format!("/contests/{}/submissions/", contest_name);
+    document.find(Name("tbody").descendant(Name("tr"))).map(|node| {
+        let mut tds = node.find(Name("td"));
+        let time = convert_timestamp(&tds.next().unwrap().text()).unwrap();
+        tds.next();
+        tds.next();
+        let language = tds.next().unwrap().text();
+        let point = tds.next().unwrap().text().parse::<i64>().unwrap();
+        let code_length = tds.next().unwrap().text().replace(" Byte", "").parse::<usize>().unwrap();
+        let result = tds.next().unwrap().text();
+        let execution_time = tds.next().map(|n| n.text().replace(" ms", "").parse::<usize>().unwrap());
+
+        let mut links = node.find(Name("a"));
+        let problem = links.next().unwrap().attr("href").unwrap().replace(&problem_prefix, "");
+        let user = links.next().unwrap().text();
+        links.next();
+        let id = links.next().unwrap().attr("href").unwrap().replace(&submission_prefix, "").parse::<usize>().unwrap();
+
+        Submission { id, time, user, language, point, code_length, result, execution_time }
+    }).collect::<Vec<Submission>>()
+}
+
 #[derive(Serialize, Deserialize)]
 struct ContestInfo {
     #[serde(rename = "Fixed")]
@@ -112,6 +140,17 @@ struct StandingsUser {
     name: String,
 }
 
+struct Submission {
+    id: usize,
+    time: i64,
+    user: String,
+    language: String,
+    point: i64,
+    code_length: usize,
+    result: String,
+    execution_time: Option<usize>,
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -119,7 +158,7 @@ mod test {
     #[test]
     fn get_contest_list_test() {
         let contest_list = get_contest_list();
-        assert!(contest_list.contains(&"jag2017summer-day1".to_string()));
+        assert!(contest_list.contains(&"jag2017summer - day1".to_string()));
         assert!(contest_list.contains(&"joi2006ho".to_string()));
         assert!(contest_list.len() >= 382);
     }
@@ -134,5 +173,11 @@ mod test {
     #[test]
     fn get_contest_time_test() {
         assert_eq!((1504353600, 1504359600), get_contest_time("arc082"));
+    }
+
+    #[test]
+    fn get_submissions_test() {
+        let submissions = get_submissions("arc082", 1);
+        assert_eq!(submissions.len(), 20);
     }
 }
