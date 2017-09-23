@@ -5,9 +5,9 @@ use select::predicate::{Predicate, Attr, Class, Name};
 use std::io::Read;
 use serde_json;
 use serde_json::{Value, Error};
+use chrono::{DateTime, FixedOffset, ParseResult, Utc};
 
 static URL_PREFIX: &str = "https://beta.atcoder.jp";
-
 
 fn request_html_string(url: &str) -> String {
     let mut resp = reqwest::get(url).unwrap();
@@ -18,12 +18,14 @@ fn request_html_string(url: &str) -> String {
     content
 }
 
+/// Returns a contest ID list
 fn get_contest_list() -> Vec<String> {
     let mut contest_list = Vec::new();
-    for i in 1..100 {
+    let mut page = 1;
+    loop {
         let prev = contest_list.len();
 
-        let url = format!("{}/contests/archive?lang=ja&page={}", URL_PREFIX, i);
+        let url = format!("{}/contests/archive?lang=ja&page={}", URL_PREFIX, page);
         let content = request_html_string(&url);
 
         let document = Document::from(content.as_str());
@@ -39,6 +41,7 @@ fn get_contest_list() -> Vec<String> {
         if contest_list.len() == prev {
             break;
         }
+        page += 1;
     }
     contest_list
 }
@@ -47,6 +50,38 @@ fn get_contest_info(contest_name: &str) -> ContestInfo {
     let url = format!("{}/contests/{}/standings/json", URL_PREFIX, contest_name);
     let json_str = request_html_string(&url);
     serde_json::from_str(&json_str).unwrap()
+}
+
+
+fn convert_timestamp(time_string: &str) -> Option<i64> {
+    let re = Regex::new(r"^(\d{4}\-\d{2}\-\d{2}) (\d{2}:\d{2}:\d{2}\+\d{2})(\d{2})$").unwrap();
+    if re.is_match(time_string) {
+        let x = DateTime::parse_from_rfc3339(&(re.replace_all(time_string, "$1") + re.replace_all(time_string, "T$2:$3")));
+        x.map(|t| t.timestamp()).ok()
+    } else {
+        None
+    }
+}
+
+/// Returns start and end time of the given contest as unix-time seconds
+fn get_contest_time(contest_name: &str) -> (i64, i64) {
+    let url = format!("{}/contests/{}", URL_PREFIX, contest_name);
+    let content = request_html_string(&url);
+
+    let document = Document::from(content.as_str());
+
+
+    let mut v = Vec::new();
+    for node in document.find(Class("contest-duration").descendant(Name("time"))) {
+        let t = node.text();
+        convert_timestamp(&t).map(|i| v.push(i));
+    }
+
+    if v[0] < v[1] {
+        (v[0], v[1])
+    } else {
+        (v[1], v[0])
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -94,5 +129,10 @@ mod test {
         let contest_info = get_contest_info("arc082");
         assert_eq!(contest_info.tasks.len(), 4);
         assert_eq!(contest_info.standings.len(), 1196);
+    }
+
+    #[test]
+    fn get_contest_time_test() {
+        assert_eq!((1504353600, 1504359600), get_contest_time("arc082"));
     }
 }
