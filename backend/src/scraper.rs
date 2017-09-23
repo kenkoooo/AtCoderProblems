@@ -6,6 +6,8 @@ use std::io::Read;
 use serde_json;
 use serde_json::{Value, Error};
 
+static URL_PREFIX: &str = "https://beta.atcoder.jp";
+
 
 fn request_html_string(url: &str) -> String {
     let mut resp = reqwest::get(url).unwrap();
@@ -21,7 +23,7 @@ fn get_contest_list() -> Vec<String> {
     for i in 1..100 {
         let prev = contest_list.len();
 
-        let url = format!("https://beta.atcoder.jp/contests/archive?lang=ja&page={}", i);
+        let url = format!("{}/contests/archive?lang=ja&page={}", URL_PREFIX, i);
         let content = request_html_string(&url);
 
         let document = Document::from(content.as_str());
@@ -42,7 +44,7 @@ fn get_contest_list() -> Vec<String> {
 }
 
 fn get_contest_info(contest_name: &str) -> ContestInfo {
-    let url = format!("https://beta.atcoder.jp/contests/{}/standings/json", contest_name);
+    let url = format!("{}/contests/{}/standings/json", URL_PREFIX, contest_name);
     let json_str = request_html_string(&url);
     serde_json::from_str(&json_str).unwrap()
 }
@@ -84,10 +86,11 @@ mod test {
         let contest_list = get_contest_list();
         assert!(contest_list.contains(&"jag2017summer-day1".to_string()));
         assert!(contest_list.contains(&"joi2006ho".to_string()));
+        assert!(contest_list.len() >= 382);
     }
 
     #[test]
-    fn get_problem_list_test() {
+    fn get_contest_info_test() {
         let contest_info = get_contest_info("arc082");
         assert_eq!(contest_info.tasks.len(), 4);
         assert_eq!(contest_info.standings.len(), 1196);
