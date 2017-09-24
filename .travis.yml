@@ -7,5 +7,6 @@ matrix:
       before_script:
         - cd backend
         - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+        - mysql -u root test < sql/tables.sql
       script:
         - RUST_BACKTRACE=full cargo test
