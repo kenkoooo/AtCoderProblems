@@ -69,14 +69,13 @@ fn get_contest_time(contest_name: &str) -> (i64, i64) {
     let content = request_html_string(&url);
 
     let document = Document::from(content.as_str());
-
-
     let mut v = Vec::new();
     for node in document.find(Class("contest-duration").descendant(Name("time"))) {
         let t = node.text();
         convert_timestamp(&t).map(|i| v.push(i));
     }
 
+    assert_eq!(v.len(), 2);
     if v[0] < v[1] {
         (v[0], v[1])
     } else {
@@ -85,6 +84,7 @@ fn get_contest_time(contest_name: &str) -> (i64, i64) {
 }
 
 fn get_submissions(contest_name: &str, page: usize) -> Vec<Submission> {
+    assert!(page > 0);
     let url = format!("{}/contests/{}/submissions?page={}", URL_PREFIX, contest_name, page);
     let content = request_html_string(&url);
     let document = Document::from(content.as_str());
