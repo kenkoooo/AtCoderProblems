@@ -1,9 +1,5 @@
-/sql_config.php
-.idea
-web/json/
-*.iml
-atcoder-api/
-*/node_modules/
-*.DS_Store
-*.log
-*.json
+**/.idea
+**/Cargo.lock
+**/*.iml
+**/target/
+**/env/
