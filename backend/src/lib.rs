@@ -9,5 +9,5 @@ extern crate toml;
 #[macro_use]
 extern crate serde_derive;
 
-mod scraper;
-mod conf;
+pub mod scraper;
+pub mod conf;

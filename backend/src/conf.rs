@@ -4,7 +4,7 @@ use std::io::prelude::*;
 use std::path::Path;
 use toml;
 
-fn load_toml(filepath: &str) -> Configure {
+pub fn load_toml(filepath: &str) -> Configure {
     let path = Path::new(filepath);
     let display = path.display();
 
@@ -25,8 +25,8 @@ fn load_toml(filepath: &str) -> Configure {
 }
 
 #[derive(Deserialize)]
-struct Configure {
-    mysql: String,
+pub struct Configure {
+    pub mysql: String,
 }
 
 #[cfg(test)]
