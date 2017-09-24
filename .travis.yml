@@ -7,5 +7,5 @@ matrix:
       before_script:
         - cd backend
       script:
-        - cat ~travis/.my.cnf
-        - RUST_BACKTRACE=full cargo test
+        - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+        # - RUST_BACKTRACE=full cargo test
