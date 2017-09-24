@@ -39,7 +39,7 @@ CREATE TABLE `submissions` (
   `status` varchar(255) NOT NULL,
   `source_length` bigint(20) NOT NULL,
   `language` varchar(255) NOT NULL,
-  `exec_time` bigint(20) NOT NULL,
+  `exec_time` bigint(20) NOT NULL DEFAULT '0',
   `created_time_sec` bigint(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_name` (`user_name`),

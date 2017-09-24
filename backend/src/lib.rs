@@ -5,6 +5,9 @@ extern crate serde_json;
 extern crate serde;
 extern crate chrono;
 extern crate toml;
+extern crate rand;
+
+#[macro_use]
 extern crate mysql;
 
 #[macro_use]
