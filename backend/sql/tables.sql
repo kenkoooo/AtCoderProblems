@@ -38,6 +38,7 @@ CREATE TABLE `submissions` (
   `user_name` varchar(255) NOT NULL,
   `status` varchar(255) NOT NULL,
   `source_length` bigint(20) NOT NULL,
+  `point` bigint(20) NOT NULL DEFAULT '0',
   `language` varchar(255) NOT NULL,
   `exec_time` bigint(20) NOT NULL DEFAULT '0',
   `created_time_sec` bigint(20) NOT NULL,
