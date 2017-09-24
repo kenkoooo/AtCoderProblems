@@ -111,7 +111,7 @@ fn get_submissions(contest_name: &str, page: usize) -> Vec<Submission> {
         links.next();
         let id = links.next().unwrap().attr("href").unwrap().replace(&submission_prefix, "").parse::<usize>().unwrap();
 
-        Submission { id, problem, time, user, language, point, code_length, result, execution_time }
+        Submission { id, problem, time, user, language, point, code_length, result, execution_time, contest: contest_name.to_string() }
     }).collect::<Vec<Submission>>()
 }
 
@@ -153,6 +153,7 @@ pub struct Submission {
     pub code_length: usize,
     pub result: String,
     pub execution_time: Option<usize>,
+    pub contest: String,
 }
 
 #[cfg(test)]
@@ -183,5 +184,6 @@ mod test {
     fn get_submissions_test() {
         let submissions = get_submissions("arc082", 1);
         assert_eq!(submissions.len(), 20);
+        assert_eq!(submissions[0].contest, "arc082");
     }
 }
