@@ -39,7 +39,7 @@ mod test {
 
     #[test]
     fn connect_test() {
-        let pool = connect("mysql://root:@localhost:3306/test");
+        connect("mysql://root:@localhost:3306/test");
     }
 
     #[test]
