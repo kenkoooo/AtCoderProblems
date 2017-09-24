@@ -6,6 +6,6 @@ matrix:
       rust: nightly
       before_script:
         - cd backend
-      script:
         - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
-        # - RUST_BACKTRACE=full cargo test
+      script:
+        - RUST_BACKTRACE=full cargo test
