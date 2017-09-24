@@ -5,4 +5,4 @@ matrix:
       before_script:
         - cd backend
       script:
-        - cargo test
+        - RUST_BACKTRACE=1 cargo test
