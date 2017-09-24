@@ -111,7 +111,7 @@ fn get_submissions(contest_name: &str, page: usize) -> Vec<Submission> {
         links.next();
         let id = links.next().unwrap().attr("href").unwrap().replace(&submission_prefix, "").parse::<usize>().unwrap();
 
-        Submission { id, time, user, language, point, code_length, result, execution_time }
+        Submission { id, problem, time, user, language, point, code_length, result, execution_time }
     }).collect::<Vec<Submission>>()
 }
 
@@ -143,15 +143,16 @@ struct StandingsUser {
     name: String,
 }
 
-struct Submission {
-    id: usize,
-    time: i64,
-    user: String,
-    language: String,
-    point: i64,
-    code_length: usize,
-    result: String,
-    execution_time: Option<usize>,
+pub struct Submission {
+    pub id: usize,
+    pub problem: String,
+    pub time: i64,
+    pub user: String,
+    pub language: String,
+    pub point: i64,
+    pub code_length: usize,
+    pub result: String,
+    pub execution_time: Option<usize>,
 }
 
 #[cfg(test)]
