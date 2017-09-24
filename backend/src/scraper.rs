@@ -93,14 +93,17 @@ fn get_submissions(contest_name: &str, page: usize) -> Vec<Submission> {
     let submission_prefix = format!("/contests/{}/submissions/", contest_name);
     document.find(Name("tbody").descendant(Name("tr"))).map(|node| {
         let mut tds = node.find(Name("td"));
-        let time = convert_timestamp(&tds.next().unwrap().text()).unwrap();
+        let time = match convert_timestamp(&tds.next().unwrap().text()) {
+            Some(t) => t,
+            None => panic!("couldn't get timestamp of the submission"),
+        };
         tds.next();
         tds.next();
         let language = tds.next().unwrap().text();
         let point = tds.next().unwrap().text().parse::<i64>().unwrap();
         let code_length = tds.next().unwrap().text().replace(" Byte", "").parse::<usize>().unwrap();
         let result = tds.next().unwrap().text();
-        let execution_time = tds.next().map(|n| n.text().replace(" ms", "").parse::<usize>().unwrap());
+        let execution_time = tds.next().unwrap().text().replace(" ms", "").parse::<usize>().ok();
 
         let mut links = node.find(Name("a"));
         let problem = links.next().unwrap().attr("href").unwrap().replace(&problem_prefix, "");
