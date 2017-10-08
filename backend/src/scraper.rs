@@ -64,7 +64,7 @@ fn convert_timestamp(time_string: &str) -> Option<i64> {
 }
 
 /// Returns start and end time of the given contest as unix-time seconds
-fn get_contest_time(contest_name: &str) -> (i64, i64) {
+pub fn get_contest_time(contest_name: &str) -> (i64, i64, String) {
     let url = format!("{}/contests/{}", URL_PREFIX, contest_name);
     let content = request_html_string(&url);
 
@@ -75,11 +75,13 @@ fn get_contest_time(contest_name: &str) -> (i64, i64) {
         convert_timestamp(&t).map(|i| v.push(i));
     }
 
+    let title = document.find(Name("h1")).next().unwrap().text();
+
     assert_eq!(v.len(), 2);
     if v[0] < v[1] {
-        (v[0], v[1])
+        (v[0], v[1], title)
     } else {
-        (v[1], v[0])
+        (v[1], v[0], title)
     }
 }
 
@@ -177,7 +179,7 @@ mod test {
 
     #[test]
     fn get_contest_time_test() {
-        assert_eq!((1504353600, 1504359600), get_contest_time("arc082"));
+        assert_eq!((1504353600, 1504359600, "AtCoder Regular Contest 082".to_owned()), get_contest_time("arc082"));
     }
 
     #[test]

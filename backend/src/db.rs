@@ -1,6 +1,6 @@
 use mysql;
 use mysql::Pool;
-use scraper::Submission;
+use scraper::{Submission, get_contest_time};
 
 pub struct SqlConnection {
     pool: Pool,
@@ -18,6 +18,25 @@ impl SqlConnection {
     pub fn new(uri: &str) -> Self {
         SqlConnection {
             pool: connect(uri),
+        }
+    }
+
+    pub fn insert_contests(&self, contests: &Vec<String>) {
+        let query = r"INSERT INTO contests
+            (id, name, start_sec, end_sec)
+            VALUES
+            (:id, :name, :start_sec, :end_sec)
+            ON DUPLICATE KEY UPDATE name=:name";
+        for mut statement in self.pool.prepare(query).into_iter() {
+            for contest in contests.iter() {
+                let (start, end, title) = get_contest_time(&contest);
+                statement.execute(params! {
+                    "id"    =>  &contest,
+                    "name"  =>  &title,
+                    "start_sec" =>  start,
+                    "end_sec"   =>  end,
+                }).unwrap();
+            }
         }
     }
 
@@ -93,6 +112,14 @@ mod test {
     }
 
     #[test]
+    fn insert_contests_test() {
+        let sql = SqlConnection::new(TEST_MYSQL_URI);
+
+        let v = vec!["arc001".to_owned(), "abc001".to_owned()];
+        sql.insert_contests(&v);
+    }
+
+    #[test]
     fn select_user_submission_test() {
         let mut rng = rand::thread_rng();
         let sql = SqlConnection::new(TEST_MYSQL_URI);
@@ -113,7 +140,7 @@ mod test {
         assert!(contained);
 
         let v2 = sql.select_user_submission("kenkoooo_");
-        assert!(v2.len() == 0);
+        assert_eq!(v2.len(), 0);
     }
 }
 
