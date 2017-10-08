@@ -36,6 +36,6 @@ mod test {
     #[test]
     fn load_toml_test() {
         let configure = load_toml("env-test/test.toml");
-        assert_eq!(configure.mysql, "mysql-url");
+        assert_eq!(configure.mysql, "mysql://root:@localhost:3306/test");
     }
 }

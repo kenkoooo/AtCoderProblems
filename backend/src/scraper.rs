@@ -19,7 +19,7 @@ fn request_html_string(url: &str) -> String {
 }
 
 /// Returns a contest ID list
-fn get_contest_list() -> Vec<String> {
+pub fn get_contest_list() -> Vec<String> {
     let mut contest_list = Vec::new();
     let mut page = 1;
     loop {
@@ -51,7 +51,6 @@ fn get_contest_info(contest_name: &str) -> ContestInfo {
     let json_str = request_html_string(&url);
     serde_json::from_str(&json_str).unwrap()
 }
-
 
 fn convert_timestamp(time_string: &str) -> Option<i64> {
     let re = Regex::new(r"^(\d{4}\-\d{2}\-\d{2}) (\d{2}:\d{2}:\d{2}\+\d{2})(\d{2})$").unwrap();

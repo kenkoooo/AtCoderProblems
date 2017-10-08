@@ -6,7 +6,6 @@ pub struct SqlConnection {
     pool: Pool,
 }
 
-
 pub fn connect(uri: &str) -> Pool {
     match Pool::new(uri) {
         Err(_) => panic!("the connection to MySQL cannot be established."),
@@ -84,6 +83,22 @@ impl SqlConnection {
                 }).collect()
             }).unwrap()
     }
+
+    pub fn poll_oldest_crawled_contest(&self) -> String {
+        let query = "SELECT id FROM contests ORDER BY last_crawled LIMIT 1";
+        self.pool.prep_exec(query, ()).map(|mut result| {
+            mysql::from_row(result.next().unwrap().unwrap())
+        }).unwrap()
+    }
+
+    pub fn mark_as_crawled(&self, contest: &str) {
+        let query = "UPDATE contests SET last_crawled=NOW() WHERE id=:id";
+        for mut statement in self.pool.prepare(query).into_iter() {
+            statement.execute(params! {
+                "id"    =>  contest,
+            }).unwrap();
+        }
+    }
 }
 
 #[cfg(test)]
@@ -141,6 +156,18 @@ mod test {
 
         let v2 = sql.select_user_submission("kenkoooo_");
         assert_eq!(v2.len(), 0);
+    }
+
+    #[test]
+    fn poll_oldest_crawled_contest_test() {
+        let sql = SqlConnection::new(TEST_MYSQL_URI);
+        let v = vec!["arc001".to_owned(), "abc001".to_owned()];
+        sql.insert_contests(&v);
+
+        let id = sql.poll_oldest_crawled_contest();
+        sql.mark_as_crawled(&id);
+        let id2 = sql.poll_oldest_crawled_contest();
+        assert_ne!(id, id2);
     }
 }
 
