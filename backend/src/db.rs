@@ -2,12 +2,12 @@ use mysql;
 use mysql::Pool;
 use scraper::Submission;
 
-struct SqlConnection {
+pub struct SqlConnection {
     pool: Pool,
 }
 
 
-fn connect(uri: &str) -> Pool {
+pub fn connect(uri: &str) -> Pool {
     match Pool::new(uri) {
         Err(_) => panic!("the connection to MySQL cannot be established."),
         Ok(p) => p
@@ -15,13 +15,13 @@ fn connect(uri: &str) -> Pool {
 }
 
 impl SqlConnection {
-    fn new(uri: &str) -> Self {
+    pub fn new(uri: &str) -> Self {
         SqlConnection {
             pool: connect(uri),
         }
     }
 
-    fn insert_submissions(&self, submissions: &Vec<Submission>) {
+    pub fn insert_submissions(&self, submissions: &Vec<Submission>) {
         let query = r"INSERT INTO submissions
             (id, problem_id, contest_id, user_name, status, source_length, language, exec_time, point, created_time_sec)
             VALUES
@@ -44,7 +44,7 @@ impl SqlConnection {
         }
     }
 
-    fn select_user_submission(&self, user: &str) -> Vec<Submission> {
+    pub fn select_user_submission(&self, user: &str) -> Vec<Submission> {
         let query = format!("SELECT id, problem_id, contest_id, user_name, status, source_length, language, exec_time, point, created_time_sec FROM submissions WHERE user_name='{}'", user);
         self.pool.prep_exec(query, ())
             .map(|result| {
