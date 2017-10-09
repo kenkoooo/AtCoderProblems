@@ -167,7 +167,7 @@ mod test {
         let id = sql.poll_oldest_crawled_contest();
         sql.mark_as_crawled(&id);
         let id2 = sql.poll_oldest_crawled_contest();
-        assert_ne!(id, id2);
+        assert_ne!(id.to_string(), id2.to_string());
     }
 }
 

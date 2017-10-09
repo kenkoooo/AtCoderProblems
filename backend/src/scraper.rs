@@ -84,7 +84,7 @@ pub fn get_contest_time(contest_name: &str) -> (i64, i64, String) {
     }
 }
 
-fn get_submissions(contest_name: &str, page: usize) -> Vec<Submission> {
+pub fn get_submissions(contest_name: &str, page: usize) -> Vec<Submission> {
     assert!(page > 0);
     let url = format!("{}/contests/{}/submissions?page={}", URL_PREFIX, contest_name, page);
     let content = request_html_string(&url);
