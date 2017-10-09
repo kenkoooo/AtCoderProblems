@@ -46,6 +46,9 @@ impl SqlConnection {
             (:id, :problem_id, :contest_id, :user_name, :status, :source_length, :language, :exec_time, :point, :created_time_sec)";
         for mut statement in self.pool.prepare(query).into_iter() {
             for s in submissions.iter() {
+                if s.result.contains("/") {
+                    continue;
+                }
                 statement.execute(params! {
                     "id" => s.id,
                     "problem_id" => &s.problem,
@@ -111,7 +114,7 @@ mod test {
 
     #[test]
     fn connect_test() {
-        let sql = SqlConnection::new(TEST_MYSQL_URI);
+        SqlConnection::new(TEST_MYSQL_URI);
     }
 
     #[test]
@@ -156,6 +159,26 @@ mod test {
 
         let v2 = sql.select_user_submission("kenkoooo_");
         assert_eq!(v2.len(), 0);
+    }
+
+    #[test]
+    fn skip_judging_submission() {
+        let mut rng = rand::thread_rng();
+        let sql = SqlConnection::new(TEST_MYSQL_URI);
+        let id = rng.gen::<u32>() as usize;
+
+        let v = vec![
+            Submission { id, problem: "abc000_a".to_owned(), time: 111111, user: "kenkoooo".to_owned(), language: "Rust (1.20.1)".to_owned(), point: 400, code_length: 100, result: "3/21".to_owned(), execution_time: Some(25), contest: "abc000".to_owned() },
+        ];
+        sql.insert_submissions(&v);
+        let v1 = sql.select_user_submission("kenkoooo");
+        let mut contained = false;
+        for submission in &v1 {
+            if submission.id == id {
+                contained = true;
+            }
+        }
+        assert!(!contained);
     }
 
     #[test]
