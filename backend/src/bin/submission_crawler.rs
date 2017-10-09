@@ -2,6 +2,11 @@ use std::env;
 
 extern crate atcoder_problems;
 
+#[macro_use]
+extern crate log;
+extern crate log4rs;
+
+use atcoder_problems::set_up_log;
 use atcoder_problems::scraper::get_submissions;
 use atcoder_problems::db::SqlConnection;
 use std::collections::BTreeSet;
@@ -9,6 +14,7 @@ use std::time::Duration;
 use std::thread;
 
 fn main() {
+    set_up_log();
     let args: Vec<String> = env::args().collect();
     assert!(args.len() >= 2);
     let conf = atcoder_problems::conf::load_toml(&args[1]);
@@ -17,7 +23,7 @@ fn main() {
 
     loop {
         let contest = sql.poll_oldest_crawled_contest();
-        println!("start crawling in {}", contest);
+        info!("start crawling in {}", contest);
 
         let already_crawled_ids = sql.select_contest_submissions(&contest).into_iter().map(|s| s.id).collect::<BTreeSet<_>>();
 
@@ -29,9 +35,9 @@ fn main() {
             if already_crawled_count > 100 {
                 break;
             }
-            println!("page={}, already_crawled={}", page, already_crawled_count);
+            info!("contest={}, page={}, already_crawled={}", contest, page, already_crawled_count);
         }
-        println!("finish crawling in {}", contest);
+        info!("finish crawling in {}", contest);
         sql.mark_as_crawled(&contest);
         thread::sleep(Duration::from_millis(500));
     }

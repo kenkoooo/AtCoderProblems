@@ -2,6 +2,10 @@
 #![plugin(rocket_codegen)]
 extern crate rocket;
 
+#[macro_use]
+extern crate log;
+extern crate log4rs;
+
 extern crate reqwest;
 extern crate select;
 extern crate regex;
@@ -26,4 +30,8 @@ use rocket::Rocket;
 
 pub fn create_rocket(connection: db::SqlConnection) -> Rocket {
     rocket::ignite().mount("/hello", routes![api::hello]).manage(connection)
+}
+
+pub fn set_up_log() {
+    log4rs::init_file("config/log4rs.yaml", Default::default()).unwrap();
 }
