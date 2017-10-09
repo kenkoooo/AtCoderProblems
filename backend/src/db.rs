@@ -131,6 +131,8 @@ mod test {
     use super::*;
     use rand;
     use rand::Rng;
+    use std::time::Duration;
+    use std::thread;
 
     static TEST_MYSQL_URI: &str = "mysql://root:@localhost:3306/test";
 
@@ -210,6 +212,7 @@ mod test {
         sql.insert_contests(&v);
 
         let id = sql.poll_oldest_crawled_contest();
+        thread::sleep(Duration::from_millis(500));
         sql.mark_as_crawled(&id);
         let id2 = sql.poll_oldest_crawled_contest();
         assert_ne!(id.to_string(), id2.to_string());
