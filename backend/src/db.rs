@@ -65,8 +65,30 @@ impl SqlConnection {
         }
     }
 
-    pub fn select_user_submission(&self, user: &str) -> Vec<Submission> {
+    pub fn select_user_submissions(&self, user: &str) -> Vec<Submission> {
         let query = format!("SELECT id, problem_id, contest_id, user_name, status, source_length, language, exec_time, point, created_time_sec FROM submissions WHERE user_name='{}'", user);
+        self.pool.prep_exec(query, ())
+            .map(|result| {
+                result.map(|x| x.unwrap()).map(|row| {
+                    let (id, problem_id, contest_id, user_name, status, source_length, language, exec_time, point, created_time_sec) = mysql::from_row(row);
+                    Submission {
+                        id,
+                        problem: problem_id,
+                        contest: contest_id,
+                        user: user_name,
+                        result: status,
+                        code_length: source_length,
+                        language,
+                        execution_time: exec_time,
+                        point,
+                        time: created_time_sec,
+                    }
+                }).collect()
+            }).unwrap()
+    }
+
+    pub fn select_contest_submissions(&self, contest: &str) -> Vec<Submission> {
+        let query = format!("SELECT id, problem_id, contest_id, user_name, status, source_length, language, exec_time, point, created_time_sec FROM submissions WHERE contest_id='{}'", contest);
         self.pool.prep_exec(query, ())
             .map(|result| {
                 result.map(|x| x.unwrap()).map(|row| {
@@ -147,7 +169,7 @@ mod test {
             Submission { id, problem: "abc000_a".to_owned(), time: 111111, user: "kenkoooo".to_owned(), language: "Rust (1.20.1)".to_owned(), point: 400, code_length: 100, result: "AC".to_owned(), execution_time: Some(25), contest: "abc000".to_owned() },
         ];
         sql.insert_submissions(&v);
-        let v1 = sql.select_user_submission("kenkoooo");
+        let v1 = sql.select_user_submissions("kenkoooo");
         assert!(v1.len() > 1);
         let mut contained = false;
         for submission in &v1 {
@@ -157,7 +179,7 @@ mod test {
         }
         assert!(contained);
 
-        let v2 = sql.select_user_submission("kenkoooo_");
+        let v2 = sql.select_user_submissions("kenkoooo_");
         assert_eq!(v2.len(), 0);
     }
 
@@ -171,7 +193,7 @@ mod test {
             Submission { id, problem: "abc000_a".to_owned(), time: 111111, user: "kenkoooo".to_owned(), language: "Rust (1.20.1)".to_owned(), point: 400, code_length: 100, result: "3/21".to_owned(), execution_time: Some(25), contest: "abc000".to_owned() },
         ];
         sql.insert_submissions(&v);
-        let v1 = sql.select_user_submission("kenkoooo");
+        let v1 = sql.select_user_submissions("kenkoooo");
         let mut contained = false;
         for submission in &v1 {
             if submission.id == id {
@@ -191,6 +213,27 @@ mod test {
         sql.mark_as_crawled(&id);
         let id2 = sql.poll_oldest_crawled_contest();
         assert_ne!(id.to_string(), id2.to_string());
+    }
+
+    #[test]
+    fn select_contest_submissions_test() {
+        let mut rng = rand::thread_rng();
+        let sql = SqlConnection::new(TEST_MYSQL_URI);
+        let id = rng.gen::<u32>() as usize;
+
+        let v = vec![
+            Submission { id, problem: "abc000_a".to_owned(), time: 111111, user: "kenkoooo".to_owned(), language: "Rust (1.20.1)".to_owned(), point: 400, code_length: 100, result: "AC".to_owned(), execution_time: Some(25), contest: "abc000".to_owned() },
+        ];
+        sql.insert_submissions(&v);
+        let v1 = sql.select_contest_submissions("abc000");
+        assert!(v1.len() > 1);
+        let mut contained = false;
+        for submission in &v1 {
+            if submission.id == id {
+                contained = true;
+            }
+        }
+        assert!(contained);
     }
 }
 
