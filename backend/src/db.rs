@@ -43,7 +43,8 @@ impl SqlConnection {
         let query = r"INSERT INTO submissions
             (id, problem_id, contest_id, user_name, status, source_length, language, exec_time, point, created_time_sec)
             VALUES
-            (:id, :problem_id, :contest_id, :user_name, :status, :source_length, :language, :exec_time, :point, :created_time_sec)";
+            (:id, :problem_id, :contest_id, :user_name, :status, :source_length, :language, :exec_time, :point, :created_time_sec)
+            ON DUPLICATE KEY UPDATE status=:status";
         for mut statement in self.pool.prepare(query).into_iter() {
             for s in submissions.iter() {
                 if s.result.contains("/") {
