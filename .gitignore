@@ -3,3 +3,4 @@
 **/*.iml
 **/target/
 **/env/
+**/*.log
