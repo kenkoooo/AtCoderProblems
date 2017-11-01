@@ -1,25 +1,14 @@
-val ScalatraVersion = "2.5.3"
+name := "atcoder-problems"
 
-organization := "com.kenkoooo"
+version := "0.1"
 
-name := "AtCoder Problems"
-
-version := "0.1.0-SNAPSHOT"
-
-scalaVersion := "2.12.3"
-
-resolvers += Classpaths.typesafeReleases
+scalaVersion := "2.12.4"
 
 libraryDependencies ++= Seq(
-  "org.scalatra" %% "scalatra" % ScalatraVersion,
-  "org.scalatra" %% "scalatra-scalatest" % ScalatraVersion % "test",
-  "ch.qos.logback" % "logback-classic" % "1.1.5" % "runtime",
-  "org.eclipse.jetty" % "jetty-webapp" % "9.2.15.v20160210" % "compile;container",
-  "javax.servlet" % "javax.servlet-api" % "3.1.0" % "provided"
+  "com.tumblr" %% "colossus" % "0.10.1",
+  "net.ruippeixotog" %% "scala-scraper" % "2.0.0",
+  "org.scalatest" %% "scalatest" % "3.0.4" % "test",
+  "org.mockito" % "mockito-core" % "2.8.47" % "test",
+  "com.tumblr" %% "colossus-testkit" % "0.10.1" % "test"
 )
 
-enablePlugins(SbtTwirl)
-enablePlugins(ScalatraPlugin)
-
-mainClass in assembly := Some("com.kenkoooo.atcoder.JettyLauncher")
-assemblyJarName in assembly := "atcoder-problems.jar"
