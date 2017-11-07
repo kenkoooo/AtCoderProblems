@@ -7,7 +7,7 @@ import net.ruippeixotog.scalascraper.dsl.DSL._
 class SubmissionScraper(contest: String) {
   private val browser = JsoupBrowser()
 
-  def scrape(page: Int): Unit = {
+  def scrape(page: Int): Array[Submission] = {
     val url = s"${AtCoder.BaseUrl}contests/$contest/submissions?page=$page"
     val doc = browser.get(url)
     val submissions = for (tr <- doc >> elements("tbody > tr")) yield {
@@ -59,7 +59,7 @@ class SubmissionScraper(contest: String) {
         id = id
       )
     }
-    submissions
+    submissions.toArray
   }
 }
 
