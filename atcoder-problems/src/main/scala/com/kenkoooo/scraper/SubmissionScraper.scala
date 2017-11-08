@@ -15,14 +15,14 @@ class SubmissionScraper(contest: String) {
       val time = row(0).text
 
       val problemId = {
-        val pattern = "^.*?tasks/(\\w+)$".r
+        val pattern = "^.*?tasks/([a-zA-Z0-9-_]+)$".r
         val problemUrl = (row(1) >> element("a")).attr("href")
         val pattern(id) = problemUrl
         id
       }
 
       val userId = {
-        val pattern = "^.*?users/(\\w+)$".r
+        val pattern = "^.*?users/([a-zA-Z0-9-_]+)$".r
         val userUrl = (row(2) >> element("a")).attr("href")
         val pattern(userId) = userUrl
         userId
