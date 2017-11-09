@@ -1,3 +1,5 @@
 package com.kenkoooo.model
 
-case class Contest(id: String, startEpochSecond: Long)
+import scala.concurrent.duration.Duration
+
+case class Contest(id: String, startEpochSecond: Long, duration: Duration)

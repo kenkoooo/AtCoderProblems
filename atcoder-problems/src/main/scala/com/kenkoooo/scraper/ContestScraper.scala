@@ -1,9 +1,14 @@
 package com.kenkoooo.scraper
 
+import java.util.concurrent.TimeUnit
+
 import com.kenkoooo.model.Contest
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
+
+import scala.concurrent.duration.Duration
+import scala.util.Try
 
 class ContestScraper {
   private val browser = JsoupBrowser()
@@ -20,7 +25,16 @@ class ContestScraper {
         val pattern(id) = contestUrl
         id
       }
-      Contest(id = contestId, startEpochSecond = AtCoder.parseDateTimeToEpochSecond(time))
+      val duration = Try {
+        val hours = rows(2).text.split(":")(0).toInt
+        val minutes = rows(2).text.split(":")(1).toInt
+        Duration(hours * 60 + minutes, TimeUnit.MINUTES)
+      }.getOrElse(Duration.Zero)
+      Contest(
+        id = contestId,
+        startEpochSecond = AtCoder.parseDateTimeToEpochSecond(time),
+        duration = duration
+      )
     }
     contests.toArray
   }
