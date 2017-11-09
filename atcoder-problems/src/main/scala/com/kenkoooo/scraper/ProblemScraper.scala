@@ -1,5 +1,6 @@
 package com.kenkoooo.scraper
 
+import com.kenkoooo.model.Problem
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.scraper.ContentExtractors.{element, elements}
@@ -25,5 +26,3 @@ class ProblemScraper {
     problems.toArray
   }
 }
-
-case class Problem(id: String, title: String)

@@ -1,5 +1,6 @@
 package com.kenkoooo.scraper
 
+import com.kenkoooo.model.Submission
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
@@ -60,22 +61,5 @@ class SubmissionScraper(contest: String) {
       )
     }
     submissions.toArray
-  }
-}
-
-case class Submission(datetime: String,
-                      problemId: String,
-                      user: String,
-                      language: String,
-                      point: Long,
-                      length: Int,
-                      result: String,
-                      executionTime: Option[Int],
-                      id: Long)
-
-object SubmissionScraper {
-  def main(args: Array[String]): Unit = {
-    val scraper = new SubmissionScraper("abc076")
-    scraper.scrape(1)
   }
 }

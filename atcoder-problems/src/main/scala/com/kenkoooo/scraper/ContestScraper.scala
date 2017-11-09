@@ -1,5 +1,6 @@
 package com.kenkoooo.scraper
 
+import com.kenkoooo.model.Contest
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
@@ -24,5 +25,3 @@ class ContestScraper {
     contests.toArray
   }
 }
-
-case class Contest(id: String, startTime: String)
