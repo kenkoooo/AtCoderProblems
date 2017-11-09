@@ -1,6 +1,6 @@
 package com.kenkoooo.model
 
-case class Submission(datetime: String,
+case class Submission(epochSecond: Long,
                       problemId: String,
                       user: String,
                       language: String,

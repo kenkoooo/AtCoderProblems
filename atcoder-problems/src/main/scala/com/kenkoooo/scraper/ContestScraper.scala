@@ -20,7 +20,7 @@ class ContestScraper {
         val pattern(id) = contestUrl
         id
       }
-      Contest(id = contestId, startTime = time)
+      Contest(id = contestId, startEpochSecond = AtCoder.parseDateTimeToEpochSecond(time))
     }
     contests.toArray
   }

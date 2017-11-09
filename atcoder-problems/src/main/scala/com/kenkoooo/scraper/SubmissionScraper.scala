@@ -49,7 +49,7 @@ class SubmissionScraper(contest: String) {
       }
 
       Submission(
-        datetime = time,
+        epochSecond = AtCoder.parseDateTimeToEpochSecond(time),
         problemId = problemId,
         user = userId,
         language = language,
