@@ -20,6 +20,7 @@ CREATE TABLE problems (
 CREATE TABLE contests (
   id                    VARCHAR(255) NOT NULL,
   start_epoch_second    BIGINT       NOT NULL,
+  duration_second       BIGINT       NOT NULL,
   PRIMARY KEY (id)
 );
 
