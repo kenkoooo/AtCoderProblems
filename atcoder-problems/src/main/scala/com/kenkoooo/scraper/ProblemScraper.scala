@@ -27,7 +27,7 @@ class ProblemScraper {
         val pattern(id) = problemUrl
         id
       }
-      Problem(problemId, problemTitle)
+      Problem(problemId, contest, problemTitle)
     }
     problems.toArray
   }
