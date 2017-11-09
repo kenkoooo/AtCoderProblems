@@ -8,6 +8,12 @@ import net.ruippeixotog.scalascraper.scraper.ContentExtractors.{element, element
 class ProblemScraper {
   private val browser = JsoupBrowser()
 
+  /**
+    * Scrape problems from the contest page
+    *
+    * @param contest contest id to scrape problems
+    * @return scraped problems
+    */
   def scrape(contest: String): Array[Problem] = {
     val url = s"${AtCoder.BaseUrl}contests/$contest/tasks"
     val doc = browser.get(url)

@@ -8,7 +8,7 @@ import net.ruippeixotog.scalascraper.dsl.DSL._
 class ContestScraper {
   private val browser = JsoupBrowser()
 
-  def scrape(page: Int): Array[Contest] = {
+  private def scrape(page: Int): Array[Contest] = {
     val url = s"${AtCoder.BaseUrl}contests/archive?lang=ja&page=$page"
     val doc = browser.get(url)
     val contests = for (tr <- doc >> elements("tbody > tr")) yield {
