@@ -24,4 +24,13 @@ class ContestScraper {
     }
     contests.toArray
   }
+
+  def scrapeAllContests(): Array[Contest] =
+    Iterator
+      .iterate((0, Array[Contest]())) { case (page, _) => (page + 1, scrape(page + 1)) }
+      .takeWhile { case (page, contests) => page == 0 || contests.length > 0 }
+      .map { case (_, contests) => contests }
+      .toArray
+      .flatten
+
 }

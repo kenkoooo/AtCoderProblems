@@ -5,17 +5,8 @@ import org.scalatest.{FunSuite, Matchers}
 class ContestScraperTest extends FunSuite with Matchers {
   test("scrape contest list") {
     val scraper = new ContestScraper
-
-    var finish = false
-    var page = 1
-    while (!finish) {
-      val contests = scraper.scrape(page)
-      if (contests.isEmpty) {
-        finish = true
-      } else {
-        page += 1
-      }
-    }
-    page should be >= 9
+    val contests = scraper.scrapeAllContests()
+    contests.length should be >= 394
+    contests.find(_.id == "arc084").get.startEpochSecond shouldBe 1509796800
   }
 }

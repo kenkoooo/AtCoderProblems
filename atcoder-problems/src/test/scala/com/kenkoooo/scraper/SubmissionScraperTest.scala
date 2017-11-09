@@ -8,6 +8,5 @@ class SubmissionScraperTest extends FunSuite with Matchers {
     val submissions = scraper.scrape(10)
 
     submissions.length shouldBe 20
-    AtCoder.parseDateTimeToEpochSecond(submissions(0).datetime)
   }
 }
