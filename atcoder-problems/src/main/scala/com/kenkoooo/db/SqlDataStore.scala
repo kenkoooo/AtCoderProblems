@@ -2,6 +2,7 @@ package com.kenkoooo.db
 
 import com.kenkoooo.model.Submission
 import scalikejdbc._
+import SqlDataStore._
 
 /**
   * Data Store of SQL
@@ -37,9 +38,13 @@ class SqlDataStore(url: String,
       }
   }
 
-  def insert[T](insertingRecord: T, support: Insertable[T]): Unit = {
+  def insertSubmission(submission: Submission): Unit = {
     DB.localTx { implicit session =>
-      applyUpdate { support.buildInsertOperation(insertingRecord) }
+      applyUpdate {
+        insertInto(Submission)
+          .namedValues(Submission.columnMapping(submission): _*)
+          .onDuplicateKeyUpdate(Submission.columnMapping(submission): _*)
+      }
     }
   }
 }
@@ -58,4 +63,5 @@ object SqlDataStore {
   implicit class RichSQLSyntax(val self: sqls.type) extends AnyVal {
     def values(column: SQLSyntax): SQLSyntax = sqls"values($column)"
   }
+
 }
