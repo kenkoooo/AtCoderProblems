@@ -40,31 +40,10 @@ class SqlDataStore(url: String,
 
   def insertSubmission(submission: Submission): Unit = {
     DB.localTx { implicit session =>
-      val s = Submission.column
       applyUpdate {
-        insert
-          .into(Submission)
-          .namedValues(
-            s.id -> submission.id,
-            s.epochSecond -> submission.epochSecond,
-            s.problemId -> submission.problemId,
-            s.userId -> submission.userId,
-            s.language -> submission.language,
-            s.point -> submission.point,
-            s.length -> submission.length,
-            s.result -> submission.result,
-            s.executionTime -> submission.executionTime
-          )
-          .onDuplicateKeyUpdate(
-            s.epochSecond -> submission.epochSecond,
-            s.problemId -> submission.problemId,
-            s.userId -> submission.userId,
-            s.language -> submission.language,
-            s.point -> submission.point,
-            s.length -> submission.length,
-            s.result -> submission.result,
-            s.executionTime -> submission.executionTime
-          )
+        insertInto(Submission)
+          .namedValues(Submission.columnMapping(submission): _*)
+          .onDuplicateKeyUpdate(Submission.columnMapping(submission): _*)
       }
     }
   }

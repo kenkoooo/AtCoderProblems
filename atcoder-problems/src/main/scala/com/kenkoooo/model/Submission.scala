@@ -1,5 +1,6 @@
 package com.kenkoooo.model
 
+import com.kenkoooo.db.ColumnMappingSupport
 import scalikejdbc._
 
 case class Submission(id: Long,
@@ -12,7 +13,7 @@ case class Submission(id: Long,
                       result: String,
                       executionTime: Option[Int])
 
-object Submission extends SQLSyntaxSupport[Submission] {
+object Submission extends SQLSyntaxSupport[Submission] with ColumnMappingSupport[Submission] {
 
   override val tableName = "submissions"
 
@@ -31,4 +32,19 @@ object Submission extends SQLSyntaxSupport[Submission] {
       result = rs.string(row.result),
       executionTime = rs.intOpt(row.executionTime)
     )
+
+  override def columnMapping(submission: Submission): Seq[(SQLSyntax, ParameterBinder)] = {
+    val s = Submission.column
+    Seq(
+      s.id -> submission.id,
+      s.epochSecond -> submission.epochSecond,
+      s.problemId -> submission.problemId,
+      s.userId -> submission.userId,
+      s.language -> submission.language,
+      s.point -> submission.point,
+      s.length -> submission.length,
+      s.result -> submission.result,
+      s.executionTime -> submission.executionTime
+    )
+  }
 }
