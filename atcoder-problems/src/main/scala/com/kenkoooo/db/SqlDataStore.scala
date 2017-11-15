@@ -23,7 +23,11 @@ class SqlDataStore(url: String,
   private var _contests: Map[String, Contest] = Map()
   private var _problems: Map[String, Problem] = Map()
 
-  def submission: Map[Long, Submission] = _submissions
+  def submissions: Map[Long, Submission] = _submissions
+
+  def contests: Map[String, Contest] = _contests
+
+  def problems: Map[String, Problem] = _problems
 
   def reloadRecords(): Unit = {
     _submissions = reload(Submission).map(s => s.id -> s).toMap

@@ -1,6 +1,6 @@
 package com.kenkoooo.db
 
-import com.kenkoooo.model.Submission
+import com.kenkoooo.model.{Contest, Problem, Submission}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
 import scalikejdbc._
 
@@ -25,7 +25,7 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
     }
   }
 
-  test("insert and reload") {
+  test("insert and reload submissions") {
     val id = 114514L
     val userId = "kenkoooo"
     val problemId = "arc999_a"
@@ -65,9 +65,31 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
     )
     store.reloadRecords()
 
-    val submission = store.submission(id)
+    val submission = store.submissions(id)
     submission.id shouldBe id
     submission.problemId shouldBe problemId
     submission.userId shouldBe userId
+  }
+
+  test("insert and reload contests") {
+    val id = "arc999"
+    val store = new SqlDataStore(url, sqlUser, sqlPass, driver)
+    store.batchInsert(Seq(Contest(id, 123456789, 987654321)), Contest)
+    store.batchInsert(Seq(Contest(id, 123456789, 987654321)), Contest)
+    store.reloadRecords()
+
+    val contest = store.contests(id)
+    contest.id shouldBe id
+  }
+
+  test("insert and reload problems") {
+    val id = "arc999_d"
+    val store = new SqlDataStore(url, sqlUser, sqlPass, driver)
+    store.batchInsert(Seq(Problem(id, "arc999", "A+B Problem")), Problem)
+    store.batchInsert(Seq(Problem(id, "arc999", "A+B Problem")), Problem)
+    store.reloadRecords()
+
+    val problem = store.problems(id)
+    problem.id shouldBe id
   }
 }
