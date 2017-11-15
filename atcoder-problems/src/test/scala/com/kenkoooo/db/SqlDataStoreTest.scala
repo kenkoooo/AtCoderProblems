@@ -31,31 +31,35 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
     val problemId = "arc999_a"
 
     val store = new SqlDataStore(url, sqlUser, sqlPass, driver)
-    store.insert(
-      Submission(
-        id = id,
-        epochSecond = System.currentTimeMillis(),
-        problemId = "old information...",
-        userId = userId,
-        language = "Rust (1.21.0)",
-        point = 100,
-        length = 200,
-        result = "WA",
-        executionTime = None
+    store.batchInsert(
+      Seq(
+        Submission(
+          id = id,
+          epochSecond = System.currentTimeMillis(),
+          problemId = "old information...",
+          userId = userId,
+          language = "Rust (1.21.0)",
+          point = 100,
+          length = 200,
+          result = "WA",
+          executionTime = None
+        )
       ),
       Submission
     )
-    store.insert(
-      Submission(
-        id = id,
-        epochSecond = System.currentTimeMillis(),
-        problemId = problemId,
-        userId = userId,
-        language = "Rust (1.21.0)",
-        point = 100,
-        length = 200,
-        result = "WA",
-        executionTime = None
+    store.batchInsert(
+      Seq(
+        Submission(
+          id = id,
+          epochSecond = System.currentTimeMillis(),
+          problemId = problemId,
+          userId = userId,
+          language = "Rust (1.21.0)",
+          point = 100,
+          length = 200,
+          result = "WA",
+          executionTime = None
+        )
       ),
       Submission
     )

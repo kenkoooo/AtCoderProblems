@@ -41,13 +41,14 @@ class SqlDataStore(url: String,
     }
   }
 
-  def insert[T](inserting: T, support: SQLInsertSelectSupport[T]): Unit = {
+  def batchInsert[T](records: Seq[T], support: SQLInsertSelectSupport[T]): Unit = {
     DB.localTx { implicit session =>
-      applyUpdate {
+      val params = support.createParams(records).map(seq => seq ++ seq)
+      withSQL {
         insertInto(support)
-          .namedValues(support.columnMapping(inserting): _*)
-          .onDuplicateKeyUpdate(support.columnMapping(inserting): _*)
-      }
+          .namedValues(support.batchColumnMapping: _*)
+          .onDuplicateKeyUpdate(support.batchColumnMapping: _*)
+      }.batch(params: _*).apply()
     }
   }
 }
