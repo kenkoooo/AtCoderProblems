@@ -35,6 +35,19 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
       Submission(
         id = id,
         epochSecond = System.currentTimeMillis(),
+        problemId = "old information...",
+        userId = userId,
+        language = "Rust (1.21.0)",
+        point = 100,
+        length = 200,
+        result = "WA",
+        executionTime = None
+      )
+    )
+    store.insertSubmission(
+      Submission(
+        id = id,
+        epochSecond = System.currentTimeMillis(),
         problemId = problemId,
         userId = userId,
         language = "Rust (1.21.0)",

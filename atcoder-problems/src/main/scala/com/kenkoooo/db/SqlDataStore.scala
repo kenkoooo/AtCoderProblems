@@ -2,6 +2,7 @@ package com.kenkoooo.db
 
 import com.kenkoooo.model.Submission
 import scalikejdbc._
+import SqlDataStore._
 
 /**
   * Data Store of SQL
@@ -54,7 +55,32 @@ class SqlDataStore(url: String,
             s.result -> submission.result,
             s.executionTime -> submission.executionTime
           )
+          .onDuplicateKeyUpdate(
+            s.epochSecond -> submission.epochSecond,
+            s.problemId -> submission.problemId,
+            s.userId -> submission.userId,
+            s.language -> submission.language,
+            s.point -> submission.point,
+            s.length -> submission.length,
+            s.result -> submission.result,
+            s.executionTime -> submission.executionTime
+          )
       }
     }
+  }
+}
+
+object SqlDataStore {
+  implicit class RichInsertSQLBuilder(val self: InsertSQLBuilder) extends AnyVal {
+    def onDuplicateKeyUpdate(columnsAndValues: (SQLSyntax, Any)*): InsertSQLBuilder = {
+      val cvs = columnsAndValues map {
+        case (c, v) => sqls"$c = $v"
+      }
+      self.append(sqls"on duplicate key update ${sqls.csv(cvs: _*)}")
+    }
+  }
+
+  implicit class RichSQLSyntax(val self: sqls.type) extends AnyVal {
+    def values(column: SQLSyntax): SQLSyntax = sqls"values($column)"
   }
 }
