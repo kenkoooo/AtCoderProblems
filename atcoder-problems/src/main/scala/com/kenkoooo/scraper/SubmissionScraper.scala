@@ -51,7 +51,7 @@ class SubmissionScraper(contest: String) {
       Submission(
         epochSecond = AtCoder.parseDateTimeToEpochSecond(time),
         problemId = problemId,
-        user = userId,
+        userId = userId,
         language = language,
         point = point,
         length = length,

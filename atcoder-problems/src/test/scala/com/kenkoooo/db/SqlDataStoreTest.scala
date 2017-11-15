@@ -36,7 +36,7 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
         id = id,
         epochSecond = System.currentTimeMillis(),
         problemId = problemId,
-        user = userId,
+        userId = userId,
         language = "Rust (1.21.0)",
         point = 100,
         length = 200,
@@ -49,6 +49,6 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
     val submission = store.submission(id)
     submission.id shouldBe id
     submission.problemId shouldBe problemId
-    submission.user shouldBe userId
+    submission.userId shouldBe userId
   }
 }

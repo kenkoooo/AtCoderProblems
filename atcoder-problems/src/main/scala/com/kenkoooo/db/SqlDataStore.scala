@@ -26,9 +26,8 @@ class SqlDataStore(url: String,
     _submissions = DB
       .readOnly { implicit session =>
         val s = Submission.syntax("s")
-        withSQL {
-          select.from(Submission as s)
-        }.map(Submission(s))
+        withSQL(select.from(Submission as s))
+          .map(Submission(s))
           .list()
           .apply()
           .map { submission =>
@@ -40,11 +39,22 @@ class SqlDataStore(url: String,
 
   def insertSubmission(submission: Submission): Unit = {
     DB.localTx { implicit session =>
-      sql"""INSERT INTO submissions
-             (id, epoch_second, problem_id, user_id, language, point, length, result, execution_time)
-             VALUES (${submission.id}, ${submission.epochSecond}, ${submission.problemId}, ${submission.user}, ${submission.language}, ${submission.point}, ${submission.length}, ${submission.result}, ${submission.executionTime})"""
-        .update()
-        .apply()
+      val s = Submission.column
+      applyUpdate {
+        insert
+          .into(Submission)
+          .namedValues(
+            s.id -> submission.id,
+            s.epochSecond -> submission.epochSecond,
+            s.problemId -> submission.problemId,
+            s.userId -> submission.userId,
+            s.language -> submission.language,
+            s.point -> submission.point,
+            s.length -> submission.length,
+            s.result -> submission.result,
+            s.executionTime -> submission.executionTime
+          )
+      }
     }
   }
 }

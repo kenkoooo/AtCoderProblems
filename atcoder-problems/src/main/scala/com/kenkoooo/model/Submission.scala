@@ -5,7 +5,7 @@ import scalikejdbc._
 case class Submission(id: Long,
                       epochSecond: Long,
                       problemId: String,
-                      user: String,
+                      userId: String,
                       language: String,
                       point: Long,
                       length: Int,
@@ -21,14 +21,14 @@ object Submission extends SQLSyntaxSupport[Submission] {
 
   def apply(row: ResultName[Submission])(rs: WrappedResultSet): Submission =
     Submission(
-      id = rs.long(row.c("id")),
-      epochSecond = rs.long(row.c("epoch_second")),
-      problemId = rs.string(row.c("problem_id")),
-      user = rs.string(row.c("user_id")),
-      language = rs.string(row.c("language")),
-      point = rs.long(row.c("point")),
-      length = rs.int(row.c("length")),
-      result = rs.string(row.c("result")),
-      executionTime = rs.intOpt(row.c("execution_time"))
+      id = rs.long(row.id),
+      epochSecond = rs.long(row.epochSecond),
+      problemId = rs.string(row.problemId),
+      userId = rs.string(row.userId),
+      language = rs.string(row.language),
+      point = rs.long(row.point),
+      length = rs.int(row.length),
+      result = rs.string(row.result),
+      executionTime = rs.intOpt(row.executionTime)
     )
 }
