@@ -5,6 +5,12 @@ import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 
+/**
+  *
+  * scraper of submissions
+  *
+  * @param contest contest id to scrape
+  **/
 class SubmissionScraper(contest: String) {
   private val browser = JsoupBrowser()
 

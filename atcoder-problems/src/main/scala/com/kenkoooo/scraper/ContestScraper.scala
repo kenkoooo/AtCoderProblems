@@ -10,6 +10,9 @@ import net.ruippeixotog.scalascraper.dsl.DSL._
 import scala.concurrent.duration.Duration
 import scala.util.Try
 
+/**
+  * scraper of information of contests
+  **/
 class ContestScraper {
   private val browser = JsoupBrowser()
 

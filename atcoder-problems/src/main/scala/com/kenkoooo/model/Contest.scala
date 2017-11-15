@@ -15,12 +15,15 @@ object Contest extends SQLInsertSelectSupport[Contest] {
     durationSecond = rs.long(resultName.durationSecond)
   )
 
-  override def batchColumnMapping: Seq[(SQLSyntax, ParameterBinder)] = {
+  override def createMapping(seq: Seq[Contest]): Seq[Seq[(SQLSyntax, ParameterBinder)]] = {
     val p = Contest.column
-    Seq(p.id -> sqls.?, p.startEpochSecond -> sqls.?, p.durationSecond -> sqls.?)
-  }
-
-  override def createParams(seq: Seq[Contest]): Seq[Seq[Any]] = {
-    seq.map(c => Seq(c.id, c.startEpochSecond, c.durationSecond))
+    seq.map(
+      c =>
+        Seq(
+          p.id -> c.id,
+          p.startEpochSecond -> c.startEpochSecond,
+          p.durationSecond -> c.durationSecond
+      )
+    )
   }
 }

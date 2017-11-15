@@ -5,6 +5,9 @@ import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.scraper.ContentExtractors.{element, elements}
 
+/**
+  * scraper of information of problems
+  * */
 class ProblemScraper {
   private val browser = JsoupBrowser()
 

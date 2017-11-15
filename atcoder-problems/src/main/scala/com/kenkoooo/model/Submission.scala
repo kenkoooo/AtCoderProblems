@@ -30,35 +30,20 @@ object Submission extends SQLInsertSelectSupport[Submission] {
       executionTime = rs.intOpt(row.executionTime)
     )
 
-  override def batchColumnMapping: Seq[(SQLSyntax, ParameterBinder)] = {
-    val s = Submission.column
-    Seq(
-      s.id -> sqls.?,
-      s.epochSecond -> sqls.?,
-      s.problemId -> sqls.?,
-      s.userId -> sqls.?,
-      s.language -> sqls.?,
-      s.point -> sqls.?,
-      s.length -> sqls.?,
-      s.result -> sqls.?,
-      s.executionTime -> sqls.?
-    )
-  }
-
-  override def createParams(seq: Seq[Submission]): Seq[Seq[Any]] = {
-    seq.map(
-      s =>
-        Seq(
-          s.id,
-          s.epochSecond,
-          s.problemId,
-          s.userId,
-          s.language,
-          s.point,
-          s.length,
-          s.result,
-          s.executionTime
+  override def createMapping(seq: Seq[Submission]): Seq[Seq[(SQLSyntax, ParameterBinder)]] = {
+    val column = Submission.column
+    seq.map { submission =>
+      Seq(
+        column.id -> submission.id,
+        column.epochSecond -> submission.epochSecond,
+        column.problemId -> submission.problemId,
+        column.userId -> submission.userId,
+        column.language -> submission.language,
+        column.point -> submission.point,
+        column.length -> submission.length,
+        column.result -> submission.result,
+        column.executionTime -> submission.executionTime
       )
-    )
+    }
   }
 }

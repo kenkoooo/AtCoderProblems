@@ -15,11 +15,8 @@ object Problem extends SQLInsertSelectSupport[Problem] {
     title = rs.string(resultName.title)
   )
 
-  override def batchColumnMapping: Seq[(SQLSyntax, ParameterBinder)] = {
-    val p = Problem.column
-    Seq(p.id -> sqls.?, p.contestId -> sqls.?, p.title -> sqls.?)
+  override def createMapping(seq: Seq[Problem]): Seq[Seq[(SQLSyntax, ParameterBinder)]] = {
+    val c = Problem.column
+    seq.map(p => Seq(c.id -> p.id, c.contestId -> p.contestId, c.title -> p.title))
   }
-
-  override def createParams(seq: Seq[Problem]): Seq[Seq[String]] =
-    seq.map(p => Seq(p.id, p.contestId, p.title))
 }
