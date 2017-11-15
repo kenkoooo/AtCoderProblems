@@ -25,27 +25,17 @@ class SqlDataStore(url: String,
   def reloadSubmissions(): Unit = {
     _submissions = DB
       .readOnly { implicit session =>
-        sql"SELECT * FROM submissions"
-          .map { resultSet =>
-            Submission(
-              id = resultSet.long("id"),
-              epochSecond = resultSet.long("epoch_second"),
-              problemId = resultSet.string("problem_id"),
-              user = resultSet.string("user_id"),
-              language = resultSet.string("language"),
-              point = resultSet.long("point"),
-              length = resultSet.int("length"),
-              result = resultSet.string("result"),
-              executionTime = resultSet.intOpt("execution_time")
-            )
-          }
+        val s = Submission.syntax("s")
+        withSQL {
+          select.from(Submission as s)
+        }.map(Submission(s))
           .list()
           .apply()
+          .map { submission =>
+            submission.id -> submission
+          }
+          .toMap
       }
-      .map { submission =>
-        submission.id -> submission
-      }
-      .toMap
   }
 
   def insertSubmission(submission: Submission): Unit = {

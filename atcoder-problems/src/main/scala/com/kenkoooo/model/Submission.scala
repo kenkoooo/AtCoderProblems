@@ -16,8 +16,11 @@ object Submission extends SQLSyntaxSupport[Submission] {
 
   override val tableName = "submissions"
 
-  def apply(row: ResultName[Submission])(rs: WrappedResultSet) =
-    new Submission(
+  def apply(s: SyntaxProvider[Submission])(rs: WrappedResultSet): Submission =
+    apply(s.resultName)(rs)
+
+  def apply(row: ResultName[Submission])(rs: WrappedResultSet): Submission =
+    Submission(
       id = rs.long(row.c("id")),
       epochSecond = rs.long(row.c("epoch_second")),
       problemId = rs.string(row.c("problem_id")),
