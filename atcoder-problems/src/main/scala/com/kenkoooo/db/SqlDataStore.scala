@@ -71,6 +71,7 @@ class SqlDataStore(url: String,
 }
 
 object SqlDataStore {
+
   implicit class RichInsertSQLBuilder(val self: InsertSQLBuilder) extends AnyVal {
     def onDuplicateKeyUpdate(columnsAndValues: (SQLSyntax, Any)*): InsertSQLBuilder = {
       val cvs = columnsAndValues map {
@@ -83,4 +84,5 @@ object SqlDataStore {
   implicit class RichSQLSyntax(val self: sqls.type) extends AnyVal {
     def values(column: SQLSyntax): SQLSyntax = sqls"values($column)"
   }
+
 }
