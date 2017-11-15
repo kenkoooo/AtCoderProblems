@@ -35,7 +35,7 @@ class SqlDataStore(url: String,
     _problems = reload(Problem).map(s => s.id -> s).toMap
   }
 
-  def reload[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
+  private def reload[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
     DB.readOnly { implicit session =>
       val s = support.syntax("s")
       withSQL(select.from(support as s))
@@ -58,7 +58,7 @@ class SqlDataStore(url: String,
   }
 }
 
-object SqlDataStore {
+private object SqlDataStore {
 
   implicit class RichInsertSQLBuilder(val self: InsertSQLBuilder) extends AnyVal {
     def onDuplicateKeyUpdate(columnsAndValues: (SQLSyntax, Any)*): InsertSQLBuilder = {
