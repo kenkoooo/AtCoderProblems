@@ -12,6 +12,6 @@ class ContestScraperTest extends FunSuite with Matchers {
     val contests = scraper.scrapeAllContests()
     contests.length should be >= 394
     contests.find(_.id == "arc084").get.startEpochSecond shouldBe 1509796800
-    contests.find(_.id == "arc084").get.duration shouldBe Duration(100, TimeUnit.MINUTES)
+    contests.find(_.id == "arc084").get.durationSecond shouldBe Duration(100, TimeUnit.MINUTES)
   }
 }

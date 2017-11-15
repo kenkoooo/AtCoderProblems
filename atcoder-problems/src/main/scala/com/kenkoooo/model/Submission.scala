@@ -1,6 +1,6 @@
 package com.kenkoooo.model
 
-import com.kenkoooo.db.ColumnMappingSupport
+import com.kenkoooo.db.SQLInsertSelectSupport
 import scalikejdbc._
 
 case class Submission(id: Long,
@@ -13,14 +13,11 @@ case class Submission(id: Long,
                       result: String,
                       executionTime: Option[Int])
 
-object Submission extends SQLSyntaxSupport[Submission] with ColumnMappingSupport[Submission] {
+object Submission extends SQLInsertSelectSupport[Submission] {
 
   override val tableName = "submissions"
 
-  def apply(s: SyntaxProvider[Submission])(rs: WrappedResultSet): Submission =
-    apply(s.resultName)(rs)
-
-  def apply(row: ResultName[Submission])(rs: WrappedResultSet): Submission =
+  override def apply(row: ResultName[Submission])(rs: WrappedResultSet): Submission =
     Submission(
       id = rs.long(row.id),
       epochSecond = rs.long(row.epochSecond),

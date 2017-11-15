@@ -33,7 +33,7 @@ class ContestScraper {
       Contest(
         id = contestId,
         startEpochSecond = AtCoder.parseDateTimeToEpochSecond(time),
-        duration = duration
+        durationSecond = duration.toSeconds
       )
     }
     contests.toArray

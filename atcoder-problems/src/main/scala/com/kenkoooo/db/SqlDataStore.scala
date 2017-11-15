@@ -1,6 +1,6 @@
 package com.kenkoooo.db
 
-import com.kenkoooo.model.Submission
+import com.kenkoooo.model.{Contest, Problem, Submission}
 import scalikejdbc._
 import SqlDataStore._
 
@@ -20,25 +20,28 @@ class SqlDataStore(url: String,
   ConnectionPool.singleton(url, user, password)
 
   private var _submissions: Map[Long, Submission] = Map()
+  private var _contests: Map[String, Contest] = Map()
+  private var _problems: Map[String, Problem] = Map()
 
   def submission: Map[Long, Submission] = _submissions
 
   def reloadSubmissions(): Unit = {
-    _submissions = DB
-      .readOnly { implicit session =>
-        val s = Submission.syntax("s")
-        withSQL(select.from(Submission as s))
-          .map(Submission(s))
-          .list()
-          .apply()
-          .map { submission =>
-            submission.id -> submission
-          }
-          .toMap
-      }
+    _submissions = reload(Submission).map(s => s.id -> s).toMap
+    _contests = reload(Contest).map(s => s.id -> s).toMap
+    _problems = reload(Problem).map(s => s.id -> s).toMap
   }
 
-  def insert[T](inserting: T, support: SQLSyntaxSupport[T] with ColumnMappingSupport[T]): Unit = {
+  def reload[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
+    DB.readOnly { implicit session =>
+      val s = support.syntax("s")
+      withSQL(select.from(support as s))
+        .map(support(s))
+        .list()
+        .apply()
+    }
+  }
+
+  def insert[T](inserting: T, support: SQLInsertSelectSupport[T]): Unit = {
     DB.localTx { implicit session =>
       applyUpdate {
         insertInto(support)
