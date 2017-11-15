@@ -1,0 +1,10 @@
+{
+  "scraper": {
+    "threads": 11
+  },
+  "sql": {
+    "url": "sql-url",
+    "user": "sql-user",
+    "password": "sql-pass"
+  }
+}

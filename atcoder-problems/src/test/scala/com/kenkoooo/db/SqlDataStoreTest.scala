@@ -19,7 +19,7 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
     // initialize the test database
     DB.localTx { implicit session =>
       sql"DROP ALL OBJECTS".execute().apply()
-      SQL(Source.fromResource("test-db.sql").getLines().mkString(" "))
+      SQL(Source.fromResource("test-db.sql").mkString)
         .execute()
         .apply()
     }
