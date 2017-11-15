@@ -31,7 +31,7 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
     val problemId = "arc999_a"
 
     val store = new SqlDataStore(url, sqlUser, sqlPass, driver)
-    store.insertSubmission(
+    store.insert(
       Submission(
         id = id,
         epochSecond = System.currentTimeMillis(),
@@ -42,9 +42,10 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
         length = 200,
         result = "WA",
         executionTime = None
-      )
+      ),
+      Submission
     )
-    store.insertSubmission(
+    store.insert(
       Submission(
         id = id,
         epochSecond = System.currentTimeMillis(),
@@ -55,7 +56,8 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
         length = 200,
         result = "WA",
         executionTime = None
-      )
+      ),
+      Submission
     )
     store.reloadSubmissions()
 

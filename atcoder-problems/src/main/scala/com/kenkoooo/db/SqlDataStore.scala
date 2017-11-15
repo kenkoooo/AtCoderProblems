@@ -38,12 +38,12 @@ class SqlDataStore(url: String,
       }
   }
 
-  def insertSubmission(submission: Submission): Unit = {
+  def insert[T](inserting: T, support: SQLSyntaxSupport[T] with ColumnMappingSupport[T]): Unit = {
     DB.localTx { implicit session =>
       applyUpdate {
-        insertInto(Submission)
-          .namedValues(Submission.columnMapping(submission): _*)
-          .onDuplicateKeyUpdate(Submission.columnMapping(submission): _*)
+        insertInto(support)
+          .namedValues(support.columnMapping(inserting): _*)
+          .onDuplicateKeyUpdate(support.columnMapping(inserting): _*)
       }
     }
   }
