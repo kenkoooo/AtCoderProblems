@@ -45,7 +45,7 @@ class SqlDataStore(url: String,
     }
   }
 
-  def batchInsert[T](support: SQLInsertSelectSupport[T], records: T*): Unit = {
+  def batchInsert[T](support: SQLInsertSelectSupport[T], records: T*): Unit = this.synchronized {
     DB.localTx { implicit session =>
       val params = support.createMapping(records).map(seq => seq.map(_._2)).map(seq => seq ++ seq)
       val columnMapping = support.createMapping(records).head.map(_._1 -> sqls.?)
