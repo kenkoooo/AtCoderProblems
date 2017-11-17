@@ -41,7 +41,7 @@ class NewerSubmissionScrapingRunner(sql: SqlDataStore,
             contests.tail,
             Submission.FirstPageNumber,
             submissionScraper,
-            overlaps,
+            0,
             overlapThreshold
           )
         )

@@ -68,6 +68,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     nextRunner.get.page shouldBe 1
     nextRunner.get.contests.size shouldBe 1
     nextRunner.get.contests.head.id shouldBe nextContestId
+    nextRunner.get.currentOverlapCount shouldBe 0
   }
 
   test("scrape and create next runner with the next contest when many submissions were overlapped") {
@@ -102,6 +103,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     nextRunner.get.page shouldBe Submission.FirstPageNumber
     nextRunner.get.contests.size shouldBe 1
     nextRunner.get.contests.head.id shouldBe nextContestId
+    nextRunner.get.currentOverlapCount shouldBe 0
   }
 
   test("scrape and return None when all the contests are scraped") {

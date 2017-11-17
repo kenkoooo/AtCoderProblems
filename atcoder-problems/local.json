@@ -1,0 +1,10 @@
+{
+  "scraper": {
+    "threads": 5
+  },
+  "sql": {
+    "url": "jdbc:mysql://localhost:3306/test?useSSL=false",
+    "user": "root",
+    "password": "toor"
+  }
+}
