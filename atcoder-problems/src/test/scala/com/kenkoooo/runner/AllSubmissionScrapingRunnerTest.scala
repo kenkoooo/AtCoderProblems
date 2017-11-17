@@ -19,7 +19,6 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
     val scraper = mock[SubmissionScraper]
     val submission = mock[Submission]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array(submission))
-    Mockito.when(scraper.scrape(currentContestId, currentPage + 1)).thenReturn(Array(submission))
 
     val runner = new AllSubmissionScrapingRunner(sql, List(contest), currentPage, scraper)
     val nextRunner = runner.scrapeOnePage()
@@ -30,9 +29,8 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
     // check the runner has created the next runner
     nextRunner shouldBe defined
 
-    // check the scraper has been called with the next page number
-    nextRunner.get.scrapeOnePage()
-    Mockito.verify(scraper, Mockito.times(1)).scrape(currentContestId, currentPage + 1)
+    // check the scraper has been created with the next page number
+    nextRunner.get.page shouldBe currentPage + 1
   }
 
   test("scrape and create next runner with the next contest") {
@@ -44,7 +42,6 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
-    Mockito.when(scraper.scrape(nextContestId, 1)).thenReturn(Array[Submission]())
 
     val runner = new AllSubmissionScrapingRunner(
       sql,
@@ -60,9 +57,10 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
     // check the runner has created the next runner
     nextRunner shouldBe defined
 
-    // check the scraper has been called with the next contest
-    nextRunner.get.scrapeOnePage()
-    Mockito.verify(scraper, Mockito.times(1)).scrape(nextContestId, 1)
+    // check the scraper has been created with the next contest list
+    nextRunner.get.page shouldBe 1
+    nextRunner.get.contests.size shouldBe 1
+    nextRunner.get.contests.head.id shouldBe nextContestId
   }
 
   test("scrape and return None when all the contests are scraped") {
@@ -75,7 +73,6 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
-    Mockito.when(scraper.scrape(currentContestId, currentPage + 1)).thenReturn(Array[Submission]())
 
     val runner = new AllSubmissionScrapingRunner(sql, List(contest), currentPage, scraper)
     val nextRunner = runner.scrapeOnePage()

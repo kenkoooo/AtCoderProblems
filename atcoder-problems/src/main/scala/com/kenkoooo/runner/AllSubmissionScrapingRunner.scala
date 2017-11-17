@@ -13,8 +13,8 @@ import com.kenkoooo.scraper.SubmissionScraper
   * @param submissionScraper [[SubmissionScraper]] used in scraping
   */
 class AllSubmissionScrapingRunner(sql: SqlDataStore,
-                                  contests: List[Contest] = List(),
-                                  page: Int,
+                                  private[runner] val contests: List[Contest] = List(),
+                                  private[runner] val page: Int,
                                   submissionScraper: SubmissionScraper) {
 
   def scrapeOnePage(): Option[AllSubmissionScrapingRunner] = {
