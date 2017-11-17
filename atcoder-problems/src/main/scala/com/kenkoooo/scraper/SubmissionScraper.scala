@@ -5,16 +5,17 @@ import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 
-/**
-  *
-  * scraper of submissions
-  *
-  * @param contest contest id to scrape
-  **/
-class SubmissionScraper(contest: String) {
-  private val browser = JsoupBrowser()
+class SubmissionScraper {
 
-  def scrape(page: Int): Array[Submission] = {
+  /**
+    * scrape one page of submissions
+    *
+    * @param contest the id of contest, like "arc001"
+    * @param page    the page number to scrape
+    *
+    **/
+  def scrape(contest: String, page: Int): Array[Submission] = {
+    val browser = JsoupBrowser()
     val url = s"${AtCoder.BaseUrl}contests/$contest/submissions?page=$page"
     val doc = browser.get(url)
     val submissions = for (tr <- doc >> elements("tbody > tr")) yield {
