@@ -17,12 +17,12 @@ import NewerSubmissionScrapingRunner._
   * @param overlapThreshold    threshold to change the contest
   */
 class NewerSubmissionScrapingRunner(sql: SqlDataStore,
-                                    private[runner] val contests: List[Contest] = List(),
+                                    contests: List[Contest],
                                     private[runner] val page: Int = 0,
                                     submissionScraper: SubmissionScraper,
                                     private[runner] val currentOverlapCount: Int = 0,
                                     overlapThreshold: Int = DefaultOverlapThreshold)
-    extends SubmissionScrapingRunner
+    extends SubmissionScrapingRunner(contests)
     with Logging {
   override def scrapeOnePage(): Option[NewerSubmissionScrapingRunner] = {
     val contest = contests.head

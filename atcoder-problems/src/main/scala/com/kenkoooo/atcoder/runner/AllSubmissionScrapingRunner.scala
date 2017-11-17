@@ -13,11 +13,10 @@ import com.kenkoooo.atcoder.scraper.SubmissionScraper
   * @param submissionScraper [[SubmissionScraper]] used in scraping
   */
 class AllSubmissionScrapingRunner(sql: SqlDataStore,
-                                  private[runner] val contests: List[Contest] = List(),
+                                  contests: List[Contest],
                                   private[runner] val page: Int = 0,
                                   submissionScraper: SubmissionScraper)
-    extends SubmissionScrapingRunner {
-
+    extends SubmissionScrapingRunner(contests) {
   override def scrapeOnePage(): Option[AllSubmissionScrapingRunner] = {
     val contest = contests.head
     val submissions = submissionScraper.scrape(contest.id, page)
