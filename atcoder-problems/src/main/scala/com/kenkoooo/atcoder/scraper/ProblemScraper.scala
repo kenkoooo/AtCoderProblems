@@ -1,6 +1,6 @@
-package com.kenkoooo.scraper
+package com.kenkoooo.atcoder.scraper
 
-import com.kenkoooo.model.Problem
+import com.kenkoooo.atcoder.model.Problem
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.scraper.ContentExtractors.{element, elements}

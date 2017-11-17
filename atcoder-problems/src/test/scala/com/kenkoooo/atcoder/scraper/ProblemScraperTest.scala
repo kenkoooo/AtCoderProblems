@@ -1,4 +1,4 @@
-package com.kenkoooo.scraper
+package com.kenkoooo.atcoder.scraper
 
 import org.scalatest.{FunSuite, Matchers}
 

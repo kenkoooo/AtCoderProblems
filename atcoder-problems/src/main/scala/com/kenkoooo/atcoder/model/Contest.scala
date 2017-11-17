@@ -1,6 +1,6 @@
-package com.kenkoooo.model
+package com.kenkoooo.atcoder.model
 
-import com.kenkoooo.db.SQLInsertSelectSupport
+import com.kenkoooo.atcoder.db.SQLInsertSelectSupport
 import scalikejdbc._
 
 case class Contest(id: String, startEpochSecond: Long, durationSecond: Long)

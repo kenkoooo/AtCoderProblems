@@ -1,8 +1,8 @@
-package com.kenkoooo.scraper
+package com.kenkoooo.atcoder.scraper
 
 import java.util.concurrent.TimeUnit
 
-import com.kenkoooo.model.Contest
+import com.kenkoooo.atcoder.model.Contest
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._

@@ -1,8 +1,8 @@
-package com.kenkoooo.runner
+package com.kenkoooo.atcoder.runner
 
-import com.kenkoooo.db.SqlDataStore
-import com.kenkoooo.model.{Contest, Submission}
-import com.kenkoooo.scraper.SubmissionScraper
+import com.kenkoooo.atcoder.db.SqlDataStore
+import com.kenkoooo.atcoder.model.{Contest, Submission}
+import com.kenkoooo.atcoder.scraper.SubmissionScraper
 
 /**
   * runner of scraper to scrape all the submissions

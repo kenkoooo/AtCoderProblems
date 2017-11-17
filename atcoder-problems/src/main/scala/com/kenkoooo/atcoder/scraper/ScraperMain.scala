@@ -1,10 +1,10 @@
-package com.kenkoooo.scraper
+package com.kenkoooo.atcoder.scraper
 
 import java.io.File
 import java.util.concurrent.Executors
 
-import com.kenkoooo.common.Configure
-import com.kenkoooo.db.SqlDataStore
+import com.kenkoooo.atcoder.common.Configure
+import com.kenkoooo.atcoder.db.SqlDataStore
 import com.typesafe.config.ConfigFactory.parseFile
 import org.apache.logging.log4j.scala.Logging
 import pureconfig.loadConfig

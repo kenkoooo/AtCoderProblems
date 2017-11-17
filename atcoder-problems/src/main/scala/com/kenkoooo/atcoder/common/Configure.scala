@@ -1,4 +1,4 @@
-package com.kenkoooo.common
+package com.kenkoooo.atcoder.common
 
 case class Configure(scraper: ScraperConfig, sql: SQLConfig)
 

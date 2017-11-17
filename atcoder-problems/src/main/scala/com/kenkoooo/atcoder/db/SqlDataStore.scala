@@ -1,6 +1,6 @@
-package com.kenkoooo.db
+package com.kenkoooo.atcoder.db
 
-import com.kenkoooo.model.{Contest, Problem, Submission}
+import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
 import scalikejdbc._
 import SqlDataStore._
 

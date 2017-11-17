@@ -1,4 +1,4 @@
-package com.kenkoooo.db
+package com.kenkoooo.atcoder.db
 
 import scalikejdbc._
 

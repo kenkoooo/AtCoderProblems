@@ -1,4 +1,4 @@
-package com.kenkoooo.common
+package com.kenkoooo.atcoder.common
 
 import org.scalatest.{FunSuite, Matchers}
 import pureconfig.loadConfig

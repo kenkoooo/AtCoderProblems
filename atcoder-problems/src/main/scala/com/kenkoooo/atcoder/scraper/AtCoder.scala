@@ -1,4 +1,4 @@
-package com.kenkoooo.scraper
+package com.kenkoooo.atcoder.scraper
 
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
