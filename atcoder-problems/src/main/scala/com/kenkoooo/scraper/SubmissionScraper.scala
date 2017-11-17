@@ -4,8 +4,9 @@ import com.kenkoooo.model.Submission
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
+import org.apache.logging.log4j.scala.Logging
 
-class SubmissionScraper {
+class SubmissionScraper extends Logging {
 
   /**
     * scrape one page of submissions
@@ -17,6 +18,8 @@ class SubmissionScraper {
   def scrape(contest: String, page: Int): Array[Submission] = {
     val browser = JsoupBrowser()
     val url = s"${AtCoder.BaseUrl}contests/$contest/submissions?page=$page"
+
+    logger.info(s"scraping $url...")
     val doc = browser.get(url)
     val submissions = for (tr <- doc >> elements("tbody > tr")) yield {
       val row = (for (td <- tr >> elements("td")) yield td).toArray

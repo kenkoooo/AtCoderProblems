@@ -5,7 +5,7 @@ import com.kenkoooo.model.{Contest, Submission}
 import com.kenkoooo.scraper.SubmissionScraper
 
 /**
-  * runner of scraper to scraper all the submissions
+  * runner of scraper to scrape all the submissions
   *
   * @param sql               [[SqlDataStore]] to insert scraped submissions
   * @param contests          the list of [[Contest]] to scrape
@@ -15,9 +15,10 @@ import com.kenkoooo.scraper.SubmissionScraper
 class AllSubmissionScrapingRunner(sql: SqlDataStore,
                                   private[runner] val contests: List[Contest] = List(),
                                   private[runner] val page: Int,
-                                  submissionScraper: SubmissionScraper) {
+                                  submissionScraper: SubmissionScraper)
+    extends SubmissionScrapingRunner {
 
-  def scrapeOnePage(): Option[AllSubmissionScrapingRunner] = {
+  override def scrapeOnePage(): Option[AllSubmissionScrapingRunner] = {
     val contest = contests.head
     val submissions = submissionScraper.scrape(contest.id, page)
 
