@@ -6,6 +6,7 @@ import com.kenkoooo.atcoder.model.Contest
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
+import org.apache.logging.log4j.scala.Logging
 
 import scala.concurrent.duration.Duration
 import scala.util.Try
@@ -13,11 +14,12 @@ import scala.util.Try
 /**
   * scraper of information of contests
   **/
-class ContestScraper {
+class ContestScraper extends Logging {
   private val browser = JsoupBrowser()
 
   private def scrape(page: Int): Array[Contest] = {
     val url = s"${AtCoder.BaseUrl}contests/archive?lang=ja&page=$page"
+    logger.info(s"scraping $url")
     val doc = browser.get(url)
     val contests = for (tr <- doc >> elements("tbody > tr")) yield {
       val rows = (for (td <- tr >> elements("td")) yield td).toArray
