@@ -1,12 +1,8 @@
-services:
-  - mysql
 matrix:
   include:
-    - language: rust
-      rust: nightly
+    - language: scala
+      scala: 2.12.3
       before_script:
-        - cd backend
-        - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
-        - mysql -u root test < sql/tables.sql
+        - cd scala
       script:
-        - RUST_BACKTRACE=full cargo test
+        - sbt test
