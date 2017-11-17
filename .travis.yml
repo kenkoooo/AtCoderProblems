@@ -5,4 +5,6 @@ matrix:
       before_script:
         - cd atcoder-problems
       script:
-        - sbt test
+        - sbt clean coverage test coverageReport
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
