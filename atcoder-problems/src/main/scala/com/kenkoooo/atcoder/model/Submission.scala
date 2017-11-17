@@ -8,7 +8,7 @@ case class Submission(id: Long,
                       problemId: String,
                       userId: String,
                       language: String,
-                      point: Long,
+                      point: Double,
                       length: Int,
                       result: String,
                       executionTime: Option[Int])
@@ -25,7 +25,7 @@ object Submission extends SQLInsertSelectSupport[Submission] {
       problemId = rs.string(row.problemId),
       userId = rs.string(row.userId),
       language = rs.string(row.language),
-      point = rs.long(row.point),
+      point = rs.double(row.point),
       length = rs.int(row.length),
       result = rs.string(row.result),
       executionTime = rs.intOpt(row.executionTime)
