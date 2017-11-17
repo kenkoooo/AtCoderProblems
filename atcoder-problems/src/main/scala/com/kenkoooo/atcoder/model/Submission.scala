@@ -14,6 +14,7 @@ case class Submission(id: Long,
                       executionTime: Option[Int])
 
 object Submission extends SQLInsertSelectSupport[Submission] {
+  val FirstPageNumber = 1
 
   override val tableName = "submissions"
 

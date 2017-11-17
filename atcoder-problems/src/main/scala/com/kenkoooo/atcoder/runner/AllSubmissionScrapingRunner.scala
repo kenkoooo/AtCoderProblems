@@ -14,7 +14,7 @@ import com.kenkoooo.atcoder.scraper.SubmissionScraper
   */
 class AllSubmissionScrapingRunner(sql: SqlDataStore,
                                   private[runner] val contests: List[Contest] = List(),
-                                  private[runner] val page: Int,
+                                  private[runner] val page: Int = 0,
                                   submissionScraper: SubmissionScraper)
     extends SubmissionScrapingRunner {
 
@@ -26,7 +26,14 @@ class AllSubmissionScrapingRunner(sql: SqlDataStore,
       case (true, true) =>
         None
       case (true, false) =>
-        Some(new AllSubmissionScrapingRunner(sql, contests.tail, 1, submissionScraper))
+        Some(
+          new AllSubmissionScrapingRunner(
+            sql,
+            contests.tail,
+            Submission.FirstPageNumber,
+            submissionScraper
+          )
+        )
       case (false, _) =>
         sql.batchInsert(Submission, submissions: _*)
         Some(new AllSubmissionScrapingRunner(sql, contests, page + 1, submissionScraper))

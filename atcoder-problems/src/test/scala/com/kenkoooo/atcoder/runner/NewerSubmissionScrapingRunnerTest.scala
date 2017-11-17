@@ -99,7 +99,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     nextRunner shouldBe defined
 
     // check the scraper has been created with the next contest list
-    nextRunner.get.page shouldBe 1
+    nextRunner.get.page shouldBe Submission.FirstPageNumber
     nextRunner.get.contests.size shouldBe 1
     nextRunner.get.contests.head.id shouldBe nextContestId
   }

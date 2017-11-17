@@ -4,6 +4,7 @@ import com.kenkoooo.atcoder.db.SqlDataStore
 import com.kenkoooo.atcoder.model.{Contest, Submission}
 import com.kenkoooo.atcoder.scraper.SubmissionScraper
 import org.apache.logging.log4j.scala.Logging
+import NewerSubmissionScrapingRunner._
 
 /**
   * runner of scraper to scrape only the new submissions
@@ -16,11 +17,11 @@ import org.apache.logging.log4j.scala.Logging
   * @param overlapThreshold    threshold to change the contest
   */
 class NewerSubmissionScrapingRunner(sql: SqlDataStore,
-                                    private[runner] val contests: List[Contest],
-                                    private[runner] val page: Int,
+                                    private[runner] val contests: List[Contest] = List(),
+                                    private[runner] val page: Int = 0,
                                     submissionScraper: SubmissionScraper,
-                                    private[runner] val currentOverlapCount: Int,
-                                    overlapThreshold: Int)
+                                    private[runner] val currentOverlapCount: Int = 0,
+                                    overlapThreshold: Int = DefaultOverlapThreshold)
     extends SubmissionScrapingRunner
     with Logging {
   override def scrapeOnePage(): Option[NewerSubmissionScrapingRunner] = {
@@ -38,7 +39,7 @@ class NewerSubmissionScrapingRunner(sql: SqlDataStore,
           new NewerSubmissionScrapingRunner(
             sql,
             contests.tail,
-            1,
+            Submission.FirstPageNumber,
             submissionScraper,
             overlaps,
             overlapThreshold
@@ -58,4 +59,8 @@ class NewerSubmissionScrapingRunner(sql: SqlDataStore,
         )
     }
   }
+}
+
+private object NewerSubmissionScrapingRunner {
+  private val DefaultOverlapThreshold = 100
 }
