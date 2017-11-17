@@ -4,7 +4,7 @@ CREATE TABLE submissions (
   problem_id    VARCHAR(255) NOT NULL,
   user_id       VARCHAR(255) NOT NULL,
   language      VARCHAR(255) NOT NULL,
-  point         BIGINT NOT NULL,
+  point         DOUBLE NOT NULL,
   length        INT NOT NULL,
   result        VARCHAR(255) NOT NULL,
   execution_time  INT,

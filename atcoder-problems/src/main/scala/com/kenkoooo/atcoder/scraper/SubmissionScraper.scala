@@ -40,7 +40,7 @@ class SubmissionScraper extends Logging {
       }
 
       val language = row(3).text
-      val point = row(4).text.toLong
+      val point = row(4).text.toDouble
       val length = row(5).text.replaceAll(" Byte", "").toInt
       val result = row(6).text
 
