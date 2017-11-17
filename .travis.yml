@@ -3,6 +3,6 @@ matrix:
     - language: scala
       scala: 2.12.3
       before_script:
-        - cd scala
+        - cd atcoder-problems
       script:
         - sbt test
