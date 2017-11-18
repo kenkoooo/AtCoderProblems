@@ -1,8 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Hello } from "./components/Hello";
+import { Application } from "./components/Application";
+import { NavigationBar } from "./components/NavigationBar";
 
 ReactDOM.render(
-    <Hello compiler="TypeScript" framework="React" />, document.getElementById("example")
+    <div>
+        <NavigationBar />
+        <Application />
+    </div>
+    , document.getElementById("root")
 );
