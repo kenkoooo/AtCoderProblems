@@ -61,7 +61,7 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
     )
     store.reloadRecords()
 
-    val submission = store.submissions(id)
+    val submission = store.submission(id).head
     submission.id shouldBe id
     submission.problemId shouldBe problemId
     submission.userId shouldBe userId

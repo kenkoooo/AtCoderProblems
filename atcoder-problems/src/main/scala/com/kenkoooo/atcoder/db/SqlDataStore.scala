@@ -25,11 +25,18 @@ class SqlDataStore(url: String,
   private var _contests: Map[String, Contest] = Map()
   private var _problems: Map[String, Problem] = Map()
 
-  def submissions: Map[Long, Submission] = _submissions
-
   def contests: Map[String, Contest] = _contests
 
   def problems: Map[String, Problem] = _problems
+
+  def submission(ids: Long*): List[Submission] = {
+    val s = Submission.syntax("s")
+    DB.readOnly { implicit session =>
+      withSQL {
+        selectFrom(Submission as s).where.in(s.id, ids)
+      }.map(Submission(s)).list().apply()
+    }
+  }
 
   def reloadRecords(): Unit = {
     _submissions = reload(Submission).map(s => s.id -> s).toMap
@@ -75,4 +82,5 @@ private object SqlDataStore {
   implicit class RichSQLSyntax(val self: sqls.type) extends AnyVal {
     def values(column: SQLSyntax): SQLSyntax = sqls"values($column)"
   }
+
 }

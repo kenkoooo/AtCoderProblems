@@ -27,7 +27,7 @@ class NewerSubmissionScrapingRunner(sql: SqlDataStore,
   override def scrapeOnePage(): Option[NewerSubmissionScrapingRunner] = {
     val contest = contests.head
     val submissions = submissionScraper.scrape(contest.id, page)
-    val newCount = (submissions.map(_.id).toSet -- sql.submissions.keySet).size
+    val newCount = submissions.length - sql.submission(submissions.map(_.id): _*).size
     val overlaps = submissions.length - newCount + currentOverlapCount
     logger.info(s"$overlaps submissions overlapped in ${contest.id}")
 

@@ -6,7 +6,7 @@ import ScheduledExecutorServiceExtension._
 import org.scalatest.{FunSuite, Matchers}
 
 class ScheduledExecutorServiceExtensionTest extends FunSuite with Matchers {
-  test("") {
+  test("log crashed command") {
     val service = Executors.newSingleThreadScheduledExecutor()
 
     var x = 0
