@@ -12,7 +12,7 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
     val currentPage = 114514
     val currentContestId = "rco-contest-2017-final-open"
 
-    val contest = Contest(currentContestId, 0, 0)
+    val contest = Contest(currentContestId, 0, 0, "", "")
 
     val sql = mock[SqlDataStore]
 
@@ -45,7 +45,7 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
 
     val runner = new AllSubmissionScrapingRunner(
       sql,
-      List(Contest(currentContestId, 0, 0), Contest(nextContestId, 0, 0)),
+      List(Contest(currentContestId, 0, 0, "", ""), Contest(nextContestId, 0, 0, "", "")),
       currentPage,
       scraper
     )
@@ -67,7 +67,7 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
     val currentPage = 114514
     val currentContestId = "rco-contest-2017-final-open"
 
-    val contest = Contest(currentContestId, 0, 0)
+    val contest = Contest(currentContestId, 0, 0, "", "")
 
     val sql = mock[SqlDataStore]
 

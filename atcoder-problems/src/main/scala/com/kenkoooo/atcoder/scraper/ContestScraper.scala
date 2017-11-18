@@ -30,6 +30,9 @@ class ContestScraper extends Logging {
         val pattern(id) = contestUrl
         id
       }
+      val title = rows(1).text
+      val rateChange = rows(3).text
+
       val duration = Try {
         val hours = rows(2).text.split(":")(0).toInt
         val minutes = rows(2).text.split(":")(1).toInt
@@ -38,7 +41,9 @@ class ContestScraper extends Logging {
       Contest(
         id = contestId,
         startEpochSecond = AtCoder.parseDateTimeToEpochSecond(time),
-        durationSecond = duration.toSeconds
+        durationSecond = duration.toSeconds,
+        title = title,
+        rateChange = rateChange
       )
     }
     contests.toArray
