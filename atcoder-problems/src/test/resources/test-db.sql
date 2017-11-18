@@ -22,7 +22,7 @@ CREATE TABLE contests (
   id                    VARCHAR(255) NOT NULL,
   start_epoch_second    BIGINT       NOT NULL,
   duration_second       BIGINT       NOT NULL,
-  title         VARCHAR(255) NOT NULL,
-  rate_change    VARCHAR(255) NOT NULL,
+  title                 VARCHAR(255) NOT NULL,
+  rate_change           VARCHAR(255) NOT NULL,
   PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8;
