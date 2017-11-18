@@ -70,6 +70,6 @@ class SubmissionScraper extends Logging {
         id = id
       )
     }
-    submissions.filter(_.result.matches("^[A-Z].$")).toArray
+    submissions.filter(_.result.matches("^[A-Z]+$")).toArray
   }
 }
