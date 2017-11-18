@@ -17,8 +17,6 @@ import com.typesafe.config.ConfigFactory.parseFile
 import org.apache.logging.log4j.scala.Logging
 import pureconfig.loadConfig
 
-import scala.util.Try
-
 object ScraperMain extends Logging {
   def main(args: Array[String]): Unit = {
     loadConfig[Configure](parseFile(new File(args(0)))) match {
@@ -61,19 +59,7 @@ object ScraperMain extends Logging {
         )
 
         // reload records per minute
-        service.scheduleAtFixedRate(
-          () =>
-            Try {
-              sql.reloadRecords()
-            }.recover {
-              case e: Throwable =>
-                logger.catching(e)
-                service.shutdownNow()
-          },
-          0,
-          1,
-          TimeUnit.MINUTES
-        )
+        service.scheduleTryJobAtFixedRate(() => sql.reloadRecords(), 0, 1, TimeUnit.MINUTES)
 
         // scrape contests per hour
         service.scheduleTryJobAtFixedRate(() => {
