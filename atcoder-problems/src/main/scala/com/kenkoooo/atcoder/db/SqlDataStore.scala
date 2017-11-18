@@ -66,7 +66,11 @@ class SqlDataStore(url: String,
             .onDuplicateKeyUpdate(columnMapping: _*)
         }.batch(params: _*).apply()
       }
-    }.recover { case e: Throwable => logger.catching(e) }
+    }.recover {
+      case e: Throwable =>
+        logger.catching(e)
+        records.foreach(t => logger.error(t.toString))
+    }
   }
 }
 
