@@ -5,7 +5,8 @@ version := "0.1"
 scalaVersion := "2.12.4"
 
 libraryDependencies ++= Seq(
-  "com.tumblr" %% "colossus" % "0.10.1",
+  "com.typesafe.akka" %% "akka-http" % "10.0.10",
+  "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.10",
   "net.ruippeixotog" %% "scala-scraper" % "2.0.0",
   "org.scalikejdbc" %% "scalikejdbc" % "3.1.+",
   "com.h2database" % "h2" % "1.4.+",
