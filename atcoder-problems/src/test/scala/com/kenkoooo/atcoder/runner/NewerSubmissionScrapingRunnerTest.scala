@@ -13,7 +13,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val currentContestId = "rco-contest-2017-final-open"
     val overlappedId = 810893L
 
-    val contest = Contest(currentContestId, 0, 0)
+    val contest = Contest(currentContestId, 0, 0, "", "")
 
     val sql = mock[SqlDataStore]
     Mockito.when(sql.submission(overlappedId)).thenReturn(List(mock[Submission]))
@@ -50,7 +50,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
 
     val runner = new NewerSubmissionScrapingRunner(
       sql,
-      List(Contest(currentContestId, 0, 0), Contest(nextContestId, 0, 0)),
+      List(Contest(currentContestId, 0, 0, "", ""), Contest(nextContestId, 0, 0, "", "")),
       currentPage,
       scraper,
       0,
@@ -86,7 +86,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
 
     val runner = new NewerSubmissionScrapingRunner(
       sql,
-      List(Contest(currentContestId, 0, 0), Contest(nextContestId, 0, 0)),
+      List(Contest(currentContestId, 0, 0, "", ""), Contest(nextContestId, 0, 0, "", "")),
       currentPage,
       scraper,
       9,
@@ -111,7 +111,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val currentPage = 114514
     val currentContestId = "rco-contest-2017-final-open"
 
-    val contest = Contest(currentContestId, 0, 0)
+    val contest = Contest(currentContestId, 0, 0, "", "")
 
     val sql = mock[SqlDataStore]
     Mockito.when(sql.submission(ArgumentMatchers.any())).thenReturn(List[Submission]())

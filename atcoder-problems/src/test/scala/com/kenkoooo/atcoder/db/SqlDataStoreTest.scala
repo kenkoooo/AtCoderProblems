@@ -70,8 +70,8 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
   test("insert and reload contests") {
     val id = "arc999"
     val store = new SqlDataStore(url, sqlUser, sqlPass, driver)
-    store.batchInsert(Contest, Contest(id, 123456789, 987654321))
-    store.batchInsert(Contest, Contest(id, 123456789, 987654321))
+    store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
+    store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
     store.reloadRecords()
 
     val contest = store.contests(id)
