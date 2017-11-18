@@ -16,5 +16,8 @@ class ContestScraperTest extends FunSuite with Matchers {
       .find(_.id == "arc084")
       .get
       .durationSecond shouldBe Duration(100, TimeUnit.MINUTES).toSeconds
+    contests.foreach { contest =>
+      contest.title.length should be > 0
+    }
   }
 }
