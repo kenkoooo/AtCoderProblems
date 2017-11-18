@@ -3,7 +3,7 @@ package com.kenkoooo.atcoder.runner
 import com.kenkoooo.atcoder.db.SqlDataStore
 import com.kenkoooo.atcoder.model.{Contest, Submission}
 import com.kenkoooo.atcoder.scraper.SubmissionScraper
-import org.mockito.Mockito
+import org.mockito.{ArgumentMatchers, Mockito}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FunSuite, Matchers}
 
@@ -16,7 +16,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val contest = Contest(currentContestId, 0, 0)
 
     val sql = mock[SqlDataStore]
-    Mockito.when(sql.submissions).thenReturn(Map(overlappedId -> mock[Submission]))
+    Mockito.when(sql.submission(overlappedId)).thenReturn(List(mock[Submission]))
 
     val scraper = mock[SubmissionScraper]
     val submission = mock[Submission]
@@ -43,7 +43,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val nextContestId = "rco-contest-2017-final"
 
     val sql = mock[SqlDataStore]
-    Mockito.when(sql.submissions).thenReturn(Map[Long, Submission]())
+    Mockito.when(sql.submission(ArgumentMatchers.any())).thenReturn(List[Submission]())
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
@@ -78,7 +78,8 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val overlappedSubmissionId = 810893L
 
     val sql = mock[SqlDataStore]
-    Mockito.when(sql.submissions).thenReturn(Map(overlappedSubmissionId -> mock[Submission]))
+    Mockito.when(sql.submission(ArgumentMatchers.any())).thenReturn(List[Submission]())
+    Mockito.when(sql.submission(overlappedSubmissionId)).thenReturn(List(mock[Submission]))
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
@@ -113,7 +114,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val contest = Contest(currentContestId, 0, 0)
 
     val sql = mock[SqlDataStore]
-    Mockito.when(sql.submissions).thenReturn(Map[Long, Submission]())
+    Mockito.when(sql.submission(ArgumentMatchers.any())).thenReturn(List[Submission]())
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
