@@ -1,9 +1,11 @@
 package com.kenkoooo.atcoder.db
 
 import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
+import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import SqlDataStore._
-import org.apache.logging.log4j.scala.Logging
+
+import scala.util.Try
 
 /**
   * Data Store of SQL
@@ -54,15 +56,17 @@ class SqlDataStore(url: String,
   }
 
   def batchInsert[T](support: SQLInsertSelectSupport[T], records: T*): Unit = this.synchronized {
-    DB.localTx { implicit session =>
-      val params = support.createMapping(records).map(seq => seq.map(_._2)).map(seq => seq ++ seq)
-      val columnMapping = support.createMapping(records).head.map(_._1 -> sqls.?)
-      withSQL {
-        insertInto(support)
-          .namedValues(columnMapping: _*)
-          .onDuplicateKeyUpdate(columnMapping: _*)
-      }.batch(params: _*).apply()
-    }
+    Try {
+      DB.localTx { implicit session =>
+        val params = support.createMapping(records).map(seq => seq.map(_._2)).map(seq => seq ++ seq)
+        val columnMapping = support.createMapping(records).head.map(_._1 -> sqls.?)
+        withSQL {
+          insertInto(support)
+            .namedValues(columnMapping: _*)
+            .onDuplicateKeyUpdate(columnMapping: _*)
+        }.batch(params: _*).apply()
+      }
+    }.recover { case e: Throwable => logger.catching(e) }
   }
 }
 
