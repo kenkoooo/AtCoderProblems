@@ -21,7 +21,6 @@ class SqlDataStore(url: String,
   Class.forName(driver)
   ConnectionPool.singleton(url, user, password)
 
-  private var _submissions: Map[Long, Submission] = Map()
   private var _contests: Map[String, Contest] = Map()
   private var _problems: Map[String, Problem] = Map()
 
@@ -39,7 +38,6 @@ class SqlDataStore(url: String,
   }
 
   def reloadRecords(): Unit = {
-    _submissions = reload(Submission).map(s => s.id -> s).toMap
     _contests = reload(Contest).map(s => s.id -> s).toMap
     _problems = reload(Problem).map(s => s.id -> s).toMap
   }
