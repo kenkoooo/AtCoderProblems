@@ -37,7 +37,9 @@ object Contest extends SQLInsertSelectSupport[Contest] {
         Seq(
           p.id -> c.id,
           p.startEpochSecond -> c.startEpochSecond,
-          p.durationSecond -> c.durationSecond
+          p.durationSecond -> c.durationSecond,
+          p.title -> c.title,
+          p.rateChange -> c.rateChange
       )
     )
   }
