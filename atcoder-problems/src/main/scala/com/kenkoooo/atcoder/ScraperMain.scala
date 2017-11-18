@@ -4,6 +4,7 @@ import java.io.File
 import java.util.concurrent.{Executors, TimeUnit}
 
 import com.kenkoooo.atcoder.common.Configure
+import com.kenkoooo.atcoder.common.ScheduledExecutorServiceExtension._
 import com.kenkoooo.atcoder.db.SqlDataStore
 import com.kenkoooo.atcoder.model.{Contest, Problem}
 import com.kenkoooo.atcoder.runner.{
@@ -37,21 +38,9 @@ object ScraperMain extends Logging {
         // scrape submission pages per second
         def executeScrapingJob(defaultRunner: () => SubmissionScrapingRunner): Unit = {
           var runner = defaultRunner()
-          service.scheduleAtFixedRate(
-            () =>
-              Try {
-                runner = runner
-                  .scrapeOnePage()
-                  .getOrElse(defaultRunner())
-              }.recover {
-                case e: Throwable =>
-                  logger.catching(e)
-                  service.shutdownNow()
-            },
-            1,
-            1,
-            TimeUnit.SECONDS
-          )
+          service.scheduleTryJobAtFixedRate(() => {
+            runner = runner.scrapeOnePage().getOrElse(defaultRunner())
+          }, 1, 1, TimeUnit.SECONDS)
         }
 
         executeScrapingJob(
@@ -87,43 +76,26 @@ object ScraperMain extends Logging {
         )
 
         // scrape contests per hour
-        service.scheduleAtFixedRate(
-          () =>
-            Try {
-              sql.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
-            }.recover {
-              case e: Throwable =>
-                logger.catching(e)
-                service.shutdownNow()
-          },
-          0,
-          1,
-          TimeUnit.HOURS
-        )
+        service.scheduleTryJobAtFixedRate(() => {
+          sql.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
+        }, 0, 1, TimeUnit.HOURS)
 
         // scrape problems per minutes
-        service.scheduleAtFixedRate(
+        service.scheduleTryJobAtFixedRate(
           () =>
-            Try {
-              sql.contests.keySet
-                .find { contestId =>
-                  sql.problems.values.forall(_.contestId != contestId)
-                }
-                .foreach { contestId =>
-                  logger.info(s"scraping $contestId")
-                  sql.batchInsert(Problem, problemScraper.scrape(contestId): _*)
-                }
-            }.recover {
-              case e: Throwable =>
-                logger.catching(e)
-                service.shutdownNow()
-          },
+            sql.contests.keySet
+              .find { contestId =>
+                sql.problems.values.forall(_.contestId != contestId)
+              }
+              .foreach { contestId =>
+                logger.info(s"scraping $contestId")
+                sql.batchInsert(Problem, problemScraper.scrape(contestId): _*)
+            },
           1,
           1,
           TimeUnit.MINUTES
         )
       case Left(e) => e.toList.foreach(f => logger.error(f.description))
     }
-
   }
 }

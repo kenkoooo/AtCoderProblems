@@ -3,6 +3,7 @@ package com.kenkoooo.atcoder.db
 import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
 import scalikejdbc._
 import SqlDataStore._
+import org.apache.logging.log4j.scala.Logging
 
 /**
   * Data Store of SQL
@@ -15,7 +16,8 @@ import SqlDataStore._
 class SqlDataStore(url: String,
                    user: String,
                    password: String,
-                   driver: String = "com.mysql.cj.jdbc.Driver") {
+                   driver: String = "com.mysql.cj.jdbc.Driver")
+    extends Logging {
   Class.forName(driver)
   ConnectionPool.singleton(url, user, password)
 
@@ -36,6 +38,7 @@ class SqlDataStore(url: String,
   }
 
   private def reload[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
+    logger.info(s"reloading $support")
     DB.readOnly { implicit session =>
       val s = support.syntax("s")
       withSQL(select.from(support as s))
@@ -72,5 +75,4 @@ private object SqlDataStore {
   implicit class RichSQLSyntax(val self: sqls.type) extends AnyVal {
     def values(column: SQLSyntax): SQLSyntax = sqls"values($column)"
   }
-
 }
