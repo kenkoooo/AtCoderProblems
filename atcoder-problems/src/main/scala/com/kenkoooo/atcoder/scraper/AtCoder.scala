@@ -16,4 +16,6 @@ object AtCoder {
     */
   def parseDateTimeToEpochSecond(dateTimeString: String): Long =
     OffsetDateTime.parse(dateTimeString, timeFormatPattern).toEpochSecond
+
+  val UserNameRegex = "^[0-9a-zA-Z-_]+$"
 }
