@@ -33,12 +33,12 @@ object ScraperMain extends Logging {
         sql.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
         sql.reloadRecords()
 
-        // scrape submission pages per second
+        // scrape submission pages per 0.5 second
         def executeScrapingJob(defaultRunner: () => SubmissionScrapingRunner): Unit = {
           var runner = defaultRunner()
           service.scheduleTryJobAtFixedRate(() => {
             runner = runner.scrapeOnePage().getOrElse(defaultRunner())
-          }, 1, 1, TimeUnit.SECONDS)
+          }, 500, 500, TimeUnit.MILLISECONDS)
         }
 
         executeScrapingJob(
