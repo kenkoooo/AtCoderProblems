@@ -33,12 +33,12 @@ class SqlClient(url: String,
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
-  def experiment: List[Long] = {
+  def experiment: List[(Long, String)] = {
     val s = Submission.syntax("s")
     DB.readOnly { implicit session =>
       withSQL {
         select(s.result.id).from(Submission as s)
-      }.map(rs => rs.long(s.resultName.id)).list().apply()
+      }.map(rs => (rs.long(s.resultName.id), rs.string(s.resultName.userId))).list().apply()
     }
   }
 

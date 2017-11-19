@@ -10,6 +10,7 @@ object TestMain extends App {
     case Success(config) =>
       val sql = new SqlClient(config.sql.url, config.sql.user, config.sql.password)
       println(sql.experiment.size)
+      Thread.sleep(10000)
     case Failure(_) =>
   }
 }
