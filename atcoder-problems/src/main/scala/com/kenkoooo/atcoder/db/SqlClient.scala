@@ -4,6 +4,7 @@ import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import SqlClient._
+import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId}
 
 import scala.util.Try
 
@@ -23,8 +24,8 @@ class SqlClient(url: String,
   Class.forName(driver)
   ConnectionPool.singleton(url, user, password)
 
-  private var _contests: Map[String, Contest] = Map()
-  private var _problems: Map[String, Problem] = Map()
+  private var _contests: Map[ContestId, Contest] = Map()
+  private var _problems: Map[ProblemId, Problem] = Map()
   private var _lastReloaded: Long = 0
 
   def contests: Map[String, Contest] = _contests

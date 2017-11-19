@@ -1,6 +1,7 @@
 package com.kenkoooo.atcoder.model
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import com.kenkoooo.atcoder.common.TypeAnnotations.ContestId
 import com.kenkoooo.atcoder.db.SQLInsertSelectSupport
 import scalikejdbc._
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
@@ -14,7 +15,7 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
   * @param title            contest title
   * @param rateChange       description about changes of rating
   */
-case class Contest(id: String,
+case class Contest(id: ContestId,
                    startEpochSecond: Long,
                    durationSecond: Long,
                    title: String,
