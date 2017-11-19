@@ -1,6 +1,5 @@
 package com.kenkoooo.atcoder
 
-import java.io.File
 import java.util.concurrent.{Executors, TimeUnit}
 
 import com.kenkoooo.atcoder.common.Configure
@@ -13,14 +12,14 @@ import com.kenkoooo.atcoder.runner.{
   SubmissionScrapingRunner
 }
 import com.kenkoooo.atcoder.scraper.{ContestScraper, ProblemScraper, SubmissionScraper}
-import com.typesafe.config.ConfigFactory.parseFile
 import org.apache.logging.log4j.scala.Logging
-import pureconfig.loadConfig
+
+import scala.util.{Failure, Success}
 
 object ScraperMain extends Logging {
   def main(args: Array[String]): Unit = {
-    loadConfig[Configure](parseFile(new File(args(0)))) match {
-      case Right(config) =>
+    Configure(args(0)) match {
+      case Success(config) =>
         val service = Executors.newScheduledThreadPool(config.scraper.threads)
         val sql = new SqlClient(
           url = config.sql.url,
@@ -81,7 +80,7 @@ object ScraperMain extends Logging {
           1,
           TimeUnit.MINUTES
         )
-      case Left(e) => e.toList.foreach(f => logger.error(f.description))
+      case Failure(e) => logger.catching(e)
     }
   }
 }
