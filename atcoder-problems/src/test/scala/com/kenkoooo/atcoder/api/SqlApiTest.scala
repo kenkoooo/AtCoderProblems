@@ -23,6 +23,7 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
     val api = new SqlApi(sql)
     Get("/contests") ~> api.routes ~> check {
       status shouldBe OK
+      header("ETag").get.value() shouldBe currentTimeTag.toString()
     }
   }
 
@@ -30,6 +31,7 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
     val api = new SqlApi(sql)
     Get("/contests") ~> addHeader(`If-None-Match`.name, currentTimeTag.toString()) ~> api.routes ~> check {
       status shouldBe NotModified
+      header("ETag").get.value() shouldBe currentTimeTag.toString()
     }
   }
 
@@ -37,6 +39,7 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
     val api = new SqlApi(sql)
     Get("/contests") ~> addHeader(`If-None-Match`.name, """W/"INVALID_TAG"""") ~> api.routes ~> check {
       status shouldBe OK
+      header("ETag").get.value() shouldBe currentTimeTag.toString()
     }
   }
 }
