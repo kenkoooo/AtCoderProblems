@@ -1,6 +1,6 @@
 package com.kenkoooo.atcoder.runner
 
-import com.kenkoooo.atcoder.db.SqlDataStore
+import com.kenkoooo.atcoder.db.SqlClient
 import com.kenkoooo.atcoder.model.{Contest, Submission}
 import com.kenkoooo.atcoder.scraper.SubmissionScraper
 import org.mockito.Mockito
@@ -14,7 +14,7 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
 
     val contest = Contest(currentContestId, 0, 0, "", "")
 
-    val sql = mock[SqlDataStore]
+    val sql = mock[SqlClient]
 
     val scraper = mock[SubmissionScraper]
     val submission = mock[Submission]
@@ -38,7 +38,7 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
     val currentContestId = "rco-contest-2017-final-open"
     val nextContestId = "rco-contest-2017-final"
 
-    val sql = mock[SqlDataStore]
+    val sql = mock[SqlClient]
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
@@ -69,7 +69,7 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
 
     val contest = Contest(currentContestId, 0, 0, "", "")
 
-    val sql = mock[SqlDataStore]
+    val sql = mock[SqlClient]
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())

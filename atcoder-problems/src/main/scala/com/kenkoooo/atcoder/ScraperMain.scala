@@ -5,7 +5,7 @@ import java.util.concurrent.{Executors, TimeUnit}
 
 import com.kenkoooo.atcoder.common.Configure
 import com.kenkoooo.atcoder.common.ScheduledExecutorServiceExtension._
-import com.kenkoooo.atcoder.db.SqlDataStore
+import com.kenkoooo.atcoder.db.SqlClient
 import com.kenkoooo.atcoder.model.{Contest, Problem}
 import com.kenkoooo.atcoder.runner.{
   AllSubmissionScrapingRunner,
@@ -22,7 +22,7 @@ object ScraperMain extends Logging {
     loadConfig[Configure](parseFile(new File(args(0)))) match {
       case Right(config) =>
         val service = Executors.newScheduledThreadPool(config.scraper.threads)
-        val sql = new SqlDataStore(
+        val sql = new SqlClient(
           url = config.sql.url,
           user = config.sql.user,
           password = config.sql.password

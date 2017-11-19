@@ -1,18 +1,18 @@
 package com.kenkoooo.atcoder.runner
 
-import com.kenkoooo.atcoder.db.SqlDataStore
+import com.kenkoooo.atcoder.db.SqlClient
 import com.kenkoooo.atcoder.model.{Contest, Submission}
 import com.kenkoooo.atcoder.scraper.SubmissionScraper
 
 /**
   * runner of scraper to scrape all the submissions
   *
-  * @param sql               [[SqlDataStore]] to insert scraped submissions
+  * @param sql               [[SqlClient]] to insert scraped submissions
   * @param contests          the list of [[Contest]] to scrape
   * @param page              the page number to scrape
   * @param submissionScraper [[SubmissionScraper]] used in scraping
   */
-class AllSubmissionScrapingRunner(sql: SqlDataStore,
+class AllSubmissionScrapingRunner(sql: SqlClient,
                                   contests: List[Contest],
                                   private[runner] val page: Int = 0,
                                   submissionScraper: SubmissionScraper)
