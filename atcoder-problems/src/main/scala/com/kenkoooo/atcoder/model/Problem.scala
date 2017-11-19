@@ -1,11 +1,12 @@
 package com.kenkoooo.atcoder.model
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId}
 import com.kenkoooo.atcoder.db.SQLInsertSelectSupport
 import scalikejdbc._
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
-case class Problem(id: String, contestId: String, title: String)
+case class Problem(id: ProblemId, contestId: ContestId, title: String)
 
 object Problem extends SQLInsertSelectSupport[Problem] {
 
