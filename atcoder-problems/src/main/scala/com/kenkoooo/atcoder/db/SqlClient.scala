@@ -33,6 +33,15 @@ class SqlClient(url: String,
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
+  def experiment: List[Long] = {
+    val s = Submission.syntax("s")
+    DB.readOnly { implicit session =>
+      withSQL {
+        select(s.result.id).from(Submission as s)
+      }.map(rs => rs.long(s.resultName.id)).list().apply()
+    }
+  }
+
   /**
     * Load submissions with given ids from SQL
     *
