@@ -33,33 +33,10 @@ class SqlClient(url: String,
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
-  def experiment(): Unit = {
-    val s = Submission.syntax("s")
-    var x = 0
-    DB.readOnly { implicit session =>
-      withSQL {
-        selectFrom(Submission as s)
-      }.fetchSize(10000).foreach { rs =>
-        val submission = Submission(s)(rs)
-        x += 1
-      }
-    }
-    println(x)
-  }
-
-  /**
-    * load limited number of [[Submission]] which have ids that are greater than the given id
-    *
-    * @param id    id threshold
-    *              all the ids of the loaded [[Submission]] will greater than it
-    * @param limit the number to load at once
-    */
-  def loadSubmissionsGreaterThan(id: Long, limit: Int): List[Submission] = {
+  def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] = {
     val s = Submission.syntax("s")
     DB.readOnly { implicit session =>
-      withSQL {
-        selectFrom(Submission as s).where.gt(s.id, id).limit(limit)
-      }.map(Submission(s)).list().apply()
+      withSQL(builder).map(Submission(s)).list().apply()
     }
   }
 
@@ -71,11 +48,7 @@ class SqlClient(url: String,
     */
   def loadSubmissions(ids: Long*): List[Submission] = {
     val s = Submission.syntax("s")
-    DB.readOnly { implicit session =>
-      withSQL {
-        selectFrom(Submission as s).where.in(s.id, ids)
-      }.map(Submission(s)).list().apply()
-    }
+    executeAndLoadSubmission { selectFrom(Submission as s).where.in(s.id, ids) }
   }
 
   def reloadRecords(): Unit = {
