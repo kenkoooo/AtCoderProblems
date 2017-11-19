@@ -98,8 +98,8 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       ): _*
     )
 
-    client.loadUserSubmissions("chokudai").size shouldBe 1
-    client.loadUserSubmissions("chokudai", "iwiwi").size shouldBe 2
-    client.loadUserSubmissions("chokudai", "iwiwi", "petr").size shouldBe 2
+    client.loadUserSubmissions("chokudai").toList.size shouldBe 1
+    client.loadUserSubmissions("chokudai", "iwiwi").toList.size shouldBe 2
+    client.loadUserSubmissions("chokudai", "iwiwi", "petr").toList.size shouldBe 2
   }
 }
