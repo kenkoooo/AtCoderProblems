@@ -39,7 +39,7 @@ class SqlClient(url: String,
     DB.readOnly { implicit session =>
       withSQL {
         selectFrom(Submission as s)
-      }.foreach { rs =>
+      }.fetchSize(10000).foreach { rs =>
         val submission = Submission(s)(rs)
         x += 1
       }
