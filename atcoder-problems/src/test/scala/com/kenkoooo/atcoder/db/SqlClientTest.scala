@@ -102,4 +102,17 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     client.loadUserSubmissions("chokudai", "iwiwi").toList.size shouldBe 2
     client.loadUserSubmissions("chokudai", "iwiwi", "petr").toList.size shouldBe 2
   }
+
+  test("load all the accepted submissions") {
+    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    client.batchInsert(
+      Submission,
+      List(
+        Submission(id = 1, 0, "", "iwiwi", "", 0.0, 0, "AC", None),
+        Submission(id = 2, 0, "", "chokudai", "", 0.0, 0, "WA", None)
+      ): _*
+    )
+
+    client.loadAllAcceptedSubmissions().toList.size shouldBe 1
+  }
 }
