@@ -33,6 +33,20 @@ class SqlClient(url: String,
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
+  def experiment(): Unit = {
+    val s = Submission.syntax("s")
+    var x = 0
+    DB.readOnly { implicit session =>
+      withSQL {
+        selectFrom(Submission as s)
+      }.foreach { rs =>
+        val submission = Submission(s)(rs)
+        x += 1
+      }
+    }
+    println(x)
+  }
+
   /**
     * load limited number of [[Submission]] which have ids that are greater than the given id
     *
