@@ -6,7 +6,7 @@ import scalikejdbc._
 
 import scala.io.Source
 
-class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with BeforeAndAfterAll {
+class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers with BeforeAndAfterAll {
   val driver = "org.h2.Driver"
   val url = "jdbc:h2:mem:Test;mode=MySQL;DB_CLOSE_DELAY=-1"
   val sqlUser = "user"
@@ -30,7 +30,7 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
     val userId = "kenkoooo"
     val problemId = "arc999_a"
 
-    val store = new SqlDataStore(url, sqlUser, sqlPass, driver)
+    val store = new SqlClient(url, sqlUser, sqlPass, driver)
     store.batchInsert(
       Submission,
       Submission(
@@ -68,7 +68,7 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
 
   test("insert and reload contests") {
     val id = "arc999"
-    val store = new SqlDataStore(url, sqlUser, sqlPass, driver)
+    val store = new SqlClient(url, sqlUser, sqlPass, driver)
     store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
     store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
     store.reloadRecords()
@@ -79,7 +79,7 @@ class SqlDataStoreTest extends FunSuite with BeforeAndAfter with Matchers with B
 
   test("insert and reload problems") {
     val id = "arc999_d"
-    val store = new SqlDataStore(url, sqlUser, sqlPass, driver)
+    val store = new SqlClient(url, sqlUser, sqlPass, driver)
     store.batchInsert(Problem, Problem(id, "arc999", "A+B Problem"))
     store.batchInsert(Problem, Problem(id, "arc999", "A+B Problem"))
     store.reloadRecords()

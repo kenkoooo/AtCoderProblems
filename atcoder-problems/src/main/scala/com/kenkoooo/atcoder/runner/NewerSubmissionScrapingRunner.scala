@@ -1,6 +1,6 @@
 package com.kenkoooo.atcoder.runner
 
-import com.kenkoooo.atcoder.db.SqlDataStore
+import com.kenkoooo.atcoder.db.SqlClient
 import com.kenkoooo.atcoder.model.{Contest, Submission}
 import com.kenkoooo.atcoder.scraper.SubmissionScraper
 import org.apache.logging.log4j.scala.Logging
@@ -9,14 +9,14 @@ import NewerSubmissionScrapingRunner._
 /**
   * runner of scraper to scrape only the new submissions
   *
-  * @param sql                 [[SqlDataStore]] to insert scraped submissions
+  * @param sql                 [[SqlClient]] to insert scraped submissions
   * @param contests            the list of [[Contest]] to scrape
   * @param page                the page number to scrape
   * @param submissionScraper   [[SubmissionScraper]] used in scraping
   * @param currentOverlapCount the number of currently overlapped submissions
   * @param overlapThreshold    threshold to change the contest
   */
-class NewerSubmissionScrapingRunner(sql: SqlDataStore,
+class NewerSubmissionScrapingRunner(sql: SqlClient,
                                     contests: List[Contest],
                                     private[runner] val page: Int = 0,
                                     submissionScraper: SubmissionScraper,

@@ -3,7 +3,7 @@ package com.kenkoooo.atcoder.db
 import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
-import SqlDataStore._
+import SqlClient._
 
 import scala.util.Try
 
@@ -15,10 +15,10 @@ import scala.util.Try
   * @param password password of SQL
   * @param driver   driver name to connect to SQL
   */
-class SqlDataStore(url: String,
-                   user: String,
-                   password: String,
-                   driver: String = "com.mysql.cj.jdbc.Driver")
+class SqlClient(url: String,
+                user: String,
+                password: String,
+                driver: String = "com.mysql.cj.jdbc.Driver")
     extends Logging {
   Class.forName(driver)
   ConnectionPool.singleton(url, user, password)
@@ -74,7 +74,7 @@ class SqlDataStore(url: String,
   }
 }
 
-private object SqlDataStore {
+private object SqlClient {
 
   implicit class RichInsertSQLBuilder(val self: InsertSQLBuilder) extends AnyVal {
     def onDuplicateKeyUpdate(columnsAndValues: (SQLSyntax, Any)*): InsertSQLBuilder = {
