@@ -37,7 +37,7 @@ class SqlClient(url: String,
     val s = Submission.syntax("s")
     DB.readOnly { implicit session =>
       withSQL {
-        select(s.result.id).from(Submission as s)
+        select(s.result.id, s.result.userId).from(Submission as s)
       }.map(rs => (rs.long(s.resultName.id), rs.string(s.resultName.userId))).list().apply()
     }
   }
