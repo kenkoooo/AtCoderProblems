@@ -4,7 +4,7 @@ import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import SqlClient._
-import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId}
+import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, UserId}
 
 import scala.util.Try
 
@@ -34,10 +34,9 @@ class SqlClient(url: String,
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
-  def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] = {
-    val s = Submission.syntax("s")
+  private[db] def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] = {
     DB.readOnly { implicit session =>
-      withSQL(builder).map(Submission(s)).list().apply()
+      withSQL(builder).map(Submission(submissionSyntax)).list().apply()
     }
   }
 
@@ -47,11 +46,23 @@ class SqlClient(url: String,
     * @param ids ids of submissions to load
     * @return list of loaded submissions
     */
-  def loadSubmissions(ids: Long*): List[Submission] = {
-    val s = Submission.syntax("s")
-    executeAndLoadSubmission { selectFrom(Submission as s).where.in(s.id, ids) }
+  def loadSubmissions(ids: Long*): Iterator[Submission] = {
+    SubmissionIterator(
+      this,
+      selectFrom(Submission as submissionSyntax).where.in(submissionSyntax.id, ids)
+    )
   }
 
+  def loadUserSubmissions(userIds: UserId*): Iterator[Submission] = {
+    SubmissionIterator(
+      this,
+      selectFrom(Submission as submissionSyntax).where.in(submissionSyntax.userId, userIds)
+    )
+  }
+
+  /**
+    * reload contests and problems
+    */
   def reloadRecords(): Unit = {
     _contests = reload(Contest).map(s => s.id -> s).toMap
     _problems = reload(Problem).map(s => s.id -> s).toMap
@@ -69,6 +80,13 @@ class SqlClient(url: String,
     }
   }
 
+  /**
+    * insert records to SQL
+    *
+    * @param support support object of inserting records
+    * @param records seq of records to insert
+    * @tparam T type of records
+    */
   def batchInsert[T](support: SQLInsertSelectSupport[T], records: T*): Unit = this.synchronized {
     Try {
       DB.localTx { implicit session =>
@@ -89,6 +107,7 @@ class SqlClient(url: String,
 }
 
 private object SqlClient {
+  private val submissionSyntax = Submission.syntax("s")
 
   implicit class RichInsertSQLBuilder(val self: InsertSQLBuilder) extends AnyVal {
     def onDuplicateKeyUpdate(columnsAndValues: (SQLSyntax, Any)*): InsertSQLBuilder = {
@@ -103,4 +122,44 @@ private object SqlClient {
     def values(column: SQLSyntax): SQLSyntax = sqls"values($column)"
   }
 
+}
+
+/**
+  * [[Iterator]] of [[Submission]] to iterate all the submission without expanding all the result to memory
+  *
+  * @param sqlClient [[SqlClient]] to connect to SQL
+  * @param builder   [[SQLBuilder]] of selecting query
+  * @param fetchSize the number of records in each fetch
+  */
+case class SubmissionIterator(sqlClient: SqlClient,
+                              builder: SQLBuilder[_],
+                              fetchSize: Int = SubmissionIterator.DefaultLimit)
+    extends Iterator[Submission] {
+  private var offset = 0
+  private var currentList = List[Submission]()
+
+  override def hasNext: Boolean = this.synchronized {
+    if (currentList.isEmpty) {
+      reload()
+    }
+    currentList.nonEmpty
+  }
+
+  override def next(): Submission = this.synchronized {
+    require(hasNext)
+    val head = currentList.head
+    currentList = currentList.tail
+    head
+  }
+
+  private def reload(): Unit = this.synchronized {
+    currentList = sqlClient.executeAndLoadSubmission {
+      builder.append(sqls.limit(fetchSize)).append(sqls.offset(offset))
+    }
+    offset += currentList.size
+  }
+}
+
+object SubmissionIterator {
+  private val DefaultLimit = 100000
 }

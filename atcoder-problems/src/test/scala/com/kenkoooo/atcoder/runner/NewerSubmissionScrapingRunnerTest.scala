@@ -16,7 +16,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val contest = Contest(currentContestId, 0, 0, "", "")
 
     val sql = mock[SqlClient]
-    Mockito.when(sql.loadSubmissions(overlappedId)).thenReturn(List(mock[Submission]))
+    Mockito.when(sql.loadSubmissions(overlappedId)).thenReturn(Iterator(mock[Submission]))
 
     val scraper = mock[SubmissionScraper]
     val submission = mock[Submission]
@@ -43,7 +43,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val nextContestId = "rco-contest-2017-final"
 
     val sql = mock[SqlClient]
-    Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(List[Submission]())
+    Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(Iterator[Submission]())
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
@@ -78,8 +78,8 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val overlappedSubmissionId = 810893L
 
     val sql = mock[SqlClient]
-    Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(List[Submission]())
-    Mockito.when(sql.loadSubmissions(overlappedSubmissionId)).thenReturn(List(mock[Submission]))
+    Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(Iterator[Submission]())
+    Mockito.when(sql.loadSubmissions(overlappedSubmissionId)).thenReturn(Iterator(mock[Submission]))
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
@@ -114,7 +114,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val contest = Contest(currentContestId, 0, 0, "", "")
 
     val sql = mock[SqlClient]
-    Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(List[Submission]())
+    Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(Iterator[Submission]())
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())

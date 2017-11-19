@@ -60,7 +60,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       )
     )
 
-    val submission = store.loadSubmissions(id).head
+    val submission = store.loadSubmissions(id).next()
     submission.id shouldBe id
     submission.problemId shouldBe problemId
     submission.userId shouldBe userId
@@ -86,5 +86,20 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
     val problem = store.problems(id)
     problem.id shouldBe id
+  }
+
+  test("load user submissions") {
+    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    client.batchInsert(
+      Submission,
+      List(
+        Submission(id = 1, 0, "", "iwiwi", "", 0.0, 0, "AC", None),
+        Submission(id = 2, 0, "", "chokudai", "", 0.0, 0, "AC", None)
+      ): _*
+    )
+
+    client.loadUserSubmissions("chokudai").size shouldBe 1
+    client.loadUserSubmissions("chokudai", "iwiwi").size shouldBe 2
+    client.loadUserSubmissions("chokudai", "iwiwi", "petr").size shouldBe 2
   }
 }
