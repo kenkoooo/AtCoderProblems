@@ -1,12 +1,12 @@
 package com.kenkoooo.atcoder.db
 
 import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 import scalikejdbc._
 
 import scala.io.Source
 
-class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers with BeforeAndAfterAll {
+class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   val driver = "org.h2.Driver"
   val url = "jdbc:h2:mem:Test;mode=MySQL;DB_CLOSE_DELAY=-1"
   val sqlUser = "user"

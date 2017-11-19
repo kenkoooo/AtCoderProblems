@@ -3,9 +3,16 @@ package com.kenkoooo.atcoder.db
 import com.kenkoooo.atcoder.model.Submission
 import scalikejdbc._
 
+/**
+  * [[Iterator]] of [[Submission]] to iterate all the submission without expanding all the result to memory
+  *
+  * @param sqlClient [[SqlClient]] to connect to SQL
+  * @param builder   [[SQLBuilder]] of selecting query
+  * @param fetchSize the number of records in each fetch
+  */
 case class SubmissionIterator(sqlClient: SqlClient,
                               builder: SQLBuilder[_],
-                              limit: Int = SubmissionIterator.DefaultLimit)
+                              fetchSize: Int = SubmissionIterator.DefaultLimit)
     extends Iterator[Submission] {
   private var offset = 0
   private var currentList = List[Submission]()
@@ -26,7 +33,7 @@ case class SubmissionIterator(sqlClient: SqlClient,
 
   private def reload(): Unit = this.synchronized {
     currentList = sqlClient.executeAndLoadSubmission {
-      builder.append(sqls.limit(limit)).append(sqls.offset(offset))
+      builder.append(sqls.limit(fetchSize)).append(sqls.offset(offset))
     }
     offset += currentList.size
   }
