@@ -1,12 +1,13 @@
 package com.kenkoooo.atcoder.model
 
+import com.kenkoooo.atcoder.common.TypeAnnotations.{ProblemId, SubmissionId, UserId}
 import com.kenkoooo.atcoder.db.SQLInsertSelectSupport
 import scalikejdbc._
 
-case class Submission(id: Long,
+case class Submission(id: SubmissionId,
                       epochSecond: Long,
-                      problemId: String,
-                      userId: String,
+                      problemId: ProblemId,
+                      userId: UserId,
                       language: String,
                       point: Double,
                       length: Int,
