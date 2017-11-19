@@ -1,10 +1,9 @@
 package com.kenkoooo.atcoder.model
 
-import com.kenkoooo.atcoder.model.ContestJsonProtocol.format
 import org.scalatest.{FunSuite, Matchers}
 import spray.json._
 
-class ContestTest extends FunSuite with Matchers {
+class ContestTest extends FunSuite with Matchers with ContestJsonSupport {
   test("convert to json") {
     val contest = Contest("arc999", 114514, 810893, "AtCoder R18 Contest 999", " x ")
     val expectedJsonString =

@@ -25,10 +25,13 @@ class SqlClient(url: String,
 
   private var _contests: Map[String, Contest] = Map()
   private var _problems: Map[String, Problem] = Map()
+  private var _lastReloaded: Long = 0
 
   def contests: Map[String, Contest] = _contests
 
   def problems: Map[String, Problem] = _problems
+
+  def lastReloadedTimeMillis: Long = _lastReloaded
 
   /**
     * Load submissions with given ids from SQL
@@ -48,6 +51,7 @@ class SqlClient(url: String,
   def reloadRecords(): Unit = {
     _contests = reload(Contest).map(s => s.id -> s).toMap
     _problems = reload(Problem).map(s => s.id -> s).toMap
+    _lastReloaded = System.currentTimeMillis()
   }
 
   private def reload[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
