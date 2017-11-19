@@ -87,4 +87,15 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers with Befo
     val problem = store.problems(id)
     problem.id shouldBe id
   }
+
+  test("load limited number of submissions") {
+    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    client.batchInsert(Submission, Submission(id = 1, 0, "", "", "", 0, 0, "", None))
+    client.batchInsert(Submission, Submission(id = 2, 0, "", "", "", 0, 0, "", None))
+
+    client.loadSubmissionsGreaterThan(0, 1000).size shouldBe 2
+    client.loadSubmissionsGreaterThan(0, 1).size shouldBe 1
+    client.loadSubmissionsGreaterThan(1, 1000).size shouldBe 1
+    client.loadSubmissionsGreaterThan(2, 1000).size shouldBe 0
+  }
 }

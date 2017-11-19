@@ -34,6 +34,22 @@ class SqlClient(url: String,
   def lastReloadedTimeMillis: Long = _lastReloaded
 
   /**
+    * load limited number of [[Submission]] which have ids that are greater than the given id
+    *
+    * @param id    id threshold
+    *              all the ids of the loaded [[Submission]] will greater than it
+    * @param limit the number to load at once
+    */
+  def loadSubmissionsGreaterThan(id: Long, limit: Int = 10000): List[Submission] = {
+    val s = Submission.syntax("s")
+    DB.readOnly { implicit session =>
+      withSQL {
+        selectFrom(Submission as s).where.gt(s.id, id).limit(limit)
+      }.map(Submission(s)).list().apply()
+    }
+  }
+
+  /**
     * Load submissions with given ids from SQL
     *
     * @param ids ids of submissions to load
