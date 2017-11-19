@@ -3,7 +3,7 @@ package com.kenkoooo.atcoder.db
 import com.kenkoooo.atcoder.model.Submission
 import com.kenkoooo.atcoder.common.TypeAnnotations._
 
-class SubmissionStatistics() {
+class SubmissionStatistics(sqlClient: SqlClient) {
   private var solvedProblems = Map[UserId, Set[ProblemId]]()
   private var shortestSubmissions = Map[ProblemId, (UserId, SubmissionId, Long)]()
 
@@ -12,6 +12,6 @@ class SubmissionStatistics() {
       val submission = iterator.next()
 
     }
-
   }
+
 }
