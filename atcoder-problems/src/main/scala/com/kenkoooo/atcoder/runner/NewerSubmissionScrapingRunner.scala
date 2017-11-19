@@ -62,5 +62,5 @@ class NewerSubmissionScrapingRunner(sql: SqlClient,
 }
 
 private object NewerSubmissionScrapingRunner {
-  private val DefaultOverlapThreshold = 40
+  private val DefaultOverlapThreshold = 30
 }
