@@ -30,7 +30,13 @@ class SqlClient(url: String,
 
   def problems: Map[String, Problem] = _problems
 
-  def submission(ids: Long*): List[Submission] = {
+  /**
+    * Load submissions with given ids from SQL
+    *
+    * @param ids ids of submissions to load
+    * @return list of loaded submissions
+    */
+  def loadSubmissions(ids: Long*): List[Submission] = {
     val s = Submission.syntax("s")
     DB.readOnly { implicit session =>
       withSQL {
