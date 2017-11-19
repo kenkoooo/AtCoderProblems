@@ -40,5 +40,5 @@ case class SubmissionIterator(sqlClient: SqlClient,
 }
 
 object SubmissionIterator {
-  private val DefaultLimit = 10000
+  private val DefaultLimit = 100000
 }
