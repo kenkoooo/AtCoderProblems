@@ -40,7 +40,7 @@ class SqlClient(url: String,
     *              all the ids of the loaded [[Submission]] will greater than it
     * @param limit the number to load at once
     */
-  def loadSubmissionsGreaterThan(id: Long, limit: Int = 10000): List[Submission] = {
+  def loadSubmissionsGreaterThan(id: Long, limit: Int): List[Submission] = {
     val s = Submission.syntax("s")
     DB.readOnly { implicit session =>
       withSQL {
