@@ -16,7 +16,13 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
   val currentTimeTag: EntityTag = EntityTagger.calculateDateTimeTag(DateTime(currentTime))
 
   val sql: SqlClient = mock[SqlClient]
-  Mockito.when(sql.contests).thenReturn(Map[String, Contest]())
+  Mockito
+    .when(sql.contests)
+    .thenReturn(
+      Map[String, Contest](
+        "contest-id" -> Contest("contest-id", 0, 0, "contest title", "rate change?")
+      )
+    )
   Mockito.when(sql.lastReloadedTimeMillis).thenReturn(currentTime)
 
   test("return 200 to new request") {
@@ -24,6 +30,7 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
     Get("/contests") ~> api.routes ~> check {
       status shouldBe OK
       header("ETag").get.value() shouldBe currentTimeTag.toString()
+      responseAs[String] shouldBe """[{"start_epoch_second":0,"rate_change":"rate change?","id":"contest-id","duration_second":0,"title":"contest title"}]"""
     }
   }
 
