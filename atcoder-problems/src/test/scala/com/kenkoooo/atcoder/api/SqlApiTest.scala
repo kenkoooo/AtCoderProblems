@@ -3,7 +3,7 @@ package com.kenkoooo.atcoder.api
 import akka.http.scaladsl.model.DateTime
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.kenkoooo.atcoder.db.SqlClient
-import com.kenkoooo.atcoder.model.Contest
+import com.kenkoooo.atcoder.model.{Contest, Problem}
 import org.mockito.Mockito
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FunSuite, Matchers}
@@ -18,11 +18,10 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
   val sql: SqlClient = mock[SqlClient]
   Mockito
     .when(sql.contests)
-    .thenReturn(
-      Map[String, Contest](
-        "contest-id" -> Contest("contest-id", 0, 0, "contest title", "rate change?")
-      )
-    )
+    .thenReturn(Map("contest-id" -> Contest("contest-id", 0, 0, "contest title", "rate change?")))
+  Mockito
+    .when(sql.problems)
+    .thenReturn(Map("problem-id" -> Problem("problem-id", "contest-id", "problem title")))
   Mockito.when(sql.lastReloadedTimeMillis).thenReturn(currentTime)
 
   test("return 200 to new request") {
@@ -47,6 +46,14 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
     Get("/contests") ~> addHeader(`If-None-Match`.name, """W/"INVALID_TAG"""") ~> api.routes ~> check {
       status shouldBe OK
       header("ETag").get.value() shouldBe currentTimeTag.toString()
+    }
+  }
+
+  test("return 200 to problems request") {
+    val api = new SqlApi(sql)
+    Get("/problems") ~> api.routes ~> check {
+      status shouldBe OK
+      println(responseAs[String])
     }
   }
 }
