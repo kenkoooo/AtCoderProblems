@@ -60,7 +60,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers with Befo
       )
     )
 
-    val submission = store.submission(id).head
+    val submission = store.loadSubmissions(id).head
     submission.id shouldBe id
     submission.problemId shouldBe problemId
     submission.userId shouldBe userId
