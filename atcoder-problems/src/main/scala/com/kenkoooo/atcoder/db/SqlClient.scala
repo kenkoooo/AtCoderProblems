@@ -4,6 +4,7 @@ import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import SqlClient._
+import com.kenkoooo.atcoder.common.SubmissionStatus
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, UserId}
 
 import scala.util.Try
@@ -53,10 +54,29 @@ class SqlClient(url: String,
     )
   }
 
+  /**
+    * load submissions which are submitted by anyone in the given list
+    *
+    * @param userIds [[UserId]] to search submissions
+    * @return [[Iterator]] of [[Submission]]
+    */
   def loadUserSubmissions(userIds: UserId*): Iterator[Submission] = {
     SubmissionIterator(
       this,
       selectFrom(Submission as submissionSyntax).where.in(submissionSyntax.userId, userIds)
+    )
+  }
+
+  /**
+    * load all the accepted submissions
+    *
+    * @return all the accepted submissions
+    */
+  def loadAllAcceptedSubmissions(): Iterator[Submission] = {
+    SubmissionIterator(
+      this,
+      selectFrom(Submission as submissionSyntax).where
+        .eq(submissionSyntax.c("result"), SubmissionStatus.Accepted)
     )
   }
 
