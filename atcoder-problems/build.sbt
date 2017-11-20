@@ -8,7 +8,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http" % "10.0.10",
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.10",
   "net.ruippeixotog" %% "scala-scraper" % "2.0.0",
-  "org.scalikejdbc" %% "scalikejdbc" % "3.1.+",
+  "org.scalikejdbc" %% "scalikejdbc" % "3.1.0w",
   "com.h2database" % "h2" % "1.4.+",
   "mysql" % "mysql-connector-java" % "8.0.8-dmr",
   "org.apache.logging.log4j" % "log4j-api" % "2.9.1",

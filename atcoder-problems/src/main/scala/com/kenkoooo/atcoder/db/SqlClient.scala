@@ -3,10 +3,11 @@ package com.kenkoooo.atcoder.db
 import com.kenkoooo.atcoder.common.SubmissionStatus
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, UserId}
 import com.kenkoooo.atcoder.db.SqlClient._
-import com.kenkoooo.atcoder.model.{Contest, Problem, Solver, Submission}
+import com.kenkoooo.atcoder.model._
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import sqls.{count, distinct}
+
 import scala.util.Try
 
 /**
@@ -82,19 +83,45 @@ class SqlClient(url: String,
 
   def updateSolverCounts(): Unit = {
     val v = Solver.column
+    val solvers = Solver.syntax("solvers")
     val s = Submission.syntax("s")
-    val temporaryColumn = sqls"solvers"
     DB.localTx { implicit session =>
+      withSQL { deleteFrom(Solver as solvers).where.gt(solvers.solvers, 0) }.execute().apply()
       withSQL {
         insertInto(Solver)
           .columns(v.solvers, v.problemId)
-          .select(sqls"${count(distinct(s.userId))} as $temporaryColumn", s.problemId)(
+          .select(sqls"${count(distinct(s.userId))}", s.problemId)(
             _.from(Submission as s).where
               .eq(s.c("result"), SubmissionStatus.Accepted)
               .groupBy(s.problemId)
           )
-          .onDuplicateKeyUpdate(v.solvers -> temporaryColumn)
-      }.update().apply()
+          .onDuplicateKeyUpdate(v.solvers -> v.solvers)
+      }.execute().apply()
+    }
+  }
+
+  def extractGreatSubmissions(): Unit = {
+    DB.localTx { implicit session =>
+      sql"""INSERT INTO shortest (problem_id, submission_id)
+            SELECT
+               problem_id, min(id) as submission_id
+           FROM
+               submissions
+           WHERE
+               CONCAT(problem_id, ' ', length)
+               IN
+               (
+                   SELECT
+                       CONCAT(problem_id, ' ', min(length))
+                   FROM
+                       submissions
+                   WHERE result='AC'
+                   GROUP BY problem_id
+               )
+           GROUP BY problem_id
+            ON DUPLICATE KEY UPDATE submission_id=submission_id"""
+        .update()
+        .apply()
     }
   }
 

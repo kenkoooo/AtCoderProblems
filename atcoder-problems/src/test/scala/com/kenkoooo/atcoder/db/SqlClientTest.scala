@@ -12,13 +12,17 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   val sqlUser = "user"
   val sqlPass = "pass"
 
+//  val url = "jdbc:mysql://localhost:3306/test?useSSL=false"
+//  val sqlUser = "root"
+//  val sqlPass = "toor"
+//  val driver = "com.mysql.cj.jdbc.Driver"
+
   Class.forName(driver)
   ConnectionPool.singleton(url, sqlUser, sqlPass)
 
   before {
     // initialize the test database
     DB.localTx { implicit session =>
-      sql"DROP ALL OBJECTS".execute().apply()
       SQL(Source.fromResource("test-db.sql").mkString)
         .execute()
         .apply()
@@ -128,8 +132,33 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     )
 
     client.updateSolverCounts()
-    val solvers = client.reload(Solver)
-    val countMap = solvers.map(s => s.problemId -> s.solvers).toMap
-    countMap shouldBe Map("problem_1" -> 2, "problem_2" -> 1)
+    client.reload(Solver).map(s => s.problemId -> s.solvers).toMap shouldBe Map(
+      "problem_1" -> 2,
+      "problem_2" -> 1
+    )
+
+    client.batchInsert(
+      Submission,
+      Submission(id = 6, problemId = "problem_1", userId = "user_3", result = "AC")
+    )
+    client.updateSolverCounts()
+    client.reload(Solver).map(s => s.problemId -> s.solvers).toMap shouldBe Map(
+      "problem_1" -> 3,
+      "problem_2" -> 1
+    )
+  }
+
+  test("extract shortest submissions") {
+    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    client.batchInsert(
+      Submission,
+      Submission(id = 1, problemId = "problem_1", userId = "user_1", length = 5, result = "WA"),
+      Submission(id = 2, problemId = "problem_1", userId = "user_1", length = 5, result = "AC"),
+      Submission(id = 3, problemId = "problem_1", userId = "user_1", length = 5, result = "TLE"),
+      Submission(id = 4, problemId = "problem_1", userId = "user_2", length = 5, result = "AC"),
+      Submission(id = 5, problemId = "problem_2", userId = "user_2", length = 5, result = "AC"),
+    )
+
+    client.extractGreatSubmissions()
   }
 }

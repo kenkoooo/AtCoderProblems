@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS submissions;
 CREATE TABLE submissions (
   id            BIGINT NOT NULL,
   epoch_second  BIGINT NOT NULL,
@@ -11,6 +12,7 @@ CREATE TABLE submissions (
   PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS problems;
 CREATE TABLE problems (
   id            VARCHAR(255) NOT NULL,
   contest_id    VARCHAR(255) NOT NULL,
@@ -18,6 +20,7 @@ CREATE TABLE problems (
   PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS contests;
 CREATE TABLE contests (
   id                    VARCHAR(255) NOT NULL,
   start_epoch_second    BIGINT       NOT NULL,
@@ -27,8 +30,16 @@ CREATE TABLE contests (
   PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS solvers;
 CREATE TABLE solvers (
   problem_id            VARCHAR(255)  NOT NULL,
   solvers               INT NOT NULL,
+  PRIMARY KEY (problem_id)
+);
+
+DROP TABLE IF EXISTS shortest;
+CREATE TABLE shortest (
+  problem_id    VARCHAR(255)  NOT NULL,
+  submission_id BIGINT  NOT NULL,
   PRIMARY KEY (problem_id)
 );
