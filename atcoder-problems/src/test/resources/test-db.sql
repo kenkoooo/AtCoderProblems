@@ -26,3 +26,9 @@ CREATE TABLE contests (
   rate_change           VARCHAR(255) NOT NULL,
   PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8;
+
+CREATE TABLE solvers (
+  problem_id            VARCHAR(255)  NOT NULL,
+  solvers               INT NOT NULL,
+  PRIMARY KEY (problem_id)
+);
