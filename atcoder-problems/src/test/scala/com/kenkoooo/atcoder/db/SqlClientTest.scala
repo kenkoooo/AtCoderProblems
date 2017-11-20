@@ -1,6 +1,6 @@
 package com.kenkoooo.atcoder.db
 
-import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
+import com.kenkoooo.atcoder.model.{Contest, Problem, Solver, Submission}
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 import scalikejdbc._
 
@@ -114,5 +114,22 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     )
 
     client.loadAllAcceptedSubmissions().toList.size shouldBe 1
+  }
+
+  test("update solver counts") {
+    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    client.batchInsert(
+      Submission,
+      Submission(id = 1, problemId = "problem_1", userId = "user_1", result = "WA"),
+      Submission(id = 2, problemId = "problem_1", userId = "user_1", result = "AC"),
+      Submission(id = 3, problemId = "problem_1", userId = "user_1", result = "TLE"),
+      Submission(id = 4, problemId = "problem_1", userId = "user_2", result = "AC"),
+      Submission(id = 5, problemId = "problem_2", userId = "user_2", result = "AC"),
+    )
+
+    client.updateSolverCounts()
+    val solvers = client.reload(Solver)
+    val countMap = solvers.map(s => s.problemId -> s.solvers).toMap
+    countMap shouldBe Map("problem_1" -> 2, "problem_2" -> 1)
   }
 }

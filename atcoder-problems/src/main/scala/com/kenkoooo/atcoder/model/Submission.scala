@@ -5,14 +5,14 @@ import com.kenkoooo.atcoder.db.SQLInsertSelectSupport
 import scalikejdbc._
 
 case class Submission(id: SubmissionId,
-                      epochSecond: Long,
+                      epochSecond: Long = 0,
                       problemId: ProblemId,
                       userId: UserId,
-                      language: String,
-                      point: Double,
-                      length: Int,
+                      language: String = "",
+                      point: Double = 0.0,
+                      length: Int = 0,
                       result: String,
-                      executionTime: Option[Int])
+                      executionTime: Option[Int] = None)
 
 object Submission extends SQLInsertSelectSupport[Submission] {
   val FirstPageNumber = 1

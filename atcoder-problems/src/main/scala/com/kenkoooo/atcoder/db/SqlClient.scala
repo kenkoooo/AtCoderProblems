@@ -1,12 +1,12 @@
 package com.kenkoooo.atcoder.db
 
-import com.kenkoooo.atcoder.model.{Contest, Problem, Submission}
-import org.apache.logging.log4j.scala.Logging
-import scalikejdbc._
-import SqlClient._
 import com.kenkoooo.atcoder.common.SubmissionStatus
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, UserId}
-
+import com.kenkoooo.atcoder.db.SqlClient._
+import com.kenkoooo.atcoder.model.{Contest, Problem, Solver, Submission}
+import org.apache.logging.log4j.scala.Logging
+import scalikejdbc._
+import sqls.{count, distinct}
 import scala.util.Try
 
 /**
@@ -80,6 +80,24 @@ class SqlClient(url: String,
     )
   }
 
+  def updateSolverCounts(): Unit = {
+    val v = Solver.column
+    val s = Submission.syntax("s")
+    val temporaryColumn = sqls"solvers"
+    DB.localTx { implicit session =>
+      withSQL {
+        insertInto(Solver)
+          .columns(v.solvers, v.problemId)
+          .select(sqls"${count(distinct(s.userId))} as $temporaryColumn", s.problemId)(
+            _.from(Submission as s).where
+              .eq(s.c("result"), SubmissionStatus.Accepted)
+              .groupBy(s.problemId)
+          )
+          .onDuplicateKeyUpdate(v.solvers -> temporaryColumn)
+      }.update().apply()
+    }
+  }
+
   /**
     * reload contests and problems
     */
@@ -89,8 +107,8 @@ class SqlClient(url: String,
     _lastReloaded = System.currentTimeMillis()
   }
 
-  private def reload[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
-    logger.info(s"reloading $support")
+  def reload[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
+    logger.info(s"reloading ${support.tableName}")
     DB.readOnly { implicit session =>
       val s = support.syntax("s")
       withSQL(select.from(support as s))
