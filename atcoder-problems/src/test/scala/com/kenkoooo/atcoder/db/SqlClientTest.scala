@@ -132,7 +132,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     )
 
     client.updateSolverCounts()
-    client.reload(Solver).map(s => s.problemId -> s.solvers).toMap shouldBe Map(
+    client.loadRecords(Solver).map(s => s.problemId -> s.solvers).toMap shouldBe Map(
       "problem_1" -> 2,
       "problem_2" -> 1
     )
@@ -142,7 +142,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 6, problemId = "problem_1", userId = "user_3", result = "AC")
     )
     client.updateSolverCounts()
-    client.reload(Solver).map(s => s.problemId -> s.solvers).toMap shouldBe Map(
+    client.loadRecords(Solver).map(s => s.problemId -> s.solvers).toMap shouldBe Map(
       "problem_1" -> 3,
       "problem_2" -> 1
     )
@@ -159,7 +159,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 5, problemId = "problem_2", userId = "user_2", length = 5, result = "AC"),
     )
     client.rewriteGreatSubmissions(Shortest)
-    client.reload(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+    client.loadRecords(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "problem_1" -> 2,
       "problem_2" -> 5
     )
@@ -169,7 +169,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 6, problemId = "problem_2", userId = "user_2", length = 4, result = "AC"),
     )
     client.rewriteGreatSubmissions(Shortest)
-    client.reload(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+    client.loadRecords(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "problem_1" -> 2,
       "problem_2" -> 6
     )
@@ -186,7 +186,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 5, problemId = "p2", userId = "u2", executionTime = Some(5), result = "AC"),
     )
     client.rewriteGreatSubmissions(Fastest)
-    client.reload(Fastest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+    client.loadRecords(Fastest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "p1" -> 2,
       "p2" -> 5
     )
@@ -196,7 +196,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 6, problemId = "p2", userId = "u2", executionTime = Some(4), result = "AC"),
     )
     client.rewriteGreatSubmissions(Fastest)
-    client.reload(Fastest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+    client.loadRecords(Fastest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "p1" -> 2,
       "p2" -> 6
     )
@@ -213,7 +213,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 5, problemId = "p2", userId = "u2", result = "AC"),
     )
     client.rewriteGreatSubmissions(First)
-    client.reload(First).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+    client.loadRecords(First).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "p1" -> 2,
       "p2" -> 5
     )
@@ -223,7 +223,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 6, problemId = "p2", userId = "u2", result = "AC"),
     )
     client.rewriteGreatSubmissions(First)
-    client.reload(First).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+    client.loadRecords(First).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "p1" -> 2,
       "p2" -> 5
     )
