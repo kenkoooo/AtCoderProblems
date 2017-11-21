@@ -100,31 +100,33 @@ class SqlClient(url: String,
     }
   }
 
-  def rewriteGreatSubmissions(
-    support: ProblemSubmissionPairSupport[_],
-    mapper: QuerySQLSyntaxProvider[SQLSyntaxSupport[Submission], Submission] => SQLSyntax
-  ): Unit = {
+  def rewriteGreatSubmissions(support: ProblemSubmissionPairSupport[_]): Unit = {
     val columns = support.column
     val submission = Submission.syntax("s")
     val blank = sqls"' '"
+    val comparingColumn = support.extractComparingColumn(submission)
+
+    val problemId = submission.problemId
+    val result = submission.c("result")
+
     DB.localTx { implicit session =>
       withSQL { deleteFrom(support) }.execute().apply()
       withSQL {
         insertInto(support)
           .columns(columns.problemId, columns.submissionId)
-          .select(submission.problemId, min(submission.id))(
+          .select(problemId, min(submission.id))(
             _.from(Submission as submission).where
               .in(
-                concat(submission.problemId, blank, mapper(submission)),
-                select(concat(submission.problemId, blank, min(mapper(submission))))
+                concat(problemId, blank, comparingColumn),
+                select(concat(problemId, blank, min(comparingColumn)))
                   .from(Submission as submission)
                   .where
-                  .eq(submission.c("result"), SubmissionStatus.Accepted)
-                  .groupBy(submission.problemId)
+                  .eq(result, SubmissionStatus.Accepted)
+                  .groupBy(problemId)
               )
               .and
-              .eq(submission.c("result"), SubmissionStatus.Accepted)
-              .groupBy(submission.problemId)
+              .eq(result, SubmissionStatus.Accepted)
+              .groupBy(problemId)
           )
       }.update().apply()
     }

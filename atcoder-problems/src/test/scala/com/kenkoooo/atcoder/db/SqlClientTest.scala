@@ -158,7 +158,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 4, problemId = "problem_1", userId = "user_2", length = 5, result = "AC"),
       Submission(id = 5, problemId = "problem_2", userId = "user_2", length = 5, result = "AC"),
     )
-    client.rewriteGreatSubmissions(Shortest, s => s.length)
+    client.rewriteGreatSubmissions(Shortest)
     client.reload(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "problem_1" -> 2,
       "problem_2" -> 5
@@ -168,7 +168,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission,
       Submission(id = 6, problemId = "problem_2", userId = "user_2", length = 4, result = "AC"),
     )
-    client.rewriteGreatSubmissions(Shortest, s => s.length)
+    client.rewriteGreatSubmissions(Shortest)
     client.reload(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "problem_1" -> 2,
       "problem_2" -> 6
@@ -185,7 +185,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 4, problemId = "p1", userId = "u2", executionTime = Some(5), result = "AC"),
       Submission(id = 5, problemId = "p2", userId = "u2", executionTime = Some(5), result = "AC"),
     )
-    client.rewriteGreatSubmissions(Fastest, s => s.executionTime)
+    client.rewriteGreatSubmissions(Fastest)
     client.reload(Fastest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "p1" -> 2,
       "p2" -> 5
@@ -195,10 +195,37 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission,
       Submission(id = 6, problemId = "p2", userId = "u2", executionTime = Some(4), result = "AC"),
     )
-    client.rewriteGreatSubmissions(Fastest, s => s.executionTime)
+    client.rewriteGreatSubmissions(Fastest)
     client.reload(Fastest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "p1" -> 2,
       "p2" -> 6
+    )
+  }
+
+  test("extract first submissions") {
+    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    client.batchInsert(
+      Submission,
+      Submission(id = 1, problemId = "p1", userId = "u1", result = "WA"),
+      Submission(id = 2, problemId = "p1", userId = "u1", result = "AC"),
+      Submission(id = 3, problemId = "p1", userId = "u1", result = "TLE"),
+      Submission(id = 4, problemId = "p1", userId = "u2", result = "AC"),
+      Submission(id = 5, problemId = "p2", userId = "u2", result = "AC"),
+    )
+    client.rewriteGreatSubmissions(First)
+    client.reload(First).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+      "p1" -> 2,
+      "p2" -> 5
+    )
+
+    client.batchInsert(
+      Submission,
+      Submission(id = 6, problemId = "p2", userId = "u2", result = "AC"),
+    )
+    client.rewriteGreatSubmissions(First)
+    client.reload(First).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+      "p1" -> 2,
+      "p2" -> 5
     )
   }
 }
