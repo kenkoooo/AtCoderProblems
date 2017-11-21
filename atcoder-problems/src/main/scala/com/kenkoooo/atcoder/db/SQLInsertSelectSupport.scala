@@ -8,6 +8,9 @@ import scalikejdbc._
   * @tparam T type of record to insert into SQL
   */
 trait SQLInsertSelectSupport[T] extends SQLSyntaxSupport[T] {
+  override def tableName: String = definedTableName
+
+  protected def definedTableName: String
 
   def apply(s: SyntaxProvider[T])(rs: WrappedResultSet): T = apply(s.resultName)(rs)
 

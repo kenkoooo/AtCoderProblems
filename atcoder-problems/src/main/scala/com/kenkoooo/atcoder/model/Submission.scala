@@ -17,7 +17,7 @@ case class Submission(id: SubmissionId,
 object Submission extends SQLInsertSelectSupport[Submission] {
   val FirstPageNumber = 1
 
-  override val tableName = "submissions"
+  override val definedTableName = "submissions"
 
   override def apply(row: ResultName[Submission])(rs: WrappedResultSet): Submission =
     Submission(

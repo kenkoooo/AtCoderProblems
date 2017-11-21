@@ -10,7 +10,7 @@ case class Problem(id: ProblemId, contestId: ContestId, title: String)
 
 object Problem extends SQLInsertSelectSupport[Problem] {
 
-  override val tableName = "problems"
+  override val definedTableName = "problems"
 
   override def apply(resultName: ResultName[Problem])(rs: WrappedResultSet) = Problem(
     id = rs.string(resultName.id),
