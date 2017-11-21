@@ -87,7 +87,9 @@ class SqlClient(url: String,
     val v = Solver.column
     val s = Submission.syntax("s")
     DB.localTx { implicit session =>
-      withSQL { deleteFrom(Solver) }.execute().apply()
+      withSQL {
+        deleteFrom(Solver)
+      }.execute().apply()
       withSQL {
         insertInto(Solver)
           .columns(v.solvers, v.problemId)
@@ -100,17 +102,25 @@ class SqlClient(url: String,
     }
   }
 
+  /**
+    * extract min labeled submissions for each problems and store to another table
+    *
+    * @param support support object of reading and writing records
+    */
   def rewriteGreatSubmissions(support: ProblemSubmissionPairSupport[_]): Unit = {
     val columns = support.column
     val submission = Submission.syntax("s")
     val blank = sqls"' '"
     val comparingColumn = support.extractComparingColumn(submission)
 
+    // columns
     val problemId = submission.problemId
     val result = submission.c("result")
 
     DB.localTx { implicit session =>
-      withSQL { deleteFrom(support) }.execute().apply()
+      withSQL {
+        deleteFrom(support)
+      }.execute().apply()
       withSQL {
         insertInto(support)
           .columns(columns.problemId, columns.submissionId)
@@ -136,12 +146,19 @@ class SqlClient(url: String,
     * reload contests and problems
     */
   def reloadRecords(): Unit = {
-    _contests = reload(Contest).map(s => s.id -> s).toMap
-    _problems = reload(Problem).map(s => s.id -> s).toMap
+    _contests = loadRecords(Contest).map(s => s.id -> s).toMap
+    _problems = loadRecords(Problem).map(s => s.id -> s).toMap
     _lastReloaded = System.currentTimeMillis()
   }
 
-  def reload[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
+  /**
+    * load records of the given type
+    *
+    * @param support support object for loading records
+    * @tparam T type of the loading records
+    * @return seq of loaded records
+    */
+  def loadRecords[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
     logger.info(s"reloading ${support.tableName}")
     DB.readOnly { implicit session =>
       val s = support.syntax("s")
@@ -181,7 +198,7 @@ class SqlClient(url: String,
 private object SqlClient {
   private val submissionSyntax = Submission.syntax("s")
 
-  implicit class RichInsertSQLBuilder(val self: InsertSQLBuilder) extends AnyVal {
+  implicit class DuplicateKeyUpdateSQLBuilder(val self: InsertSQLBuilder) extends AnyVal {
     def onDuplicateKeyUpdate(columnsAndValues: (SQLSyntax, Any)*): InsertSQLBuilder = {
       val cvs = columnsAndValues map {
         case (c, v) => sqls"$c = $v"
