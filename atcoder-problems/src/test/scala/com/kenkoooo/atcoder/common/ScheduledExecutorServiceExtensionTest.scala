@@ -10,7 +10,7 @@ class ScheduledExecutorServiceExtensionTest extends FunSuite with Matchers {
     val service = Executors.newSingleThreadScheduledExecutor()
 
     var x = 0
-    service.scheduleTryJobAtFixedRate(() => {
+    service.scheduleTryJobAtFixedDelay(() => {
       // a job that will be crashed after 2 seconds
       x += 1
       require(x != 2)
