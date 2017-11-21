@@ -132,7 +132,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     )
 
     client.updateSolverCounts()
-    client.loadRecords(Solver).map(s => s.problemId -> s.solvers).toMap shouldBe Map(
+    client.loadRecords(Solver).map(s => s.problemId -> s.userCount).toMap shouldBe Map(
       "problem_1" -> 2,
       "problem_2" -> 1
     )
@@ -142,7 +142,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 6, problemId = "problem_1", userId = "user_3", result = "AC")
     )
     client.updateSolverCounts()
-    client.loadRecords(Solver).map(s => s.problemId -> s.solvers).toMap shouldBe Map(
+    client.loadRecords(Solver).map(s => s.problemId -> s.userCount).toMap shouldBe Map(
       "problem_1" -> 3,
       "problem_2" -> 1
     )

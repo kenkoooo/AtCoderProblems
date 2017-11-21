@@ -92,7 +92,7 @@ class SqlClient(url: String,
       }.execute().apply()
       withSQL {
         insertInto(Solver)
-          .columns(v.solvers, v.problemId)
+          .columns(v.userCount, v.problemId)
           .select(sqls"${count(distinct(s.userId))}", s.problemId)(
             _.from(Submission as s).where
               .eq(s.c("result"), SubmissionStatus.Accepted)
