@@ -34,3 +34,18 @@ object ShortestSubmissionCount extends UserCountPairSupport[ShortestSubmissionCo
 
   override def parentSupport: Shortest.type = Shortest
 }
+
+case class FastestSubmissionCount(userId: UserId, problemCount: Int) extends UserCountPair
+
+object FastestSubmissionCount extends UserCountPairSupport[FastestSubmissionCount, Fastest] {
+  override def parentSupport: Fastest.type = Fastest
+
+  override protected def definedTableName = "fastest_submission_count"
+}
+
+case class FirstSubmissionCount(userId: UserId, problemCount: Int) extends UserCountPair
+object FirstSubmissionCount extends UserCountPairSupport[FirstSubmissionCount, First] {
+  override def parentSupport: First.type = First
+
+  override protected def definedTableName = "first_submission_count"
+}

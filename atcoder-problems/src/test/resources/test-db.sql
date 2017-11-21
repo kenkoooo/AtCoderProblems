@@ -65,3 +65,17 @@ CREATE TABLE shortest_submission_count (
   PRIMARY KEY (user_id)
 );
 
+DROP TABLE IF EXISTS fastest_submission_count;
+CREATE TABLE fastest_submission_count (
+  user_id       VARCHAR(255)  NOT NULL,
+  problem_count INT           NOT NULL,
+  PRIMARY KEY (user_id)
+);
+
+DROP TABLE IF EXISTS first_submission_count;
+CREATE TABLE first_submission_count (
+  user_id       VARCHAR(255)  NOT NULL,
+  problem_count INT           NOT NULL,
+  PRIMARY KEY (user_id)
+);
+

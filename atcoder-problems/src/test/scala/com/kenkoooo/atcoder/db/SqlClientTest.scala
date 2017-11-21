@@ -200,16 +200,26 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       "p1" -> 2,
       "p2" -> 5
     )
+    client.rewriteUserProblemCount(FastestSubmissionCount)
+    client
+      .loadRecords(FastestSubmissionCount)
+      .map(c => c.userId -> c.problemCount)
+      .toMap shouldBe Map("u1" -> 1, "u2" -> 1)
 
     client.batchInsert(
       Submission,
-      Submission(id = 6, problemId = "p2", userId = "u2", executionTime = Some(4), result = "AC"),
+      Submission(id = 6, problemId = "p2", userId = "u1", executionTime = Some(4), result = "AC"),
     )
     client.rewriteGreatSubmissions(Fastest)
     client.loadRecords(Fastest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "p1" -> 2,
       "p2" -> 6
     )
+    client.rewriteUserProblemCount(FastestSubmissionCount)
+    client
+      .loadRecords(FastestSubmissionCount)
+      .map(c => c.userId -> c.problemCount)
+      .toMap shouldBe Map("u1" -> 2)
   }
 
   test("extract first submissions") {
@@ -227,15 +237,27 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       "p1" -> 2,
       "p2" -> 5
     )
+    client.rewriteUserProblemCount(FirstSubmissionCount)
+    client
+      .loadRecords(FirstSubmissionCount)
+      .map(c => c.userId -> c.problemCount)
+      .toMap shouldBe Map("u1" -> 1, "u2" -> 1)
 
     client.batchInsert(
       Submission,
       Submission(id = 6, problemId = "p2", userId = "u2", result = "AC"),
+      Submission(id = 7, problemId = "p3", userId = "u2", result = "AC"),
     )
     client.rewriteGreatSubmissions(First)
     client.loadRecords(First).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "p1" -> 2,
-      "p2" -> 5
+      "p2" -> 5,
+      "p3" -> 7
     )
+    client.rewriteUserProblemCount(FirstSubmissionCount)
+    client
+      .loadRecords(FirstSubmissionCount)
+      .map(c => c.userId -> c.problemCount)
+      .toMap shouldBe Map("u1" -> 1, "u2" -> 2)
   }
 }
