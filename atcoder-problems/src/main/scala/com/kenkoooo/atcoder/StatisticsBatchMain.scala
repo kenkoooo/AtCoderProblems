@@ -18,7 +18,7 @@ object StatisticsBatchMain extends App with Logging {
         logger.info("start batch table update")
         sql.batchUpdateStatisticTables()
         logger.info("finished batch table update")
-      }, 0, 5, TimeUnit.SECONDS)
+      }, 0, 5, TimeUnit.MINUTES)
     case Failure(e) => logger.catching(e)
   }
 }
