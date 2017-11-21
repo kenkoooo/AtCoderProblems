@@ -7,6 +7,8 @@ import com.kenkoooo.atcoder.model._
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import sqls.{count, distinct}
+import SQLSyntax.min
+import scalikejdbc.interpolation.SQLSyntax
 
 import scala.util.Try
 
@@ -83,10 +85,9 @@ class SqlClient(url: String,
 
   def updateSolverCounts(): Unit = {
     val v = Solver.column
-    val solvers = Solver.syntax("solvers")
     val s = Submission.syntax("s")
     DB.localTx { implicit session =>
-      withSQL { deleteFrom(Solver as solvers).where.gt(solvers.solvers, 0) }.execute().apply()
+      withSQL { deleteFrom(Solver) }.execute().apply()
       withSQL {
         insertInto(Solver)
           .columns(v.solvers, v.problemId)
@@ -95,33 +96,34 @@ class SqlClient(url: String,
               .eq(s.c("result"), SubmissionStatus.Accepted)
               .groupBy(s.problemId)
           )
-          .onDuplicateKeyUpdate(v.solvers -> v.solvers)
       }.execute().apply()
     }
   }
 
   def extractGreatSubmissions(): Unit = {
+    val shortest = Shortest.column
+    val submission = Submission.syntax("s")
+    val blank = sqls"' '"
     DB.localTx { implicit session =>
-      sql"""INSERT INTO shortest (problem_id, submission_id)
-            SELECT
-               problem_id, min(id) as submission_id
-           FROM
-               submissions
-           WHERE
-               CONCAT(problem_id, ' ', length)
-               IN
-               (
-                   SELECT
-                       CONCAT(problem_id, ' ', min(length))
-                   FROM
-                       submissions
-                   WHERE result='AC'
-                   GROUP BY problem_id
-               )
-           GROUP BY problem_id
-            ON DUPLICATE KEY UPDATE submission_id=submission_id"""
-        .update()
-        .apply()
+      withSQL { deleteFrom(Shortest) }.execute().apply()
+      withSQL {
+        insertInto(Shortest)
+          .columns(shortest.problemId, shortest.submissionId)
+          .select(submission.problemId, min(submission.id))(
+            _.from(Submission as submission).where
+              .in(
+                concat(submission.problemId, blank, submission.length),
+                select(concat(submission.problemId, blank, min(submission.length)))
+                  .from(Submission as submission)
+                  .where
+                  .eq(submission.c("result"), SubmissionStatus.Accepted)
+                  .groupBy(submission.problemId)
+              )
+              .and
+              .eq(submission.c("result"), SubmissionStatus.Accepted)
+              .groupBy(submission.problemId)
+          )
+      }.update().apply()
     }
   }
 
@@ -187,6 +189,7 @@ private object SqlClient {
     def values(column: SQLSyntax): SQLSyntax = sqls"values($column)"
   }
 
+  def concat(columns: SQLSyntax*): SQLSyntax = sqls"concat(${sqls.csv(columns: _*)})"
 }
 
 /**
