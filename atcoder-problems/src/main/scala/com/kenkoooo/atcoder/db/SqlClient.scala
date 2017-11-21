@@ -81,7 +81,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   /**
     * rewrite accepted count ranking table
     */
-  def updateAcceptedCounts(): Unit = this.synchronized {
+  def updateAcceptedCounts(): Unit = {
     logger.info(s"updating ${AcceptedCount.tableName}")
     val columns = AcceptedCount.column
     val submission = Submission.syntax("s")
@@ -104,7 +104,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   /**
     * update solver counts for each problems
     */
-  def updateProblemSolverCounts(): Unit = this.synchronized {
+  def updateProblemSolverCounts(): Unit = {
     logger.info(s"updating ${ProblemSolver.tableName}")
     val v = ProblemSolver.column
     val s = Submission.syntax("s")
@@ -124,30 +124,29 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     }
   }
 
-  def updateUserProblemCount[T](support: UserCountPairSupportWithParent[_, T]): Unit =
-    this.synchronized {
-      logger.info(s"updating ${support.tableName}")
+  def updateUserProblemCount[T](support: UserCountPairSupportWithParent[_, T]): Unit = {
+    logger.info(s"updating ${support.tableName}")
 
-      val columns = support.column
-      val parentTable = support.parentSupport
-      val parent = parentTable.syntax("p")
-      val submissions = Submission.syntax("s")
-      DB.localTx { implicit session =>
-        withSQL {
-          deleteFrom(support)
-        }.update().apply()
-        withSQL {
-          insertInto(support)
-            .columns(columns.problemCount, columns.userId)
-            .select(count(distinct(parent.problemId)), submissions.userId)(
-              _.from(parentTable as parent)
-                .join(Submission as submissions)
-                .on(submissions.id, parent.submissionId)
-                .groupBy(submissions.userId)
-            )
-        }.update().apply()
-      }
+    val columns = support.column
+    val parentTable = support.parentSupport
+    val parent = parentTable.syntax("p")
+    val submissions = Submission.syntax("s")
+    DB.localTx { implicit session =>
+      withSQL {
+        deleteFrom(support)
+      }.update().apply()
+      withSQL {
+        insertInto(support)
+          .columns(columns.problemCount, columns.userId)
+          .select(count(distinct(parent.problemId)), submissions.userId)(
+            _.from(parentTable as parent)
+              .join(Submission as submissions)
+              .on(submissions.id, parent.submissionId)
+              .groupBy(submissions.userId)
+          )
+      }.update().apply()
     }
+  }
 
   def batchUpdateStatisticTables(): Unit = {
     updateAcceptedCounts()
@@ -165,7 +164,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     *
     * @param support support object of reading and writing records
     */
-  def updateGreatSubmissions(support: ProblemSubmissionPairSupport[_]): Unit = this.synchronized {
+  def updateGreatSubmissions(support: ProblemSubmissionPairSupport[_]): Unit = {
     logger.info(s"updating ${support.tableName}")
 
     val columns = support.column
