@@ -281,6 +281,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission,
       Submission(id = 6, problemId = "p2", userId = "u2", result = "AC"),
       Submission(id = 7, problemId = "p3", userId = "u2", result = "AC"),
+      Submission(id = 8, problemId = "p1", userId = "u1", result = "AC"),
     )
     client.updateAcceptedCounts()
     client.loadRecords(AcceptedCount).map(s => s.userId -> s.problemCount).toMap shouldBe Map(
