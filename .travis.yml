@@ -7,8 +7,8 @@ matrix:
       scala: 2.12.3
       before_script:
         - cd atcoder-problems
-        - psql -c "CREATE USER user PASSWORD 'pass';" -U postgres
-        - psql -c "CREATE DATABASE test OWNER user;" -U postgres
+        - psql -c "CREATE USER 'user' PASSWORD 'pass';" -U postgres
+        - psql -c "CREATE DATABASE test OWNER 'user';" -U postgres
       script:
         - sbt clean coverage test coverageReport
       after_success:
