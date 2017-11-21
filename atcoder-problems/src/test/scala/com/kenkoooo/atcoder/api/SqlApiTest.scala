@@ -53,7 +53,7 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
     val api = new SqlApi(sql)
     Get("/problems") ~> api.routes ~> check {
       status shouldBe OK
-      println(responseAs[String])
+      responseAs[String] shouldBe """[{"id":"problem-id","contest_id":"contest-id","title":"problem title"}]"""
     }
   }
 }
