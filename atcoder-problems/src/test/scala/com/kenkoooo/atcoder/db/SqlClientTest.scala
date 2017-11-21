@@ -158,10 +158,20 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       Submission(id = 4, problemId = "problem_1", userId = "user_2", length = 5, result = "AC"),
       Submission(id = 5, problemId = "problem_2", userId = "user_2", length = 5, result = "AC"),
     )
-
     client.extractGreatSubmissions()
-    client.extractGreatSubmissions()
+    client.reload(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+      "problem_1" -> 2,
+      "problem_2" -> 5
+    )
 
-    client.reload(Shortest).map(_.toString).foreach(println)
+    client.batchInsert(
+      Submission,
+      Submission(id = 6, problemId = "problem_2", userId = "user_2", length = 4, result = "AC"),
+    )
+    client.extractGreatSubmissions()
+    client.reload(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
+      "problem_1" -> 2,
+      "problem_2" -> 6
+    )
   }
 }
