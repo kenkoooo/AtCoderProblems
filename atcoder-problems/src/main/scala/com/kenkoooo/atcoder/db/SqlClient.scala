@@ -83,15 +83,15 @@ class SqlClient(url: String,
     )
   }
 
-  def updateSolverCounts(): Unit = {
-    val v = Solver.column
+  def updateProblemSolverCounts(): Unit = {
+    val v = ProblemSolver.column
     val s = Submission.syntax("s")
     DB.localTx { implicit session =>
       withSQL {
-        deleteFrom(Solver)
+        deleteFrom(ProblemSolver)
       }.execute().apply()
       withSQL {
-        insertInto(Solver)
+        insertInto(ProblemSolver)
           .columns(v.userCount, v.problemId)
           .select(sqls"${count(distinct(s.userId))}", s.problemId)(
             _.from(Submission as s).where
@@ -102,7 +102,7 @@ class SqlClient(url: String,
     }
   }
 
-  def rewriteUserProblemCount[T](support: UserCountPairSupport[_, T]): Unit = {
+  def updateUserProblemCount[T](support: UserCountPairSupport[_, T]): Unit = {
     val columns = support.column
     val parent = support.parentSupport.syntax("p")
     val submissions = Submission.syntax("s")
@@ -128,7 +128,7 @@ class SqlClient(url: String,
     *
     * @param support support object of reading and writing records
     */
-  def rewriteGreatSubmissions(support: ProblemSubmissionPairSupport[_]): Unit = {
+  def updateGreatSubmissions(support: ProblemSubmissionPairSupport[_]): Unit = {
     val columns = support.column
     val submission = Submission.syntax("s")
     val blank = sqls"' '"
