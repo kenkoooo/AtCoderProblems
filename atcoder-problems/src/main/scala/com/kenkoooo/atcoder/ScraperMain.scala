@@ -80,6 +80,13 @@ object ScraperMain extends Logging {
           1,
           TimeUnit.MINUTES
         )
+
+        // update tables every 5 minutes
+        service.scheduleAtFixedRate(() => {
+          logger.info("start batch table update")
+          sql.batchUpdateStatisticTables()
+          logger.info("finished batch table update")
+        }, 0, 5, TimeUnit.MINUTES)
       case Failure(e) => logger.catching(e)
     }
   }
