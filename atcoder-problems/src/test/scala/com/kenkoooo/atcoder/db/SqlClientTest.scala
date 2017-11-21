@@ -288,4 +288,30 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       "u2" -> 3
     )
   }
+
+  test("batch execution of statistics functions") {
+    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    client.batchInsert(
+      Submission,
+      Submission(
+        id = 114514,
+        problemId = "arc999_a",
+        userId = "kenkoooo",
+        length = 11,
+        executionTime = Some(22),
+        result = "AC"
+      )
+    )
+    client.batchUpdateStatisticTables()
+
+    client.loadRecords(AcceptedCount).head shouldBe AcceptedCount("kenkoooo", 1)
+    client.loadRecords(ProblemSolver).head shouldBe ProblemSolver("arc999_a", 1)
+    client.loadRecords(First).head shouldBe First("arc999_a", 114514)
+    client.loadRecords(Fastest).head shouldBe Fastest("arc999_a", 114514)
+    client.loadRecords(Shortest).head shouldBe Shortest("arc999_a", 114514)
+    client.loadRecords(FirstSubmissionCount).head shouldBe FirstSubmissionCount("kenkoooo", 1)
+    client.loadRecords(FastestSubmissionCount).head shouldBe FastestSubmissionCount("kenkoooo", 1)
+    client.loadRecords(ShortestSubmissionCount).head shouldBe ShortestSubmissionCount("kenkoooo", 1)
+
+  }
 }
