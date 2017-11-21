@@ -8,7 +8,7 @@ import scala.io.Source
 
 class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   val url = "jdbc:postgresql://localhost:5432/test"
-  val sqlUser = "user"
+  val sqlUser = "kenkoooo"
   val sqlPass = "pass"
 
   Class.forName("org.postgresql.Driver")
