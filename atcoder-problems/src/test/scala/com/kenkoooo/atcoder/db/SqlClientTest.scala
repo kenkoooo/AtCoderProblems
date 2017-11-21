@@ -7,17 +7,11 @@ import scalikejdbc._
 import scala.io.Source
 
 class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
-  val driver = "org.h2.Driver"
-  val url = "jdbc:h2:mem:Test;mode=MySQL;DB_CLOSE_DELAY=-1"
+  val url = "jdbc:postgresql://localhost:5432/test"
   val sqlUser = "user"
   val sqlPass = "pass"
 
-  //  val url = "jdbc:mysql://localhost:3306/test?useSSL=false"
-  //  val sqlUser = "root"
-  //  val sqlPass = "toor"
-  //  val driver = "com.mysql.cj.jdbc.Driver"
-
-  Class.forName(driver)
+  Class.forName("org.postgresql.Driver")
   ConnectionPool.singleton(url, sqlUser, sqlPass)
 
   before {
@@ -34,21 +28,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     val userId = "kenkoooo"
     val problemId = "arc999_a"
 
-    val store = new SqlClient(url, sqlUser, sqlPass, driver)
-    store.batchInsert(
-      Submission,
-      Submission(
-        id = id,
-        epochSecond = System.currentTimeMillis(),
-        problemId = "old information...",
-        userId = userId,
-        language = "Rust (1.21.0)",
-        point = 100,
-        length = 200,
-        result = "WA",
-        executionTime = None
-      )
-    )
+    val store = new SqlClient(url, sqlUser, sqlPass)
     store.batchInsert(
       Submission,
       Submission(
@@ -72,7 +52,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("insert and reload contests") {
     val id = "arc999"
-    val store = new SqlClient(url, sqlUser, sqlPass, driver)
+    val store = new SqlClient(url, sqlUser, sqlPass)
     store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
     store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
     store.reloadRecords()
@@ -83,17 +63,19 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("insert and reload problems") {
     val id = "arc999_d"
-    val store = new SqlClient(url, sqlUser, sqlPass, driver)
-    store.batchInsert(Problem, Problem(id, "arc999", "A+B Problem"))
-    store.batchInsert(Problem, Problem(id, "arc999", "A+B Problem"))
+    val title = "日本語の問題 (Japanese Problem)"
+    val store = new SqlClient(url, sqlUser, sqlPass)
+    store.batchInsert(Problem, Problem(id, "arc999", title))
+    store.batchInsert(Problem, Problem(id, "arc999", title))
     store.reloadRecords()
 
     val problem = store.problems(id)
     problem.id shouldBe id
+    problem.title shouldBe title
   }
 
   test("load user submissions") {
-    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    val client = new SqlClient(url, sqlUser, sqlPass)
     client.batchInsert(
       Submission,
       List(
@@ -108,7 +90,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("load all the accepted submissions") {
-    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    val client = new SqlClient(url, sqlUser, sqlPass)
     client.batchInsert(
       Submission,
       List(
@@ -121,7 +103,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("update solver counts") {
-    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    val client = new SqlClient(url, sqlUser, sqlPass)
     client.batchInsert(
       Submission,
       Submission(id = 1, problemId = "problem_1", userId = "user_1", result = "WA"),
@@ -149,7 +131,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("extract shortest submissions") {
-    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    val client = new SqlClient(url, sqlUser, sqlPass)
     client.batchInsert(
       Submission,
       Submission(id = 1, problemId = "problem_1", userId = "user_1", length = 5, result = "WA"),
@@ -186,7 +168,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("extract fastest submissions") {
-    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    val client = new SqlClient(url, sqlUser, sqlPass)
     client.batchInsert(
       Submission,
       Submission(id = 1, problemId = "p1", userId = "u1", executionTime = Some(5), result = "WA"),
@@ -223,7 +205,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("extract first submissions") {
-    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    val client = new SqlClient(url, sqlUser, sqlPass)
     client.batchInsert(
       Submission,
       Submission(id = 1, problemId = "p1", userId = "u1", result = "WA"),
@@ -262,7 +244,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("update accepted count ranking") {
-    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    val client = new SqlClient(url, sqlUser, sqlPass)
     client.batchInsert(
       Submission,
       Submission(id = 1, problemId = "p1", userId = "u1", result = "WA"),
@@ -291,7 +273,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("batch execution of statistics functions") {
-    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    val client = new SqlClient(url, sqlUser, sqlPass)
     client.batchInsert(
       Submission,
       Submission(

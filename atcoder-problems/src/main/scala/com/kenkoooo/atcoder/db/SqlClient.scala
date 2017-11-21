@@ -18,14 +18,9 @@ import scala.util.Try
   * @param url      JDBC url of SQL
   * @param user     username of SQL
   * @param password password of SQL
-  * @param driver   driver name to connect to SQL
   */
-class SqlClient(url: String,
-                user: String,
-                password: String,
-                driver: String = "org.postgresql.Driver")
-    extends Logging {
-  Class.forName(driver)
+class SqlClient(url: String, user: String, password: String) extends Logging {
+  Class.forName("org.postgresql.Driver")
   ConnectionPool.singleton(url, user, password)
 
   private var _contests: Map[ContestId, Contest] = Map()
@@ -246,12 +241,12 @@ class SqlClient(url: String,
       Try {
         DB.localTx { implicit session =>
           val params =
-            support.createMapping(records).map(seq => seq.map(_._2)).map(seq => seq ++ seq)
+            support.createMapping(records).map(seq => seq.map(_._2))
           val columnMapping = support.createMapping(records).head.map(_._1 -> sqls.?)
           withSQL {
             insertInto(support)
               .namedValues(columnMapping: _*)
-              .onDuplicateKeyUpdate(columnMapping: _*)
+              .append(sqls"ON CONFLICT DO NOTHING")
           }.batch(params: _*).apply()
         }
       }.recover {
@@ -264,19 +259,6 @@ class SqlClient(url: String,
 
 private object SqlClient {
   private val submissionSyntax = Submission.syntax("s")
-
-  implicit class DuplicateKeyUpdateSQLBuilder(val self: InsertSQLBuilder) extends AnyVal {
-    def onDuplicateKeyUpdate(columnsAndValues: (SQLSyntax, Any)*): InsertSQLBuilder = {
-      val cvs = columnsAndValues map {
-        case (c, v) => sqls"$c = $v"
-      }
-      self.append(sqls"on duplicate key update ${sqls.csv(cvs: _*)}")
-    }
-  }
-
-  implicit class RichSQLSyntax(val self: sqls.type) extends AnyVal {
-    def values(column: SQLSyntax): SQLSyntax = sqls"values($column)"
-  }
 
   def concat(columns: SQLSyntax*): SQLSyntax = sqls"concat(${sqls.csv(columns: _*)})"
 }

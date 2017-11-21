@@ -1,3 +1,5 @@
+SET client_encoding = 'UTF8';
+
 DROP TABLE IF EXISTS submissions;
 CREATE TABLE submissions (
   id            BIGINT NOT NULL,
@@ -5,12 +7,12 @@ CREATE TABLE submissions (
   problem_id    VARCHAR(255) NOT NULL,
   user_id       VARCHAR(255) NOT NULL,
   language      VARCHAR(255) NOT NULL,
-  point         DOUBLE NOT NULL,
+  point         DOUBLE PRECISION NOT NULL,
   length        INT NOT NULL,
   result        VARCHAR(255) NOT NULL,
   execution_time  INT,
   PRIMARY KEY (id)
-) DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS problems;
 CREATE TABLE problems (
@@ -18,7 +20,7 @@ CREATE TABLE problems (
   contest_id    VARCHAR(255) NOT NULL,
   title         VARCHAR(255) NOT NULL,
   PRIMARY KEY (id)
-) DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS contests;
 CREATE TABLE contests (
@@ -28,7 +30,7 @@ CREATE TABLE contests (
   title                 VARCHAR(255) NOT NULL,
   rate_change           VARCHAR(255) NOT NULL,
   PRIMARY KEY (id)
-) DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS solver;
 CREATE TABLE solver (
