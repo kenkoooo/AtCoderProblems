@@ -79,3 +79,10 @@ CREATE TABLE first_submission_count (
   PRIMARY KEY (user_id)
 );
 
+DROP TABLE IF EXISTS accepted_count;
+CREATE TABLE accepted_count (
+  user_id       VARCHAR(255)  NOT NULL,
+  problem_count INT           NOT NULL,
+  PRIMARY KEY (user_id)
+);
+
