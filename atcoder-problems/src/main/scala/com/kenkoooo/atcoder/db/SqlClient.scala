@@ -179,7 +179,7 @@ class SqlClient(url: String,
     * @tparam T type of the loading records
     * @return seq of loaded records
     */
-  def loadRecords[T](support: SQLInsertSelectSupport[T]): Seq[T] = {
+  def loadRecords[T](support: SQLSelectSupport[T]): Seq[T] = {
     logger.info(s"reloading ${support.tableName}")
     DB.readOnly { implicit session =>
       val s = support.syntax("s")
@@ -197,23 +197,25 @@ class SqlClient(url: String,
     * @param records seq of records to insert
     * @tparam T type of records
     */
-  def batchInsert[T](support: SQLInsertSelectSupport[T], records: T*): Unit = this.synchronized {
-    Try {
-      DB.localTx { implicit session =>
-        val params = support.createMapping(records).map(seq => seq.map(_._2)).map(seq => seq ++ seq)
-        val columnMapping = support.createMapping(records).head.map(_._1 -> sqls.?)
-        withSQL {
-          insertInto(support)
-            .namedValues(columnMapping: _*)
-            .onDuplicateKeyUpdate(columnMapping: _*)
-        }.batch(params: _*).apply()
+  def batchInsert[T](support: SQLSelectInsertSupport[T], records: T*): Unit =
+    this.synchronized {
+      Try {
+        DB.localTx { implicit session =>
+          val params =
+            support.createMapping(records).map(seq => seq.map(_._2)).map(seq => seq ++ seq)
+          val columnMapping = support.createMapping(records).head.map(_._1 -> sqls.?)
+          withSQL {
+            insertInto(support)
+              .namedValues(columnMapping: _*)
+              .onDuplicateKeyUpdate(columnMapping: _*)
+          }.batch(params: _*).apply()
+        }
+      }.recover {
+        case e: Throwable =>
+          logger.catching(e)
+          records.foreach(t => logger.error(t.toString))
       }
-    }.recover {
-      case e: Throwable =>
-        logger.catching(e)
-        records.foreach(t => logger.error(t.toString))
     }
-  }
 }
 
 private object SqlClient {

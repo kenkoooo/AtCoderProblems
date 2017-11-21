@@ -2,7 +2,7 @@ package com.kenkoooo.atcoder.model
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import com.kenkoooo.atcoder.common.TypeAnnotations.ContestId
-import com.kenkoooo.atcoder.db.SQLInsertSelectSupport
+import com.kenkoooo.atcoder.db.SQLSelectInsertSupport
 import scalikejdbc._
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
@@ -21,7 +21,7 @@ case class Contest(id: ContestId,
                    title: String,
                    rateChange: String)
 
-object Contest extends SQLInsertSelectSupport[Contest] {
+object Contest extends SQLSelectInsertSupport[Contest] {
 
   override val definedTableName = "contests"
 

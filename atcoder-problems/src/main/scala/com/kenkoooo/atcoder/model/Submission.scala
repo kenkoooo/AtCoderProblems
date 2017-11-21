@@ -1,7 +1,7 @@
 package com.kenkoooo.atcoder.model
 
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ProblemId, SubmissionId, UserId}
-import com.kenkoooo.atcoder.db.SQLInsertSelectSupport
+import com.kenkoooo.atcoder.db.SQLSelectInsertSupport
 import scalikejdbc._
 
 case class Submission(id: SubmissionId,
@@ -14,7 +14,7 @@ case class Submission(id: SubmissionId,
                       result: String,
                       executionTime: Option[Int] = None)
 
-object Submission extends SQLInsertSelectSupport[Submission] {
+object Submission extends SQLSelectInsertSupport[Submission] {
   val FirstPageNumber = 1
 
   override val definedTableName = "submissions"
