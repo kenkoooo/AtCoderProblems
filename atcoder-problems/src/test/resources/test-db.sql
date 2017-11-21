@@ -30,10 +30,10 @@ CREATE TABLE contests (
   PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS solvers;
-CREATE TABLE solvers (
+DROP TABLE IF EXISTS solver;
+CREATE TABLE solver (
   problem_id            VARCHAR(255)  NOT NULL,
-  solvers               INT NOT NULL,
+  user_count               INT NOT NULL,
   PRIMARY KEY (problem_id)
 );
 
