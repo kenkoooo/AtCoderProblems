@@ -179,11 +179,11 @@ class SqlClient(url: String,
     * @tparam T type of the loading records
     * @return seq of loaded records
     */
-  def loadRecords[T](support: SQLSelectSupport[T]): Seq[T] = {
+  def loadRecords[T](support: SQLSelectSupport[T], limit: Int = 1000000): Seq[T] = {
     logger.info(s"reloading ${support.tableName}")
     DB.readOnly { implicit session =>
       val s = support.syntax("s")
-      withSQL(select.from(support as s))
+      withSQL(select.from(support as s).limit(limit))
         .map(support(s))
         .list()
         .apply()
