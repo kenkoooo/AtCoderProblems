@@ -57,3 +57,11 @@ CREATE TABLE first (
   submission_id BIGINT  NOT NULL,
   PRIMARY KEY (problem_id)
 );
+
+DROP TABLE IF EXISTS shortest_submission_count;
+CREATE TABLE shortest_submission_count (
+  user_id       VARCHAR(255)  NOT NULL,
+  problem_count INT           NOT NULL,
+  PRIMARY KEY (user_id)
+);
+

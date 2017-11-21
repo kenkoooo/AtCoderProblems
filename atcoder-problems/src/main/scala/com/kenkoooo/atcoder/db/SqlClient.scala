@@ -6,9 +6,9 @@ import com.kenkoooo.atcoder.db.SqlClient._
 import com.kenkoooo.atcoder.model._
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
-import sqls.{count, distinct}
 import SQLSyntax.min
 import scalikejdbc.interpolation.SQLSyntax
+import sqls.{count, distinct}
 
 import scala.util.Try
 
@@ -99,6 +99,28 @@ class SqlClient(url: String,
               .groupBy(s.problemId)
           )
       }.execute().apply()
+    }
+  }
+
+  def rewriteUserProblemCount[T](support: UserCountPairSupport[_],
+                                 parentSupport: SQLInsertSelectSupport[T]): Unit = {
+    val columns = support.column
+    val parent = parentSupport.syntax("p")
+    val submissions = Submission.syntax("s")
+    DB.localTx { implicit session =>
+      withSQL {
+        deleteFrom(support)
+      }.update().apply()
+      withSQL {
+        insertInto(support)
+          .columns(columns.problemCount, columns.userId)
+          .select(count(distinct(parent.problemId)), submissions.userId)(
+            _.from(parentSupport as parent)
+              .join(Submission as submissions)
+              .on(submissions.id, parent.submissionId)
+              .groupBy(submissions.userId)
+          )
+      }.update().apply()
     }
   }
 

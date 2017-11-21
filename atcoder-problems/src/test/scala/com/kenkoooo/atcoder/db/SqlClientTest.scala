@@ -163,16 +163,26 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       "problem_1" -> 2,
       "problem_2" -> 5
     )
+    client.rewriteUserProblemCount(ShortestSubmissionCount, Shortest)
+    client
+      .loadRecords(ShortestSubmissionCount)
+      .map(c => c.userId -> c.problemCount)
+      .toMap shouldBe Map("user_1" -> 1, "user_2" -> 1)
 
     client.batchInsert(
       Submission,
-      Submission(id = 6, problemId = "problem_2", userId = "user_2", length = 4, result = "AC"),
+      Submission(id = 6, problemId = "problem_2", userId = "user_1", length = 4, result = "AC"),
     )
     client.rewriteGreatSubmissions(Shortest)
     client.loadRecords(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
       "problem_1" -> 2,
       "problem_2" -> 6
     )
+    client.rewriteUserProblemCount(ShortestSubmissionCount, Shortest)
+    client
+      .loadRecords(ShortestSubmissionCount)
+      .map(c => c.userId -> c.problemCount)
+      .toMap shouldBe Map("user_1" -> 2)
   }
 
   test("extract fastest submissions") {
