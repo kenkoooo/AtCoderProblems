@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   "net.ruippeixotog" %% "scala-scraper" % "2.0.0",
   "org.scalikejdbc" %% "scalikejdbc" % "3.1.+",
   "com.h2database" % "h2" % "1.4.+",
-  "mysql" % "mysql-connector-java" % "8.0.8-dmr",
+  "org.postgresql" % "postgresql" % "42.1.4",
   "org.apache.logging.log4j" % "log4j-api" % "2.9.1",
   "org.apache.logging.log4j" % "log4j-core" % "2.9.1",
   "org.apache.logging.log4j" %% "log4j-api-scala" % "11.0",

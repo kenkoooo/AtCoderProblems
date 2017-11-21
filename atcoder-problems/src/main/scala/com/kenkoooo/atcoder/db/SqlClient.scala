@@ -23,7 +23,7 @@ import scala.util.Try
 class SqlClient(url: String,
                 user: String,
                 password: String,
-                driver: String = "com.mysql.cj.jdbc.Driver")
+                driver: String = "org.postgresql.Driver")
     extends Logging {
   Class.forName(driver)
   ConnectionPool.singleton(url, user, password)
