@@ -51,7 +51,6 @@ CREATE TABLE fastest (
   PRIMARY KEY (problem_id)
 );
 
-
 DROP TABLE IF EXISTS first;
 CREATE TABLE first (
   problem_id    VARCHAR(255)  NOT NULL,
