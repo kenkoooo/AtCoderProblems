@@ -21,11 +21,11 @@ object ScheduledExecutorServiceExtension extends Logging {
       * @param unit         the time unit of the initialDelay and period parameters
       * @return a [[ScheduledFuture]] representing pending completion of the task
       */
-    def scheduleTryJobAtFixedRate(command: Runnable,
-                                  initialDelay: Long,
-                                  period: Long,
-                                  unit: TimeUnit): ScheduledFuture[_] = {
-      self.scheduleAtFixedRate(
+    def scheduleTryJobAtFixedDelay(command: Runnable,
+                                   initialDelay: Long,
+                                   period: Long,
+                                   unit: TimeUnit): ScheduledFuture[_] = {
+      self.scheduleWithFixedDelay(
         () =>
           Try {
             command.run()

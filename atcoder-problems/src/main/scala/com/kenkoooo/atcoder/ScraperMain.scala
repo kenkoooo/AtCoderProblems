@@ -35,7 +35,7 @@ object ScraperMain extends Logging {
         // scrape submission pages per 0.5 second
         def executeScrapingJob(defaultRunner: () => SubmissionScrapingRunner): Unit = {
           var runner = defaultRunner()
-          service.scheduleTryJobAtFixedRate(() => {
+          service.scheduleTryJobAtFixedDelay(() => {
             runner = runner.scrapeOnePage().getOrElse(defaultRunner())
           }, 500, 500, TimeUnit.MILLISECONDS)
         }
@@ -58,15 +58,15 @@ object ScraperMain extends Logging {
         )
 
         // reload records per minute
-        service.scheduleTryJobAtFixedRate(() => sql.reloadRecords(), 0, 1, TimeUnit.MINUTES)
+        service.scheduleTryJobAtFixedDelay(() => sql.reloadRecords(), 0, 1, TimeUnit.MINUTES)
 
         // scrape contests per hour
-        service.scheduleTryJobAtFixedRate(() => {
+        service.scheduleTryJobAtFixedDelay(() => {
           sql.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
         }, 0, 1, TimeUnit.HOURS)
 
         // scrape problems per minutes
-        service.scheduleTryJobAtFixedRate(
+        service.scheduleTryJobAtFixedDelay(
           () =>
             sql.contests.keySet
               .find { contestId =>
@@ -82,7 +82,7 @@ object ScraperMain extends Logging {
         )
 
         // update tables every 5 minutes
-        service.scheduleAtFixedRate(() => {
+        service.scheduleTryJobAtFixedDelay(() => {
           logger.info("start batch table update")
           sql.batchUpdateStatisticTables()
           logger.info("finished batch table update")
