@@ -2,13 +2,13 @@ package com.kenkoooo.atcoder.model
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId}
-import com.kenkoooo.atcoder.db.SQLInsertSelectSupport
+import com.kenkoooo.atcoder.db.SQLSelectInsertSupport
 import scalikejdbc._
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 case class Problem(id: ProblemId, contestId: ContestId, title: String)
 
-object Problem extends SQLInsertSelectSupport[Problem] {
+object Problem extends SQLSelectInsertSupport[Problem] {
 
   override val definedTableName = "problems"
 
