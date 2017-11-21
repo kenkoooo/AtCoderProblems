@@ -163,7 +163,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       "problem_1" -> 2,
       "problem_2" -> 5
     )
-    client.rewriteUserProblemCount(ShortestSubmissionCount, Shortest)
+    client.rewriteUserProblemCount(ShortestSubmissionCount)
     client
       .loadRecords(ShortestSubmissionCount)
       .map(c => c.userId -> c.problemCount)
@@ -178,7 +178,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       "problem_1" -> 2,
       "problem_2" -> 6
     )
-    client.rewriteUserProblemCount(ShortestSubmissionCount, Shortest)
+    client.rewriteUserProblemCount(ShortestSubmissionCount)
     client
       .loadRecords(ShortestSubmissionCount)
       .map(c => c.userId -> c.problemCount)
