@@ -10,12 +10,10 @@ trait UserCountPair {
   def problemCount: Int
 }
 
-trait UserCountPairSupport[T <: UserCountPair] extends SQLInsertSelectSupport[T] {
+trait UserCountPairSupport[T <: UserCountPair, P] extends SQLInsertSelectSupport[T] {
   override def apply(resultName: scalikejdbc.ResultName[T])(rs: WrappedResultSet): T = {
     apply(userId = rs.string(resultName.userId), problemCount = rs.int(resultName.problemCount))
   }
-
-  def apply(userId: UserId, problemCount: Int): T
 
   override def createMapping(seq: Seq[T]): Seq[Seq[(scalikejdbc.SQLSyntax, ParameterBinder)]] = {
     val column = this.column
@@ -23,10 +21,16 @@ trait UserCountPairSupport[T <: UserCountPair] extends SQLInsertSelectSupport[T]
       Seq(column.userId -> t.userId, column.problemCount -> t.problemCount)
     }
   }
+
+  def apply(userId: UserId, problemCount: Int): T
+
+  def parentSupport: SQLInsertSelectSupport[P]
 }
 
 case class ShortestSubmissionCount(userId: UserId, problemCount: Int) extends UserCountPair
 
-object ShortestSubmissionCount extends UserCountPairSupport[ShortestSubmissionCount] {
+object ShortestSubmissionCount extends UserCountPairSupport[ShortestSubmissionCount, Shortest] {
   override protected def definedTableName = "shortest_submission_count"
+
+  override def parentSupport: Shortest.type = Shortest
 }
