@@ -1,6 +1,6 @@
 package com.kenkoooo.atcoder.db
 
-import com.kenkoooo.atcoder.model.{Contest, Problem, Solver, Submission}
+import com.kenkoooo.atcoder.model._
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 import scalikejdbc._
 
@@ -160,5 +160,8 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     )
 
     client.extractGreatSubmissions()
+    client.extractGreatSubmissions()
+
+    client.reload(Shortest).map(_.toString).foreach(println)
   }
 }
