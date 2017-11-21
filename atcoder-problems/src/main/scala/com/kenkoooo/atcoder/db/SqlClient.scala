@@ -87,6 +87,7 @@ class SqlClient(url: String,
     * rewrite accepted count ranking table
     */
   def updateAcceptedCounts(): Unit = {
+    logger.info(s"updating ${AcceptedCount.tableName}")
     val columns = AcceptedCount.column
     val submission = Submission.syntax("s")
     DB.localTx { implicit session =>
@@ -109,6 +110,7 @@ class SqlClient(url: String,
     * update solver counts for each problems
     */
   def updateProblemSolverCounts(): Unit = {
+    logger.info(s"updating ${ProblemSolver.tableName}")
     val v = ProblemSolver.column
     val s = Submission.syntax("s")
     DB.localTx { implicit session =>
@@ -128,6 +130,8 @@ class SqlClient(url: String,
   }
 
   def updateUserProblemCount[T](support: UserCountPairSupportWithParent[_, T]): Unit = {
+    logger.info(s"updating ${support.tableName}")
+
     val columns = support.column
     val parentTable = support.parentSupport
     val parent = parentTable.syntax("p")
@@ -149,12 +153,25 @@ class SqlClient(url: String,
     }
   }
 
+  def batchUpdateStatisticTables(): Unit = {
+    updateAcceptedCounts()
+    updateProblemSolverCounts()
+    updateGreatSubmissions(First)
+    updateGreatSubmissions(Fastest)
+    updateGreatSubmissions(Shortest)
+    updateUserProblemCount(FirstSubmissionCount)
+    updateUserProblemCount(FastestSubmissionCount)
+    updateUserProblemCount(ShortestSubmissionCount)
+  }
+
   /**
     * extract min labeled submissions for each problems and store to another table
     *
     * @param support support object of reading and writing records
     */
   def updateGreatSubmissions(support: ProblemSubmissionPairSupport[_]): Unit = {
+    logger.info(s"updating ${support.tableName}")
+
     val columns = support.column
     val submission = Submission.syntax("s")
     val blank = sqls"' '"
