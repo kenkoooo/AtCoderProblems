@@ -100,20 +100,23 @@ class SqlClient(url: String,
     }
   }
 
-  def extractGreatSubmissions(): Unit = {
-    val shortest = Shortest.column
+  def rewriteGreatSubmissions(
+    support: ProblemSubmissionPairSupport[_],
+    mapper: QuerySQLSyntaxProvider[SQLSyntaxSupport[Submission], Submission] => SQLSyntax
+  ): Unit = {
+    val columns = support.column
     val submission = Submission.syntax("s")
     val blank = sqls"' '"
     DB.localTx { implicit session =>
-      withSQL { deleteFrom(Shortest) }.execute().apply()
+      withSQL { deleteFrom(support) }.execute().apply()
       withSQL {
-        insertInto(Shortest)
-          .columns(shortest.problemId, shortest.submissionId)
+        insertInto(support)
+          .columns(columns.problemId, columns.submissionId)
           .select(submission.problemId, min(submission.id))(
             _.from(Submission as submission).where
               .in(
-                concat(submission.problemId, blank, submission.length),
-                select(concat(submission.problemId, blank, min(submission.length)))
+                concat(submission.problemId, blank, mapper(submission)),
+                select(concat(submission.problemId, blank, min(mapper(submission))))
                   .from(Submission as submission)
                   .where
                   .eq(submission.c("result"), SubmissionStatus.Accepted)
