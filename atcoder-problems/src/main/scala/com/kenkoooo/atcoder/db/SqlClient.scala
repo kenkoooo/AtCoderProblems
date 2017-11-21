@@ -83,6 +83,31 @@ class SqlClient(url: String,
     )
   }
 
+  /**
+    * rewrite accepted count ranking table
+    */
+  def updateAcceptedCounts(): Unit = {
+    val columns = AcceptedCount.column
+    val submission = Submission.syntax("s")
+    DB.localTx { implicit session =>
+      withSQL {
+        deleteFrom(AcceptedCount)
+      }.execute().apply()
+      withSQL {
+        insertInto(AcceptedCount)
+          .columns(columns.userId, columns.problemCount)
+          .select(submission.userId, count(distinct(submission.problemId)))(
+            _.from(Submission as submission).where
+              .eq(submission.c("result"), SubmissionStatus.Accepted)
+              .groupBy(submission.userId)
+          )
+      }.update().apply()
+    }
+  }
+
+  /**
+    * update solver counts for each problems
+    */
   def updateProblemSolverCounts(): Unit = {
     val v = ProblemSolver.column
     val s = Submission.syntax("s")
@@ -102,9 +127,10 @@ class SqlClient(url: String,
     }
   }
 
-  def updateUserProblemCount[T](support: UserCountPairSupport[_, T]): Unit = {
+  def updateUserProblemCount[T](support: UserCountPairSupportWithParent[_, T]): Unit = {
     val columns = support.column
-    val parent = support.parentSupport.syntax("p")
+    val parentTable = support.parentSupport
+    val parent = parentTable.syntax("p")
     val submissions = Submission.syntax("s")
     DB.localTx { implicit session =>
       withSQL {
@@ -114,7 +140,7 @@ class SqlClient(url: String,
         insertInto(support)
           .columns(columns.problemCount, columns.userId)
           .select(count(distinct(parent.problemId)), submissions.userId)(
-            _.from(support.parentSupport as parent)
+            _.from(parentTable as parent)
               .join(Submission as submissions)
               .on(submissions.id, parent.submissionId)
               .groupBy(submissions.userId)

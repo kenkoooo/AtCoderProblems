@@ -260,4 +260,32 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       .map(c => c.userId -> c.problemCount)
       .toMap shouldBe Map("u1" -> 1, "u2" -> 2)
   }
+
+  test("update accepted count ranking") {
+    val client = new SqlClient(url, sqlUser, sqlPass, driver)
+    client.batchInsert(
+      Submission,
+      Submission(id = 1, problemId = "p1", userId = "u1", result = "WA"),
+      Submission(id = 2, problemId = "p1", userId = "u1", result = "AC"),
+      Submission(id = 3, problemId = "p1", userId = "u1", result = "TLE"),
+      Submission(id = 4, problemId = "p1", userId = "u2", result = "AC"),
+      Submission(id = 5, problemId = "p2", userId = "u2", result = "AC"),
+    )
+    client.updateAcceptedCounts()
+    client.loadRecords(AcceptedCount).map(s => s.userId -> s.problemCount).toMap shouldBe Map(
+      "u1" -> 1,
+      "u2" -> 2
+    )
+
+    client.batchInsert(
+      Submission,
+      Submission(id = 6, problemId = "p2", userId = "u2", result = "AC"),
+      Submission(id = 7, problemId = "p3", userId = "u2", result = "AC"),
+    )
+    client.updateAcceptedCounts()
+    client.loadRecords(AcceptedCount).map(s => s.userId -> s.problemCount).toMap shouldBe Map(
+      "u1" -> 1,
+      "u2" -> 3
+    )
+  }
 }
