@@ -18,13 +18,13 @@ import NewerSubmissionScrapingRunner._
   */
 class NewerSubmissionScrapingRunner(sql: SqlClient,
                                     contests: List[Contest],
-                                    private[runner] val page: Int = 0,
+                                    private[runner] val page: Int = Submission.FirstPageNumber,
                                     submissionScraper: SubmissionScraper,
                                     private[runner] val currentOverlapCount: Int = 0,
                                     overlapThreshold: Int = DefaultOverlapThreshold)
     extends SubmissionScrapingRunner(contests)
     with Logging {
-  override def scrapeOnePage(): Option[NewerSubmissionScrapingRunner] = {
+  override def scrapeOnePage(): NewerSubmissionScrapingRunner = {
     val contest = contests.head
     val submissions = submissionScraper.scrape(contest.id, page)
     val newCount = submissions.length - sql.loadSubmissions(submissions.map(_.id): _*).size
@@ -33,29 +33,25 @@ class NewerSubmissionScrapingRunner(sql: SqlClient,
 
     (submissions.isEmpty || overlaps > overlapThreshold, contests.tail.isEmpty) match {
       case (true, true) =>
-        None
+        new NewerSubmissionScrapingRunner(
+          sql = sql,
+          contests = sql.contests.values.toList,
+          submissionScraper = submissionScraper
+        )
       case (true, false) =>
-        Some(
-          new NewerSubmissionScrapingRunner(
-            sql,
-            contests.tail,
-            Submission.FirstPageNumber,
-            submissionScraper,
-            0,
-            overlapThreshold
-          )
+        new NewerSubmissionScrapingRunner(
+          sql = sql,
+          contests = contests.tail,
+          submissionScraper = submissionScraper
         )
       case (false, _) =>
         sql.batchInsert(Submission, submissions: _*)
-        Some(
-          new NewerSubmissionScrapingRunner(
-            sql,
-            contests,
-            page + 1,
-            submissionScraper,
-            overlaps,
-            overlapThreshold
-          )
+        new NewerSubmissionScrapingRunner(
+          sql = sql,
+          contests = contests,
+          page = page + 1,
+          submissionScraper = submissionScraper,
+          currentOverlapCount = overlaps
         )
     }
   }

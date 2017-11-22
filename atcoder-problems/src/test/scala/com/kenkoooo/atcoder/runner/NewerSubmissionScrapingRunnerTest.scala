@@ -29,12 +29,9 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     // check the scraper has been called
     Mockito.verify(scraper, Mockito.times(1)).scrape(currentContestId, currentPage)
 
-    // check the runner has created the next runner
-    nextRunner shouldBe defined
-
     // check the scraper has been created with the next page number and the next overlap count
-    nextRunner.get.page shouldBe currentPage + 1
-    nextRunner.get.currentOverlapCount shouldBe 1
+    nextRunner.page shouldBe currentPage + 1
+    nextRunner.currentOverlapCount shouldBe 1
   }
 
   test("scrape and create next runner with the next contest when the page is the last page") {
@@ -61,14 +58,11 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     // check the scraper has been called
     Mockito.verify(scraper, Mockito.times(1)).scrape(currentContestId, currentPage)
 
-    // check the runner has created the next runner
-    nextRunner shouldBe defined
-
     // check the scraper has been created with the next contest list
-    nextRunner.get.page shouldBe 1
-    nextRunner.get.contests.size shouldBe 1
-    nextRunner.get.contests.head.id shouldBe nextContestId
-    nextRunner.get.currentOverlapCount shouldBe 0
+    nextRunner.page shouldBe 1
+    nextRunner.contests.size shouldBe 1
+    nextRunner.contests.head.id shouldBe nextContestId
+    nextRunner.currentOverlapCount shouldBe 0
   }
 
   test("scrape and create next runner with the next contest when many submissions were overlapped") {
@@ -97,14 +91,11 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     // check the scraper has been called
     Mockito.verify(scraper, Mockito.times(1)).scrape(currentContestId, currentPage)
 
-    // check the runner has created the next runner
-    nextRunner shouldBe defined
-
     // check the scraper has been created with the next contest list
-    nextRunner.get.page shouldBe Submission.FirstPageNumber
-    nextRunner.get.contests.size shouldBe 1
-    nextRunner.get.contests.head.id shouldBe nextContestId
-    nextRunner.get.currentOverlapCount shouldBe 0
+    nextRunner.page shouldBe Submission.FirstPageNumber
+    nextRunner.contests.size shouldBe 1
+    nextRunner.contests.head.id shouldBe nextContestId
+    nextRunner.currentOverlapCount shouldBe 0
   }
 
   test("scrape and return None when all the contests are scraped") {
@@ -115,12 +106,13 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
 
     val sql = mock[SqlClient]
     Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(Iterator[Submission]())
+    Mockito.when(sql.contests).thenReturn(Map(currentContestId -> contest))
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
 
     val runner = new NewerSubmissionScrapingRunner(sql, List(contest), currentPage, scraper, 0, 10)
-    val nextRunner = runner.scrapeOnePage()
-    nextRunner shouldBe None
+    runner.scrapeOnePage()
+    Mockito.verify(sql, Mockito.times(1)).contests
   }
 }
