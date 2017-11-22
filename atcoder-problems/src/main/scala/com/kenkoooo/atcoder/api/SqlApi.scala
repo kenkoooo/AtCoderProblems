@@ -8,13 +8,13 @@ import com.kenkoooo.atcoder.model.{ContestJsonSupport, ProblemJsonSupport}
 
 class SqlApi(sqlClient: SqlClient) extends ContestJsonSupport with ProblemJsonSupport {
   val routes: Route = get {
-    path("contests") {
+    pathPrefix("info") {
       conditional(EntityTagger.calculateDateTimeTag(lastUpdated()), lastUpdated()) {
-        complete(sqlClient.contests.values.toList)
-      }
-    } ~ path("problems") {
-      conditional(EntityTagger.calculateDateTimeTag(lastUpdated()), lastUpdated()) {
-        complete(sqlClient.problems.values.toList)
+        path("contests") {
+          complete(sqlClient.contests.values.toList)
+        } ~ path("problems") {
+          complete(sqlClient.problems.values.toList)
+        }
       }
     }
   }

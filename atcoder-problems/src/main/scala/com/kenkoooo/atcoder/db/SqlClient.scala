@@ -7,7 +7,6 @@ import com.kenkoooo.atcoder.model._
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import SQLSyntax.min
-import com.kenkoooo.atcoder.Main.logger
 import scalikejdbc.interpolation.SQLSyntax
 import sqls.{count, distinct}
 
@@ -26,11 +25,23 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
 
   private var _contests: Map[ContestId, Contest] = Map()
   private var _problems: Map[ProblemId, Problem] = Map()
+  private var _acceptedCounts: List[AcceptedCount] = List()
+  private var _firstSubmissionCounts: List[FirstSubmissionCount] = List()
+  private var _fastestSubmissionCounts: List[FastestSubmissionCount] = List()
+  private var _shortestSubmissionCounts: List[ShortestSubmissionCount] = List()
   private var _lastReloaded: Long = 0
 
   def contests: Map[String, Contest] = _contests
 
   def problems: Map[String, Problem] = _problems
+
+  def acceptedCounts: List[AcceptedCount] = _acceptedCounts
+
+  def firstSubmissionCounts: List[FirstSubmissionCount] = _firstSubmissionCounts
+
+  def fastestSubmissionCounts: List[FastestSubmissionCount] = _fastestSubmissionCounts
+
+  def shortestSubmissionCounts: List[ShortestSubmissionCount] = _shortestSubmissionCounts
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
@@ -210,6 +221,12 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   def reloadRecords(): Unit = {
     _contests = loadRecords(Contest).map(s => s.id -> s).toMap
     _problems = loadRecords(Problem).map(s => s.id -> s).toMap
+
+    _acceptedCounts = loadRecords(AcceptedCount).toList
+    _firstSubmissionCounts = loadRecords(FirstSubmissionCount).toList
+    _shortestSubmissionCounts = loadRecords(ShortestSubmissionCount).toList
+    _fastestSubmissionCounts = loadRecords(FastestSubmissionCount).toList
+
     _lastReloaded = System.currentTimeMillis()
   }
 
