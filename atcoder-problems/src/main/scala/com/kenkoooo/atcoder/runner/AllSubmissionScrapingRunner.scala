@@ -14,28 +14,34 @@ import com.kenkoooo.atcoder.scraper.SubmissionScraper
   */
 class AllSubmissionScrapingRunner(sql: SqlClient,
                                   contests: List[Contest],
-                                  private[runner] val page: Int = 0,
+                                  private[runner] val page: Int = Submission.FirstPageNumber,
                                   submissionScraper: SubmissionScraper)
     extends SubmissionScrapingRunner(contests) {
-  override def scrapeOnePage(): Option[AllSubmissionScrapingRunner] = {
+  override def scrapeOnePage(): AllSubmissionScrapingRunner = {
     val contest = contests.head
     val submissions = submissionScraper.scrape(contest.id, page)
 
     (submissions.isEmpty, contests.tail.isEmpty) match {
       case (true, true) =>
-        None
+        new AllSubmissionScrapingRunner(
+          sql = sql,
+          contests = sql.contests.values.toList,
+          submissionScraper = submissionScraper
+        )
       case (true, false) =>
-        Some(
-          new AllSubmissionScrapingRunner(
-            sql,
-            contests.tail,
-            Submission.FirstPageNumber,
-            submissionScraper
-          )
+        new AllSubmissionScrapingRunner(
+          sql = sql,
+          contests = contests.tail,
+          submissionScraper = submissionScraper
         )
       case (false, _) =>
         sql.batchInsert(Submission, submissions: _*)
-        Some(new AllSubmissionScrapingRunner(sql, contests, page + 1, submissionScraper))
+        new AllSubmissionScrapingRunner(
+          sql = sql,
+          contests = contests,
+          page = page + 1,
+          submissionScraper = submissionScraper
+        )
     }
   }
 }
