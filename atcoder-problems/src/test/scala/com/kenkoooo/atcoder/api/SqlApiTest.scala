@@ -26,7 +26,7 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
 
   test("return 200 to new request") {
     val api = new SqlApi(sql)
-    Get("/contests") ~> api.routes ~> check {
+    Get("/info/contests") ~> api.routes ~> check {
       status shouldBe OK
       header("ETag").get.value() shouldBe currentTimeTag.toString()
       responseAs[String] shouldBe """[{"start_epoch_second":0,"rate_change":"rate change?","id":"contest-id","duration_second":0,"title":"contest title"}]"""
@@ -35,7 +35,7 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
 
   test("return 304 to cached request") {
     val api = new SqlApi(sql)
-    Get("/contests") ~> addHeader(`If-None-Match`.name, currentTimeTag.toString()) ~> api.routes ~> check {
+    Get("/info/contests") ~> addHeader(`If-None-Match`.name, currentTimeTag.toString()) ~> api.routes ~> check {
       status shouldBe NotModified
       header("ETag").get.value() shouldBe currentTimeTag.toString()
     }
@@ -43,7 +43,7 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
 
   test("return 200 to requests with invalid tags") {
     val api = new SqlApi(sql)
-    Get("/contests") ~> addHeader(`If-None-Match`.name, """W/"INVALID_TAG"""") ~> api.routes ~> check {
+    Get("/info/contests") ~> addHeader(`If-None-Match`.name, """W/"INVALID_TAG"""") ~> api.routes ~> check {
       status shouldBe OK
       header("ETag").get.value() shouldBe currentTimeTag.toString()
     }
@@ -51,7 +51,7 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
 
   test("return 200 to problems request") {
     val api = new SqlApi(sql)
-    Get("/problems") ~> api.routes ~> check {
+    Get("/info/problems") ~> api.routes ~> check {
       status shouldBe OK
       responseAs[String] shouldBe """[{"id":"problem-id","contest_id":"contest-id","title":"problem title"}]"""
     }
