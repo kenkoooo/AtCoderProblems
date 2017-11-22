@@ -1,10 +1,8 @@
 package com.kenkoooo.atcoder.model
 
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import com.kenkoooo.atcoder.common.TypeAnnotations.ContestId
 import com.kenkoooo.atcoder.db.SQLSelectInsertSupport
 import scalikejdbc._
-import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 /**
   * data class for contests
@@ -46,9 +44,4 @@ object Contest extends SQLSelectInsertSupport[Contest] {
       )
     )
   }
-}
-
-trait ContestJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-  implicit val contestFormat: RootJsonFormat[Contest] =
-    jsonFormat(Contest.apply, "id", "start_epoch_second", "duration_second", "title", "rate_change")
 }
