@@ -1,14 +1,16 @@
 package com.kenkoooo.atcoder.scraper
 
+import com.kenkoooo.atcoder.Main.logger
 import com.kenkoooo.atcoder.model.Problem
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.scraper.ContentExtractors.{element, elements}
+import org.apache.logging.log4j.scala.Logging
 
 /**
   * scraper of information of problems
-  * */
-class ProblemScraper {
+  **/
+class ProblemScraper extends Logging {
   private val browser = JsoupBrowser()
 
   /**
@@ -18,6 +20,7 @@ class ProblemScraper {
     * @return scraped problems
     */
   def scrape(contest: String): Array[Problem] = {
+    logger.info(s"scraping problems of $contest")
     val url = s"${AtCoder.BaseUrl}contests/$contest/tasks"
     val doc = browser.get(url)
     val problems = for (tr <- doc >> elements("tbody > tr")) yield {
