@@ -7,6 +7,7 @@ import com.kenkoooo.atcoder.model._
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import SQLSyntax.min
+import com.kenkoooo.atcoder.Main.logger
 import scalikejdbc.interpolation.SQLSyntax
 import sqls.{count, distinct}
 
@@ -149,6 +150,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   }
 
   def batchUpdateStatisticTables(): Unit = {
+    logger.info("start batch table update")
     updateAcceptedCounts()
     updateProblemSolverCounts()
     updateGreatSubmissions(First)
@@ -157,6 +159,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     updateUserProblemCount(FirstSubmissionCount)
     updateUserProblemCount(FastestSubmissionCount)
     updateUserProblemCount(ShortestSubmissionCount)
+    logger.info("finished batch table update")
   }
 
   /**

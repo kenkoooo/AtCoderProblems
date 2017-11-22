@@ -15,20 +15,19 @@ object ScheduledExecutorServiceExtension extends Logging {
       * Creates and executes a periodic action.
       * When the given crashed, the service will be shut downed immediately and thrown exception will be caught by the logger.
       *
-      * @param command      the task to execute
       * @param initialDelay the time to delay first execution
       * @param period       the period between successive executions
       * @param unit         the time unit of the initialDelay and period parameters
+      * @param command      the task to execute
       * @return a [[ScheduledFuture]] representing pending completion of the task
       */
-    def scheduleTryJobAtFixedDelay(command: Runnable,
-                                   initialDelay: Long,
-                                   period: Long,
-                                   unit: TimeUnit): ScheduledFuture[_] = {
+    def tryAtFixedDelay(initialDelay: Long, period: Long, unit: TimeUnit)(
+      command: => Unit
+    ): ScheduledFuture[_] = {
       self.scheduleWithFixedDelay(
         () =>
           Try {
-            command.run()
+            command
           }.recover {
             case e: Throwable =>
               logger.catching(e)
