@@ -5,8 +5,7 @@ import spray.json._
 
 class ApiJsonSupportTest extends FunSuite with Matchers with ApiJsonSupport {
   test("convert contest to json") {
-    val contest = Contest("id", 114, 514, "arc999", "rate change?")
-    contest.toJson.prettyPrint shouldBe
+    Contest("id", 114, 514, "arc999", "rate change?").toJson.prettyPrint shouldBe
       """{
         |  "start_epoch_second": 114,
         |  "rate_change": "rate change?",
@@ -17,19 +16,17 @@ class ApiJsonSupportTest extends FunSuite with Matchers with ApiJsonSupport {
   }
 
   test("convert submission to json") {
-    val submission =
-      Submission(
-        id = 114,
-        epochSecond = 514,
-        problemId = "arc000_a",
-        userId = "kenkoooo",
-        language = "Rust 1.21",
-        point = 3.14,
-        length = 810,
-        result = "AC",
-        executionTime = Some(893)
-      )
-    submission.toJson.prettyPrint shouldBe
+    Submission(
+      id = 114,
+      epochSecond = 514,
+      problemId = "arc000_a",
+      userId = "kenkoooo",
+      language = "Rust 1.21",
+      point = 3.14,
+      length = 810,
+      result = "AC",
+      executionTime = Some(893)
+    ).toJson.prettyPrint shouldBe
       """{
         |  "execution_time": 893,
         |  "point": 3.14,
@@ -44,19 +41,17 @@ class ApiJsonSupportTest extends FunSuite with Matchers with ApiJsonSupport {
   }
 
   test("convert submission with a blank field to json") {
-    val submission =
-      Submission(
-        id = 114,
-        epochSecond = 514,
-        problemId = "arc000_a",
-        userId = "kenkoooo",
-        language = "Rust 1.21",
-        point = 3.14,
-        length = 810,
-        result = "AC",
-        executionTime = None
-      )
-    submission.toJson.prettyPrint shouldBe
+    Submission(
+      id = 114,
+      epochSecond = 514,
+      problemId = "arc000_a",
+      userId = "kenkoooo",
+      language = "Rust 1.21",
+      point = 3.14,
+      length = 810,
+      result = "AC",
+      executionTime = None
+    ).toJson.prettyPrint shouldBe
       """{
         |  "point": 3.14,
         |  "result": "AC",
@@ -70,13 +65,20 @@ class ApiJsonSupportTest extends FunSuite with Matchers with ApiJsonSupport {
   }
 
   test("convert problem to json") {
-    val problem =
-      Problem(id = "arc000_a", contestId = "arc000", title = "A - B problem")
-    problem.toJson.prettyPrint shouldBe
+    Problem(id = "arc000_a", contestId = "arc000", title = "A - B problem").toJson.prettyPrint shouldBe
       """{
         |  "id": "arc000_a",
         |  "contest_id": "arc000",
         |  "title": "A - B problem"
         |}""".stripMargin
+  }
+
+  test("convert user-count pairs to json") {
+    val expectedJson = """{"user_id":"kenkoooo","problem_count":114}"""
+
+    FirstSubmissionCount("kenkoooo", 114).toJson.toString() shouldBe expectedJson
+    FastestSubmissionCount("kenkoooo", 114).toJson.toString() shouldBe expectedJson
+    ShortestSubmissionCount("kenkoooo", 114).toJson.toString() shouldBe expectedJson
+    AcceptedCount("kenkoooo", 114).toJson.toString() shouldBe expectedJson
   }
 }
