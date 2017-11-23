@@ -295,6 +295,37 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     client.loadRecords(FirstSubmissionCount).head shouldBe FirstSubmissionCount("kenkoooo", 1)
     client.loadRecords(FastestSubmissionCount).head shouldBe FastestSubmissionCount("kenkoooo", 1)
     client.loadRecords(ShortestSubmissionCount).head shouldBe ShortestSubmissionCount("kenkoooo", 1)
+  }
 
+  test("load merged problem info") {
+    val client = new SqlClient(url, sqlUser, sqlPass)
+
+    val problemId = "asc999_a"
+    val contestId = "AtCoder Sleep Contest 999"
+    val title = "A * B problem"
+    val userId = "kenkoooo"
+
+    val notSolvedProblemId = "not_solved"
+
+    client.batchInsert(
+      Problem,
+      Problem(problemId, contestId, title),
+      Problem(notSolvedProblemId, "Difficult Contest", "too difficult problem")
+    )
+    client.batchInsert(
+      Submission,
+      Submission(
+        id = 1,
+        problemId = problemId,
+        userId = userId,
+        result = "AC",
+        length = 114,
+        executionTime = Some(514)
+      )
+    )
+    client.batchUpdateStatisticTables()
+    val problems = client.loadMergedProblems()
+    problems.find(_.id == problemId).get.solverCount.get shouldBe 1
+    problems.find(_.id == notSolvedProblemId).get.solverCount shouldBe None
   }
 }

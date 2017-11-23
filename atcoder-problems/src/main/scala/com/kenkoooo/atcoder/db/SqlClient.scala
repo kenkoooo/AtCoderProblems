@@ -231,18 +231,54 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   }
 
   /**
-    * load records of the given type
+    * load all the records of the given type
     *
     * @param support support object for loading records
     * @tparam T type of the loading records
     * @return seq of loaded records
     */
   def loadRecords[T](support: SQLSelectSupport[T], limit: Int = 1000000): Seq[T] = {
-    logger.info(s"reloading ${support.tableName}")
+    logger.info(s"loading ${support.tableName}")
     DB.readOnly { implicit session =>
       val s = support.syntax("s")
       withSQL(select.from(support as s).limit(limit))
         .map(support(s))
+        .list()
+        .apply()
+    }
+  }
+
+  def loadMergedProblems(): Seq[MergedProblem] = {
+    logger.info("loading merged-problems")
+    DB.readOnly { implicit session =>
+      val m = MergedProblem.syntax("m")
+      val problem = Problem.syntax("problem")
+      val fastest = Fastest.syntax("fastest")
+      val fastestSubmission = Submission.syntax("fastest_submission")
+      val first = First.syntax("first")
+      val firstSubmission = Submission.syntax("first_submission")
+      val shortest = Shortest.syntax("shortest")
+      val shortestSubmission = Submission.syntax("shortest_submission")
+      val solver = ProblemSolver.syntax("solver")
+
+      withSQL {
+        select
+          .from(Problem as problem)
+          .leftJoin(Fastest as fastest)
+          .on(fastest.problemId, problem.id)
+          .leftJoin(Submission as fastestSubmission)
+          .on(fastestSubmission.id, fastest.submissionId)
+          .leftJoin(Shortest as shortest)
+          .on(shortest.problemId, problem.id)
+          .leftJoin(Submission as shortestSubmission)
+          .on(shortestSubmission.id, shortest.submissionId)
+          .leftJoin(First as first)
+          .on(first.problemId, problem.id)
+          .leftJoin(Submission as firstSubmission)
+          .on(firstSubmission.id, first.submissionId)
+          .leftJoin(ProblemSolver as solver)
+          .on(solver.problemId, problem.id)
+      }.map(MergedProblem(problem, fastestSubmission, firstSubmission, shortestSubmission, solver))
         .list()
         .apply()
     }
