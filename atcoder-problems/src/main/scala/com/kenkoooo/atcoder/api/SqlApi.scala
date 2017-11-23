@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.kenkoooo.atcoder.db.SqlClient
 import com.kenkoooo.atcoder.model.ApiJsonSupport
+import com.kenkoooo.atcoder.scraper.AtCoder.UserNameRegex
 
 class SqlApi(sqlClient: SqlClient) extends ApiJsonSupport {
   val routes: Route = get {
@@ -23,6 +24,13 @@ class SqlApi(sqlClient: SqlClient) extends ApiJsonSupport {
         } ~ path("short") {
           complete(sqlClient.shortestSubmissionCounts.toList)
         }
+      }
+    } ~ path("results") {
+      parameters('user ? "", 'rivals ? "") { (user, rivals) =>
+        val rivalList = rivals.split(",").map(_.trim).toList
+        val users = (user :: rivalList).filter(_.length > 0).filter(_.matches(UserNameRegex))
+
+        complete(sqlClient.loadUserSubmissions(users: _*).toList)
       }
     }
   }
