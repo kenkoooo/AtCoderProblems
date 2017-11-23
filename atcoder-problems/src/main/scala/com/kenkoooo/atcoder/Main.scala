@@ -6,7 +6,7 @@ import java.util.concurrent.{Executors, ScheduledExecutorService}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
-import com.kenkoooo.atcoder.api.SqlApi
+import com.kenkoooo.atcoder.api.JsonApi
 import com.kenkoooo.atcoder.common.Configure
 import com.kenkoooo.atcoder.common.ScheduledExecutorServiceExtension._
 import com.kenkoooo.atcoder.db.SqlClient
@@ -73,7 +73,7 @@ object Main extends Logging {
         service.tryAtFixedDelay(0, 5, MINUTES)(sql.batchUpdateStatisticTables())
 
         val port = config.server.port
-        val api = new SqlApi(sql)
+        val api = new JsonApi(sql)
 
         Http().bindAndHandle(api.routes, interface = "0.0.0.0", port = port)
 

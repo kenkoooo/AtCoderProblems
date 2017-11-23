@@ -11,7 +11,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
-class SqlApiTest
+class JsonApiTest
     extends FunSuite
     with Matchers
     with ScalatestRouteTest
@@ -53,7 +53,7 @@ class SqlApiTest
   }
 
   test("return 200 to new request") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
     Get("/info/contests") ~> api.routes ~> check {
       status shouldBe OK
       header("ETag").get.value() shouldBe currentTimeTag.toString()
@@ -62,7 +62,7 @@ class SqlApiTest
   }
 
   test("return 304 to cached request") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
     Get("/info/contests") ~> addHeader(`If-None-Match`.name, currentTimeTag.toString()) ~> api.routes ~> check {
       status shouldBe NotModified
       header("ETag").get.value() shouldBe currentTimeTag.toString()
@@ -70,7 +70,7 @@ class SqlApiTest
   }
 
   test("return 200 to requests with invalid tags") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
     Get("/info/contests") ~> addHeader(`If-None-Match`.name, """W/"INVALID_TAG"""") ~> api.routes ~> check {
       status shouldBe OK
       header("ETag").get.value() shouldBe currentTimeTag.toString()
@@ -78,7 +78,7 @@ class SqlApiTest
   }
 
   test("return 200 to problems request") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
     Get("/info/problems") ~> api.routes ~> check {
       status shouldBe OK
       responseAs[String] shouldBe """[{"id":"problem-id","contest_id":"contest-id","title":"problem title"}]"""
@@ -86,7 +86,7 @@ class SqlApiTest
   }
 
   test("user-count APIs") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
     val expectedResponse = """[{"user_id":"kenkoooo","problem_count":114}]"""
 
     Get("/info/ac") ~> api.routes ~> check {
@@ -108,7 +108,7 @@ class SqlApiTest
   }
 
   test("user submission result api") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
 
     Get("/results") ~> api.routes ~> check {
       status shouldBe OK
@@ -118,7 +118,7 @@ class SqlApiTest
   }
 
   test("submission api with user") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
 
     Get("/results?user=kenkoooo") ~> api.routes ~> check {
       status shouldBe OK
@@ -127,7 +127,7 @@ class SqlApiTest
   }
 
   test("submission api with user and a rival") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
 
     Get("/results?user=kenkoooo&rivals=chokudai") ~> api.routes ~> check {
       status shouldBe OK
@@ -136,7 +136,7 @@ class SqlApiTest
   }
 
   test("submission api with user and rivals") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
 
     Get("/results?user=kenkoooo&rivals=chokudai,iwiwi") ~> api.routes ~> check {
       status shouldBe OK
@@ -145,7 +145,7 @@ class SqlApiTest
   }
 
   test("filter invalid parameters") {
-    val api = new SqlApi(sql)
+    val api = new JsonApi(sql)
 
     Get("/results?user=kenk;oooo&rivals=cho$udai,iwi@wi") ~> api.routes ~> check {
       status shouldBe OK

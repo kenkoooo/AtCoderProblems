@@ -7,7 +7,7 @@ import com.kenkoooo.atcoder.db.SqlClient
 import com.kenkoooo.atcoder.model.ApiJsonSupport
 import com.kenkoooo.atcoder.scraper.AtCoder.UserNameRegex
 
-class SqlApi(sqlClient: SqlClient) extends ApiJsonSupport {
+class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
   val routes: Route = get {
     pathPrefix("info") {
       conditional(EntityTagger.calculateDateTimeTag(lastUpdated()), lastUpdated()) {
