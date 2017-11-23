@@ -50,6 +50,24 @@ class JsonApiTest
         )
       )
     )
+    when(sql.mergedProblems).thenReturn(
+      List(
+        MergedProblem(
+          "problem1",
+          "contest2",
+          "title3",
+          Some(4),
+          Some("faster"),
+          Some(5),
+          Some(6),
+          Some("first"),
+          Some(7),
+          Some("short"),
+          Some(8),
+          9
+        )
+      )
+    )
   }
 
   test("return 200 to new request") {
@@ -150,6 +168,16 @@ class JsonApiTest
     Get("/results?user=kenk;oooo&rivals=cho$udai,iwi@wi") ~> api.routes ~> check {
       status shouldBe OK
       verify(sql, times(1)).loadUserSubmissions()
+    }
+  }
+
+  test("merged problems api") {
+    val api = new JsonApi(sql)
+    val expectedJson =
+      """[{"first_submission_id":6,"solver_count":9,"fastest_user_id":"faster","execution_time":5,"shortest_user_id":"short","shortest_submission_id":7,"contest_id":"contest2","id":"problem1","fastest_submission_id":4,"first_user_id":"first","title":"title3","source_code_length":8}]"""
+    Get("/info/merged-problems") ~> api.routes ~> check {
+      status shouldBe OK
+      responseAs[String] shouldBe expectedJson
     }
   }
 }

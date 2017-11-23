@@ -81,4 +81,35 @@ class ApiJsonSupportTest extends FunSuite with Matchers with ApiJsonSupport {
     ShortestSubmissionCount("kenkoooo", 114).toJson.toString() shouldBe expectedJson
     AcceptedCount("kenkoooo", 114).toJson.toString() shouldBe expectedJson
   }
+
+  test("convert merged problems") {
+    MergedProblem(
+      id = "problem_id",
+      fastestSubmissionId = Some(1),
+      fastestUserId = Some("fastest"),
+      executionTime = Some(2),
+      firstSubmissionId = Some(3),
+      firstUserId = Some("first"),
+      shortestSubmissionId = Some(4),
+      shortestUserId = Some("shortest"),
+      sourceCodeLength = Some(5),
+      contestId = "contest",
+      title = "title",
+      solverCount = 6
+    ).toJson.prettyPrint shouldBe """{
+                                    |  "first_submission_id": 3,
+                                    |  "solver_count": 6,
+                                    |  "fastest_user_id": "fastest",
+                                    |  "execution_time": 2,
+                                    |  "shortest_user_id": "shortest",
+                                    |  "shortest_submission_id": 4,
+                                    |  "contest_id": "contest",
+                                    |  "id": "problem_id",
+                                    |  "fastest_submission_id": 1,
+                                    |  "first_user_id": "first",
+                                    |  "title": "title",
+                                    |  "source_code_length": 5
+                                    |}""".stripMargin
+
+  }
 }

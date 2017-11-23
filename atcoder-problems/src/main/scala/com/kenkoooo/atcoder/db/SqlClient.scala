@@ -29,6 +29,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   private var _firstSubmissionCounts: List[FirstSubmissionCount] = List()
   private var _fastestSubmissionCounts: List[FastestSubmissionCount] = List()
   private var _shortestSubmissionCounts: List[ShortestSubmissionCount] = List()
+  private var _mergedProblems: List[MergedProblem] = List()
   private var _lastReloaded: Long = 0
 
   def contests: Map[String, Contest] = _contests
@@ -42,6 +43,8 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   def fastestSubmissionCounts: List[FastestSubmissionCount] = _fastestSubmissionCounts
 
   def shortestSubmissionCounts: List[ShortestSubmissionCount] = _shortestSubmissionCounts
+
+  def mergedProblems: List[MergedProblem] = _mergedProblems
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
@@ -78,22 +81,9 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   }
 
   /**
-    * load all the accepted submissions
-    *
-    * @return all the accepted submissions
-    */
-  def loadAllAcceptedSubmissions(): Iterator[Submission] = {
-    SubmissionIterator(
-      this,
-      selectFrom(Submission as submissionSyntax).where
-        .eq(submissionSyntax.c("result"), SubmissionStatus.Accepted)
-    )
-  }
-
-  /**
     * rewrite accepted count ranking table
     */
-  def updateAcceptedCounts(): Unit = {
+  private[db] def updateAcceptedCounts(): Unit = {
     logger.info(s"updating ${AcceptedCount.tableName}")
     val columns = AcceptedCount.column
     val submission = Submission.syntax("s")
@@ -116,7 +106,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   /**
     * update solver counts for each problems
     */
-  def updateProblemSolverCounts(): Unit = {
+  private[db] def updateProblemSolverCounts(): Unit = {
     logger.info(s"updating ${ProblemSolver.tableName}")
     val v = ProblemSolver.column
     val s = Submission.syntax("s")
@@ -136,7 +126,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     }
   }
 
-  def updateUserProblemCount[T](support: UserCountPairSupportWithParent[_, T]): Unit = {
+  private[db] def updateUserProblemCount[T](support: UserCountPairSupportWithParent[_, T]): Unit = {
     logger.info(s"updating ${support.tableName}")
 
     val columns = support.column
@@ -226,6 +216,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     _firstSubmissionCounts = loadRecords(FirstSubmissionCount).toList
     _shortestSubmissionCounts = loadRecords(ShortestSubmissionCount).toList
     _fastestSubmissionCounts = loadRecords(FastestSubmissionCount).toList
+    _mergedProblems = loadMergedProblems().toList
 
     _lastReloaded = System.currentTimeMillis()
   }
@@ -251,7 +242,6 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   def loadMergedProblems(): Seq[MergedProblem] = {
     logger.info("loading merged-problems")
     DB.readOnly { implicit session =>
-      val m = MergedProblem.syntax("m")
       val problem = Problem.syntax("problem")
       val fastest = Fastest.syntax("fastest")
       val fastestSubmission = Submission.syntax("fastest_submission")
