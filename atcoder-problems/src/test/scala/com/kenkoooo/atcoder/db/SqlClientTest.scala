@@ -89,19 +89,6 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     client.loadUserSubmissions("chokudai", "iwiwi", "petr").toList.size shouldBe 2
   }
 
-  test("load all the accepted submissions") {
-    val client = new SqlClient(url, sqlUser, sqlPass)
-    client.batchInsert(
-      Submission,
-      List(
-        Submission(id = 1, 0, "", "iwiwi", "", 0.0, 0, "AC", None),
-        Submission(id = 2, 0, "", "chokudai", "", 0.0, 0, "WA", None)
-      ): _*
-    )
-
-    client.loadAllAcceptedSubmissions().toList.size shouldBe 1
-  }
-
   test("update solver counts") {
     val client = new SqlClient(url, sqlUser, sqlPass)
     client.batchInsert(
@@ -325,7 +312,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     )
     client.batchUpdateStatisticTables()
     val problems = client.loadMergedProblems()
-    problems.find(_.id == problemId).get.solverCount.get shouldBe 1
-    problems.find(_.id == notSolvedProblemId).get.solverCount shouldBe None
+    problems.find(_.id == problemId).get.solverCount shouldBe 1
+    problems.find(_.id == notSolvedProblemId).get.solverCount shouldBe 0
   }
 }

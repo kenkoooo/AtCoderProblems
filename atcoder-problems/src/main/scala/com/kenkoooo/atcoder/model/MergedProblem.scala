@@ -14,7 +14,7 @@ case class MergedProblem(id: ProblemId,
                          shortestSubmissionId: Option[SubmissionId],
                          shortestUserId: Option[UserId],
                          sourceCodeLength: Option[Int],
-                         solverCount: Option[Int])
+                         solverCount: Int)
 
 object MergedProblem extends SQLSyntaxSupport[MergedProblem] {
   def apply(problem: SyntaxProvider[Problem],
@@ -34,6 +34,6 @@ object MergedProblem extends SQLSyntaxSupport[MergedProblem] {
       shortestSubmissionId = rs.longOpt(shortestSubmission.resultName.id),
       shortestUserId = rs.stringOpt(shortestSubmission.resultName.userId),
       sourceCodeLength = rs.intOpt(shortestSubmission.resultName.length),
-      solverCount = rs.intOpt(solver.resultName.userCount)
+      solverCount = rs.intOpt(solver.resultName.userCount).getOrElse(0)
     )
 }

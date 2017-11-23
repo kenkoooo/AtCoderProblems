@@ -28,5 +28,20 @@ trait ApiJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     jsonFormat(ShortestSubmissionCount.apply, "user_id", "problem_count")
   implicit val acceptedCountFormat: RootJsonFormat[AcceptedCount] =
     jsonFormat(AcceptedCount.apply, "user_id", "problem_count")
-
+  implicit val mergedProblemFormat: RootJsonFormat[MergedProblem] =
+    jsonFormat(
+      MergedProblem.apply,
+      "id",
+      "contest_id",
+      "title",
+      "fastest_submission_id",
+      "fastest_user_id",
+      "execution_time",
+      "first_submission_id",
+      "first_user_id",
+      "shortest_submission_id",
+      "shortest_user_id",
+      "source_code_length",
+      "solver_count"
+    )
 }

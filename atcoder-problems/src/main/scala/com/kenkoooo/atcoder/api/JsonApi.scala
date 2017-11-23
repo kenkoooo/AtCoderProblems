@@ -16,13 +16,15 @@ class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
         } ~ path("problems") {
           complete(sqlClient.problems.values.toList)
         } ~ path("ac") {
-          complete(sqlClient.acceptedCounts.toList)
+          complete(sqlClient.acceptedCounts)
         } ~ path("fast") {
-          complete(sqlClient.fastestSubmissionCounts.toList)
+          complete(sqlClient.fastestSubmissionCounts)
         } ~ path("first") {
-          complete(sqlClient.firstSubmissionCounts.toList)
+          complete(sqlClient.firstSubmissionCounts)
         } ~ path("short") {
-          complete(sqlClient.shortestSubmissionCounts.toList)
+          complete(sqlClient.shortestSubmissionCounts)
+        } ~ path("merged-problems") {
+          complete(sqlClient.mergedProblems)
         }
       }
     } ~ path("results") {
