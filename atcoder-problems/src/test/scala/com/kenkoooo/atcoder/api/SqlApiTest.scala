@@ -6,26 +6,51 @@ import akka.http.scaladsl.model.headers.{EntityTag, _}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.kenkoooo.atcoder.db.SqlClient
 import com.kenkoooo.atcoder.model._
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
-class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with MockitoSugar {
+class SqlApiTest
+    extends FunSuite
+    with Matchers
+    with ScalatestRouteTest
+    with MockitoSugar
+    with BeforeAndAfter {
   val currentTime: Long = System.currentTimeMillis()
   val currentTimeTag: EntityTag = EntityTagger.calculateDateTimeTag(DateTime(currentTime))
 
-  val sql: SqlClient = mock[SqlClient]
-  when(sql.contests)
-    .thenReturn(
-      Map("contest-id" -> Contest("contest-id", 114, 514, "contest title", "rate change?"))
+  private var sql: SqlClient = mock[SqlClient]
+
+  before {
+    sql = mock[SqlClient]
+    when(sql.contests)
+      .thenReturn(
+        Map("contest-id" -> Contest("contest-id", 114, 514, "contest title", "rate change?"))
+      )
+    when(sql.problems)
+      .thenReturn(Map("problem-id" -> Problem("problem-id", "contest-id", "problem title")))
+    when(sql.lastReloadedTimeMillis).thenReturn(currentTime)
+    when(sql.shortestSubmissionCounts).thenReturn(List(ShortestSubmissionCount("kenkoooo", 114)))
+    when(sql.fastestSubmissionCounts).thenReturn(List(FastestSubmissionCount("kenkoooo", 114)))
+    when(sql.firstSubmissionCounts).thenReturn(List(FirstSubmissionCount("kenkoooo", 114)))
+    when(sql.acceptedCounts).thenReturn(List(AcceptedCount("kenkoooo", 114)))
+    when(sql.loadUserSubmissions(ArgumentMatchers.any())).thenReturn(
+      Iterator(
+        Submission(
+          id = 114,
+          epochSecond = 514,
+          problemId = "problem_id",
+          userId = "user-id",
+          language = "Lang",
+          point = 89.3,
+          length = 810,
+          result = "AC",
+          executionTime = None
+        )
+      )
     )
-  when(sql.problems)
-    .thenReturn(Map("problem-id" -> Problem("problem-id", "contest-id", "problem title")))
-  when(sql.lastReloadedTimeMillis).thenReturn(currentTime)
-  when(sql.shortestSubmissionCounts).thenReturn(List(ShortestSubmissionCount("kenkoooo", 114)))
-  when(sql.fastestSubmissionCounts).thenReturn(List(FastestSubmissionCount("kenkoooo", 114)))
-  when(sql.firstSubmissionCounts).thenReturn(List(FirstSubmissionCount("kenkoooo", 114)))
-  when(sql.acceptedCounts).thenReturn(List(AcceptedCount("kenkoooo", 114)))
+  }
 
   test("return 200 to new request") {
     val api = new SqlApi(sql)
@@ -79,6 +104,52 @@ class SqlApiTest extends FunSuite with Matchers with ScalatestRouteTest with Moc
     Get("/info/short") ~> api.routes ~> check {
       status shouldBe OK
       responseAs[String] shouldBe expectedResponse
+    }
+  }
+
+  test("user submission result api") {
+    val api = new SqlApi(sql)
+
+    Get("/results") ~> api.routes ~> check {
+      status shouldBe OK
+      responseAs[String] shouldBe """[{"point":89.3,"result":"AC","problem_id":"problem_id","user_id":"user-id","epoch_second":514,"id":114,"language":"Lang","length":810}]"""
+      verify(sql, times(1)).loadUserSubmissions()
+    }
+  }
+
+  test("submission api with user") {
+    val api = new SqlApi(sql)
+
+    Get("/results?user=kenkoooo") ~> api.routes ~> check {
+      status shouldBe OK
+      verify(sql, times(1)).loadUserSubmissions("kenkoooo")
+    }
+  }
+
+  test("submission api with user and a rival") {
+    val api = new SqlApi(sql)
+
+    Get("/results?user=kenkoooo&rivals=chokudai") ~> api.routes ~> check {
+      status shouldBe OK
+      verify(sql, times(1)).loadUserSubmissions("kenkoooo", "chokudai")
+    }
+  }
+
+  test("submission api with user and rivals") {
+    val api = new SqlApi(sql)
+
+    Get("/results?user=kenkoooo&rivals=chokudai,iwiwi") ~> api.routes ~> check {
+      status shouldBe OK
+      verify(sql, times(1)).loadUserSubmissions("kenkoooo", "chokudai", "iwiwi")
+    }
+  }
+
+  test("filter invalid parameters") {
+    val api = new SqlApi(sql)
+
+    Get("/results?user=kenk;oooo&rivals=cho$udai,iwi@wi") ~> api.routes ~> check {
+      status shouldBe OK
+      verify(sql, times(1)).loadUserSubmissions()
     }
   }
 }
