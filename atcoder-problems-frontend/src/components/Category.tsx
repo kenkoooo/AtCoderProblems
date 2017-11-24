@@ -32,7 +32,7 @@ export class Category extends React.Component<CategoryProps, {}>{
         let data = this.props.contests
             .filter(contest => contest.id.match(/^agc\d{3}$/))
             .sort((a, b) => a.id.localeCompare(b.id))
-            .reverse()
+            .reverse()  
             .filter(contest => problemMap.has(contest.id))
             .map(contest => {
                 let problems = problemMap.get(contest.id).sort((a, b) => a.id.localeCompare(b.id));
