@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as QueryString from "query-string";
-import { NavigationBar } from "./NavigationBar";
 import { SearchForm } from "./SearchForm";
+import { Category } from "./Category";
 import { Grid } from "react-bootstrap";
 
 /**
@@ -11,10 +11,14 @@ export class Application extends React.Component<{}, {}> {
     render() {
         // parse GET parameters
         let params = QueryString.parse(location.search);
-        console.log(params);
+        let userId = ("user" in params) ? params["user"] : "";
+        let rivals = ("rivals" in params) ? params["rivals"] : "";
+        let kind = ("kind" in params) ? params["kind"] : "category";
+
         return (
             <Grid>
-                <SearchForm userId={params.name} rivals={params.rivals} kind={params.kind} />
+                <SearchForm userId={userId} rivals={rivals} kind={kind} />
+                <Category />
             </Grid>
         );
     }
