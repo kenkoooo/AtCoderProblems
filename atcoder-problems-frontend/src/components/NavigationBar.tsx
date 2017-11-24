@@ -11,7 +11,7 @@ export class NavigationBar extends React.Component<{}, {}>{
             <Navbar inverse collapseOnSelect>
                 <Navbar.Header>
                     <Navbar.Brand>
-                        <a href="#">AtCoder Problems</a>
+                        <a href="./">AtCoder Problems</a>
                     </Navbar.Brand>
                     <Navbar.Toggle />
                 </Navbar.Header>
