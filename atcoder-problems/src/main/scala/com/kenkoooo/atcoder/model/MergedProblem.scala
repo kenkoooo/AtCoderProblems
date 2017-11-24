@@ -1,8 +1,25 @@
 package com.kenkoooo.atcoder.model
 
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, SubmissionId, UserId}
+import scalikejdbc.WrappedResultSet
 import scalikejdbc._
 
+/**
+  * [[Problem]] and other information
+  *
+  * @param id                   Problem ID
+  * @param contestId            Contest ID
+  * @param title                Problem title
+  * @param fastestSubmissionId  id of the fastest submission of this problem
+  * @param fastestUserId        user id of the fastest submission of this problem
+  * @param executionTime        execution time of the fastest submission of this problem
+  * @param firstSubmissionId    id of the first submission of this problem
+  * @param firstUserId          user id of the first submission of this problem
+  * @param shortestSubmissionId id of the shortest submission of this problem
+  * @param shortestUserId       user id of the shortest submission of this problem
+  * @param sourceCodeLength     source code length of the shortest submission of this problem
+  * @param solverCount          the number of solvers of this problem
+  */
 case class MergedProblem(id: ProblemId,
                          contestId: ContestId,
                          title: String,

@@ -88,9 +88,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     val columns = AcceptedCount.column
     val submission = Submission.syntax("s")
     DB.localTx { implicit session =>
-      withSQL {
-        deleteFrom(AcceptedCount)
-      }.execute().apply()
+      withSQL { deleteFrom(AcceptedCount) }.execute().apply()
       withSQL {
         insertInto(AcceptedCount)
           .columns(columns.userId, columns.problemCount)
@@ -111,9 +109,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     val v = ProblemSolver.column
     val s = Submission.syntax("s")
     DB.localTx { implicit session =>
-      withSQL {
-        deleteFrom(ProblemSolver)
-      }.execute().apply()
+      withSQL { deleteFrom(ProblemSolver) }.execute().apply()
       withSQL {
         insertInto(ProblemSolver)
           .columns(v.userCount, v.problemId)
@@ -134,9 +130,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     val parent = parentTable.syntax("p")
     val submissions = Submission.syntax("s")
     DB.localTx { implicit session =>
-      withSQL {
-        deleteFrom(support)
-      }.update().apply()
+      withSQL { deleteFrom(support) }.update().apply()
       withSQL {
         insertInto(support)
           .columns(columns.problemCount, columns.userId)
@@ -150,6 +144,9 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     }
   }
 
+  /**
+    * update statistic tables
+    */
   def batchUpdateStatisticTables(): Unit = {
     logger.info("start batch table update")
     updateAcceptedCounts()
@@ -206,7 +203,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   }
 
   /**
-    * reload contests and problems
+    * reload internal contests and problems
     */
   def reloadRecords(): Unit = {
     _contests = loadRecords(Contest).map(s => s.id -> s).toMap
@@ -239,6 +236,11 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     }
   }
 
+  /**
+    * load problem records with other statistic information
+    *
+    * @return [[Seq]] of [[Problem]]
+    */
   def loadMergedProblems(): Seq[MergedProblem] = {
     logger.info("loading merged-problems")
     DB.readOnly { implicit session =>
