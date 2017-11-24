@@ -11,25 +11,25 @@ export class NavigationBar extends React.Component<{}, {}>{
             <Navbar inverse collapseOnSelect>
                 <Navbar.Header>
                     <Navbar.Brand>
-                        <a href="#">React-Bootstrap</a>
+                        <a href="#">AtCoder Problems</a>
                     </Navbar.Brand>
                     <Navbar.Toggle />
                 </Navbar.Header>
                 <Navbar.Collapse>
                     <Nav>
-                        <NavItem eventKey={1} href="#">Link</NavItem>
-                        <NavItem eventKey={2} href="#">Link</NavItem>
-                        <NavDropdown eventKey={3} title="Dropdown" id="basic-nav-dropdown">
-                            <MenuItem eventKey={3.1}>Action</MenuItem>
-                            <MenuItem eventKey={3.2}>Another action</MenuItem>
-                            <MenuItem eventKey={3.3}>Something else here</MenuItem>
-                            <MenuItem divider />
-                            <MenuItem eventKey={3.3}>Separated link</MenuItem>
+                        <NavDropdown title="Rankings" id="basic-nav-dropdown">
+                            <MenuItem href="./ac">Accepted Count</MenuItem>
+                            <MenuItem href="./fast">Fastest Codes</MenuItem>
+                            <MenuItem href="./short">Shortest Codes</MenuItem>
+                            <MenuItem href="./first">First Acceptances</MenuItem>
                         </NavDropdown>
-                    </Nav>
-                    <Nav pullRight>
-                        <NavItem eventKey={1} href="#">Link Right</NavItem>
-                        <NavItem eventKey={2} href="#">Link Right</NavItem>
+                        <NavItem href="./user">User Page</NavItem>
+                        <NavDropdown title="Links" id="basic-nav-dropdown">
+                            <MenuItem href="https://atcoder.jp/">AtCoder Official Site</MenuItem>
+                            <MenuItem href="http://ichyo.jp/aoj-icpc/">AOJ-ICPC</MenuItem>
+                            <MenuItem href="https://github.com/kenkoooo/AtCoderProblems">Source Code (GitHub)</MenuItem>
+                            <MenuItem href="https://twitter.com/kenkoooo">@kenkoooo</MenuItem>
+                        </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>);
