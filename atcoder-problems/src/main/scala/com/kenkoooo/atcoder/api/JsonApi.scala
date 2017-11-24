@@ -7,6 +7,11 @@ import com.kenkoooo.atcoder.db.SqlClient
 import com.kenkoooo.atcoder.model.ApiJsonSupport
 import com.kenkoooo.atcoder.scraper.AtCoder.UserNameRegex
 
+/**
+  * API routes which connect to SQL and provide JSON-formatted API
+  *
+  * @param sqlClient [[SqlClient]] to connect to SQL
+  */
 class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
   val routes: Route = get {
     pathPrefix("info") {

@@ -50,7 +50,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
 
   private[db] def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] = {
     DB.readOnly { implicit session =>
-      withSQL(builder).map(Submission(submissionSyntax)).list().apply()
+      withSQL(builder).map(Submission(SubmissionSyntax)).list().apply()
     }
   }
 
@@ -63,7 +63,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   def loadSubmissions(ids: Long*): Iterator[Submission] = {
     SubmissionIterator(
       this,
-      selectFrom(Submission as submissionSyntax).where.in(submissionSyntax.id, ids)
+      selectFrom(Submission as SubmissionSyntax).where.in(SubmissionSyntax.id, ids)
     )
   }
 
@@ -76,7 +76,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   def loadUserSubmissions(userIds: UserId*): Iterator[Submission] = {
     SubmissionIterator(
       this,
-      selectFrom(Submission as submissionSyntax).where.in(submissionSyntax.userId, userIds)
+      selectFrom(Submission as SubmissionSyntax).where.in(SubmissionSyntax.userId, userIds)
     )
   }
 
@@ -178,9 +178,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     val result = submission.c("result")
 
     DB.localTx { implicit session =>
-      withSQL {
-        deleteFrom(support)
-      }.execute().apply()
+      withSQL { deleteFrom(support) }.execute().apply()
       withSQL {
         insertInto(support)
           .columns(columns.problemId, columns.submissionId)
@@ -305,7 +303,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
 }
 
 private object SqlClient {
-  private val submissionSyntax = Submission.syntax("s")
+  private val SubmissionSyntax = Submission.syntax("s")
 
   def concat(columns: SQLSyntax*): SQLSyntax = sqls"concat(${sqls.csv(columns: _*)})"
 }
