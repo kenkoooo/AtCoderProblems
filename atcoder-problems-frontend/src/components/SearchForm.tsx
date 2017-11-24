@@ -10,10 +10,10 @@ export interface SearchFormProps {
 export class SearchForm extends React.Component<SearchFormProps, {}>{
     render() {
         return (
-            <Form action="./index.html" method="get" inline>
+            <Form action="./" method="get" inline>
                 <FormGroup>
                     <ControlLabel>User ID: </ControlLabel>
-                    <FormControl placeholder="UserID" type="text" name="name" defaultValue={this.props.userId} />
+                    <FormControl placeholder="UserID" type="text" name="user" defaultValue={this.props.userId} />
                 </FormGroup>
                 {' '}
                 <FormGroup>
@@ -22,7 +22,7 @@ export class SearchForm extends React.Component<SearchFormProps, {}>{
                 </FormGroup>
                 {' '}
                 <ToggleButtonGroup type="radio" name="kind" defaultValue={this.props.kind}>
-                    <ToggleButton value="index">Category</ToggleButton>
+                    <ToggleButton value="category">Category</ToggleButton>
                     <ToggleButton value="list">List</ToggleButton>
                 </ToggleButtonGroup>
                 {' '}
