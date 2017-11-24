@@ -5,7 +5,13 @@
         "noImplicitAny": true,
         "module": "commonjs",
         "target": "es5",
-        "jsx": "react"
+        "jsx": "react",
+        "lib": [
+            "es6",
+            "dom",
+            "es5",
+            "scripthost"
+        ]
     },
     "include": [
         "./src/**/*"
