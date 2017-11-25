@@ -5,5 +5,6 @@
     "/atcoder-api/info/short": "/short",
     "/atcoder-api/info/fast": "/fast",
     "/atcoder-api/info/first": "/first",
-    "/atcoder-api/info/merged-problems": "/merged-problems"
+    "/atcoder-api/info/merged-problems": "/merged-problems",
+    "/atcoder-api/results": "/results"
 }
