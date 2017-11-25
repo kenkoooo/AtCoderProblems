@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --hot"
+    "start": "json-server --static ./ --routes routes.json db.json"
   },
   "author": "kenkoooo",
   "license": "ISC",
@@ -26,9 +26,9 @@
   },
   "devDependencies": {
     "awesome-typescript-loader": "^3.3.0",
+    "json-server": "^0.12.1",
     "source-map-loader": "^0.2.3",
     "typescript": "^2.6.1",
-    "webpack": "^3.8.1",
-    "webpack-dev-server": "^2.9.4"
+    "webpack": "^3.8.1"
   }
 }

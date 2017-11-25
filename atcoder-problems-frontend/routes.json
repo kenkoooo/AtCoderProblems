@@ -1,9 +1,9 @@
 {
-    "/info/contests": "/contests",
-    "/info/problems": "/problems",
-    "/info/ac": "/ac",
-    "/info/short": "/short",
-    "/info/fast": "/fast",
-    "/info/first": "/first",
-    "/info/merged-problems": "/merged-problems"
+    "/atcoder-api/info/contests": "/contests",
+    "/atcoder-api/info/problems": "/problems",
+    "/atcoder-api/info/ac": "/ac",
+    "/atcoder-api/info/short": "/short",
+    "/atcoder-api/info/fast": "/fast",
+    "/atcoder-api/info/first": "/first",
+    "/atcoder-api/info/merged-problems": "/merged-problems"
 }
