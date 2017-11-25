@@ -1,6 +1,7 @@
 import * as request from 'superagent';
 import { Problem } from '../model/Problem';
 import { Contest } from '../model/Contest';
+import { Submission } from '../model/Submission';
 
 export class ApiCall {
     static getJson(url: string): Promise<any> {
@@ -36,6 +37,25 @@ export class ApiCall {
                     return { id: o["id"], title: o["title"], start_epoch_second: o["start_epoch_second"] };
                 });
                 return contests;
+            });
+    }
+
+    static getSubmissions(url: string): Promise<Array<Submission>> {
+        return this.getJson(url)
+            .then((obj: Array<any>) => {
+                let submisssions: Submission[] = obj.map(o => {
+                    return {
+                        point: o["point"],
+                        result: o["result"],
+                        problem_id: o["problem_id"],
+                        user_id: o["user_id"],
+                        epoch_second: o["epoch_second"],
+                        id: o["id"],
+                        language: o["language"],
+                        length: o["length"],
+                    };
+                });
+                return submisssions;
             });
     }
 }
