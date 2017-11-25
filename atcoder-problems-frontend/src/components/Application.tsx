@@ -27,7 +27,7 @@ export class Application extends React.Component<{}, { problems: Array<Problem>,
                 return ApiCall.getJson("http://localhost:3000/info/contests");
             }).then((obj: Array<any>) => {
                 let contests: Contest[] = obj.map(o => {
-                    return { id: o["id"], title: o["title"] };
+                    return { id: o["id"], title: o["title"], start_epoch_second: o["start_epoch_second"] };
                 });
                 this.setState({ contests: contests });
             })

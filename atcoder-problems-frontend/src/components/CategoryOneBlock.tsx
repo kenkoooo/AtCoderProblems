@@ -4,6 +4,7 @@ import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
 import { some, none, Option } from "ts-option";
+import { UrlFormatter } from "../utils/UrlFormatter";
 
 export interface CategoryOneBlockProps {
     categoryTitle: string;
@@ -14,13 +15,13 @@ export interface CategoryOneBlockProps {
 export class CategoryOneBlock extends React.Component<CategoryOneBlockProps, {}>{
 
     private contestLinkFormatter(contest: Contest) {
-        return (<a href={`https://beta.atcoder.jp/contests/${contest.id}/`} target="_blank">{contest.id.toUpperCase()}</a>);
+        return (<a href={UrlFormatter.contestUrl(contest)} target="_blank">{contest.id.toUpperCase()}</a>);
     }
 
     private problemLinkFormatter(problem: Option<Problem>, row: { [key: string]: any }) {
         let contest = row["contest"];
         return problem.match({
-            some: p => (<a href={`https://beta.atcoder.jp/contests/${contest.id}/tasks/${p.id}`} target="_blank">{p.title}</a>),
+            some: p => (<a href={UrlFormatter.problemUrl(contest, p)} target="_blank">{p.title}</a>),
             none: () => (<span>-</span>)
         });
     }
@@ -37,7 +38,6 @@ export class CategoryOneBlock extends React.Component<CategoryOneBlockProps, {}>
                     o[head] = none;
                 }
             });
-
             return o;
         });
 
