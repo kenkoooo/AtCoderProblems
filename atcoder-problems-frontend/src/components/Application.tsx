@@ -25,11 +25,11 @@ export class Application extends React.Component<{}, ApplicationState> {
 
     fetchData() {
         ApiCall
-            .getContests("http://localhost:3000/info/contests")
+            .getContests("./atcoder-api/info/contests")
             .then(contests => this.setState({ contests: contests }))
             .catch((err) => { console.error(err); });
         ApiCall
-            .getProblems("http://localhost:3000/info/problems")
+            .getProblems("./atcoder-api/info/problems")
             .then(problems => this.setState({ problems: problems }))
             .catch((err) => { console.error(err); });
     }
