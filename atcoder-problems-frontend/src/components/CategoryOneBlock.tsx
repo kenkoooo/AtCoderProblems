@@ -5,6 +5,7 @@ import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
 import { some, none, Option } from "ts-option";
 import { UrlFormatter } from "../utils/UrlFormatter";
+import { HtmlFormatter } from "../utils/HtmlFormatter";
 
 export interface CategoryOneBlockProps {
     categoryTitle: string;
@@ -15,14 +16,24 @@ export interface CategoryOneBlockProps {
 export class CategoryOneBlock extends React.Component<CategoryOneBlockProps, {}>{
 
     private contestLinkFormatter(contest: Contest) {
-        return (<a href={UrlFormatter.contestUrl(contest)} target="_blank">{contest.id.toUpperCase()}</a>);
+        return HtmlFormatter.createLink(UrlFormatter.contestUrl(contest), contest.id.toUpperCase());
     }
 
     private problemLinkFormatter(problem: Option<Problem>, row: { [key: string]: any }) {
         let contest = row["contest"];
+
         return problem.match({
-            some: p => (<a href={UrlFormatter.problemUrl(contest, p)} target="_blank">{p.title}</a>),
+            some: p => HtmlFormatter.createLink(UrlFormatter.problemUrl(contest, p), p.title),
             none: () => (<span>-</span>)
+        });
+    }
+
+    private columnColorFormatter(problem: Option<Problem>): string {
+        return problem.match({
+            some: p => {
+                return "danger";
+            },
+            none: () => ""
         });
     }
 
@@ -51,7 +62,7 @@ export class CategoryOneBlock extends React.Component<CategoryOneBlockProps, {}>
                     {
                         this.props.header.map((head, i) =>
                             (
-                                <TableHeaderColumn key={i} dataField={head} dataFormat={this.problemLinkFormatter}>
+                                <TableHeaderColumn key={i} dataField={head} dataFormat={this.problemLinkFormatter} columnClassName={this.columnColorFormatter}>
                                     {head}
                                 </TableHeaderColumn>
                             )
