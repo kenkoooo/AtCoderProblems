@@ -6,15 +6,21 @@ import { Grid } from "react-bootstrap";
 import { ApiCall } from "../utils/ApiCall"
 import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
+import { Submission } from "../model/Submission";
+import { ArgumentParser } from "../utils/Arguments";
+
+interface ApplicationState {
+    problems: Array<Problem>, contests: Array<Contest>, submissions: Array<Submission>
+}
 
 /**
  * Main view
  */
-export class Application extends React.Component<{}, { problems: Array<Problem>, contests: Array<Contest> }> {
+export class Application extends React.Component<{}, ApplicationState> {
 
     constructor(props: {}, context?: any) {
         super(props, context);
-        this.state = { problems: [], contests: [] }
+        this.state = { problems: [], contests: [], submissions: [] }
     }
 
     fetchData() {
@@ -32,14 +38,12 @@ export class Application extends React.Component<{}, { problems: Array<Problem>,
 
     render() {
         // parse GET parameters
-        let params = QueryString.parse(location.search);
-        let userId = ("user" in params) ? params["user"] : "";
-        let rivals = ("rivals" in params) ? params["rivals"] : "";
-        let kind = ("kind" in params) ? params["kind"] : "category";
+        let args = ArgumentParser.parse();
+
         return (
             <Grid>
-                <SearchForm userId={userId} rivals={rivals} kind={kind} />
-                <Category problems={this.state.problems} contests={this.state.contests} userId={userId} rivals={rivals.split(",")} />
+                <SearchForm args={args} />
+                <Category problems={this.state.problems} contests={this.state.contests} userId={args.userId} rivals={args.rivals} />
             </Grid>
         );
     }
