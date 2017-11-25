@@ -18,19 +18,13 @@ export class Application extends React.Component<{}, { problems: Array<Problem>,
     }
 
     fetchData() {
-        ApiCall.getJson("http://localhost:3000/info/problems")
-            .then((obj: Array<any>) => {
-                let problems: Problem[] = obj.map(o => {
-                    return { id: o["id"], title: o["title"], contestId: o["contest_id"] };
-                });
-                this.setState({ problems: problems });
-                return ApiCall.getJson("http://localhost:3000/info/contests");
-            }).then((obj: Array<any>) => {
-                let contests: Contest[] = obj.map(o => {
-                    return { id: o["id"], title: o["title"], start_epoch_second: o["start_epoch_second"] };
-                });
-                this.setState({ contests: contests });
-            })
+        ApiCall
+            .getContests("http://localhost:3000/info/contests")
+            .then(contests => this.setState({ contests: contests }))
+            .catch((err) => { console.error(err); });
+        ApiCall
+            .getProblems("http://localhost:3000/info/problems")
+            .then(problems => this.setState({ problems: problems }))
             .catch((err) => { console.error(err); });
     }
 
