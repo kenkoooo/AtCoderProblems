@@ -1,5 +1,5 @@
 export interface Problem {
-    contestId: string;
-    id: string;
-    title: string;
+  contestId: string;
+  id: string;
+  title: string;
 }
