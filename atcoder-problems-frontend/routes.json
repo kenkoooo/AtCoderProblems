@@ -1,10 +1,10 @@
 {
-    "/atcoder-api/info/contests": "/contests",
-    "/atcoder-api/info/problems": "/problems",
-    "/atcoder-api/info/ac": "/ac",
-    "/atcoder-api/info/short": "/short",
-    "/atcoder-api/info/fast": "/fast",
-    "/atcoder-api/info/first": "/first",
-    "/atcoder-api/info/merged-problems": "/merged-problems",
-    "/atcoder-api/results": "/results"
+  "/atcoder-api/info/contests": "/contests",
+  "/atcoder-api/info/problems": "/problems",
+  "/atcoder-api/info/ac": "/ac",
+  "/atcoder-api/info/short": "/short",
+  "/atcoder-api/info/fast": "/fast",
+  "/atcoder-api/info/first": "/first",
+  "/atcoder-api/info/merged-problems": "/merged-problems",
+  "/atcoder-api/results*": "/results"
 }

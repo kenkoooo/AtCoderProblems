@@ -11,6 +11,9 @@ export interface CategoryOneBlockProps {
   categoryTitle: string;
   data: Array<[Contest, Array<Problem>]>;
   header: Array<string>;
+  acceptedProblems: Set<string>;
+  wrongMap: Map<string, string>;
+  rivalProblems: Set<string>;
 }
 
 export class CategoryOneBlock extends React.Component<
@@ -38,9 +41,20 @@ export class CategoryOneBlock extends React.Component<
   }
 
   private columnColorFormatter(problem: Option<Problem>): string {
+    let acceptedProblems = this.props.acceptedProblems;
+    let wrongMap = this.props.wrongMap;
+    let rivalProblems = this.props.rivalProblems;
     return problem.match({
       some: p => {
-        return "danger";
+        if (acceptedProblems.has(p.id)) {
+          return "success";
+        } else if (rivalProblems.has(p.id)) {
+          return "danger";
+        } else if (wrongMap.has(p.id)) {
+          return "warning";
+        } else {
+          return "";
+        }
       },
       none: () => ""
     });
@@ -61,6 +75,7 @@ export class CategoryOneBlock extends React.Component<
       return o;
     });
 
+    let columnColorFormatter = this.columnColorFormatter.bind(this);
     return (
       <Row>
         <PageHeader>{this.props.categoryTitle}</PageHeader>
@@ -77,7 +92,7 @@ export class CategoryOneBlock extends React.Component<
               key={i}
               dataField={head}
               dataFormat={this.problemLinkFormatter}
-              columnClassName={this.columnColorFormatter}
+              columnClassName={columnColorFormatter}
             >
               {head}
             </TableHeaderColumn>

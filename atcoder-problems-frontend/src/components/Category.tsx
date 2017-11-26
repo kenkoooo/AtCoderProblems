@@ -5,12 +5,15 @@ import { CategoryOneBlock } from "./CategoryOneBlock";
 import { CategorySmallBlock } from "./CategorySmallBlock";
 import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
+import { Submission } from "../model/Submission";
+import { SubmissionUtlis } from "../utils/SubmissionUtils";
 
 export interface CategoryProps {
   problems: Array<Problem>;
   contests: Array<Contest>;
   userId: string;
-  rivals: Array<String>;
+  rivals: Array<string>;
+  submissions: Array<Submission>;
 }
 
 export class Category extends React.Component<CategoryProps, {}> {
@@ -51,22 +54,49 @@ export class Category extends React.Component<CategoryProps, {}> {
       }
     );
 
+    let acceptedProblems = new Set(
+      SubmissionUtlis.extractProblemIdsByUsers(
+        this.props.submissions,
+        new Set([this.props.userId])
+      ).keys()
+    );
+    let wrongProblemMap = SubmissionUtlis.extractProblemIdsByUsers(
+      this.props.submissions,
+      new Set([this.props.userId]),
+      new Set(["WA", "TLE", "MLE", "RE"])
+    );
+    let rivalProblems = new Set(
+      SubmissionUtlis.extractProblemIdsByUsers(
+        this.props.submissions,
+        new Set(this.props.rivals)
+      ).keys()
+    );
+
     return (
       <Grid>
         <CategoryOneBlock
           categoryTitle="AtCoder Grand Contest"
           data={agc}
           header={"ABCDEF".split("")}
+          acceptedProblems={acceptedProblems}
+          wrongMap={wrongProblemMap}
+          rivalProblems={rivalProblems}
         />
         <CategoryOneBlock
           categoryTitle="AtCoder Beginner Contest"
           data={abc}
           header={"ABCD".split("")}
+          acceptedProblems={acceptedProblems}
+          wrongMap={wrongProblemMap}
+          rivalProblems={rivalProblems}
         />
         <CategoryOneBlock
           categoryTitle="AtCoder Regular Contest"
           data={arc}
           header={"ABCD".split("")}
+          acceptedProblems={acceptedProblems}
+          wrongMap={wrongProblemMap}
+          rivalProblems={rivalProblems}
         />
         <CategorySmallBlock data={others} />
       </Grid>

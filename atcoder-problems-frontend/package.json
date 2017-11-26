@@ -49,6 +49,7 @@
     "ts-option": "^1.1.4"
   },
   "devDependencies": {
+    "@types/enzyme-adapter-react-16": "^1.0.1",
     "@types/jest": "^21.1.8",
     "awesome-typescript-loader": "^3.3.0",
     "codecov": "^3.0.0",

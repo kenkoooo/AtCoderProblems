@@ -7,12 +7,13 @@ import { ApiCall } from "../utils/ApiCall";
 import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
-import { ArgumentParser } from "../utils/Arguments";
+import { ArgumentParser, Arguments } from "../utils/Arguments";
 
 interface ApplicationState {
   problems: Array<Problem>;
   contests: Array<Contest>;
   submissions: Array<Submission>;
+  args: Arguments;
 }
 
 /**
@@ -21,7 +22,8 @@ interface ApplicationState {
 export class Application extends React.Component<{}, ApplicationState> {
   constructor(props: {}, context?: any) {
     super(props, context);
-    this.state = { problems: [], contests: [], submissions: [] };
+    let args = ArgumentParser.parse();
+    this.state = { problems: [], contests: [], submissions: [], args: args };
   }
 
   fetchData() {
@@ -35,6 +37,15 @@ export class Application extends React.Component<{}, ApplicationState> {
       .catch(err => {
         console.error(err);
       });
+
+    ApiCall.getSubmissions("./atcoder-api/results", {
+      user: this.state.args.userId,
+      rivals: this.state.args.rivals
+    })
+      .then(submissions => this.setState({ submissions: submissions }))
+      .catch(err => {
+        console.error(err);
+      });
   }
 
   componentWillMount() {
@@ -42,17 +53,15 @@ export class Application extends React.Component<{}, ApplicationState> {
   }
 
   render() {
-    // parse GET parameters
-    let args = ArgumentParser.parse();
-
     return (
       <Grid>
-        <SearchForm args={args} />
+        <SearchForm args={this.state.args} />
         <Category
           problems={this.state.problems}
           contests={this.state.contests}
-          userId={args.userId}
-          rivals={args.rivals}
+          userId={this.state.args.userId}
+          rivals={this.state.args.rivals}
+          submissions={this.state.submissions}
         />
       </Grid>
     );
