@@ -7,4 +7,5 @@ export interface Submission {
     id: number;
     language: string;
     length: number;
+    execution_time: number;
 }
