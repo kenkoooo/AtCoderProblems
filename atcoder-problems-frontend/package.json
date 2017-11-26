@@ -10,6 +10,7 @@
   "author": "kenkoooo",
   "license": "ISC",
   "jest": {
+    "setupTestFrameworkScriptFile": "./node_modules/jest-enzyme/lib/index.js",
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
@@ -30,11 +31,14 @@
     ]
   },
   "dependencies": {
+    "@types/enzyme": "^3.1.5",
+    "@types/enzyme-to-json": "^1.5.0",
     "@types/query-string": "^5.0.1",
     "@types/react": "^16.0.25",
     "@types/react-bootstrap": "^0.31.8",
     "@types/react-bootstrap-table": "^4.1.0",
     "@types/react-dom": "^16.0.3",
+    "@types/react-test-renderer": "^16.0.0",
     "@types/superagent": "^3.5.6",
     "query-string": "^5.0.1",
     "react": "^16.1.1",
@@ -48,8 +52,13 @@
     "@types/jest": "^21.1.8",
     "awesome-typescript-loader": "^3.3.0",
     "codecov": "^3.0.0",
+    "enzyme": "^3.2.0",
+    "enzyme-adapter-react-16": "^1.1.0",
+    "enzyme-to-json": "^3.2.2",
     "jest": "^21.2.1",
+    "jest-enzyme": "^4.0.1",
     "json-server": "^0.12.1",
+    "react-test-renderer": "^16.1.1",
     "source-map-loader": "^0.2.3",
     "ts-jest": "^21.2.3",
     "typescript": "^2.6.1",
