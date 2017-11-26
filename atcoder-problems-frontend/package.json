@@ -4,11 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "json-server --static ./ --routes routes.json db.json"
   },
   "author": "kenkoooo",
   "license": "ISC",
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
+  },
   "dependencies": {
     "@types/query-string": "^5.0.1",
     "@types/react": "^16.0.25",
@@ -25,9 +38,12 @@
     "ts-option": "^1.1.4"
   },
   "devDependencies": {
+    "@types/jest": "^21.1.8",
     "awesome-typescript-loader": "^3.3.0",
+    "jest": "^21.2.1",
     "json-server": "^0.12.1",
     "source-map-loader": "^0.2.3",
+    "ts-jest": "^21.2.3",
     "typescript": "^2.6.1",
     "webpack": "^3.8.1"
   }
