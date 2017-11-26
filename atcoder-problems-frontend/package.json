@@ -20,7 +20,9 @@
       "js",
       "jsx",
       "json"
-    ]
+    ],
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true
   },
   "dependencies": {
     "@types/query-string": "^5.0.1",
