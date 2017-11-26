@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`split problems 1`] = `
+<Grid
+  bsClass="container"
+  componentClass="div"
+  fluid={false}
+>
+  <CategoryOneBlock
+    categoryTitle="AtCoder Grand Contest"
+    data={
+      Array [
+        Array [
+          Object {
+            "id": "agc999",
+            "start_epoch_second": 0,
+            "title": "AtCoder Grand Contest 999",
+          },
+          Array [
+            Object {
+              "contestId": "agc999",
+              "id": "problem2",
+              "title": "",
+            },
+          ],
+        ],
+      ]
+    }
+    header={
+      Array [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+      ]
+    }
+  />
+  <CategoryOneBlock
+    categoryTitle="AtCoder Beginner Contest"
+    data={
+      Array [
+        Array [
+          Object {
+            "id": "abc999",
+            "start_epoch_second": 0,
+            "title": "AtCoder Beginner Contest 999",
+          },
+          Array [
+            Object {
+              "contestId": "abc999",
+              "id": "problem3",
+              "title": "",
+            },
+          ],
+        ],
+      ]
+    }
+    header={
+      Array [
+        "A",
+        "B",
+        "C",
+        "D",
+      ]
+    }
+  />
+  <CategoryOneBlock
+    categoryTitle="AtCoder Regular Contest"
+    data={
+      Array [
+        Array [
+          Object {
+            "id": "arc999",
+            "start_epoch_second": 0,
+            "title": "AtCoder Regular Contest 999",
+          },
+          Array [
+            Object {
+              "contestId": "arc999",
+              "id": "problem1",
+              "title": "",
+            },
+          ],
+        ],
+      ]
+    }
+    header={
+      Array [
+        "A",
+        "B",
+        "C",
+        "D",
+      ]
+    }
+  />
+  <CategorySmallBlock
+    data={
+      Array [
+        Array [
+          Object {
+            "id": "other",
+            "start_epoch_second": 0,
+            "title": "AtCoder Other Contest",
+          },
+          Array [
+            Object {
+              "contestId": "other",
+              "id": "problem4",
+              "title": "",
+            },
+          ],
+        ],
+      ]
+    }
+  />
+</Grid>
+`;
