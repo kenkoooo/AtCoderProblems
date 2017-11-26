@@ -1,33 +1,16 @@
 import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
+import { Submission } from "../model/Submission";
 
 class MockRequest {
     constructor(body: any, error?: any) {
         this.body = body;
         this.error = error;
     }
-    post() {
-        return this;
-    }
     get() {
         return this;
     }
-    send() {
-        return this;
-    }
-    query() {
-        return this;
-    }
-    field() {
-        return this;
-    }
     set() {
-        return this;
-    }
-    accept() {
-        return this;
-    }
-    timeout() {
         return this;
     }
     body: any = null;
@@ -78,5 +61,39 @@ test("get and parse contests", () => {
                 title: 'contest title',
                 start_epoch_second: 0
             }]);
+        });
+});
+
+test("get and parse submissions", () => {
+    let response: any = [{
+        "point": 0,
+        "result": "CE",
+        "problem_id": "arc013_1",
+        "user_id": "iwiwi",
+        "epoch_second": 1363521837,
+        "id": 74283,
+        "language": "C (GCC 4.4.7)",
+        "length": 958
+    },
+    {
+        "execution_time": 27,
+        "point": 100,
+        "result": "AC",
+        "problem_id": "arc013_1",
+        "user_id": "iwiwi",
+        "epoch_second": 1363521844,
+        "id": 74285,
+        "language": "C++ (G++ 4.6.4)",
+        "length": 958
+    }];
+
+    jest.mock("superagent");
+    let mockAgent = require("superagent");
+    mockAgent.get.mockReturnValueOnce(new MockRequest(response));
+    require("./ApiCall").ApiCall
+        .getSubmissions("")
+        .then((submissions: Submission[]) => {
+            expect(submissions[0].id).toEqual(74283);
+            expect(submissions[1].id).toEqual(74285);
         });
 });

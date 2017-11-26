@@ -53,6 +53,7 @@ export class ApiCall {
                         id: o["id"],
                         language: o["language"],
                         length: o["length"],
+                        execution_time: o["execution_time"],
                     };
                 });
                 return submisssions;
