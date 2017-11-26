@@ -4,10 +4,11 @@ import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
 
 export class ApiCall {
-  static getJson(url: string): Promise<any> {
+  static getJson(url: string, query?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       request
         .get(url)
+        .query(query)
         .set("Content-Type", "application/json")
         .end((err, res) => {
           if (err) {
@@ -22,7 +23,8 @@ export class ApiCall {
   static getProblems(url: string): Promise<Array<Problem>> {
     return this.getJson(url).then((obj: Array<any>) => {
       let problems: Problem[] = obj.map(o => {
-        return { id: o["id"], title: o["title"], contestId: o["contest_id"] };
+        let p = { id: o["id"], title: o["title"], contestId: o["contest_id"] };
+        return p;
       });
       return problems;
     });
@@ -41,8 +43,11 @@ export class ApiCall {
     });
   }
 
-  static getSubmissions(url: string): Promise<Array<Submission>> {
-    return this.getJson(url).then((obj: Array<any>) => {
+  static getSubmissions(
+    url: string,
+    query?: { user: string; rivals: string[] }
+  ): Promise<Array<Submission>> {
+    return this.getJson(url, query).then((obj: Array<any>) => {
       let submisssions: Submission[] = obj.map(o => {
         return {
           point: o["point"],

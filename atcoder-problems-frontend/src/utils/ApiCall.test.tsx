@@ -13,6 +13,9 @@ class MockRequest {
   set() {
     return this;
   }
+  query() {
+    return this;
+  }
   body: any = null;
   error: any = null;
   end = jest.fn().mockImplementation(callback => {
