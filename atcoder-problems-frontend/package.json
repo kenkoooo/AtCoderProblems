@@ -42,6 +42,7 @@
   "devDependencies": {
     "@types/jest": "^21.1.8",
     "awesome-typescript-loader": "^3.3.0",
+    "codecov": "^3.0.0",
     "jest": "^21.2.1",
     "json-server": "^0.12.1",
     "source-map-loader": "^0.2.3",

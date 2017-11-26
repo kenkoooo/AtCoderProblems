@@ -14,3 +14,11 @@ matrix:
         - sbt clean coverage test coverageReport
       after_success:
         - bash <(curl -s https://codecov.io/bash)
+    - language: node_js
+      before_script:
+        - cd atcoder-problems-frontend
+      script:
+        - npm install
+        - npm test
+      after_success:
+        - codecov
