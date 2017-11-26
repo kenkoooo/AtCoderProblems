@@ -22,7 +22,12 @@
       "json"
     ],
     "coverageDirectory": "./coverage/",
-    "collectCoverage": true
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.{ts,tsx}",
+      "!**/node_modules/**",
+      "!**/vendor/**"
+    ]
   },
   "dependencies": {
     "@types/query-string": "^5.0.1",
