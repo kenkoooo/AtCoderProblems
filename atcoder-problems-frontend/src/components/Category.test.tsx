@@ -4,43 +4,42 @@ import { shallow } from "enzyme";
 import { configure } from "enzyme";
 import * as Adapter from "enzyme-adapter-react-16";
 import toJson from "enzyme-to-json";
+import * as fs from "fs";
+import { SubmissionUtlis } from "../utils/SubmissionUtils";
 
 configure({ adapter: new Adapter() });
+let DB = JSON.parse(fs.readFileSync("./db.json").toString());
 test("split problems", () => {
-  let problems = [
-    { contestId: "arc999", id: "problem1", title: "" },
-    { contestId: "agc999", id: "problem2", title: "" },
-    { contestId: "abc999", id: "problem3", title: "" },
-    { contestId: "other", id: "problem4", title: "" }
-  ];
-  let contests = [
-    {
-      id: "arc999",
-      title: "AtCoder Regular Contest 999",
-      start_epoch_second: 0
-    },
-    {
-      id: "abc999",
-      title: "AtCoder Beginner Contest 999",
-      start_epoch_second: 0
-    },
-    {
-      id: "agc999",
-      title: "AtCoder Grand Contest 999",
-      start_epoch_second: 0
-    },
-    {
-      id: "other",
-      title: "AtCoder Other Contest",
-      start_epoch_second: 0
-    }
-  ];
+  let userId = "kenkoooo";
+  let rivals = ["chokudai", "iwiwi"];
+
+  let problems = DB["problems"];
+  let contests = DB["contests"];
+  let submissions = DB["results"];
+  let acceptedProblems = new Set(
+    SubmissionUtlis.extractProblemIdsByUsers(
+      submissions,
+      new Set([userId])
+    ).keys()
+  );
+  let wrongProblemMap = SubmissionUtlis.extractProblemIdsByUsers(
+    submissions,
+    new Set([userId]),
+    new Set(["WA", "TLE", "MLE", "RE"])
+  );
+  let rivalProblems = new Set(
+    SubmissionUtlis.extractProblemIdsByUsers(
+      submissions,
+      new Set(rivals)
+    ).keys()
+  );
+
   let wrapper = shallow(
     <Category
       problems={problems}
       contests={contests}
-      userId={""}
-      rivals={[]}
+      userId={"kenkoooo"}
+      rivals={["chokudai", "iwiwi"]}
       acceptedProblems={new Set()}
       wrongMap={new Map()}
       rivalProblems={new Set()}
