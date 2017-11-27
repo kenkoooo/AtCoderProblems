@@ -10,6 +10,7 @@ import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
 import { ArgumentParser, Arguments } from "../utils/Arguments";
 import { MergedProblem } from "../model/MergedProblem";
+import { SubmissionUtlis } from "../utils/SubmissionUtils";
 
 interface ApplicationState {
   problems: Array<Problem>;
@@ -62,6 +63,24 @@ export class Application extends React.Component<{}, ApplicationState> {
   }
 
   chooseByKind() {
+    let acceptedProblems = new Set(
+      SubmissionUtlis.extractProblemIdsByUsers(
+        this.state.submissions,
+        new Set([this.state.args.userId])
+      ).keys()
+    );
+    let wrongProblemMap = SubmissionUtlis.extractProblemIdsByUsers(
+      this.state.submissions,
+      new Set([this.state.args.userId]),
+      new Set(["WA", "TLE", "MLE", "RE"])
+    );
+    let rivalProblems = new Set(
+      SubmissionUtlis.extractProblemIdsByUsers(
+        this.state.submissions,
+        new Set(this.state.args.rivals)
+      ).keys()
+    );
+
     if (this.state.args.kind === "category") {
       return (
         <Category
@@ -69,7 +88,9 @@ export class Application extends React.Component<{}, ApplicationState> {
           contests={this.state.contests}
           userId={this.state.args.userId}
           rivals={this.state.args.rivals}
-          submissions={this.state.submissions}
+          acceptedProblems={acceptedProblems}
+          wrongMap={wrongProblemMap}
+          rivalProblems={rivalProblems}
         />
       );
     } else {
@@ -77,6 +98,11 @@ export class Application extends React.Component<{}, ApplicationState> {
         <List
           problems={this.state.mergedProblems}
           contests={this.state.contests}
+          userId={this.state.args.userId}
+          rivals={this.state.args.rivals}
+          acceptedProblems={acceptedProblems}
+          wrongMap={wrongProblemMap}
+          rivalProblems={rivalProblems}
         />
       );
     }
