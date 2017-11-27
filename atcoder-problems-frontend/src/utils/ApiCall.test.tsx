@@ -87,7 +87,7 @@ test("get and parse merged problems", () => {
           execution_time: 0,
           shortest_user_id: "x20",
           shortest_submission_id: 1111208,
-          contest_id: "abc001",
+          contestId: "abc001",
           id: "abc001_1",
           fastest_submission_id: 1175983,
           first_user_id: "piyoko212",
