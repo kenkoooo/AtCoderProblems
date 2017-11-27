@@ -4,9 +4,14 @@ import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { UrlFormatter } from "../utils/UrlFormatter";
+import { Option, some } from "ts-option";
+import { HtmlFormatter } from "../utils/HtmlFormatter";
 
 export interface CategorySmallBlockProps {
   data: Array<[Contest, Array<Problem>]>;
+  acceptedProblems: Set<string>;
+  wrongMap: Map<string, string>;
+  rivalProblems: Set<string>;
 }
 
 export class CategorySmallBlock extends React.Component<
@@ -14,6 +19,13 @@ export class CategorySmallBlock extends React.Component<
   {}
 > {
   render() {
+    let columnColorFormatter = (p: Option<Problem>) =>
+      HtmlFormatter.getCellColor(
+        p,
+        this.props.acceptedProblems,
+        this.props.rivalProblems,
+        this.props.wrongMap
+      );
     return (
       <Row>
         <PageHeader>Other Contests</PageHeader>
@@ -29,7 +41,10 @@ export class CategorySmallBlock extends React.Component<
                 <tbody>
                   <tr>
                     {problems.map((problem, i) => (
-                      <td key={i}>
+                      <td
+                        key={i}
+                        className={columnColorFormatter(some(problem))}
+                      >
                         <a
                           href={UrlFormatter.problemUrl(contest, problem)}
                           target="_blank"
