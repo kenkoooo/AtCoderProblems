@@ -41,7 +41,9 @@ test("split problems", () => {
       contests={contests}
       userId={""}
       rivals={[]}
-      submissions={[]}
+      acceptedProblems={new Set()}
+      wrongMap={new Map()}
+      rivalProblems={new Set()}
     />
   );
   expect(toJson(wrapper)).toMatchSnapshot();
