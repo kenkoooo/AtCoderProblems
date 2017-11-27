@@ -40,9 +40,9 @@ test("split problems", () => {
       contests={contests}
       userId={"kenkoooo"}
       rivals={["chokudai", "iwiwi"]}
-      acceptedProblems={new Set()}
-      wrongMap={new Map()}
-      rivalProblems={new Set()}
+      acceptedProblems={acceptedProblems}
+      wrongMap={wrongProblemMap}
+      rivalProblems={rivalProblems}
     />
   );
   expect(toJson(wrapper)).toMatchSnapshot();

@@ -135,14 +135,16 @@ export class List extends React.Component<ListProps, {}> {
       })
     );
 
-    let data: Array<ProblemRow> = this.props.problems.map(problem => {
-      let contest = contestMap.get(problem.contestId);
-      return {
-        problem: problem,
-        contest: contest,
-        solver: problem.solver_count
-      };
-    });
+    let data: Array<ProblemRow> = this.props.problems
+      .filter(p => contestMap.has(p.contestId))
+      .map(problem => {
+        let contest = contestMap.get(problem.contestId);
+        return {
+          problem: problem,
+          contest: contest,
+          solver: problem.solver_count
+        };
+      });
 
     let badgeFormatter = (p: Problem) =>
       formatResultBadge(
