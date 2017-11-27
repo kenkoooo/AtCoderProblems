@@ -98,7 +98,12 @@ export class Category extends React.Component<CategoryProps, {}> {
           wrongMap={wrongProblemMap}
           rivalProblems={rivalProblems}
         />
-        <CategorySmallBlock data={others} />
+        <CategorySmallBlock
+          data={others}
+          acceptedProblems={acceptedProblems}
+          wrongMap={wrongProblemMap}
+          rivalProblems={rivalProblems}
+        />
       </Grid>
     );
   }
