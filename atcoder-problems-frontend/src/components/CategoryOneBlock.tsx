@@ -40,26 +40,6 @@ export class CategoryOneBlock extends React.Component<
     });
   }
 
-  private columnColorFormatter(problem: Option<Problem>): string {
-    let acceptedProblems = this.props.acceptedProblems;
-    let wrongMap = this.props.wrongMap;
-    let rivalProblems = this.props.rivalProblems;
-    return problem.match({
-      some: p => {
-        if (acceptedProblems.has(p.id)) {
-          return "success";
-        } else if (rivalProblems.has(p.id)) {
-          return "danger";
-        } else if (wrongMap.has(p.id)) {
-          return "warning";
-        } else {
-          return "";
-        }
-      },
-      none: () => ""
-    });
-  }
-
   render() {
     let data = this.props.data.map(d => {
       let contest = d[0];
@@ -75,7 +55,14 @@ export class CategoryOneBlock extends React.Component<
       return o;
     });
 
-    let columnColorFormatter = this.columnColorFormatter.bind(this);
+    let columnColorFormatter = (p: Option<Problem>) =>
+      HtmlFormatter.getCellColor(
+        p,
+        this.props.acceptedProblems,
+        this.props.rivalProblems,
+        this.props.wrongMap
+      );
+
     return (
       <Row>
         <PageHeader>{this.props.categoryTitle}</PageHeader>

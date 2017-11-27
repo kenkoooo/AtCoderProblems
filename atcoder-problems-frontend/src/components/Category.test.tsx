@@ -36,7 +36,13 @@ test("split problems", () => {
     }
   ];
   let wrapper = shallow(
-    <Category problems={problems} contests={contests} userId={""} rivals={[]} />
+    <Category
+      problems={problems}
+      contests={contests}
+      userId={""}
+      rivals={[]}
+      submissions={[]}
+    />
   );
   expect(toJson(wrapper)).toMatchSnapshot();
 });
