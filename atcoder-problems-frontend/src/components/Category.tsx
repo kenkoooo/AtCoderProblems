@@ -12,7 +12,9 @@ export interface CategoryProps {
   contests: Array<Contest>;
   userId: string;
   rivals: Array<string>;
-  submissions: Array<Submission>;
+  acceptedProblems: Set<string>;
+  wrongMap: Map<string, string>;
+  rivalProblems: Set<string>;
 }
 
 export class Category extends React.Component<CategoryProps, {}> {
@@ -53,23 +55,9 @@ export class Category extends React.Component<CategoryProps, {}> {
       }
     );
 
-    let acceptedProblems = new Set(
-      SubmissionUtlis.extractProblemIdsByUsers(
-        this.props.submissions,
-        new Set([this.props.userId])
-      ).keys()
-    );
-    let wrongProblemMap = SubmissionUtlis.extractProblemIdsByUsers(
-      this.props.submissions,
-      new Set([this.props.userId]),
-      new Set(["WA", "TLE", "MLE", "RE"])
-    );
-    let rivalProblems = new Set(
-      SubmissionUtlis.extractProblemIdsByUsers(
-        this.props.submissions,
-        new Set(this.props.rivals)
-      ).keys()
-    );
+    let acceptedProblems = this.props.acceptedProblems;
+    let wrongProblemMap = this.props.wrongMap;
+    let rivalProblems = this.props.rivalProblems;
 
     return (
       <Grid>

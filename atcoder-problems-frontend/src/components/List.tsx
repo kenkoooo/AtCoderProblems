@@ -5,12 +5,17 @@ import { Contest } from "../model/Contest";
 import { Problem } from "../model/Problem";
 import { HtmlFormatter } from "../utils/HtmlFormatter";
 import { UrlFormatter } from "../utils/UrlFormatter";
-import { url } from "inspector";
 import { Row } from "react-bootstrap";
+import { Submission } from "../model/Submission";
 
 export interface ListProps {
   problems: Array<MergedProblem>;
   contests: Array<Contest>;
+  userId: string;
+  rivals: Array<string>;
+  acceptedProblems: Set<string>;
+  wrongMap: Map<string, string>;
+  rivalProblems: Set<string>;
 }
 
 interface ProblemRow {
