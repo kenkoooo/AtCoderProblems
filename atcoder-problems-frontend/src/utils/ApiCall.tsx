@@ -2,6 +2,7 @@ import * as request from "superagent";
 import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
+import { MergedProblem } from "../model/MergedProblem";
 
 export class ApiCall {
   static getJson(url: string, query?: any): Promise<any> {
@@ -62,6 +63,31 @@ export class ApiCall {
         };
       });
       return submisssions;
+    });
+  }
+
+  static getMergedProblems(
+    url: string,
+    query?: { user: string; rivals: string[] }
+  ): Promise<Array<MergedProblem>> {
+    return this.getJson(url, query).then((obj: Array<any>) => {
+      let problems: MergedProblem[] = obj.map(o => {
+        return {
+          first_submission_id: o["first_submission_id"],
+          solver_count: o["solver_count"],
+          fastest_user_id: o["fastest_user_id"],
+          execution_time: o["execution_time"],
+          shortest_user_id: o["shortest_user_id"],
+          shortest_submission_id: o["shortest_submission_id"],
+          contest_id: o["contest_id"],
+          id: o["id"],
+          fastest_submission_id: o["fastest_submission_id"],
+          first_user_id: o["first_user_id"],
+          title: o["title"],
+          source_code_length: o["source_code_length"]
+        };
+      });
+      return problems;
     });
   }
 }

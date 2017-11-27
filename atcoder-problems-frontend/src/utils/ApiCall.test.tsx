@@ -1,6 +1,7 @@
 import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
+import { MergedProblem } from "../model/MergedProblem";
 
 class MockRequest {
   constructor(body: any, error?: any) {
@@ -49,6 +50,49 @@ test("get and parse problems", () => {
           id: "problem-id",
           title: "problem title",
           contestId: "contest-id"
+        }
+      ]);
+    });
+});
+
+test("get and parse merged problems", () => {
+  let response: any = [
+    {
+      first_submission_id: 106882,
+      solver_count: 4047,
+      fastest_user_id: "rjttrw05",
+      execution_time: 0,
+      shortest_user_id: "x20",
+      shortest_submission_id: 1111208,
+      contest_id: "abc001",
+      id: "abc001_1",
+      fastest_submission_id: 1175983,
+      first_user_id: "piyoko212",
+      title: "A. 積雪深差",
+      source_code_length: 12
+    }
+  ];
+
+  jest.mock("superagent");
+  let mockAgent = require("superagent");
+  mockAgent.get.mockReturnValueOnce(new MockRequest(response));
+  require("./ApiCall")
+    .ApiCall.getMergedProblems("")
+    .then((problems: MergedProblem[]) => {
+      expect(problems).toEqual([
+        {
+          first_submission_id: 106882,
+          solver_count: 4047,
+          fastest_user_id: "rjttrw05",
+          execution_time: 0,
+          shortest_user_id: "x20",
+          shortest_submission_id: 1111208,
+          contest_id: "abc001",
+          id: "abc001_1",
+          fastest_submission_id: 1175983,
+          first_user_id: "piyoko212",
+          title: "A. 積雪深差",
+          source_code_length: 12
         }
       ]);
     });
