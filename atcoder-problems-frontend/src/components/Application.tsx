@@ -2,6 +2,7 @@ import * as React from "react";
 import * as QueryString from "query-string";
 import { SearchForm } from "./SearchForm";
 import { Category } from "./Category";
+import { List } from "./List";
 import { Grid } from "react-bootstrap";
 import { ApiCall } from "../utils/ApiCall";
 import { Problem } from "../model/Problem";
@@ -53,8 +54,9 @@ export class Application extends React.Component<{}, ApplicationState> {
   }
 
   componentWillMount() {
+    this.fetchData();
+
     if (this.state.args.kind === "category") {
-      this.fetchData();
     } else {
     }
   }
@@ -71,7 +73,12 @@ export class Application extends React.Component<{}, ApplicationState> {
         />
       );
     } else {
-      return <span>-</span>;
+      return (
+        <List
+          problems={this.state.mergedProblems}
+          contests={this.state.contests}
+        />
+      );
     }
   }
 

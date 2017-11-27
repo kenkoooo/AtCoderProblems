@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Table, Grid } from "react-bootstrap";
-import {} from "react-bootstrap";
 import { CategoryOneBlock } from "./CategoryOneBlock";
 import { CategorySmallBlock } from "./CategorySmallBlock";
 import { Problem } from "../model/Problem";
