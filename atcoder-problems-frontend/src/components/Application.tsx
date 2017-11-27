@@ -74,14 +74,14 @@ export class Application extends React.Component<{}, ApplicationState> {
       new Set([this.state.args.userId]),
       new Set(["WA", "TLE", "MLE", "RE"])
     );
-    let rivalProblems = new Set(
-      SubmissionUtlis.extractProblemIdsByUsers(
-        this.state.submissions,
-        new Set(this.state.args.rivals)
-      ).keys()
-    );
 
     if (this.state.args.kind === "category") {
+      let rivalProblems = new Set(
+        SubmissionUtlis.extractProblemIdsByUsers(
+          this.state.submissions,
+          new Set(this.state.args.rivals)
+        ).keys()
+      );
       return (
         <Category
           problems={this.state.problems}
@@ -94,15 +94,24 @@ export class Application extends React.Component<{}, ApplicationState> {
         />
       );
     } else {
+      let rivalSet = new Set(this.state.args.rivals);
+      let rivalMap = new Map<string, Set<string>>();
+
+      this.state.submissions
+        .filter(s => rivalSet.has(s.user_id) && s.result == "AC")
+        .forEach(s => {
+          if (!rivalMap.has(s.problem_id)) {
+            rivalMap.set(s.problem_id, new Set<string>());
+          }
+          rivalMap.get(s.problem_id).add(s.user_id);
+        });
       return (
         <List
           problems={this.state.mergedProblems}
           contests={this.state.contests}
-          userId={this.state.args.userId}
-          rivals={this.state.args.rivals}
           acceptedProblems={acceptedProblems}
           wrongMap={wrongProblemMap}
-          rivalProblems={rivalProblems}
+          rivalMap={rivalMap}
         />
       );
     }

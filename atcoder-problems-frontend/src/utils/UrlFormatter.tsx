@@ -15,4 +15,10 @@ export class UrlFormatter {
   static submissionUrl(contest: Contest, submissionId: number): string {
     return `${this.BaseUrl}/contests/${contest.id}/submissions/${submissionId}`;
   }
+
+  static solverUrl(contest: Contest, problem: Problem): string {
+    return `${this.BaseUrl}/contests/${contest.id}/submissions/?f.Task=${
+      problem.id
+    }&f.Status=AC`;
+  }
 }
