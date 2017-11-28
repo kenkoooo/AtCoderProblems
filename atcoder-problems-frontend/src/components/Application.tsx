@@ -11,6 +11,7 @@ import { Submission } from "../model/Submission";
 import { ArgumentParser, Arguments } from "../utils/Arguments";
 import { MergedProblem } from "../model/MergedProblem";
 import { SubmissionUtlis } from "../utils/SubmissionUtils";
+import { NavigationBar } from "./NavigationBar";
 
 interface ApplicationState {
   problems: Array<Problem>;
@@ -119,10 +120,13 @@ export class Application extends React.Component<{}, ApplicationState> {
 
   render() {
     return (
-      <Grid>
-        <SearchForm args={this.state.args} />
-        {this.chooseByKind()}
-      </Grid>
+      <div>
+        <NavigationBar />
+        <Grid>
+          <SearchForm args={this.state.args} />
+          {this.chooseByKind()}
+        </Grid>
+      </div>
     );
   }
 }
