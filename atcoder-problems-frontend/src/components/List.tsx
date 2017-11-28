@@ -40,7 +40,7 @@ function formatContestTitle(problem: Problem, row: ProblemRow) {
 function formatFastestSubmission(problem: MergedProblem, row: ProblemRow) {
   if (problem.fastest_submission_id == null) return <span />;
   let submissionUrl = UrlFormatter.submissionUrl(
-    row.contest,
+    row.contest.id,
     problem.fastest_submission_id
   );
   let title = `${problem.fastest_user_id} (${problem.execution_time} ms)`;
@@ -53,7 +53,7 @@ function formatFastestSubmission(problem: MergedProblem, row: ProblemRow) {
 function formatShortestSubmission(problem: MergedProblem, row: ProblemRow) {
   if (problem.shortest_submission_id == null) return <span />;
   let submissionUrl = UrlFormatter.submissionUrl(
-    row.contest,
+    row.contest.id,
     problem.shortest_submission_id
   );
   let title = `${problem.shortest_user_id} (${
@@ -68,7 +68,7 @@ function formatShortestSubmission(problem: MergedProblem, row: ProblemRow) {
 function formatFirstSubmission(problem: MergedProblem, row: ProblemRow) {
   if (problem.first_submission_id == null) return <span />;
   let submissionUrl = UrlFormatter.submissionUrl(
-    row.contest,
+    row.contest.id,
     problem.first_submission_id
   );
   let title = `${problem.first_user_id}`;
