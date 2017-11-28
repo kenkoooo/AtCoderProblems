@@ -91,6 +91,9 @@ export class UserPage extends React.Component<UserPageProps, {}> {
               <UserPagePieChart
                 name={`agc_${c}`}
                 title={`${c} 問題`}
+                columnGrids={2}
+                height={170}
+                width={170}
                 totalCount={count.grand[i].total}
                 acceptedCount={count.grand[i].accepted}
               />
