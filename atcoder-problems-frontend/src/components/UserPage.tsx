@@ -1,6 +1,8 @@
 import * as React from "react";
 import { PageHeader, Row } from "react-bootstrap";
 import { UserPagePieChart } from "./UserPagePieChart";
+import { UserPageLineChart } from "./UserPageLineChart";
+import { UserPageBarChart } from "./UserPageBarChart";
 import { UserSearchForm } from "./UserSearchForm";
 import { Submission } from "../model/Submission";
 import { Problem } from "../model/Problem";
@@ -19,10 +21,11 @@ export class UserPage extends React.Component<UserPageProps, {}> {
       grand: Array.from({ length: 6 }, _ => ({ accepted: 0, total: 0 }))
     };
 
+    let acceptedSubmissions = this.props.submissions.filter(
+      s => s.result === "AC"
+    );
     let acceptedProblemSet = new Set(
-      this.props.submissions
-        .filter(s => s.result === "AC" && s.user_id === this.props.userId)
-        .map(s => s.problem_id)
+      acceptedSubmissions.map(s => s.problem_id)
     );
 
     this.props.problems
@@ -105,6 +108,12 @@ export class UserPage extends React.Component<UserPageProps, {}> {
               />
             ))}
         </Row>
+
+        <PageHeader>Climbing</PageHeader>
+        <UserPageLineChart acceptedSubmissions={acceptedSubmissions} />
+
+        <PageHeader>Daily Effort</PageHeader>
+        <UserPageBarChart acceptedSubmissions={acceptedSubmissions} />
       </Row>
     );
   }
