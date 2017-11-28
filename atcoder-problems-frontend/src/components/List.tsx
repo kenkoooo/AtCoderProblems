@@ -11,6 +11,7 @@ import { HtmlFormatter } from "../utils/HtmlFormatter";
 import { UrlFormatter } from "../utils/UrlFormatter";
 import { Row, Button, Label, PageHeader } from "react-bootstrap";
 import { Submission } from "../model/Submission";
+import { some } from "ts-option";
 
 export interface ListProps {
   problems: Array<MergedProblem>;
@@ -83,19 +84,37 @@ function formatSolver(solver: number, row: ProblemRow) {
   return HtmlFormatter.createLink(solverUrl, title);
 }
 
+function formatRowColor(
+  problem: Problem,
+  accepted: Set<string>,
+  wrong: Map<string, string>,
+  rivals: Map<string, Set<string>>
+): string {
+  if (accepted.has(problem.id)) {
+    return "success";
+  } else if (rivals.has(problem.id)) {
+    return "danger";
+  } else if (wrong.has(problem.id)) {
+    return "warning";
+  } else {
+    return "";
+  }
+}
+
 function formatResultBadge(
   problem: Problem,
   accepted: Set<string>,
   wrong: Map<string, string>,
   rivals: Map<string, Set<string>>
 ) {
-  if (accepted.has(problem.id)) {
+  let rowColor = formatRowColor(problem, accepted, wrong, rivals);
+  if (rowColor === "success") {
     return (
       <h5>
         <Label bsStyle="success">AC</Label>
       </h5>
     );
-  } else if (rivals.has(problem.id)) {
+  } else if (rowColor === "danger") {
     return (
       <h5>
         {Array.from(rivals.get(problem.id)).map(userId => (
@@ -103,7 +122,7 @@ function formatResultBadge(
         ))}
       </h5>
     );
-  } else if (wrong.has(problem.id)) {
+  } else if (rowColor === "warning") {
     return (
       <h5>
         <Label bsStyle="warning">{wrong.get(problem.id)}</Label>
@@ -114,21 +133,10 @@ function formatResultBadge(
   }
 }
 
-function sortBySolverCount(
-  a: ProblemRow,
-  b: ProblemRow,
-  order: SortOrder
-): number {
-  if (order === "desc") {
-    return -a.problem.solver_count + b.problem.solver_count;
-  } else {
-    return a.problem.solver_count - b.problem.solver_count;
-  }
-}
-
 export class List extends React.Component<ListProps, {}> {
   render() {
-    let contestMap = new Map(
+    // map of <contest_id, contest>
+    let contestMap: Map<string, Contest> = new Map(
       this.props.contests.map(contest => {
         let pair: [string, Contest] = [contest.id, contest];
         return pair;
@@ -154,10 +162,24 @@ export class List extends React.Component<ListProps, {}> {
         this.props.rivalMap
       );
 
+    let rowColorFormatter = (row: any, index: number) => {
+      return formatRowColor(
+        row.problem,
+        this.props.acceptedProblems,
+        this.props.wrongMap,
+        this.props.rivalMap
+      );
+    };
+
     return (
       <Row>
         <PageHeader />
-        <BootstrapTable data={data} striped search>
+        <BootstrapTable
+          data={data}
+          striped
+          search
+          trClassName={rowColorFormatter}
+        >
           <TableHeaderColumn
             dataField="problem"
             dataFormat={formatProblemTitle}
