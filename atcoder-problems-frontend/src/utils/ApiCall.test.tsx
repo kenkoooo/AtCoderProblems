@@ -69,7 +69,10 @@ test("get and parse merged problems", () => {
       fastest_submission_id: 1175983,
       first_user_id: "piyoko212",
       title: "A. 積雪深差",
-      source_code_length: 12
+      source_code_length: 12,
+      fastest_contest_id: "",
+      shortest_contest_id: "",
+      first_contest_id: ""
     }
   ];
 
