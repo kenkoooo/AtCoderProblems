@@ -12,6 +12,7 @@ import { ArgumentParser, Arguments } from "../utils/Arguments";
 import { MergedProblem } from "../model/MergedProblem";
 import { SubmissionUtlis } from "../utils/SubmissionUtils";
 import { NavigationBar } from "./NavigationBar";
+import { UserPage } from "./UserPage";
 
 interface ApplicationState {
   problems: Array<Problem>;
@@ -72,13 +73,15 @@ export class Application extends React.Component<{}, ApplicationState> {
       case ViewKind.Category:
         this.setContests();
         this.setProblems();
-        this.setMergedProblems();
         this.setSubmissions();
         break;
       case ViewKind.List:
         this.setContests();
-        this.setProblems();
         this.setMergedProblems();
+        this.setSubmissions();
+        break;
+      case ViewKind.User:
+        this.setProblems();
         this.setSubmissions();
         break;
 
@@ -138,6 +141,14 @@ export class Application extends React.Component<{}, ApplicationState> {
             acceptedProblems={acceptedProblems}
             wrongMap={wrongProblemMap}
             rivalMap={rivalMap}
+          />
+        );
+      case ViewKind.User:
+        return (
+          <UserPage
+            userId={this.state.args.userId}
+            submissions={this.state.submissions}
+            problems={this.state.problems}
           />
         );
 
