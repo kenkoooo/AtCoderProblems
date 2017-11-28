@@ -7,6 +7,9 @@ export interface UserPagePieChartProps {
   name: string;
   totalCount: number;
   acceptedCount: number;
+  columnGrids?: number;
+  height?: number;
+  width?: number;
 }
 
 export class UserPagePieChart extends React.Component<
@@ -14,11 +17,13 @@ export class UserPagePieChart extends React.Component<
   {}
 > {
   render() {
+    let width = this.props.width ? this.props.width : 200;
+    let height = this.props.height ? this.props.height : 200;
     c3.generate({
       bindto: `#${this.props.name}`,
       size: {
-        height: 200,
-        width: 200
+        height: height,
+        width: width
       },
       data: {
         columns: [
@@ -33,8 +38,12 @@ export class UserPagePieChart extends React.Component<
         order: null
       }
     });
+
+    // how many columns one pie chart use from 12 columns
+    let columnGrids = this.props.columnGrids ? this.props.columnGrids : 3;
+
     return (
-      <Col xs={6} sm={3} className="placeholders">
+      <Col xs={columnGrids * 2} sm={columnGrids} className="placeholders">
         <div id={this.props.name}>hi</div>
         <h4>{this.props.title}</h4>
         <span className="text-muted">
