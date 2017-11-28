@@ -151,11 +151,14 @@ export class Application extends React.Component<{}, ApplicationState> {
           </Grid>
         );
       case ViewKind.User:
+        let userId = this.state.args.userId;
         return (
           <Grid>
             <UserPage
-              userId={this.state.args.userId}
-              submissions={this.state.submissions}
+              userId={userId}
+              submissions={this.state.submissions.filter(
+                s => s.user_id === userId
+              )}
               problems={this.state.problems}
             />
           </Grid>
