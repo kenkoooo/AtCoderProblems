@@ -175,26 +175,36 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
 
     // columns
     val problemId = submission.problemId
+    val contestId = submission.contestId
+    val submissionId = submission.id
     val result = submission.c("result")
 
     DB.localTx { implicit session =>
       withSQL { deleteFrom(support) }.execute().apply()
       withSQL {
         insertInto(support)
-          .columns(columns.problemId, columns.submissionId)
-          .select(problemId, min(submission.id))(
+          .columns(columns.contestId, columns.problemId, columns.submissionId)
+          .select(contestId, problemId, submissionId)(
             _.from(Submission as submission).where
               .in(
-                concat(problemId, blank, comparingColumn),
-                select(concat(problemId, blank, min(comparingColumn)))
+                concat(problemId, blank, submissionId),
+                select(concat(problemId, blank, min(submissionId)))
                   .from(Submission as submission)
                   .where
+                  .in(
+                    concat(problemId, blank, comparingColumn),
+                    select(concat(problemId, blank, min(comparingColumn)))
+                      .from(Submission as submission)
+                      .where
+                      .eq(result, SubmissionStatus.Accepted)
+                      .groupBy(problemId)
+                  )
+                  .and
                   .eq(result, SubmissionStatus.Accepted)
                   .groupBy(problemId)
               )
               .and
               .eq(result, SubmissionStatus.Accepted)
-              .groupBy(problemId)
           )
       }.update().apply()
     }
