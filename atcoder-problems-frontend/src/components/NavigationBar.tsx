@@ -1,11 +1,15 @@
 import * as React from "react";
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from "react-bootstrap";
+import { Arguments } from "../utils/Arguments";
 
+interface NavigationBarProps {
+  args: Arguments;
+}
 /**
  * The navigation bar which is always shown.
  * It doesn't have any status or props.
  */
-export class NavigationBar extends React.Component<{}, {}> {
+export class NavigationBar extends React.Component<NavigationBarProps, {}> {
   render() {
     return (
       <Navbar inverse collapseOnSelect>
@@ -23,7 +27,9 @@ export class NavigationBar extends React.Component<{}, {}> {
               <MenuItem href="./short">Shortest Codes</MenuItem>
               <MenuItem href="./first">First Acceptances</MenuItem>
             </NavDropdown>
-            <NavItem href="./user">User Page</NavItem>
+            <MenuItem href={`./?name=${this.props.args.userId}&kind=user`}>
+              User Page
+            </MenuItem>
             <NavDropdown title="Links" id="basic-nav-dropdown">
               <MenuItem href="https://atcoder.jp/">
                 AtCoder Official Site

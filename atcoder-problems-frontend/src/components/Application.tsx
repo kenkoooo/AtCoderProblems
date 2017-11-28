@@ -37,16 +37,22 @@ export class Application extends React.Component<{}, ApplicationState> {
     };
   }
 
-  fetchData() {
+  setContests() {
     ApiCall.getContests("./atcoder-api/info/contests")
       .then(contests => this.setState({ contests: contests }))
       .catch(err => console.error(err));
+  }
+  setProblems() {
     ApiCall.getProblems("./atcoder-api/info/problems")
       .then(problems => this.setState({ problems: problems }))
       .catch(err => console.error(err));
+  }
+  setMergedProblems() {
     ApiCall.getMergedProblems("./atcoder-api/info/merged-problems")
       .then(problems => this.setState({ mergedProblems: problems }))
       .catch(err => console.error(err));
+  }
+  setSubmissions() {
     ApiCall.getSubmissions("./atcoder-api/results", {
       user: this.state.args.userId,
       rivals: this.state.args.rivals
@@ -56,10 +62,16 @@ export class Application extends React.Component<{}, ApplicationState> {
   }
 
   componentWillMount() {
-    this.fetchData();
-
     if (this.state.args.kind === "category") {
+      this.setContests();
+      this.setProblems();
+      this.setMergedProblems();
+      this.setSubmissions();
     } else {
+      this.setContests();
+      this.setProblems();
+      this.setMergedProblems();
+      this.setSubmissions();
     }
   }
 
@@ -121,7 +133,7 @@ export class Application extends React.Component<{}, ApplicationState> {
   render() {
     return (
       <div>
-        <NavigationBar />
+        <NavigationBar args={this.state.args} />
         <Grid>
           <SearchForm args={this.state.args} />
           {this.chooseByKind()}
