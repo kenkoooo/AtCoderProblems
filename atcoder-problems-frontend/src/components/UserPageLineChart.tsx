@@ -25,7 +25,6 @@ export class UserPageLineChart extends React.Component<
         data.push(data.length + 1);
       }
     });
-    console.log(ticks);
 
     c3.generate({
       bindto: `#${name}`,
