@@ -59,11 +59,14 @@ class JsonApiTest
           "title3",
           Some(4),
           Some("faster"),
+          Some("faster"),
           Some(5),
           Some(6),
           Some("first"),
+          Some("faster"),
           Some(7),
           Some("short"),
+          Some("faster"),
           Some(8),
           9
         )
@@ -175,7 +178,7 @@ class JsonApiTest
   test("merged problems api") {
     val api = new JsonApi(sql)
     val expectedJson =
-      """[{"first_submission_id":6,"solver_count":9,"fastest_user_id":"faster","execution_time":5,"shortest_user_id":"short","shortest_submission_id":7,"contest_id":"contest2","id":"problem1","fastest_submission_id":4,"first_user_id":"first","title":"title3","source_code_length":8}]"""
+      """[{"first_submission_id":6,"solver_count":9,"fastest_user_id":"faster","execution_time":5,"shortest_user_id":"short","first_contest_id":"faster","shortest_submission_id":7,"fastest_contest_id":"faster","contest_id":"contest2","id":"problem1","fastest_submission_id":4,"shortest_contest_id":"faster","first_user_id":"first","title":"title3","source_code_length":8}]"""
     Get("/info/merged-problems") ~> api.routes ~> check {
       status shouldBe OK
       responseAs[String] shouldBe expectedJson
