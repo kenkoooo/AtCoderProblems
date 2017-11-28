@@ -46,6 +46,7 @@ class JsonApiTest
           point = 89.3,
           length = 810,
           result = "AC",
+          contestId = "contest-id",
           executionTime = None
         )
       )
@@ -130,7 +131,7 @@ class JsonApiTest
 
     Get("/results") ~> api.routes ~> check {
       status shouldBe OK
-      responseAs[String] shouldBe """[{"point":89.3,"result":"AC","problem_id":"problem_id","user_id":"user-id","epoch_second":514,"id":114,"language":"Lang","length":810}]"""
+      responseAs[String] shouldBe """[{"point":89.3,"result":"AC","problem_id":"problem_id","user_id":"user-id","epoch_second":514,"contest_id":"contest-id","id":114,"language":"Lang","length":810}]"""
       verify(sql, times(1)).loadUserSubmissions()
     }
   }

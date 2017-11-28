@@ -1,5 +1,6 @@
 package com.kenkoooo.atcoder.scraper
 
+import com.kenkoooo.atcoder.common.TypeAnnotations.ContestId
 import com.kenkoooo.atcoder.model.Submission
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
@@ -17,7 +18,7 @@ class SubmissionScraper extends Logging {
     * @param page    the page number to scrape
     *
     **/
-  def scrape(contest: String, page: Int): Array[Submission] = {
+  def scrape(contest: ContestId, page: Int): Array[Submission] = {
     val browser = JsoupBrowser()
     val url = s"${AtCoder.BaseUrl}contests/$contest/submissions?page=$page"
 
@@ -71,7 +72,8 @@ class SubmissionScraper extends Logging {
             length = length,
             result = result,
             executionTime = executionTime,
-            id = id
+            id = id,
+            contestId = contest
           )
         } match {
           case Success(submission) =>

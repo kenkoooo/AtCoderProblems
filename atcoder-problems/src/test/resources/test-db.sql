@@ -5,6 +5,7 @@ CREATE TABLE submissions (
   id            BIGINT NOT NULL,
   epoch_second  BIGINT NOT NULL,
   problem_id    VARCHAR(255) NOT NULL,
+  contest_id    VARCHAR(255) NOT NULL,
   user_id       VARCHAR(255) NOT NULL,
   language      VARCHAR(255) NOT NULL,
   point         DOUBLE PRECISION NOT NULL,
