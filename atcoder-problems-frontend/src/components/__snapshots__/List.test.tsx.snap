@@ -15458,7 +15458,7 @@ exports[`render list view 1`] = `
         tableContainerClass={null}
         tableFooterClass={null}
         tableHeaderClass={null}
-        trClassName=""
+        trClassName={[Function]}
         version="3"
         withoutTabIndex={false}
       >
@@ -16398,7 +16398,7 @@ exports[`render list view 1`] = `
                 }
               }
               tableBodyClass={null}
-              trClassName=""
+              trClassName={[Function]}
               version="3"
               withoutNoDataText={false}
               withoutTabIndex={false}
