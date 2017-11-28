@@ -20,7 +20,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
 
     let acceptedProblemSet = new Set(
       this.props.submissions
-        .filter(s => s.result === "AC")
+        .filter(s => s.result === "AC" && s.user_id === this.props.userId)
         .map(s => s.problem_id)
     );
 
