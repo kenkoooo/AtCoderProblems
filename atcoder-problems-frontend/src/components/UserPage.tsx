@@ -1,6 +1,7 @@
 import * as React from "react";
 import { PageHeader, Row } from "react-bootstrap";
 import { UserPagePieChart } from "./UserPagePieChart";
+import { UserSearchForm } from "./UserSearchForm";
 import { Submission } from "../model/Submission";
 import { Problem } from "../model/Problem";
 
@@ -55,6 +56,11 @@ export class UserPage extends React.Component<UserPageProps, {}> {
 
     return (
       <Row>
+        <Row>
+          <UserSearchForm userId={this.props.userId} />
+        </Row>
+        <PageHeader>{this.props.userId}</PageHeader>
+
         <PageHeader>AtCoder Beginner Contest</PageHeader>
         <Row>
           {"ABCD"
