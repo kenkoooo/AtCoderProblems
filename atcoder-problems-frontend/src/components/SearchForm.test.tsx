@@ -11,7 +11,12 @@ configure({ adapter: new Adapter() });
 test("render list view", () => {
   let wrapper = mount(
     <SearchForm
-      args={{ userId: "kenkoooo", rivals: ["chokudai", "iwiwi"], kind: "kind" }}
+      args={{
+        userId: "kenkoooo",
+        rivals: ["chokudai", "iwiwi"],
+        kind: "kind",
+        ranking: ""
+      }}
     />
   );
   expect(toJson(wrapper)).toMatchSnapshot();
