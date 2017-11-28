@@ -21,6 +21,12 @@ interface ApplicationState {
   args: Arguments;
 }
 
+enum ViewKind {
+  Category = "category",
+  List = "list",
+  User = "user"
+}
+
 /**
  * Main view
  */
@@ -62,16 +68,22 @@ export class Application extends React.Component<{}, ApplicationState> {
   }
 
   componentWillMount() {
-    if (this.state.args.kind === "category") {
-      this.setContests();
-      this.setProblems();
-      this.setMergedProblems();
-      this.setSubmissions();
-    } else {
-      this.setContests();
-      this.setProblems();
-      this.setMergedProblems();
-      this.setSubmissions();
+    switch (this.state.args.kind) {
+      case ViewKind.Category:
+        this.setContests();
+        this.setProblems();
+        this.setMergedProblems();
+        this.setSubmissions();
+        break;
+      case ViewKind.List:
+        this.setContests();
+        this.setProblems();
+        this.setMergedProblems();
+        this.setSubmissions();
+        break;
+
+      default:
+        break;
     }
   }
 
@@ -88,45 +100,49 @@ export class Application extends React.Component<{}, ApplicationState> {
       new Set(["WA", "TLE", "MLE", "RE"])
     );
 
-    if (this.state.args.kind === "category") {
-      let rivalProblems = new Set(
-        SubmissionUtlis.extractProblemIdsByUsers(
-          this.state.submissions,
-          new Set(this.state.args.rivals)
-        ).keys()
-      );
-      return (
-        <Category
-          problems={this.state.problems}
-          contests={this.state.contests}
-          userId={this.state.args.userId}
-          rivals={this.state.args.rivals}
-          acceptedProblems={acceptedProblems}
-          wrongMap={wrongProblemMap}
-          rivalProblems={rivalProblems}
-        />
-      );
-    } else {
-      let rivalSet = new Set(this.state.args.rivals);
-      let rivalMap = new Map<string, Set<string>>();
+    switch (this.state.args.kind) {
+      case ViewKind.Category:
+        let rivalProblems = new Set(
+          SubmissionUtlis.extractProblemIdsByUsers(
+            this.state.submissions,
+            new Set(this.state.args.rivals)
+          ).keys()
+        );
+        return (
+          <Category
+            problems={this.state.problems}
+            contests={this.state.contests}
+            userId={this.state.args.userId}
+            rivals={this.state.args.rivals}
+            acceptedProblems={acceptedProblems}
+            wrongMap={wrongProblemMap}
+            rivalProblems={rivalProblems}
+          />
+        );
+      case ViewKind.List:
+        let rivalSet = new Set(this.state.args.rivals);
+        let rivalMap = new Map<string, Set<string>>();
 
-      this.state.submissions
-        .filter(s => rivalSet.has(s.user_id) && s.result == "AC")
-        .forEach(s => {
-          if (!rivalMap.has(s.problem_id)) {
-            rivalMap.set(s.problem_id, new Set<string>());
-          }
-          rivalMap.get(s.problem_id).add(s.user_id);
-        });
-      return (
-        <List
-          problems={this.state.mergedProblems}
-          contests={this.state.contests}
-          acceptedProblems={acceptedProblems}
-          wrongMap={wrongProblemMap}
-          rivalMap={rivalMap}
-        />
-      );
+        this.state.submissions
+          .filter(s => rivalSet.has(s.user_id) && s.result == "AC")
+          .forEach(s => {
+            if (!rivalMap.has(s.problem_id)) {
+              rivalMap.set(s.problem_id, new Set<string>());
+            }
+            rivalMap.get(s.problem_id).add(s.user_id);
+          });
+        return (
+          <List
+            problems={this.state.mergedProblems}
+            contests={this.state.contests}
+            acceptedProblems={acceptedProblems}
+            wrongMap={wrongProblemMap}
+            rivalMap={rivalMap}
+          />
+        );
+
+      default:
+        return <span />;
     }
   }
 
