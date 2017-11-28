@@ -15,7 +15,7 @@ export class NavigationBar extends React.Component<NavigationBarProps, {}> {
       <Navbar inverse collapseOnSelect>
         <Navbar.Header>
           <Navbar.Brand>
-            <a href="./">AtCoder Problems</a>
+            <a href={`./?user=${this.props.args.userId}`}>AtCoder Problems</a>
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
@@ -27,7 +27,7 @@ export class NavigationBar extends React.Component<NavigationBarProps, {}> {
               <MenuItem href="./short">Shortest Codes</MenuItem>
               <MenuItem href="./first">First Acceptances</MenuItem>
             </NavDropdown>
-            <MenuItem href={`./?name=${this.props.args.userId}&kind=user`}>
+            <MenuItem href={`./?user=${this.props.args.userId}&kind=user`}>
               User Page
             </MenuItem>
             <NavDropdown title="Links" id="basic-nav-dropdown">

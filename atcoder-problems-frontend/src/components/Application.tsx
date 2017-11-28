@@ -84,7 +84,6 @@ export class Application extends React.Component<{}, ApplicationState> {
         this.setProblems();
         this.setSubmissions();
         break;
-
       default:
         break;
     }
