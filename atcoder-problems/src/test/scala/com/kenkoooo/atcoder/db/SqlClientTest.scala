@@ -316,7 +316,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     val client = new SqlClient(url, sqlUser, sqlPass)
 
     val problemId = "asc999_a"
-    val contestId = "AtCoder Sleep Contest 999"
+    val contestId = "asc999"
     val title = "A * B problem"
     val userId = "kenkoooo"
 
@@ -335,12 +335,14 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
         userId = userId,
         result = "AC",
         length = 114,
-        executionTime = Some(514)
+        executionTime = Some(514),
+        contestId = contestId
       )
     )
     client.batchUpdateStatisticTables()
     val problems = client.loadMergedProblems()
     problems.find(_.id == problemId).get.solverCount shouldBe 1
+    problems.find(_.id == problemId).get.contestId shouldBe contestId
     problems.find(_.id == notSolvedProblemId).get.solverCount shouldBe 0
   }
 }

@@ -37,11 +37,14 @@ trait ApiJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
       "title",
       "fastest_submission_id",
       "fastest_user_id",
+      "fastest_contest_id",
       "execution_time",
       "first_submission_id",
       "first_user_id",
+      "first_contest_id",
       "shortest_submission_id",
       "shortest_user_id",
+      "shortest_contest_id",
       "source_code_length",
       "solver_count"
     )
