@@ -1,6 +1,6 @@
 package com.kenkoooo.atcoder.model
 
-import com.kenkoooo.atcoder.common.TypeAnnotations.{ProblemId, SubmissionId, UserId}
+import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, SubmissionId, UserId}
 import com.kenkoooo.atcoder.db.SQLSelectInsertSupport
 import scalikejdbc._
 
@@ -12,6 +12,7 @@ case class Submission(id: SubmissionId,
                       point: Double = 0.0,
                       length: Int = 0,
                       result: String,
+                      contestId: ContestId = "",
                       executionTime: Option[Int] = None)
 
 object Submission extends SQLSelectInsertSupport[Submission] {
@@ -29,6 +30,7 @@ object Submission extends SQLSelectInsertSupport[Submission] {
       point = rs.double(row.point),
       length = rs.int(row.length),
       result = rs.string(row.result),
+      contestId = rs.string(row.contestId),
       executionTime = rs.intOpt(row.executionTime)
     )
 
@@ -44,6 +46,7 @@ object Submission extends SQLSelectInsertSupport[Submission] {
         column.point -> submission.point,
         column.length -> submission.length,
         column.result -> submission.result,
+        column.contestId -> submission.contestId,
         column.executionTime -> submission.executionTime
       )
     }

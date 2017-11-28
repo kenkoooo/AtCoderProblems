@@ -40,6 +40,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
         point = 100,
         length = 200,
         result = "WA",
+        contestId = "contest-id",
         executionTime = None
       )
     )
@@ -79,8 +80,8 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     client.batchInsert(
       Submission,
       List(
-        Submission(id = 1, 0, "", "iwiwi", "", 0.0, 0, "AC", None),
-        Submission(id = 2, 0, "", "chokudai", "", 0.0, 0, "AC", None)
+        Submission(id = 1, 0, "", "iwiwi", "", 0.0, 0, "AC", "", None),
+        Submission(id = 2, 0, "", "chokudai", "", 0.0, 0, "AC", "", None)
       ): _*
     )
 

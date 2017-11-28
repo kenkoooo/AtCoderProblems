@@ -34,6 +34,7 @@ class ApiJsonSupportTest extends FunSuite with Matchers with ApiJsonSupport {
         |  "problem_id": "arc000_a",
         |  "user_id": "kenkoooo",
         |  "epoch_second": 514,
+        |  "contest_id": "",
         |  "id": 114,
         |  "language": "Rust 1.21",
         |  "length": 810
@@ -58,6 +59,7 @@ class ApiJsonSupportTest extends FunSuite with Matchers with ApiJsonSupport {
         |  "problem_id": "arc000_a",
         |  "user_id": "kenkoooo",
         |  "epoch_second": 514,
+        |  "contest_id": "",
         |  "id": 114,
         |  "language": "Rust 1.21",
         |  "length": 810

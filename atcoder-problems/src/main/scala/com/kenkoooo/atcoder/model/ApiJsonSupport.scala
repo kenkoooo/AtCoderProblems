@@ -18,6 +18,7 @@ trait ApiJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     "point",
     "length",
     "result",
+    "contest_id",
     "execution_time"
   )
   implicit val firstSubmissionCountFormat: RootJsonFormat[FirstSubmissionCount] =
