@@ -47,7 +47,7 @@ export class UserPagePieChart extends React.Component<
         <div id={this.props.name}>hi</div>
         <h4>{this.props.title}</h4>
         <span className="text-muted">
-          {this.props.acceptedCount}問 / {this.props.totalCount}問
+          {this.props.acceptedCount} / {this.props.totalCount}
         </span>
       </Col>
     );

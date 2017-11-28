@@ -71,7 +71,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
             .map((c, i) => (
               <UserPagePieChart
                 name={`abc_${c}`}
-                title={`${c} 問題`}
+                title={`Problem ${c}`}
                 totalCount={count.beginner[i].total}
                 acceptedCount={count.beginner[i].accepted}
               />
@@ -85,7 +85,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
             .map((c, i) => (
               <UserPagePieChart
                 name={`arc_${c}`}
-                title={`${c} 問題`}
+                title={`Problem ${c}`}
                 totalCount={count.regular[i].total}
                 acceptedCount={count.regular[i].accepted}
               />
@@ -99,7 +99,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
             .map((c, i) => (
               <UserPagePieChart
                 name={`agc_${c}`}
-                title={`${c} 問題`}
+                title={`Problem ${c}`}
                 columnGrids={2}
                 height={170}
                 width={170}
