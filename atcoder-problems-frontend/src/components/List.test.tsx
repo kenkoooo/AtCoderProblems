@@ -6,6 +6,7 @@ import { configure } from "enzyme";
 import * as Adapter from "enzyme-adapter-react-16";
 import toJson from "enzyme-to-json";
 import { SubmissionUtlis } from "../utils/SubmissionUtils";
+import { Submission } from "../model/Submission";
 
 configure({ adapter: new Adapter() });
 let DB = JSON.parse(fs.readFileSync("./db.json").toString());
@@ -15,7 +16,7 @@ test("render list view", () => {
 
   let problems = DB["problems"];
   let contests = DB["contests"];
-  let submissions = DB["results"];
+  let submissions: Submission[] = DB["results"];
   let acceptedProblems = new Set(
     SubmissionUtlis.extractProblemIdsByUsers(
       submissions,
