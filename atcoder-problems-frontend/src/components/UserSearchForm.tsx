@@ -11,15 +11,12 @@ import {
   ToggleButtonGroup
 } from "react-bootstrap";
 
-export interface SearchFormProps {
-  args: Arguments;
+export interface UserSearchFormProps {
+  userId: string;
 }
 
-export class SearchForm extends React.Component<SearchFormProps, {}> {
+export class UserSearchForm extends React.Component<UserSearchFormProps, {}> {
   render() {
-    let userId = this.props.args.userId;
-    let rivals = this.props.args.rivals.join(",");
-    let kind = this.props.args.kind;
     return (
       <Form action="./" method="get" inline>
         <FormGroup>
@@ -28,22 +25,10 @@ export class SearchForm extends React.Component<SearchFormProps, {}> {
             placeholder="UserID"
             type="text"
             name="user"
-            defaultValue={userId}
+            defaultValue={this.props.userId}
           />
+          <FormControl name="kind" value="user" type="hidden" />
         </FormGroup>{" "}
-        <FormGroup>
-          <ControlLabel>Rivals: </ControlLabel>
-          <FormControl
-            placeholder="UserID,UserID,..."
-            type="text"
-            name="rivals"
-            defaultValue={rivals}
-          />
-        </FormGroup>{" "}
-        <ToggleButtonGroup type="radio" name="kind" defaultValue={kind}>
-          <ToggleButton value="category">Category</ToggleButton>
-          <ToggleButton value="list">List</ToggleButton>
-        </ToggleButtonGroup>{" "}
         <Button type="submit">Search</Button>
       </Form>
     );
