@@ -154,6 +154,32 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       .map(c => c.userId -> c.problemCount)
       .toMap shouldBe Map("user_1" -> 2)
   }
+  test("extract shortest contest") {
+    val client = new SqlClient(url, sqlUser, sqlPass)
+    client.batchInsert(
+      Submission,
+      Submission(
+        id = 1,
+        problemId = "problem_1",
+        userId = "user_1",
+        length = 5,
+        result = "AC",
+        contestId = "contest1"
+      ),
+      Submission(
+        id = 2,
+        problemId = "problem_1",
+        userId = "user_1",
+        length = 5,
+        result = "AC",
+        contestId = "contest2"
+      ),
+    )
+    client.updateGreatSubmissions(Shortest)
+    client.loadRecords(Shortest).map(s => s.contestId -> s.submissionId).toMap shouldBe Map(
+      "contest1" -> 1,
+    )
+  }
 
   test("extract fastest submissions") {
     val client = new SqlClient(url, sqlUser, sqlPass)
@@ -270,16 +296,17 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
         userId = "kenkoooo",
         length = 11,
         executionTime = Some(22),
-        result = "AC"
+        result = "AC",
+        contestId = "contest-name"
       )
     )
     client.batchUpdateStatisticTables()
 
     client.loadRecords(AcceptedCount).head shouldBe AcceptedCount("kenkoooo", 1)
     client.loadRecords(ProblemSolver).head shouldBe ProblemSolver("arc999_a", 1)
-    client.loadRecords(First).head shouldBe First("arc999_a", 114514)
-    client.loadRecords(Fastest).head shouldBe Fastest("arc999_a", 114514)
-    client.loadRecords(Shortest).head shouldBe Shortest("arc999_a", 114514)
+    client.loadRecords(First).head shouldBe First("contest-name", "arc999_a", 114514)
+    client.loadRecords(Fastest).head shouldBe Fastest("contest-name", "arc999_a", 114514)
+    client.loadRecords(Shortest).head shouldBe Shortest("contest-name", "arc999_a", 114514)
     client.loadRecords(FirstSubmissionCount).head shouldBe FirstSubmissionCount("kenkoooo", 1)
     client.loadRecords(FastestSubmissionCount).head shouldBe FastestSubmissionCount("kenkoooo", 1)
     client.loadRecords(ShortestSubmissionCount).head shouldBe ShortestSubmissionCount("kenkoooo", 1)

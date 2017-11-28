@@ -1,10 +1,12 @@
 package com.kenkoooo.atcoder.model
 
-import com.kenkoooo.atcoder.common.TypeAnnotations.{ProblemId, SubmissionId}
+import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, SubmissionId}
 import com.kenkoooo.atcoder.db.SQLSelectSupport
 import scalikejdbc.{SQLSyntax, _}
 
 trait ProblemSubmissionPair {
+  def contestId: ContestId
+
   def problemId: ProblemId
 
   def submissionId: SubmissionId
@@ -13,17 +15,19 @@ trait ProblemSubmissionPair {
 trait ProblemSubmissionPairSupport[T <: ProblemSubmissionPair] extends SQLSelectSupport[T] {
   override def apply(resultName: scalikejdbc.ResultName[T])(rs: WrappedResultSet): T =
     apply(
+      contestId = rs.string(resultName.contestId),
       problemId = rs.string(resultName.problemId),
       submissionId = rs.long(resultName.submissionId)
     )
 
-  def apply(problemId: ProblemId, submissionId: SubmissionId): T
+  def apply(contestId: ContestId, problemId: ProblemId, submissionId: SubmissionId): T
 
   def extractComparingColumn
     : QuerySQLSyntaxProvider[SQLSyntaxSupport[Submission], Submission] => SQLSyntax
 }
 
-case class Shortest(problemId: ProblemId, submissionId: SubmissionId) extends ProblemSubmissionPair
+case class Shortest(contestId: ContestId, problemId: ProblemId, submissionId: SubmissionId)
+    extends ProblemSubmissionPair
 
 object Shortest extends ProblemSubmissionPairSupport[Shortest] {
   override def definedTableName: String = "shortest"
@@ -32,7 +36,8 @@ object Shortest extends ProblemSubmissionPairSupport[Shortest] {
     : QuerySQLSyntaxProvider[SQLSyntaxSupport[Submission], Submission] => SQLSyntax = _.length
 }
 
-case class Fastest(problemId: ProblemId, submissionId: SubmissionId) extends ProblemSubmissionPair
+case class Fastest(contestId: ContestId, problemId: ProblemId, submissionId: SubmissionId)
+    extends ProblemSubmissionPair
 
 object Fastest extends ProblemSubmissionPairSupport[Fastest] {
   override protected def definedTableName = "fastest"
@@ -42,7 +47,8 @@ object Fastest extends ProblemSubmissionPairSupport[Fastest] {
     _.executionTime
 }
 
-case class First(problemId: ProblemId, submissionId: SubmissionId) extends ProblemSubmissionPair
+case class First(contestId: ContestId, problemId: ProblemId, submissionId: SubmissionId)
+    extends ProblemSubmissionPair
 
 object First extends ProblemSubmissionPairSupport[First] {
   override protected def definedTableName = "first"

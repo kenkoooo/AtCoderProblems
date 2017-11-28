@@ -42,6 +42,7 @@ CREATE TABLE solver (
 
 DROP TABLE IF EXISTS shortest;
 CREATE TABLE shortest (
+  contest_id    VARCHAR(255)  NOT NULL,
   problem_id    VARCHAR(255)  NOT NULL,
   submission_id BIGINT  NOT NULL,
   PRIMARY KEY (problem_id)
@@ -49,6 +50,7 @@ CREATE TABLE shortest (
 
 DROP TABLE IF EXISTS fastest;
 CREATE TABLE fastest (
+  contest_id    VARCHAR(255)  NOT NULL,
   problem_id    VARCHAR(255)  NOT NULL,
   submission_id BIGINT  NOT NULL,
   PRIMARY KEY (problem_id)
@@ -56,6 +58,7 @@ CREATE TABLE fastest (
 
 DROP TABLE IF EXISTS first;
 CREATE TABLE first (
+  contest_id    VARCHAR(255)  NOT NULL,
   problem_id    VARCHAR(255)  NOT NULL,
   submission_id BIGINT  NOT NULL,
   PRIMARY KEY (problem_id)
