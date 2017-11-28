@@ -24,10 +24,7 @@ test("format problem url", () => {
 });
 
 test("format submission url", () => {
-  let url = UrlFormatter.submissionUrl(
-    { id: "contest-name", title: "", start_epoch_second: 0 },
-    114514
-  );
+  let url = UrlFormatter.submissionUrl("contest-name", 114514);
   expect(url).toEqual(
     "https://beta.atcoder.jp/contests/contest-name/submissions/114514"
   );

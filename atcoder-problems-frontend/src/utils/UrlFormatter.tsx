@@ -12,8 +12,8 @@ export class UrlFormatter {
     return `${this.BaseUrl}/contests/${contest.id}/tasks/${problem.id}`;
   }
 
-  static submissionUrl(contest: Contest, submissionId: number): string {
-    return `${this.BaseUrl}/contests/${contest.id}/submissions/${submissionId}`;
+  static submissionUrl(contest: string, submissionId: number): string {
+    return `${this.BaseUrl}/contests/${contest}/submissions/${submissionId}`;
   }
 
   static solverUrl(contest: Contest, problem: Problem): string {

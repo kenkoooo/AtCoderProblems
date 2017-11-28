@@ -1,6 +1,7 @@
 import * as React from "react";
 import { PageHeader, Row } from "react-bootstrap";
 import { UserPagePieChart } from "./UserPagePieChart";
+import { UserPageTable } from "./UserPageTable";
 import { UserPageLineChart } from "./UserPageLineChart";
 import { UserPageBarChart } from "./UserPageBarChart";
 import { UserSearchForm } from "./UserSearchForm";
@@ -114,6 +115,9 @@ export class UserPage extends React.Component<UserPageProps, {}> {
 
         <PageHeader>Daily Effort</PageHeader>
         <UserPageBarChart acceptedSubmissions={acceptedSubmissions} />
+
+        <PageHeader>Submissions</PageHeader>
+        <UserPageTable submissions={this.props.submissions} />
       </Row>
     );
   }
