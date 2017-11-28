@@ -2,6 +2,7 @@ import * as request from "superagent";
 import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
+import { RankPair } from "../model/RankPair";
 import { MergedProblem } from "../model/MergedProblem";
 
 export class ApiCall {
@@ -28,6 +29,16 @@ export class ApiCall {
         return p;
       });
       return problems;
+    });
+  }
+
+  static getRanking(url: string): Promise<Array<RankPair>> {
+    return this.getJson(url).then((obj: Array<any>) => {
+      let ranks: RankPair[] = obj.map(o => {
+        let p = { userId: o["user_id"], problemCount: o["problem_count"] };
+        return p;
+      });
+      return ranks;
     });
   }
 

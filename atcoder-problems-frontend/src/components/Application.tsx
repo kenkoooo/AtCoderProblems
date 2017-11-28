@@ -13,6 +13,7 @@ import { MergedProblem } from "../model/MergedProblem";
 import { SubmissionUtlis } from "../utils/SubmissionUtils";
 import { NavigationBar } from "./NavigationBar";
 import { UserPage } from "./UserPage";
+import { Ranking } from "./Ranking";
 
 interface ApplicationState {
   problems: Array<Problem>;
@@ -25,7 +26,8 @@ interface ApplicationState {
 enum ViewKind {
   Category = "category",
   List = "list",
-  User = "user"
+  User = "user",
+  Ranking = "ranking"
 }
 
 /**
@@ -111,15 +113,18 @@ export class Application extends React.Component<{}, ApplicationState> {
           ).keys()
         );
         return (
-          <Category
-            problems={this.state.problems}
-            contests={this.state.contests}
-            userId={this.state.args.userId}
-            rivals={this.state.args.rivals}
-            acceptedProblems={acceptedProblems}
-            wrongMap={wrongProblemMap}
-            rivalProblems={rivalProblems}
-          />
+          <Grid>
+            <SearchForm args={this.state.args} />
+            <Category
+              problems={this.state.problems}
+              contests={this.state.contests}
+              userId={this.state.args.userId}
+              rivals={this.state.args.rivals}
+              acceptedProblems={acceptedProblems}
+              wrongMap={wrongProblemMap}
+              rivalProblems={rivalProblems}
+            />
+          </Grid>
         );
       case ViewKind.List:
         let rivalSet = new Set(this.state.args.rivals);
@@ -134,21 +139,32 @@ export class Application extends React.Component<{}, ApplicationState> {
             rivalMap.get(s.problem_id).add(s.user_id);
           });
         return (
-          <List
-            problems={this.state.mergedProblems}
-            contests={this.state.contests}
-            acceptedProblems={acceptedProblems}
-            wrongMap={wrongProblemMap}
-            rivalMap={rivalMap}
-          />
+          <Grid>
+            <SearchForm args={this.state.args} />
+            <List
+              problems={this.state.mergedProblems}
+              contests={this.state.contests}
+              acceptedProblems={acceptedProblems}
+              wrongMap={wrongProblemMap}
+              rivalMap={rivalMap}
+            />
+          </Grid>
         );
       case ViewKind.User:
         return (
-          <UserPage
-            userId={this.state.args.userId}
-            submissions={this.state.submissions}
-            problems={this.state.problems}
-          />
+          <Grid>
+            <UserPage
+              userId={this.state.args.userId}
+              submissions={this.state.submissions}
+              problems={this.state.problems}
+            />
+          </Grid>
+        );
+      case ViewKind.Ranking:
+        return (
+          <Grid>
+            <Ranking ranking={this.state.args.ranking} />
+          </Grid>
         );
 
       default:
@@ -160,10 +176,7 @@ export class Application extends React.Component<{}, ApplicationState> {
     return (
       <div>
         <NavigationBar args={this.state.args} />
-        <Grid>
-          <SearchForm args={this.state.args} />
-          {this.chooseByKind()}
-        </Grid>
+        {this.chooseByKind()}
       </div>
     );
   }

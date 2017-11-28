@@ -22,10 +22,18 @@ export class NavigationBar extends React.Component<NavigationBarProps, {}> {
         <Navbar.Collapse>
           <Nav>
             <NavDropdown title="Rankings" id="basic-nav-dropdown">
-              <MenuItem href="./ac">Accepted Count</MenuItem>
-              <MenuItem href="./fast">Fastest Codes</MenuItem>
-              <MenuItem href="./short">Shortest Codes</MenuItem>
-              <MenuItem href="./first">First Acceptances</MenuItem>
+              <MenuItem href="./?kind=ranking&ranking=ac">
+                Accepted Count
+              </MenuItem>
+              <MenuItem href="./?kind=ranking&ranking=fast">
+                Fastest Codes
+              </MenuItem>
+              <MenuItem href="./?kind=ranking&ranking=short">
+                Shortest Codes
+              </MenuItem>
+              <MenuItem href="./?kind=ranking&ranking=first">
+                First Acceptances
+              </MenuItem>
             </NavDropdown>
             <MenuItem href={`./?user=${this.props.args.userId}&kind=user`}>
               User Page
