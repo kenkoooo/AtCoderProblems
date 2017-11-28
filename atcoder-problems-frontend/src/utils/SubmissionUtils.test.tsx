@@ -10,6 +10,7 @@ test("extract problems and results", () => {
       problem_id: "ac_problem",
       user_id: "kenkoooo",
       language: "lang",
+      contestId: "contest-id",
       execution_time: 10,
       epoch_second: 1,
       length: 2
@@ -21,6 +22,7 @@ test("extract problems and results", () => {
       problem_id: "wa_problem",
       user_id: "kenkoooo",
       language: "lang",
+      contestId: "contest-id",
       execution_time: 10,
       epoch_second: 1,
       length: 2
@@ -32,6 +34,7 @@ test("extract problems and results", () => {
       problem_id: "tle_problem",
       user_id: "kenkoooo",
       language: "lang",
+      contestId: "contest-id",
       execution_time: 10,
       epoch_second: 1,
       length: 2
@@ -43,6 +46,7 @@ test("extract problems and results", () => {
       problem_id: "iwi_problem",
       user_id: "iwiwi",
       language: "lang",
+      contestId: "contest-id",
       execution_time: 10,
       epoch_second: 1,
       length: 2

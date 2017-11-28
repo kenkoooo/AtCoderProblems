@@ -26,7 +26,11 @@ export class UserPageTable extends React.Component<UserPageTableProps, {}> {
         <TableHeaderColumn
           dataField="id"
           dataFormat={(id: number, submission: Submission) => {
-            let url = UrlFormatter.submissionUrl(submission.);
+            let url = UrlFormatter.submissionUrl(
+              submission.contestId,
+              submission.id
+            );
+            return url;
           }}
         >
           Submission

@@ -13,4 +13,7 @@ export interface MergedProblem extends Problem {
   first_user_id: string;
   title: string;
   source_code_length: number;
+  fastest_contest_id: string;
+  shortest_contest_id: string;
+  first_contest_id: string;
 }

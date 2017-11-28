@@ -70,6 +70,7 @@ export class ApiCall {
           id: o["id"],
           language: o["language"],
           length: o["length"],
+          contestId: o["contest_id"],
           execution_time: o["execution_time"]
         };
       });
@@ -95,7 +96,10 @@ export class ApiCall {
           fastest_submission_id: o["fastest_submission_id"],
           first_user_id: o["first_user_id"],
           title: o["title"],
-          source_code_length: o["source_code_length"]
+          source_code_length: o["source_code_length"],
+          fastest_contest_id: o["fastest_contest_idw"],
+          shortest_contest_id: o["shortest_contest_id"],
+          first_contest_id: o["first_contest_id"]
         };
       });
       return problems;
