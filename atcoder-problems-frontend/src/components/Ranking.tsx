@@ -34,23 +34,9 @@ export class Ranking extends React.Component<RankingProps, RankingState> {
 
   componentWillMount() {
     let url = `./atcoder-api/info/${this.props.ranking}`;
-    ApiCall.getRanking(url).then(pairs => {
-      // get top 1000 rankers
-      let ranking = pairs
-        .sort((a, b) => b.problemCount - a.problemCount)
-        .slice(0, 1000)
-        .map(r => ({ rank: 1, userId: r.userId, count: r.problemCount }));
-
-      for (let i = 1; i < ranking.length; i += 1) {
-        if (ranking[i - 1].count == ranking[i].count) {
-          ranking[i].rank = ranking[i - 1].rank;
-        } else {
-          ranking[i].rank = i + 1;
-        }
-      }
-
-      this.setState({ ranking: ranking });
-    });
+    ApiCall.getRanking(url).then(ranking =>
+      this.setState({ ranking: ranking.slice(0, 1000) })
+    );
   }
 
   render() {

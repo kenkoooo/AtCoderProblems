@@ -34,10 +34,20 @@ export class ApiCall {
 
   static getRanking(url: string): Promise<Array<RankPair>> {
     return this.getJson(url).then((obj: Array<any>) => {
-      let ranks: RankPair[] = obj.map(o => {
-        let p = { userId: o["user_id"], problemCount: o["problem_count"] };
+      let ranks = obj.map(o => {
+        let p = { rank: 1, userId: o["user_id"], count: o["problem_count"] };
         return p;
       });
+      ranks.sort((a, b) => b.count - a.count);
+
+      for (let i = 1; i < ranks.length; i += 1) {
+        if (ranks[i - 1].count == ranks[i].count) {
+          ranks[i].rank = ranks[i - 1].rank;
+        } else {
+          ranks[i].rank = i + 1;
+        }
+      }
+
       return ranks;
     });
   }

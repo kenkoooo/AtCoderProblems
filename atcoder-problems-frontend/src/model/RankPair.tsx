@@ -1,4 +1,5 @@
 export interface RankPair {
+  rank: number;
   userId: string;
-  problemCount: number;
+  count: number;
 }
