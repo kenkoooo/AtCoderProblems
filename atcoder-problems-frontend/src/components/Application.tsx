@@ -57,7 +57,7 @@ export class Application extends React.Component<{}, ApplicationState> {
       .catch(err => console.error(err));
   }
   setMergedProblems() {
-    ApiCall.getMergedProblems("./atcoder-api/info/merged-problems")
+    ApiCall.getMergedProblems()
       .then(problems => this.setState({ mergedProblems: problems }))
       .catch(err => console.error(err));
   }

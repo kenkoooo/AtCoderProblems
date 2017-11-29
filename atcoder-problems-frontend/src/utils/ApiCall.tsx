@@ -94,11 +94,9 @@ export class ApiCall {
     });
   }
 
-  static getMergedProblems(
-    url: string,
-    query?: { user: string; rivals: string[] }
-  ): Promise<Array<MergedProblem>> {
-    return this.getJson(url, query).then((obj: Array<any>) => {
+  static getMergedProblems(): Promise<Array<MergedProblem>> {
+    let url = `${this.BaseUrl}/info/merged-problems`;
+    return this.getJson(url).then((obj: Array<any>) => {
       let problems: MergedProblem[] = obj.map(o => {
         return {
           first_submission_id: o["first_submission_id"],
