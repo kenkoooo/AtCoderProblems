@@ -73,7 +73,7 @@ export class ApiCall {
 
   static getSubmissions(
     url: string,
-    query?: { user: string; rivals: string[] }
+    query?: { user: string; rivals: string }
   ): Promise<Array<Submission>> {
     return this.getJson(url, query).then((obj: Array<any>) => {
       let submissions: Submission[] = obj.map(o => {
