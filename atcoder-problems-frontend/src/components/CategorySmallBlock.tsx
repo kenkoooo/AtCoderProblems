@@ -46,7 +46,7 @@ export class CategorySmallBlock extends React.Component<
                         className={columnColorFormatter(some(problem))}
                       >
                         <a
-                          href={UrlFormatter.problemUrl(contest, problem)}
+                          href={UrlFormatter.problemUrl(contest.id, problem.id)}
                           target="_blank"
                         >
                           {problem.title}

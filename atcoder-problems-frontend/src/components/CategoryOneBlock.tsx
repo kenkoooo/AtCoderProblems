@@ -35,7 +35,10 @@ export class CategoryOneBlock extends React.Component<
 
     return problem.match({
       some: p =>
-        HtmlFormatter.createLink(UrlFormatter.problemUrl(contest, p), p.title),
+        HtmlFormatter.createLink(
+          UrlFormatter.problemUrl(contest.id, p.id),
+          p.title
+        ),
       none: () => <span>-</span>
     });
   }
