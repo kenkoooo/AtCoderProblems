@@ -16,14 +16,8 @@ export interface RankingProps {
   ranking: string;
 }
 
-interface Rank {
-  rank: number;
-  userId: string;
-  count: number;
-}
-
 interface RankingState {
-  ranking: Array<Rank>;
+  ranking: Array<RankPair>;
 }
 
 export class Ranking extends React.Component<RankingProps, RankingState> {
