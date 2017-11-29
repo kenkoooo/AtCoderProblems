@@ -10,14 +10,7 @@ test("format contest url", () => {
 });
 
 test("format problem url", () => {
-  let url = UrlFormatter.problemUrl(
-    { id: "contest-name", title: "", start_epoch_second: 0 },
-    {
-      contestId: "",
-      id: "problem-id",
-      title: ""
-    }
-  );
+  let url = UrlFormatter.problemUrl("contest-name", "problem-id");
   expect(url).toEqual(
     "https://beta.atcoder.jp/contests/contest-name/tasks/problem-id"
   );

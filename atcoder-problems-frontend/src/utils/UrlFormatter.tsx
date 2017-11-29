@@ -8,8 +8,8 @@ export class UrlFormatter {
     return `${this.BaseUrl}/contests/${contest.id}/`;
   }
 
-  static problemUrl(contest: Contest, problem: Problem): string {
-    return `${this.BaseUrl}/contests/${contest.id}/tasks/${problem.id}`;
+  static problemUrl(contestId: string, problemId: string): string {
+    return `${this.BaseUrl}/contests/${contestId}/tasks/${problemId}`;
   }
 
   static submissionUrl(contest: string, submissionId: number): string {

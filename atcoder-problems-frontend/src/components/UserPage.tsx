@@ -117,7 +117,10 @@ export class UserPage extends React.Component<UserPageProps, {}> {
         <UserPageBarChart acceptedSubmissions={acceptedSubmissions} />
 
         <PageHeader>Submissions</PageHeader>
-        <UserPageTable submissions={this.props.submissions} />
+        <UserPageTable
+          submissions={this.props.submissions}
+          problems={this.props.problems}
+        />
       </Row>
     );
   }

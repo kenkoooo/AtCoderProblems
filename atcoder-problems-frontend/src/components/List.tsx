@@ -28,7 +28,7 @@ interface ProblemRow {
 }
 
 function formatProblemTitle(problem: Problem, row: ProblemRow) {
-  let problemUrl = UrlFormatter.problemUrl(row.contest, problem);
+  let problemUrl = UrlFormatter.problemUrl(row.contest.id, problem.id);
   return HtmlFormatter.createLink(problemUrl, problem.title);
 }
 
