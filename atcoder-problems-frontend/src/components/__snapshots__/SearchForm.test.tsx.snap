@@ -5,6 +5,7 @@ exports[`render list view 1`] = `
   args={
     Object {
       "kind": "kind",
+      "ranking": "",
       "rivals": Array [
         "chokudai",
         "iwiwi",
