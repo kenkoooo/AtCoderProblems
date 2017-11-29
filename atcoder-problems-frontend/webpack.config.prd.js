@@ -1,3 +1,4 @@
+const webpack = require("webpack");
 module.exports = {
   entry: "./src/index.tsx",
   output: {
@@ -8,6 +9,13 @@ module.exports = {
   // Enable sourcemaps for debugging webpack's output.
   devtool: "source-map",
 
+  plugins: [
+    // minify js files
+    new webpack.optimize.UglifyJsPlugin({
+      // use source map even when minifying
+      sourceMap: true
+    })
+  ],
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: [".ts", ".tsx", ".js", ".json"]
