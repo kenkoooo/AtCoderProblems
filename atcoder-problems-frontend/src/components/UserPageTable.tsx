@@ -64,7 +64,7 @@ export class UserPageTable extends React.Component<UserPageTableProps, {}> {
             }
           }}
         >
-          Problem
+          Result
         </TableHeaderColumn>
         <TableHeaderColumn
           dataField="id"

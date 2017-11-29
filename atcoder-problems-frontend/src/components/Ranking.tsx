@@ -5,13 +5,6 @@ import { pairs } from "d3";
 import { Row, PageHeader } from "react-bootstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 
-export enum RankingKind {
-  Accepted = "ac",
-  First = "first",
-  Fastest = "fast",
-  Shortest = "short"
-}
-
 export interface RankingProps {
   ranking: string;
 }
