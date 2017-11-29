@@ -7,6 +7,8 @@ import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.scraper.ContentExtractors.{element, elements}
 import org.apache.logging.log4j.scala.Logging
 
+import scala.util.Try
+
 /**
   * scraper of information of problems
   **/
@@ -19,7 +21,7 @@ class ProblemScraper extends Logging {
     * @param contest contest id to scrape problems
     * @return scraped problems
     */
-  def scrape(contest: String): Array[Problem] = {
+  def scrape(contest: String): Try[Array[Problem]] = Try {
     logger.info(s"scraping problems of $contest")
     val url = s"${AtCoder.BaseUrl}contests/$contest/tasks"
     val doc = browser.get(url)
