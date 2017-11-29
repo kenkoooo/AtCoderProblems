@@ -71,7 +71,11 @@ object Main extends Logging {
           }
           logger.info(s"there are ${contests.size} contests")
           val (contest, q) = contests.dequeue
-          sql.batchInsert(Problem, problemScraper.scrape(contest.id): _*)
+
+          problemScraper.scrape(contest.id) match {
+            case Success(problems) => sql.batchInsert(Problem, problems: _*)
+            case Failure(e)        => logger.catching(e)
+          }
           contests = q
         }
 
