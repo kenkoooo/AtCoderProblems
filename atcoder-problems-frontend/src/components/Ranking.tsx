@@ -4,6 +4,7 @@ import { RankPair } from "../model/RankPair";
 import { pairs } from "d3";
 import { Row, PageHeader } from "react-bootstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import { RankingKind } from "../model/RankingKind";
 
 export interface RankingProps {
   ranking: string;
@@ -20,8 +21,7 @@ export class Ranking extends React.Component<RankingProps, RankingState> {
   }
 
   componentWillMount() {
-    let url = `./atcoder-api/info/${this.props.ranking}`;
-    ApiCall.getRanking(url).then(ranking =>
+    ApiCall.getRanking(this.props.ranking).then(ranking =>
       this.setState({ ranking: ranking.slice(0, 1000) })
     );
   }

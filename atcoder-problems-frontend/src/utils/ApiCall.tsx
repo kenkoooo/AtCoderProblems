@@ -4,6 +4,7 @@ import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
 import { RankPair } from "../model/RankPair";
 import { MergedProblem } from "../model/MergedProblem";
+import { RankingKind } from "../model/RankingKind";
 
 export class ApiCall {
   static BaseUrl = "./atcoder-api";
@@ -35,7 +36,8 @@ export class ApiCall {
     });
   }
 
-  static getRanking(url: string): Promise<Array<RankPair>> {
+  static getRanking(kind: string): Promise<Array<RankPair>> {
+    let url = `${this.BaseUrl}/info/${kind}`;
     return this.getJson(url).then((obj: Array<any>) => {
       let ranks = obj.map(o => {
         let p = { rank: 1, userId: o["user_id"], count: o["problem_count"] };
