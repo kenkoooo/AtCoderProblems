@@ -58,21 +58,21 @@ test("get and parse problems", () => {
 test("get and parse merged problems", () => {
   let response: any = [
     {
-      first_submission_id: 106882,
-      solver_count: 4047,
-      fastest_user_id: "rjttrw05",
-      execution_time: 0,
-      shortest_user_id: "x20",
-      shortest_submission_id: 1111208,
-      contest_id: "abc001",
-      id: "abc001_1",
-      fastest_submission_id: 1175983,
-      first_user_id: "piyoko212",
-      title: "A. 積雪深差",
-      source_code_length: 12,
-      fastest_contest_id: "",
-      shortest_contest_id: "",
-      first_contest_id: ""
+      first_submission_id: 799003,
+      solver_count: 34,
+      fastest_user_id: "joisino",
+      execution_time: 19,
+      shortest_user_id: "august14",
+      first_contest_id: "arc057",
+      shortest_submission_id: 800119,
+      fastest_contest_id: "arc057",
+      contest_id: "arc057",
+      id: "arc057_d",
+      fastest_submission_id: 1002161,
+      shortest_contest_id: "arc057",
+      first_user_id: "tozangezan",
+      title: "D. 全域木",
+      source_code_length: 1079
     }
   ];
 
@@ -84,18 +84,21 @@ test("get and parse merged problems", () => {
     .then((problems: MergedProblem[]) => {
       expect(problems).toEqual([
         {
-          first_submission_id: 106882,
-          solver_count: 4047,
-          fastest_user_id: "rjttrw05",
-          execution_time: 0,
-          shortest_user_id: "x20",
-          shortest_submission_id: 1111208,
-          contestId: "abc001",
-          id: "abc001_1",
-          fastest_submission_id: 1175983,
-          first_user_id: "piyoko212",
-          title: "A. 積雪深差",
-          source_code_length: 12
+          contestId: "arc057",
+          execution_time: 19,
+          fastest_contest_id: undefined,
+          fastest_submission_id: 1002161,
+          fastest_user_id: "joisino",
+          first_contest_id: "arc057",
+          first_submission_id: 799003,
+          first_user_id: "tozangezan",
+          id: "arc057_d",
+          shortest_contest_id: "arc057",
+          shortest_submission_id: 800119,
+          shortest_user_id: "august14",
+          solver_count: 34,
+          source_code_length: 1079,
+          title: "D. 全域木"
         }
       ]);
     });
