@@ -26,6 +26,9 @@ Frontend web application is written in TypeScript.
 ## Build
 
 ```bash
+# install node modules
+npm install
+
 # generate js file and source map
 webpack
 
