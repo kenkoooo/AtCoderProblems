@@ -5,7 +5,7 @@ import { CategorySmallBlock } from "./CategorySmallBlock";
 import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
-import { SubmissionUtlis } from "../utils/SubmissionUtils";
+import { SubmissionUtils } from "../utils/SubmissionUtils";
 
 export interface CategoryProps {
   problems: Array<Problem>;

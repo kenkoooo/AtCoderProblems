@@ -1,4 +1,4 @@
-import { SubmissionUtlis } from "./SubmissionUtils";
+import { SubmissionUtils } from "./SubmissionUtils";
 import { Submission } from "../model/Submission";
 
 test("extract problems and results", () => {
@@ -53,11 +53,11 @@ test("extract problems and results", () => {
     }
   ];
   expect(
-    SubmissionUtlis.extractProblemIdsByUsers(submissions, new Set(["kenkoooo"]))
+    SubmissionUtils.extractProblemIdsByUsers(submissions, new Set(["kenkoooo"]))
   ).toEqual(new Map([["ac_problem", "AC"]]));
 
   expect(
-    SubmissionUtlis.extractProblemIdsByUsers(
+    SubmissionUtils.extractProblemIdsByUsers(
       submissions,
       new Set(["kenkoooo"]),
       new Set(["WA", "TLE"])

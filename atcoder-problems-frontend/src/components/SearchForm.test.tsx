@@ -5,7 +5,7 @@ import { shallow, mount } from "enzyme";
 import { configure } from "enzyme";
 import * as Adapter from "enzyme-adapter-react-16";
 import toJson from "enzyme-to-json";
-import { SubmissionUtlis } from "../utils/SubmissionUtils";
+import { SubmissionUtils } from "../utils/SubmissionUtils";
 
 configure({ adapter: new Adapter() });
 test("render list view", () => {
