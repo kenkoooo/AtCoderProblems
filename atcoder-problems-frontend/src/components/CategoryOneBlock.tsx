@@ -22,7 +22,7 @@ export class CategoryOneBlock extends React.Component<
 > {
   private contestLinkFormatter(contest: Contest) {
     return HtmlFormatter.createLink(
-      UrlFormatter.contestUrl(contest),
+      UrlFormatter.contestUrl(contest.id),
       contest.id.toUpperCase()
     );
   }

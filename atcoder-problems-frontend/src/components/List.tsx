@@ -33,7 +33,7 @@ function formatProblemTitle(problem: Problem, row: ProblemRow) {
 }
 
 function formatContestTitle(problem: Problem, row: ProblemRow) {
-  let contestUrl = UrlFormatter.contestUrl(row.contest);
+  let contestUrl = UrlFormatter.contestUrl(row.contest.id);
   return HtmlFormatter.createLink(contestUrl, row.contest.title);
 }
 

@@ -4,8 +4,8 @@ import { Submission } from "../model/Submission";
 
 export class UrlFormatter {
   private static BaseUrl = "https://beta.atcoder.jp";
-  static contestUrl(contest: Contest): string {
-    return `${this.BaseUrl}/contests/${contest.id}/`;
+  static contestUrl(contestId: string): string {
+    return `${this.BaseUrl}/contests/${contestId}/`;
   }
 
   static problemUrl(contestId: string, problemId: string): string {

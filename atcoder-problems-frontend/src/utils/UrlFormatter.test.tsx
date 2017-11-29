@@ -1,11 +1,7 @@
 import { UrlFormatter } from "./UrlFormatter";
 
 test("format contest url", () => {
-  let url = UrlFormatter.contestUrl({
-    id: "contest-name",
-    title: "",
-    start_epoch_second: 0
-  });
+  let url = UrlFormatter.contestUrl("contest-name");
   expect(url).toEqual("https://beta.atcoder.jp/contests/contest-name/");
 });
 

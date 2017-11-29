@@ -35,7 +35,9 @@ export class CategorySmallBlock extends React.Component<
           return (
             <div key={index}>
               <strong>
-                <a href={UrlFormatter.contestUrl(contest)}>{contest.title}</a>
+                <a href={UrlFormatter.contestUrl(contest.id)}>
+                  {contest.title}
+                </a>
               </strong>
               <Table striped bordered condensed hover>
                 <tbody>
