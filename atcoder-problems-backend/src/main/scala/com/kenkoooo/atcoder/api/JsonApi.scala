@@ -13,31 +13,33 @@ import com.kenkoooo.atcoder.scraper.AtCoder.UserNameRegex
   * @param sqlClient [[SqlClient]] to connect to SQL
   */
 class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
-  val routes: Route = get {
-    pathPrefix("info") {
-      conditional(EntityTagger.calculateDateTimeTag(lastUpdated()), lastUpdated()) {
-        path("contests") {
-          complete(sqlClient.contests.values.toList)
-        } ~ path("problems") {
-          complete(sqlClient.problems.values.toList)
-        } ~ path("ac") {
-          complete(sqlClient.acceptedCounts)
-        } ~ path("fast") {
-          complete(sqlClient.fastestSubmissionCounts)
-        } ~ path("first") {
-          complete(sqlClient.firstSubmissionCounts)
-        } ~ path("short") {
-          complete(sqlClient.shortestSubmissionCounts)
-        } ~ path("merged-problems") {
-          complete(sqlClient.mergedProblems)
+  val routes: Route = encodeResponse {
+    get {
+      pathPrefix("info") {
+        conditional(EntityTagger.calculateDateTimeTag(lastUpdated()), lastUpdated()) {
+          path("contests") {
+            complete(sqlClient.contests.values.toList)
+          } ~ path("problems") {
+            complete(sqlClient.problems.values.toList)
+          } ~ path("ac") {
+            complete(sqlClient.acceptedCounts)
+          } ~ path("fast") {
+            complete(sqlClient.fastestSubmissionCounts)
+          } ~ path("first") {
+            complete(sqlClient.firstSubmissionCounts)
+          } ~ path("short") {
+            complete(sqlClient.shortestSubmissionCounts)
+          } ~ path("merged-problems") {
+            complete(sqlClient.mergedProblems)
+          }
         }
-      }
-    } ~ path("results") {
-      parameters('user ? "", 'rivals ? "") { (user, rivals) =>
-        val rivalList = rivals.split(",").map(_.trim).toList
-        val users = (user :: rivalList).filter(_.length > 0).filter(_.matches(UserNameRegex))
+      } ~ path("results") {
+        parameters('user ? "", 'rivals ? "") { (user, rivals) =>
+          val rivalList = rivals.split(",").map(_.trim).toList
+          val users = (user :: rivalList).filter(_.length > 0).filter(_.matches(UserNameRegex))
 
-        complete(sqlClient.loadUserSubmissions(users: _*).toList)
+          complete(sqlClient.loadUserSubmissions(users: _*).toList)
+        }
       }
     }
   }
