@@ -64,7 +64,7 @@ export class Application extends React.Component<{}, ApplicationState> {
   setSubmissions() {
     ApiCall.getSubmissions("./atcoder-api/results", {
       user: this.state.args.userId,
-      rivals: this.state.args.rivals
+      rivals: this.state.args.rivals.join(",")
     })
       .then(submissions => this.setState({ submissions: submissions }))
       .catch(err => console.error(err));
