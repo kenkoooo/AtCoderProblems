@@ -43,7 +43,7 @@ test("get and parse problems", () => {
   let mockAgent = require("superagent");
   mockAgent.get.mockReturnValueOnce(new MockRequest(response));
   require("./ApiCall")
-    .ApiCall.getProblems("")
+    .ApiCall.getProblems()
     .then((problems: Problem[]) => {
       expect(problems).toEqual([
         {
@@ -110,7 +110,7 @@ test("get and parse contests", () => {
   let mockAgent = require("superagent");
   mockAgent.get.mockReturnValueOnce(new MockRequest(response));
   require("./ApiCall")
-    .ApiCall.getContests("")
+    .ApiCall.getContests()
     .then((contests: Contest[]) => {
       expect(contests).toEqual([
         {

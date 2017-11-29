@@ -47,12 +47,12 @@ export class Application extends React.Component<{}, ApplicationState> {
   }
 
   setContests() {
-    ApiCall.getContests("./atcoder-api/info/contests")
+    ApiCall.getContests()
       .then(contests => this.setState({ contests: contests }))
       .catch(err => console.error(err));
   }
   setProblems() {
-    ApiCall.getProblems("./atcoder-api/info/problems")
+    ApiCall.getProblems()
       .then(problems => this.setState({ problems: problems }))
       .catch(err => console.error(err));
   }
