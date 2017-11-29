@@ -6,14 +6,11 @@ module.exports = {
     path: __dirname + "/dist"
   },
 
-  // Enable sourcemaps for debugging webpack's output.
-  devtool: "source-map",
-
   plugins: [
     // minify js files
     new webpack.optimize.UglifyJsPlugin({
       // use source map even when minifying
-      sourceMap: true
+      sourceMap: false
     })
   ],
   resolve: {
