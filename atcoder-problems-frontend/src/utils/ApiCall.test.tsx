@@ -2,6 +2,7 @@ import { Problem } from "../model/Problem";
 import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
 import { MergedProblem } from "../model/MergedProblem";
+import { RankPair } from "../model/RankPair";
 
 class MockRequest {
   constructor(body: any, error?: any) {
@@ -80,7 +81,7 @@ test("get and parse merged problems", () => {
   let mockAgent = require("superagent");
   mockAgent.get.mockReturnValueOnce(new MockRequest(response));
   require("./ApiCall")
-    .ApiCall.getMergedProblems("")
+    .ApiCall.getMergedProblems()
     .then((problems: MergedProblem[]) => {
       expect(problems).toEqual([
         {
@@ -158,5 +159,36 @@ test("get and parse submissions", () => {
     .then((submissions: Submission[]) => {
       expect(submissions[0].id).toEqual(74283);
       expect(submissions[1].id).toEqual(74285);
+    });
+});
+
+test("parse ranking", () => {
+  let response: any = [
+    {
+      user_id: "AGE",
+      problem_count: 3
+    },
+    {
+      user_id: "Abcdefgprogrammi",
+      problem_count: 1
+    }
+  ];
+
+  jest.mock("superagent");
+  let mockAgent = require("superagent");
+  mockAgent.get.mockReturnValueOnce(new MockRequest(response));
+  require("./ApiCall")
+    .ApiCall.getRanking()
+    .then((ranks: RankPair[]) => {
+      expect(ranks[0]).toEqual({
+        userId: "AGE",
+        count: 3,
+        rank: 1
+      });
+      expect(ranks[1]).toEqual({
+        userId: "Abcdefgprogrammi",
+        count: 1,
+        rank: 2
+      });
     });
 });
