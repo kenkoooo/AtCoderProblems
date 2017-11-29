@@ -13779,6 +13779,7 @@ exports[`render list view 1`] = `
         }
         pagination={false}
         printable={false}
+        renderAlert={true}
         replace={false}
         search={true}
         selectRow={
