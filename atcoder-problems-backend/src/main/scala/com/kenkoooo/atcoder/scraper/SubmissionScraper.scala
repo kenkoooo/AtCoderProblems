@@ -18,70 +18,79 @@ class SubmissionScraper extends Logging {
     * @param page    the page number to scrape
     *
     **/
-  def scrape(contest: ContestId, page: Int): Array[Submission] = {
-    val browser = JsoupBrowser()
-    val url = s"${AtCoder.BaseUrl}contests/$contest/submissions?page=$page"
+  def scrape(contest: ContestId, page: Int): Array[Submission] =
+    Try {
+      val browser = JsoupBrowser()
+      val url = s"${AtCoder.BaseUrl}contests/$contest/submissions?page=$page"
 
-    logger.info(s"scraping $url...")
-    val doc = browser.get(url)
-    val submissions = for (tr <- doc >> elements("tbody > tr"))
-      yield
-        Try {
-          val row = (for (td <- tr >> elements("td")) yield td).toArray
-          val time = row(0).text
+      logger.info(s"scraping $url...")
+      val doc = browser.get(url)
+      val submissions = for (tr <- doc >> elements("tbody > tr"))
+        yield
+          Try {
+            val row = (for (td <- tr >> elements("td")) yield td).toArray
+            val time = row(0).text
 
-          val problemId = {
-            val pattern = "^.*?tasks/([a-zA-Z0-9-_]+)$".r
-            val problemUrl = (row(1) >> element("a")).attr("href")
-            val pattern(id) = problemUrl
-            id
-          }
-
-          val userId = {
-            val pattern = "^.*?users/([a-zA-Z0-9-_]+)$".r
-            val userUrl = (row(2) >> element("a")).attr("href")
-            val pattern(userId) = userUrl
-            userId
-          }
-
-          val language = row(3).text
-          val point = row(4).text.toDouble
-          val length = row(5).text.replaceAll(" Byte", "").toInt
-          val result = row(6).text
-
-          val (executionTime, idUrl) = {
-            if (row.length == 10) {
-              (Some(row(7).text.replaceAll(" ms", "").toInt), (row(9) >> element("a")).attr("href"))
-            } else {
-              (None, (row(7) >> element("a")).attr("href"))
+            val problemId = {
+              val pattern = "^.*?tasks/([a-zA-Z0-9-_]+)$".r
+              val problemUrl = (row(1) >> element("a")).attr("href")
+              val pattern(id) = problemUrl
+              id
             }
-          }
 
-          val id = {
-            val pattern = "^.*?submissions/(\\d+)$".r
-            val pattern(idStr) = idUrl
-            idStr.toLong
-          }
+            val userId = {
+              val pattern = "^.*?users/([a-zA-Z0-9-_]+)$".r
+              val userUrl = (row(2) >> element("a")).attr("href")
+              val pattern(userId) = userUrl
+              userId
+            }
 
-          Submission(
-            epochSecond = AtCoder.parseDateTimeToEpochSecond(time),
-            problemId = problemId,
-            userId = userId,
-            language = language,
-            point = point,
-            length = length,
-            result = result,
-            executionTime = executionTime,
-            id = id,
-            contestId = contest
-          )
-        } match {
-          case Success(submission) =>
-            Some(submission)
-          case Failure(e) =>
-            logger.catching(e)
-            None
-        }
-    submissions.flatten.filter(_.result.matches("^[A-Z]+$")).toArray
-  }
+            val language = row(3).text
+            val point = row(4).text.toDouble
+            val length = row(5).text.replaceAll(" Byte", "").toInt
+            val result = row(6).text
+
+            val (executionTime, idUrl) = {
+              if (row.length == 10) {
+                (
+                  Some(row(7).text.replaceAll(" ms", "").toInt),
+                  (row(9) >> element("a")).attr("href")
+                )
+              } else {
+                (None, (row(7) >> element("a")).attr("href"))
+              }
+            }
+
+            val id = {
+              val pattern = "^.*?submissions/(\\d+)$".r
+              val pattern(idStr) = idUrl
+              idStr.toLong
+            }
+
+            Submission(
+              epochSecond = AtCoder.parseDateTimeToEpochSecond(time),
+              problemId = problemId,
+              userId = userId,
+              language = language,
+              point = point,
+              length = length,
+              result = result,
+              executionTime = executionTime,
+              id = id,
+              contestId = contest
+            )
+          } match {
+            case Success(submission) =>
+              Some(submission)
+            case Failure(e) =>
+              logger.catching(e)
+              None
+          }
+      submissions.flatten.filter(_.result.matches("^[A-Z]+$")).toArray
+    } match {
+      case Success(array) => array
+      case Failure(e) =>
+        logger.catching(e)
+        Array[Submission]()
+    }
 }
