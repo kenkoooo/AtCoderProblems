@@ -10,7 +10,7 @@ import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
 import { ArgumentParser, Arguments } from "../utils/Arguments";
 import { MergedProblem } from "../model/MergedProblem";
-import { SubmissionUtlis } from "../utils/SubmissionUtils";
+import { SubmissionUtils } from "../utils/SubmissionUtils";
 import { NavigationBar } from "./NavigationBar";
 import { UserPage } from "./UserPage";
 import { Ranking } from "./Ranking";
@@ -93,12 +93,12 @@ export class Application extends React.Component<{}, ApplicationState> {
 
   chooseByKind() {
     let acceptedProblems = new Set(
-      SubmissionUtlis.extractProblemIdsByUsers(
+      SubmissionUtils.extractProblemIdsByUsers(
         this.state.submissions,
         new Set([this.state.args.userId])
       ).keys()
     );
-    let wrongProblemMap = SubmissionUtlis.extractProblemIdsByUsers(
+    let wrongProblemMap = SubmissionUtils.extractProblemIdsByUsers(
       this.state.submissions,
       new Set([this.state.args.userId]),
       new Set(["WA", "TLE", "MLE", "RE"])
@@ -107,7 +107,7 @@ export class Application extends React.Component<{}, ApplicationState> {
     switch (this.state.args.kind) {
       case ViewKind.Category:
         let rivalProblems = new Set(
-          SubmissionUtlis.extractProblemIdsByUsers(
+          SubmissionUtils.extractProblemIdsByUsers(
             this.state.submissions,
             new Set(this.state.args.rivals)
           ).keys()

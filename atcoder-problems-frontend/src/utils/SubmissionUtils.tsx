@@ -1,6 +1,6 @@
 import { Submission } from "../model/Submission";
 
-export class SubmissionUtlis {
+export class SubmissionUtils {
   /**
    * extract problem ids of the given result with the given users
    * @param submissions list of submissions

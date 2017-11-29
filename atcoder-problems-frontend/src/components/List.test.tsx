@@ -5,7 +5,7 @@ import { shallow, mount } from "enzyme";
 import { configure } from "enzyme";
 import * as Adapter from "enzyme-adapter-react-16";
 import toJson from "enzyme-to-json";
-import { SubmissionUtlis } from "../utils/SubmissionUtils";
+import { SubmissionUtils } from "../utils/SubmissionUtils";
 import { Submission } from "../model/Submission";
 
 configure({ adapter: new Adapter() });
@@ -18,12 +18,12 @@ test("render list view", () => {
   let contests = DB["contests"];
   let submissions: Submission[] = DB["results"];
   let acceptedProblems = new Set(
-    SubmissionUtlis.extractProblemIdsByUsers(
+    SubmissionUtils.extractProblemIdsByUsers(
       submissions,
       new Set([userId])
     ).keys()
   );
-  let wrongProblemMap = SubmissionUtlis.extractProblemIdsByUsers(
+  let wrongProblemMap = SubmissionUtils.extractProblemIdsByUsers(
     submissions,
     new Set([userId]),
     new Set(["WA", "TLE", "MLE", "RE"])
