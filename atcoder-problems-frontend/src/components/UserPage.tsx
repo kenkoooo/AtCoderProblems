@@ -7,6 +7,7 @@ import { UserPageBarChart } from "./UserPageBarChart";
 import { UserSearchForm } from "./UserSearchForm";
 import { Submission } from "../model/Submission";
 import { Problem } from "../model/Problem";
+import { UserPageAchievements } from "./UserPageAchievements";
 
 export interface UserPageProps {
   userId: string;
@@ -64,6 +65,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
           <UserSearchForm userId={this.props.userId} />
         </Row>
         <PageHeader>{this.props.userId}</PageHeader>
+        <UserPageAchievements userId={this.props.userId} />
 
         <PageHeader>AtCoder Beginner Contest</PageHeader>
         <Row>
