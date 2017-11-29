@@ -2,6 +2,7 @@ import * as React from "react";
 import { RankPair } from "../model/RankPair";
 import { ApiCall } from "../utils/ApiCall";
 import { Row, Col } from "react-bootstrap";
+import { RankingKind } from "../model/RankingKind";
 
 interface UserPageAchievementsState {
   ac: Array<RankPair>;
@@ -29,16 +30,16 @@ export class UserPageAchievements extends React.Component<
   }
 
   componentWillMount() {
-    ApiCall.getRanking("./atcoder-api/info/ac").then(ranking =>
+    ApiCall.getRanking(RankingKind.Accepted).then(ranking =>
       this.setState({ ac: ranking.slice(0, 1000) })
     );
-    ApiCall.getRanking("./atcoder-api/info/short").then(ranking =>
+    ApiCall.getRanking(RankingKind.Shortest).then(ranking =>
       this.setState({ short: ranking })
     );
-    ApiCall.getRanking("./atcoder-api/info/first").then(ranking =>
+    ApiCall.getRanking(RankingKind.First).then(ranking =>
       this.setState({ first: ranking })
     );
-    ApiCall.getRanking("./atcoder-api/info/fast").then(ranking =>
+    ApiCall.getRanking(RankingKind.Fastest).then(ranking =>
       this.setState({ fast: ranking })
     );
   }
