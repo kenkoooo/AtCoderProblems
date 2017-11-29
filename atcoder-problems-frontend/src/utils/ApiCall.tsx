@@ -6,6 +6,8 @@ import { RankPair } from "../model/RankPair";
 import { MergedProblem } from "../model/MergedProblem";
 
 export class ApiCall {
+  static BaseUrl = "./atcoder-api";
+
   static getJson(url: string, query?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       request
@@ -22,7 +24,8 @@ export class ApiCall {
     });
   }
 
-  static getProblems(url: string): Promise<Array<Problem>> {
+  static getProblems(): Promise<Array<Problem>> {
+    let url = `${this.BaseUrl}/info/problems`;
     return this.getJson(url).then((obj: Array<any>) => {
       let problems: Problem[] = obj.map(o => {
         let p = { id: o["id"], title: o["title"], contestId: o["contest_id"] };
@@ -52,7 +55,8 @@ export class ApiCall {
     });
   }
 
-  static getContests(url: string): Promise<Array<Contest>> {
+  static getContests(): Promise<Array<Contest>> {
+    let url = `${this.BaseUrl}/info/contests`;
     return this.getJson(url).then((obj: Array<any>) => {
       let contests: Contest[] = obj.map(o => {
         return {
@@ -70,7 +74,7 @@ export class ApiCall {
     query?: { user: string; rivals: string[] }
   ): Promise<Array<Submission>> {
     return this.getJson(url, query).then((obj: Array<any>) => {
-      let submisssions: Submission[] = obj.map(o => {
+      let submissions: Submission[] = obj.map(o => {
         return {
           point: o["point"],
           result: o["result"],
@@ -84,7 +88,7 @@ export class ApiCall {
           execution_time: o["execution_time"]
         };
       });
-      return submisssions;
+      return submissions;
     });
   }
 
