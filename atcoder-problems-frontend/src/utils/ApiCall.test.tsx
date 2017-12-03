@@ -89,7 +89,7 @@ test("get and parse merged problems", () => {
         {
           contestId: "arc057",
           execution_time: 19,
-          fastest_contest_id: undefined,
+          fastest_contest_id: "arc057",
           fastest_submission_id: 1002161,
           fastest_user_id: "joisino",
           first_contest_id: "arc057",
