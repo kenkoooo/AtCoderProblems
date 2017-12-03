@@ -36,14 +36,17 @@ case class MergedProblem(id: ProblemId,
                          shortestUserId: Option[UserId],
                          shortestContestId: Option[ContestId],
                          sourceCodeLength: Option[Int],
-                         solverCount: Int)
+                         solverCount: Int,
+                         point: Option[Double],
+                         predict: Option[Double])
 
 object MergedProblem extends SQLSyntaxSupport[MergedProblem] {
   def apply(problem: SyntaxProvider[Problem],
             fastestSubmission: SyntaxProvider[Submission],
             firstSubmission: SyntaxProvider[Submission],
             shortestSubmission: SyntaxProvider[Submission],
-            solver: SyntaxProvider[ProblemSolver])(rs: WrappedResultSet): MergedProblem =
+            solver: SyntaxProvider[ProblemSolver],
+            points: SyntaxProvider[Point])(rs: WrappedResultSet): MergedProblem =
     MergedProblem(
       id = rs.string(problem.resultName.id),
       contestId = rs.string(problem.resultName.contestId),
@@ -59,6 +62,8 @@ object MergedProblem extends SQLSyntaxSupport[MergedProblem] {
       shortestUserId = rs.stringOpt(shortestSubmission.resultName.userId),
       shortestContestId = rs.stringOpt(shortestSubmission.resultName.contestId),
       sourceCodeLength = rs.intOpt(shortestSubmission.resultName.length),
-      solverCount = rs.intOpt(solver.resultName.userCount).getOrElse(0)
+      solverCount = rs.intOpt(solver.resultName.userCount).getOrElse(0),
+      point = rs.doubleOpt(points.resultName.point),
+      predict = rs.doubleOpt(points.resultName.predict)
     )
 }

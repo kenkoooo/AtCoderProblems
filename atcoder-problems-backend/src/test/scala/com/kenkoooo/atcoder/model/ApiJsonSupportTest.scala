@@ -100,24 +100,29 @@ class ApiJsonSupportTest extends FunSuite with Matchers with ApiJsonSupport {
       sourceCodeLength = Some(5),
       contestId = "contest",
       title = "title",
-      solverCount = 6
-    ).toJson.prettyPrint shouldBe """{
-                                    |  "first_submission_id": 3,
-                                    |  "solver_count": 6,
-                                    |  "fastest_user_id": "fastest",
-                                    |  "execution_time": 2,
-                                    |  "shortest_user_id": "shortest",
-                                    |  "first_contest_id": "first_contest",
-                                    |  "shortest_submission_id": 4,
-                                    |  "fastest_contest_id": "fastest_contest",
-                                    |  "contest_id": "contest",
-                                    |  "id": "problem_id",
-                                    |  "fastest_submission_id": 1,
-                                    |  "shortest_contest_id": "shortest_contest",
-                                    |  "first_user_id": "first",
-                                    |  "title": "title",
-                                    |  "source_code_length": 5
-                                    |}""".stripMargin
+      solverCount = 6,
+      point = Some(7.0),
+      predict = Some(8.0)
+    ).toJson.prettyPrint shouldBe
+      """{
+        |  "first_submission_id": 3,
+        |  "solver_count": 6,
+        |  "fastest_user_id": "fastest",
+        |  "execution_time": 2,
+        |  "point": 7.0,
+        |  "shortest_user_id": "shortest",
+        |  "first_contest_id": "first_contest",
+        |  "shortest_submission_id": 4,
+        |  "fastest_contest_id": "fastest_contest",
+        |  "contest_id": "contest",
+        |  "id": "problem_id",
+        |  "fastest_submission_id": 1,
+        |  "shortest_contest_id": "shortest_contest",
+        |  "first_user_id": "first",
+        |  "predict": 8.0,
+        |  "title": "title",
+        |  "source_code_length": 5
+        |}""".stripMargin
 
   }
 }

@@ -88,7 +88,9 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     val columns = AcceptedCount.column
     val submission = Submission.syntax("s")
     DB.localTx { implicit session =>
-      withSQL { deleteFrom(AcceptedCount) }.execute().apply()
+      withSQL {
+        deleteFrom(AcceptedCount)
+      }.execute().apply()
       withSQL {
         insertInto(AcceptedCount)
           .columns(columns.userId, columns.problemCount)
@@ -109,7 +111,9 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     val v = ProblemSolver.column
     val s = Submission.syntax("s")
     DB.localTx { implicit session =>
-      withSQL { deleteFrom(ProblemSolver) }.execute().apply()
+      withSQL {
+        deleteFrom(ProblemSolver)
+      }.execute().apply()
       withSQL {
         insertInto(ProblemSolver)
           .columns(v.userCount, v.problemId)
@@ -130,7 +134,9 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     val parent = parentTable.syntax("p")
     val submissions = Submission.syntax("s")
     DB.localTx { implicit session =>
-      withSQL { deleteFrom(support) }.update().apply()
+      withSQL {
+        deleteFrom(support)
+      }.update().apply()
       withSQL {
         insertInto(support)
           .columns(columns.problemCount, columns.userId)
@@ -180,7 +186,9 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     val result = submission.c("result")
 
     DB.localTx { implicit session =>
-      withSQL { deleteFrom(support) }.execute().apply()
+      withSQL {
+        deleteFrom(support)
+      }.execute().apply()
       withSQL {
         insertInto(support)
           .columns(columns.contestId, columns.problemId, columns.submissionId)
@@ -260,6 +268,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
       val shortest = Shortest.syntax("shortest")
       val shortestSubmission = Submission.syntax("shortest_submission")
       val solver = ProblemSolver.syntax("solver")
+      val points = Point.syntax("points")
 
       withSQL {
         select
@@ -278,7 +287,18 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
           .on(firstSubmission.id, first.submissionId)
           .leftJoin(ProblemSolver as solver)
           .on(solver.problemId, problem.id)
-      }.map(MergedProblem(problem, fastestSubmission, firstSubmission, shortestSubmission, solver))
+          .leftJoin(Point as points)
+          .on(points.problemId, problem.id)
+      }.map(
+          MergedProblem(
+            problem,
+            fastestSubmission,
+            firstSubmission,
+            shortestSubmission,
+            solver,
+            points
+          )
+        )
         .list()
         .apply()
     }
