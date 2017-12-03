@@ -92,3 +92,10 @@ CREATE TABLE accepted_count (
   PRIMARY KEY (user_id)
 );
 
+DROP TABLE IF EXISTS points;
+CREATE TABLE points (
+  problem_id            VARCHAR(255) NOT NULL,
+  point                 DOUBLE PRECISION,
+  predict                 DOUBLE PRECISION,
+  PRIMARY KEY (problem_id)
+);
