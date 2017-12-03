@@ -16,4 +16,6 @@ export interface MergedProblem extends Problem {
   fastest_contest_id: string;
   shortest_contest_id: string;
   first_contest_id: string;
+  point: number;
+  predict: number;
 }
