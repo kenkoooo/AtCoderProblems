@@ -339,10 +339,21 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
         contestId = contestId
       )
     )
+    DB.localTx { implicit session =>
+      sql"INSERT INTO points (problem_id, point) VALUES ($problemId, 1.0)".execute().apply()
+      sql"INSERT INTO points (problem_id, predict) VALUES ($notSolvedProblemId, 1.0)"
+        .execute()
+        .apply()
+    }
+
     client.batchUpdateStatisticTables()
     val problems = client.loadMergedProblems()
     problems.find(_.id == problemId).get.solverCount shouldBe 1
     problems.find(_.id == problemId).get.contestId shouldBe contestId
+    problems.find(_.id == problemId).get.point.get shouldBe 1.0
+    problems.find(_.id == problemId).get.predict shouldBe None
     problems.find(_.id == notSolvedProblemId).get.solverCount shouldBe 0
+    problems.find(_.id == notSolvedProblemId).get.point shouldBe None
+    problems.find(_.id == notSolvedProblemId).get.predict.get shouldBe 1.0
   }
 }
