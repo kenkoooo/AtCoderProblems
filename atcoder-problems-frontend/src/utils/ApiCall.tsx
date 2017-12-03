@@ -113,7 +113,9 @@ export class ApiCall {
           source_code_length: o["source_code_length"],
           fastest_contest_id: o["fastest_contest_idw"],
           shortest_contest_id: o["shortest_contest_id"],
-          first_contest_id: o["first_contest_id"]
+          first_contest_id: o["first_contest_id"],
+          point: o["point"],
+          predict: o["predict"]
         };
       });
       return problems;

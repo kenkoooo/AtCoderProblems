@@ -73,7 +73,9 @@ test("get and parse merged problems", () => {
       shortest_contest_id: "arc057",
       first_user_id: "tozangezan",
       title: "D. 全域木",
-      source_code_length: 1079
+      source_code_length: 1079,
+      point: 0.0,
+      predict: 1.0
     }
   ];
 
@@ -99,7 +101,9 @@ test("get and parse merged problems", () => {
           shortest_user_id: "august14",
           solver_count: 34,
           source_code_length: 1079,
-          title: "D. 全域木"
+          title: "D. 全域木",
+          point: 0.0,
+          predict: 1.0
         }
       ]);
     });

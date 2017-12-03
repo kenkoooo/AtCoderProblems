@@ -25,6 +25,7 @@ interface ProblemRow {
   problem: MergedProblem;
   contest: Contest;
   solver: number;
+  point: number;
 }
 
 function formatProblemTitle(problem: Problem, row: ProblemRow) {
@@ -147,10 +148,14 @@ export class List extends React.Component<ListProps, {}> {
       .filter(p => contestMap.has(p.contestId))
       .map(problem => {
         let contest = contestMap.get(problem.contestId);
+        let point = problem.point
+          ? problem.point
+          : problem.predict ? problem.predict : -1;
         return {
           problem: problem,
           contest: contest,
-          solver: problem.solver_count
+          solver: problem.solver_count,
+          point: point
         };
       });
 
@@ -207,6 +212,9 @@ export class List extends React.Component<ListProps, {}> {
             dataSort
           >
             Solvers
+          </TableHeaderColumn>
+          <TableHeaderColumn dataField="point" dataAlign="right" dataSort>
+            Point
           </TableHeaderColumn>
           <TableHeaderColumn
             dataField="problem"
