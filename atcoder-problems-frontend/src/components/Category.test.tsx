@@ -8,7 +8,7 @@ import * as fs from "fs";
 import { SubmissionUtils } from "../utils/SubmissionUtils";
 
 configure({ adapter: new Adapter() });
-let DB = JSON.parse(fs.readFileSync("./db.json").toString());
+let DB = require("../../db")();
 test("split problems", () => {
   let userId = "kenkoooo";
   let rivals = ["chokudai", "iwiwi"];

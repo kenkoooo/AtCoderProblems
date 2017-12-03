@@ -9,7 +9,7 @@ import { SubmissionUtils } from "../utils/SubmissionUtils";
 import { Submission } from "../model/Submission";
 
 configure({ adapter: new Adapter() });
-let DB = JSON.parse(fs.readFileSync("./db.json").toString());
+let DB = require("../../db")();
 test("render list view", () => {
   let userId = "kenkoooo";
   let rivals = ["chokudai", "iwiwi"];
