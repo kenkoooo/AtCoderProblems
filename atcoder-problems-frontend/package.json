@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --config ./webpack.config.prd.js",
     "test": "jest",
-    "start": "json-server --static ./ --routes routes.json db.json"
+    "start": "json-server --static ./ --routes routes.json db.js"
   },
   "author": "kenkoooo",
   "license": "ISC",

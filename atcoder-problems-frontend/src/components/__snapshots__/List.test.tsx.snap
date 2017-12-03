@@ -357,6 +357,167 @@ exports[`render list view 1`] = `
       "indeednow_2015_qualb_4",
       "indeednow_2015_qualc_3",
       "utpc2013_09",
+      "arc063_a",
+      "arc063_c",
+      "arc063_b",
+      "agc004_d",
+      "agc004_c",
+      "agc004_b",
+      "agc004_a",
+      "arc032_3",
+      "arc032_2",
+      "arc032_1",
+      "dwango2015_prelims_1",
+      "dwango2015_prelims_2",
+      "abc039_d",
+      "abc039_c",
+      "abc039_b",
+      "abc039_a",
+      "abc005_2",
+      "abc005_1",
+      "abc005_4",
+      "abc005_3",
+      "abc027_a",
+      "abc027_d",
+      "abc027_c",
+      "abc027_b",
+      "arc056_b",
+      "arc056_a",
+      "abc020_a",
+      "abc020_d",
+      "abc020_b",
+      "abc020_c",
+      "agc001_d",
+      "agc001_c",
+      "agc001_b",
+      "agc001_a",
+      "ddcc2017_qual_d",
+      "ddcc2017_qual_c",
+      "ddcc2017_qual_b",
+      "ddcc2017_qual_a",
+      "chokudai002_a",
+      "arc069_c",
+      "arc069_b",
+      "arc069_a",
+      "tenka1_2016_qualB_d",
+      "tenka1_2016_qualB_c",
+      "tenka1_2016_qualB_b",
+      "tenka1_2016_qualB_a",
+      "abc016_3",
+      "arc040_c",
+      "arc040_b",
+      "arc040_a",
+      "arc067_c",
+      "arc067_b",
+      "arc067_a",
+      "code_festival_relay_c",
+      "code_festival_relay_b",
+      "code_festival_relay_a",
+      "abc050_a",
+      "abc010_4",
+      "abc010_1",
+      "arc002_1",
+      "abc021_d",
+      "abc021_c",
+      "abc021_b",
+      "abc021_a",
+      "code_festival_qualB_b",
+      "code_festival_qualB_a",
+      "code_festival_qualB_d",
+      "code_festival_qualB_c",
+      "arc024_1",
+      "atc002_b",
+      "arc053_c",
+      "arc053_b",
+      "arc053_a",
+      "arc043_b",
+      "arc043_c",
+      "arc043_a",
+      "arc038_c",
+      "arc038_b",
+      "arc038_a",
+      "arc035_c",
+      "arc035_d",
+      "arc035_b",
+      "arc035_a",
+      "abc037_d",
+      "abc037_c",
+      "abc037_b",
+      "abc037_a",
+      "agc016_c",
+      "agc016_b",
+      "agc016_a",
+      "arc031_1",
+      "arc031_2",
+      "arc081_c",
+      "arc081_b",
+      "arc081_a",
+      "arc049_b",
+      "arc049_a",
+      "agc009_b",
+      "agc009_a",
+      "codefestival_2016_qualA_e",
+      "codefestival_2016_qualA_d",
+      "codefestival_2016_qualA_c",
+      "codefestival_2016_qualA_b",
+      "codefestival_2016_qualA_a",
+      "code_festival_morning_easy_b",
+      "code_festival_morning_easy_a",
+      "arc027_1",
+      "arc027_2",
+      "tenka1_2016_final_c",
+      "agc005_c",
+      "agc005_b",
+      "agc005_a",
+      "code_festival_final_e",
+      "code_festival_final_c",
+      "code_festival_final_d",
+      "code_festival_final_b",
+      "code_festival_final_a",
+      "abc015_3",
+      "abc015_1",
+      "abc015_4",
+      "abc015_2",
+      "abc026_d",
+      "abc026_c",
+      "abc026_b",
+      "abc026_a",
+      "indeednow_2015_quala_3",
+      "indeednow_2015_quala_4",
+      "indeednow_2015_quala_2",
+      "indeednow_2015_quala_1",
+      "abc038_d",
+      "abc038_c",
+      "abc038_b",
+      "abc038_a",
+      "abc004_3",
+      "abc004_1",
+      "abc004_4",
+      "abc004_2",
+      "kupc2015_b",
+      "kupc2015_g",
+      "kupc2015_e",
+      "kupc2015_d",
+      "kupc2015_c",
+      "kupc2015_a",
+      "arc046_d",
+      "arc046_c",
+      "arc046_b",
+      "arc046_a",
+      "code_festival_morning_easy_d",
+      "code_festival_morning_easy_c",
+      "code_festival_morning_med_c",
+      "abc049_a",
+      "abc032_a",
+      "abc032_b",
+      "abc032_c",
+      "abc032_d",
+      "ijpc2015_a",
+      "jag2016secretspring_d",
+      "agc013_c",
+      "agc013_b",
+      "agc013_a",
+      "abc009_3",
     }
   }
   contests={
@@ -873,6 +1034,13 @@ exports[`render list view 1`] = `
         "title": "AtCoder Grand Contest 019",
       },
       Object {
+        "duration_second": 10800,
+        "id": "cf17-final-open",
+        "rate_change": "All",
+        "start_epoch_second": 1511580600,
+        "title": "CODE FESTIVAL 2017 Final (Parallel)",
+      },
+      Object {
         "duration_second": 18000,
         "id": "joisc2013-day3",
         "rate_change": "×",
@@ -1188,6 +1356,13 @@ exports[`render list view 1`] = `
         "title": "天下一プログラマーコンテスト2015予選A",
       },
       Object {
+        "duration_second": 10800,
+        "id": "code-thanks-festival-2017",
+        "rate_change": "×",
+        "start_epoch_second": 1512183600,
+        "title": "CODE THANKS FESTIVAL 2017",
+      },
+      Object {
         "duration_second": 6000,
         "id": "arc084",
         "rate_change": "~ 2799",
@@ -1291,6 +1466,13 @@ exports[`render list view 1`] = `
         "rate_change": "All",
         "start_epoch_second": 1408795200,
         "title": "天下一プログラマーコンテスト2014予選B",
+      },
+      Object {
+        "duration_second": 1800,
+        "id": "cf17-tournament-round2-open",
+        "rate_change": "×",
+        "start_epoch_second": 1511661900,
+        "title": "CODE FESTIVAL 2017 Elimination Tournament Round 2 (Parallel)",
       },
       Object {
         "duration_second": 10800,
@@ -1769,6 +1951,13 @@ exports[`render list view 1`] = `
         "title": "2007年 日本情報オリンピック春合宿OJ",
       },
       Object {
+        "duration_second": 10800,
+        "id": "cf17-final",
+        "rate_change": "All",
+        "start_epoch_second": 1511580600,
+        "title": "CODE FESTIVAL 2017 Final",
+      },
+      Object {
         "duration_second": 7200,
         "id": "tricky",
         "rate_change": "All",
@@ -2147,6 +2336,13 @@ exports[`render list view 1`] = `
         "title": "AtCoder Regular Contest 066",
       },
       Object {
+        "duration_second": 1800,
+        "id": "cf17-tournament-round1-open",
+        "rate_change": "×",
+        "start_epoch_second": 1511659200,
+        "title": "CODE FESTIVAL 2017 Elimination Tournament Round 1 (Parallel)",
+      },
+      Object {
         "duration_second": 7200,
         "id": "abc028",
         "rate_change": "All",
@@ -2455,6 +2651,20 @@ exports[`render list view 1`] = `
         "title": "Chokudai Contest 002",
       },
       Object {
+        "duration_second": 10800,
+        "id": "code-thanks-festival-2017-open",
+        "rate_change": "×",
+        "start_epoch_second": 1512183600,
+        "title": "CODE THANKS FESTIVAL 2017(Parallel)",
+      },
+      Object {
+        "duration_second": 1209540,
+        "id": "hokudai-hitachi2017-1",
+        "rate_change": "×",
+        "start_epoch_second": 1510671600,
+        "title": "Hokkaido Univ.& Hitachi 1st New-concept Computing Contest 2017",
+      },
+      Object {
         "duration_second": 18000,
         "id": "yuha-c83",
         "rate_change": "All",
@@ -2595,6 +2805,13 @@ exports[`render list view 1`] = `
         "title": "IOIer Japan Programming Contest #1",
       },
       Object {
+        "duration_second": 5400,
+        "id": "cf17-relay-open",
+        "rate_change": "×",
+        "start_epoch_second": 1511677800,
+        "title": "Code Festival Team Relay (Parallel)",
+      },
+      Object {
         "duration_second": 7200,
         "id": "code-festival-2014-qualb",
         "rate_change": "All",
@@ -2607,6 +2824,13 @@ exports[`render list view 1`] = `
         "rate_change": "All",
         "start_epoch_second": 1338613200,
         "title": "WUPC 2012",
+      },
+      Object {
+        "duration_second": 2400,
+        "id": "cf17-tournament-round3-open",
+        "rate_change": "×",
+        "start_epoch_second": 1511664600,
+        "title": "CODE FESTIVAL 2017 Elimination Tournament Round 3 (Parallel)",
       },
       Object {
         "duration_second": 10800,
@@ -2915,6 +3139,13 @@ exports[`render list view 1`] = `
         "rate_change": "All",
         "start_epoch_second": 1415415600,
         "title": "CODE FESTIVAL 2014 決勝",
+      },
+      Object {
+        "duration_second": 3600,
+        "id": "cf17-exhibition-open",
+        "rate_change": "×",
+        "start_epoch_second": 1511606700,
+        "title": "CODE FESTIVAL 2017 Exhibition (Parallel)",
       },
       Object {
         "duration_second": 7200,
@@ -4477,6 +4708,11 @@ exports[`render list view 1`] = `
         "title": "2. マスコットの片付け (Mascots)",
       },
       Object {
+        "contest_id": "code-thanks-festival-2017",
+        "id": "code_thanks_festival_2017_c",
+        "title": "C. Factory",
+      },
+      Object {
         "contest_id": "code-festival-2017-quala",
         "id": "code_festival_2017_quala_b",
         "title": "B. fLIP",
@@ -5027,6 +5263,11 @@ exports[`render list view 1`] = `
         "title": "B. しりとり木",
       },
       Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_d",
+        "title": "D. Shock",
+      },
+      Object {
         "contest_id": "dwacon2017-prelims",
         "id": "dwango2017qual_d",
         "title": "D. ネタだけ食べたい寿司",
@@ -5065,6 +5306,11 @@ exports[`render list view 1`] = `
         "contest_id": "abc035",
         "id": "abc035_c",
         "title": "C. オセロ",
+      },
+      Object {
+        "contest_id": "code-thanks-festival-2017",
+        "id": "code_thanks_festival_2017_g",
+        "title": "G. Mixture Drug",
       },
       Object {
         "contest_id": "jag2017summer-day1",
@@ -5537,6 +5783,11 @@ exports[`render list view 1`] = `
         "title": "I. ツインリバース",
       },
       Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_i",
+        "title": "I. Nice to Meet You",
+      },
+      Object {
         "contest_id": "tenka1-2014-quala",
         "id": "tenka1_2014_qualA_a",
         "title": "A. 天下一序数",
@@ -5945,6 +6196,11 @@ exports[`render list view 1`] = `
         "contest_id": "jag2013summer-day3",
         "id": "icpc2013summer_day3_l",
         "title": "K. Air Pollution",
+      },
+      Object {
+        "contest_id": "code-thanks-festival-2017",
+        "id": "code_thanks_festival_2017_h",
+        "title": "H. Union Sets",
       },
       Object {
         "contest_id": "yahoo-procon2017-final-open",
@@ -6817,6 +7073,11 @@ exports[`render list view 1`] = `
         "title": "E. イルミネーション (Illumination)",
       },
       Object {
+        "contest_id": "code-thanks-festival-2017",
+        "id": "code_thanks_festival_2017_a",
+        "title": "A. Time Penalty",
+      },
+      Object {
         "contest_id": "joiopen2012b",
         "id": "apio_code",
         "title": "A. Code",
@@ -7275,6 +7536,11 @@ exports[`render list view 1`] = `
         "contest_id": "agc015",
         "id": "agc015_c",
         "title": "C. Nuske vs Phantom Thnook",
+      },
+      Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_c",
+        "title": "C. Garden",
       },
       Object {
         "contest_id": "abc006",
@@ -7947,6 +8213,11 @@ exports[`render list view 1`] = `
         "title": "F. グラフの個数",
       },
       Object {
+        "contest_id": "cf17-tournament-round1-open",
+        "id": "asaporo2_c",
+        "title": "C. Paired Parentheses",
+      },
+      Object {
         "contest_id": "cf17-final-open",
         "id": "cf17_final_b",
         "title": "B. Palindrome-phobia",
@@ -7995,6 +8266,11 @@ exports[`render list view 1`] = `
         "contest_id": "abc017",
         "id": "abc017_4",
         "title": "D. サプリメント",
+      },
+      Object {
+        "contest_id": "code-thanks-festival-2017",
+        "id": "code_thanks_festival_2017_d",
+        "title": "D. Bus Tour",
       },
       Object {
         "contest_id": "abc056",
@@ -8080,6 +8356,11 @@ exports[`render list view 1`] = `
         "contest_id": "oidashi",
         "id": "oidashi_c",
         "title": "C. 鏡餅",
+      },
+      Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_j",
+        "title": "J. Indifferent",
       },
       Object {
         "contest_id": "arc018",
@@ -8665,6 +8946,11 @@ exports[`render list view 1`] = `
         "contest_id": "ijpc2015",
         "id": "ijpc2015_j",
         "title": "E. Верный",
+      },
+      Object {
+        "contest_id": "code-thanks-festival-2017",
+        "id": "code_thanks_festival_2017_e",
+        "title": "E. Coin Authentication",
       },
       Object {
         "contest_id": "abc038",
@@ -9432,6 +9718,11 @@ exports[`render list view 1`] = `
         "title": "D. スプリンクラー",
       },
       Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_b",
+        "title": "B. Evergrowing Tree",
+      },
+      Object {
         "contest_id": "joi2014yo",
         "id": "joi2014yo_b",
         "title": "B. 投票 (Vote)",
@@ -9497,6 +9788,11 @@ exports[`render list view 1`] = `
         "title": "I. 電報",
       },
       Object {
+        "contest_id": "code-thanks-festival-2017",
+        "id": "code_thanks_festival_2017_b",
+        "title": "B. Concatenated Palindrome",
+      },
+      Object {
         "contest_id": "jag2014summer-day4",
         "id": "icpc2014summer_day4_g",
         "title": "G. リサイクル",
@@ -9515,6 +9811,11 @@ exports[`render list view 1`] = `
         "contest_id": "ddcc2017-qual",
         "id": "ddcc2017_qual_d",
         "title": "D. 石",
+      },
+      Object {
+        "contest_id": "cf17-tournament-round3-open",
+        "id": "asaporo2_e",
+        "title": "E. Black Cats Deployment",
       },
       Object {
         "contest_id": "tkppc2",
@@ -10210,6 +10511,11 @@ exports[`render list view 1`] = `
         "contest_id": "tkppc",
         "id": "tkppc2015_i",
         "title": "I. 重要証拠 (Important evidence)",
+      },
+      Object {
+        "contest_id": "cf17-tournament-round1-open",
+        "id": "asaporo2_d",
+        "title": "D. Ancient Tree Record",
       },
       Object {
         "contest_id": "indeednow-quala",
@@ -11137,6 +11443,11 @@ exports[`render list view 1`] = `
         "title": "C. Write and Erase",
       },
       Object {
+        "contest_id": "cf17-tournament-round3-open",
+        "id": "asaporo2_f",
+        "title": "F. Unicyclic Graph Counting",
+      },
+      Object {
         "contest_id": "code-festival-2015-qualb",
         "id": "codefestival_2015_qualB_a",
         "title": "A. ダブル文字列/Double String",
@@ -11245,6 +11556,11 @@ exports[`render list view 1`] = `
         "contest_id": "oidashi",
         "id": "oidashi_d",
         "title": "D. 幾何問題を書こう",
+      },
+      Object {
+        "contest_id": "code-thanks-festival-2017",
+        "id": "code_thanks_festival_2017_f",
+        "title": "F. Limited Xor Subset",
       },
       Object {
         "contest_id": "tkppc2",
@@ -11657,6 +11973,11 @@ exports[`render list view 1`] = `
         "title": "E. Sightseeing Plan",
       },
       Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_g",
+        "title": "G. Coinage",
+      },
+      Object {
         "contest_id": "arc028",
         "id": "arc028_4",
         "title": "D. 注文の多い高橋商店",
@@ -11750,6 +12071,11 @@ exports[`render list view 1`] = `
         "contest_id": "code-festival-2014-relay",
         "id": "code_festival_relay_g",
         "title": "G. haruki の覚醒め",
+      },
+      Object {
+        "contest_id": "cf17-tournament-round2-open",
+        "id": "asaporo2_b",
+        "title": "B. Many Swaps Sorting",
       },
       Object {
         "contest_id": "jag2015summer-day4",
@@ -12050,6 +12376,16 @@ exports[`render list view 1`] = `
         "contest_id": "NYC2015",
         "id": "nyc2015_1",
         "title": "A. 2015",
+      },
+      Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_a",
+        "title": "A. Kaiden",
+      },
+      Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_h",
+        "title": "H. Akashic Records",
       },
       Object {
         "contest_id": "agc004",
@@ -12537,6 +12873,11 @@ exports[`render list view 1`] = `
         "title": "A. Table Tennis",
       },
       Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_f",
+        "title": "F. Capture",
+      },
+      Object {
         "contest_id": "code-thanks-festival-2015-open",
         "id": "code_thanks_festival_2015_g",
         "title": "G. カメレオン",
@@ -12605,6 +12946,11 @@ exports[`render list view 1`] = `
         "contest_id": "agc003",
         "id": "agc003_a",
         "title": "A. Wanna go back home",
+      },
+      Object {
+        "contest_id": "cf17-tournament-round2-open",
+        "id": "asaporo2_a",
+        "title": "A. Colorful MST",
       },
       Object {
         "contest_id": "tenka1-2013-quala",
@@ -12740,6 +13086,11 @@ exports[`render list view 1`] = `
         "contest_id": "code-festival-2014-morning-middle",
         "id": "code_festival_morning_med_c",
         "title": "C. eject",
+      },
+      Object {
+        "contest_id": "cf17-relay-open",
+        "id": "relay2_e",
+        "title": "E. White and Blue",
       },
       Object {
         "contest_id": "tenka1-2014-qualb",
@@ -13463,7 +13814,1436 @@ exports[`render list view 1`] = `
       },
     ]
   }
-  rivalMap={Map {}}
+  rivalMap={
+    Map {
+      "arc072_a" => Set {
+        "chokudai",
+      },
+      "arc039_c" => Set {
+        "chokudai",
+      },
+      "arc039_b" => Set {
+        "chokudai",
+      },
+      "arc039_a" => Set {
+        "chokudai",
+      },
+      "arc061_b" => Set {
+        "chokudai",
+      },
+      "arc061_c" => Set {
+        "chokudai",
+      },
+      "arc061_a" => Set {
+        "chokudai",
+      },
+      "kupc2012pr_4" => Set {
+        "iwiwi",
+      },
+      "kupc2012pr_3" => Set {
+        "iwiwi",
+      },
+      "kupc2012_8" => Set {
+        "iwiwi",
+      },
+      "kupc2012_11" => Set {
+        "iwiwi",
+      },
+      "kupc2012_10" => Set {
+        "iwiwi",
+      },
+      "kupc2012_7" => Set {
+        "iwiwi",
+      },
+      "kupc2012_5" => Set {
+        "iwiwi",
+      },
+      "kupc2012_4" => Set {
+        "iwiwi",
+      },
+      "kupc2012_2" => Set {
+        "iwiwi",
+      },
+      "kupc2012_1" => Set {
+        "iwiwi",
+      },
+      "kupc2012_6" => Set {
+        "iwiwi",
+      },
+      "kupc2012_3" => Set {
+        "iwiwi",
+      },
+      "abc051_c" => Set {
+        "chokudai",
+      },
+      "abc051_d" => Set {
+        "chokudai",
+      },
+      "abc051_b" => Set {
+        "chokudai",
+      },
+      "arc030_3" => Set {
+        "chokudai",
+      },
+      "arc030_2" => Set {
+        "chokudai",
+      },
+      "arc030_1" => Set {
+        "chokudai",
+      },
+      "arc080_a" => Set {
+        "chokudai",
+      },
+      "arc080_c" => Set {
+        "chokudai",
+      },
+      "arc080_b" => Set {
+        "chokudai",
+      },
+      "arc050_b" => Set {
+        "chokudai",
+      },
+      "arc050_d" => Set {
+        "chokudai",
+      },
+      "arc050_c" => Set {
+        "chokudai",
+      },
+      "arc050_a" => Set {
+        "chokudai",
+      },
+      "codefestival_2016_ex_a" => Set {
+        "iwiwi",
+      },
+      "arc001_2" => Set {
+        "chokudai",
+      },
+      "arc001_3" => Set {
+        "chokudai",
+      },
+      "arc001_1" => Set {
+        "chokudai",
+      },
+      "codefestival_2016_final_b" => Set {
+        "chokudai",
+      },
+      "abc022_d" => Set {
+        "chokudai",
+      },
+      "abc022_c" => Set {
+        "chokudai",
+      },
+      "abc022_b" => Set {
+        "chokudai",
+      },
+      "abc022_a" => Set {
+        "chokudai",
+      },
+      "abc008_3" => Set {
+        "chokudai",
+      },
+      "tenka1_2013_qualB_d" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_qualB_b" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "tenka1_2013_qualB_e" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_qualB_c" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_qualB_a" => Set {
+        "iwiwi",
+      },
+      "k2pc001_h5" => Set {
+        "iwiwi",
+      },
+      "k2pc001_h3" => Set {
+        "iwiwi",
+      },
+      "k2pc001_h4" => Set {
+        "iwiwi",
+      },
+      "k2pc001_h2" => Set {
+        "iwiwi",
+      },
+      "k2pc001_h1" => Set {
+        "iwiwi",
+      },
+      "arc012_3" => Set {
+        "chokudai",
+      },
+      "arc012_2" => Set {
+        "chokudai",
+      },
+      "arc012_1" => Set {
+        "chokudai",
+      },
+      "arc028_3" => Set {
+        "chokudai",
+      },
+      "arc028_2" => Set {
+        "chokudai",
+      },
+      "arc028_1" => Set {
+        "chokudai",
+      },
+      "agc018_c" => Set {
+        "chokudai",
+      },
+      "agc018_d" => Set {
+        "chokudai",
+      },
+      "agc018_b" => Set {
+        "chokudai",
+      },
+      "agc018_a" => Set {
+        "chokudai",
+      },
+      "arc006_4" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc006_3" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc006_2" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc006_1" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "agc019_d" => Set {
+        "chokudai",
+      },
+      "agc019_c" => Set {
+        "chokudai",
+      },
+      "agc019_b" => Set {
+        "chokudai",
+      },
+      "agc019_a" => Set {
+        "chokudai",
+      },
+      "arc064_a" => Set {
+        "chokudai",
+      },
+      "arc064_d" => Set {
+        "chokudai",
+      },
+      "arc064_c" => Set {
+        "chokudai",
+      },
+      "arc064_b" => Set {
+        "chokudai",
+      },
+      "tenka1_2012_12" => Set {
+        "iwiwi",
+      },
+      "tenka1_2012_10" => Set {
+        "iwiwi",
+      },
+      "tenka1_2012_9" => Set {
+        "iwiwi",
+      },
+      "arc054_d" => Set {
+        "chokudai",
+      },
+      "arc054_c" => Set {
+        "chokudai",
+      },
+      "arc054_b" => Set {
+        "chokudai",
+      },
+      "arc054_a" => Set {
+        "chokudai",
+      },
+      "arc034_4" => Set {
+        "chokudai",
+      },
+      "arc034_3" => Set {
+        "chokudai",
+      },
+      "arc034_2" => Set {
+        "chokudai",
+      },
+      "arc034_1" => Set {
+        "chokudai",
+      },
+      "abc070_d" => Set {
+        "chokudai",
+      },
+      "abc070_c" => Set {
+        "chokudai",
+      },
+      "abc070_b" => Set {
+        "chokudai",
+      },
+      "abc070_a" => Set {
+        "chokudai",
+      },
+      "dwango2016qual_c" => Set {
+        "chokudai",
+      },
+      "agc014_d" => Set {
+        "chokudai",
+      },
+      "agc014_c" => Set {
+        "chokudai",
+      },
+      "agc014_b" => Set {
+        "chokudai",
+      },
+      "agc014_a" => Set {
+        "chokudai",
+      },
+      "abc003_4" => Set {
+        "chokudai",
+      },
+      "abc003_3" => Set {
+        "chokudai",
+      },
+      "abc033_d" => Set {
+        "chokudai",
+      },
+      "abc033_c" => Set {
+        "chokudai",
+      },
+      "abc033_b" => Set {
+        "chokudai",
+      },
+      "abc033_a" => Set {
+        "chokudai",
+      },
+      "abc019_4" => Set {
+        "chokudai",
+      },
+      "abc019_3" => Set {
+        "chokudai",
+      },
+      "abc019_2" => Set {
+        "chokudai",
+      },
+      "abc019_1" => Set {
+        "chokudai",
+      },
+      "tdpc_game" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "tdpc_contest" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "tdpc_dice" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "tdpc_graph" => Set {
+        "iwiwi",
+      },
+      "tdpc_tree" => Set {
+        "iwiwi",
+      },
+      "tdpc_cat" => Set {
+        "iwiwi",
+      },
+      "tdpc_fibonacci" => Set {
+        "iwiwi",
+      },
+      "tdpc_string" => Set {
+        "iwiwi",
+      },
+      "tdpc_house" => Set {
+        "iwiwi",
+      },
+      "tdpc_knapsack" => Set {
+        "iwiwi",
+      },
+      "tdpc_target" => Set {
+        "iwiwi",
+      },
+      "tdpc_ball" => Set {
+        "iwiwi",
+      },
+      "tdpc_iwi" => Set {
+        "iwiwi",
+      },
+      "tdpc_number" => Set {
+        "iwiwi",
+      },
+      "tdpc_lexicographical" => Set {
+        "iwiwi",
+      },
+      "tdpc_semiexp" => Set {
+        "iwiwi",
+      },
+      "tdpc_tournament" => Set {
+        "iwiwi",
+      },
+      "arc017_2" => Set {
+        "chokudai",
+      },
+      "arc017_1" => Set {
+        "chokudai",
+      },
+      "yahoo_procon2017_final_a" => Set {
+        "chokudai",
+      },
+      "arc029_1" => Set {
+        "chokudai",
+      },
+      "arc029_3" => Set {
+        "chokudai",
+      },
+      "arc029_2" => Set {
+        "chokudai",
+      },
+      "agc010_f" => Set {
+        "chokudai",
+      },
+      "agc010_d" => Set {
+        "chokudai",
+      },
+      "agc010_c" => Set {
+        "chokudai",
+      },
+      "agc010_b" => Set {
+        "chokudai",
+      },
+      "agc010_a" => Set {
+        "chokudai",
+      },
+      "arc018_2" => Set {
+        "chokudai",
+      },
+      "arc018_1" => Set {
+        "chokudai",
+      },
+      "arc062_a" => Set {
+        "chokudai",
+      },
+      "arc045_c" => Set {
+        "chokudai",
+      },
+      "arc045_b" => Set {
+        "chokudai",
+      },
+      "arc045_a" => Set {
+        "chokudai",
+      },
+      "arc036_d" => Set {
+        "chokudai",
+      },
+      "arc036_c" => Set {
+        "chokudai",
+      },
+      "arc036_b" => Set {
+        "chokudai",
+      },
+      "arc036_a" => Set {
+        "chokudai",
+      },
+      "arc025_3" => Set {
+        "chokudai",
+      },
+      "arc025_2" => Set {
+        "chokudai",
+      },
+      "arc025_1" => Set {
+        "chokudai",
+      },
+      "tenka1_2014_qualB_c" => Set {
+        "chokudai",
+      },
+      "code_thanks_festival_14_qualb_e" => Set {
+        "chokudai",
+      },
+      "code_thanks_festival_14_qualb_c" => Set {
+        "chokudai",
+      },
+      "nyc2015_12" => Set {
+        "iwiwi",
+      },
+      "nyc2015_9" => Set {
+        "iwiwi",
+      },
+      "nyc2015_8" => Set {
+        "iwiwi",
+      },
+      "nyc2015_6" => Set {
+        "iwiwi",
+      },
+      "nyc2015_7" => Set {
+        "iwiwi",
+      },
+      "nyc2015_4" => Set {
+        "iwiwi",
+      },
+      "nyc2015_5" => Set {
+        "iwiwi",
+      },
+      "nyc2015_3" => Set {
+        "iwiwi",
+      },
+      "nyc2015_2" => Set {
+        "iwiwi",
+      },
+      "nyc2015_1" => Set {
+        "iwiwi",
+      },
+      "gw2015_b" => Set {
+        "chokudai",
+      },
+      "gw2015_i" => Set {
+        "chokudai",
+      },
+      "gw2015_h" => Set {
+        "chokudai",
+      },
+      "gw2015_f" => Set {
+        "chokudai",
+      },
+      "gw2015_c" => Set {
+        "chokudai",
+      },
+      "gw2015_d" => Set {
+        "chokudai",
+      },
+      "gw2015_a" => Set {
+        "chokudai",
+      },
+      "abc030_d" => Set {
+        "chokudai",
+      },
+      "abc030_c" => Set {
+        "chokudai",
+      },
+      "abc030_b" => Set {
+        "chokudai",
+      },
+      "abc030_a" => Set {
+        "chokudai",
+      },
+      "abc041_a" => Set {
+        "chokudai",
+      },
+      "tenka1_2012_5" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "tenka1_2012_8" => Set {
+        "iwiwi",
+      },
+      "tenka1_2012_7" => Set {
+        "iwiwi",
+      },
+      "tenka1_2012_6" => Set {
+        "iwiwi",
+      },
+      "abc014_4" => Set {
+        "chokudai",
+      },
+      "abc014_3" => Set {
+        "chokudai",
+      },
+      "abc014_2" => Set {
+        "chokudai",
+      },
+      "abc014_1" => Set {
+        "chokudai",
+      },
+      "tenka1_2013_qualA_e" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_qualA_d" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_qualA_c" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_qualA_b" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_qualA_a" => Set {
+        "iwiwi",
+      },
+      "abc063_b" => Set {
+        "chokudai",
+      },
+      "abc063_a" => Set {
+        "chokudai",
+      },
+      "abc025_d" => Set {
+        "chokudai",
+      },
+      "abc025_c" => Set {
+        "chokudai",
+      },
+      "abc025_b" => Set {
+        "chokudai",
+      },
+      "abc025_a" => Set {
+        "chokudai",
+      },
+      "abc023_d" => Set {
+        "chokudai",
+      },
+      "abc023_c" => Set {
+        "chokudai",
+      },
+      "abc023_b" => Set {
+        "chokudai",
+      },
+      "abc023_a" => Set {
+        "chokudai",
+      },
+      "arc051_d" => Set {
+        "chokudai",
+      },
+      "arc051_c" => Set {
+        "chokudai",
+      },
+      "arc051_b" => Set {
+        "chokudai",
+      },
+      "arc051_a" => Set {
+        "chokudai",
+      },
+      "arc007_3" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc007_2" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc007_1" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc007_4" => Set {
+        "iwiwi",
+      },
+      "abc024_d" => Set {
+        "chokudai",
+      },
+      "abc024_c" => Set {
+        "chokudai",
+      },
+      "abc024_b" => Set {
+        "chokudai",
+      },
+      "abc024_a" => Set {
+        "chokudai",
+      },
+      "abc034_d" => Set {
+        "chokudai",
+      },
+      "abc034_c" => Set {
+        "chokudai",
+      },
+      "abc034_b" => Set {
+        "chokudai",
+      },
+      "abc034_a" => Set {
+        "chokudai",
+      },
+      "abc018_4" => Set {
+        "chokudai",
+      },
+      "abc018_3" => Set {
+        "chokudai",
+      },
+      "abc018_2" => Set {
+        "chokudai",
+      },
+      "abc018_1" => Set {
+        "chokudai",
+      },
+      "k4pc_b" => Set {
+        "chokudai",
+      },
+      "k4pc_a" => Set {
+        "chokudai",
+      },
+      "abc064_c" => Set {
+        "chokudai",
+      },
+      "abc064_d" => Set {
+        "chokudai",
+      },
+      "kupc2013_i" => Set {
+        "chokudai",
+      },
+      "abc036_c" => Set {
+        "chokudai",
+      },
+      "abc036_d" => Set {
+        "chokudai",
+      },
+      "abc036_b" => Set {
+        "chokudai",
+      },
+      "abc036_a" => Set {
+        "chokudai",
+      },
+      "abc029_d" => Set {
+        "chokudai",
+      },
+      "abc029_c" => Set {
+        "chokudai",
+      },
+      "abc029_b" => Set {
+        "chokudai",
+      },
+      "abc029_a" => Set {
+        "chokudai",
+      },
+      "arc055_d" => Set {
+        "chokudai",
+      },
+      "arc055_c" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc055_b" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc055_a" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc044_c" => Set {
+        "chokudai",
+      },
+      "arc044_b" => Set {
+        "chokudai",
+      },
+      "arc044_a" => Set {
+        "chokudai",
+      },
+      "abc013_1" => Set {
+        "chokudai",
+      },
+      "agc003_b" => Set {
+        "chokudai",
+      },
+      "arc003_4" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc003_2" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc003_1" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc003_3" => Set {
+        "iwiwi",
+      },
+      "tricky_2" => Set {
+        "chokudai",
+      },
+      "tricky_3" => Set {
+        "chokudai",
+      },
+      "tricky_1" => Set {
+        "chokudai",
+      },
+      "arc011_2" => Set {
+        "chokudai",
+      },
+      "arc011_1" => Set {
+        "chokudai",
+      },
+      "arc041_c" => Set {
+        "chokudai",
+      },
+      "arc041_b" => Set {
+        "chokudai",
+      },
+      "arc041_a" => Set {
+        "chokudai",
+      },
+      "rco_contest_2017_qual_a" => Set {
+        "chokudai",
+      },
+      "rco_contest_2017_qual_b" => Set {
+        "chokudai",
+      },
+      "chokudai_001_a" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "abc073_d" => Set {
+        "chokudai",
+      },
+      "abc073_c" => Set {
+        "chokudai",
+      },
+      "abc073_b" => Set {
+        "chokudai",
+      },
+      "abc073_a" => Set {
+        "chokudai",
+      },
+      "arc033_3" => Set {
+        "chokudai",
+      },
+      "arc033_2" => Set {
+        "chokudai",
+      },
+      "arc033_1" => Set {
+        "chokudai",
+      },
+      "codefestival_2016_qualC_c" => Set {
+        "chokudai",
+      },
+      "arc014_1" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc014_2" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc014_4" => Set {
+        "iwiwi",
+      },
+      "arc014_3" => Set {
+        "iwiwi",
+      },
+      "utpc2014_d" => Set {
+        "chokudai",
+      },
+      "utpc2014_g" => Set {
+        "chokudai",
+      },
+      "utpc2014_f" => Set {
+        "chokudai",
+      },
+      "utpc2014_c" => Set {
+        "chokudai",
+      },
+      "utpc2014_e" => Set {
+        "chokudai",
+      },
+      "utpc2014_b" => Set {
+        "chokudai",
+      },
+      "utpc2014_a" => Set {
+        "chokudai",
+      },
+      "discovery_2016_qual_c" => Set {
+        "chokudai",
+      },
+      "discovery_2016_qual_a" => Set {
+        "chokudai",
+      },
+      "arc008_2" => Set {
+        "chokudai",
+      },
+      "arc008_1" => Set {
+        "chokudai",
+      },
+      "arc008_3" => Set {
+        "chokudai",
+      },
+      "arc082_d" => Set {
+        "chokudai",
+      },
+      "arc082_c" => Set {
+        "chokudai",
+      },
+      "arc082_b" => Set {
+        "chokudai",
+      },
+      "arc082_a" => Set {
+        "chokudai",
+      },
+      "arc048_c" => Set {
+        "chokudai",
+      },
+      "arc048_b" => Set {
+        "chokudai",
+      },
+      "arc048_a" => Set {
+        "chokudai",
+      },
+      "abc017_4" => Set {
+        "chokudai",
+      },
+      "abc017_3" => Set {
+        "chokudai",
+      },
+      "abc017_2" => Set {
+        "chokudai",
+      },
+      "abc017_1" => Set {
+        "chokudai",
+      },
+      "arc052_d" => Set {
+        "chokudai",
+      },
+      "arc052_c" => Set {
+        "chokudai",
+      },
+      "arc052_b" => Set {
+        "chokudai",
+      },
+      "arc052_a" => Set {
+        "chokudai",
+      },
+      "arc019_4" => Set {
+        "chokudai",
+      },
+      "code_thanks_festival_2015_g" => Set {
+        "chokudai",
+      },
+      "abc002_3" => Set {
+        "chokudai",
+      },
+      "abc002_2" => Set {
+        "chokudai",
+      },
+      "abc002_1" => Set {
+        "chokudai",
+      },
+      "abc002_4" => Set {
+        "chokudai",
+      },
+      "arc004_2" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc004_1" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc004_4" => Set {
+        "iwiwi",
+      },
+      "arc004_3" => Set {
+        "iwiwi",
+      },
+      "digitalarts_3" => Set {
+        "iwiwi",
+      },
+      "digitalarts_2" => Set {
+        "iwiwi",
+      },
+      "digitalarts_1" => Set {
+        "iwiwi",
+      },
+      "abc054_d" => Set {
+        "chokudai",
+      },
+      "abc054_c" => Set {
+        "chokudai",
+      },
+      "abc054_b" => Set {
+        "chokudai",
+      },
+      "arc076_a" => Set {
+        "iwiwi",
+      },
+      "dwango2017qual_b" => Set {
+        "chokudai",
+      },
+      "abc028_d" => Set {
+        "chokudai",
+      },
+      "abc028_c" => Set {
+        "chokudai",
+      },
+      "abc028_b" => Set {
+        "chokudai",
+      },
+      "abc028_a" => Set {
+        "chokudai",
+      },
+      "agc015_c" => Set {
+        "chokudai",
+      },
+      "agc015_d" => Set {
+        "chokudai",
+      },
+      "agc015_b" => Set {
+        "chokudai",
+      },
+      "agc015_a" => Set {
+        "chokudai",
+      },
+      "arc037_c" => Set {
+        "chokudai",
+      },
+      "arc037_d" => Set {
+        "chokudai",
+      },
+      "arc037_b" => Set {
+        "chokudai",
+      },
+      "arc037_a" => Set {
+        "chokudai",
+      },
+      "abc006_2" => Set {
+        "iwiwi",
+      },
+      "utpc2013_04" => Set {
+        "chokudai",
+      },
+      "utpc2013_03" => Set {
+        "chokudai",
+      },
+      "utpc2013_02" => Set {
+        "chokudai",
+      },
+      "utpc2013_01" => Set {
+        "chokudai",
+      },
+      "tenka1_2012_qualA_4" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "tenka1_2012_qualA_3" => Set {
+        "iwiwi",
+      },
+      "tenka1_2012_qualA_2" => Set {
+        "iwiwi",
+      },
+      "tenka1_2012_qualA_1" => Set {
+        "iwiwi",
+      },
+      "chokudai_S001_l" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_k" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_j" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_h" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_i" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_g" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_f" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_e" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_d" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_c" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_a" => Set {
+        "chokudai",
+      },
+      "chokudai_S001_b" => Set {
+        "chokudai",
+      },
+      "arc032_3" => Set {
+        "chokudai",
+      },
+      "arc032_2" => Set {
+        "chokudai",
+      },
+      "arc032_1" => Set {
+        "chokudai",
+      },
+      "kupc2014_d" => Set {
+        "chokudai",
+      },
+      "kupc2014_c" => Set {
+        "chokudai",
+      },
+      "abc005_2" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_final_b" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_final_d" => Set {
+        "iwiwi",
+      },
+      "tenka1_2013_final_a" => Set {
+        "iwiwi",
+      },
+      "arc058_a" => Set {
+        "chokudai",
+      },
+      "abc020_d" => Set {
+        "chokudai",
+      },
+      "abc020_c" => Set {
+        "chokudai",
+      },
+      "abc020_b" => Set {
+        "chokudai",
+      },
+      "abc020_a" => Set {
+        "chokudai",
+      },
+      "chokudai002_a" => Set {
+        "chokudai",
+      },
+      "arc010_2" => Set {
+        "chokudai",
+      },
+      "arc010_1" => Set {
+        "chokudai",
+      },
+      "arc010_4" => Set {
+        "chokudai",
+      },
+      "arc015_2" => Set {
+        "chokudai",
+      },
+      "arc015_1" => Set {
+        "chokudai",
+      },
+      "abc016_4" => Set {
+        "chokudai",
+      },
+      "abc016_3" => Set {
+        "chokudai",
+      },
+      "abc016_2" => Set {
+        "chokudai",
+      },
+      "abc016_1" => Set {
+        "chokudai",
+      },
+      "arc040_c" => Set {
+        "chokudai",
+      },
+      "arc067_a" => Set {
+        "chokudai",
+      },
+      "abc010_4" => Set {
+        "chokudai",
+      },
+      "abc010_3" => Set {
+        "chokudai",
+      },
+      "abc010_2" => Set {
+        "chokudai",
+      },
+      "abc010_1" => Set {
+        "chokudai",
+      },
+      "arc009_2" => Set {
+        "chokudai",
+      },
+      "arc009_1" => Set {
+        "chokudai",
+      },
+      "arc002_2" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc002_1" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc002_4" => Set {
+        "iwiwi",
+      },
+      "arc002_3" => Set {
+        "iwiwi",
+      },
+      "abc021_d" => Set {
+        "chokudai",
+      },
+      "abc021_c" => Set {
+        "chokudai",
+      },
+      "abc021_b" => Set {
+        "chokudai",
+      },
+      "abc021_a" => Set {
+        "chokudai",
+      },
+      "wupc2012_5" => Set {
+        "chokudai",
+      },
+      "wupc2012_3" => Set {
+        "chokudai",
+      },
+      "wupc2012_4" => Set {
+        "chokudai",
+      },
+      "arc053_d" => Set {
+        "chokudai",
+      },
+      "arc053_c" => Set {
+        "chokudai",
+      },
+      "arc053_b" => Set {
+        "chokudai",
+      },
+      "arc053_a" => Set {
+        "chokudai",
+      },
+      "arc043_b" => Set {
+        "chokudai",
+      },
+      "arc043_a" => Set {
+        "chokudai",
+      },
+      "arc038_c" => Set {
+        "chokudai",
+      },
+      "arc038_b" => Set {
+        "chokudai",
+      },
+      "arc038_a" => Set {
+        "chokudai",
+      },
+      "arc035_c" => Set {
+        "chokudai",
+      },
+      "arc035_b" => Set {
+        "chokudai",
+      },
+      "arc035_a" => Set {
+        "chokudai",
+      },
+      "utpc2012_04" => Set {
+        "chokudai",
+      },
+      "utpc2012_01" => Set {
+        "chokudai",
+      },
+      "utpc2012_03" => Set {
+        "chokudai",
+      },
+      "utpc2012_07" => Set {
+        "chokudai",
+      },
+      "utpc2012_05" => Set {
+        "chokudai",
+      },
+      "utpc2012_02" => Set {
+        "chokudai",
+      },
+      "abc037_d" => Set {
+        "chokudai",
+      },
+      "abc037_c" => Set {
+        "chokudai",
+      },
+      "abc037_b" => Set {
+        "chokudai",
+      },
+      "abc037_a" => Set {
+        "chokudai",
+      },
+      "recruite_2013_pre_b" => Set {
+        "chokudai",
+      },
+      "recruite_2013_pre_a" => Set {
+        "chokudai",
+      },
+      "agc016_a" => Set {
+        "chokudai",
+      },
+      "arc020_2" => Set {
+        "chokudai",
+      },
+      "arc031_3" => Set {
+        "chokudai",
+      },
+      "arc031_2" => Set {
+        "chokudai",
+      },
+      "arc031_1" => Set {
+        "chokudai",
+      },
+      "arc081_d" => Set {
+        "chokudai",
+      },
+      "arc081_c" => Set {
+        "chokudai",
+      },
+      "arc081_b" => Set {
+        "chokudai",
+      },
+      "arc081_a" => Set {
+        "chokudai",
+      },
+      "rco_contest_2017_final_b" => Set {
+        "chokudai",
+      },
+      "rco_contest_2017_final_a" => Set {
+        "chokudai",
+      },
+      "arc049_c" => Set {
+        "chokudai",
+      },
+      "arc049_b" => Set {
+        "chokudai",
+      },
+      "arc049_a" => Set {
+        "chokudai",
+      },
+      "chokudai003_a" => Set {
+        "chokudai",
+      },
+      "arc016_2" => Set {
+        "chokudai",
+      },
+      "arc016_1" => Set {
+        "chokudai",
+      },
+      "tenka1_2016_final_c" => Set {
+        "chokudai",
+      },
+      "agc005_b" => Set {
+        "chokudai",
+      },
+      "wupc_07" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "wupc_05" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "wupc_02" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "wupc_09" => Set {
+        "iwiwi",
+      },
+      "wupc_08" => Set {
+        "iwiwi",
+      },
+      "wupc_06" => Set {
+        "iwiwi",
+      },
+      "wupc_04" => Set {
+        "iwiwi",
+      },
+      "wupc_03" => Set {
+        "iwiwi",
+      },
+      "wupc_01" => Set {
+        "iwiwi",
+      },
+      "arc005_3" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc005_2" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc005_1" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc005_4" => Set {
+        "iwiwi",
+      },
+      "tenka1_2012_final_b" => Set {
+        "iwiwi",
+      },
+      "tenka1_2012_final_c" => Set {
+        "iwiwi",
+      },
+      "tenka1_2012_final_a" => Set {
+        "iwiwi",
+      },
+      "abc015_4" => Set {
+        "chokudai",
+      },
+      "abc015_3" => Set {
+        "chokudai",
+      },
+      "abc015_2" => Set {
+        "chokudai",
+      },
+      "abc015_1" => Set {
+        "chokudai",
+      },
+      "abc026_d" => Set {
+        "chokudai",
+      },
+      "abc026_c" => Set {
+        "chokudai",
+      },
+      "abc026_b" => Set {
+        "chokudai",
+      },
+      "abc026_a" => Set {
+        "chokudai",
+      },
+      "utpc2011_3" => Set {
+        "chokudai",
+      },
+      "utpc2011_2" => Set {
+        "chokudai",
+      },
+      "arc013_2" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc013_1" => Set {
+        "chokudai",
+        "iwiwi",
+      },
+      "arc013_4" => Set {
+        "iwiwi",
+      },
+      "arc013_3" => Set {
+        "iwiwi",
+      },
+      "abc004_1" => Set {
+        "chokudai",
+      },
+      "abc004_4" => Set {
+        "chokudai",
+      },
+      "birthday0410_f" => Set {
+        "iwiwi",
+      },
+      "birthday0410_b" => Set {
+        "iwiwi",
+      },
+      "birthday0410_a" => Set {
+        "iwiwi",
+      },
+      "birthday0410_d" => Set {
+        "iwiwi",
+      },
+      "arc046_b" => Set {
+        "chokudai",
+      },
+      "arc046_a" => Set {
+        "chokudai",
+      },
+    }
+  }
   wrongMap={
     Map {
       "agc007_d" => "TLE",
@@ -13622,6 +15402,71 @@ exports[`render list view 1`] = `
       "indeednow_2015_qualb_1" => "WA",
       "indeednow_2015_qualc_3" => "MLE",
       "utpc2013_09" => "WA",
+      "arc063_a" => "WA",
+      "arc063_c" => "WA",
+      "agc004_d" => "WA",
+      "arc032_3" => "TLE",
+      "dwango2015_prelims_2" => "WA",
+      "dwango2015_prelims_5" => "MLE",
+      "abc005_1" => "RE",
+      "joisc2012_building2" => "WA",
+      "arc056_b" => "WA",
+      "abc020_d" => "TLE",
+      "agc001_d" => "WA",
+      "ddcc2017_qual_d" => "WA",
+      "arc069_c" => "WA",
+      "arc040_d" => "MLE",
+      "abc010_4" => "WA",
+      "abc021_d" => "TLE",
+      "abc021_c" => "WA",
+      "code_festival_qualB_b" => "WA",
+      "code_festival_qualB_d" => "WA",
+      "code_festival_qualB_c" => "WA",
+      "arc024_2" => "TLE",
+      "arc053_c" => "WA",
+      "arc043_c" => "WA",
+      "arc043_a" => "RE",
+      "arc038_c" => "TLE",
+      "arc038_a" => "WA",
+      "arc035_d" => "WA",
+      "arc035_c" => "WA",
+      "arc035_b" => "WA",
+      "agc016_c" => "WA",
+      "arc031_2" => "WA",
+      "arc081_c" => "TLE",
+      "codefestival_2016_qualA_e" => "WA",
+      "codefestival_2016_qualA_d" => "WA",
+      "codefestival_2016_qualA_c" => "RE",
+      "codefestival_2016_qualA_a" => "RE",
+      "code_festival_morning_easy_d" => "WA",
+      "code_festival_morning_easy_c" => "WA",
+      "agc005_c" => "WA",
+      "code_festival_final_c" => "WA",
+      "code_festival_final_d" => "WA",
+      "code_festival_final_b" => "RE",
+      "abc015_3" => "RE",
+      "abc015_4" => "WA",
+      "abc015_2" => "WA",
+      "indeednow_2015_quala_4" => "TLE",
+      "indeednow_2015_quala_3" => "RE",
+      "abc038_d" => "WA",
+      "abc038_c" => "WA",
+      "abc004_4" => "WA",
+      "birthday0410_a" => "RE",
+      "kupc2015_f" => "WA",
+      "kupc2015_h" => "WA",
+      "kupc2015_d" => "MLE",
+      "kupc2015_b" => "WA",
+      "kupc2015_a" => "WA",
+      "arc046_d" => "MLE",
+      "arc046_b" => "WA",
+      "code_festival_morning_med_c" => "WA",
+      "abc032_a" => "WA",
+      "abc032_d" => "TLE",
+      "agc013_c" => "WA",
+      "agc013_a" => "RE",
+      "agc013_b" => "WA",
+      "abc009_3" => "WA",
     }
   }
 >
