@@ -1,19 +1,12 @@
 {
-    "compilerOptions": {
-        "outDir": "./dist/",
-        "sourceMap": true,
-        "noImplicitAny": true,
-        "module": "commonjs",
-        "target": "es5",
-        "jsx": "react",
-        "lib": [
-            "es6",
-            "dom",
-            "es5",
-            "scripthost"
-        ]
-    },
-    "include": [
-        "./src/**/*"
-    ]
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "module": "commonjs",
+    "target": "es5",
+    "jsx": "react",
+    "lib": ["es6", "dom", "es5", "scripthost", "es2015", "es2016.array.include"]
+  },
+  "include": ["./src/**/*"]
 }

@@ -9,7 +9,15 @@ import { Contest } from "../model/Contest";
 import { Problem } from "../model/Problem";
 import { HtmlFormatter } from "../utils/HtmlFormatter";
 import { UrlFormatter } from "../utils/UrlFormatter";
-import { Row, Button, Label, PageHeader } from "react-bootstrap";
+import {
+  Row,
+  Button,
+  Label,
+  PageHeader,
+  ButtonToolbar,
+  ToggleButtonGroup,
+  ToggleButton
+} from "react-bootstrap";
 import { Submission } from "../model/Submission";
 import { some } from "ts-option";
 import { TimeFormatter } from "../utils/TimeFormatter";
@@ -22,12 +30,22 @@ export interface ListProps {
   rivalMap: Map<string, Set<string>>;
 }
 
+interface ListState {
+  onlyTrying: boolean;
+  onlyRated: boolean;
+}
+
 interface ProblemRow {
   problem: MergedProblem;
   contest: Contest;
   solver: number;
   point: number;
   startEpochSecond: number;
+}
+
+enum ListFilter {
+  Trying = "trying",
+  Rated = "rated"
 }
 
 function formatProblemTitle(problem: Problem, row: ProblemRow) {
@@ -136,7 +154,12 @@ function formatResultBadge(
   }
 }
 
-export class List extends React.Component<ListProps, {}> {
+export class List extends React.Component<ListProps, ListState> {
+  constructor(prop: ListProps) {
+    super(prop);
+    this.state = { onlyTrying: false, onlyRated: false };
+  }
+
   render() {
     // map of <contest_id, contest>
     let contestMap: Map<string, Contest> = new Map(
@@ -148,6 +171,18 @@ export class List extends React.Component<ListProps, {}> {
 
     let data: Array<ProblemRow> = this.props.problems
       .filter(p => contestMap.has(p.contestId))
+      .filter(p => {
+        if (this.state.onlyRated && !p.point) {
+          return false;
+        } else if (
+          this.state.onlyTrying &&
+          this.props.acceptedProblems.has(p.id)
+        ) {
+          return false;
+        } else {
+          return true;
+        }
+      })
       .map(problem => {
         let contest = contestMap.get(problem.contestId);
         let point = problem.point
@@ -160,7 +195,9 @@ export class List extends React.Component<ListProps, {}> {
           point: point,
           startEpochSecond: contest.start_epoch_second
         };
-      });
+      })
+      .sort((a, b) => a.startEpochSecond - b.startEpochSecond)
+      .reverse();
 
     let badgeFormatter = (p: Problem) =>
       formatResultBadge(
@@ -182,6 +219,23 @@ export class List extends React.Component<ListProps, {}> {
     return (
       <Row>
         <PageHeader />
+        <ButtonToolbar>
+          <ToggleButtonGroup
+            type="checkbox"
+            onChange={(e: any) => {
+              let values: Array<ListFilter> = e;
+              this.setState({
+                onlyRated: values.includes(ListFilter.Rated),
+                onlyTrying: values.includes(ListFilter.Trying)
+              });
+            }}
+          >
+            <ToggleButton value={ListFilter.Trying}>
+              Filter Accepted
+            </ToggleButton>
+            <ToggleButton value={ListFilter.Rated}>Only Rated</ToggleButton>
+          </ToggleButtonGroup>
+        </ButtonToolbar>
         <BootstrapTable
           data={data}
           striped
