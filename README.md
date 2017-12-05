@@ -61,7 +61,7 @@ npm test
   - http://beta.kenkoooo.com/atcoder/atcoder-api/info/short
 - Fastest Code Count
   - http://beta.kenkoooo.com/atcoder/atcoder-api/info/fast
-_ First Accepted Count
+- First Accepted Count
   - http://beta.kenkoooo.com/atcoder/atcoder-api/info/first
 
 ## Submission API
