@@ -41,3 +41,28 @@ npm run build
 ```bash
 npm test
 ```
+
+# API
+
+## Information API
+
+- Contests Information
+  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/contests
+- Problems Information
+  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/problems
+- Detailed Problems Information
+  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/merged-problems
+
+## User Information API
+
+- Accepted Count
+  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/ac
+- Shortest Code Count
+  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/short
+- Fastest Code Count
+  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/fast
+_ First Accepted Count
+  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/first
+
+## Submission API
+  - http://beta.kenkoooo.com/atcoder/atcoder-api/results?user=wata&rivals=iwiwi,chokudai
