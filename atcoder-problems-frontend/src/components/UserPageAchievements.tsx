@@ -31,7 +31,7 @@ export class UserPageAchievements extends React.Component<
 
   componentWillMount() {
     ApiCall.getRanking(RankingKind.Accepted).then(ranking =>
-      this.setState({ ac: ranking.slice(0, 1000) })
+      this.setState({ ac: ranking })
     );
     ApiCall.getRanking(RankingKind.Shortest).then(ranking =>
       this.setState({ short: ranking })
