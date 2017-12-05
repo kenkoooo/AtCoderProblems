@@ -12,6 +12,7 @@ import { UrlFormatter } from "../utils/UrlFormatter";
 import { Row, Button, Label, PageHeader } from "react-bootstrap";
 import { Submission } from "../model/Submission";
 import { some } from "ts-option";
+import { TimeFormatter } from "../utils/TimeFormatter";
 
 export interface ListProps {
   problems: Array<MergedProblem>;
@@ -26,6 +27,7 @@ interface ProblemRow {
   contest: Contest;
   solver: number;
   point: number;
+  startEpochSecond: number;
 }
 
 function formatProblemTitle(problem: Problem, row: ProblemRow) {
@@ -155,7 +157,8 @@ export class List extends React.Component<ListProps, {}> {
           problem: problem,
           contest: contest,
           solver: problem.solver_count,
-          point: point
+          point: point,
+          startEpochSecond: contest.start_epoch_second
         };
       });
 
@@ -186,9 +189,18 @@ export class List extends React.Component<ListProps, {}> {
           trClassName={rowColorFormatter}
         >
           <TableHeaderColumn
+            dataField="startEpochSecond"
+            dataFormat={(second: number) =>
+              TimeFormatter.getDateString(second * 1000)
+            }
+            dataSort
+            isKey
+          >
+            Date
+          </TableHeaderColumn>
+          <TableHeaderColumn
             dataField="problem"
             dataFormat={formatProblemTitle}
-            isKey
           >
             Problem
           </TableHeaderColumn>
