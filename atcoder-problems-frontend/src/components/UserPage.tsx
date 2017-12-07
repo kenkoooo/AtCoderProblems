@@ -8,6 +8,7 @@ import { UserSearchForm } from "./UserSearchForm";
 import { Submission } from "../model/Submission";
 import { Problem } from "../model/Problem";
 import { UserPageAchievements } from "./UserPageAchievements";
+import { TimeFormatter } from "../utils/TimeFormatter";
 
 export interface UserPageProps {
   userId: string;
@@ -26,9 +27,18 @@ export class UserPage extends React.Component<UserPageProps, {}> {
     let acceptedSubmissions = this.props.submissions.filter(
       s => s.result === "AC"
     );
-    let acceptedProblemSet = new Set(
-      acceptedSubmissions.map(s => s.problem_id)
-    );
+    let acceptedProblemSet = new Set();
+    let acceptNewProblemDates = acceptedSubmissions
+      .sort((a, b) => a.epoch_second - b.epoch_second)
+      .filter(s => {
+        if (acceptedProblemSet.has(s.problem_id)) {
+          return false;
+        } else {
+          acceptedProblemSet.add(s.problem_id);
+          return true;
+        }
+      })
+      .map(s => TimeFormatter.getDateString(s.epoch_second * 1000));
 
     this.props.problems
       .filter(problem => problem.contestId.match(/^a[rgb]c\d{3}$/))
@@ -65,7 +75,10 @@ export class UserPage extends React.Component<UserPageProps, {}> {
           <UserSearchForm userId={this.props.userId} />
         </Row>
         <PageHeader>{this.props.userId}</PageHeader>
-        <UserPageAchievements userId={this.props.userId} />
+        <UserPageAchievements
+          userId={this.props.userId}
+          acceptNewProblemDates={acceptNewProblemDates}
+        />
 
         <PageHeader>AtCoder Beginner Contest</PageHeader>
         <Row>
@@ -113,10 +126,10 @@ export class UserPage extends React.Component<UserPageProps, {}> {
         </Row>
 
         <PageHeader>Climbing</PageHeader>
-        <UserPageLineChart acceptedSubmissions={acceptedSubmissions} />
+        <UserPageLineChart acceptNewProblemDates={acceptNewProblemDates} />
 
         <PageHeader>Daily Effort</PageHeader>
-        <UserPageBarChart acceptedSubmissions={acceptedSubmissions} />
+        <UserPageBarChart acceptNewProblemDates={acceptNewProblemDates} />
 
         <PageHeader>Submissions</PageHeader>
         <UserPageTable
