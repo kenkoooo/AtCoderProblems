@@ -28,7 +28,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
       s => s.result === "AC"
     );
     let acceptedProblemSet = new Set();
-    let acceptNewProblemDates = acceptedSubmissions
+    let acceptNewProblemSeconds = acceptedSubmissions
       .sort((a, b) => a.epoch_second - b.epoch_second)
       .filter(s => {
         if (acceptedProblemSet.has(s.problem_id)) {
@@ -38,7 +38,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
           return true;
         }
       })
-      .map(s => TimeFormatter.getDateString(s.epoch_second * 1000));
+      .map(s => s.epoch_second);
 
     this.props.problems
       .filter(problem => problem.contestId.match(/^a[rgb]c\d{3}$/))
@@ -77,7 +77,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
         <PageHeader>{this.props.userId}</PageHeader>
         <UserPageAchievements
           userId={this.props.userId}
-          acceptNewProblemDates={acceptNewProblemDates}
+          acceptNewProblemSeconds={acceptNewProblemSeconds}
         />
 
         <PageHeader>AtCoder Beginner Contest</PageHeader>
@@ -126,10 +126,10 @@ export class UserPage extends React.Component<UserPageProps, {}> {
         </Row>
 
         <PageHeader>Climbing</PageHeader>
-        <UserPageLineChart acceptNewProblemDates={acceptNewProblemDates} />
+        <UserPageLineChart acceptNewProblemSeconds={acceptNewProblemSeconds} />
 
         <PageHeader>Daily Effort</PageHeader>
-        <UserPageBarChart acceptNewProblemDates={acceptNewProblemDates} />
+        <UserPageBarChart acceptNewProblemSeconds={acceptNewProblemSeconds} />
 
         <PageHeader>Submissions</PageHeader>
         <UserPageTable

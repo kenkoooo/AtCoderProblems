@@ -15,7 +15,7 @@ interface UserPageAchievementsState {
 
 export interface UserPageAchievementsProps {
   userId: string;
-  acceptNewProblemDates: Array<string>;
+  acceptNewProblemSeconds: Array<number>;
 }
 
 interface Achievement {
@@ -55,11 +55,39 @@ export class UserPageAchievements extends React.Component<
       { title: "First Acceptances", ranking: this.state.first }
     ];
 
-    let solveCheckSet = new Set<string>();
-
     let longestStreak = 0;
     let currentStreak = 0;
-    let lastAcceptedDate = "";
+    let lastAcceptedDate = "None";
+    if (this.props.acceptNewProblemSeconds.length > 0) {
+      currentStreak = 1;
+      longestStreak = 1;
+      lastAcceptedDate = TimeFormatter.getDateString(
+        this.props.acceptNewProblemSeconds[0] * 1000
+      );
+    }
+
+    this.props.acceptNewProblemSeconds.forEach((second, i) => {
+      if (i > 0) {
+        let lastSecond = this.props.acceptNewProblemSeconds[i - 1];
+        let yesterday = TimeFormatter.getDateString(
+          (second - 24 * 3600) * 1000
+        );
+        if (lastAcceptedDate === yesterday) {
+          currentStreak += 1;
+        } else if (lastAcceptedDate < yesterday) {
+          longestStreak = Math.max(longestStreak, currentStreak);
+          currentStreak = 1;
+        }
+      }
+      lastAcceptedDate = TimeFormatter.getDateString(second * 1000);
+    });
+    longestStreak = Math.max(longestStreak, currentStreak);
+    let yesterday = TimeFormatter.getDateString(
+      new Date().getTime() - 24 * 3600 * 1000
+    );
+    if (lastAcceptedDate < yesterday) {
+      currentStreak = 0;
+    }
 
     return (
       <Row className="placeholders">
@@ -94,6 +122,16 @@ export class UserPageAchievements extends React.Component<
             </Col>
           );
         })}
+        <Col key="longest" xs={6} sm={3}>
+          <h4>Longest Streak</h4>
+          <h3>{longestStreak} days</h3>
+          <span className="text-muted" />
+        </Col>
+        <Col key="current" xs={6} sm={3}>
+          <h4>Current Streak</h4>
+          <h3>{currentStreak} days</h3>
+          <span className="text-muted">Last Accepted: {lastAcceptedDate}</span>
+        </Col>
       </Row>
     );
   }
