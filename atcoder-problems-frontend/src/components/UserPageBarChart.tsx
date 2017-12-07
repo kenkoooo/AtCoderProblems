@@ -5,7 +5,7 @@ import { Submission } from "../model/Submission";
 import { TimeFormatter } from "../utils/TimeFormatter";
 
 export interface UserPageBarChartProps {
-  acceptNewProblemDates: Array<string>;
+  acceptNewProblemSeconds: Array<number>;
 }
 
 export class UserPageBarChart extends React.Component<
@@ -19,14 +19,16 @@ export class UserPageBarChart extends React.Component<
     let data: Array<any> = ["Accepted"];
 
     // create ticks and data
-    this.props.acceptNewProblemDates.forEach(date => {
-      if (ticks[ticks.length - 1] === date) {
-        data[data.length - 1] += 1;
-      } else {
-        ticks.push(date);
-        data.push(1);
-      }
-    });
+    this.props.acceptNewProblemSeconds
+      .map(s => TimeFormatter.getDateString(s * 1000))
+      .forEach(date => {
+        if (ticks[ticks.length - 1] === date) {
+          data[data.length - 1] += 1;
+        } else {
+          ticks.push(date);
+          data.push(1);
+        }
+      });
 
     c3.generate({
       bindto: `#${name}`,

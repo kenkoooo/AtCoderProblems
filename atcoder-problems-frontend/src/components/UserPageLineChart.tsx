@@ -5,7 +5,7 @@ import { Submission } from "../model/Submission";
 import { TimeFormatter } from "../utils/TimeFormatter";
 
 export interface UserPageLineChartProps {
-  acceptNewProblemDates: Array<string>;
+  acceptNewProblemSeconds: Array<number>;
 }
 
 export class UserPageLineChart extends React.Component<
@@ -17,10 +17,12 @@ export class UserPageLineChart extends React.Component<
 
     let ticks: Array<any> = ["x"];
     let data: Array<any> = ["Accepted"];
-    this.props.acceptNewProblemDates.forEach(d => {
-      ticks.push(d);
-      data.push(data.length + 1);
-    });
+    this.props.acceptNewProblemSeconds
+      .map(s => TimeFormatter.getDateString(s * 1000))
+      .forEach(d => {
+        ticks.push(d);
+        data.push(data.length + 1);
+      });
 
     c3.generate({
       bindto: `#${name}`,
