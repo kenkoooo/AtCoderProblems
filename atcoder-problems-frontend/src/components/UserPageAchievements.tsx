@@ -3,6 +3,8 @@ import { RankPair } from "../model/RankPair";
 import { ApiCall } from "../utils/ApiCall";
 import { Row, Col } from "react-bootstrap";
 import { RankingKind } from "../model/RankingKind";
+import { Submission } from "../model/Submission";
+import { TimeFormatter } from "../utils/TimeFormatter";
 
 interface UserPageAchievementsState {
   ac: Array<RankPair>;
@@ -13,6 +15,7 @@ interface UserPageAchievementsState {
 
 export interface UserPageAchievementsProps {
   userId: string;
+  acceptNewProblemDates: Array<string>;
 }
 
 interface Achievement {
@@ -51,6 +54,12 @@ export class UserPageAchievements extends React.Component<
       { title: "Fastest Codes", ranking: this.state.fast },
       { title: "First Acceptances", ranking: this.state.first }
     ];
+
+    let solveCheckSet = new Set<string>();
+
+    let longestStreak = 0;
+    let currentStreak = 0;
+    let lastAcceptedDate = "";
 
     return (
       <Row className="placeholders">
