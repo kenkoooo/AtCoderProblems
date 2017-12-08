@@ -86,7 +86,7 @@ class SubmissionScraper extends Logging {
               logger.catching(e)
               None
           }
-      submissions.flatten.filter(_.result.matches("^[A-Z]+$")).toArray
+      submissions.flatten.filter(_.result.matches("^[A-Z]+$")).filter(_.result != "WJ").toArray
     } match {
       case Success(array) => array
       case Failure(e) =>
