@@ -9,6 +9,7 @@ import { Submission } from "../model/Submission";
 import { Problem } from "../model/Problem";
 import { UserPageAchievements } from "./UserPageAchievements";
 import { TimeFormatter } from "../utils/TimeFormatter";
+import { UserPageHeatMap } from "./UserPageHeatMap";
 
 export interface UserPageProps {
   userId: string;
@@ -124,6 +125,9 @@ export class UserPage extends React.Component<UserPageProps, {}> {
               />
             ))}
         </Row>
+
+        <PageHeader>Heatmap</PageHeader>
+        <UserPageHeatMap acceptNewProblemSeconds={acceptNewProblemSeconds} />
 
         <PageHeader>Climbing</PageHeader>
         <UserPageLineChart acceptNewProblemSeconds={acceptNewProblemSeconds} />
