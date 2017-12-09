@@ -27,14 +27,14 @@ export class UserPageHeatMap extends React.Component<
       return { date: date, count: count };
     });
 
-    let todaysDateMillis = Date.now();
+    let todaysDate = new Date();
 
     return (
       <CalendarHeatmap
         gutterSize={1}
         showOutOfRangeDays={true}
-        endDate={todaysDateMillis}
-        startDate={todaysDateMillis - 364 * 24 * 3600 * 1000}
+        endDate={todaysDate}
+        numDays={200}
         values={values}
         classForValue={value => {
           if (!value) {
