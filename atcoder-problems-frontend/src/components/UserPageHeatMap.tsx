@@ -31,6 +31,7 @@ export class UserPageHeatMap extends React.Component<
 
     return (
       <CalendarHeatmap
+        gutterSize={1}
         showOutOfRangeDays={true}
         startDate={todaysDateMillis - 365 * 24 * 3600 * 1000}
         endDate={todaysDateMillis}
