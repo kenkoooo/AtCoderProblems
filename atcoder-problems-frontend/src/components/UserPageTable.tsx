@@ -22,7 +22,38 @@ export class UserPageTable extends React.Component<UserPageTableProps, {}> {
     );
     this.props.submissions.sort((a, b) => b.epoch_second - a.epoch_second);
     return (
-      <BootstrapTable data={this.props.submissions} striped search>
+      <BootstrapTable
+        data={this.props.submissions}
+        striped
+        search
+        pagination
+        options={{
+          paginationPosition: "top",
+          sizePerPage: 20,
+          sizePerPageList: [
+            {
+              text: "20",
+              value: 20
+            },
+            {
+              text: "50",
+              value: 50
+            },
+            {
+              text: "100",
+              value: 100
+            },
+            {
+              text: "200",
+              value: 200
+            },
+            {
+              text: "All",
+              value: this.props.submissions.length
+            }
+          ]
+        }}
+      >
         <TableHeaderColumn
           dataField="epoch_second"
           dataFormat={(s: number) => TimeFormatter.getDateString(s * 1000)}
