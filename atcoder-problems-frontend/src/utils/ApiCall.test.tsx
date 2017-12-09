@@ -3,37 +3,7 @@ import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
 import { MergedProblem } from "../model/MergedProblem";
 import { RankPair } from "../model/RankPair";
-
-class MockRequest {
-  constructor(body: any, error?: any) {
-    this.body = body;
-    this.error = error;
-  }
-  get() {
-    return this;
-  }
-  set() {
-    return this;
-  }
-  query() {
-    return this;
-  }
-  body: any = null;
-  error: any = null;
-  end = jest.fn().mockImplementation(callback => {
-    callback(this.error, {
-      status() {
-        return 200;
-      },
-      ok() {
-        return true;
-      },
-      get: jest.fn(),
-      body: this.body,
-      toError: jest.fn()
-    });
-  });
-}
+import { MockRequest } from "./TestUtils";
 
 test("get and parse problems", () => {
   let response: any = [
