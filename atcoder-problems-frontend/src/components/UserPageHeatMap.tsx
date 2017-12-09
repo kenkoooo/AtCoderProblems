@@ -34,7 +34,7 @@ export class UserPageHeatMap extends React.Component<
         gutterSize={1}
         showOutOfRangeDays={true}
         endDate={todaysDate}
-        numDays={200}
+        startDate={todaysDate.setFullYear(todaysDate.getFullYear() - 1)}
         values={values}
         classForValue={value => {
           if (!value) {
