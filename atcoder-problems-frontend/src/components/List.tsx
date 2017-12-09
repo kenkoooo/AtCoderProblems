@@ -236,11 +236,39 @@ export class List extends React.Component<ListProps, ListState> {
             <ToggleButton value={ListFilter.Rated}>Only Rated</ToggleButton>
           </ToggleButtonGroup>
         </ButtonToolbar>
+
         <BootstrapTable
           data={data}
           striped
           search
           trClassName={rowColorFormatter}
+          pagination
+          options={{
+            paginationPosition: "top",
+            sizePerPage: 20,
+            sizePerPageList: [
+              {
+                text: "20",
+                value: 20
+              },
+              {
+                text: "50",
+                value: 50
+              },
+              {
+                text: "100",
+                value: 100
+              },
+              {
+                text: "200",
+                value: 200
+              },
+              {
+                text: "All",
+                value: data.length
+              }
+            ]
+          }}
         >
           <TableHeaderColumn
             dataField="startEpochSecond"

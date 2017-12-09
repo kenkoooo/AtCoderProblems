@@ -15632,93 +15632,33 @@ exports[`render list view 1`] = `
         multiColumnSort={1}
         options={
           Object {
-            "afterColumnFilter": undefined,
-            "afterDeleteRow": undefined,
-            "afterInsertRow": undefined,
-            "afterSearch": undefined,
-            "afterTableComplete": undefined,
-            "alwaysShowAllBtns": false,
-            "beforeShowError": undefined,
-            "btnGroup": undefined,
-            "clearSearch": false,
-            "clearSearchBtn": undefined,
-            "closeText": "Close",
-            "defaultSearch": "",
-            "defaultSortName": undefined,
-            "defaultSortOrder": undefined,
-            "deleteBtn": undefined,
-            "deleteText": "Delete",
-            "excludeCSVHeader": false,
-            "expandBodyClass": null,
-            "expandBy": "row",
-            "expandParentClass": null,
-            "expandRowBgColor": undefined,
-            "expanding": Array [],
-            "exportCSVBtn": undefined,
-            "exportCSVSeparator": ",",
-            "exportCSVText": "Export to CSV",
-            "firstPage": "<<",
-            "firstPageTitle": "first page",
-            "handleConfirmDeleteRow": undefined,
-            "hidePageListOnlyOnePage": false,
-            "hideSizePerPage": false,
-            "ignoreEditable": false,
-            "insertBtn": undefined,
-            "insertFailIndicator": "Validation errors, please check!",
-            "insertModal": undefined,
-            "insertModalBody": undefined,
-            "insertModalFooter": undefined,
-            "insertModalHeader": undefined,
-            "insertText": "New",
-            "keepSizePerPageState": false,
-            "lastPage": ">>",
-            "lastPageTitle": "last page",
-            "nextPage": ">",
-            "nextPageTitle": "next page",
-            "noAutoBOM": true,
-            "noDataText": undefined,
-            "onExpand": undefined,
-            "onMouseEnter": undefined,
-            "onMouseLeave": undefined,
-            "onRowClick": undefined,
-            "onRowDoubleClick": undefined,
-            "onRowMouseOut": undefined,
-            "onRowMouseOver": undefined,
-            "onSizePerPageList": undefined,
-            "onlyOneExpanding": false,
-            "page": undefined,
-            "pageStartIndex": 1,
-            "paginationPanel": undefined,
-            "paginationPosition": "bottom",
-            "paginationShowsTotal": false,
-            "paginationSize": 5,
-            "prePage": "<",
-            "prePageTitle": "previous page",
-            "printToolBar": true,
-            "saveText": "Save",
-            "searchDelayTime": undefined,
-            "searchField": undefined,
-            "searchPanel": undefined,
-            "searchPosition": "right",
-            "showSelectedOnlyBtn": undefined,
-            "sizePerPage": undefined,
-            "sizePerPageDropDown": undefined,
+            "paginationPosition": "top",
+            "sizePerPage": 20,
             "sizePerPageList": Array [
-              10,
-              25,
-              30,
-              50,
+              Object {
+                "text": "20",
+                "value": 20,
+              },
+              Object {
+                "text": "50",
+                "value": 50,
+              },
+              Object {
+                "text": "100",
+                "value": 100,
+              },
+              Object {
+                "text": "200",
+                "value": 200,
+              },
+              Object {
+                "text": "All",
+                "value": 0,
+              },
             ],
-            "sortIndicator": true,
-            "sortName": undefined,
-            "sortOrder": undefined,
-            "toolBar": undefined,
-            "toolbarPosition": "top",
-            "withFirstAndLast": true,
-            "withoutNoDataText": false,
           }
         }
-        pagination={false}
+        pagination={true}
         printable={false}
         renderAlert={true}
         replace={false}
@@ -15861,7 +15801,6 @@ exports[`render list view 1`] = `
                   },
                 ]
               }
-              defaultSearch=""
               deleteText="Delete"
               enableDelete={false}
               enableExportCSV={false}
@@ -15880,7 +15819,6 @@ exports[`render list view 1`] = `
               onShowOnlySelected={[Function]}
               reset={false}
               saveText="Save"
-              searchPosition="right"
               version="3"
             >
               <div
@@ -15928,6 +15866,281 @@ exports[`render list view 1`] = `
                 </div>
               </div>
             </ToolBar>
+          </div>
+          <div
+            className="react-bs-table-pagination"
+          >
+            <PaginationList
+              changePage={[Function]}
+              currPage={1}
+              dataSize={0}
+              firstPage="<<"
+              firstPageTitle="first page"
+              lastPage=">>"
+              lastPageTitle="last page"
+              nextPage=">"
+              nextPageTitle="next page"
+              open={false}
+              pageStartIndex={1}
+              paginationSize={5}
+              prePage="<"
+              prePageTitle="previous page"
+              sizePerPage={20}
+              sizePerPageList={
+                Array [
+                  Object {
+                    "text": "20",
+                    "value": 20,
+                  },
+                  Object {
+                    "text": "50",
+                    "value": 50,
+                  },
+                  Object {
+                    "text": "100",
+                    "value": 100,
+                  },
+                  Object {
+                    "text": "200",
+                    "value": 200,
+                  },
+                  Object {
+                    "text": "All",
+                    "value": 0,
+                  },
+                ]
+              }
+              withFirstAndLast={true}
+            >
+              <div
+                className="row"
+                style={
+                  Object {
+                    "marginTop": 15,
+                  }
+                }
+              >
+                <div
+                  className="col-md-6 col-xs-6 col-sm-6 col-lg-6"
+                  key="paging-left"
+                >
+                  <SizePerPageDropDown
+                    btnContextual="btn-default btn-secondary"
+                    className=""
+                    currSizePerPage="20"
+                    hidden={false}
+                    onBlur={[Function]}
+                    onClick={[Function]}
+                    open={false}
+                    options={
+                      Array [
+                        <li
+                          className="dropdown-item"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={20}
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            20
+                          </a>
+                        </li>,
+                        <li
+                          className="dropdown-item"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={50}
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            50
+                          </a>
+                        </li>,
+                        <li
+                          className="dropdown-item"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={100}
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            100
+                          </a>
+                        </li>,
+                        <li
+                          className="dropdown-item"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={200}
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            200
+                          </a>
+                        </li>,
+                        <li
+                          className="dropdown-item"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={
+                              Object {
+                                "text": "All",
+                                "value": 0,
+                              }
+                            }
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            All
+                          </a>
+                        </li>,
+                      ]
+                    }
+                    variation="dropdown"
+                  >
+                    <span
+                      className="dropdown   react-bs-table-sizePerPage-dropdown"
+                      style={
+                        Object {
+                          "visibility": "visible",
+                        }
+                      }
+                    >
+                      <button
+                        aria-expanded={false}
+                        className="btn btn-default btn-secondary dropdown-toggle"
+                        data-toggle="dropdown"
+                        id="pageDropDown"
+                        onBlur={[Function]}
+                        onClick={[Function]}
+                      >
+                        20
+                        <span>
+                           
+                          <span
+                            className="caret"
+                          />
+                        </span>
+                      </button>
+                      <ul
+                        aria-labelledby="pageDropDown"
+                        className="dropdown-menu"
+                        role="menu"
+                      >
+                        <li
+                          className="dropdown-item"
+                          key="20"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={20}
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            20
+                          </a>
+                        </li>
+                        <li
+                          className="dropdown-item"
+                          key="50"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={50}
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            50
+                          </a>
+                        </li>
+                        <li
+                          className="dropdown-item"
+                          key="100"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={100}
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            100
+                          </a>
+                        </li>
+                        <li
+                          className="dropdown-item"
+                          key="200"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={200}
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            200
+                          </a>
+                        </li>
+                        <li
+                          className="dropdown-item"
+                          key="All"
+                          role="presentation"
+                        >
+                          <a
+                            data-page={
+                              Object {
+                                "text": "All",
+                                "value": 0,
+                              }
+                            }
+                            href="#"
+                            onMouseDown={[Function]}
+                            role="menuitem"
+                            tabIndex="-1"
+                          >
+                            All
+                          </a>
+                        </li>
+                      </ul>
+                    </span>
+                  </SizePerPageDropDown>
+                </div>
+                <div
+                  className="col-md-6 col-xs-6 col-sm-6 col-lg-6"
+                  key="paging-right"
+                  style={
+                    Object {
+                      "display": "block",
+                    }
+                  }
+                >
+                  <ul
+                    className="react-bootstrap-table-page-btns-ul pagination"
+                  />
+                </div>
+              </div>
+            </PaginationList>
           </div>
           <div
             className="react-bs-table react-bs-table-bordered"
@@ -16897,7 +17110,6 @@ exports[`render list view 1`] = `
               }
               condensed={false}
               data={Array []}
-              expandBodyClass={null}
               expandBy="row"
               expandColumnOptions={
                 Object {
@@ -16906,7 +17118,6 @@ exports[`render list view 1`] = `
                   "expandColumnVisible": false,
                 }
               }
-              expandParentClass={null}
               expanding={Array []}
               hover={false}
               keyBoardNav={false}
@@ -16919,7 +17130,6 @@ exports[`render list view 1`] = `
               onRowMouseOut={[Function]}
               onRowMouseOver={[Function]}
               onSelectRow={[Function]}
-              onlyOneExpanding={false}
               selectRow={
                 Object {
                   "bgColor": "",
@@ -16948,7 +17158,6 @@ exports[`render list view 1`] = `
               tableBodyClass={null}
               trClassName={[Function]}
               version="3"
-              withoutNoDataText={false}
               withoutTabIndex={false}
               x={-1}
               y={-1}
