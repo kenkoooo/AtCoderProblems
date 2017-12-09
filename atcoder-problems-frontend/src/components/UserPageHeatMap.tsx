@@ -34,6 +34,7 @@ export class UserPageHeatMap extends React.Component<
         gutterSize={1}
         showOutOfRangeDays={true}
         endDate={todaysDateMillis}
+        startDate={todaysDateMillis - 364 * 24 * 3600 * 1000}
         values={values}
         classForValue={value => {
           if (!value) {
