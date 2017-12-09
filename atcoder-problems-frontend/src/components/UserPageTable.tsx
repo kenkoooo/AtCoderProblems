@@ -39,7 +39,11 @@ export class UserPageTable extends React.Component<UserPageTableProps, {}> {
               submission.problem_id
             );
             let problem = problemMap.get(problemId);
-            return HtmlFormatter.createLink(url, problem.title);
+            if (problem) {
+              return HtmlFormatter.createLink(url, problem.title);
+            } else {
+              return HtmlFormatter.createLink(url, problemId);
+            }
           }}
         >
           Problem
