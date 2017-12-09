@@ -11987,7 +11987,7 @@ exports[`user page view 1`] = `
               >
                 <t
                   classForValue={[Function]}
-                  endDate={2017-12-09T19:44:43.010Z}
+                  endDate={1512849508313}
                   gutterSize={1}
                   horizontal={true}
                   monthLabels={
@@ -12009,7 +12009,7 @@ exports[`user page view 1`] = `
                   showMonthLabels={true}
                   showOutOfRangeDays={true}
                   showWeekdayLabels={false}
-                  startDate={1481312685796}
+                  startDate={1481313508313}
                   transformDayElement={[Function]}
                   values={Array []}
                   weekdayLabels={
