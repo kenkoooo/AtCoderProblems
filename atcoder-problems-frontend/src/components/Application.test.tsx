@@ -97,11 +97,7 @@ test("user page view", () => {
   });
 
   let now = new Date("2017-12-12T14:48:00");
-  const _Date = Date;
-  global.Date = jest.fn(() => now);
-  global.Date.UTC = _Date.UTC;
-  global.Date.parse = _Date.parse;
-  global.Date.now = _Date.now;
+  Date.now = jest.fn(() => now.getTime());
 
   let Application = require("./Application").Application;
   let wrapper = mount(<Application />);
