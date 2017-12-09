@@ -96,6 +96,8 @@ test("user page view", () => {
     ranking: ""
   });
 
+  Date.now = jest.fn().mockReturnValue(1512849508313);
+
   let Application = require("./Application").Application;
   let wrapper = mount(<Application />);
   expect(toJson(wrapper)).toMatchSnapshot();
