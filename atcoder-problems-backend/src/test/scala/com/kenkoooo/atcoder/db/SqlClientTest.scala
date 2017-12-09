@@ -120,13 +120,66 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("extract shortest submissions") {
     val client = new SqlClient(url, sqlUser, sqlPass)
+    val contestId = "contest_id"
+    val startSecond = 114514L
+    client.batchInsert(
+      Contest,
+      Contest(
+        id = contestId,
+        startEpochSecond = startSecond,
+        durationSecond = 0,
+        title = "",
+        rateChange = ""
+      )
+    )
+
     client.batchInsert(
       Submission,
-      Submission(id = 1, problemId = "problem_1", userId = "user_1", length = 5, result = "WA"),
-      Submission(id = 2, problemId = "problem_1", userId = "user_1", length = 5, result = "AC"),
-      Submission(id = 3, problemId = "problem_1", userId = "user_1", length = 5, result = "TLE"),
-      Submission(id = 4, problemId = "problem_1", userId = "user_2", length = 5, result = "AC"),
-      Submission(id = 5, problemId = "problem_2", userId = "user_2", length = 5, result = "AC"),
+      Submission(
+        id = 1,
+        problemId = "problem_1",
+        userId = "user_1",
+        length = 5,
+        result = "WA",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
+      Submission(
+        id = 2,
+        problemId = "problem_1",
+        userId = "user_1",
+        length = 5,
+        result = "AC",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
+      Submission(
+        id = 3,
+        problemId = "problem_1",
+        userId = "user_1",
+        length = 5,
+        result = "TLE",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
+      Submission(
+        id = 4,
+        problemId = "problem_1",
+        userId = "user_2",
+        length = 5,
+        result = "AC",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
+      Submission(
+        id = 5,
+        problemId = "problem_2",
+        userId = "user_2",
+        length = 5,
+        result = "AC",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
     )
     client.updateGreatSubmissions(Shortest)
     client.loadRecords(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
@@ -141,7 +194,15 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
     client.batchInsert(
       Submission,
-      Submission(id = 6, problemId = "problem_2", userId = "user_1", length = 4, result = "AC"),
+      Submission(
+        id = 6,
+        problemId = "problem_2",
+        userId = "user_1",
+        length = 4,
+        result = "AC",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
     )
     client.updateGreatSubmissions(Shortest)
     client.loadRecords(Shortest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
@@ -154,8 +215,30 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       .map(c => c.userId -> c.problemCount)
       .toMap shouldBe Map("user_1" -> 2)
   }
+
   test("extract shortest contest") {
     val client = new SqlClient(url, sqlUser, sqlPass)
+    val contestId1 = "contest1"
+    val contestId2 = "contest2"
+    val startSecond = 114514L
+    client.batchInsert(
+      Contest,
+      Contest(
+        id = contestId1,
+        startEpochSecond = startSecond,
+        durationSecond = 0,
+        title = "",
+        rateChange = ""
+      ),
+      Contest(
+        id = contestId2,
+        startEpochSecond = startSecond,
+        durationSecond = 0,
+        title = "",
+        rateChange = ""
+      )
+    )
+
     client.batchInsert(
       Submission,
       Submission(
@@ -164,7 +247,8 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
         userId = "user_1",
         length = 5,
         result = "AC",
-        contestId = "contest1"
+        contestId = contestId1,
+        epochSecond = startSecond
       ),
       Submission(
         id = 2,
@@ -172,7 +256,8 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
         userId = "user_1",
         length = 5,
         result = "AC",
-        contestId = "contest2"
+        contestId = contestId2,
+        epochSecond = startSecond
       ),
     )
     client.updateGreatSubmissions(Shortest)
@@ -183,13 +268,75 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("extract fastest submissions") {
     val client = new SqlClient(url, sqlUser, sqlPass)
+    val contestId = "contest_id"
+    val startSecond = 114514L
+    client.batchInsert(
+      Contest,
+      Contest(
+        id = contestId,
+        startEpochSecond = startSecond,
+        durationSecond = 0,
+        title = "",
+        rateChange = ""
+      )
+    )
+
     client.batchInsert(
       Submission,
-      Submission(id = 1, problemId = "p1", userId = "u1", executionTime = Some(5), result = "WA"),
-      Submission(id = 2, problemId = "p1", userId = "u1", executionTime = Some(5), result = "AC"),
-      Submission(id = 3, problemId = "p1", userId = "u1", executionTime = Some(5), result = "TLE"),
-      Submission(id = 4, problemId = "p1", userId = "u2", executionTime = Some(5), result = "AC"),
-      Submission(id = 5, problemId = "p2", userId = "u2", executionTime = Some(5), result = "AC"),
+      Submission(
+        id = 0,
+        problemId = "p1",
+        userId = "writer",
+        executionTime = Some(0),
+        result = "AC",
+        contestId = contestId,
+        epochSecond = startSecond - 10
+      ),
+      Submission(
+        id = 1,
+        problemId = "p1",
+        userId = "u1",
+        executionTime = Some(5),
+        result = "WA",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
+      Submission(
+        id = 2,
+        problemId = "p1",
+        userId = "u1",
+        executionTime = Some(5),
+        result = "AC",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
+      Submission(
+        id = 3,
+        problemId = "p1",
+        userId = "u1",
+        executionTime = Some(5),
+        result = "TLE",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
+      Submission(
+        id = 4,
+        problemId = "p1",
+        userId = "u2",
+        executionTime = Some(5),
+        result = "AC",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
+      Submission(
+        id = 5,
+        problemId = "p2",
+        userId = "u2",
+        executionTime = Some(5),
+        result = "AC",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
     )
     client.updateGreatSubmissions(Fastest)
     client.loadRecords(Fastest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
@@ -204,7 +351,15 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
     client.batchInsert(
       Submission,
-      Submission(id = 6, problemId = "p2", userId = "u1", executionTime = Some(4), result = "AC"),
+      Submission(
+        id = 6,
+        problemId = "p2",
+        userId = "u1",
+        executionTime = Some(4),
+        result = "AC",
+        contestId = contestId,
+        epochSecond = startSecond
+      ),
     )
     client.updateGreatSubmissions(Fastest)
     client.loadRecords(Fastest).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
@@ -220,13 +375,61 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("extract first submissions") {
     val client = new SqlClient(url, sqlUser, sqlPass)
+    val contestId = "contest_id"
+    val startSecond = 114514L
+    client.batchInsert(
+      Contest,
+      Contest(
+        id = contestId,
+        startEpochSecond = startSecond,
+        durationSecond = 0,
+        title = "",
+        rateChange = ""
+      )
+    )
+
     client.batchInsert(
       Submission,
-      Submission(id = 1, problemId = "p1", userId = "u1", result = "WA"),
-      Submission(id = 2, problemId = "p1", userId = "u1", result = "AC"),
-      Submission(id = 3, problemId = "p1", userId = "u1", result = "TLE"),
-      Submission(id = 4, problemId = "p1", userId = "u2", result = "AC"),
-      Submission(id = 5, problemId = "p2", userId = "u2", result = "AC"),
+      Submission(
+        id = 1,
+        problemId = "p1",
+        userId = "u1",
+        result = "WA",
+        epochSecond = startSecond,
+        contestId = contestId
+      ),
+      Submission(
+        id = 2,
+        problemId = "p1",
+        userId = "u1",
+        result = "AC",
+        epochSecond = startSecond,
+        contestId = contestId
+      ),
+      Submission(
+        id = 3,
+        problemId = "p1",
+        userId = "u1",
+        result = "TLE",
+        epochSecond = startSecond,
+        contestId = contestId
+      ),
+      Submission(
+        id = 4,
+        problemId = "p1",
+        userId = "u2",
+        result = "AC",
+        epochSecond = startSecond,
+        contestId = contestId
+      ),
+      Submission(
+        id = 5,
+        problemId = "p2",
+        userId = "u2",
+        result = "AC",
+        epochSecond = startSecond,
+        contestId = contestId
+      ),
     )
     client.updateGreatSubmissions(First)
     client.loadRecords(First).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
@@ -241,8 +444,22 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
     client.batchInsert(
       Submission,
-      Submission(id = 6, problemId = "p2", userId = "u2", result = "AC"),
-      Submission(id = 7, problemId = "p3", userId = "u2", result = "AC"),
+      Submission(
+        id = 6,
+        problemId = "p2",
+        userId = "u2",
+        result = "AC",
+        epochSecond = startSecond,
+        contestId = contestId
+      ),
+      Submission(
+        id = 7,
+        problemId = "p3",
+        userId = "u2",
+        result = "AC",
+        epochSecond = startSecond,
+        contestId = contestId
+      ),
     )
     client.updateGreatSubmissions(First)
     client.loadRecords(First).map(s => s.problemId -> s.submissionId).toMap shouldBe Map(
@@ -288,28 +505,48 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("batch execution of statistics functions") {
     val client = new SqlClient(url, sqlUser, sqlPass)
-    client.batchInsert(
-      Submission,
-      Submission(
-        id = 114514,
-        problemId = "arc999_a",
-        userId = "kenkoooo",
-        length = 11,
-        executionTime = Some(22),
-        result = "AC",
-        contestId = "contest-name"
-      )
+    val contestId = "arc999"
+    val problemId = "arc999_f"
+    val contestant = "kenkoooo"
+    val writer = "tomerun"
+    val startEpochSecond = 114514L
+    client.batchInsert(Contest, Contest(contestId, startEpochSecond, 0, "", ""))
+
+    val submissionByContestant = Submission(
+      id = 114514,
+      problemId = problemId,
+      userId = contestant,
+      length = 11,
+      executionTime = Some(22),
+      result = "AC",
+      epochSecond = startEpochSecond,
+      contestId = contestId
     )
+    val submissionByWriter = Submission(
+      id = 1,
+      problemId = problemId,
+      userId = writer,
+      length = 11,
+      executionTime = Some(22),
+      result = "AC",
+      epochSecond = startEpochSecond - 10,
+      contestId = contestId
+    )
+
+    client.batchInsert(Submission, submissionByContestant, submissionByWriter)
     client.batchUpdateStatisticTables()
 
-    client.loadRecords(AcceptedCount).head shouldBe AcceptedCount("kenkoooo", 1)
-    client.loadRecords(ProblemSolver).head shouldBe ProblemSolver("arc999_a", 1)
-    client.loadRecords(First).head shouldBe First("contest-name", "arc999_a", 114514)
-    client.loadRecords(Fastest).head shouldBe Fastest("contest-name", "arc999_a", 114514)
-    client.loadRecords(Shortest).head shouldBe Shortest("contest-name", "arc999_a", 114514)
-    client.loadRecords(FirstSubmissionCount).head shouldBe FirstSubmissionCount("kenkoooo", 1)
-    client.loadRecords(FastestSubmissionCount).head shouldBe FastestSubmissionCount("kenkoooo", 1)
-    client.loadRecords(ShortestSubmissionCount).head shouldBe ShortestSubmissionCount("kenkoooo", 1)
+    client.loadRecords(AcceptedCount).map(c => c.userId -> c.problemCount).toMap shouldBe Map(
+      contestant -> 1,
+      writer -> 1
+    )
+    client.loadRecords(ProblemSolver).head shouldBe ProblemSolver(problemId, 2)
+    client.loadRecords(First).head shouldBe First(contestId, problemId, 114514)
+    client.loadRecords(Fastest).head shouldBe Fastest(contestId, problemId, 114514)
+    client.loadRecords(Shortest).head shouldBe Shortest(contestId, problemId, 114514)
+    client.loadRecords(FirstSubmissionCount).head shouldBe FirstSubmissionCount(contestant, 1)
+    client.loadRecords(FastestSubmissionCount).head shouldBe FastestSubmissionCount(contestant, 1)
+    client.loadRecords(ShortestSubmissionCount).head shouldBe ShortestSubmissionCount(contestant, 1)
   }
 
   test("load merged problem info") {
