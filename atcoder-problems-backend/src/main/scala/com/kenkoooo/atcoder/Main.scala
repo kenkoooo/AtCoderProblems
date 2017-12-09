@@ -15,7 +15,6 @@ import com.kenkoooo.atcoder.runner.{AllSubmissionScrapingRunner, NewerSubmission
 import com.kenkoooo.atcoder.scraper.{ContestScraper, ProblemScraper, SubmissionScraper}
 import org.apache.logging.log4j.scala.Logging
 
-import scala.collection.immutable.Queue
 import scala.util.{Failure, Success}
 
 object Main extends Logging {
@@ -63,20 +62,14 @@ object Main extends Logging {
           sql.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
         }
 
-        var contests = Queue[Contest]()
-        // scrape problems per minutes
-        service.tryAtFixedDelay(1, 1, MINUTES) {
-          if (contests.isEmpty) {
-            contests = Queue[Contest](sql.contests.values.toSeq: _*)
+        // scrape problems per hour
+        service.tryAtFixedDelay(0, 1, HOURS) {
+          sql.loadNoProblemContestList().foreach { contestId =>
+            problemScraper.scrape(contestId) match {
+              case Success(problems) => sql.batchInsert(Problem, problems: _*)
+              case Failure(e)        => logger.catching(e)
+            }
           }
-          logger.info(s"there are ${contests.size} contests")
-          val (contest, q) = contests.dequeue
-
-          problemScraper.scrape(contest.id) match {
-            case Success(problems) => sql.batchInsert(Problem, problems: _*)
-            case Failure(e)        => logger.catching(e)
-          }
-          contests = q
         }
 
         // update tables every 5 minutes

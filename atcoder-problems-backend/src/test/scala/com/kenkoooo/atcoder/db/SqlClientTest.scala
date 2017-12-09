@@ -356,4 +356,17 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     problems.find(_.id == notSolvedProblemId).get.point shouldBe None
     problems.find(_.id == notSolvedProblemId).get.predict.get shouldBe 1.0
   }
+
+  test("extract contests which don't have any problems") {
+    val client = new SqlClient(url, sqlUser, sqlPass)
+    val id1 = "contest1"
+    val id2 = "contest2"
+
+    client.batchInsert(Contest, Contest(id1, 0, 0, "", ""), Contest(id2, 0, 0, "", ""))
+    client.batchInsert(Problem, Problem("problem1", id1, ""))
+
+    val contestIds = client.loadNoProblemContestList()
+    contestIds.size shouldBe 1
+    contestIds.head shouldBe id2
+  }
 }
