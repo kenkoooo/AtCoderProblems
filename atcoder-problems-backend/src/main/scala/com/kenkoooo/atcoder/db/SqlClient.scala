@@ -197,6 +197,8 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     val submissionId = submission.id
     val result = submission.c("result")
 
+    val contests = Contest.syntax("contests")
+
     DB.localTx { implicit session =>
       withSQL {
         deleteFrom(support)
@@ -210,17 +212,25 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
                 concat(problemId, blank, submissionId),
                 select(concat(problemId, blank, min(submissionId)))
                   .from(Submission as submission)
+                  .join(Contest as contests)
+                  .on(contests.id, contestId)
                   .where
                   .in(
                     concat(problemId, blank, comparingColumn),
                     select(concat(problemId, blank, min(comparingColumn)))
                       .from(Submission as submission)
+                      .join(Contest as contests)
+                      .on(contests.id, contestId)
                       .where
                       .eq(result, SubmissionStatus.Accepted)
+                      .and
+                      .ge(submission.epochSecond, contests.startEpochSecond)
                       .groupBy(problemId)
                   )
                   .and
                   .eq(result, SubmissionStatus.Accepted)
+                  .and
+                  .ge(submission.epochSecond, contests.startEpochSecond)
                   .groupBy(problemId)
               )
               .and
