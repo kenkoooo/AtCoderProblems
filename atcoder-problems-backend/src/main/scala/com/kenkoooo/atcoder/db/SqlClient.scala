@@ -80,6 +80,18 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     )
   }
 
+  def loadNoProblemContestList(): List[ContestId] = {
+    val contests = Contest.syntax("contests")
+    val problems = Problem.syntax("problems")
+    DB.readOnly { implicit session =>
+      withSQL {
+        select(contests.result.id)
+          .from(Contest as contests)
+          .except(select(Problem.column.contestId).from(Problem as problems))
+      }.map(_.string(contests.resultName.id)).list().apply()
+    }
+  }
+
   /**
     * rewrite accepted count ranking table
     */
