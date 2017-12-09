@@ -11,7 +11,7 @@ let DB = require("../../db")();
 function mockApiCall() {
   jest.mock("superagent");
   let mockAgent = require("superagent");
-  mockAgent.get.mockImplementation((url: string, query?) => {
+  mockAgent.get.mockImplementation((url: string, query?: any) => {
     if (url === "./atcoder-api/results") {
       return new MockRequest(DB["results"]);
     } else {
