@@ -1,4 +1,3 @@
-dist: artful
 services:
   - postgresql
 addons:

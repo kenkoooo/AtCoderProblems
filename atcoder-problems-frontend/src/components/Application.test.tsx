@@ -96,7 +96,12 @@ test("user page view", () => {
     ranking: ""
   });
 
-  Date.now = jest.fn().mockReturnValue(1512849508313);
+  let now = new Date("2017-12-12T14:48:00");
+  const _Date = Date;
+  global.Date = jest.fn(() => now);
+  global.Date.UTC = _Date.UTC;
+  global.Date.parse = _Date.parse;
+  global.Date.now = _Date.now;
 
   let Application = require("./Application").Application;
   let wrapper = mount(<Application />);
