@@ -15,6 +15,9 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "c3": "./src/__mocks__/c3.js"
+    },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"],
     "coverageDirectory": "./coverage/",
