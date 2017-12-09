@@ -28,13 +28,15 @@ export class UserPageHeatMap extends React.Component<
     });
 
     let todaysDate = new Date();
+    let oneYearBefore = new Date();
+    oneYearBefore.setFullYear(todaysDate.getFullYear() - 1);
 
     return (
       <CalendarHeatmap
         gutterSize={1}
         showOutOfRangeDays={true}
         endDate={todaysDate}
-        startDate={todaysDate.setFullYear(todaysDate.getFullYear() - 1)}
+        startDate={oneYearBefore}
         values={values}
         classForValue={value => {
           if (!value) {
