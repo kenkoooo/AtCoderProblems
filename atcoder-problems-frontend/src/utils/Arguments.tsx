@@ -17,7 +17,7 @@ export class ArgumentParser {
     let ranking: string = "ranking" in params ? params["ranking"] : "ac";
     return {
       userId: userId,
-      rivals: rivals.split(","),
+      rivals: rivals.split(",").filter(r => r.length > 0),
       kind: kind,
       ranking: ranking
     };

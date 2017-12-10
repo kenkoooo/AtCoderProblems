@@ -14,6 +14,7 @@ import { SubmissionUtils } from "../utils/SubmissionUtils";
 import { NavigationBar } from "./NavigationBar";
 import { UserPage } from "./UserPage";
 import { Ranking } from "./Ranking";
+import { RatedPointCountTable } from "./RatedPointCountTable";
 
 interface ApplicationState {
   problems: Array<Problem>;
@@ -140,7 +141,13 @@ export class Application extends React.Component<{}, ApplicationState> {
           });
         return (
           <Grid>
-            <SearchForm args={this.state.args} />
+            <SearchForm args={this.state.args} />{" "}
+            <RatedPointCountTable
+              problems={this.state.mergedProblems}
+              userId={this.state.args.userId}
+              rivals={this.state.args.rivals}
+              submissions={this.state.submissions}
+            />
             <List
               problems={this.state.mergedProblems}
               contests={this.state.contests}
