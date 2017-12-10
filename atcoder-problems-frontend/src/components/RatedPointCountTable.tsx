@@ -16,10 +16,6 @@ export class RatedPointCountTable extends React.Component<
   {}
 > {
   render() {
-    let points = Array.from(
-      new Set(this.props.problems.filter(p => p.point).map(p => p.point))
-    ).sort((a, b) => a - b);
-
     let users = [this.props.userId];
     this.props.rivals.forEach(r => users.push(r));
     let map: Map<string, Map<number, number>> = new Map(
@@ -33,7 +29,19 @@ export class RatedPointCountTable extends React.Component<
         return t;
       })
     );
-
+    let counts = new Map<number, number>();
+    this.props.problems.filter(p => p.point).forEach(p => {
+      if (counts.has(p.point)) {
+        counts.set(p.point, counts.get(p.point) + 1);
+      } else {
+        counts.set(p.point, 1);
+      }
+    });
+    let points = Array.from(counts.keys()).sort((a, b) => a - b);
+    let pointsSum =
+      points.length == 0
+        ? 0
+        : points.map(p => counts.get(p) * p).reduce((a, b) => a + b);
     return (
       <Row>
         <PageHeader />
@@ -43,6 +51,11 @@ export class RatedPointCountTable extends React.Component<
               <th>User</th>
               {points.map(p => <th>{p}</th>)}
               <th>Sum</th>
+            </tr>
+            <tr>
+              <th>Sum</th>
+              {points.map(p => <th>{counts.get(p)}</th>)}
+              <th>{pointsSum}</th>
             </tr>
           </thead>
           <tbody>
