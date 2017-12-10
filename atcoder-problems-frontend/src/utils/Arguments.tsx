@@ -1,5 +1,4 @@
 import * as QueryString from "query-string";
-import { RankingKind } from "../model/RankingKind";
 
 export interface Arguments {
   userId: string;

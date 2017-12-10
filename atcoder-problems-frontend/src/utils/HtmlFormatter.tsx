@@ -8,9 +8,17 @@ export class HtmlFormatter {
    * @param url reference url
    * @param text link text
    */
-  static createLink(url: string, text: string): JSX.Element {
+  static createLink(
+    url: string,
+    text: string,
+    sameWindow?: boolean
+  ): JSX.Element {
+    let target = "_blank";
+    if (sameWindow) {
+      target = "";
+    }
     return (
-      <a href={url} target="_blank">
+      <a href={url} target={target}>
         {text}
       </a>
     );
