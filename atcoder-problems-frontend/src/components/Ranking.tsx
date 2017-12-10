@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ApiCall } from "../utils/ApiCall";
 import { RankPair } from "../model/RankPair";
-import { pairs } from "d3";
 import { Row, PageHeader } from "react-bootstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { RankingKind } from "../model/RankingKind";
