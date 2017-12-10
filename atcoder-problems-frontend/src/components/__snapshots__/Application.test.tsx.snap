@@ -4591,6 +4591,14 @@ exports[`list view 1`] = `
                         Sum
                       </th>
                     </tr>
+                    <tr>
+                      <th>
+                        Sum
+                      </th>
+                      <th>
+                        0
+                      </th>
+                    </tr>
                   </thead>
                   <tbody>
                     <tr>
@@ -7325,6 +7333,14 @@ exports[`list view 2`] = `
                       </th>
                       <th>
                         Sum
+                      </th>
+                    </tr>
+                    <tr>
+                      <th>
+                        Sum
+                      </th>
+                      <th>
+                        0
                       </th>
                     </tr>
                   </thead>
