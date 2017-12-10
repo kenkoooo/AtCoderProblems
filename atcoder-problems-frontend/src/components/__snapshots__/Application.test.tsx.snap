@@ -4543,12 +4543,17 @@ exports[`list view 1`] = `
             </form>
           </Form>
         </SearchForm>
-        <List
-          acceptedProblems={Set {}}
-          contests={Array []}
+         
+        <RatedPointCountTable
           problems={Array []}
-          rivalMap={Map {}}
-          wrongMap={Map {}}
+          rivals={
+            Array [
+              "chokudai",
+              "iwiwi",
+            ]
+          }
+          submissions={Array []}
+          userId="kenkoooo"
         >
           <Row
             bsClass="row"
@@ -4566,6 +4571,72 @@ exports[`list view 1`] = `
                   <h1 />
                 </div>
               </PageHeader>
+              <Table
+                bordered={true}
+                bsClass="table"
+                condensed={true}
+                hover={true}
+                responsive={false}
+                striped={true}
+              >
+                <table
+                  className="table table-striped table-bordered table-condensed table-hover"
+                >
+                  <thead>
+                    <tr>
+                      <th>
+                        User
+                      </th>
+                      <th>
+                        Sum
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        kenkoooo
+                      </td>
+                      <td>
+                        0
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        chokudai
+                      </td>
+                      <td>
+                        0
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        iwiwi
+                      </td>
+                      <td>
+                        0
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Table>
+            </div>
+          </Row>
+        </RatedPointCountTable>
+        <List
+          acceptedProblems={Set {}}
+          contests={Array []}
+          problems={Array []}
+          rivalMap={Map {}}
+          wrongMap={Map {}}
+        >
+          <Row
+            bsClass="row"
+            componentClass="div"
+          >
+            <div
+              className="row"
+            >
               <ButtonToolbar
                 bsClass="btn-toolbar"
               >
@@ -7208,12 +7279,17 @@ exports[`list view 2`] = `
             </form>
           </Form>
         </SearchForm>
-        <List
-          acceptedProblems={Set {}}
-          contests={Array []}
+         
+        <RatedPointCountTable
           problems={Array []}
-          rivalMap={Map {}}
-          wrongMap={Map {}}
+          rivals={
+            Array [
+              "chokudai",
+              "iwiwi",
+            ]
+          }
+          submissions={Array []}
+          userId="kenkoooo"
         >
           <Row
             bsClass="row"
@@ -7231,6 +7307,72 @@ exports[`list view 2`] = `
                   <h1 />
                 </div>
               </PageHeader>
+              <Table
+                bordered={true}
+                bsClass="table"
+                condensed={true}
+                hover={true}
+                responsive={false}
+                striped={true}
+              >
+                <table
+                  className="table table-striped table-bordered table-condensed table-hover"
+                >
+                  <thead>
+                    <tr>
+                      <th>
+                        User
+                      </th>
+                      <th>
+                        Sum
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        kenkoooo
+                      </td>
+                      <td>
+                        0
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        chokudai
+                      </td>
+                      <td>
+                        0
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        iwiwi
+                      </td>
+                      <td>
+                        0
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Table>
+            </div>
+          </Row>
+        </RatedPointCountTable>
+        <List
+          acceptedProblems={Set {}}
+          contests={Array []}
+          problems={Array []}
+          rivalMap={Map {}}
+          wrongMap={Map {}}
+        >
+          <Row
+            bsClass="row"
+            componentClass="div"
+          >
+            <div
+              className="row"
+            >
               <ButtonToolbar
                 bsClass="btn-toolbar"
               >
