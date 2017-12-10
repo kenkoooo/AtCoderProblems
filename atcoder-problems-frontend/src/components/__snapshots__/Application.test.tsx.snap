@@ -2812,6 +2812,7 @@ exports[`category view 1`] = `
                     "D",
                   ]
                 }
+                rightJustified={true}
                 rivalProblems={Set {}}
                 wrongMap={Map {}}
               >
