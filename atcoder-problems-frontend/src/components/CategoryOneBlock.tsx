@@ -14,6 +14,7 @@ export interface CategoryOneBlockProps {
   acceptedProblems: Set<string>;
   wrongMap: Map<string, string>;
   rivalProblems: Set<string>;
+  rightJustified?: boolean;
 }
 
 export class CategoryOneBlock extends React.Component<
@@ -48,6 +49,12 @@ export class CategoryOneBlock extends React.Component<
       let contest = d[0];
       let problems = d[1];
       let o: { [key: string]: any } = { contest: d[0] };
+
+      if (this.props.rightJustified) {
+        problems.reverse();
+        this.props.header.reverse();
+      }
+
       this.props.header.forEach((head, i) => {
         if (problems.length > i) {
           o[head] = some(problems[i]);
@@ -55,6 +62,12 @@ export class CategoryOneBlock extends React.Component<
           o[head] = none;
         }
       });
+
+      if (this.props.rightJustified) {
+        problems.reverse();
+        this.props.header.reverse();
+      }
+
       return o;
     });
 

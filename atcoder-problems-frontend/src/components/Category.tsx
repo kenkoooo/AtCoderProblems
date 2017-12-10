@@ -84,6 +84,7 @@ export class Category extends React.Component<CategoryProps, {}> {
           acceptedProblems={acceptedProblems}
           wrongMap={wrongProblemMap}
           rivalProblems={rivalProblems}
+          rightJustified
         />
         <CategorySmallBlock
           data={others}
