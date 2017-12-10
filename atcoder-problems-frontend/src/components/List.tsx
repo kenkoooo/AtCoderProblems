@@ -218,7 +218,6 @@ export class List extends React.Component<ListProps, ListState> {
 
     return (
       <Row>
-        <PageHeader />
         <ButtonToolbar>
           <ToggleButtonGroup
             type="checkbox"
