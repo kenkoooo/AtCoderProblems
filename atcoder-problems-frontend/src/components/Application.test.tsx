@@ -96,12 +96,8 @@ test("user page view", () => {
     ranking: ""
   });
 
-  let now = new Date("2017-12-12T14:48:00");
-  Date = class extends Date {
-    constructor() {
-      return now;
-    }
-  };
+  // 2017-12-22 JST
+  Date.now = jest.fn(() => 1513868400000);
 
   let Application = require("./Application").Application;
   let wrapper = mount(<Application />);
