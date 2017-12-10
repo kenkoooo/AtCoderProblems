@@ -15489,15 +15489,6 @@ exports[`render list view 1`] = `
     <div
       className="row"
     >
-      <PageHeader
-        bsClass="page-header"
-      >
-        <div
-          className="page-header"
-        >
-          <h1 />
-        </div>
-      </PageHeader>
       <ButtonToolbar
         bsClass="btn-toolbar"
       >
