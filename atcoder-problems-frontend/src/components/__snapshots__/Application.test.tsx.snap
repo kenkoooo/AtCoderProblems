@@ -9834,7 +9834,9 @@ exports[`ranking view 1`] = `
                 <div
                   className="page-header"
                 >
-                  <h1 />
+                  <h1>
+                    Top Problem Solvers
+                  </h1>
                 </div>
               </PageHeader>
               <BootstrapTable
@@ -10031,7 +10033,7 @@ exports[`ranking view 1`] = `
                             "customInsertEditor": undefined,
                             "editable": true,
                             "field": "userId",
-                            "format": false,
+                            "format": [Function],
                             "hiddenOnInsert": false,
                             "isKey": false,
                             "keyValidator": false,
@@ -10291,6 +10293,7 @@ exports[`ranking view 1`] = `
                                 csvFieldType="string"
                                 dataAlign="left"
                                 dataField="userId"
+                                dataFormat={[Function]}
                                 dataSort={true}
                                 defaultASC={false}
                                 editColumnClassName=""
@@ -10498,7 +10501,7 @@ exports[`ranking view 1`] = `
                             "export": undefined,
                             "filterFormatted": false,
                             "filterValue": undefined,
-                            "format": undefined,
+                            "format": [Function],
                             "formatExtraData": undefined,
                             "hidden": false,
                             "hiddenOnInsert": false,

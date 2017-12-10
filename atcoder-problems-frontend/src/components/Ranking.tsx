@@ -4,6 +4,7 @@ import { RankPair } from "../model/RankPair";
 import { Row, PageHeader } from "react-bootstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { RankingKind } from "../model/RankingKind";
+import { HtmlFormatter } from "../utils/HtmlFormatter";
 
 export interface RankingProps {
   ranking: string;
@@ -26,14 +27,34 @@ export class Ranking extends React.Component<RankingProps, RankingState> {
   }
 
   render() {
+    let getTitle = (rankingString: string) => {
+      switch (rankingString) {
+        case RankingKind.Accepted:
+          return "Top Problem Solvers";
+        case RankingKind.Fastest:
+          return "Top Accelerators";
+        case RankingKind.First:
+          return "Top Speed Runners";
+        case RankingKind.Shortest:
+          return "Top Code Golfers";
+      }
+      return "";
+    };
+
     return (
       <Row>
-        <PageHeader />
+        <PageHeader>{getTitle(this.props.ranking)}</PageHeader>
         <BootstrapTable data={this.state.ranking} striped search>
           <TableHeaderColumn dataField="rank" isKey dataSort>
             Rank
           </TableHeaderColumn>
-          <TableHeaderColumn dataField="userId" dataSort>
+          <TableHeaderColumn
+            dataField="userId"
+            dataSort
+            dataFormat={(user: string) =>
+              HtmlFormatter.createLink(`./?user=${user}&kind=user`, user, true)
+            }
+          >
             User ID
           </TableHeaderColumn>
           <TableHeaderColumn

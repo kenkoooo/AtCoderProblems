@@ -4,7 +4,6 @@ import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
 import { RankPair } from "../model/RankPair";
 import { MergedProblem } from "../model/MergedProblem";
-import { RankingKind } from "../model/RankingKind";
 
 export class ApiCall {
   static BaseUrl = "./atcoder-api";
