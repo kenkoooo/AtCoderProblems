@@ -48,6 +48,19 @@ export class Category extends React.Component<CategoryProps, {}> {
     let abc = this.filterProblems(problemMap, /^abc\d{3}$/);
     let arc = this.filterProblems(problemMap, /^arc\d{3}$/);
 
+    // sync
+    abc.forEach((v, i) => {
+      let j = arc.findIndex(
+        t => t[0].start_epoch_second == v[0].start_epoch_second
+      );
+      if (j >= 0) {
+        let w = arc[j];
+        let merged = v[1].concat(w[1]).sort((a, b) => a.id.localeCompare(b.id));
+        abc[i] = [v[0], merged.slice(0, 4)];
+        arc[j] = [w[0], merged.slice(2)];
+      }
+    });
+
     // problems of other contests
     let others = this.filterProblems(problemMap, /^(?!a[rgb]c\d{3}).*$/).sort(
       (a, b) => {
