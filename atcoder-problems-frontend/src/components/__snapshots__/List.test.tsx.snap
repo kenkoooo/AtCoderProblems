@@ -15616,6 +15616,7 @@ exports[`render list view 1`] = `
             "expandColumnBeforeSelectColumn": true,
             "expandColumnComponent": undefined,
             "expandColumnVisible": false,
+            "expandedColumnHeaderComponent": undefined,
           }
         }
         exportCSV={false}
@@ -15763,7 +15764,7 @@ exports[`render list view 1`] = `
                     "customInsertEditor": undefined,
                     "editable": true,
                     "field": "point",
-                    "format": false,
+                    "format": [Function],
                     "hiddenOnInsert": false,
                     "isKey": false,
                     "keyValidator": false,
@@ -16232,6 +16233,7 @@ exports[`render list view 1`] = `
               hideSelectColumn={false}
               isFiltered={false}
               isSelectAll={false}
+              noAnyExpand={true}
               onSelectAllRow={[Function]}
               onSort={[Function]}
               reset={false}
@@ -16239,6 +16241,7 @@ exports[`render list view 1`] = `
               sortIndicator={true}
               sortList={Array []}
               tableHeaderClass={null}
+              toggleExpandAllChilds={[Function]}
               version="3"
             >
               <div
@@ -16627,6 +16630,7 @@ exports[`render list view 1`] = `
                         csvFieldType="string"
                         dataAlign="right"
                         dataField="point"
+                        dataFormat={[Function]}
                         dataSort={true}
                         defaultASC={false}
                         editColumnClassName=""
@@ -17010,7 +17014,7 @@ exports[`render list view 1`] = `
                     "export": undefined,
                     "filterFormatted": false,
                     "filterValue": undefined,
-                    "format": undefined,
+                    "format": [Function],
                     "formatExtraData": undefined,
                     "hidden": false,
                     "hiddenOnInsert": false,
@@ -17119,9 +17123,11 @@ exports[`render list view 1`] = `
                   "expandColumnBeforeSelectColumn": true,
                   "expandColumnComponent": undefined,
                   "expandColumnVisible": false,
+                  "expandedColumnHeaderComponent": undefined,
                 }
               }
               expanding={Array []}
+              hideRowOnExpand={false}
               hover={false}
               keyBoardNav={false}
               keyField="startEpochSecond"
@@ -17253,10 +17259,12 @@ exports[`render list view 1`] = `
                   </colgroup>
                   <tbody>
                     <TableRow
+                      hidden={false}
                       key="##table-empty##"
                     >
                       <tr
                         className=""
+                        hidden={false}
                         onClick={[Function]}
                         onDoubleClick={[Function]}
                         onMouseOut={[Function]}
