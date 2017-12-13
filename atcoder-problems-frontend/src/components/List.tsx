@@ -48,6 +48,8 @@ enum ListFilter {
   Rated = "rated"
 }
 
+const INF = 10000;
+
 function formatProblemTitle(problem: Problem, row: ProblemRow) {
   let problemUrl = UrlFormatter.problemUrl(row.contest.id, problem.id);
   return HtmlFormatter.createLink(problemUrl, problem.title);
@@ -187,7 +189,7 @@ export class List extends React.Component<ListProps, ListState> {
         let contest = contestMap.get(problem.contestId);
         let point = problem.point
           ? problem.point
-          : problem.predict ? problem.predict : -1;
+          : problem.predict ? problem.predict : INF;
         return {
           problem: problem,
           contest: contest,
@@ -306,7 +308,18 @@ export class List extends React.Component<ListProps, ListState> {
           >
             Solvers
           </TableHeaderColumn>
-          <TableHeaderColumn dataField="point" dataAlign="right" dataSort>
+          <TableHeaderColumn
+            dataField="point"
+            dataAlign="right"
+            dataSort
+            dataFormat={p => {
+              if (p == INF) {
+                return "-";
+              } else {
+                return p;
+              }
+            }}
+          >
             Point
           </TableHeaderColumn>
           <TableHeaderColumn
