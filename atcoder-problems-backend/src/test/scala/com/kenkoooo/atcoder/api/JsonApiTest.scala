@@ -85,6 +85,14 @@ class JsonApiTest
     }
   }
 
+  test("check CORS header") {
+    val api = new JsonApi(sql)
+    Get("/info/contests") ~> api.routes ~> check {
+      status shouldBe OK
+      header("Access-Control-Allow-Origin").get.value() shouldBe "*"
+    }
+  }
+
   test("return 304 to cached request") {
     val api = new JsonApi(sql)
     Get("/info/contests") ~> addHeader(`If-None-Match`.name, currentTimeTag.toString()) ~> api.routes ~> check {
