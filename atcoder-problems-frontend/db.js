@@ -7,6 +7,7 @@ module.exports = function() {
     fast: require("./resources/fast.json"),
     first: require("./resources/first.json"),
     short: require("./resources/short.json"),
+    sums: require("./resources/sums.json"),
     results: require("./resources/results.json")
   };
 };
