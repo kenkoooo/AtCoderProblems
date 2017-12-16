@@ -74,6 +74,8 @@ class JsonApiTest
         )
       )
     )
+    when(sql.ratedPointSums)
+      .thenReturn(List(RatedPointSum("user1", 100.0), RatedPointSum("user2", 200.0)))
   }
 
   test("return 200 to new request") {
@@ -190,6 +192,16 @@ class JsonApiTest
     val expectedJson =
       """[{"first_submission_id":6,"solver_count":9,"fastest_user_id":"faster","execution_time":5,"point":10.0,"shortest_user_id":"short","first_contest_id":"faster","shortest_submission_id":7,"fastest_contest_id":"faster","contest_id":"contest2","id":"problem1","fastest_submission_id":4,"shortest_contest_id":"faster","first_user_id":"first","predict":11.0,"title":"title3","source_code_length":8}]"""
     Get("/info/merged-problems") ~> api.routes ~> check {
+      status shouldBe OK
+      responseAs[String] shouldBe expectedJson
+    }
+  }
+
+  test("rated point sums api") {
+    val api = new JsonApi(sql)
+    val expectedJson =
+      """[{"user_id":"user1","point_sum":100.0},{"user_id":"user2","point_sum":200.0}]"""
+    Get("/info/sums") ~> api.routes ~> check {
       status shouldBe OK
       responseAs[String] shouldBe expectedJson
     }
