@@ -340,6 +340,40 @@ exports[`category view 1`] = `
                                               </SafeAnchor>
                                             </li>
                                           </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=ranking&ranking=sums"
+                                            key=".$.4"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=ranking&ranking=sums"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=ranking&ranking=sums"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Rated-Point
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
                                         </ul>
                                       </RootCloseWrapper>
                                     </DropdownMenu>
@@ -920,7 +954,6 @@ exports[`category view 1`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       exportCSV={false}
@@ -957,7 +990,6 @@ exports[`category view 1`] = `
                           "deleteBtn": undefined,
                           "deleteText": "Delete",
                           "excludeCSVHeader": false,
-                          "expandAll": false,
                           "expandBodyClass": null,
                           "expandBy": "row",
                           "expandParentClass": null,
@@ -970,7 +1002,6 @@ exports[`category view 1`] = `
                           "firstPageTitle": "first page",
                           "handleConfirmDeleteRow": undefined,
                           "hidePageListOnlyOnePage": false,
-                          "hideRowOnExpand": false,
                           "hideSizePerPage": false,
                           "ignoreEditable": false,
                           "insertBtn": undefined,
@@ -1129,14 +1160,12 @@ exports[`category view 1`] = `
                               </colgroup>
                             }
                             condensed={false}
-                            expandAll={false}
                             expandColumnBeforeSelectColumn={true}
                             expandColumnVisible={false}
                             headerContainerClass={null}
                             hideSelectColumn={false}
                             isFiltered={false}
                             isSelectAll={false}
-                            noAnyExpand={true}
                             onSelectAllRow={[Function]}
                             onSort={[Function]}
                             reset={false}
@@ -1144,7 +1173,6 @@ exports[`category view 1`] = `
                             sortIndicator={true}
                             sortList={Array []}
                             tableHeaderClass={null}
-                            toggleExpandAllChilds={[Function]}
                             version="3"
                           >
                             <div
@@ -1771,12 +1799,10 @@ exports[`category view 1`] = `
                                 "expandColumnBeforeSelectColumn": true,
                                 "expandColumnComponent": undefined,
                                 "expandColumnVisible": false,
-                                "expandedColumnHeaderComponent": undefined,
                               }
                             }
                             expandParentClass={null}
                             expanding={Array []}
-                            hideRowOnExpand={false}
                             hover={false}
                             keyBoardNav={false}
                             keyField="contest"
@@ -1894,12 +1920,10 @@ exports[`category view 1`] = `
                                 </colgroup>
                                 <tbody>
                                   <TableRow
-                                    hidden={false}
                                     key="##table-empty##"
                                   >
                                     <tr
                                       className=""
-                                      hidden={false}
                                       onClick={[Function]}
                                       onDoubleClick={[Function]}
                                       onMouseOut={[Function]}
@@ -2000,7 +2024,6 @@ exports[`category view 1`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       exportCSV={false}
@@ -2037,7 +2060,6 @@ exports[`category view 1`] = `
                           "deleteBtn": undefined,
                           "deleteText": "Delete",
                           "excludeCSVHeader": false,
-                          "expandAll": false,
                           "expandBodyClass": null,
                           "expandBy": "row",
                           "expandParentClass": null,
@@ -2050,7 +2072,6 @@ exports[`category view 1`] = `
                           "firstPageTitle": "first page",
                           "handleConfirmDeleteRow": undefined,
                           "hidePageListOnlyOnePage": false,
-                          "hideRowOnExpand": false,
                           "hideSizePerPage": false,
                           "ignoreEditable": false,
                           "insertBtn": undefined,
@@ -2195,14 +2216,12 @@ exports[`category view 1`] = `
                               </colgroup>
                             }
                             condensed={false}
-                            expandAll={false}
                             expandColumnBeforeSelectColumn={true}
                             expandColumnVisible={false}
                             headerContainerClass={null}
                             hideSelectColumn={false}
                             isFiltered={false}
                             isSelectAll={false}
-                            noAnyExpand={true}
                             onSelectAllRow={[Function]}
                             onSort={[Function]}
                             reset={false}
@@ -2210,7 +2229,6 @@ exports[`category view 1`] = `
                             sortIndicator={true}
                             sortList={Array []}
                             tableHeaderClass={null}
-                            toggleExpandAllChilds={[Function]}
                             version="3"
                           >
                             <div
@@ -2671,12 +2689,10 @@ exports[`category view 1`] = `
                                 "expandColumnBeforeSelectColumn": true,
                                 "expandColumnComponent": undefined,
                                 "expandColumnVisible": false,
-                                "expandedColumnHeaderComponent": undefined,
                               }
                             }
                             expandParentClass={null}
                             expanding={Array []}
-                            hideRowOnExpand={false}
                             hover={false}
                             keyBoardNav={false}
                             keyField="contest"
@@ -2778,12 +2794,10 @@ exports[`category view 1`] = `
                                 </colgroup>
                                 <tbody>
                                   <TableRow
-                                    hidden={false}
                                     key="##table-empty##"
                                   >
                                     <tr
                                       className=""
-                                      hidden={false}
                                       onClick={[Function]}
                                       onDoubleClick={[Function]}
                                       onMouseOut={[Function]}
@@ -2885,7 +2899,6 @@ exports[`category view 1`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       exportCSV={false}
@@ -2922,7 +2935,6 @@ exports[`category view 1`] = `
                           "deleteBtn": undefined,
                           "deleteText": "Delete",
                           "excludeCSVHeader": false,
-                          "expandAll": false,
                           "expandBodyClass": null,
                           "expandBy": "row",
                           "expandParentClass": null,
@@ -2935,7 +2947,6 @@ exports[`category view 1`] = `
                           "firstPageTitle": "first page",
                           "handleConfirmDeleteRow": undefined,
                           "hidePageListOnlyOnePage": false,
-                          "hideRowOnExpand": false,
                           "hideSizePerPage": false,
                           "ignoreEditable": false,
                           "insertBtn": undefined,
@@ -3080,14 +3091,12 @@ exports[`category view 1`] = `
                               </colgroup>
                             }
                             condensed={false}
-                            expandAll={false}
                             expandColumnBeforeSelectColumn={true}
                             expandColumnVisible={false}
                             headerContainerClass={null}
                             hideSelectColumn={false}
                             isFiltered={false}
                             isSelectAll={false}
-                            noAnyExpand={true}
                             onSelectAllRow={[Function]}
                             onSort={[Function]}
                             reset={false}
@@ -3095,7 +3104,6 @@ exports[`category view 1`] = `
                             sortIndicator={true}
                             sortList={Array []}
                             tableHeaderClass={null}
-                            toggleExpandAllChilds={[Function]}
                             version="3"
                           >
                             <div
@@ -3556,12 +3564,10 @@ exports[`category view 1`] = `
                                 "expandColumnBeforeSelectColumn": true,
                                 "expandColumnComponent": undefined,
                                 "expandColumnVisible": false,
-                                "expandedColumnHeaderComponent": undefined,
                               }
                             }
                             expandParentClass={null}
                             expanding={Array []}
-                            hideRowOnExpand={false}
                             hover={false}
                             keyBoardNav={false}
                             keyField="contest"
@@ -3663,12 +3669,10 @@ exports[`category view 1`] = `
                                 </colgroup>
                                 <tbody>
                                   <TableRow
-                                    hidden={false}
                                     key="##table-empty##"
                                   >
                                     <tr
                                       className=""
-                                      hidden={false}
                                       onClick={[Function]}
                                       onDoubleClick={[Function]}
                                       onMouseOut={[Function]}
@@ -4081,6 +4085,40 @@ exports[`list view 1`] = `
                                               </SafeAnchor>
                                             </li>
                                           </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=ranking&ranking=sums"
+                                            key=".$.4"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=ranking&ranking=sums"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=ranking&ranking=sums"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Rated-Point
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
                                         </ul>
                                       </RootCloseWrapper>
                                     </DropdownMenu>
@@ -4802,7 +4840,6 @@ exports[`list view 1`] = `
                     "expandColumnBeforeSelectColumn": true,
                     "expandColumnComponent": undefined,
                     "expandColumnVisible": false,
-                    "expandedColumnHeaderComponent": undefined,
                   }
                 }
                 exportCSV={false}
@@ -5419,7 +5456,6 @@ exports[`list view 1`] = `
                       hideSelectColumn={false}
                       isFiltered={false}
                       isSelectAll={false}
-                      noAnyExpand={true}
                       onSelectAllRow={[Function]}
                       onSort={[Function]}
                       reset={false}
@@ -5427,7 +5463,6 @@ exports[`list view 1`] = `
                       sortIndicator={true}
                       sortList={Array []}
                       tableHeaderClass={null}
-                      toggleExpandAllChilds={[Function]}
                       version="3"
                     >
                       <div
@@ -6309,11 +6344,9 @@ exports[`list view 1`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       expanding={Array []}
-                      hideRowOnExpand={false}
                       hover={false}
                       keyBoardNav={false}
                       keyField="startEpochSecond"
@@ -6445,12 +6478,10 @@ exports[`list view 1`] = `
                           </colgroup>
                           <tbody>
                             <TableRow
-                              hidden={false}
                               key="##table-empty##"
                             >
                               <tr
                                 className=""
-                                hidden={false}
                                 onClick={[Function]}
                                 onDoubleClick={[Function]}
                                 onMouseOut={[Function]}
@@ -6833,6 +6864,40 @@ exports[`list view 2`] = `
                                               </SafeAnchor>
                                             </li>
                                           </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=ranking&ranking=sums"
+                                            key=".$.4"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=ranking&ranking=sums"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=ranking&ranking=sums"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Rated-Point
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
                                         </ul>
                                       </RootCloseWrapper>
                                     </DropdownMenu>
@@ -7554,7 +7619,6 @@ exports[`list view 2`] = `
                     "expandColumnBeforeSelectColumn": true,
                     "expandColumnComponent": undefined,
                     "expandColumnVisible": false,
-                    "expandedColumnHeaderComponent": undefined,
                   }
                 }
                 exportCSV={false}
@@ -8171,7 +8235,6 @@ exports[`list view 2`] = `
                       hideSelectColumn={false}
                       isFiltered={false}
                       isSelectAll={false}
-                      noAnyExpand={true}
                       onSelectAllRow={[Function]}
                       onSort={[Function]}
                       reset={false}
@@ -8179,7 +8242,6 @@ exports[`list view 2`] = `
                       sortIndicator={true}
                       sortList={Array []}
                       tableHeaderClass={null}
-                      toggleExpandAllChilds={[Function]}
                       version="3"
                     >
                       <div
@@ -9061,11 +9123,9 @@ exports[`list view 2`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       expanding={Array []}
-                      hideRowOnExpand={false}
                       hover={false}
                       keyBoardNav={false}
                       keyField="startEpochSecond"
@@ -9197,12 +9257,10 @@ exports[`list view 2`] = `
                           </colgroup>
                           <tbody>
                             <TableRow
-                              hidden={false}
                               key="##table-empty##"
                             >
                               <tr
                                 className=""
-                                hidden={false}
                                 onClick={[Function]}
                                 onDoubleClick={[Function]}
                                 onMouseOut={[Function]}
@@ -9582,6 +9640,40 @@ exports[`ranking view 1`] = `
                                               </SafeAnchor>
                                             </li>
                                           </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=ranking&ranking=sums"
+                                            key=".$.4"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=ranking&ranking=sums"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=ranking&ranking=sums"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Rated-Point
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
                                         </ul>
                                       </RootCloseWrapper>
                                     </DropdownMenu>
@@ -9916,7 +10008,6 @@ exports[`ranking view 1`] = `
                     "expandColumnBeforeSelectColumn": true,
                     "expandColumnComponent": undefined,
                     "expandColumnVisible": false,
-                    "expandedColumnHeaderComponent": undefined,
                   }
                 }
                 exportCSV={false}
@@ -9936,95 +10027,29 @@ exports[`ranking view 1`] = `
                 multiColumnSort={1}
                 options={
                   Object {
-                    "afterColumnFilter": undefined,
-                    "afterDeleteRow": undefined,
-                    "afterInsertRow": undefined,
-                    "afterSearch": undefined,
-                    "afterTableComplete": undefined,
-                    "alwaysShowAllBtns": false,
-                    "beforeShowError": undefined,
-                    "btnGroup": undefined,
-                    "clearSearch": false,
-                    "clearSearchBtn": undefined,
-                    "closeText": "Close",
-                    "defaultSearch": "",
-                    "defaultSortName": undefined,
-                    "defaultSortOrder": undefined,
-                    "deleteBtn": undefined,
-                    "deleteText": "Delete",
-                    "excludeCSVHeader": false,
-                    "expandAll": false,
-                    "expandBodyClass": null,
-                    "expandBy": "row",
-                    "expandParentClass": null,
-                    "expandRowBgColor": undefined,
-                    "expanding": Array [],
-                    "exportCSVBtn": undefined,
-                    "exportCSVSeparator": ",",
-                    "exportCSVText": "Export to CSV",
-                    "firstPage": "<<",
-                    "firstPageTitle": "first page",
-                    "handleConfirmDeleteRow": undefined,
-                    "hidePageListOnlyOnePage": false,
-                    "hideRowOnExpand": false,
-                    "hideSizePerPage": false,
-                    "ignoreEditable": false,
-                    "insertBtn": undefined,
-                    "insertFailIndicator": "Validation errors, please check!",
-                    "insertModal": undefined,
-                    "insertModalBody": undefined,
-                    "insertModalFooter": undefined,
-                    "insertModalHeader": undefined,
-                    "insertText": "New",
-                    "keepSizePerPageState": false,
-                    "lastPage": ">>",
-                    "lastPageTitle": "last page",
-                    "nextPage": ">",
-                    "nextPageTitle": "next page",
-                    "noAutoBOM": true,
-                    "noDataText": undefined,
-                    "onExpand": undefined,
-                    "onMouseEnter": undefined,
-                    "onMouseLeave": undefined,
-                    "onRowClick": undefined,
-                    "onRowDoubleClick": undefined,
-                    "onRowMouseOut": undefined,
-                    "onRowMouseOver": undefined,
-                    "onSizePerPageList": undefined,
-                    "onlyOneExpanding": false,
-                    "page": undefined,
-                    "pageStartIndex": 1,
-                    "paginationPanel": undefined,
-                    "paginationPosition": "bottom",
-                    "paginationShowsTotal": false,
-                    "paginationSize": 5,
-                    "prePage": "<",
-                    "prePageTitle": "previous page",
-                    "printToolBar": true,
-                    "saveText": "Save",
-                    "searchDelayTime": undefined,
-                    "searchField": undefined,
-                    "searchPanel": undefined,
-                    "searchPosition": "right",
-                    "showSelectedOnlyBtn": undefined,
-                    "sizePerPage": undefined,
-                    "sizePerPageDropDown": undefined,
+                    "paginationPosition": "top",
+                    "sizePerPage": 200,
                     "sizePerPageList": Array [
-                      10,
-                      25,
-                      30,
-                      50,
+                      Object {
+                        "text": "200",
+                        "value": 200,
+                      },
+                      Object {
+                        "text": "500",
+                        "value": 500,
+                      },
+                      Object {
+                        "text": "1000",
+                        "value": 1000,
+                      },
+                      Object {
+                        "text": "All",
+                        "value": 0,
+                      },
                     ],
-                    "sortIndicator": true,
-                    "sortName": undefined,
-                    "sortOrder": undefined,
-                    "toolBar": undefined,
-                    "toolbarPosition": "top",
-                    "withFirstAndLast": true,
-                    "withoutNoDataText": false,
                   }
                 }
-                pagination={false}
+                pagination={true}
                 printable={false}
                 renderAlert={true}
                 replace={false}
@@ -10101,7 +10126,6 @@ exports[`ranking view 1`] = `
                           },
                         ]
                       }
-                      defaultSearch=""
                       deleteText="Delete"
                       enableDelete={false}
                       enableExportCSV={false}
@@ -10120,7 +10144,6 @@ exports[`ranking view 1`] = `
                       onShowOnlySelected={[Function]}
                       reset={false}
                       saveText="Save"
-                      searchPosition="right"
                       version="3"
                     >
                       <div
@@ -10170,6 +10193,248 @@ exports[`ranking view 1`] = `
                     </ToolBar>
                   </div>
                   <div
+                    className="react-bs-table-pagination"
+                  >
+                    <PaginationList
+                      changePage={[Function]}
+                      currPage={1}
+                      dataSize={0}
+                      firstPage="<<"
+                      firstPageTitle="first page"
+                      lastPage=">>"
+                      lastPageTitle="last page"
+                      nextPage=">"
+                      nextPageTitle="next page"
+                      open={false}
+                      pageStartIndex={1}
+                      paginationSize={5}
+                      prePage="<"
+                      prePageTitle="previous page"
+                      sizePerPage={200}
+                      sizePerPageList={
+                        Array [
+                          Object {
+                            "text": "200",
+                            "value": 200,
+                          },
+                          Object {
+                            "text": "500",
+                            "value": 500,
+                          },
+                          Object {
+                            "text": "1000",
+                            "value": 1000,
+                          },
+                          Object {
+                            "text": "All",
+                            "value": 0,
+                          },
+                        ]
+                      }
+                      withFirstAndLast={true}
+                    >
+                      <div
+                        className="row"
+                        style={
+                          Object {
+                            "marginTop": 15,
+                          }
+                        }
+                      >
+                        <div
+                          className="col-md-6 col-xs-6 col-sm-6 col-lg-6"
+                          key="paging-left"
+                        >
+                          <SizePerPageDropDown
+                            btnContextual="btn-default btn-secondary"
+                            className=""
+                            currSizePerPage="200"
+                            hidden={false}
+                            onBlur={[Function]}
+                            onClick={[Function]}
+                            open={false}
+                            options={
+                              Array [
+                                <li
+                                  className="dropdown-item"
+                                  role="presentation"
+                                >
+                                  <a
+                                    data-page={200}
+                                    href="#"
+                                    onMouseDown={[Function]}
+                                    role="menuitem"
+                                    tabIndex="-1"
+                                  >
+                                    200
+                                  </a>
+                                </li>,
+                                <li
+                                  className="dropdown-item"
+                                  role="presentation"
+                                >
+                                  <a
+                                    data-page={500}
+                                    href="#"
+                                    onMouseDown={[Function]}
+                                    role="menuitem"
+                                    tabIndex="-1"
+                                  >
+                                    500
+                                  </a>
+                                </li>,
+                                <li
+                                  className="dropdown-item"
+                                  role="presentation"
+                                >
+                                  <a
+                                    data-page={1000}
+                                    href="#"
+                                    onMouseDown={[Function]}
+                                    role="menuitem"
+                                    tabIndex="-1"
+                                  >
+                                    1000
+                                  </a>
+                                </li>,
+                                <li
+                                  className="dropdown-item"
+                                  role="presentation"
+                                >
+                                  <a
+                                    data-page={
+                                      Object {
+                                        "text": "All",
+                                        "value": 0,
+                                      }
+                                    }
+                                    href="#"
+                                    onMouseDown={[Function]}
+                                    role="menuitem"
+                                    tabIndex="-1"
+                                  >
+                                    All
+                                  </a>
+                                </li>,
+                              ]
+                            }
+                            variation="dropdown"
+                          >
+                            <span
+                              className="dropdown   react-bs-table-sizePerPage-dropdown"
+                              style={
+                                Object {
+                                  "visibility": "visible",
+                                }
+                              }
+                            >
+                              <button
+                                aria-expanded={false}
+                                className="btn btn-default btn-secondary dropdown-toggle"
+                                data-toggle="dropdown"
+                                id="pageDropDown"
+                                onBlur={[Function]}
+                                onClick={[Function]}
+                              >
+                                200
+                                <span>
+                                   
+                                  <span
+                                    className="caret"
+                                  />
+                                </span>
+                              </button>
+                              <ul
+                                aria-labelledby="pageDropDown"
+                                className="dropdown-menu"
+                                role="menu"
+                              >
+                                <li
+                                  className="dropdown-item"
+                                  key="200"
+                                  role="presentation"
+                                >
+                                  <a
+                                    data-page={200}
+                                    href="#"
+                                    onMouseDown={[Function]}
+                                    role="menuitem"
+                                    tabIndex="-1"
+                                  >
+                                    200
+                                  </a>
+                                </li>
+                                <li
+                                  className="dropdown-item"
+                                  key="500"
+                                  role="presentation"
+                                >
+                                  <a
+                                    data-page={500}
+                                    href="#"
+                                    onMouseDown={[Function]}
+                                    role="menuitem"
+                                    tabIndex="-1"
+                                  >
+                                    500
+                                  </a>
+                                </li>
+                                <li
+                                  className="dropdown-item"
+                                  key="1000"
+                                  role="presentation"
+                                >
+                                  <a
+                                    data-page={1000}
+                                    href="#"
+                                    onMouseDown={[Function]}
+                                    role="menuitem"
+                                    tabIndex="-1"
+                                  >
+                                    1000
+                                  </a>
+                                </li>
+                                <li
+                                  className="dropdown-item"
+                                  key="All"
+                                  role="presentation"
+                                >
+                                  <a
+                                    data-page={
+                                      Object {
+                                        "text": "All",
+                                        "value": 0,
+                                      }
+                                    }
+                                    href="#"
+                                    onMouseDown={[Function]}
+                                    role="menuitem"
+                                    tabIndex="-1"
+                                  >
+                                    All
+                                  </a>
+                                </li>
+                              </ul>
+                            </span>
+                          </SizePerPageDropDown>
+                        </div>
+                        <div
+                          className="col-md-6 col-xs-6 col-sm-6 col-lg-6"
+                          key="paging-right"
+                          style={
+                            Object {
+                              "display": "block",
+                            }
+                          }
+                        >
+                          <ul
+                            className="react-bootstrap-table-page-btns-ul pagination"
+                          />
+                        </div>
+                      </div>
+                    </PaginationList>
+                  </div>
+                  <div
                     className="react-bs-table react-bs-table-bordered"
                     onMouseEnter={[Function]}
                     onMouseLeave={[Function]}
@@ -10208,14 +10473,12 @@ exports[`ranking view 1`] = `
                         </colgroup>
                       }
                       condensed={false}
-                      expandAll={false}
                       expandColumnBeforeSelectColumn={true}
                       expandColumnVisible={false}
                       headerContainerClass={null}
                       hideSelectColumn={false}
                       isFiltered={false}
                       isSelectAll={false}
-                      noAnyExpand={true}
                       onSelectAllRow={[Function]}
                       onSort={[Function]}
                       reset={false}
@@ -10223,7 +10486,6 @@ exports[`ranking view 1`] = `
                       sortIndicator={true}
                       sortList={Array []}
                       tableHeaderClass={null}
-                      toggleExpandAllChilds={[Function]}
                       version="3"
                     >
                       <div
@@ -10600,19 +10862,15 @@ exports[`ranking view 1`] = `
                       }
                       condensed={false}
                       data={Array []}
-                      expandBodyClass={null}
                       expandBy="row"
                       expandColumnOptions={
                         Object {
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
-                      expandParentClass={null}
                       expanding={Array []}
-                      hideRowOnExpand={false}
                       hover={false}
                       keyBoardNav={false}
                       keyField="rank"
@@ -10624,7 +10882,6 @@ exports[`ranking view 1`] = `
                       onRowMouseOut={[Function]}
                       onRowMouseOver={[Function]}
                       onSelectRow={[Function]}
-                      onlyOneExpanding={false}
                       selectRow={
                         Object {
                           "bgColor": "",
@@ -10653,7 +10910,6 @@ exports[`ranking view 1`] = `
                       tableBodyClass={null}
                       trClassName=""
                       version="3"
-                      withoutNoDataText={false}
                       withoutTabIndex={false}
                       x={-1}
                       y={-1}
@@ -10698,12 +10954,10 @@ exports[`ranking view 1`] = `
                           </colgroup>
                           <tbody>
                             <TableRow
-                              hidden={false}
                               key="##table-empty##"
                             >
                               <tr
                                 className=""
-                                hidden={false}
                                 onClick={[Function]}
                                 onDoubleClick={[Function]}
                                 onMouseOut={[Function]}
@@ -11079,6 +11333,40 @@ exports[`user page view 1`] = `
                                                   tabIndex="-1"
                                                 >
                                                   First Acceptances
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=ranking&ranking=sums"
+                                            key=".$.4"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=ranking&ranking=sums"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=ranking&ranking=sums"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Rated-Point
                                                 </a>
                                               </SafeAnchor>
                                             </li>
@@ -11574,6 +11862,29 @@ exports[`user page view 1`] = `
                       >
                         <h4>
                           First Acceptances
+                        </h4>
+                        <h3>
+                          0
+                        </h3>
+                        <span
+                          className="text-muted"
+                        >
+                          -
+                        </span>
+                      </div>
+                    </Col>
+                    <Col
+                      bsClass="col"
+                      componentClass="div"
+                      key="Rated Point Sum"
+                      sm={3}
+                      xs={6}
+                    >
+                      <div
+                        className="col-sm-3 col-xs-6"
+                      >
+                        <h4>
+                          Rated Point Sum
                         </h4>
                         <h3>
                           0
@@ -17598,7 +17909,6 @@ exports[`user page view 1`] = `
                       "expandColumnBeforeSelectColumn": true,
                       "expandColumnComponent": undefined,
                       "expandColumnVisible": false,
-                      "expandedColumnHeaderComponent": undefined,
                     }
                   }
                   exportCSV={false}
@@ -18125,7 +18435,6 @@ exports[`user page view 1`] = `
                         hideSelectColumn={false}
                         isFiltered={false}
                         isSelectAll={false}
-                        noAnyExpand={true}
                         onSelectAllRow={[Function]}
                         onSort={[Function]}
                         reset={false}
@@ -18133,7 +18442,6 @@ exports[`user page view 1`] = `
                         sortIndicator={true}
                         sortList={Array []}
                         tableHeaderClass={null}
-                        toggleExpandAllChilds={[Function]}
                         version="3"
                       >
                         <div
@@ -18541,11 +18849,9 @@ exports[`user page view 1`] = `
                             "expandColumnBeforeSelectColumn": true,
                             "expandColumnComponent": undefined,
                             "expandColumnVisible": false,
-                            "expandedColumnHeaderComponent": undefined,
                           }
                         }
                         expanding={Array []}
-                        hideRowOnExpand={false}
                         hover={false}
                         keyBoardNav={false}
                         keyField="epoch_second"
@@ -18637,12 +18943,10 @@ exports[`user page view 1`] = `
                             </colgroup>
                             <tbody>
                               <TableRow
-                                hidden={false}
                                 key="##table-empty##"
                               >
                                 <tr
                                   className=""
-                                  hidden={false}
                                   onClick={[Function]}
                                   onDoubleClick={[Function]}
                                   onMouseOut={[Function]}

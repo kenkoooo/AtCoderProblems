@@ -4,6 +4,7 @@ import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
 import { RankPair } from "../model/RankPair";
 import { MergedProblem } from "../model/MergedProblem";
+import { Ranking } from "../components/Ranking";
 
 export class ApiCall {
   static BaseUrl = "./atcoder-api";
@@ -42,18 +43,35 @@ export class ApiCall {
         let p = { rank: 1, userId: o["user_id"], count: o["problem_count"] };
         return p;
       });
-      ranks.sort((a, b) => b.count - a.count);
 
-      for (let i = 1; i < ranks.length; i += 1) {
-        if (ranks[i - 1].count == ranks[i].count) {
-          ranks[i].rank = ranks[i - 1].rank;
-        } else {
-          ranks[i].rank = i + 1;
-        }
-      }
-
-      return ranks;
+      return this.fixRanking(ranks);
     });
+  }
+
+  static getRatedPointSumRanking(): Promise<Array<RankPair>> {
+    let url = `${this.BaseUrl}/info/sums`;
+    return this.getJson(url).then((obj: Array<any>) => {
+      let ranks = obj.map(o => {
+        let p = { rank: 1, userId: o["user_id"], count: o["point_sum"] };
+        return p;
+      });
+
+      return this.fixRanking(ranks);
+    });
+  }
+
+  static fixRanking(ranks: Array<RankPair>): Array<RankPair> {
+    ranks.sort((a, b) => b.count - a.count);
+
+    for (let i = 1; i < ranks.length; i += 1) {
+      if (ranks[i - 1].count == ranks[i].count) {
+        ranks[i].rank = ranks[i - 1].rank;
+      } else {
+        ranks[i].rank = i + 1;
+      }
+    }
+
+    return ranks;
   }
 
   static getContests(): Promise<Array<Contest>> {

@@ -21,9 +21,18 @@ export class Ranking extends React.Component<RankingProps, RankingState> {
   }
 
   componentWillMount() {
-    ApiCall.getRanking(this.props.ranking).then(ranking =>
-      this.setState({ ranking: ranking.slice(0, 1000) })
-    );
+    switch (this.props.ranking) {
+      case RankingKind.Sums:
+        ApiCall.getRatedPointSumRanking().then(ranking =>
+          this.setState({ ranking: ranking })
+        );
+        break;
+      default:
+        ApiCall.getRanking(this.props.ranking).then(ranking =>
+          this.setState({ ranking: ranking })
+        );
+        break;
+    }
   }
 
   render() {
@@ -37,14 +46,52 @@ export class Ranking extends React.Component<RankingProps, RankingState> {
           return "Top Speed Runners";
         case RankingKind.Shortest:
           return "Top Code Golfers";
+        case RankingKind.Sums:
+          return "Rated Point Ranking";
       }
       return "";
+    };
+
+    let getColumnName = (rankingString: string) => {
+      switch (rankingString) {
+        case RankingKind.Sums:
+          return "Point Sum";
+        default:
+          return "Problems";
+      }
     };
 
     return (
       <Row>
         <PageHeader>{getTitle(this.props.ranking)}</PageHeader>
-        <BootstrapTable data={this.state.ranking} striped search>
+        <BootstrapTable
+          data={this.state.ranking}
+          striped
+          search
+          pagination
+          options={{
+            paginationPosition: "top",
+            sizePerPage: 200,
+            sizePerPageList: [
+              {
+                text: "200",
+                value: 200
+              },
+              {
+                text: "500",
+                value: 500
+              },
+              {
+                text: "1000",
+                value: 1000
+              },
+              {
+                text: "All",
+                value: this.state.ranking.length
+              }
+            ]
+          }}
+        >
           <TableHeaderColumn dataField="rank" isKey dataSort>
             Rank
           </TableHeaderColumn>
@@ -63,7 +110,7 @@ export class Ranking extends React.Component<RankingProps, RankingState> {
             dataAlign="right"
             headerAlign="left"
           >
-            Problems
+            {getColumnName(this.props.ranking)}
           </TableHeaderColumn>
         </BootstrapTable>
       </Row>

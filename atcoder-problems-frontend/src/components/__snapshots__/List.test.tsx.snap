@@ -15616,7 +15616,6 @@ exports[`render list view 1`] = `
             "expandColumnBeforeSelectColumn": true,
             "expandColumnComponent": undefined,
             "expandColumnVisible": false,
-            "expandedColumnHeaderComponent": undefined,
           }
         }
         exportCSV={false}
@@ -16233,7 +16232,6 @@ exports[`render list view 1`] = `
               hideSelectColumn={false}
               isFiltered={false}
               isSelectAll={false}
-              noAnyExpand={true}
               onSelectAllRow={[Function]}
               onSort={[Function]}
               reset={false}
@@ -16241,7 +16239,6 @@ exports[`render list view 1`] = `
               sortIndicator={true}
               sortList={Array []}
               tableHeaderClass={null}
-              toggleExpandAllChilds={[Function]}
               version="3"
             >
               <div
@@ -17123,11 +17120,9 @@ exports[`render list view 1`] = `
                   "expandColumnBeforeSelectColumn": true,
                   "expandColumnComponent": undefined,
                   "expandColumnVisible": false,
-                  "expandedColumnHeaderComponent": undefined,
                 }
               }
               expanding={Array []}
-              hideRowOnExpand={false}
               hover={false}
               keyBoardNav={false}
               keyField="startEpochSecond"
@@ -17259,12 +17254,10 @@ exports[`render list view 1`] = `
                   </colgroup>
                   <tbody>
                     <TableRow
-                      hidden={false}
                       key="##table-empty##"
                     >
                       <tr
                         className=""
-                        hidden={false}
                         onClick={[Function]}
                         onDoubleClick={[Function]}
                         onMouseOut={[Function]}
