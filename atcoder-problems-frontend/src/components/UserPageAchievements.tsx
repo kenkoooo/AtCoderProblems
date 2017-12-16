@@ -11,6 +11,7 @@ interface UserPageAchievementsState {
   first: Array<RankPair>;
   fast: Array<RankPair>;
   short: Array<RankPair>;
+  sums: Array<RankPair>;
 }
 
 export interface UserPageAchievementsProps {
@@ -29,7 +30,7 @@ export class UserPageAchievements extends React.Component<
 > {
   constructor(props: UserPageAchievementsProps) {
     super(props);
-    this.state = { ac: [], first: [], fast: [], short: [] };
+    this.state = { ac: [], first: [], fast: [], short: [], sums: [] };
   }
 
   componentWillMount() {
@@ -45,6 +46,9 @@ export class UserPageAchievements extends React.Component<
     ApiCall.getRanking(RankingKind.Fastest).then(ranking =>
       this.setState({ fast: ranking })
     );
+    ApiCall.getRatedPointSumRanking().then(ranking =>
+      this.setState({ sums: ranking })
+    );
   }
 
   render() {
@@ -52,7 +56,8 @@ export class UserPageAchievements extends React.Component<
       { title: "Accepted", ranking: this.state.ac },
       { title: "Shortest Codes", ranking: this.state.short },
       { title: "Fastest Codes", ranking: this.state.fast },
-      { title: "First Acceptances", ranking: this.state.first }
+      { title: "First Acceptances", ranking: this.state.first },
+      { title: "Rated Point Sum", ranking: this.state.sums }
     ];
 
     let longestStreak = 0;

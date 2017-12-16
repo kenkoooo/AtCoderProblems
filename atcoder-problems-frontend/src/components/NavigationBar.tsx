@@ -34,6 +34,9 @@ export class NavigationBar extends React.Component<NavigationBarProps, {}> {
               <MenuItem href="./?kind=ranking&ranking=first">
                 First Acceptances
               </MenuItem>
+              <MenuItem href="./?kind=ranking&ranking=sums">
+                Rated-Point
+              </MenuItem>
             </NavDropdown>
             <MenuItem href={`./?user=${this.props.args.userId}&kind=user`}>
               User Page
