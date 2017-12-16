@@ -99,3 +99,10 @@ CREATE TABLE points (
   predict                 DOUBLE PRECISION,
   PRIMARY KEY (problem_id)
 );
+
+DROP TABLE IF EXISTS rated_point_sum;
+CREATE TABLE rated_point_sum (
+  user_id         VARCHAR(255) NOT NULL,
+  point_sum       DOUBLE PRECISION NOT NULL,
+  PRIMARY KEY (user_id)
+);

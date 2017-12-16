@@ -606,4 +606,36 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     contestIds.size shouldBe 1
     contestIds.head shouldBe id2
   }
+
+  test("update rated point sum table") {
+    val client = new SqlClient(url, sqlUser, sqlPass)
+
+    val ratedProblemId1 = "p1"
+    val ratedProblemId2 = "p2"
+    val unratedProblemId = "u"
+
+    val userId1 = "u1"
+    val userId2 = "u2"
+
+    client.batchInsert(
+      Submission,
+      Submission(id = 1, problemId = ratedProblemId1, userId = userId1, result = "AC"),
+      Submission(id = 2, problemId = ratedProblemId1, userId = userId1, result = "AC"),
+      Submission(id = 3, problemId = ratedProblemId2, userId = userId1, result = "AC"),
+      Submission(id = 4, problemId = unratedProblemId, userId = userId1, result = "AC"),
+      Submission(id = 5, problemId = ratedProblemId1, userId = userId2, result = "WA"),
+      Submission(id = 6, problemId = ratedProblemId2, userId = userId2, result = "AC")
+    )
+
+    DB.localTx { implicit session =>
+      sql"INSERT INTO points (problem_id, point) VALUES ($ratedProblemId1, 100)".execute().apply()
+      sql"INSERT INTO points (problem_id, point) VALUES ($ratedProblemId2, 200)".execute().apply()
+      sql"INSERT INTO points (problem_id,predict) VALUES ($unratedProblemId,100)".execute().apply()
+    }
+    client.updateRatedPoints()
+    client.loadRecords(RatedPointSum).map(s => s.userId -> s.pointSum).toMap shouldBe Map(
+      userId1 -> 300,
+      userId2 -> 200
+    )
+  }
 }

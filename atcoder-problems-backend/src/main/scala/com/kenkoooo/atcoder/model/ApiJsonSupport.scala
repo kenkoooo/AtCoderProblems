@@ -50,4 +50,6 @@ trait ApiJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
       "point",
       "predict"
     )
+  implicit val ratedPointSumFormat: RootJsonFormat[RatedPointSum] =
+    jsonFormat(RatedPointSum.apply, "user_id", "point_sum")
 }

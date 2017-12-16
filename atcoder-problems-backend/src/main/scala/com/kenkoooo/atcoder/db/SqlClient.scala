@@ -30,6 +30,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   private var _fastestSubmissionCounts: List[FastestSubmissionCount] = List()
   private var _shortestSubmissionCounts: List[ShortestSubmissionCount] = List()
   private var _mergedProblems: List[MergedProblem] = List()
+  private var _ratedPointSums: List[RatedPointSum] = List()
   private var _lastReloaded: Long = 0
 
   def contests: Map[String, Contest] = _contests
@@ -45,6 +46,8 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   def shortestSubmissionCounts: List[ShortestSubmissionCount] = _shortestSubmissionCounts
 
   def mergedProblems: List[MergedProblem] = _mergedProblems
+
+  def ratedPointSums: List[RatedPointSum] = _ratedPointSums
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
@@ -116,6 +119,45 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   }
 
   /**
+    * update user rated point sum
+    */
+  private[db] def updateRatedPoints(): Unit = {
+    logger.info("updating user rated point sum")
+    val points = Point.syntax("points")
+    val submissions = Submission.syntax("submissions")
+    val userIdColumn = sqls"user_id"
+    val columns = RatedPointSum.column
+
+    DB.localTx { implicit session =>
+      withSQL {
+        deleteFrom(RatedPointSum)
+      }.execute().apply()
+      withSQL {
+        insertInto(RatedPointSum)
+          .columns(columns.pointSum, columns.userId)
+          .select(sqls"sum(point)", userIdColumn) {
+            _.from {
+              select(
+                sqls"distinct(${submissions.userId}, ${submissions.problemId})",
+                points.point,
+                submissions.userId
+              ).from(Submission as submissions)
+                .join(Point as points)
+                .on(submissions.problemId, points.problemId)
+                .where
+                .eq(submissions.c("result"), SubmissionStatus.Accepted)
+                .and
+                .isNotNull(points.point)
+                .and
+                .notLike(submissions.userId, "vjudge_")
+                .as(SubQuery.syntax("sub").include(points, submissions))
+            }.groupBy(userIdColumn)
+          }
+      }.update().apply()
+    }
+  }
+
+  /**
     * update solver counts for each problems
     */
   private[db] def updateProblemSolverCounts(): Unit = {
@@ -169,12 +211,17 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     logger.info("start batch table update")
     updateAcceptedCounts()
     updateProblemSolverCounts()
+
+    updateRatedPoints()
+
     updateGreatSubmissions(First)
     updateGreatSubmissions(Fastest)
     updateGreatSubmissions(Shortest)
+
     updateUserProblemCount(FirstSubmissionCount)
     updateUserProblemCount(FastestSubmissionCount)
     updateUserProblemCount(ShortestSubmissionCount)
+
     logger.info("finished batch table update")
   }
 
@@ -252,6 +299,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     _shortestSubmissionCounts = loadRecords(ShortestSubmissionCount).toList
     _fastestSubmissionCounts = loadRecords(FastestSubmissionCount).toList
     _mergedProblems = loadMergedProblems().toList
+    _ratedPointSums = loadRecords(RatedPointSum).toList
 
     _lastReloaded = System.currentTimeMillis()
   }
