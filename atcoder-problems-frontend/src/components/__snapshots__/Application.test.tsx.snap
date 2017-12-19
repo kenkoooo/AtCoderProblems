@@ -954,7 +954,6 @@ exports[`category view 1`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       exportCSV={false}
@@ -991,7 +990,6 @@ exports[`category view 1`] = `
                           "deleteBtn": undefined,
                           "deleteText": "Delete",
                           "excludeCSVHeader": false,
-                          "expandAll": false,
                           "expandBodyClass": null,
                           "expandBy": "row",
                           "expandParentClass": null,
@@ -1004,7 +1002,6 @@ exports[`category view 1`] = `
                           "firstPageTitle": "first page",
                           "handleConfirmDeleteRow": undefined,
                           "hidePageListOnlyOnePage": false,
-                          "hideRowOnExpand": false,
                           "hideSizePerPage": false,
                           "ignoreEditable": false,
                           "insertBtn": undefined,
@@ -1163,14 +1160,12 @@ exports[`category view 1`] = `
                               </colgroup>
                             }
                             condensed={false}
-                            expandAll={false}
                             expandColumnBeforeSelectColumn={true}
                             expandColumnVisible={false}
                             headerContainerClass={null}
                             hideSelectColumn={false}
                             isFiltered={false}
                             isSelectAll={false}
-                            noAnyExpand={true}
                             onSelectAllRow={[Function]}
                             onSort={[Function]}
                             reset={false}
@@ -1178,7 +1173,6 @@ exports[`category view 1`] = `
                             sortIndicator={true}
                             sortList={Array []}
                             tableHeaderClass={null}
-                            toggleExpandAllChilds={[Function]}
                             version="3"
                           >
                             <div
@@ -1805,12 +1799,10 @@ exports[`category view 1`] = `
                                 "expandColumnBeforeSelectColumn": true,
                                 "expandColumnComponent": undefined,
                                 "expandColumnVisible": false,
-                                "expandedColumnHeaderComponent": undefined,
                               }
                             }
                             expandParentClass={null}
                             expanding={Array []}
-                            hideRowOnExpand={false}
                             hover={false}
                             keyBoardNav={false}
                             keyField="contest"
@@ -1928,12 +1920,10 @@ exports[`category view 1`] = `
                                 </colgroup>
                                 <tbody>
                                   <TableRow
-                                    hidden={false}
                                     key="##table-empty##"
                                   >
                                     <tr
                                       className=""
-                                      hidden={false}
                                       onClick={[Function]}
                                       onDoubleClick={[Function]}
                                       onMouseOut={[Function]}
@@ -2034,7 +2024,6 @@ exports[`category view 1`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       exportCSV={false}
@@ -2071,7 +2060,6 @@ exports[`category view 1`] = `
                           "deleteBtn": undefined,
                           "deleteText": "Delete",
                           "excludeCSVHeader": false,
-                          "expandAll": false,
                           "expandBodyClass": null,
                           "expandBy": "row",
                           "expandParentClass": null,
@@ -2084,7 +2072,6 @@ exports[`category view 1`] = `
                           "firstPageTitle": "first page",
                           "handleConfirmDeleteRow": undefined,
                           "hidePageListOnlyOnePage": false,
-                          "hideRowOnExpand": false,
                           "hideSizePerPage": false,
                           "ignoreEditable": false,
                           "insertBtn": undefined,
@@ -2229,14 +2216,12 @@ exports[`category view 1`] = `
                               </colgroup>
                             }
                             condensed={false}
-                            expandAll={false}
                             expandColumnBeforeSelectColumn={true}
                             expandColumnVisible={false}
                             headerContainerClass={null}
                             hideSelectColumn={false}
                             isFiltered={false}
                             isSelectAll={false}
-                            noAnyExpand={true}
                             onSelectAllRow={[Function]}
                             onSort={[Function]}
                             reset={false}
@@ -2244,7 +2229,6 @@ exports[`category view 1`] = `
                             sortIndicator={true}
                             sortList={Array []}
                             tableHeaderClass={null}
-                            toggleExpandAllChilds={[Function]}
                             version="3"
                           >
                             <div
@@ -2705,12 +2689,10 @@ exports[`category view 1`] = `
                                 "expandColumnBeforeSelectColumn": true,
                                 "expandColumnComponent": undefined,
                                 "expandColumnVisible": false,
-                                "expandedColumnHeaderComponent": undefined,
                               }
                             }
                             expandParentClass={null}
                             expanding={Array []}
-                            hideRowOnExpand={false}
                             hover={false}
                             keyBoardNav={false}
                             keyField="contest"
@@ -2812,12 +2794,10 @@ exports[`category view 1`] = `
                                 </colgroup>
                                 <tbody>
                                   <TableRow
-                                    hidden={false}
                                     key="##table-empty##"
                                   >
                                     <tr
                                       className=""
-                                      hidden={false}
                                       onClick={[Function]}
                                       onDoubleClick={[Function]}
                                       onMouseOut={[Function]}
@@ -2919,7 +2899,6 @@ exports[`category view 1`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       exportCSV={false}
@@ -2956,7 +2935,6 @@ exports[`category view 1`] = `
                           "deleteBtn": undefined,
                           "deleteText": "Delete",
                           "excludeCSVHeader": false,
-                          "expandAll": false,
                           "expandBodyClass": null,
                           "expandBy": "row",
                           "expandParentClass": null,
@@ -2969,7 +2947,6 @@ exports[`category view 1`] = `
                           "firstPageTitle": "first page",
                           "handleConfirmDeleteRow": undefined,
                           "hidePageListOnlyOnePage": false,
-                          "hideRowOnExpand": false,
                           "hideSizePerPage": false,
                           "ignoreEditable": false,
                           "insertBtn": undefined,
@@ -3114,14 +3091,12 @@ exports[`category view 1`] = `
                               </colgroup>
                             }
                             condensed={false}
-                            expandAll={false}
                             expandColumnBeforeSelectColumn={true}
                             expandColumnVisible={false}
                             headerContainerClass={null}
                             hideSelectColumn={false}
                             isFiltered={false}
                             isSelectAll={false}
-                            noAnyExpand={true}
                             onSelectAllRow={[Function]}
                             onSort={[Function]}
                             reset={false}
@@ -3129,7 +3104,6 @@ exports[`category view 1`] = `
                             sortIndicator={true}
                             sortList={Array []}
                             tableHeaderClass={null}
-                            toggleExpandAllChilds={[Function]}
                             version="3"
                           >
                             <div
@@ -3590,12 +3564,10 @@ exports[`category view 1`] = `
                                 "expandColumnBeforeSelectColumn": true,
                                 "expandColumnComponent": undefined,
                                 "expandColumnVisible": false,
-                                "expandedColumnHeaderComponent": undefined,
                               }
                             }
                             expandParentClass={null}
                             expanding={Array []}
-                            hideRowOnExpand={false}
                             hover={false}
                             keyBoardNav={false}
                             keyField="contest"
@@ -3697,12 +3669,10 @@ exports[`category view 1`] = `
                                 </colgroup>
                                 <tbody>
                                   <TableRow
-                                    hidden={false}
                                     key="##table-empty##"
                                   >
                                     <tr
                                       className=""
-                                      hidden={false}
                                       onClick={[Function]}
                                       onDoubleClick={[Function]}
                                       onMouseOut={[Function]}
@@ -4870,7 +4840,6 @@ exports[`list view 1`] = `
                     "expandColumnBeforeSelectColumn": true,
                     "expandColumnComponent": undefined,
                     "expandColumnVisible": false,
-                    "expandedColumnHeaderComponent": undefined,
                   }
                 }
                 exportCSV={false}
@@ -5487,7 +5456,6 @@ exports[`list view 1`] = `
                       hideSelectColumn={false}
                       isFiltered={false}
                       isSelectAll={false}
-                      noAnyExpand={true}
                       onSelectAllRow={[Function]}
                       onSort={[Function]}
                       reset={false}
@@ -5495,7 +5463,6 @@ exports[`list view 1`] = `
                       sortIndicator={true}
                       sortList={Array []}
                       tableHeaderClass={null}
-                      toggleExpandAllChilds={[Function]}
                       version="3"
                     >
                       <div
@@ -6377,11 +6344,9 @@ exports[`list view 1`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       expanding={Array []}
-                      hideRowOnExpand={false}
                       hover={false}
                       keyBoardNav={false}
                       keyField="startEpochSecond"
@@ -6513,12 +6478,10 @@ exports[`list view 1`] = `
                           </colgroup>
                           <tbody>
                             <TableRow
-                              hidden={false}
                               key="##table-empty##"
                             >
                               <tr
                                 className=""
-                                hidden={false}
                                 onClick={[Function]}
                                 onDoubleClick={[Function]}
                                 onMouseOut={[Function]}
@@ -7656,7 +7619,6 @@ exports[`list view 2`] = `
                     "expandColumnBeforeSelectColumn": true,
                     "expandColumnComponent": undefined,
                     "expandColumnVisible": false,
-                    "expandedColumnHeaderComponent": undefined,
                   }
                 }
                 exportCSV={false}
@@ -8273,7 +8235,6 @@ exports[`list view 2`] = `
                       hideSelectColumn={false}
                       isFiltered={false}
                       isSelectAll={false}
-                      noAnyExpand={true}
                       onSelectAllRow={[Function]}
                       onSort={[Function]}
                       reset={false}
@@ -8281,7 +8242,6 @@ exports[`list view 2`] = `
                       sortIndicator={true}
                       sortList={Array []}
                       tableHeaderClass={null}
-                      toggleExpandAllChilds={[Function]}
                       version="3"
                     >
                       <div
@@ -9163,11 +9123,9 @@ exports[`list view 2`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       expanding={Array []}
-                      hideRowOnExpand={false}
                       hover={false}
                       keyBoardNav={false}
                       keyField="startEpochSecond"
@@ -9299,12 +9257,10 @@ exports[`list view 2`] = `
                           </colgroup>
                           <tbody>
                             <TableRow
-                              hidden={false}
                               key="##table-empty##"
                             >
                               <tr
                                 className=""
-                                hidden={false}
                                 onClick={[Function]}
                                 onDoubleClick={[Function]}
                                 onMouseOut={[Function]}
@@ -10052,7 +10008,6 @@ exports[`ranking view 1`] = `
                     "expandColumnBeforeSelectColumn": true,
                     "expandColumnComponent": undefined,
                     "expandColumnVisible": false,
-                    "expandedColumnHeaderComponent": undefined,
                   }
                 }
                 exportCSV={false}
@@ -10524,7 +10479,6 @@ exports[`ranking view 1`] = `
                       hideSelectColumn={false}
                       isFiltered={false}
                       isSelectAll={false}
-                      noAnyExpand={true}
                       onSelectAllRow={[Function]}
                       onSort={[Function]}
                       reset={false}
@@ -10532,7 +10486,6 @@ exports[`ranking view 1`] = `
                       sortIndicator={true}
                       sortList={Array []}
                       tableHeaderClass={null}
-                      toggleExpandAllChilds={[Function]}
                       version="3"
                     >
                       <div
@@ -10915,11 +10868,9 @@ exports[`ranking view 1`] = `
                           "expandColumnBeforeSelectColumn": true,
                           "expandColumnComponent": undefined,
                           "expandColumnVisible": false,
-                          "expandedColumnHeaderComponent": undefined,
                         }
                       }
                       expanding={Array []}
-                      hideRowOnExpand={false}
                       hover={false}
                       keyBoardNav={false}
                       keyField="rank"
@@ -11003,12 +10954,10 @@ exports[`ranking view 1`] = `
                           </colgroup>
                           <tbody>
                             <TableRow
-                              hidden={false}
                               key="##table-empty##"
                             >
                               <tr
                                 className=""
-                                hidden={false}
                                 onClick={[Function]}
                                 onDoubleClick={[Function]}
                                 onMouseOut={[Function]}
@@ -17960,7 +17909,6 @@ exports[`user page view 1`] = `
                       "expandColumnBeforeSelectColumn": true,
                       "expandColumnComponent": undefined,
                       "expandColumnVisible": false,
-                      "expandedColumnHeaderComponent": undefined,
                     }
                   }
                   exportCSV={false}
@@ -18487,7 +18435,6 @@ exports[`user page view 1`] = `
                         hideSelectColumn={false}
                         isFiltered={false}
                         isSelectAll={false}
-                        noAnyExpand={true}
                         onSelectAllRow={[Function]}
                         onSort={[Function]}
                         reset={false}
@@ -18495,7 +18442,6 @@ exports[`user page view 1`] = `
                         sortIndicator={true}
                         sortList={Array []}
                         tableHeaderClass={null}
-                        toggleExpandAllChilds={[Function]}
                         version="3"
                       >
                         <div
@@ -18903,11 +18849,9 @@ exports[`user page view 1`] = `
                             "expandColumnBeforeSelectColumn": true,
                             "expandColumnComponent": undefined,
                             "expandColumnVisible": false,
-                            "expandedColumnHeaderComponent": undefined,
                           }
                         }
                         expanding={Array []}
-                        hideRowOnExpand={false}
                         hover={false}
                         keyBoardNav={false}
                         keyField="epoch_second"
@@ -18999,12 +18943,10 @@ exports[`user page view 1`] = `
                             </colgroup>
                             <tbody>
                               <TableRow
-                                hidden={false}
                                 key="##table-empty##"
                               >
                                 <tr
                                   className=""
-                                  hidden={false}
                                   onClick={[Function]}
                                   onDoubleClick={[Function]}
                                   onMouseOut={[Function]}

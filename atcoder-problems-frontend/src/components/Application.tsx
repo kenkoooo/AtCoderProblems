@@ -151,9 +151,9 @@ export class Application extends React.Component<{}, ApplicationState> {
             <List
               problems={this.state.mergedProblems}
               contests={this.state.contests}
-              acceptedProblems={acceptedProblems}
-              wrongMap={wrongProblemMap}
-              rivalMap={rivalMap}
+              submissions={this.state.submissions}
+              userId={this.state.args.userId}
+              rivalsSet={new Set(this.state.args.rivals)}
             />
           </Grid>
         );
