@@ -30,7 +30,8 @@ export interface ListProps {
 }
 
 interface ListState {
-  onlyTrying: boolean;
+  showTrying: boolean;
+  showAccepted: boolean;
   onlyRated: boolean;
 }
 
@@ -44,7 +45,9 @@ interface ProblemRow {
 }
 
 enum ListFilter {
+  All = "all",
   Trying = "trying",
+  Accepted = "accepted",
   Rated = "rated"
 }
 
@@ -110,7 +113,7 @@ function formatSolver(solver: number, row: ProblemRow) {
 export class List extends React.Component<ListProps, ListState> {
   constructor(prop: ListProps) {
     super(prop);
-    this.state = { onlyTrying: false, onlyRated: false };
+    this.state = { showTrying: true, onlyRated: false, showAccepted: true };
   }
 
   render() {
@@ -156,10 +159,12 @@ export class List extends React.Component<ListProps, ListState> {
       .filter(p => {
         if (this.state.onlyRated && !p.point) {
           return false;
-        } else if (this.state.onlyTrying && acceptedDateMap.has(p.id)) {
-          return false;
-        } else {
+        } else if (this.state.showAccepted && acceptedDateMap.has(p.id)) {
           return true;
+        } else if (this.state.showTrying && !acceptedDateMap.has(p.id)) {
+          return true;
+        } else {
+          return false;
         }
       })
       .map(problem => {
@@ -184,18 +189,48 @@ export class List extends React.Component<ListProps, ListState> {
       <Row>
         <ButtonToolbar>
           <ToggleButtonGroup
+            type="radio"
+            name="trying"
+            defaultValue={ListFilter.All}
+            onChange={(x: any) => {
+              let value: ListFilter = x;
+              switch (value) {
+                case ListFilter.All:
+                  this.setState({
+                    showAccepted: true,
+                    showTrying: true
+                  });
+                  break;
+                case ListFilter.Accepted:
+                  this.setState({
+                    showAccepted: true,
+                    showTrying: false
+                  });
+                  break;
+                case ListFilter.Trying:
+                  this.setState({
+                    showAccepted: false,
+                    showTrying: true
+                  });
+                  break;
+                default:
+                  break;
+              }
+            }}
+          >
+            <ToggleButton value={ListFilter.All}>All</ToggleButton>
+            <ToggleButton value={ListFilter.Trying}>Only Trying</ToggleButton>
+            <ToggleButton value={ListFilter.Accepted}>Only AC</ToggleButton>
+          </ToggleButtonGroup>
+          <ToggleButtonGroup
             type="checkbox"
             onChange={(e: any) => {
               let values: Array<ListFilter> = e;
               this.setState({
-                onlyRated: values.includes(ListFilter.Rated),
-                onlyTrying: values.includes(ListFilter.Trying)
+                onlyRated: values.includes(ListFilter.Rated)
               });
             }}
           >
-            <ToggleButton value={ListFilter.Trying}>
-              Filter Accepted
-            </ToggleButton>
             <ToggleButton value={ListFilter.Rated}>Only Rated</ToggleButton>
           </ToggleButtonGroup>
         </ButtonToolbar>
