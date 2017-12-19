@@ -39,6 +39,7 @@ export class UserPageHeatMap extends React.Component<
     let uniqueProblemSet = new Set<string>();
 
     this.props.submissions
+      .sort((a, b) => a.epoch_second - b.epoch_second)
       .filter(s => {
         switch (this.state.filter) {
           case SubmissionFilter.All:
