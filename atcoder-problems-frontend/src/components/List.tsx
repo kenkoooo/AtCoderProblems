@@ -19,15 +19,14 @@ import {
   ToggleButton
 } from "react-bootstrap";
 import { Submission } from "../model/Submission";
-import { some } from "ts-option";
 import { TimeFormatter } from "../utils/TimeFormatter";
 
 export interface ListProps {
   problems: Array<MergedProblem>;
   contests: Array<Contest>;
-  acceptedProblems: Set<string>;
-  wrongMap: Map<string, string>;
-  rivalMap: Map<string, Set<string>>;
+  submissions: Array<Submission>;
+  userId: string;
+  rivalsSet: Set<string>;
 }
 
 interface ListState {
@@ -41,6 +40,7 @@ interface ProblemRow {
   solver: number;
   point: number;
   startEpochSecond: number;
+  lastAcceptedDate: string;
 }
 
 enum ListFilter {
@@ -107,55 +107,6 @@ function formatSolver(solver: number, row: ProblemRow) {
   return HtmlFormatter.createLink(solverUrl, title);
 }
 
-function formatRowColor(
-  problem: Problem,
-  accepted: Set<string>,
-  wrong: Map<string, string>,
-  rivals: Map<string, Set<string>>
-): string {
-  if (accepted.has(problem.id)) {
-    return "success";
-  } else if (rivals.has(problem.id)) {
-    return "danger";
-  } else if (wrong.has(problem.id)) {
-    return "warning";
-  } else {
-    return "";
-  }
-}
-
-function formatResultBadge(
-  problem: Problem,
-  accepted: Set<string>,
-  wrong: Map<string, string>,
-  rivals: Map<string, Set<string>>
-) {
-  let rowColor = formatRowColor(problem, accepted, wrong, rivals);
-  if (rowColor === "success") {
-    return (
-      <h5>
-        <Label bsStyle="success">AC</Label>
-      </h5>
-    );
-  } else if (rowColor === "danger") {
-    return (
-      <h5>
-        {Array.from(rivals.get(problem.id)).map(userId => (
-          <Label bsStyle="danger">{userId}</Label>
-        ))}
-      </h5>
-    );
-  } else if (rowColor === "warning") {
-    return (
-      <h5>
-        <Label bsStyle="warning">{wrong.get(problem.id)}</Label>
-      </h5>
-    );
-  } else {
-    return <span />;
-  }
-}
-
 export class List extends React.Component<ListProps, ListState> {
   constructor(prop: ListProps) {
     super(prop);
@@ -171,15 +122,41 @@ export class List extends React.Component<ListProps, ListState> {
       })
     );
 
+    let acceptedDateMap = new Map<string, string>();
+    this.props.submissions
+      .sort((a, b) => a.epoch_second - b.epoch_second)
+      .filter(s => s.result === "AC")
+      .filter(s => s.user_id === this.props.userId)
+      .forEach(s =>
+        acceptedDateMap.set(
+          s.problem_id,
+          TimeFormatter.getDateString(s.epoch_second * 1000)
+        )
+      );
+
+    let wrongResultMap = new Map<string, string>();
+    this.props.submissions
+      .filter(s => s.result !== "AC")
+      .filter(s => s.user_id === this.props.userId)
+      .forEach(s => wrongResultMap.set(s.problem_id, s.result));
+
+    let rivalsNameMap = new Map<string, Set<string>>();
+    this.props.submissions
+      .filter(s => s.result === "AC")
+      .filter(s => this.props.rivalsSet.has(s.user_id))
+      .forEach(s => {
+        if (!rivalsNameMap.has(s.problem_id)) {
+          rivalsNameMap.set(s.problem_id, new Set<string>());
+        }
+        rivalsNameMap.get(s.problem_id).add(s.user_id);
+      });
+
     let data: Array<ProblemRow> = this.props.problems
       .filter(p => contestMap.has(p.contestId))
       .filter(p => {
         if (this.state.onlyRated && !p.point) {
           return false;
-        } else if (
-          this.state.onlyTrying &&
-          this.props.acceptedProblems.has(p.id)
-        ) {
+        } else if (this.state.onlyTrying && acceptedDateMap.has(p.id)) {
           return false;
         } else {
           return true;
@@ -190,33 +167,18 @@ export class List extends React.Component<ListProps, ListState> {
         let point = problem.point
           ? problem.point
           : problem.predict ? problem.predict : INF;
+        let lastAcceptedDate = acceptedDateMap.get(problem.id);
         return {
           problem: problem,
           contest: contest,
           solver: problem.solver_count,
           point: point,
-          startEpochSecond: contest.start_epoch_second
+          startEpochSecond: contest.start_epoch_second,
+          lastAcceptedDate: lastAcceptedDate ? lastAcceptedDate : ""
         };
       })
       .sort((a, b) => a.startEpochSecond - b.startEpochSecond)
       .reverse();
-
-    let badgeFormatter = (p: Problem) =>
-      formatResultBadge(
-        p,
-        this.props.acceptedProblems,
-        this.props.wrongMap,
-        this.props.rivalMap
-      );
-
-    let rowColorFormatter = (row: any, index: number) => {
-      return formatRowColor(
-        row.problem,
-        this.props.acceptedProblems,
-        this.props.wrongMap,
-        this.props.rivalMap
-      );
-    };
 
     return (
       <Row>
@@ -242,7 +204,17 @@ export class List extends React.Component<ListProps, ListState> {
           data={data}
           striped
           search
-          trClassName={rowColorFormatter}
+          trClassName={(row: any) => {
+            let problem: MergedProblem = row.problem;
+            if (acceptedDateMap.has(problem.id)) {
+              return "success";
+            } else if (rivalsNameMap.has(problem.id)) {
+              return "danger";
+            } else if (wrongResultMap.has(problem.id)) {
+              return "warning";
+            }
+            return "";
+          }}
           pagination
           options={{
             paginationPosition: "top",
@@ -295,10 +267,41 @@ export class List extends React.Component<ListProps, ListState> {
           </TableHeaderColumn>
           <TableHeaderColumn
             dataField="problem"
-            dataFormat={badgeFormatter}
+            dataFormat={p => {
+              if (acceptedDateMap.has(p.id)) {
+                return (
+                  <h5>
+                    <Label bsStyle="success">AC</Label>
+                  </h5>
+                );
+              } else if (rivalsNameMap.has(p.id)) {
+                return (
+                  <h5>
+                    {Array.from(rivalsNameMap.get(p.id)).map(userId => (
+                      <Label bsStyle="danger">{userId}</Label>
+                    ))}
+                  </h5>
+                );
+              } else if (wrongResultMap.has(p.id)) {
+                return (
+                  <h5>
+                    <Label bsStyle="warning">{wrongResultMap.get(p.id)}</Label>
+                  </h5>
+                );
+              } else {
+                return <span />;
+              }
+            }}
             dataAlign="center"
           >
             Result
+          </TableHeaderColumn>
+          <TableHeaderColumn
+            dataField="lastAcceptedDate"
+            dataAlign="left"
+            dataSort
+          >
+            Last AC Date
           </TableHeaderColumn>
           <TableHeaderColumn
             dataField="solver"
