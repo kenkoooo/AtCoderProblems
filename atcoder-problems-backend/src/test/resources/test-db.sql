@@ -106,3 +106,11 @@ CREATE TABLE rated_point_sum (
   point_sum       DOUBLE PRECISION NOT NULL,
   PRIMARY KEY (user_id)
 );
+
+DROP TABLE IF EXISTS language_count;
+CREATE TABLE language_count (
+  user_id               VARCHAR(255) NOT NULL,
+  simplified_language   VARCHAR(255) NOT NULL,
+  problem_count         INT NOT NULL,
+  PRIMARY KEY (user_id, simplified_language)
+);
