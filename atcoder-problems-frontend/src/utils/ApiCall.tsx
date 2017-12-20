@@ -5,6 +5,7 @@ import { Submission } from "../model/Submission";
 import { RankPair } from "../model/RankPair";
 import { MergedProblem } from "../model/MergedProblem";
 import { Ranking } from "../components/Ranking";
+import { LangCount } from "../model/LangCount";
 
 export class ApiCall {
   static BaseUrl = "./atcoder-api";
@@ -136,6 +137,20 @@ export class ApiCall {
         };
       });
       return problems;
+    });
+  }
+
+  static getLanguageCounts(): Promise<Array<LangCount>> {
+    let url = `${this.BaseUrl}/info/lang`;
+    return this.getJson(url).then((obj: Array<any>) => {
+      let counts: LangCount[] = obj.map(o => {
+        return {
+          count: o["count"],
+          language: o["language"],
+          userId: o["user_id"]
+        };
+      });
+      return counts;
     });
   }
 }

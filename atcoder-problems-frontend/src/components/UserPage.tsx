@@ -10,6 +10,7 @@ import { Problem } from "../model/Problem";
 import { UserPageAchievements } from "./UserPageAchievements";
 import { TimeFormatter } from "../utils/TimeFormatter";
 import { UserPageHeatMap } from "./UserPageHeatMap";
+import { UserPageLanguages } from "./UserPageLanguages";
 
 export interface UserPageProps {
   userId: string;
@@ -140,6 +141,9 @@ export class UserPage extends React.Component<UserPageProps, {}> {
           submissions={this.props.submissions}
           problems={this.props.problems}
         />
+
+        <PageHeader>Languages</PageHeader>
+        <UserPageLanguages userId={this.props.userId} />
       </Row>
     );
   }

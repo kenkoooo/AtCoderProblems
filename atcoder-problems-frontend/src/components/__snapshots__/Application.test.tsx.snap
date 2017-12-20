@@ -374,6 +374,40 @@ exports[`category view 1`] = `
                                               </SafeAnchor>
                                             </li>
                                           </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=lang"
+                                            key=".$.5"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=lang"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=lang"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Language Owners
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
                                         </ul>
                                       </RootCloseWrapper>
                                     </DropdownMenu>
@@ -4149,6 +4183,40 @@ exports[`list view 1`] = `
                                               </SafeAnchor>
                                             </li>
                                           </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=lang"
+                                            key=".$.5"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=lang"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=lang"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Language Owners
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
                                         </ul>
                                       </RootCloseWrapper>
                                     </DropdownMenu>
@@ -7171,6 +7239,40 @@ exports[`list view 2`] = `
                                                   tabIndex="-1"
                                                 >
                                                   Rated-Point
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=lang"
+                                            key=".$.5"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=lang"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=lang"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Language Owners
                                                 </a>
                                               </SafeAnchor>
                                             </li>
@@ -10198,6 +10300,40 @@ exports[`ranking view 1`] = `
                                               </SafeAnchor>
                                             </li>
                                           </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=lang"
+                                            key=".$.5"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=lang"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=lang"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Language Owners
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
                                         </ul>
                                       </RootCloseWrapper>
                                     </DropdownMenu>
@@ -11898,6 +12034,40 @@ exports[`user page view 1`] = `
                                                   tabIndex="-1"
                                                 >
                                                   Rated-Point
+                                                </a>
+                                              </SafeAnchor>
+                                            </li>
+                                          </MenuItem>
+                                          <MenuItem
+                                            bsClass="dropdown"
+                                            disabled={false}
+                                            divider={false}
+                                            header={false}
+                                            href="./?kind=lang"
+                                            key=".$.5"
+                                            onKeyDown={[Function]}
+                                            onSelect={[Function]}
+                                          >
+                                            <li
+                                              className=""
+                                              role="presentation"
+                                            >
+                                              <SafeAnchor
+                                                componentClass="a"
+                                                href="./?kind=lang"
+                                                onClick={[Function]}
+                                                onKeyDown={[Function]}
+                                                role="menuitem"
+                                                tabIndex="-1"
+                                              >
+                                                <a
+                                                  href="./?kind=lang"
+                                                  onClick={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  role="menuitem"
+                                                  tabIndex="-1"
+                                                >
+                                                  Language Owners
                                                 </a>
                                               </SafeAnchor>
                                             </li>
@@ -19666,6 +19836,30 @@ exports[`user page view 1`] = `
                   </div>
                 </BootstrapTable>
               </UserPageTable>
+              <PageHeader
+                bsClass="page-header"
+              >
+                <div
+                  className="page-header"
+                >
+                  <h1>
+                    Languages
+                  </h1>
+                </div>
+              </PageHeader>
+              <UserPageLanguages
+                userId="kenkoooo"
+              >
+                <Row
+                  bsClass="row"
+                  className="placeholders"
+                  componentClass="div"
+                >
+                  <div
+                    className="placeholders row"
+                  />
+                </Row>
+              </UserPageLanguages>
             </div>
           </Row>
         </UserPage>
