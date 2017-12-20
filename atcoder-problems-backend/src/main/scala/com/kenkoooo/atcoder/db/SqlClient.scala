@@ -241,6 +241,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     updateProblemSolverCounts()
 
     updateRatedPoints()
+    updateLanguageCount()
 
     updateGreatSubmissions(First)
     updateGreatSubmissions(Fastest)
