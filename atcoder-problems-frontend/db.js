@@ -8,6 +8,7 @@ module.exports = function() {
     first: require("./resources/first.json"),
     short: require("./resources/short.json"),
     sums: require("./resources/sums.json"),
+    lang: require("./resources/lang.json"),
     results: require("./resources/results.json")
   };
 };
