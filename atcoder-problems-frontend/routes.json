@@ -3,6 +3,7 @@
   "/atcoder-api/info/problems": "/problems",
   "/atcoder-api/info/ac": "/ac",
   "/atcoder-api/info/sums": "/sums",
+  "/atcoder-api/info/lang": "/lang",
   "/atcoder-api/info/short": "/short",
   "/atcoder-api/info/fast": "/fast",
   "/atcoder-api/info/first": "/first",
