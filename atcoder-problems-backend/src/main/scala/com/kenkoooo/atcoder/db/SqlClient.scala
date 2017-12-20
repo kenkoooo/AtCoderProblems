@@ -31,6 +31,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   private var _shortestSubmissionCounts: List[ShortestSubmissionCount] = List()
   private var _mergedProblems: List[MergedProblem] = List()
   private var _ratedPointSums: List[RatedPointSum] = List()
+  private var _languageCounts: List[LanguageCount] = List()
   private var _lastReloaded: Long = 0
 
   def contests: Map[String, Contest] = _contests
@@ -48,6 +49,8 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   def mergedProblems: List[MergedProblem] = _mergedProblems
 
   def ratedPointSums: List[RatedPointSum] = _ratedPointSums
+
+  def languageCounts: List[LanguageCount] = _languageCounts
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
@@ -153,6 +156,31 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
                 .as(SubQuery.syntax("sub").include(points, submissions))
             }.groupBy(userIdColumn)
           }
+      }.update().apply()
+    }
+  }
+
+  private[db] def updateLanguageCount(): Unit = {
+    logger.info("updating language count...")
+    val columns = LanguageCount.column
+    val submissions = Submission.syntax("submissions")
+    val userId = sqls"user_id"
+    val language = sqls"simplified_language"
+    val problemId = sqls"problem_id"
+    DB.localTx { implicit session =>
+      withSQL {
+        deleteFrom(LanguageCount)
+      }.execute().apply()
+      withSQL {
+        insertInto(LanguageCount)
+          .columns(columns.userId, columns.simplifiedLanguage, columns.problemCount)
+          .select(userId, language, count(distinct(problemId)))(_.from {
+            select(sqls"regexp_replace(language, '\d* \(.*\)', '') AS $language", userId, problemId)
+              .from(Submission as submissions)
+              .where
+              .eq(submissions.c("result"), SubmissionStatus.Accepted)
+              .as(SubQuery.syntax("sub").include(submissions))
+          }.groupBy(language, userId))
       }.update().apply()
     }
   }
@@ -300,6 +328,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     _fastestSubmissionCounts = loadRecords(FastestSubmissionCount).toList
     _mergedProblems = loadMergedProblems().toList
     _ratedPointSums = loadRecords(RatedPointSum).toList
+    _languageCounts = loadRecords(LanguageCount).toList
 
     _lastReloaded = System.currentTimeMillis()
   }

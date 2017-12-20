@@ -638,4 +638,31 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       userId2 -> 200
     )
   }
+
+  test("update language count table") {
+    val client = new SqlClient(url, sqlUser, sqlPass)
+
+    val userId = "u1"
+    val pId1 = "p1"
+    val pId2 = "p2"
+    val langIdA1 = "Java10 (version 10.1)"
+    val langIdA2 = "Java11 (version 11.3)"
+    val langIdB = "Rust (2.0)"
+
+    client.batchInsert(
+      Submission,
+      Submission(id = 1, problemId = pId1, language = langIdA1, userId = userId, result = "WA"),
+      Submission(id = 2, problemId = pId1, language = langIdA1, userId = userId, result = "AC"),
+      Submission(id = 3, problemId = pId1, language = langIdA2, userId = userId, result = "AC"),
+      Submission(id = 4, problemId = pId2, language = langIdA1, userId = userId, result = "AC"),
+      Submission(id = 5, problemId = pId1, language = langIdB, userId = userId, result = "AC"),
+      Submission(id = 6, problemId = pId2, language = langIdB, userId = userId, result = "WA")
+    )
+
+    client.updateLanguageCount()
+    client
+      .loadRecords(LanguageCount)
+      .map(c => (c.userId, c.simplifiedLanguage) -> c.problemCount)
+      .toMap shouldBe Map(("u1", "Java") -> 2, ("u1", "Rust") -> 1)
+  }
 }

@@ -76,6 +76,8 @@ class JsonApiTest
     )
     when(sql.ratedPointSums)
       .thenReturn(List(RatedPointSum("user1", 100.0), RatedPointSum("user2", 200.0)))
+    when(sql.languageCounts)
+      .thenReturn(List(LanguageCount("user1", "Rust", 100), LanguageCount("user2", "Java", 200)))
   }
 
   test("return 200 to new request") {
@@ -202,6 +204,16 @@ class JsonApiTest
     val expectedJson =
       """[{"user_id":"user1","point_sum":100.0},{"user_id":"user2","point_sum":200.0}]"""
     Get("/info/sums") ~> api.routes ~> check {
+      status shouldBe OK
+      responseAs[String] shouldBe expectedJson
+    }
+  }
+
+  test("language count api") {
+    val api = new JsonApi(sql)
+    val expectedJson =
+      """[{"user_id":"user1","language":"Rust","count":100},{"user_id":"user2","language":"Java","count":200}]"""
+    Get("/info/lang") ~> api.routes ~> check {
       status shouldBe OK
       responseAs[String] shouldBe expectedJson
     }
