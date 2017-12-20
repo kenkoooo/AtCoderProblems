@@ -4,6 +4,7 @@ import { Submission } from "../model/Submission";
 import { MergedProblem } from "../model/MergedProblem";
 import { RankPair } from "../model/RankPair";
 import { MockRequest } from "./TestUtils";
+import { LangCount } from "../model/LangCount";
 
 test("get and parse problems", () => {
   let response: any = [
@@ -163,6 +164,29 @@ test("parse ranking", () => {
         userId: "Abcdefgprogrammi",
         count: 1,
         rank: 2
+      });
+    });
+});
+
+test("parse language count", () => {
+  let response: any = [
+    {
+      user_id: "AGE",
+      count: 3,
+      language: "Rust"
+    }
+  ];
+
+  jest.mock("superagent");
+  let mockAgent = require("superagent");
+  mockAgent.get.mockReturnValueOnce(new MockRequest(response));
+  require("./ApiCall")
+    .ApiCall.getLanguageCounts()
+    .then((counts: LangCount[]) => {
+      expect(counts[0]).toEqual({
+        userId: "AGE",
+        count: 3,
+        language: "Rust"
       });
     });
 });

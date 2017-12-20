@@ -372,6 +372,40 @@ exports[`render navigation bar 1`] = `
                                           </SafeAnchor>
                                         </li>
                                       </MenuItem>
+                                      <MenuItem
+                                        bsClass="dropdown"
+                                        disabled={false}
+                                        divider={false}
+                                        header={false}
+                                        href="./?kind=lang"
+                                        key=".$.5"
+                                        onKeyDown={[Function]}
+                                        onSelect={[Function]}
+                                      >
+                                        <li
+                                          className=""
+                                          role="presentation"
+                                        >
+                                          <SafeAnchor
+                                            componentClass="a"
+                                            href="./?kind=lang"
+                                            onClick={[Function]}
+                                            onKeyDown={[Function]}
+                                            role="menuitem"
+                                            tabIndex="-1"
+                                          >
+                                            <a
+                                              href="./?kind=lang"
+                                              onClick={[Function]}
+                                              onKeyDown={[Function]}
+                                              role="menuitem"
+                                              tabIndex="-1"
+                                            >
+                                              Language Owners
+                                            </a>
+                                          </SafeAnchor>
+                                        </li>
+                                      </MenuItem>
                                     </ul>
                                   </RootCloseWrapper>
                                 </DropdownMenu>

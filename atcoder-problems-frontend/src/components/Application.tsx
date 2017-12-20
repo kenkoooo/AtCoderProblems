@@ -14,6 +14,7 @@ import { SubmissionUtils } from "../utils/SubmissionUtils";
 import { NavigationBar } from "./NavigationBar";
 import { UserPage } from "./UserPage";
 import { Ranking } from "./Ranking";
+import { LanguageOwners } from "./LanguageOwners";
 import { RatedPointCountTable } from "./RatedPointCountTable";
 
 interface ApplicationState {
@@ -28,7 +29,8 @@ enum ViewKind {
   Category = "category",
   List = "list",
   User = "user",
-  Ranking = "ranking"
+  Ranking = "ranking",
+  Lang = "lang"
 }
 
 /**
@@ -174,6 +176,12 @@ export class Application extends React.Component<{}, ApplicationState> {
         return (
           <Grid>
             <Ranking ranking={this.state.args.ranking} />
+          </Grid>
+        );
+      case ViewKind.Lang:
+        return (
+          <Grid>
+            <LanguageOwners />
           </Grid>
         );
 
