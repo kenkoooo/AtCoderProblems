@@ -65,7 +65,7 @@ export class UserPageLanguages extends React.Component<
             <h4>{c.language}</h4>
             <h3>{languageCountMap.get(c.language)}</h3>
             <span className="text-muted">
-              {rankFormat(languageRankMap.get(c.language))}
+              {rankFormat(languageRankMap.get(c.language) + 1)}
             </span>
           </Col>
         ))}
