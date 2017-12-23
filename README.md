@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/kenkoooo/AtCoderProblems.svg?branch=master)](https://travis-ci.org/kenkoooo/AtCoderProblems)
 [![codecov](https://codecov.io/gh/kenkoooo/AtCoderProblems/branch/master/graph/badge.svg)](https://codecov.io/gh/kenkoooo/AtCoderProblems)
 
-# Backend
+# Backend API Server
 
 API server application and scrapers are written in Scala.
 
@@ -19,7 +19,7 @@ sbt assembly
 sbt test
 ```
 
-# Frontend
+# Frontend Web Application
 
 Frontend web application is written in TypeScript.
 
@@ -47,22 +47,26 @@ npm test
 ## Information API
 
 - Contests Information
-  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/contests
+  - http://kenkoooo.com/atcoder/atcoder-api/info/contests
 - Problems Information
-  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/problems
+  - http://kenkoooo.com/atcoder/atcoder-api/info/problems
 - Detailed Problems Information
-  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/merged-problems
+  - http://kenkoooo.com/atcoder/atcoder-api/info/merged-problems
 
 ## User Information API
 
 - Accepted Count
-  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/ac
+  - http://kenkoooo.com/atcoder/atcoder-api/info/ac
 - Shortest Code Count
-  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/short
+  - http://kenkoooo.com/atcoder/atcoder-api/info/short
 - Fastest Code Count
-  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/fast
+  - http://kenkoooo.com/atcoder/atcoder-api/info/fast
 - First Accepted Count
-  - http://beta.kenkoooo.com/atcoder/atcoder-api/info/first
+  - http://kenkoooo.com/atcoder/atcoder-api/info/first
+- Rated Point Sum
+  - http://kenkoooo.com/atcoder/atcoder-api/info/sums
+- Accepted Count for each langages
+  - http://kenkoooo.com/atcoder/atcoder-api/info/lang
 
 ## Submission API
-  - http://beta.kenkoooo.com/atcoder/atcoder-api/results?user=wata&rivals=iwiwi,chokudai
+  - http://kenkoooo.com/atcoder/atcoder-api/results?user=wata&rivals=iwiwi,chokudai
