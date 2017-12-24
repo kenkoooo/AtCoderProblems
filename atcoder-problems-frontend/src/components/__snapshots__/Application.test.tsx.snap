@@ -5349,6 +5349,7 @@ exports[`list view 1`] = `
                           },
                         ]
                       }
+                      version="3"
                       withFirstAndLast={true}
                     >
                       <div
@@ -5368,6 +5369,7 @@ exports[`list view 1`] = `
                             className=""
                             currSizePerPage="20"
                             hidden={false}
+                            isBootstrap4={false}
                             onBlur={[Function]}
                             onClick={[Function]}
                             open={false}
@@ -5454,14 +5456,10 @@ exports[`list view 1`] = `
                           >
                             <span
                               className="dropdown   react-bs-table-sizePerPage-dropdown"
-                              style={
-                                Object {
-                                  "visibility": "visible",
-                                }
-                              }
                             >
                               <button
                                 aria-expanded={false}
+                                aria-haspopup={true}
                                 className="btn btn-default btn-secondary dropdown-toggle"
                                 data-toggle="dropdown"
                                 id="pageDropDown"
@@ -5478,7 +5476,7 @@ exports[`list view 1`] = `
                               </button>
                               <ul
                                 aria-labelledby="pageDropDown"
-                                className="dropdown-menu"
+                                className="dropdown-menu "
                                 role="menu"
                               >
                                 <li
@@ -8409,6 +8407,7 @@ exports[`list view 2`] = `
                           },
                         ]
                       }
+                      version="3"
                       withFirstAndLast={true}
                     >
                       <div
@@ -8428,6 +8427,7 @@ exports[`list view 2`] = `
                             className=""
                             currSizePerPage="20"
                             hidden={false}
+                            isBootstrap4={false}
                             onBlur={[Function]}
                             onClick={[Function]}
                             open={false}
@@ -8514,14 +8514,10 @@ exports[`list view 2`] = `
                           >
                             <span
                               className="dropdown   react-bs-table-sizePerPage-dropdown"
-                              style={
-                                Object {
-                                  "visibility": "visible",
-                                }
-                              }
                             >
                               <button
                                 aria-expanded={false}
+                                aria-haspopup={true}
                                 className="btn btn-default btn-secondary dropdown-toggle"
                                 data-toggle="dropdown"
                                 id="pageDropDown"
@@ -8538,7 +8534,7 @@ exports[`list view 2`] = `
                               </button>
                               <ul
                                 aria-labelledby="pageDropDown"
-                                className="dropdown-menu"
+                                className="dropdown-menu "
                                 role="menu"
                               >
                                 <li
@@ -10892,6 +10888,7 @@ exports[`ranking view 1`] = `
                           },
                         ]
                       }
+                      version="3"
                       withFirstAndLast={true}
                     >
                       <div
@@ -10911,6 +10908,7 @@ exports[`ranking view 1`] = `
                             className=""
                             currSizePerPage="200"
                             hidden={false}
+                            isBootstrap4={false}
                             onBlur={[Function]}
                             onClick={[Function]}
                             open={false}
@@ -10983,14 +10981,10 @@ exports[`ranking view 1`] = `
                           >
                             <span
                               className="dropdown   react-bs-table-sizePerPage-dropdown"
-                              style={
-                                Object {
-                                  "visibility": "visible",
-                                }
-                              }
                             >
                               <button
                                 aria-expanded={false}
+                                aria-haspopup={true}
                                 className="btn btn-default btn-secondary dropdown-toggle"
                                 data-toggle="dropdown"
                                 id="pageDropDown"
@@ -11007,7 +11001,7 @@ exports[`ranking view 1`] = `
                               </button>
                               <ul
                                 aria-labelledby="pageDropDown"
-                                className="dropdown-menu"
+                                className="dropdown-menu "
                                 role="menu"
                               >
                                 <li
@@ -19000,6 +18994,7 @@ exports[`user page view 1`] = `
                             },
                           ]
                         }
+                        version="3"
                         withFirstAndLast={true}
                       >
                         <div
@@ -19019,6 +19014,7 @@ exports[`user page view 1`] = `
                               className=""
                               currSizePerPage="20"
                               hidden={false}
+                              isBootstrap4={false}
                               onBlur={[Function]}
                               onClick={[Function]}
                               open={false}
@@ -19105,14 +19101,10 @@ exports[`user page view 1`] = `
                             >
                               <span
                                 className="dropdown   react-bs-table-sizePerPage-dropdown"
-                                style={
-                                  Object {
-                                    "visibility": "visible",
-                                  }
-                                }
                               >
                                 <button
                                   aria-expanded={false}
+                                  aria-haspopup={true}
                                   className="btn btn-default btn-secondary dropdown-toggle"
                                   data-toggle="dropdown"
                                   id="pageDropDown"
@@ -19129,7 +19121,7 @@ exports[`user page view 1`] = `
                                 </button>
                                 <ul
                                   aria-labelledby="pageDropDown"
-                                  className="dropdown-menu"
+                                  className="dropdown-menu "
                                   role="menu"
                                 >
                                   <li
