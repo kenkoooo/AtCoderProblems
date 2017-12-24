@@ -103,3 +103,19 @@ test("user page view", () => {
   let wrapper = mount(<Application />);
   expect(toJson(wrapper)).toMatchSnapshot();
 });
+
+test("language owners view", () => {
+  mockApiCall();
+  jest.mock("../utils/Arguments");
+  let mockArgumentParser = require("../utils/Arguments").ArgumentParser;
+  mockArgumentParser.parse.mockReturnValueOnce({
+    userId: "",
+    rivals: [],
+    kind: "lang",
+    ranking: ""
+  });
+
+  let Application = require("./Application").Application;
+  let wrapper = mount(<Application />);
+  expect(toJson(wrapper)).toMatchSnapshot();
+});
