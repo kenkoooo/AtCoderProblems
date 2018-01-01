@@ -184,7 +184,7 @@ test("parse language count", () => {
     .ApiCall.getLanguageCounts()
     .then((counts: LangCount[]) => {
       expect(counts[0]).toEqual({
-        userId: "AGE",
+        user_id: "AGE",
         count: 3,
         language: "Rust"
       });

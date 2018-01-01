@@ -101,13 +101,7 @@ export class ApiCall {
   static getLanguageCounts(): Promise<Array<LangCount>> {
     let url = `${this.BaseUrl}/info/lang`;
     return this.getJson(url).then((obj: Array<any>) => {
-      let counts: LangCount[] = obj.map(o => {
-        return {
-          count: o["count"],
-          language: o["language"],
-          userId: o["user_id"]
-        };
-      });
+      let counts: LangCount[] = obj.map(o => o as LangCount);
       return counts;
     });
   }
