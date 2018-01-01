@@ -85,20 +85,7 @@ export class ApiCall {
     query?: { user: string; rivals: string }
   ): Promise<Array<Submission>> {
     return this.getJson(url, query).then((obj: Array<any>) => {
-      let submissions: Submission[] = obj.map(o => {
-        return {
-          point: o["point"],
-          result: o["result"],
-          problem_id: o["problem_id"],
-          user_id: o["user_id"],
-          epoch_second: o["epoch_second"],
-          id: o["id"],
-          language: o["language"],
-          length: o["length"],
-          contestId: o["contest_id"],
-          execution_time: o["execution_time"]
-        };
-      });
+      let submissions: Submission[] = obj.map(o => o as Submission);
       return submissions;
     });
   }
