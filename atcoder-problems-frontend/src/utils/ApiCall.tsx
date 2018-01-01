@@ -38,7 +38,7 @@ export class ApiCall {
     let url = `${this.BaseUrl}/info/${kind}`;
     return this.getJson(url).then((obj: Array<any>) => {
       let ranks = obj.map(o => {
-        let p = { rank: 1, userId: o["user_id"], count: o["problem_count"] };
+        let p = { rank: 1, user_id: o["user_id"], count: o["problem_count"] };
         return p;
       });
 
@@ -50,7 +50,7 @@ export class ApiCall {
     let url = `${this.BaseUrl}/info/sums`;
     return this.getJson(url).then((obj: Array<any>) => {
       let ranks = obj.map(o => {
-        let p = { rank: 1, userId: o["user_id"], count: o["point_sum"] };
+        let p = { rank: 1, user_id: o["user_id"], count: o["point_sum"] };
         return p;
       });
 

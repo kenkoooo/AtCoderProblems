@@ -156,12 +156,12 @@ test("parse ranking", () => {
     .ApiCall.getRanking()
     .then((ranks: RankPair[]) => {
       expect(ranks[0]).toEqual({
-        userId: "AGE",
+        user_id: "AGE",
         count: 3,
         rank: 1
       });
       expect(ranks[1]).toEqual({
-        userId: "Abcdefgprogrammi",
+        user_id: "Abcdefgprogrammi",
         count: 1,
         rank: 2
       });
