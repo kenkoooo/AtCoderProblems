@@ -21,7 +21,7 @@ test("get and parse problems", () => {
         {
           id: "problem-id",
           title: "problem title",
-          contestId: "contest-id"
+          contest_id: "contest-id"
         }
       ]);
     });
@@ -58,7 +58,7 @@ test("get and parse merged problems", () => {
     .then((problems: MergedProblem[]) => {
       expect(problems).toEqual([
         {
-          contestId: "arc057",
+          contest_id: "arc057",
           execution_time: 19,
           fastest_contest_id: "arc057",
           fastest_submission_id: 1002161,
@@ -156,12 +156,12 @@ test("parse ranking", () => {
     .ApiCall.getRanking()
     .then((ranks: RankPair[]) => {
       expect(ranks[0]).toEqual({
-        userId: "AGE",
+        user_id: "AGE",
         count: 3,
         rank: 1
       });
       expect(ranks[1]).toEqual({
-        userId: "Abcdefgprogrammi",
+        user_id: "Abcdefgprogrammi",
         count: 1,
         rank: 2
       });
@@ -184,7 +184,7 @@ test("parse language count", () => {
     .ApiCall.getLanguageCounts()
     .then((counts: LangCount[]) => {
       expect(counts[0]).toEqual({
-        userId: "AGE",
+        user_id: "AGE",
         count: 3,
         language: "Rust"
       });

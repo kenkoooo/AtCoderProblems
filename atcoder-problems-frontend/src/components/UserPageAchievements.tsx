@@ -100,7 +100,7 @@ export class UserPageAchievements extends React.Component<
           var rank = 0;
           var count = 0;
           a.ranking.forEach(r => {
-            if (r.userId === this.props.userId) {
+            if (r.user_id === this.props.userId) {
               rank = r.rank;
               count = r.count;
             }
