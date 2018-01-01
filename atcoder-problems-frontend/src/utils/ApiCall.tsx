@@ -29,10 +29,7 @@ export class ApiCall {
   static getProblems(): Promise<Array<Problem>> {
     let url = `${this.BaseUrl}/info/problems`;
     return this.getJson(url).then((obj: Array<any>) => {
-      let problems: Problem[] = obj.map(o => {
-        let p = { id: o["id"], title: o["title"], contestId: o["contest_id"] };
-        return p;
-      });
+      let problems: Problem[] = obj.map(o => o as Problem);
       return problems;
     });
   }
@@ -109,27 +106,7 @@ export class ApiCall {
   static getMergedProblems(): Promise<Array<MergedProblem>> {
     let url = `${this.BaseUrl}/info/merged-problems`;
     return this.getJson(url).then((obj: Array<any>) => {
-      let problems: MergedProblem[] = obj.map(o => {
-        return {
-          first_submission_id: o["first_submission_id"],
-          solver_count: o["solver_count"],
-          fastest_user_id: o["fastest_user_id"],
-          execution_time: o["execution_time"],
-          shortest_user_id: o["shortest_user_id"],
-          shortest_submission_id: o["shortest_submission_id"],
-          contestId: o["contest_id"],
-          id: o["id"],
-          fastest_submission_id: o["fastest_submission_id"],
-          first_user_id: o["first_user_id"],
-          title: o["title"],
-          source_code_length: o["source_code_length"],
-          fastest_contest_id: o["fastest_contest_id"],
-          shortest_contest_id: o["shortest_contest_id"],
-          first_contest_id: o["first_contest_id"],
-          point: o["point"],
-          predict: o["predict"]
-        };
-      });
+      let problems: MergedProblem[] = obj.map(o => o as MergedProblem);
       return problems;
     });
   }

@@ -21,7 +21,7 @@ test("get and parse problems", () => {
         {
           id: "problem-id",
           title: "problem title",
-          contestId: "contest-id"
+          contest_id: "contest-id"
         }
       ]);
     });
@@ -58,7 +58,7 @@ test("get and parse merged problems", () => {
     .then((problems: MergedProblem[]) => {
       expect(problems).toEqual([
         {
-          contestId: "arc057",
+          contest_id: "arc057",
           execution_time: 19,
           fastest_contest_id: "arc057",
           fastest_submission_id: 1002161,
