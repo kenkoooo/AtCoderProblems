@@ -23,7 +23,7 @@ test("get cell color", () => {
   let wrong = new Map([[wrongProblemId, "WA"], [wrongAndRival, "RE"]]);
   expect(
     HtmlFormatter.getCellColor(
-      option({ contestId: "", id: acceptedProblemId, title: "" }),
+      option({ contest_id: "", id: acceptedProblemId, title: "" }),
       accepted,
       rival,
       wrong
@@ -31,7 +31,7 @@ test("get cell color", () => {
   ).toEqual("success");
   expect(
     HtmlFormatter.getCellColor(
-      option({ contestId: "", id: rivalProblemId, title: "" }),
+      option({ contest_id: "", id: rivalProblemId, title: "" }),
       accepted,
       rival,
       wrong
@@ -39,7 +39,7 @@ test("get cell color", () => {
   ).toEqual("danger");
   expect(
     HtmlFormatter.getCellColor(
-      option({ contestId: "", id: wrongProblemId, title: "" }),
+      option({ contest_id: "", id: wrongProblemId, title: "" }),
       accepted,
       rival,
       wrong
@@ -47,7 +47,7 @@ test("get cell color", () => {
   ).toEqual("warning");
   expect(
     HtmlFormatter.getCellColor(
-      option({ contestId: "", id: bothSolved, title: "" }),
+      option({ contest_id: "", id: bothSolved, title: "" }),
       accepted,
       rival,
       wrong
@@ -55,7 +55,7 @@ test("get cell color", () => {
   ).toEqual("success");
   expect(
     HtmlFormatter.getCellColor(
-      option({ contestId: "", id: wrongAndRival, title: "" }),
+      option({ contest_id: "", id: wrongAndRival, title: "" }),
       accepted,
       rival,
       wrong
