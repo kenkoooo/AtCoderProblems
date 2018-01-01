@@ -2,7 +2,7 @@ import { Problem } from "./Problem";
 
 export interface MergedProblem extends Problem {
   id: string;
-  contestId: string;
+  contest_id: string;
   solver_count: number;
   title: string;
 

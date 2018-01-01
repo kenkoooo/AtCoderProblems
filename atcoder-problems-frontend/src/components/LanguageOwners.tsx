@@ -42,9 +42,9 @@ export class LanguageOwners extends React.Component<
               .sort((a, b) => b.count - a.count)
               .slice(0, 3)
               .map((count, rank) => (
-                <Col key={count.userId} xs={4} sm={4}>
+                <Col key={count.user_id} xs={4} sm={4}>
                   <h4>{rankLabels[rank]}</h4>
-                  <h3>{count.userId}</h3>
+                  <h3>{count.user_id}</h3>
                   <span className="text-muted">{count.count} AC</span>
                 </Col>
               ))}

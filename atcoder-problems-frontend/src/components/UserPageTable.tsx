@@ -66,7 +66,7 @@ export class UserPageTable extends React.Component<UserPageTableProps, {}> {
           dataField="problem_id"
           dataFormat={(problemId: string, submission: Submission) => {
             let url = UrlFormatter.problemUrl(
-              submission.contestId,
+              submission.contest_id,
               submission.problem_id
             );
             let problem = problemMap.get(problemId);
@@ -105,7 +105,7 @@ export class UserPageTable extends React.Component<UserPageTableProps, {}> {
           dataField="id"
           dataFormat={(id: number, submission: Submission) => {
             let url = UrlFormatter.submissionUrl(
-              submission.contestId,
+              submission.contest_id,
               submission.id
             );
             return HtmlFormatter.createLink(url, "details");

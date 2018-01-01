@@ -1,5 +1,5 @@
 export interface LangCount {
-  userId: string;
+  user_id: string;
   count: number;
   language: string;
 }

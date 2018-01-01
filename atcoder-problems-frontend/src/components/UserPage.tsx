@@ -43,7 +43,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
       .map(s => s.epoch_second);
 
     this.props.problems
-      .filter(problem => problem.contestId.match(/^a[rgb]c\d{3}$/))
+      .filter(problem => problem.contest_id.match(/^a[rgb]c\d{3}$/))
       .forEach(problem => {
         // get problem id
         let c = problem.id.slice(-1);

@@ -1,5 +1,5 @@
 export interface RankPair {
   rank: number;
-  userId: string;
+  user_id: string;
   count: number;
 }

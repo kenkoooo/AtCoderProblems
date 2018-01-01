@@ -155,7 +155,7 @@ export class List extends React.Component<ListProps, ListState> {
       });
 
     let data: Array<ProblemRow> = this.props.problems
-      .filter(p => contestMap.has(p.contestId))
+      .filter(p => contestMap.has(p.contest_id))
       .filter(p => {
         if (this.state.onlyRated && !p.point) {
           return false;
@@ -168,7 +168,7 @@ export class List extends React.Component<ListProps, ListState> {
         }
       })
       .map(problem => {
-        let contest = contestMap.get(problem.contestId);
+        let contest = contestMap.get(problem.contest_id);
         let point = problem.point
           ? problem.point
           : problem.predict ? problem.predict : INF;

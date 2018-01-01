@@ -27,7 +27,7 @@ export class UserPageLanguages extends React.Component<
   }
 
   render() {
-    let counts = this.state.counts.filter(c => c.userId === this.props.userId);
+    let counts = this.state.counts.filter(c => c.user_id === this.props.userId);
 
     let languageCountMap = new Map<string, number>();
     let languageRankMap = new Map<string, number>();

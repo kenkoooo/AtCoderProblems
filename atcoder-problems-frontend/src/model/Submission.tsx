@@ -8,5 +8,5 @@ export interface Submission {
   language: string;
   length: number;
   execution_time: number;
-  contestId: string;
+  contest_id: string;
 }

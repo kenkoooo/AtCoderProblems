@@ -40,8 +40,8 @@ export class Category extends React.Component<CategoryProps, {}> {
     let problemMap = new Map<string, Array<Problem>>();
     this.props.contests.forEach(contest => problemMap.set(contest.id, []));
     this.props.problems
-      .filter(problem => problemMap.has(problem.contestId))
-      .forEach(problem => problemMap.get(problem.contestId).push(problem));
+      .filter(problem => problemMap.has(problem.contest_id))
+      .forEach(problem => problemMap.get(problem.contest_id).push(problem));
 
     // filter problems of AtCoder official contests
     let agc = this.filterProblems(problemMap, /^agc\d{3}$/);
