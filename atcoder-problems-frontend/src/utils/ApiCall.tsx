@@ -78,13 +78,7 @@ export class ApiCall {
   static getContests(): Promise<Array<Contest>> {
     let url = `${this.BaseUrl}/info/contests`;
     return this.getJson(url).then((obj: Array<any>) => {
-      let contests: Contest[] = obj.map(o => {
-        return {
-          id: o["id"],
-          title: o["title"],
-          start_epoch_second: o["start_epoch_second"]
-        };
-      });
+      let contests: Contest[] = obj.map(o => o as Contest);
       return contests;
     });
   }
