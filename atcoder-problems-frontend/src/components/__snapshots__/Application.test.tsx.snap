@@ -11466,7 +11466,7 @@ exports[`ranking view 1`] = `
                             "autoValue": false,
                             "customInsertEditor": undefined,
                             "editable": true,
-                            "field": "userId",
+                            "field": "user_id",
                             "format": [Function],
                             "hiddenOnInsert": false,
                             "isKey": false,
@@ -11966,7 +11966,7 @@ exports[`ranking view 1`] = `
                                 columnTitle={false}
                                 csvFieldType="string"
                                 dataAlign="left"
-                                dataField="userId"
+                                dataField="user_id"
                                 dataFormat={[Function]}
                                 dataSort={true}
                                 defaultASC={false}
@@ -12181,7 +12181,7 @@ exports[`ranking view 1`] = `
                             "hiddenOnInsert": false,
                             "index": 1,
                             "invalidEditColumnClassName": "",
-                            "name": "userId",
+                            "name": "user_id",
                             "searchable": true,
                             "sort": true,
                             "sortFunc": undefined,
