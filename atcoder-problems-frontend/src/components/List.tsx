@@ -5,6 +5,7 @@ import {
   TableHeaderColumn,
   SortOrder
 } from "react-bootstrap-table";
+import { DropdownSelect } from "./DropdownSelect";
 import { Contest } from "../model/Contest";
 import { Problem } from "../model/Problem";
 import { HtmlFormatter } from "../utils/HtmlFormatter";
@@ -16,7 +17,12 @@ import {
   PageHeader,
   ButtonToolbar,
   ToggleButtonGroup,
-  ToggleButton
+  ToggleButton,
+  ControlLabel,
+  FormGroup,
+  ButtonGroup,
+  FormControl,
+  Form
 } from "react-bootstrap";
 import { Submission } from "../model/Submission";
 import { TimeFormatter } from "../utils/TimeFormatter";
@@ -33,6 +39,8 @@ interface ListState {
   showTrying: boolean;
   showAccepted: boolean;
   onlyRated: boolean;
+  pointFrom: number;
+  pointTo: number;
 }
 
 interface ProblemRow {
@@ -113,10 +121,24 @@ function formatSolver(solver: number, row: ProblemRow) {
 export class List extends React.Component<ListProps, ListState> {
   constructor(prop: ListProps) {
     super(prop);
-    this.state = { showTrying: true, onlyRated: false, showAccepted: true };
+    this.state = {
+      showTrying: true,
+      onlyRated: false,
+      showAccepted: true,
+      pointFrom: 0,
+      pointTo: INF
+    };
   }
 
   render() {
+    let pointSet = new Set<number>();
+    this.props.problems.forEach(p => {
+      if (p.point) {
+        pointSet.add(p.point);
+      }
+    });
+    let pointList = Array.from(pointSet).sort((a, b) => a - b);
+
     // map of <contest_id, contest>
     let contestMap: Map<string, Contest> = new Map(
       this.props.contests.map(contest => {
@@ -166,6 +188,12 @@ export class List extends React.Component<ListProps, ListState> {
         } else {
           return false;
         }
+      })
+      .filter(problem => {
+        let point = problem.point
+          ? problem.point
+          : problem.predict ? problem.predict : INF;
+        return this.state.pointFrom <= point && point <= this.state.pointTo;
       })
       .map(problem => {
         let contest = contestMap.get(problem.contest_id);
@@ -233,6 +261,18 @@ export class List extends React.Component<ListProps, ListState> {
           >
             <ToggleButton value={ListFilter.Rated}>Only Rated</ToggleButton>
           </ToggleButtonGroup>
+          <DropdownSelect
+            defaultTitle="From"
+            data={pointList}
+            titleFormat={(p: number) => p.toString()}
+            onSelect={(item: number) => this.setState({ pointFrom: item })}
+          />
+          <DropdownSelect
+            defaultTitle="To"
+            data={pointList}
+            titleFormat={(p: number) => p.toString()}
+            onSelect={(item: number) => this.setState({ pointTo: item })}
+          />
         </ButtonToolbar>
 
         <BootstrapTable
