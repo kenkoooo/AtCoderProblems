@@ -96,7 +96,7 @@ export class Ranking extends React.Component<RankingProps, RankingState> {
             Rank
           </TableHeaderColumn>
           <TableHeaderColumn
-            dataField="userId"
+            dataField="user_id"
             dataSort
             dataFormat={(user: string) =>
               HtmlFormatter.createLink(`./?user=${user}&kind=user`, user, true)
