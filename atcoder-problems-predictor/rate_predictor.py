@@ -75,7 +75,12 @@ def main(filepath: str):
     print("RMS: ", np.sqrt(((rating - predict) ** 2).mean()))
 
     # predict
-    user_submissions = get_submissions(["eha", "kenkoooo", "shiratty8"], conn)
+    query = "SELECT max(id) as id, user_id FROM submissions WHERE result='AC' GROUP BY user_id ORDER BY id DESC LIMIT 1000"
+    with conn.cursor() as cursor:
+        cursor.execute(query)
+        user_id_list = [r[1] for r in cursor.fetchall()]
+
+    user_submissions = get_submissions(user_id_list, conn)
     ac_set = set()
     wa_set = set()
     for problem_id, user_id, result in user_submissions:
