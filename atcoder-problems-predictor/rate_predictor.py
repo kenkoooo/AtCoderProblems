@@ -91,7 +91,7 @@ def main(filepath: str):
     x_test = user_df.iloc[:, :-1].values
     y_test_predict = model.predict(x_test)
     user_df["Predict"] = y_test_predict
-    print(user_df)
+    print(user_df.loc[:, ["Predict"]])
 
 
 if __name__ == '__main__':
