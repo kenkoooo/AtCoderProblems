@@ -136,7 +136,7 @@ def main(filepath: str):
     user_df["Rating-Predict"] = user_df[COLUMN_RATING] - user_df[COLUMN_PREDICT]
     user_df = user_df.loc[:, [COLUMN_RATING, COLUMN_PREDICT, "Rating-Predict"]]
     print(user_df.dropna().sort_values(by=["Rating-Predict"]))
-    print(user_df[user_df.isnull()].sort_values(by=[COLUMN_PREDICT]))
+    print(user_df[user_df[COLUMN_RATING].isnull()].sort_values(by=[COLUMN_PREDICT]))
 
 
 if __name__ == '__main__':
