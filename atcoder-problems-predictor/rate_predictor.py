@@ -1,5 +1,7 @@
 import urllib.request
 import json
+from typing import List, Tuple
+
 import pandas as pd
 import psycopg2
 import numpy as np
@@ -8,8 +10,11 @@ import sys
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
 
+COLUMN_RATING = "Rating"
+COLUMN_PREDICT = "Predict"
 
-def get_submissions(users, conn):
+
+def get_submissions(users: List[str], conn) -> List[Tuple[str, str, str]]:
     user_string = ",".join(["'" + u + "'" for u in users])
     query = "SELECT s.problem_id, s.user_id, s.result FROM submissions AS s WHERE s.user_id in ({})".format(user_string)
 
@@ -19,11 +24,21 @@ def get_submissions(users, conn):
     return submissions
 
 
-def main(filepath: str):
-    with open(filepath) as f:
-        config = json.load(f)
-    conn = psycopg2.connect(config["db"])
-    # scrape user rating data
+def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str]]):
+    ac_set = set()
+    wa_set = set()
+    for problem_id, user_id, result in submissions:
+        if result == "AC":
+            ac_set.add((user_id, problem_id))
+        else:
+            wa_set.add((user_id, problem_id))
+    for user_id, problem_id in wa_set:
+        df.at[user_id, problem_id] = -1
+    for user_id, problem_id in ac_set:
+        df.at[user_id, problem_id] = 1
+
+
+def scrape_rating() -> List[Tuple[str, int]]:
     users = []
     min_count = 100
     for count in range(1, 30):
@@ -41,62 +56,56 @@ def main(filepath: str):
             min_count = min(min_count, match_count)
         if min_count < 15:
             break
+    return users
 
+
+def main(filepath: str):
+    with open(filepath) as f:
+        config = json.load(f)
+    conn = psycopg2.connect(config["db"])
+
+    # scrape user rating data
+    users = scrape_rating()
+
+    # generate train data
     submissions = get_submissions([u[0] for u in users], conn)
-
     user_set = set([s[1] for s in submissions])
     problem_set = set([s[0] for s in submissions])
-    ac_set = set()
-    wa_set = set()
-    for problem_id, user_id, result in submissions:
-        if result == "AC":
-            ac_set.add((user_id, problem_id))
-        else:
-            wa_set.add((user_id, problem_id))
-
     df = pd.DataFrame(columns=problem_set, index=user_set)
-    for user_id, problem_id in wa_set:
-        df.at[user_id, problem_id] = -1
-    for user_id, problem_id in ac_set:
-        df.at[user_id, problem_id] = 1
-    df["Rating"] = pd.Series(dict(users))
+    insert_to_df(df, submissions)
+    df[COLUMN_RATING] = pd.Series(dict(users))
 
     # learn
     train, test = train_test_split(df, test_size=0.2)
     x_train = train.iloc[:, :-1].values
     x_test = test.iloc[:, :-1].values
-    y_train = train.loc[:, "Rating"].values
+    y_train = train.loc[:, COLUMN_RATING].values
     model = xgb.XGBRegressor()
     model.fit(x_train, y_train)
-    y_test_predict = model.predict(x_test)
-    test["Predict"] = y_test_predict
-    rating = test.loc[:, "Rating"]
-    predict = test.loc[:, "Predict"]
-    print("RMS: ", np.sqrt(((rating - predict) ** 2).mean()))
 
-    # predict
+    # test
+    y_test_predict = model.predict(x_test)
+    test[COLUMN_PREDICT] = y_test_predict
+    rating = test.loc[:, COLUMN_RATING]
+    predict = test.loc[:, COLUMN_PREDICT]
+    rms = np.sqrt(((rating - predict) ** 2).mean())
+    print("RMS: ", rms)
+
+    # generate prediction data
     query = "SELECT max(id) as id, user_id FROM submissions WHERE result='AC' GROUP BY user_id ORDER BY id DESC LIMIT 1000"
     with conn.cursor() as cursor:
         cursor.execute(query)
-        user_id_list = [r[1] for r in cursor.fetchall()]
+        user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
 
     user_submissions = get_submissions(user_id_list, conn)
-    ac_set = set()
-    wa_set = set()
-    for problem_id, user_id, result in user_submissions:
-        if result == "AC":
-            ac_set.add((user_id, problem_id))
-        else:
-            wa_set.add((user_id, problem_id))
     user_df = pd.DataFrame(columns=df.columns.values, index=[])
-    for user_id, problem_id in wa_set:
-        user_df.at[user_id, problem_id] = -1
-    for user_id, problem_id in ac_set:
-        user_df.at[user_id, problem_id] = 1
+    insert_to_df(user_df, user_submissions)
+
+    # predict
     x_test = user_df.iloc[:, :-1].values
     y_test_predict = model.predict(x_test)
-    user_df["Predict"] = y_test_predict
-    print(user_df.loc[:, ["Predict"]])
+    user_df[COLUMN_PREDICT] = y_test_predict
+    print(user_df.loc[:, [COLUMN_PREDICT]])
 
 
 if __name__ == '__main__':
