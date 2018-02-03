@@ -112,6 +112,7 @@ def main(filepath: str):
         user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
 
     user_submissions = get_submissions(user_id_list, conn, "tmp_user_submissions")
+    print("Submission size:", len(submissions))
     user_df = pd.DataFrame(columns=df.columns.values, index=[])
     insert_to_df(user_df, user_submissions)
 
