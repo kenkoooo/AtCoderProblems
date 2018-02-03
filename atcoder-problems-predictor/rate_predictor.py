@@ -93,7 +93,6 @@ def main(filepath: str):
 
     # learn
     train, test = train_test_split(df, test_size=0.2)
-    test = test[train.columns]
     x_train = train.iloc[:, :-1].values
     x_test = test.iloc[:, :-1].values
     y_train = train.loc[:, COLUMN_RATING].values
