@@ -14,9 +14,23 @@ COLUMN_RATING = "Rating"
 COLUMN_PREDICT = "Predict"
 
 
-def get_submissions(users: List[str], conn) -> List[Tuple[str, str, str]]:
-    user_string = ",".join(["'" + u + "'" for u in users])
-    query = "SELECT s.problem_id, s.user_id, s.result FROM submissions AS s WHERE s.user_id in ({})".format(user_string)
+def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str]]:
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "CREATE TEMPORARY TABLE {} (user_id VARCHAR(255) NOT NULL, PRIMARY KEY (user_id))".format(table_name))
+        conn.commit()
+        cursor.executemany("INSERT INTO {} (user_id) VALUES (?)".format(table_name), [(x,) for x in users])
+        conn.commit()
+
+    query = """
+        SELECT
+            s.problem_id,
+            s.user_id,
+            s.result
+        FROM submissions AS s
+        LEFT JOIN {} AS t ON s.user_id=t.user_id
+        WHERE t.user_id IS NOT NULL
+        """.format(table_name)
 
     with conn.cursor() as cursor:
         cursor.execute(query)
@@ -68,7 +82,7 @@ def main(filepath: str):
     users = scrape_rating()
 
     # generate train data
-    submissions = get_submissions([u[0] for u in users], conn)
+    submissions = get_submissions([u[0] for u in users], conn, "tmp_submissions")
     user_set = set([s[1] for s in submissions])
     problem_set = set([s[0] for s in submissions])
     df = pd.DataFrame(columns=problem_set, index=user_set)
@@ -97,7 +111,7 @@ def main(filepath: str):
         cursor.execute(query)
         user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
 
-    user_submissions = get_submissions(user_id_list, conn)
+    user_submissions = get_submissions(user_id_list, conn, "tmp_user_submissions")
     user_df = pd.DataFrame(columns=df.columns.values, index=[])
     insert_to_df(user_df, user_submissions)
 
