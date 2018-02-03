@@ -133,8 +133,7 @@ def main(filepath: str):
     for user in user_id_list:
         if user in rating_dict:
             user_df.at[user, "Rating"] = rating_dict[user]
-    user_df.dropna(inplace=True)
-    user_df["Rating-Predict"] = user_df["Rating"] - user_df["Predict"]
+    user_df["Rating-Predict"] = user_df["Rating"] - user_df[COLUMN_PREDICT]
     print(user_df)
 
 
