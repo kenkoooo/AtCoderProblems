@@ -130,6 +130,14 @@ def main(filepath: str):
     user_df[COLUMN_PREDICT] = y_test_predict
     print(user_df.loc[:, [COLUMN_PREDICT]])
 
+    # DEMO
+    rating_dict = dict(users)
+    for user in user_id_list:
+        if user in rating_dict:
+            user_df.at[user, "Rating"] = rating_dict[user]
+    user_df = user_df.dropna()
+    user_df["Rating-Predict"] = user_df["Rating"] - user_df["Predict"]
+
 
 if __name__ == '__main__':
     main(sys.argv[1])
