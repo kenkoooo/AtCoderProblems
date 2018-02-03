@@ -53,8 +53,6 @@ def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str]]):
     for user_id, problem_id in ac_set:
         df.at[user_id, problem_id] = 1
 
-    df.fillna(0, inplace=True)
-
 
 def scrape_rating() -> List[Tuple[str, int]]:
     users = []
@@ -135,7 +133,7 @@ def main(filepath: str):
     for user in user_id_list:
         if user in rating_dict:
             user_df.at[user, "Rating"] = rating_dict[user]
-    user_df = user_df.dropna()
+    user_df.dropna(inplace=True)
     user_df["Rating-Predict"] = user_df["Rating"] - user_df["Predict"]
     print(user_df)
 
