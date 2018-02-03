@@ -53,6 +53,8 @@ def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str]]):
     for user_id, problem_id in ac_set:
         df.at[user_id, problem_id] = 1
 
+    df.fillna(0, inplace=True)
+
 
 def scrape_rating() -> List[Tuple[str, int]]:
     users = []
@@ -113,7 +115,7 @@ def main(filepath: str):
         cursor.execute(query)
         user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
 
-    print("user:", len(user_id_list))
+    print("User:", len(user_id_list))
 
     user_submissions = get_submissions(user_id_list, conn, "tmp_user_submissions")
     submissions = [s for s in submissions if s[0] in problem_set]
