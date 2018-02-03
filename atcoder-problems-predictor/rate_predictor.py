@@ -134,8 +134,9 @@ def main(filepath: str):
         if user in rating_dict:
             user_df.at[user, COLUMN_RATING] = rating_dict[user]
     user_df["Rating-Predict"] = user_df[COLUMN_RATING] - user_df[COLUMN_PREDICT]
-    print(user_df.loc[:, [COLUMN_RATING, COLUMN_PREDICT, "Rating-Predict"]].dropna().sort_values(by=["Rating-Predict"]))
-    print(user_df.loc[:, [COLUMN_RATING, COLUMN_PREDICT]].isnull().sort_values(by=[COLUMN_PREDICT]))
+    user_df = user_df.loc[:, [COLUMN_RATING, COLUMN_PREDICT, "Rating-Predict"]]
+    print(user_df.dropna().sort_values(by=["Rating-Predict"]))
+    print(user_df[user_df.isnull()].sort_values(by=[COLUMN_PREDICT]))
 
 
 if __name__ == '__main__':
