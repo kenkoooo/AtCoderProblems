@@ -19,7 +19,7 @@ def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, 
         cursor.execute(
             "CREATE TEMPORARY TABLE {} (user_id VARCHAR(255) NOT NULL, PRIMARY KEY (user_id))".format(table_name))
         conn.commit()
-        cursor.executemany("INSERT INTO {} (user_id) VALUES (?)".format(table_name), [(x,) for x in users])
+        cursor.executemany("INSERT INTO {} (user_id) VALUES ('?')".format(table_name), [(x,) for x in users])
         conn.commit()
 
     query = """
