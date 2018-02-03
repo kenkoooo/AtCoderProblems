@@ -114,3 +114,10 @@ CREATE TABLE language_count (
   problem_count         INT NOT NULL,
   PRIMARY KEY (user_id, simplified_language)
 );
+
+DROP TABLE IF EXISTS predicted_rating;
+CREATE TABLE predicted_rating (
+  user_id               VARCHAR(255) NOT NULL,
+  rating                DOUBLE PRECISION,
+  PRIMARY KEY (user_id)
+);

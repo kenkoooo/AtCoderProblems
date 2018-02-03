@@ -19,8 +19,7 @@ def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, 
         cursor.execute(
             "CREATE TEMPORARY TABLE {} (user_id VARCHAR(255) NOT NULL, PRIMARY KEY (user_id))".format(table_name))
         conn.commit()
-        for user in users:
-            cursor.execute("INSERT INTO {} (user_id) VALUES ('{}')".format(table_name, user))
+        cursor.executemany("INSERT INTO {} (user_id) VALUES (%s)".format(table_name), [(x,) for x in users])
         conn.commit()
 
     query = """
@@ -104,10 +103,10 @@ def main(filepath: str):
     rating = test.loc[:, COLUMN_RATING]
     predict = test.loc[:, COLUMN_PREDICT]
     rms = np.sqrt(((rating - predict) ** 2).mean())
-    print("RMS: ", rms)
+    print("RMS:", rms)
 
     # generate prediction data
-    query = "SELECT max(id) as id, user_id FROM submissions WHERE result='AC' GROUP BY user_id ORDER BY id DESC LIMIT 1000"
+    query = "SELECT max(id) as id, user_id FROM submissions WHERE result='AC' GROUP BY user_id ORDER BY id DESC LIMIT 3000"
     with conn.cursor() as cursor:
         cursor.execute(query)
         user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
