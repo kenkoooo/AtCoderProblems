@@ -106,7 +106,7 @@ def main(filepath: str):
     print("RMS:", rms)
 
     # generate prediction data
-    query = "SELECT max(id) as id, user_id FROM submissions WHERE result='AC' GROUP BY user_id ORDER BY id DESC LIMIT 3000"
+    query = "SELECT max(id) as id, user_id FROM submissions WHERE result='AC' GROUP BY user_id ORDER BY id DESC LIMIT 1000"
     with conn.cursor() as cursor:
         cursor.execute(query)
         user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
