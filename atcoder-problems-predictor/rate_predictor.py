@@ -46,6 +46,8 @@ def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str]]):
             ac_set.add((user_id, problem_id))
         else:
             wa_set.add((user_id, problem_id))
+    print("AC Set:", len(ac_set))
+    print("WA Set:", len(wa_set))
     for user_id, problem_id in wa_set:
         df.at[user_id, problem_id] = -1
     for user_id, problem_id in ac_set:
@@ -115,7 +117,7 @@ def main(filepath: str):
 
     user_submissions = get_submissions(user_id_list, conn, "tmp_user_submissions")
     print("Submission size:", len(submissions))
-    user_df = pd.DataFrame(columns=df.columns.values, index=[])
+    user_df = pd.DataFrame(columns=df.columns.values, index=user_id_list)
     insert_to_df(user_df, user_submissions)
 
     # predict
