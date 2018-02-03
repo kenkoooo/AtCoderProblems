@@ -137,6 +137,7 @@ def main(filepath: str):
             user_df.at[user, "Rating"] = rating_dict[user]
     user_df = user_df.dropna()
     user_df["Rating-Predict"] = user_df["Rating"] - user_df["Predict"]
+    print(user_df)
 
 
 if __name__ == '__main__':
