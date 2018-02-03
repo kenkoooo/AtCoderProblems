@@ -111,6 +111,8 @@ def main(filepath: str):
         cursor.execute(query)
         user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
 
+    print("user:", len(user_id_list))
+
     user_submissions = get_submissions(user_id_list, conn, "tmp_user_submissions")
     print("Submission size:", len(submissions))
     user_df = pd.DataFrame(columns=df.columns.values, index=[])
