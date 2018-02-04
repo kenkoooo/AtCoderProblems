@@ -86,16 +86,6 @@ def main(filepath: str):
     test["Predict"] = y_test_predict
 
     with conn.cursor() as cursor:
-        for problem_id, point in train["Point"].to_dict().items():
-            query = """
-            INSERT INTO points (problem_id, point)
-            VALUES (%s, %s)
-            ON CONFLICT (problem_id) DO UPDATE
-            SET point = %s;
-            """
-            cursor.execute(query, (problem_id, point, point))
-            conn.commit()
-    with conn.cursor() as cursor:
         for problem_id, point in test["Predict"].to_dict().items():
             query = """
             INSERT INTO points (problem_id, predict)
