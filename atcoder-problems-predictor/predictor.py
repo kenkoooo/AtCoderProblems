@@ -11,24 +11,37 @@ def main(filepath: str):
         config = json.load(f)
     conn = psycopg2.connect(config["db"])
     query = """
+    SELECT max(point) as max, problem_id FROM submissions AS s
+    WHERE s.problem_id IN
+    (
+        SELECT problems.id FROM problems
+        JOIN contests ON problems.contest_id=contests.id
+        WHERE contests.start_epoch_second>=1468670400
+        AND rate_change!='×'
+    )
+    GROUP BY s.problem_id
+    ORDER BY max
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(query)
+        for point, problem_id in cursor.fetchall():
+            query = """
+            INSERT INTO points (problem_id, point)
+            VALUES (%s, %s)
+            ON CONFLICT (problem_id) DO UPDATE
+            SET point = %s;
+            """
+            cursor.execute(query, (problem_id, point, point))
+            conn.commit()
+
+    query = """
     SELECT 
-        m.max,
-        s.problem_id,
-        s.user_id,
-        s.result
+    m.point,
+    s.problem_id,
+    s.user_id,
+    s.result
     FROM submissions AS s
-    LEFT JOIN (
-        SELECT max(point) as max, problem_id FROM submissions AS s
-        WHERE s.problem_id IN
-        (
-            SELECT problems.id FROM problems
-            JOIN contests ON problems.contest_id=contests.id
-            WHERE contests.start_epoch_second>=1468670400
-            AND rate_change!='×'
-        )
-        GROUP BY s.problem_id
-        ORDER BY max
-    ) AS m ON s.problem_id=m.problem_id
+    LEFT JOIN points AS m ON s.problem_id=m.problem_id
     LEFT JOIN problems AS p ON p.id=m.problem_id
     LEFT JOIN contests AS c ON c.id=p.contest_id
     LEFT JOIN (
