@@ -37,6 +37,8 @@ class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
               complete(sqlClient.ratedPointSums)
             } ~ path("lang") {
               complete(sqlClient.languageCounts)
+            } ~ path("predicted-ratings") {
+              complete(sqlClient.predictedRatings)
             }
           }
         } ~ path("results") {
