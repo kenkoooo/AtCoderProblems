@@ -43,12 +43,14 @@ def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, 
 def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str, int]]):
     ac_set = set()
     wa_set = set()
+    count_dict = {}
     for problem_id, user_id, result, count in submissions:
         if result == "AC":
             ac_set.add((user_id, problem_id))
         else:
             wa_set.add((user_id, problem_id))
-        df[user_id, "accepted_count"] = count
+        count_dict[user_id] = count
+    df["accepted_count"] = pd.Series(count_dict)
     print("AC Set:", len(ac_set))
     print("WA Set:", len(wa_set))
     for user_id, problem_id in wa_set:
