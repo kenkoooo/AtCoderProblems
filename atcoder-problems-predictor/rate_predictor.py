@@ -14,7 +14,7 @@ COLUMN_RATING = "Rating"
 COLUMN_PREDICT = "Predict"
 
 
-def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str]]:
+def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int]]:
     with conn.cursor() as cursor:
         cursor.execute(
             "CREATE TEMPORARY TABLE {} (user_id VARCHAR(255) NOT NULL, PRIMARY KEY (user_id))".format(table_name))
@@ -26,9 +26,11 @@ def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, 
         SELECT
             s.problem_id,
             s.user_id,
-            s.result
+            s.result,
+            a.problem_count
         FROM submissions AS s
         LEFT JOIN {} AS t ON s.user_id=t.user_id
+        LEFT JOIN accepted_count AS a ON a.user_id=s.user_id
         WHERE t.user_id IS NOT NULL
         """.format(table_name)
 
@@ -38,14 +40,15 @@ def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, 
     return submissions
 
 
-def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str]]):
+def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str, int]]):
     ac_set = set()
     wa_set = set()
-    for problem_id, user_id, result in submissions:
+    for problem_id, user_id, result, count in submissions:
         if result == "AC":
             ac_set.add((user_id, problem_id))
         else:
             wa_set.add((user_id, problem_id))
+        df[user_id, "accepted_count"] = count
     print("AC Set:", len(ac_set))
     print("WA Set:", len(wa_set))
     for user_id, problem_id in wa_set:
