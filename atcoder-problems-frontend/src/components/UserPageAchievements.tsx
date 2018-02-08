@@ -5,6 +5,7 @@ import { Row, Col } from "react-bootstrap";
 import { RankingKind } from "../model/RankingKind";
 import { Submission } from "../model/Submission";
 import { TimeFormatter } from "../utils/TimeFormatter";
+import { PredictedRating } from "../model/PredictedRating";
 
 interface UserPageAchievementsState {
   ac: Array<RankPair>;
@@ -12,6 +13,7 @@ interface UserPageAchievementsState {
   fast: Array<RankPair>;
   short: Array<RankPair>;
   sums: Array<RankPair>;
+  ratings: Array<PredictedRating>;
 }
 
 export interface UserPageAchievementsProps {
@@ -27,10 +29,10 @@ interface Achievement {
 export class UserPageAchievements extends React.Component<
   UserPageAchievementsProps,
   UserPageAchievementsState
-> {
+  > {
   constructor(props: UserPageAchievementsProps) {
     super(props);
-    this.state = { ac: [], first: [], fast: [], short: [], sums: [] };
+    this.state = { ac: [], first: [], fast: [], short: [], sums: [], ratings: [] };
   }
 
   componentWillMount() {
@@ -49,6 +51,8 @@ export class UserPageAchievements extends React.Component<
     ApiCall.getRatedPointSumRanking().then(ranking =>
       this.setState({ sums: ranking })
     );
+    ApiCall.getPredictedRatings().then(ratings =>
+      this.setState({ ratings: ratings.filter(rating => rating.user_id === this.props.userId) }));
   }
 
   render() {
@@ -94,6 +98,8 @@ export class UserPageAchievements extends React.Component<
       currentStreak = 0;
     }
 
+    let rating = this.state.ratings.length > 0 ? this.state.ratings[0].rating.toFixed(2) : "-";
+
     return (
       <Row className="placeholders">
         {achievement.map(a => {
@@ -136,6 +142,11 @@ export class UserPageAchievements extends React.Component<
           <h4>Current Streak</h4>
           <h3>{currentStreak} days</h3>
           <span className="text-muted">Last Accepted: {lastAcceptedDate}</span>
+        </Col>
+        <Col key="rating" xs={6} sm={3}>
+          <h4>Predicted Rating</h4>
+          <h3>{rating}</h3>
+          <span className="text-muted"></span>
         </Col>
       </Row>
     );

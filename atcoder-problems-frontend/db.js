@@ -1,4 +1,4 @@
-module.exports = function() {
+module.exports = function () {
   return {
     "merged-problems": require("./resources/merged-problems.json"),
     problems: require("./resources/problems.json"),
@@ -9,6 +9,7 @@ module.exports = function() {
     short: require("./resources/short.json"),
     sums: require("./resources/sums.json"),
     lang: require("./resources/lang.json"),
-    results: require("./resources/results.json")
+    results: require("./resources/results.json"),
+    "predicted-ratings": require("./resources/predicted-ratings.json")
   };
 };

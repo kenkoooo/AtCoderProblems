@@ -5,6 +5,7 @@ import { MergedProblem } from "../model/MergedProblem";
 import { RankPair } from "../model/RankPair";
 import { MockRequest } from "./TestUtils";
 import { LangCount } from "../model/LangCount";
+import { PredictedRating } from "../model/PredictedRating";
 
 test("get and parse problems", () => {
   let response: any = [
@@ -188,5 +189,19 @@ test("parse language count", () => {
         count: 3,
         language: "Rust"
       });
+    });
+});
+
+test("parse predicted ratings", () => {
+  let content = { user_id: "kenkoooo", rating: 3.14 };
+  let response: any = [content];
+
+  jest.mock("superagent");
+  let mockAgent = require("superagent");
+  mockAgent.get.mockReturnValueOnce(new MockRequest(response));
+  require("./ApiCall")
+    .ApiCall.getPredictedRatings()
+    .then((counts: PredictedRating[]) => {
+      expect(counts[0]).toEqual(content);
     });
 });

@@ -13737,6 +13737,27 @@ exports[`user page view 1`] = `
                         </span>
                       </div>
                     </Col>
+                    <Col
+                      bsClass="col"
+                      componentClass="div"
+                      key="rating"
+                      sm={3}
+                      xs={6}
+                    >
+                      <div
+                        className="col-sm-3 col-xs-6"
+                      >
+                        <h4>
+                          Predicted Rating
+                        </h4>
+                        <h3>
+                          -
+                        </h3>
+                        <span
+                          className="text-muted"
+                        />
+                      </div>
+                    </Col>
                   </div>
                 </Row>
               </UserPageAchievements>
