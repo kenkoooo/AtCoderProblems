@@ -91,7 +91,7 @@ def main(filepath: str):
     insert_to_df(df, submissions)
     df[COLUMN_RATING] = pd.Series(dict(users))
 
-    # learn
+    # train
     train, test = train_test_split(df, test_size=0.2)
     x_train = train.iloc[:, :-1].values
     x_test = test.iloc[:, :-1].values
@@ -108,7 +108,7 @@ def main(filepath: str):
     print("RMS:", rms)
 
     # generate prediction data
-    query = "SELECT max(id) as id, user_id FROM submissions WHERE result='AC' GROUP BY user_id ORDER BY id DESC LIMIT 1000"
+    query = "SELECT max(id) as id, user_id FROM submissions WHERE result='AC' GROUP BY user_id ORDER BY id DESC LIMIT 3000"
     with conn.cursor() as cursor:
         cursor.execute(query)
         user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
