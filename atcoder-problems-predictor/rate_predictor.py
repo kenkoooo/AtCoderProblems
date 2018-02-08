@@ -9,7 +9,6 @@ import xgboost as xgb
 import sys
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVR
 
 COLUMN_RATING = "Rating"
 COLUMN_PREDICT = "Predict"
@@ -98,8 +97,7 @@ def main(filepath: str):
     x_train = train.iloc[:, :-1].values
     x_test = test.iloc[:, :-1].values
     y_train = train.loc[:, COLUMN_RATING].values
-    # model = xgb.XGBRegressor()
-    model = SVR(kernel='rbf')
+    model = xgb.XGBRegressor()
     model.fit(x_train, y_train)
 
     # test
