@@ -17,7 +17,7 @@ export interface CategorySmallBlockProps {
 export class CategorySmallBlock extends React.Component<
   CategorySmallBlockProps,
   {}
-> {
+  > {
   render() {
     let columnColorFormatter = (p: Option<Problem>) =>
       HtmlFormatter.getCellColor(
@@ -42,7 +42,7 @@ export class CategorySmallBlock extends React.Component<
               <Table striped bordered condensed hover>
                 <tbody>
                   <tr>
-                    {problems.map((problem, i) => (
+                    {problems.sort((a, b) => a.title > b.title ? 1 : -1).map((problem, i) => (
                       <td
                         key={i}
                         className={columnColorFormatter(some(problem))}
