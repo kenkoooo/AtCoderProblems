@@ -21,7 +21,7 @@ export class UserPageLineChart extends React.Component<
       .map(s => TimeFormatter.getDateString(s * 1000))
       .forEach(d => {
         ticks.push(d);
-        data.push(data.length + 1);
+        data.push(data.length);
       });
 
     c3.generate({
