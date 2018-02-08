@@ -32,6 +32,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   private var _mergedProblems: List[MergedProblem] = List()
   private var _ratedPointSums: List[RatedPointSum] = List()
   private var _languageCounts: List[LanguageCount] = List()
+  private var _predictedRatings: List[PredictedRating] = List()
   private var _lastReloaded: Long = 0
 
   def contests: Map[String, Contest] = _contests
@@ -51,6 +52,8 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   def ratedPointSums: List[RatedPointSum] = _ratedPointSums
 
   def languageCounts: List[LanguageCount] = _languageCounts
+
+  def predictedRatings: List[PredictedRating] = _predictedRatings
 
   def lastReloadedTimeMillis: Long = _lastReloaded
 
@@ -330,6 +333,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     _mergedProblems = loadMergedProblems().toList
     _ratedPointSums = loadRecords(RatedPointSum).toList
     _languageCounts = loadRecords(LanguageCount).toList
+    _predictedRatings = loadRecords(PredictedRating).toList
 
     _lastReloaded = System.currentTimeMillis()
   }

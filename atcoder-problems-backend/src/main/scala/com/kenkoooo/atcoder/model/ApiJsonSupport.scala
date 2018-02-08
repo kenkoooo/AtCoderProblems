@@ -54,4 +54,6 @@ trait ApiJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     jsonFormat(RatedPointSum.apply, "user_id", "point_sum")
   implicit val languageCountFormat: RootJsonFormat[LanguageCount] =
     jsonFormat(LanguageCount.apply, "user_id", "language", "count")
+  implicit val predictedRatingFormat: RootJsonFormat[PredictedRating] =
+    jsonFormat(PredictedRating.apply, "user_id", "rating")
 }

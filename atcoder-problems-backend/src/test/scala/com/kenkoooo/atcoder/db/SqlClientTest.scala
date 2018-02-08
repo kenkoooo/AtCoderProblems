@@ -665,4 +665,19 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       .map(c => (c.userId, c.simplifiedLanguage) -> c.problemCount)
       .toMap shouldBe Map(("u1", "Java") -> 2, ("u1", "Rust") -> 1)
   }
+
+  test("load predicted ratings") {
+    val client = new SqlClient(url, sqlUser, sqlPass)
+    val userId = "kenkoooo"
+    val rating = 3.14
+    DB.localTx { implicit session =>
+      sql"INSERT INTO predicted_rating (user_id, rating) VALUES ($userId, $rating)"
+        .execute()
+        .apply()
+    }
+    client.reloadRecords()
+    client.predictedRatings.size shouldBe 1
+    client.predictedRatings.head.userId shouldBe userId
+    client.predictedRatings.head.rating shouldBe rating
+  }
 }
