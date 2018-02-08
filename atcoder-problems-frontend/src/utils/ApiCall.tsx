@@ -6,6 +6,7 @@ import { RankPair } from "../model/RankPair";
 import { MergedProblem } from "../model/MergedProblem";
 import { Ranking } from "../components/Ranking";
 import { LangCount } from "../model/LangCount";
+import { PredictedRating } from "../model/PredictedRating";
 
 export class ApiCall {
   static BaseUrl = "./atcoder-api";
@@ -31,6 +32,14 @@ export class ApiCall {
     return this.getJson(url).then((obj: Array<any>) => {
       let problems: Problem[] = obj.map(o => o as Problem);
       return problems;
+    });
+  }
+
+  static getPredictedRatings(): Promise<Array<PredictedRating>> {
+    let url = `${this.BaseUrl}/info/predicted-ratings`;
+    return this.getJson(url).then((obj: Array<any>) => {
+      let predictedRatings: PredictedRating[] = obj.map(o => o as PredictedRating);
+      return predictedRatings;
     });
   }
 
