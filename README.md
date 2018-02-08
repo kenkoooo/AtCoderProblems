@@ -67,6 +67,8 @@ npm test
   - http://kenkoooo.com/atcoder/atcoder-api/info/sums
 - Accepted Count for each langages
   - http://kenkoooo.com/atcoder/atcoder-api/info/lang
+- Predicted Rating for each user
+  - http://kenkoooo.com/atcoder/atcoder-api/info/predicted-ratings
 
 ## Submission API
   - http://kenkoooo.com/atcoder/atcoder-api/results?user=wata&rivals=iwiwi,chokudai
