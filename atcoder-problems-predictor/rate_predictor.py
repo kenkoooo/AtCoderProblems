@@ -116,14 +116,14 @@ def main(filepath: str):
     print("User:", len(user_id_list))
 
     user_submissions = get_submissions(user_id_list, conn, "tmp_user_submissions")
-    submissions = [s for s in submissions if s[0] in problem_set]
-    print("Submission size:", len(submissions))
+    user_submissions = [s for s in user_submissions if s[0] in problem_set]
+    print("Submission size:", len(user_submissions))
 
     user_df = pd.DataFrame(columns=df.columns.values, index=user_id_list)
     insert_to_df(user_df, user_submissions)
 
     # predict
-    x_test = user_df.iloc[:, :-1].values
+    x_test = user_df.iloc[:, :].values
     y_test_predict = model.predict(x_test)
     user_df[COLUMN_PREDICT] = y_test_predict
     print(user_df.loc[:, [COLUMN_PREDICT]])
