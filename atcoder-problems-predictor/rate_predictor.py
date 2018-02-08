@@ -130,6 +130,7 @@ def main(filepath: str):
     print(user_df.loc[:, [COLUMN_PREDICT]])
 
     with conn.cursor() as cursor:
+        cursor.execute("DELETE FROM predicted_rating")
         for user_id, rate in user_df[COLUMN_PREDICT].to_dict().items():
             query = """
             INSERT INTO predicted_rating (user_id, rating)
