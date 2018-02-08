@@ -129,15 +129,14 @@ def main(filepath: str):
     user_df[COLUMN_PREDICT] = y_test_predict
     print(user_df.loc[:, [COLUMN_PREDICT]])
 
-    # DEMO
-    rating_dict = dict(users)
-    for user in user_id_list:
-        if user in rating_dict:
-            user_df.at[user, COLUMN_RATING] = rating_dict[user]
-    user_df["Rating-Predict"] = user_df[COLUMN_RATING] - user_df[COLUMN_PREDICT]
-    user_df = user_df.loc[:, [COLUMN_RATING, COLUMN_PREDICT, "Rating-Predict"]]
-    print(user_df.dropna().sort_values(by=["Rating-Predict"]))
-    print(user_df[user_df[COLUMN_RATING].isnull()].sort_values(by=[COLUMN_PREDICT]))
+    with conn.cursor() as cursor:
+        for user_id, rate in user_df[COLUMN_PREDICT].to_dict().items():
+            query = """
+            INSERT INTO predicted_rating (user_id, rating)
+            VALUES (%s, %s)
+            """
+            cursor.execute(query, (user_id, rate))
+            conn.commit()
 
 
 if __name__ == '__main__':
