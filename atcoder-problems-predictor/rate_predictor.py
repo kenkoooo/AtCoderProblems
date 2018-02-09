@@ -190,8 +190,12 @@ def main(filepath: str):
     model = xgb.XGBRegressor()
     problem_set = set()
     train_model(model, problem_set, conn)
+    model.get_booster().save_model(MODEL_DUMP_NAME)
 
-    predicted_result = predict(model, problem_set, conn)
+    loaded_model = xgb.XGBRegressor()
+    loaded_model.get_booster().load_model(MODEL_DUMP_NAME)
+
+    predicted_result = predict(loaded_model, problem_set, conn)
     with conn.cursor() as cursor:
         cursor.execute("DELETE FROM predicted_rating")
         for result in predicted_result:
