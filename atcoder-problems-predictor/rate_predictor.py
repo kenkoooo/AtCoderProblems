@@ -59,8 +59,9 @@ def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str, int, f
         if result == "AC":
             ac_set.add((user_id, problem_id))
             current = user_max_point.get(user_id, 0.0)
-            user_max_point[user_id] = max(current, point)
-            problem_point[problem_id] = point
+            if point:
+                user_max_point[user_id] = max(current, point)
+                problem_point[problem_id] = point
         else:
             wa_set.add((user_id, problem_id))
         count_dict[user_id] = count
