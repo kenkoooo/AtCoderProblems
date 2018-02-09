@@ -1,5 +1,4 @@
 import json
-import pickle
 import sys
 import urllib.request
 from typing import List, Tuple, Dict, Set
@@ -189,28 +188,21 @@ def main(filepath: str, command: str):
     conn = psycopg2.connect(config["db"])
     print(command)
 
-    if command == "train":
-        model = xgb.XGBRegressor()
-        problem_set = set()
+    model = xgb.XGBRegressor()
+    problem_set = set()
+    train_model(model, problem_set, conn)
 
-        train_model(model, problem_set, conn)
-        joblib.dump(model, MODEL_DUMP_NAME)
-        json.dump(list(problem_set), open(PROBLEM_SET_JSON_NAME, "w"))
-    else:
-        loaded_model = joblib.load(MODEL_DUMP_NAME)
-        loaded_set = set(json.load(open(PROBLEM_SET_JSON_NAME, "r")))
-
-        predicted_result = predict(loaded_model, loaded_set, conn)
-        with conn.cursor() as cursor:
-            cursor.execute("DELETE FROM predicted_rating")
-            for result in predicted_result:
-                for user_id, rate in result.items():
-                    query = """
-                            INSERT INTO predicted_rating (user_id, rating)
-                            VALUES (%s, %s)
-                            """
-                    cursor.execute(query, (user_id, rate))
-                    conn.commit()
+    predicted_result = predict(model, problem_set, conn)
+    with conn.cursor() as cursor:
+        cursor.execute("DELETE FROM predicted_rating")
+        for result in predicted_result:
+            for user_id, rate in result.items():
+                query = """
+                        INSERT INTO predicted_rating (user_id, rating)
+                        VALUES (%s, %s)
+                        """
+                cursor.execute(query, (user_id, rate))
+                conn.commit()
 
 
 if __name__ == '__main__':
