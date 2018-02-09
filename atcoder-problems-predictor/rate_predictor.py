@@ -16,6 +16,7 @@ COLUMN_PREDICT = "Predict"
 PROBLEM_SET_JSON_NAME = "./problem_set.json"
 MODEL_DUMP_NAME = "./save_xgb_predicted_rating"
 TMP_DATABASE = "tmp_submissions"
+BLACK_LIST = {"KokiYmgch"}
 
 
 def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int]]:
@@ -90,6 +91,8 @@ def scrape_rating() -> List[Tuple[str, int]]:
 def train_model(model, problem_set: Set[str], conn):
     # scrape user rating data
     users = scrape_rating()
+
+    users = [(user_id, rating) for user_id, rating in users if user_id not in BLACK_LIST]
 
     # generate train data
     submissions = get_submissions([u[0] for u in users], conn, TMP_DATABASE)
