@@ -120,8 +120,8 @@ def train_model(model, problem_set: Set[str], conn):
         test_predict = test_df.loc[:, COLUMN_PREDICT]
         rms = np.sqrt(((rating - test_predict) ** 2).mean())
         print("RMS:", rms)
-        test["Rating-Predict"] = test[COLUMN_RATING] - test[COLUMN_PREDICT]
-        print(test.loc[:, ["Rating-Predict", COLUMN_RATING, COLUMN_PREDICT]].sort_values(by=["Rating-Predict"]))
+        test_df["Rating-Predict"] = test_df[COLUMN_RATING] - test_df[COLUMN_PREDICT]
+        print(test_df.loc[:, ["Rating-Predict", COLUMN_RATING, COLUMN_PREDICT]].sort_values(by=["Rating-Predict"]))
     model.fit(x, y)
 
 
