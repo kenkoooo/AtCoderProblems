@@ -151,7 +151,7 @@ def main(filepath: str, command: str):
     conn = psycopg2.connect(config["db"])
     print(command)
 
-    if command is "train":
+    if command == "train":
         model = xgb.XGBRegressor()
         problem_set = set()
 
