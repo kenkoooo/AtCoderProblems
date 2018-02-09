@@ -16,7 +16,6 @@ COLUMN_PREDICT = "Predict"
 PROBLEM_SET_JSON_NAME = "./problem_set.json"
 MODEL_DUMP_NAME = "./save_xgb_predicted_rating"
 TMP_DATABASE = "tmp_submissions"
-BLACK_LIST = {"KokiYmgch", "leign", "choikiwon", "ryoissy", "laofu"}
 
 
 def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int, float]]:
@@ -53,15 +52,16 @@ def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str, int, f
     ac_set = set()
     wa_set = set()
     count_dict = {}
-    user_max_point = {}
+    user_point_count: Dict[Tuple[str, float], int] = {}
     problem_point = {}
     for problem_id, user_id, result, count, point in submissions:
         if result == "AC":
             ac_set.add((user_id, problem_id))
-            current = user_max_point.get(user_id, 0.0)
             if point:
-                user_max_point[user_id] = max(current, point)
                 problem_point[problem_id] = point
+
+                num = user_point_count.get((user_id, point), 0)
+                user_point_count[(user_id, point)] = num + 1
         else:
             wa_set.add((user_id, problem_id))
         count_dict[user_id] = count
@@ -72,6 +72,12 @@ def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str, int, f
         df.at[user_id, problem_id] = -1
     for user_id, problem_id in ac_set:
         df.at[user_id, problem_id] = 1
+
+    user_max_point: Dict[str, float] = {}
+    for (user_id, point), count in user_point_count.items():
+        if count >= 3:
+            current = user_max_point.get(user_id, 0)
+            user_max_point[user_id] = max(current, point)
 
     for problem_id, point in problem_point.items():
         for user_id, max_point in user_max_point.items():
@@ -105,8 +111,6 @@ def scrape_rating() -> List[Tuple[str, int]]:
 def train_model(model, problem_set: Set[str], conn):
     # scrape user rating data
     users = scrape_rating()
-
-    users = [(user_id, rating) for user_id, rating in users if user_id not in BLACK_LIST]
 
     # generate train data
     submissions = get_submissions([u[0] for u in users], conn, TMP_DATABASE)
