@@ -122,7 +122,7 @@ def predict(model, problem_set: Set[str], conn) -> Dict[str, float]:
     WHERE result='AC'
     GROUP BY user_id
     ORDER BY id DESC
-    LIMIT 3000
+    LIMIT 10000
     """
     with conn.cursor() as cursor:
         cursor.execute(query)
