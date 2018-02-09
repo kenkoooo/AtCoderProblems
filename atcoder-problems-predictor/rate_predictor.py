@@ -114,7 +114,7 @@ def train_model(model, problem_set: Set[str], conn):
 
         # test
         y_test_predict = model.predict(x_test)
-        test_df = df.loc[test, :]
+        test_df = df.iloc[test, :]
         test_df[COLUMN_PREDICT] = y_test_predict
         rating = test_df.loc[:, COLUMN_RATING]
         test_predict = test_df.loc[:, COLUMN_PREDICT]
