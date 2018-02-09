@@ -8,7 +8,6 @@ import pandas as pd
 import psycopg2
 import xgboost as xgb
 from bs4 import BeautifulSoup
-from sklearn.externals import joblib
 from sklearn.model_selection import KFold
 
 COLUMN_RATING = "Rating"
@@ -20,7 +19,7 @@ ITER_WIDTH = 3000
 BLACK_LIST = {"KokiYmgch"}
 
 
-def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int, float]]:
+def get_submissions(users: List[str], conn, table_name: str, train: bool) -> List[Tuple[str, str, str, int, float]]:
     with conn.cursor() as cursor:
         cursor.execute("DROP TABLE IF EXISTS {}".format(table_name))
         conn.commit()
@@ -30,19 +29,40 @@ def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, 
         cursor.executemany("INSERT INTO {} (user_id) VALUES (%s)".format(table_name), [(x,) for x in users])
         conn.commit()
 
-    query = """
-        SELECT
-            s.problem_id,
-            s.user_id,
-            s.result,
-            a.problem_count,
-            p.point
-        FROM submissions AS s
-        LEFT JOIN {} AS t ON s.user_id=t.user_id
-        LEFT JOIN accepted_count AS a ON a.user_id=s.user_id
-        LEFT JOIN points AS p ON p.problem_id=s.problem_id
-        WHERE t.user_id IS NOT NULL
-        """.format(table_name)
+    if train:
+        query = """
+            SELECT
+                s.problem_id,
+                s.user_id,
+                s.result,
+                a.problem_count,
+                p.point
+            FROM submissions AS s
+            INNER JOIN {} AS t ON s.user_id=t.user_id
+            LEFT JOIN (
+                SELECT max(s.epoch_second) AS max_second, s.user_id AS user_id FROM submissions AS s 
+                LEFT JOIN problems AS p ON p.id=s.problem_id 
+                LEFT JOIN contests AS c ON c.id=p.contest_id 
+                WHERE c.rate_change != '×' AND s.epoch_second < c.start_epoch_second+c.duration_second
+                GROUP BY s.user_id
+            ) AS m ON m.user_id=s.user_id
+            LEFT JOIN accepted_count AS a ON a.user_id=s.user_id
+            LEFT JOIN points AS p ON p.problem_id=s.problem_id
+            WHERE m.max > s.epoch_second
+            """.format(table_name)
+    else:
+        query = """
+            SELECT
+                s.problem_id,
+                s.user_id,
+                s.result,
+                a.problem_count,
+                p.point
+            FROM submissions AS s
+            INNER JOIN {} AS t ON s.user_id=t.user_id
+            LEFT JOIN accepted_count AS a ON a.user_id=s.user_id
+            LEFT JOIN points AS p ON p.problem_id=s.problem_id
+            """.format(table_name)
 
     with conn.cursor() as cursor:
         cursor.execute(query)
@@ -116,7 +136,7 @@ def train_model(model, problem_set: Set[str], conn):
     users = scrape_rating()
 
     # generate train data
-    submissions = get_submissions([u[0] for u in users], conn, TMP_DATABASE)
+    submissions = get_submissions([u[0] for u in users], conn, TMP_DATABASE, True)
     user_set = set([s[1] for s in submissions])
     for s in submissions:
         problem_set.add(s[0])
@@ -166,7 +186,7 @@ def predict(model, problem_set: Set[str], conn) -> List[Dict[str, float]]:
         user_id_list, queue_user_id = queue_user_id[:ITER_WIDTH], queue_user_id[ITER_WIDTH:]
         print("User:", len(user_id_list))
 
-        user_submissions = get_submissions(user_id_list, conn, TMP_DATABASE)
+        user_submissions = get_submissions(user_id_list, conn, TMP_DATABASE, False)
         user_submissions = [s for s in user_submissions if s[0] in problem_set]
         print("Submission size:", len(user_submissions))
 
