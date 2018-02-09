@@ -16,6 +16,7 @@ COLUMN_PREDICT = "Predict"
 PROBLEM_SET_JSON_NAME = "./problem_set.json"
 MODEL_DUMP_NAME = "./save_xgb_predicted_rating"
 TMP_DATABASE = "tmp_submissions"
+ITER_WIDTH = 3000
 
 
 def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int, float]]:
@@ -160,7 +161,7 @@ def predict(model, problem_set: Set[str], conn) -> List[Dict[str, float]]:
 
     res = []
     while len(queue_user_id) > 0:
-        user_id_list, queue_user_id = queue_user_id[:1000], queue_user_id[1000:]
+        user_id_list, queue_user_id = queue_user_id[:ITER_WIDTH], queue_user_id[ITER_WIDTH:]
         print("User:", len(user_id_list))
 
         user_submissions = get_submissions(user_id_list, conn, TMP_DATABASE)
