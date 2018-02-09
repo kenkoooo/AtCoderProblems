@@ -16,7 +16,7 @@ COLUMN_PREDICT = "Predict"
 PROBLEM_SET_JSON_NAME = "./problem_set.json"
 MODEL_DUMP_NAME = "./save_xgb_predicted_rating"
 TMP_DATABASE = "tmp_submissions"
-BLACK_LIST = {"KokiYmgch"}
+BLACK_LIST = {"KokiYmgch", "leign", "choikiwon", "ryoissy", "laofu"}
 
 
 def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int]]:
