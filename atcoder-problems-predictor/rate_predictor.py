@@ -9,6 +9,7 @@ import pandas as pd
 import psycopg2
 import xgboost as xgb
 from bs4 import BeautifulSoup
+from sklearn.externals import joblib
 from sklearn.model_selection import KFold
 
 COLUMN_RATING = "Rating"
@@ -17,7 +18,7 @@ PROBLEM_SET_JSON_NAME = "./problem_set.json"
 MODEL_DUMP_NAME = "./save_xgb_predicted_rating"
 TMP_DATABASE = "tmp_submissions"
 ITER_WIDTH = 3000
-BLACK_LIST = {"KokiYmgch", "DEGwer"}
+BLACK_LIST = {"KokiYmgch"}
 
 
 def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int, float]]:
@@ -193,10 +194,10 @@ def main(filepath: str, command: str):
         problem_set = set()
 
         train_model(model, problem_set, conn)
-        pickle.dump(model, open(MODEL_DUMP_NAME, "wb"))
+        joblib.dump(model, MODEL_DUMP_NAME)
         json.dump(list(problem_set), open(PROBLEM_SET_JSON_NAME, "w"))
     else:
-        loaded_model = pickle.load(open(MODEL_DUMP_NAME, "rb"))
+        loaded_model = joblib.load(MODEL_DUMP_NAME)
         loaded_set = set(json.load(open(PROBLEM_SET_JSON_NAME, "r")))
 
         predicted_result = predict(loaded_model, loaded_set, conn)
