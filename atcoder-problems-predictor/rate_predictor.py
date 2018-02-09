@@ -1,15 +1,15 @@
-import urllib.request
 import json
+import pickle
+import sys
+import urllib.request
 from typing import List, Tuple, Dict, Set
 
+import numpy as np
 import pandas as pd
 import psycopg2
-import numpy as np
 import xgboost as xgb
-import sys
 from bs4 import BeautifulSoup
-from sklearn.model_selection import train_test_split
-import pickle
+from sklearn.model_selection import KFold
 
 COLUMN_RATING = "Rating"
 COLUMN_PREDICT = "Predict"
@@ -103,22 +103,26 @@ def train_model(model, problem_set: Set[str], conn):
     insert_to_df(df, submissions)
     df[COLUMN_RATING] = pd.Series(dict(users))
 
-    # train
-    train, test = train_test_split(df, test_size=0.2)
-    x_train = train.iloc[:, :-1].values
-    x_test = test.iloc[:, :-1].values
-    y_train = train.loc[:, COLUMN_RATING].values
-    model.fit(x_train, y_train)
+    k_fold = KFold(n_splits=3)
+    x = df.iloc[:, :-1].values
+    y = df.loc[:, COLUMN_RATING].values
+    for train, test in k_fold.split(x):
+        x_train = x[train]
+        x_test = x[test]
+        y_train = y[train]
+        model.fit(x_train, y_train)
 
-    # test
-    y_test_predict = model.predict(x_test)
-    test[COLUMN_PREDICT] = y_test_predict
-    rating = test.loc[:, COLUMN_RATING]
-    test_predict = test.loc[:, COLUMN_PREDICT]
-    rms = np.sqrt(((rating - test_predict) ** 2).mean())
-    print("RMS:", rms)
-    test["Rating-Predict"] = test[COLUMN_RATING] - test[COLUMN_PREDICT]
-    print(test.loc[:, ["Rating-Predict", COLUMN_RATING, COLUMN_PREDICT]].sort_values(by=["Rating-Predict"]))
+        # test
+        y_test_predict = model.predict(x_test)
+        test_df = df.loc[test, :]
+        test_df[COLUMN_PREDICT] = y_test_predict
+        rating = test_df.loc[:, COLUMN_RATING]
+        test_predict = test_df.loc[:, COLUMN_PREDICT]
+        rms = np.sqrt(((rating - test_predict) ** 2).mean())
+        print("RMS:", rms)
+        test["Rating-Predict"] = test[COLUMN_RATING] - test[COLUMN_PREDICT]
+        print(test.loc[:, ["Rating-Predict", COLUMN_RATING, COLUMN_PREDICT]].sort_values(by=["Rating-Predict"]))
+    model.fit(x, y)
 
 
 def predict(model, problem_set: Set[str], conn) -> List[Dict[str, float]]:
