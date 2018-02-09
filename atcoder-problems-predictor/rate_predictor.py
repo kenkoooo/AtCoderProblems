@@ -17,6 +17,7 @@ PROBLEM_SET_JSON_NAME = "./problem_set.json"
 MODEL_DUMP_NAME = "./save_xgb_predicted_rating"
 TMP_DATABASE = "tmp_submissions"
 ITER_WIDTH = 3000
+BLACK_LIST = {"KokiYmgch"}
 
 
 def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int, float]]:
@@ -102,7 +103,8 @@ def scrape_rating() -> List[Tuple[str, int]]:
             current = int(tds[3].text)
             match_count = int(tds[5].text)
 
-            users.append((user_id, current))
+            if user_id not in BLACK_LIST:
+                users.append((user_id, current))
             min_count = min(min_count, match_count)
         if min_count < 15:
             break
