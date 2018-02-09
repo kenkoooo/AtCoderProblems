@@ -1,6 +1,6 @@
 import urllib.request
 import json
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Set
 
 import pandas as pd
 import psycopg2
@@ -9,6 +9,7 @@ import xgboost as xgb
 import sys
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
+import pickle
 
 COLUMN_RATING = "Rating"
 COLUMN_PREDICT = "Predict"
@@ -81,6 +82,67 @@ def scrape_rating() -> List[Tuple[str, int]]:
     return users
 
 
+def train_model(model, problem_set: Set[str], conn):
+    # scrape user rating data
+    users = scrape_rating()
+
+    # generate train data
+    submissions = get_submissions([u[0] for u in users], conn, "tmp_submissions")
+    user_set = set([s[1] for s in submissions])
+    for s in submissions:
+        problem_set.add(s[0])
+    df = pd.DataFrame(columns=problem_set, index=user_set)
+    insert_to_df(df, submissions)
+    df[COLUMN_RATING] = pd.Series(dict(users))
+
+    # train
+    train, test = train_test_split(df, test_size=0.2)
+    x_train = train.iloc[:, :-1].values
+    x_test = test.iloc[:, :-1].values
+    y_train = train.loc[:, COLUMN_RATING].values
+    model.fit(x_train, y_train)
+
+    # test
+    y_test_predict = model.predict(x_test)
+    test[COLUMN_PREDICT] = y_test_predict
+    rating = test.loc[:, COLUMN_RATING]
+    test_predict = test.loc[:, COLUMN_PREDICT]
+    rms = np.sqrt(((rating - test_predict) ** 2).mean())
+    print("RMS:", rms)
+
+
+def predict(model, problem_set: Set[str], conn) -> Dict[str, float]:
+    # generate prediction data
+    query = """
+    SELECT
+    max(id) as id, user_id
+    FROM submissions
+    WHERE result='AC'
+    GROUP BY user_id
+    ORDER BY id DESC
+    LIMIT 3000
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(query)
+        user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
+
+    print("User:", len(user_id_list))
+
+    user_submissions = get_submissions(user_id_list, conn, "tmp_user_submissions")
+    user_submissions = [s for s in user_submissions if s[0] in problem_set]
+    print("Submission size:", len(user_submissions))
+
+    user_df = pd.DataFrame(columns=problem_set, index=user_id_list)
+    insert_to_df(user_df, user_submissions)
+
+    # predict
+    x_test = user_df.values
+    y_test_predict = model.predict(x_test)
+    user_df[COLUMN_PREDICT] = y_test_predict
+    print(user_df.loc[:, [COLUMN_PREDICT]])
+    return user_df[COLUMN_PREDICT].to_dict()
+
+
 def main(filepath: str):
     with open(filepath) as f:
         config = json.load(f)
@@ -89,79 +151,21 @@ def main(filepath: str):
     model = xgb.XGBRegressor()
     problem_set = set()
 
-    def train_model():
-        # scrape user rating data
-        users = scrape_rating()
+    train_model(model, problem_set, conn)
+    pickle.dump(model, open("./save_xgb_predicted_rating", "wb"))
 
-        # generate train data
-        submissions = get_submissions([u[0] for u in users], conn, "tmp_submissions")
-        user_set = set([s[1] for s in submissions])
-        for s in submissions:
-            problem_set.add(s[0])
-        df = pd.DataFrame(columns=problem_set, index=user_set)
-        insert_to_df(df, submissions)
-        df[COLUMN_RATING] = pd.Series(dict(users))
+    loaded_model = pickle.load(open("./save_xgb_predicted_rating", "rb"))
 
-        # train
-        train, test = train_test_split(df, test_size=0.2)
-        x_train = train.iloc[:, :-1].values
-        x_test = test.iloc[:, :-1].values
-        y_train = train.loc[:, COLUMN_RATING].values
-        model.fit(x_train, y_train)
-
-        # test
-        y_test_predict = model.predict(x_test)
-        test[COLUMN_PREDICT] = y_test_predict
-        rating = test.loc[:, COLUMN_RATING]
-        test_predict = test.loc[:, COLUMN_PREDICT]
-        rms = np.sqrt(((rating - test_predict) ** 2).mean())
-        print("RMS:", rms)
-
-    def predict() -> Dict[str, float]:
-        # generate prediction data
+    predicted_result = predict(loaded_model, problem_set, conn)
+    with conn.cursor() as cursor:
+        cursor.execute("DELETE FROM predicted_rating")
+    for user_id, rate in predicted_result.items():
         query = """
-        SELECT
-        max(id) as id, user_id
-        FROM submissions
-        WHERE result='AC'
-        GROUP BY user_id
-        ORDER BY id DESC
-        LIMIT 3000
-        """
-        with conn.cursor() as cursor:
-            cursor.execute(query)
-            user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
-
-        print("User:", len(user_id_list))
-
-        user_submissions = get_submissions(user_id_list, conn, "tmp_user_submissions")
-        user_submissions = [s for s in user_submissions if s[0] in problem_set]
-        print("Submission size:", len(user_submissions))
-
-        user_df = pd.DataFrame(columns=problem_set, index=user_id_list)
-        insert_to_df(user_df, user_submissions)
-
-        # predict
-        x_test = user_df.values
-        y_test_predict = model.predict(x_test)
-        user_df[COLUMN_PREDICT] = y_test_predict
-        print(user_df.loc[:, [COLUMN_PREDICT]])
-        return user_df[COLUMN_PREDICT].to_dict()
-
-    def insert_to_db(result: Dict[str, float]):
-        with conn.cursor() as cursor:
-            cursor.execute("DELETE FROM predicted_rating")
-            for user_id, rate in result.items():
-                query = """
                 INSERT INTO predicted_rating (user_id, rating)
                 VALUES (%s, %s)
                 """
-                cursor.execute(query, (user_id, rate))
-                conn.commit()
-
-    train_model()
-    predicted_result = predict()
-    insert_to_db(predicted_result)
+        cursor.execute(query, (user_id, rate))
+        conn.commit()
 
 
 if __name__ == '__main__':
