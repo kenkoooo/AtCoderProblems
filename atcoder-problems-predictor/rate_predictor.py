@@ -15,10 +15,13 @@ COLUMN_RATING = "Rating"
 COLUMN_PREDICT = "Predict"
 PROBLEM_SET_JSON_NAME = "./problem_set.json"
 MODEL_DUMP_NAME = "./save_xgb_predicted_rating"
+TMP_DATABASE = "tmp_submissions"
 
 
 def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int]]:
     with conn.cursor() as cursor:
+        cursor.execute("DROP TABLE IF EXISTS {}".format(table_name))
+        conn.commit()
         cursor.execute(
             "CREATE TEMPORARY TABLE {} (user_id VARCHAR(255) NOT NULL, PRIMARY KEY (user_id))".format(table_name))
         conn.commit()
@@ -89,7 +92,7 @@ def train_model(model, problem_set: Set[str], conn):
     users = scrape_rating()
 
     # generate train data
-    submissions = get_submissions([u[0] for u in users], conn, "tmp_submissions")
+    submissions = get_submissions([u[0] for u in users], conn, TMP_DATABASE)
     user_set = set([s[1] for s in submissions])
     for s in submissions:
         problem_set.add(s[0])
@@ -113,7 +116,7 @@ def train_model(model, problem_set: Set[str], conn):
     print("RMS:", rms)
 
 
-def predict(model, problem_set: Set[str], conn) -> Dict[str, float]:
+def predict(model, problem_set: Set[str], conn) -> List[Dict[str, float]]:
     # generate prediction data
     query = """
     SELECT
@@ -126,23 +129,27 @@ def predict(model, problem_set: Set[str], conn) -> Dict[str, float]:
     """
     with conn.cursor() as cursor:
         cursor.execute(query)
-        user_id_list: List[str] = [r[1] for r in cursor.fetchall()]
+        queue_user_id: List[str] = [r[1] for r in cursor.fetchall()]
 
-    print("User:", len(user_id_list))
+    res = []
+    while len(queue_user_id) > 0:
+        user_id_list, queue_user_id = queue_user_id[:1000], queue_user_id[1000:]
+        print("User:", len(user_id_list))
 
-    user_submissions = get_submissions(user_id_list, conn, "tmp_user_submissions")
-    user_submissions = [s for s in user_submissions if s[0] in problem_set]
-    print("Submission size:", len(user_submissions))
+        user_submissions = get_submissions(user_id_list, conn, TMP_DATABASE)
+        user_submissions = [s for s in user_submissions if s[0] in problem_set]
+        print("Submission size:", len(user_submissions))
 
-    user_df = pd.DataFrame(columns=problem_set, index=user_id_list)
-    insert_to_df(user_df, user_submissions)
+        user_df = pd.DataFrame(columns=problem_set, index=user_id_list)
+        insert_to_df(user_df, user_submissions)
 
-    # predict
-    x_test = user_df.values
-    y_test_predict = model.predict(x_test)
-    user_df[COLUMN_PREDICT] = y_test_predict
-    print(user_df.loc[:, [COLUMN_PREDICT]])
-    return user_df[COLUMN_PREDICT].to_dict()
+        # predict
+        x_test = user_df.values
+        y_test_predict = model.predict(x_test)
+        user_df[COLUMN_PREDICT] = y_test_predict
+        print(user_df.loc[:, [COLUMN_PREDICT]])
+        res.append(user_df[COLUMN_PREDICT].to_dict())
+    return res
 
 
 def main(filepath: str, command: str):
@@ -165,13 +172,14 @@ def main(filepath: str, command: str):
         predicted_result = predict(loaded_model, loaded_set, conn)
         with conn.cursor() as cursor:
             cursor.execute("DELETE FROM predicted_rating")
-            for user_id, rate in predicted_result.items():
-                query = """
-                        INSERT INTO predicted_rating (user_id, rating)
-                        VALUES (%s, %s)
-                        """
-                cursor.execute(query, (user_id, rate))
-                conn.commit()
+            for result in predicted_result:
+                for user_id, rate in result.items():
+                    query = """
+                            INSERT INTO predicted_rating (user_id, rating)
+                            VALUES (%s, %s)
+                            """
+                    cursor.execute(query, (user_id, rate))
+                    conn.commit()
 
 
 if __name__ == '__main__':
