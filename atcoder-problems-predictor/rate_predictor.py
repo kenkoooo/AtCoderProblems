@@ -143,7 +143,7 @@ def predict(model, problem_set: Set[str], conn) -> Dict[str, float]:
     return user_df[COLUMN_PREDICT].to_dict()
 
 
-def main(filepath: str):
+def main(filepath: str, command: str):
     with open(filepath) as f:
         config = json.load(f)
     conn = psycopg2.connect(config["db"])
@@ -153,20 +153,22 @@ def main(filepath: str):
 
     train_model(model, problem_set, conn)
     pickle.dump(model, open("./save_xgb_predicted_rating", "wb"))
+    json.dump(list(problem_set), open("./problem_set.json", "w"))
 
     loaded_model = pickle.load(open("./save_xgb_predicted_rating", "rb"))
+    loaded_set = set(json.load(open("./problem_set.json", "r")))
 
-    predicted_result = predict(loaded_model, problem_set, conn)
+    predicted_result = predict(loaded_model, loaded_set, conn)
     with conn.cursor() as cursor:
         cursor.execute("DELETE FROM predicted_rating")
-    for user_id, rate in predicted_result.items():
-        query = """
-                INSERT INTO predicted_rating (user_id, rating)
-                VALUES (%s, %s)
-                """
-        cursor.execute(query, (user_id, rate))
-        conn.commit()
+        for user_id, rate in predicted_result.items():
+            query = """
+                    INSERT INTO predicted_rating (user_id, rating)
+                    VALUES (%s, %s)
+                    """
+            cursor.execute(query, (user_id, rate))
+            conn.commit()
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2])
