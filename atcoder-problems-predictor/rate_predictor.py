@@ -149,6 +149,7 @@ def main(filepath: str, command: str):
     with open(filepath) as f:
         config = json.load(f)
     conn = psycopg2.connect(config["db"])
+    print(command)
 
     if command is "train":
         model = xgb.XGBRegressor()
