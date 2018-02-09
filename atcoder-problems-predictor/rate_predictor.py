@@ -17,7 +17,7 @@ PROBLEM_SET_JSON_NAME = "./problem_set.json"
 MODEL_DUMP_NAME = "./save_xgb_predicted_rating"
 TMP_DATABASE = "tmp_submissions"
 ITER_WIDTH = 3000
-BLACK_LIST = {"KokiYmgch"}
+BLACK_LIST = {"KokiYmgch", "DEGwer"}
 
 
 def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int, float]]:
