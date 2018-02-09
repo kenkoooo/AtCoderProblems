@@ -45,7 +45,7 @@ def get_submissions(users: List[str], conn, table_name: str, train: bool) -> Lis
                 LEFT JOIN contests AS c ON c.id=p.contest_id 
                 WHERE c.rate_change != '×' AND s.epoch_second < c.start_epoch_second+c.duration_second
                 GROUP BY s.user_id
-            ) AS m ON m.user_id=s.user_id
+            ) m ON m.user_id=s.user_id
             LEFT JOIN accepted_count AS a ON a.user_id=s.user_id
             LEFT JOIN points AS p ON p.problem_id=s.problem_id
             WHERE m.max > s.epoch_second
