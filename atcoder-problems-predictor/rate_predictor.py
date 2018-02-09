@@ -182,11 +182,10 @@ def predict(model, problem_set: Set[str], conn) -> List[Dict[str, float]]:
     return res
 
 
-def main(filepath: str, command: str):
+def main(filepath: str):
     with open(filepath) as f:
         config = json.load(f)
     conn = psycopg2.connect(config["db"])
-    print(command)
 
     model = xgb.XGBRegressor()
     problem_set = set()
@@ -206,4 +205,4 @@ def main(filepath: str, command: str):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1])
