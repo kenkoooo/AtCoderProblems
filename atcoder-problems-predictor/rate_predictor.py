@@ -19,7 +19,7 @@ TMP_DATABASE = "tmp_submissions"
 BLACK_LIST = {"KokiYmgch", "leign", "choikiwon", "ryoissy", "laofu"}
 
 
-def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int]]:
+def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, str, str, int, float]]:
     with conn.cursor() as cursor:
         cursor.execute("DROP TABLE IF EXISTS {}".format(table_name))
         conn.commit()
@@ -34,10 +34,12 @@ def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, 
             s.problem_id,
             s.user_id,
             s.result,
-            a.problem_count
+            a.problem_count,
+            p.point
         FROM submissions AS s
         LEFT JOIN {} AS t ON s.user_id=t.user_id
         LEFT JOIN accepted_count AS a ON a.user_id=s.user_id
+        LEFT JOIN points AS p ON p.problem_id=s.problem_id
         WHERE t.user_id IS NOT NULL
         """.format(table_name)
 
@@ -47,13 +49,18 @@ def get_submissions(users: List[str], conn, table_name: str) -> List[Tuple[str, 
     return submissions
 
 
-def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str, int]]):
+def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str, int, float]]):
     ac_set = set()
     wa_set = set()
     count_dict = {}
-    for problem_id, user_id, result, count in submissions:
+    user_max_point = {}
+    problem_point = {}
+    for problem_id, user_id, result, count, point in submissions:
         if result == "AC":
             ac_set.add((user_id, problem_id))
+            current = user_max_point.get(user_id, 0.0)
+            user_max_point[user_id] = max(current, point)
+            problem_point[problem_id] = point
         else:
             wa_set.add((user_id, problem_id))
         count_dict[user_id] = count
@@ -64,6 +71,12 @@ def insert_to_df(df: pd.DataFrame, submissions: List[Tuple[str, str, str, int]])
         df.at[user_id, problem_id] = -1
     for user_id, problem_id in ac_set:
         df.at[user_id, problem_id] = 1
+
+    for problem_id, point in problem_point.items():
+        for user_id, max_point in user_max_point.items():
+            if point < max_point:
+                df.at[user_id, problem_id] = 1
+
     df.fillna(0, inplace=True)
 
 
