@@ -178,7 +178,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
         insertInto(LanguageCount)
           .columns(columns.userId, columns.simplifiedLanguage, columns.problemCount)
           .select(userId, language, count(distinct(problemId)))(_.from {
-            select(sqls"regexp_replace(language, '\d* \(.*\)', '') AS $language", userId, problemId)
+            select(sqls"regexp_replace(language, '((?<!Perl)\d*|) \(.*\)', '') AS $language", userId, problemId)
               .from(Submission as submissions)
               .where
               .eq(submissions.c("result"), SubmissionStatus.Accepted)
