@@ -14,9 +14,16 @@ sbt assembly
 ```
 
 ## Test
+To run all the tests, you need to prepare PostgreSQL with a test database.
 
 ```bash
 sbt test
+```
+
+## Run 
+After running the build command, you will have `target/scala-*/atcoder-problems-assembly-*.jar`. It is a `.jar` package, which is executable of Java. You can run the API server by the following command with a configuration files `env.json`.
+```bash
+java -cp target/scala-*/atcoder-problems-*.jar
 ```
 
 # Frontend Web Application
