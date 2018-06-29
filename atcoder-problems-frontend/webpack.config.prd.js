@@ -6,13 +6,9 @@ module.exports = {
     path: __dirname + "/dist"
   },
 
-  plugins: [
-    // minify js files
-    new webpack.optimize.UglifyJsPlugin({
-      // use source map even when minifying
-      sourceMap: false
-    })
-  ],
+  optimization: {
+    minimize: false
+  },
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: [".ts", ".tsx", ".js", ".json"]
