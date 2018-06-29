@@ -80,21 +80,19 @@ exports[`render navigation bar 1`] = `
             </NavbarHeader>
             <NavbarCollapse>
               <Collapse
+                appear={false}
                 dimension="height"
                 getDimensionValue={[Function]}
                 in={false}
                 mountOnEnter={false}
                 timeout={300}
-                transitionAppear={false}
                 unmountOnExit={false}
               >
                 <Transition
+                  appear={false}
                   aria-expanded={null}
-                  className=""
-                  enteredClassName="collapse in"
-                  enteringClassName="collapsing"
-                  exitedClassName="collapse"
-                  exitingClassName="collapsing"
+                  enter={true}
+                  exit={true}
                   in={false}
                   mountOnEnter={false}
                   onEnter={[Function]}
@@ -104,7 +102,6 @@ exports[`render navigation bar 1`] = `
                   onExited={[Function]}
                   onExiting={[Function]}
                   timeout={300}
-                  transitionAppear={false}
                   unmountOnExit={false}
                 >
                   <div
