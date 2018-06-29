@@ -82,21 +82,19 @@ exports[`category view 1`] = `
                 </NavbarHeader>
                 <NavbarCollapse>
                   <Collapse
+                    appear={false}
                     dimension="height"
                     getDimensionValue={[Function]}
                     in={false}
                     mountOnEnter={false}
                     timeout={300}
-                    transitionAppear={false}
                     unmountOnExit={false}
                   >
                     <Transition
+                      appear={false}
                       aria-expanded={null}
-                      className=""
-                      enteredClassName="collapse in"
-                      enteringClassName="collapsing"
-                      exitedClassName="collapse"
-                      exitingClassName="collapsing"
+                      enter={true}
+                      exit={true}
                       in={false}
                       mountOnEnter={false}
                       onEnter={[Function]}
@@ -106,7 +104,6 @@ exports[`category view 1`] = `
                       onExited={[Function]}
                       onExiting={[Function]}
                       timeout={300}
-                      transitionAppear={false}
                       unmountOnExit={false}
                     >
                       <div
@@ -3888,21 +3885,19 @@ exports[`language owners view 1`] = `
                 </NavbarHeader>
                 <NavbarCollapse>
                   <Collapse
+                    appear={false}
                     dimension="height"
                     getDimensionValue={[Function]}
                     in={false}
                     mountOnEnter={false}
                     timeout={300}
-                    transitionAppear={false}
                     unmountOnExit={false}
                   >
                     <Transition
+                      appear={false}
                       aria-expanded={null}
-                      className=""
-                      enteredClassName="collapse in"
-                      enteringClassName="collapsing"
-                      exitedClassName="collapse"
-                      exitingClassName="collapsing"
+                      enter={true}
+                      exit={true}
                       in={false}
                       mountOnEnter={false}
                       onEnter={[Function]}
@@ -3912,7 +3907,6 @@ exports[`language owners view 1`] = `
                       onExited={[Function]}
                       onExiting={[Function]}
                       timeout={300}
-                      transitionAppear={false}
                       unmountOnExit={false}
                     >
                       <div
@@ -4594,21 +4588,19 @@ exports[`list view 1`] = `
                 </NavbarHeader>
                 <NavbarCollapse>
                   <Collapse
+                    appear={false}
                     dimension="height"
                     getDimensionValue={[Function]}
                     in={false}
                     mountOnEnter={false}
                     timeout={300}
-                    transitionAppear={false}
                     unmountOnExit={false}
                   >
                     <Transition
+                      appear={false}
                       aria-expanded={null}
-                      className=""
-                      enteredClassName="collapse in"
-                      enteringClassName="collapsing"
-                      exitedClassName="collapse"
-                      exitingClassName="collapsing"
+                      enter={true}
+                      exit={true}
                       in={false}
                       mountOnEnter={false}
                       onEnter={[Function]}
@@ -4618,7 +4610,6 @@ exports[`list view 1`] = `
                       onExited={[Function]}
                       onExiting={[Function]}
                       timeout={300}
-                      transitionAppear={false}
                       unmountOnExit={false}
                     >
                       <div
@@ -7850,21 +7841,19 @@ exports[`list view 2`] = `
                 </NavbarHeader>
                 <NavbarCollapse>
                   <Collapse
+                    appear={false}
                     dimension="height"
                     getDimensionValue={[Function]}
                     in={false}
                     mountOnEnter={false}
                     timeout={300}
-                    transitionAppear={false}
                     unmountOnExit={false}
                   >
                     <Transition
+                      appear={false}
                       aria-expanded={null}
-                      className=""
-                      enteredClassName="collapse in"
-                      enteringClassName="collapsing"
-                      exitedClassName="collapse"
-                      exitingClassName="collapsing"
+                      enter={true}
+                      exit={true}
                       in={false}
                       mountOnEnter={false}
                       onEnter={[Function]}
@@ -7874,7 +7863,6 @@ exports[`list view 2`] = `
                       onExited={[Function]}
                       onExiting={[Function]}
                       timeout={300}
-                      transitionAppear={false}
                       unmountOnExit={false}
                     >
                       <div
@@ -11103,21 +11091,19 @@ exports[`ranking view 1`] = `
                 </NavbarHeader>
                 <NavbarCollapse>
                   <Collapse
+                    appear={false}
                     dimension="height"
                     getDimensionValue={[Function]}
                     in={false}
                     mountOnEnter={false}
                     timeout={300}
-                    transitionAppear={false}
                     unmountOnExit={false}
                   >
                     <Transition
+                      appear={false}
                       aria-expanded={null}
-                      className=""
-                      enteredClassName="collapse in"
-                      enteringClassName="collapsing"
-                      exitedClassName="collapse"
-                      exitingClassName="collapsing"
+                      enter={true}
+                      exit={true}
                       in={false}
                       mountOnEnter={false}
                       onEnter={[Function]}
@@ -11127,7 +11113,6 @@ exports[`ranking view 1`] = `
                       onExited={[Function]}
                       onExiting={[Function]}
                       timeout={300}
-                      transitionAppear={false}
                       unmountOnExit={false}
                     >
                       <div
@@ -12839,21 +12824,19 @@ exports[`user page view 1`] = `
                 </NavbarHeader>
                 <NavbarCollapse>
                   <Collapse
+                    appear={false}
                     dimension="height"
                     getDimensionValue={[Function]}
                     in={false}
                     mountOnEnter={false}
                     timeout={300}
-                    transitionAppear={false}
                     unmountOnExit={false}
                   >
                     <Transition
+                      appear={false}
                       aria-expanded={null}
-                      className=""
-                      enteredClassName="collapse in"
-                      enteringClassName="collapsing"
-                      exitedClassName="collapse"
-                      exitingClassName="collapsing"
+                      enter={true}
+                      exit={true}
                       in={false}
                       mountOnEnter={false}
                       onEnter={[Function]}
@@ -12863,7 +12846,6 @@ exports[`user page view 1`] = `
                       onExited={[Function]}
                       onExiting={[Function]}
                       timeout={300}
-                      transitionAppear={false}
                       unmountOnExit={false}
                     >
                       <div
