@@ -17,7 +17,7 @@ class ScheduledExecutorServiceExtensionTest extends FunSuite with Matchers {
     }
 
     Thread.sleep(3000)
-    service.isShutdown shouldBe true
-    x shouldBe 2
+    service.isShutdown shouldBe false
+    service.shutdown()
   }
 }
