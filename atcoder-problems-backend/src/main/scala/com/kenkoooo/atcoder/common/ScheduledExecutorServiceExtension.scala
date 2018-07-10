@@ -31,7 +31,6 @@ object ScheduledExecutorServiceExtension extends Logging {
           }.recover {
             case e: Throwable =>
               logger.catching(e)
-              self.shutdownNow()
         },
         initialDelay,
         period,
