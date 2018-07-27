@@ -46,7 +46,7 @@ export class NavigationBar extends React.Component<NavigationBarProps, {}> {
               <MenuItem href="https://atcoder.jp/">
                 AtCoder Official Site
               </MenuItem>
-              <MenuItem href="http://ichyo.jp/aoj-icpc/">AOJ-ICPC</MenuItem>
+              <MenuItem href="http://aoj-icpc.ichyo.jp/">AOJ-ICPC</MenuItem>
               <MenuItem href="https://github.com/kenkoooo/AtCoderProblems">
                 Source Code (GitHub)
               </MenuItem>
