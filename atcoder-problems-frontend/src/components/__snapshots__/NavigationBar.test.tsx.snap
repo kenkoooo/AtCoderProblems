@@ -561,7 +561,7 @@ exports[`render navigation bar 1`] = `
                                         disabled={false}
                                         divider={false}
                                         header={false}
-                                        href="http://ichyo.jp/aoj-icpc/"
+                                        href="http://aoj-icpc.ichyo.jp/"
                                         key=".$.1"
                                         onKeyDown={[Function]}
                                         onSelect={[Function]}
@@ -572,14 +572,14 @@ exports[`render navigation bar 1`] = `
                                         >
                                           <SafeAnchor
                                             componentClass="a"
-                                            href="http://ichyo.jp/aoj-icpc/"
+                                            href="http://aoj-icpc.ichyo.jp/"
                                             onClick={[Function]}
                                             onKeyDown={[Function]}
                                             role="menuitem"
                                             tabIndex="-1"
                                           >
                                             <a
-                                              href="http://ichyo.jp/aoj-icpc/"
+                                              href="http://aoj-icpc.ichyo.jp/"
                                               onClick={[Function]}
                                               onKeyDown={[Function]}
                                               role="menuitem"

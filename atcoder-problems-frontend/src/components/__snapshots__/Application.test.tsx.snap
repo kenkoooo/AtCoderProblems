@@ -563,7 +563,7 @@ exports[`category view 1`] = `
                                             disabled={false}
                                             divider={false}
                                             header={false}
-                                            href="http://ichyo.jp/aoj-icpc/"
+                                            href="http://aoj-icpc.ichyo.jp/"
                                             key=".$.1"
                                             onKeyDown={[Function]}
                                             onSelect={[Function]}
@@ -574,14 +574,14 @@ exports[`category view 1`] = `
                                             >
                                               <SafeAnchor
                                                 componentClass="a"
-                                                href="http://ichyo.jp/aoj-icpc/"
+                                                href="http://aoj-icpc.ichyo.jp/"
                                                 onClick={[Function]}
                                                 onKeyDown={[Function]}
                                                 role="menuitem"
                                                 tabIndex="-1"
                                               >
                                                 <a
-                                                  href="http://ichyo.jp/aoj-icpc/"
+                                                  href="http://aoj-icpc.ichyo.jp/"
                                                   onClick={[Function]}
                                                   onKeyDown={[Function]}
                                                   role="menuitem"
@@ -4366,7 +4366,7 @@ exports[`language owners view 1`] = `
                                             disabled={false}
                                             divider={false}
                                             header={false}
-                                            href="http://ichyo.jp/aoj-icpc/"
+                                            href="http://aoj-icpc.ichyo.jp/"
                                             key=".$.1"
                                             onKeyDown={[Function]}
                                             onSelect={[Function]}
@@ -4377,14 +4377,14 @@ exports[`language owners view 1`] = `
                                             >
                                               <SafeAnchor
                                                 componentClass="a"
-                                                href="http://ichyo.jp/aoj-icpc/"
+                                                href="http://aoj-icpc.ichyo.jp/"
                                                 onClick={[Function]}
                                                 onKeyDown={[Function]}
                                                 role="menuitem"
                                                 tabIndex="-1"
                                               >
                                                 <a
-                                                  href="http://ichyo.jp/aoj-icpc/"
+                                                  href="http://aoj-icpc.ichyo.jp/"
                                                   onClick={[Function]}
                                                   onKeyDown={[Function]}
                                                   role="menuitem"
@@ -5069,7 +5069,7 @@ exports[`list view 1`] = `
                                             disabled={false}
                                             divider={false}
                                             header={false}
-                                            href="http://ichyo.jp/aoj-icpc/"
+                                            href="http://aoj-icpc.ichyo.jp/"
                                             key=".$.1"
                                             onKeyDown={[Function]}
                                             onSelect={[Function]}
@@ -5080,14 +5080,14 @@ exports[`list view 1`] = `
                                             >
                                               <SafeAnchor
                                                 componentClass="a"
-                                                href="http://ichyo.jp/aoj-icpc/"
+                                                href="http://aoj-icpc.ichyo.jp/"
                                                 onClick={[Function]}
                                                 onKeyDown={[Function]}
                                                 role="menuitem"
                                                 tabIndex="-1"
                                               >
                                                 <a
-                                                  href="http://ichyo.jp/aoj-icpc/"
+                                                  href="http://aoj-icpc.ichyo.jp/"
                                                   onClick={[Function]}
                                                   onKeyDown={[Function]}
                                                   role="menuitem"
@@ -8322,7 +8322,7 @@ exports[`list view 2`] = `
                                             disabled={false}
                                             divider={false}
                                             header={false}
-                                            href="http://ichyo.jp/aoj-icpc/"
+                                            href="http://aoj-icpc.ichyo.jp/"
                                             key=".$.1"
                                             onKeyDown={[Function]}
                                             onSelect={[Function]}
@@ -8333,14 +8333,14 @@ exports[`list view 2`] = `
                                             >
                                               <SafeAnchor
                                                 componentClass="a"
-                                                href="http://ichyo.jp/aoj-icpc/"
+                                                href="http://aoj-icpc.ichyo.jp/"
                                                 onClick={[Function]}
                                                 onKeyDown={[Function]}
                                                 role="menuitem"
                                                 tabIndex="-1"
                                               >
                                                 <a
-                                                  href="http://ichyo.jp/aoj-icpc/"
+                                                  href="http://aoj-icpc.ichyo.jp/"
                                                   onClick={[Function]}
                                                   onKeyDown={[Function]}
                                                   role="menuitem"
@@ -11572,7 +11572,7 @@ exports[`ranking view 1`] = `
                                             disabled={false}
                                             divider={false}
                                             header={false}
-                                            href="http://ichyo.jp/aoj-icpc/"
+                                            href="http://aoj-icpc.ichyo.jp/"
                                             key=".$.1"
                                             onKeyDown={[Function]}
                                             onSelect={[Function]}
@@ -11583,14 +11583,14 @@ exports[`ranking view 1`] = `
                                             >
                                               <SafeAnchor
                                                 componentClass="a"
-                                                href="http://ichyo.jp/aoj-icpc/"
+                                                href="http://aoj-icpc.ichyo.jp/"
                                                 onClick={[Function]}
                                                 onKeyDown={[Function]}
                                                 role="menuitem"
                                                 tabIndex="-1"
                                               >
                                                 <a
-                                                  href="http://ichyo.jp/aoj-icpc/"
+                                                  href="http://aoj-icpc.ichyo.jp/"
                                                   onClick={[Function]}
                                                   onKeyDown={[Function]}
                                                   role="menuitem"
@@ -13305,7 +13305,7 @@ exports[`user page view 1`] = `
                                             disabled={false}
                                             divider={false}
                                             header={false}
-                                            href="http://ichyo.jp/aoj-icpc/"
+                                            href="http://aoj-icpc.ichyo.jp/"
                                             key=".$.1"
                                             onKeyDown={[Function]}
                                             onSelect={[Function]}
@@ -13316,14 +13316,14 @@ exports[`user page view 1`] = `
                                             >
                                               <SafeAnchor
                                                 componentClass="a"
-                                                href="http://ichyo.jp/aoj-icpc/"
+                                                href="http://aoj-icpc.ichyo.jp/"
                                                 onClick={[Function]}
                                                 onKeyDown={[Function]}
                                                 role="menuitem"
                                                 tabIndex="-1"
                                               >
                                                 <a
-                                                  href="http://ichyo.jp/aoj-icpc/"
+                                                  href="http://aoj-icpc.ichyo.jp/"
                                                   onClick={[Function]}
                                                   onKeyDown={[Function]}
                                                   role="menuitem"
