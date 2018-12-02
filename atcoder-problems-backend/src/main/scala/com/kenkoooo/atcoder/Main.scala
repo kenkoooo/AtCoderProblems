@@ -49,7 +49,7 @@ object Main extends Logging {
           submissionScraper = submissionScraper
         )
 
-        service.tryAtFixedDelay(500, 1, MILLISECONDS) {
+        service.tryAtFixedDelay(500, 500, MILLISECONDS) {
           allRunner = allRunner.scrapeOnePage()
           newRunner = newRunner.scrapeOnePage()
         }
