@@ -10,10 +10,10 @@ export interface Arguments {
 export class ArgumentParser {
   static parse(): Arguments {
     let params = QueryString.parse(location.search);
-    let userId: string = "user" in params ? params["user"] : "";
-    let rivals: string = "rivals" in params ? params["rivals"] : "";
-    let kind: string = "kind" in params ? params["kind"] : "category";
-    let ranking: string = "ranking" in params ? params["ranking"] : "ac";
+    let userId: string = ("user" in params && typeof params["user"] == "string") ? params["user"].toString() : "";
+    let rivals: string = ("rivals" in params && typeof params["rivals"] == "string") ? params["rivals"].toString() : "";
+    let kind: string = ("kind" in params && typeof params["kind"] == "string") ? params["kind"].toString() : "category";
+    let ranking: string = ("ranking" in params && typeof params["ranking"] == "string") ? params["ranking"].toString() : "ac";
     return {
       userId: userId,
       rivals: rivals.split(",").filter(r => r.length > 0),
