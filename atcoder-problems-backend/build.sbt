@@ -15,7 +15,7 @@ libraryDependencies ++= Seq(
   "org.apache.logging.log4j" %% "log4j-api-scala" % "11.0",
   "com.github.pureconfig" %% "pureconfig" % "0.8.0",
   "org.scalatest" %% "scalatest" % "3.0.4" % "test",
-  "org.mockito" % "mockito-core" % "2.8.47" % "test",
+  "org.mockito" % "mockito-core" % "2.23.4" % "test",
   "com.tumblr" %% "colossus-testkit" % "0.10.1" % "test",
   "com.typesafe.akka" % "akka-http-testkit_2.12" % "10.0.10" % "test"
 )
