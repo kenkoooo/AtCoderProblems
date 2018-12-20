@@ -85,24 +85,24 @@ test("list view", () => {
   expect(toJson(wrapper)).toMatchSnapshot();
 });
 
-test("user page view", () => {
-  mockApiCall();
-  jest.mock("../utils/Arguments");
-  let mockArgumentParser = require("../utils/Arguments").ArgumentParser;
-  mockArgumentParser.parse.mockReturnValueOnce({
-    userId: "kenkoooo",
-    rivals: [],
-    kind: "user",
-    ranking: ""
-  });
+// test("user page view", () => {
+//   mockApiCall();
+//   jest.mock("../utils/Arguments");
+//   let mockArgumentParser = require("../utils/Arguments").ArgumentParser;
+//   mockArgumentParser.parse.mockReturnValueOnce({
+//     userId: "kenkoooo",
+//     rivals: [],
+//     kind: "user",
+//     ranking: ""
+//   });
 
-  // 2017-12-22 JST
-  Date.now = jest.fn(() => 1513868400000);
+//   // 2017-12-22 JST
+//   Date.now = jest.fn(() => 1513868400000);
 
-  let Application = require("./Application").Application;
-  let wrapper = mount(<Application />);
-  expect(toJson(wrapper)).toMatchSnapshot();
-});
+//   let Application = require("./Application").Application;
+//   let wrapper = mount(<Application />);
+//   expect(toJson(wrapper)).toMatchSnapshot();
+// });
 
 test("language owners view", () => {
   mockApiCall();
