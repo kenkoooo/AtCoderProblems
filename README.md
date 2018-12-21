@@ -22,8 +22,9 @@ sbt test
 
 ## Run 
 After running the build command, you will have `target/scala-*/atcoder-problems-assembly-*.jar`. It is a `.jar` package, which is executable of Java. You can run the API server by the following command with a configuration files `env.json`. Please make sure you already have the PostgreSQL environment with required databases before running.
+A sample of the config file and the schema file of the database are in [atcoder-problems-backend/src/test/resources](https://github.com/kenkoooo/AtCoderProblems/tree/master/atcoder-problems-backend/src/test/resources).
 ```bash
-java -cp target/scala-*/atcoder-problems-*.jar
+java -jar target/scala-*/atcoder-problems-*.jar env.json
 ```
 
 # Frontend Web Application
