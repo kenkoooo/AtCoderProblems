@@ -123,6 +123,16 @@ class ApiJsonSupportTest extends FunSuite with Matchers with ApiJsonSupport {
         |  "title": "title",
         |  "source_code_length": 5
         |}""".stripMargin
+  }
 
+  test("convert user info to json") {
+    UserInfo("kenkoooo", 114, 514, 810.0, 893).toJson.prettyPrint shouldBe
+      """{
+        |  "accepted_count_rank": 514,
+        |  "rated_point_sum_rank": 893,
+        |  "rated_point_sum": 810.0,
+        |  "user_id": "kenkoooo",
+        |  "accepted_count": 114
+        |}""".stripMargin
   }
 }
