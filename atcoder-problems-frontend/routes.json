@@ -9,5 +9,7 @@
   "/atcoder-api/info/first": "/first",
   "/atcoder-api/info/merged-problems": "/merged-problems",
   "/atcoder-api/info/predicted-ratings": "/predicted-ratings",
-  "/atcoder-api/results*": "/results"
+  "/atcoder-api/results*": "/results",
+  "/atcoder-api/v2/results*": "/results",
+  "/atcoder-api/v2/user_info*": "/user_info"
 }

@@ -4,9 +4,9 @@ import { Contest } from "../model/Contest";
 import { Submission } from "../model/Submission";
 import { RankPair } from "../model/RankPair";
 import { MergedProblem } from "../model/MergedProblem";
-import { Ranking } from "../components/Ranking";
 import { LangCount } from "../model/LangCount";
 import { PredictedRating } from "../model/PredictedRating";
+import { UserInfo } from "../model/UserInfo";
 
 export class ApiCall {
   static BaseUrl = "./atcoder-api";
@@ -27,44 +27,44 @@ export class ApiCall {
     });
   }
 
-  static getProblems(): Promise<Array<Problem>> {
+  static async getUserInfo(userId: string): Promise<UserInfo> {
+    let url = `${this.BaseUrl}/v2/user_info?user=${userId}`;
+    const obj = await this.getJson(url);
+    return (obj as UserInfo);
+  }
+
+  static async getProblems(): Promise<Array<Problem>> {
     let url = `${this.BaseUrl}/info/problems`;
-    return this.getJson(url).then((obj: Array<any>) => {
-      let problems: Problem[] = obj.map(o => o as Problem);
-      return problems;
-    });
+    const obj = await this.getJson(url);
+    let problems: Problem[] = obj.map((o: Problem) => o as Problem);
+    return problems;
   }
 
-  static getPredictedRatings(): Promise<Array<PredictedRating>> {
+  static async getPredictedRatings(): Promise<Array<PredictedRating>> {
     let url = `${this.BaseUrl}/info/predicted-ratings`;
-    return this.getJson(url).then((obj: Array<any>) => {
-      let predictedRatings: PredictedRating[] = obj.map(o => o as PredictedRating);
-      return predictedRatings;
-    });
+    const obj = await this.getJson(url);
+    let predictedRatings: PredictedRating[] = obj.map((o: PredictedRating) => o as PredictedRating);
+    return predictedRatings;
   }
 
-  static getRanking(kind: string): Promise<Array<RankPair>> {
+  static async getRanking(kind: string): Promise<Array<RankPair>> {
     let url = `${this.BaseUrl}/info/${kind}`;
-    return this.getJson(url).then((obj: Array<any>) => {
-      let ranks = obj.map(o => {
-        let p = { rank: 1, user_id: o["user_id"], count: o["problem_count"] };
-        return p;
-      });
-
-      return this.fixRanking(ranks);
+    const obj = await this.getJson(url);
+    let ranks = obj.map((o: { [x: string]: any; }) => {
+      let p = { rank: 1, user_id: o["user_id"], count: o["problem_count"] };
+      return p;
     });
+    return this.fixRanking(ranks);
   }
 
-  static getRatedPointSumRanking(): Promise<Array<RankPair>> {
+  static async getRatedPointSumRanking(): Promise<Array<RankPair>> {
     let url = `${this.BaseUrl}/info/sums`;
-    return this.getJson(url).then((obj: Array<any>) => {
-      let ranks = obj.map(o => {
-        let p = { rank: 1, user_id: o["user_id"], count: o["point_sum"] };
-        return p;
-      });
-
-      return this.fixRanking(ranks);
+    const obj = await this.getJson(url);
+    let ranks = obj.map((o: { [x: string]: any; }) => {
+      let p = { rank: 1, user_id: o["user_id"], count: o["point_sum"] };
+      return p;
     });
+    return this.fixRanking(ranks);
   }
 
   static fixRanking(ranks: Array<RankPair>): Array<RankPair> {
@@ -81,37 +81,33 @@ export class ApiCall {
     return ranks;
   }
 
-  static getContests(): Promise<Array<Contest>> {
+  static async getContests(): Promise<Array<Contest>> {
     let url = `${this.BaseUrl}/info/contests`;
-    return this.getJson(url).then((obj: Array<any>) => {
-      let contests: Contest[] = obj.map(o => o as Contest);
-      return contests;
-    });
+    const obj = await this.getJson(url);
+    let contests: Contest[] = obj.map((o: Contest) => o as Contest);
+    return contests;
   }
 
-  static getSubmissions(
+  static async getSubmissions(
     url: string,
     query?: { user: string; rivals: string }
   ): Promise<Array<Submission>> {
-    return this.getJson(url, query).then((obj: Array<any>) => {
-      let submissions: Submission[] = obj.map(o => o as Submission);
-      return submissions;
-    });
+    const obj = await this.getJson(url, query);
+    let submissions: Submission[] = obj.map((o: Submission) => o as Submission);
+    return submissions;
   }
 
-  static getMergedProblems(): Promise<Array<MergedProblem>> {
+  static async getMergedProblems(): Promise<Array<MergedProblem>> {
     let url = `${this.BaseUrl}/info/merged-problems`;
-    return this.getJson(url).then((obj: Array<any>) => {
-      let problems: MergedProblem[] = obj.map(o => o as MergedProblem);
-      return problems;
-    });
+    const obj = await this.getJson(url);
+    let problems: MergedProblem[] = obj.map((o: MergedProblem) => o as MergedProblem);
+    return problems;
   }
 
-  static getLanguageCounts(): Promise<Array<LangCount>> {
+  static async getLanguageCounts(): Promise<Array<LangCount>> {
     let url = `${this.BaseUrl}/info/lang`;
-    return this.getJson(url).then((obj: Array<any>) => {
-      let counts: LangCount[] = obj.map(o => o as LangCount);
-      return counts;
-    });
+    const obj = await this.getJson(url);
+    let counts: LangCount[] = obj.map((o: LangCount) => o as LangCount);
+    return counts;
   }
 }
