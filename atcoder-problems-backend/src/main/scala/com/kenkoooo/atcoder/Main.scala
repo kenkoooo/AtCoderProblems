@@ -2,7 +2,6 @@ package com.kenkoooo.atcoder
 
 import java.util.concurrent.TimeUnit.{HOURS, MILLISECONDS, MINUTES}
 import java.util.concurrent.{Executors, ScheduledExecutorService}
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
@@ -10,14 +9,14 @@ import com.kenkoooo.atcoder.api.JsonApi
 import com.kenkoooo.atcoder.common.Configure
 import com.kenkoooo.atcoder.common.ScheduledExecutorServiceExtension._
 import com.kenkoooo.atcoder.db.SqlClient
-import com.kenkoooo.atcoder.model.{Contest, Problem}
+import com.kenkoooo.atcoder.model.{ApiJsonSupport, Contest, Problem}
 import com.kenkoooo.atcoder.runner.{AllSubmissionScrapingRunner, NewerSubmissionScrapingRunner}
 import com.kenkoooo.atcoder.scraper.{ContestScraper, ProblemScraper, SubmissionScraper}
 import org.apache.logging.log4j.scala.Logging
-
 import scala.util.{Failure, Success}
+import com.kenkoooo.atcoder.common.JsonWriter._
 
-object Main extends Logging {
+object Main extends Logging with ApiJsonSupport {
   implicit val system: ActorSystem = ActorSystem()
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
@@ -55,7 +54,19 @@ object Main extends Logging {
         }
 
         // reload records per minute
-        service.tryAtFixedDelay(0, 1, MINUTES)(sql.reloadRecords())
+        service.tryAtFixedDelay(0, 1, MINUTES)({
+          sql.reloadRecords()
+
+          sql.contests.values.toList.toJsonFile(s"${config.files.path}/contests.json")
+          sql.problems.values.toList.toJsonFile(s"${config.files.path}/problems.json")
+          sql.acceptedCounts.toJsonFile(s"${config.files.path}/ac.json")
+          sql.fastestSubmissionCounts.toJsonFile(s"${config.files.path}/fast.json")
+          sql.firstSubmissionCounts.toJsonFile(s"${config.files.path}/first.json")
+          sql.shortestSubmissionCounts.toJsonFile(s"${config.files.path}/short.json")
+          sql.mergedProblems.toJsonFile(s"${config.files.path}/merged-problems.json")
+          sql.ratedPointSums.toJsonFile(s"${config.files.path}/sums.json")
+          sql.languageCounts.toJsonFile(s"${config.files.path}/lang.json")
+        })
 
         // scrape contests per hour
         service.tryAtFixedDelay(0, 1, HOURS) {
