@@ -6,6 +6,7 @@ import { RankPair } from "../model/RankPair";
 import { MockRequest } from "./TestUtils";
 import { LangCount } from "../model/LangCount";
 import { PredictedRating } from "../model/PredictedRating";
+import { UserInfo } from "../model/UserInfo";
 
 test("get and parse problems", () => {
   let response: any = [
@@ -203,5 +204,25 @@ test("parse predicted ratings", () => {
     .ApiCall.getPredictedRatings()
     .then((counts: PredictedRating[]) => {
       expect(counts[0]).toEqual(content);
+    });
+});
+
+test("user info", () => {
+  let userInfo = {
+    "accepted_count_rank": 187,
+    "rated_point_sum_rank": 136,
+    "rated_point_sum": 149500.0,
+    "user_id": "kenkoooo",
+    "accepted_count": 722
+  };
+  let response: any = userInfo;
+
+  jest.mock("superagent");
+  let mockAgent = require("superagent");
+  mockAgent.get.mockReturnValueOnce(new MockRequest(response));
+  require("./ApiCall")
+    .ApiCall.getUserInfo()
+    .then((i: UserInfo) => {
+      expect(i).toEqual(userInfo);
     });
 });
