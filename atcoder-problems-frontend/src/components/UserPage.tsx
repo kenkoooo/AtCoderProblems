@@ -142,7 +142,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
         />
 
         <PageHeader>Languages</PageHeader>
-        <UserPageLanguages userId={this.props.userId} />
+        <UserPageLanguages submissions={this.props.submissions} />
       </Row>
     );
   }
