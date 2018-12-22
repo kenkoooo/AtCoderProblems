@@ -9,5 +9,8 @@
   },
   "server": {
     "port": 9090
+  },
+  "files": {
+    "path": "/home/kenkoooo/"
   }
 }
