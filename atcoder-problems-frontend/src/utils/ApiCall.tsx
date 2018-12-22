@@ -10,6 +10,7 @@ import { UserInfo } from "../model/UserInfo";
 
 export class ApiCall {
   static BaseUrl = "./atcoder-api";
+  static ResourceUrl = "./resources";
 
   static getJson(url: string, query?: any): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -34,7 +35,7 @@ export class ApiCall {
   }
 
   static async getProblems(): Promise<Array<Problem>> {
-    let url = `${this.BaseUrl}/info/problems`;
+    let url = `${this.ResourceUrl}/problems.json`;
     const obj = await this.getJson(url);
     let problems: Problem[] = obj.map((o: Problem) => o as Problem);
     return problems;
@@ -48,7 +49,7 @@ export class ApiCall {
   }
 
   static async getRanking(kind: string): Promise<Array<RankPair>> {
-    let url = `${this.BaseUrl}/info/${kind}`;
+    let url = `${this.ResourceUrl}/${kind}.json`;
     const obj = await this.getJson(url);
     let ranks = obj.map((o: { [x: string]: any; }) => {
       let p = { rank: 1, user_id: o["user_id"], count: o["problem_count"] };
@@ -58,7 +59,7 @@ export class ApiCall {
   }
 
   static async getRatedPointSumRanking(): Promise<Array<RankPair>> {
-    let url = `${this.BaseUrl}/info/sums`;
+    let url = `${this.ResourceUrl}/sums.json`;
     const obj = await this.getJson(url);
     let ranks = obj.map((o: { [x: string]: any; }) => {
       let p = { rank: 1, user_id: o["user_id"], count: o["point_sum"] };
@@ -82,7 +83,7 @@ export class ApiCall {
   }
 
   static async getContests(): Promise<Array<Contest>> {
-    let url = `${this.BaseUrl}/info/contests`;
+    let url = `${this.ResourceUrl}/contests.json`;
     const obj = await this.getJson(url);
     let contests: Contest[] = obj.map((o: Contest) => o as Contest);
     return contests;
@@ -97,14 +98,14 @@ export class ApiCall {
   }
 
   static async getMergedProblems(): Promise<Array<MergedProblem>> {
-    let url = `${this.BaseUrl}/info/merged-problems`;
+    let url = `${this.ResourceUrl}/merged-problems.json`;
     const obj = await this.getJson(url);
     let problems: MergedProblem[] = obj.map((o: MergedProblem) => o as MergedProblem);
     return problems;
   }
 
   static async getLanguageCounts(): Promise<Array<LangCount>> {
-    let url = `${this.BaseUrl}/info/lang`;
+    let url = `${this.ResourceUrl}/lang.json`;
     const obj = await this.getJson(url);
     let counts: LangCount[] = obj.map((o: LangCount) => o as LangCount);
     return counts;
