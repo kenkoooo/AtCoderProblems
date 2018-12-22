@@ -14,6 +14,7 @@ CREATE TABLE submissions (
   execution_time  INT,
   PRIMARY KEY (id)
 );
+CREATE INDEX ON submissions (user_id);
 
 DROP TABLE IF EXISTS problems;
 CREATE TABLE problems (
