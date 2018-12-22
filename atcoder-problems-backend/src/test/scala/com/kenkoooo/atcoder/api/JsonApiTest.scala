@@ -79,6 +79,8 @@ class JsonApiTest
     when(sql.languageCounts)
       .thenReturn(List(LanguageCount("user1", "Rust", 100), LanguageCount("user2", "Java", 200)))
     when(sql.predictedRatings).thenReturn(List(PredictedRating("kenkoooo", 3.14)))
+    when(sql.pointAndRankOf("kenkoooo")).thenReturn((1.0, 2))
+    when(sql.countAndRankOf("kenkoooo")).thenReturn((3, 4))
   }
 
   test("return 200 to new request") {
@@ -243,6 +245,15 @@ class JsonApiTest
     Get("/v2/results?users=kenkoooo,kenkoooo1,kenkoooo2") ~> api.routes ~> check {
       status shouldBe OK
       verify(sql, times(1)).loadUserSubmissions("kenkoooo", "kenkoooo1", "kenkoooo2")
+    }
+  }
+
+  test("user info API") {
+    val api = new JsonApi(sql)
+
+    Get("/v2/user_info?user=kenkoooo") ~> api.routes ~> check {
+      status shouldBe OK
+      responseAs[String] shouldBe """{"accepted_count_rank":4,"rated_point_sum_rank":2,"rated_point_sum":1.0,"user_id":"kenkoooo","accepted_count":3}"""
     }
   }
 }

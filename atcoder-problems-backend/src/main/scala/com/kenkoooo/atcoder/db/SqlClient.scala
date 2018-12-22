@@ -25,21 +25,22 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
 
   private var _contests: Map[ContestId, Contest] = Map()
   private var _problems: Map[ProblemId, Problem] = Map()
-  private var _acceptedCounts: List[AcceptedCount] = List()
   private var _firstSubmissionCounts: List[FirstSubmissionCount] = List()
   private var _fastestSubmissionCounts: List[FastestSubmissionCount] = List()
   private var _shortestSubmissionCounts: List[ShortestSubmissionCount] = List()
   private var _mergedProblems: List[MergedProblem] = List()
-  private var _ratedPointSums: List[RatedPointSum] = List()
   private var _languageCounts: List[LanguageCount] = List()
   private var _predictedRatings: List[PredictedRating] = List()
   private var _lastReloaded: Long = 0
+
+  private var ratedPointSumInfo = new RatedPointSumInfo(List())
+  private var acceptedCountInfo = new AcceptedCountInfo(List())
 
   def contests: Map[String, Contest] = _contests
 
   def problems: Map[String, Problem] = _problems
 
-  def acceptedCounts: List[AcceptedCount] = _acceptedCounts
+  def acceptedCounts: List[AcceptedCount] = acceptedCountInfo.list
 
   def firstSubmissionCounts: List[FirstSubmissionCount] = _firstSubmissionCounts
 
@@ -49,13 +50,16 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
 
   def mergedProblems: List[MergedProblem] = _mergedProblems
 
-  def ratedPointSums: List[RatedPointSum] = _ratedPointSums
+  def ratedPointSums: List[RatedPointSum] = ratedPointSumInfo.list
 
   def languageCounts: List[LanguageCount] = _languageCounts
 
   def predictedRatings: List[PredictedRating] = _predictedRatings
 
   def lastReloadedTimeMillis: Long = _lastReloaded
+
+  def pointAndRankOf(userId: UserId): (Double, Int) = ratedPointSumInfo.pointAndRankOf(userId)
+  def countAndRankOf(userId: UserId): (Int, Int) = acceptedCountInfo.countAndRankOf(userId)
 
   private[db] def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] = {
     DB.readOnly { implicit session =>
@@ -329,12 +333,12 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     _contests = loadRecords(Contest).map(s => s.id -> s).toMap
     _problems = loadRecords(Problem).map(s => s.id -> s).toMap
 
-    _acceptedCounts = loadRecords(AcceptedCount).toList
+    acceptedCountInfo = new AcceptedCountInfo(loadRecords(AcceptedCount).toList)
     _firstSubmissionCounts = loadRecords(FirstSubmissionCount).toList
     _shortestSubmissionCounts = loadRecords(ShortestSubmissionCount).toList
     _fastestSubmissionCounts = loadRecords(FastestSubmissionCount).toList
     _mergedProblems = loadMergedProblems().toList
-    _ratedPointSums = loadRecords(RatedPointSum).toList
+    ratedPointSumInfo = new RatedPointSumInfo(loadRecords(RatedPointSum).toList)
     _languageCounts = loadRecords(LanguageCount).toList
     _predictedRatings = loadRecords(PredictedRating).toList
 
@@ -443,6 +447,16 @@ private object SqlClient {
   private val SubmissionSyntax = Submission.syntax("s")
 
   def concat(columns: SQLSyntax*): SQLSyntax = sqls"concat(${sqls.csv(columns: _*)})"
+
+  def reduce[T](sortedList: List[T]): Map[T, Int] = {
+    var map = Map[T, Int]()
+    for ((point, index) <- sortedList.zipWithIndex) {
+      if (index == 0 || point != sortedList(index - 1)) {
+        map += (point -> index)
+      }
+    }
+    map
+  }
 }
 
 /**
