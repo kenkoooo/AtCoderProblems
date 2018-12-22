@@ -61,11 +61,12 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   def pointAndRankOf(userId: UserId): (Double, Int) = ratedPointSumInfo.pointAndRankOf(userId)
   def countAndRankOf(userId: UserId): (Int, Int) = acceptedCountInfo.countAndRankOf(userId)
 
-  private[db] def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] = {
-    DB.readOnly { implicit session =>
-      withSQL(builder).map(Submission(SubmissionSyntax)).list().apply()
+  private[db] def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] =
+    this.synchronized {
+      DB.readOnly { implicit session =>
+        withSQL(builder).map(Submission(SubmissionSyntax)).list().apply()
+      }
     }
-  }
 
   /**
     * Load submissions with given ids from SQL
