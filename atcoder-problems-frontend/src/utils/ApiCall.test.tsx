@@ -130,9 +130,13 @@ test("get and parse submissions", () => {
 
   jest.mock("superagent");
   let mockAgent = require("superagent");
-  mockAgent.get.mockReturnValueOnce(new MockRequest(response));
+  mockAgent.get.mockImplementationOnce((url: string, query: { users: string }) => {
+    expect(url).toEqual("./atcoder-api/v2/results");
+    expect(query.users).toEqual("iwiwi.chokudai");
+    return new MockRequest(response);
+  });
   require("./ApiCall")
-    .ApiCall.getSubmissions("")
+    .ApiCall.getSubmissions(["iwiwi", "chokudai"])
     .then((submissions: Submission[]) => {
       expect(submissions[0].id).toEqual(74283);
       expect(submissions[1].id).toEqual(74285);
