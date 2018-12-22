@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.headers.`Access-Control-Allow-Origin`
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.kenkoooo.atcoder.db.SqlClient
-import com.kenkoooo.atcoder.model.ApiJsonSupport
+import com.kenkoooo.atcoder.model.{ApiJsonSupport, UserInfo}
 import com.kenkoooo.atcoder.scraper.AtCoder.UserNameRegex
 
 /**
@@ -47,6 +47,27 @@ class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
             val users = (user :: rivalList).filter(_.length > 0).filter(_.matches(UserNameRegex))
 
             complete(sqlClient.loadUserSubmissions(users: _*).toList)
+          }
+        } ~ pathPrefix("v2") {
+          path("results") {
+            parameters('users ? "") { users =>
+              val userList =
+                users.split(",").map(_.trim).filter(_.nonEmpty).filter(_.matches(UserNameRegex))
+              complete(sqlClient.loadUserSubmissions(userList: _*).toList)
+            }
+          } ~ path("user_info") {
+            parameters('user ? "") { userId =>
+              val (point, pointRank) = sqlClient.pointAndRankOf(userId)
+              val (count, countRank) = sqlClient.countAndRankOf(userId)
+              val userInfo = UserInfo(
+                userId = userId,
+                acceptedCount = count,
+                acceptedCountRank = countRank,
+                ratedPointSum = point,
+                ratedPointSumRank = pointRank
+              )
+              complete(userInfo)
+            }
           }
         }
       }
