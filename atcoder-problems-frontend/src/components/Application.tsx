@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as QueryString from "query-string";
 import { SearchForm } from "./SearchForm";
 import { Category } from "./Category";
 import { List } from "./List";
