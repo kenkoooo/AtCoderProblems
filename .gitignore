@@ -1,5 +1,4 @@
 **/.idea
-**/Cargo.lock
 **/*.iml
 **/target/
 **/env/
@@ -8,3 +7,6 @@
 **/dist/
 **/env/
 **/coverage/
+**/.python-version
+**/*.lock
+**/package-lock.json
