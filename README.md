@@ -61,7 +61,7 @@ npm test
 - Detailed Problems Information
   - http://kenkoooo.com/atcoder/atcoder-api/info/merged-problems
 
-## User Information API
+## Statistics API
 
 - Accepted Count
   - http://kenkoooo.com/atcoder/atcoder-api/info/ac
@@ -78,5 +78,8 @@ npm test
 - Predicted Rating for each user
   - http://kenkoooo.com/atcoder/atcoder-api/info/predicted-ratings
 
+## UserInfo API
+- https://kenkoooo.com/atcoder/atcoder-api/v2/user_info?user=kenkoooo
+
 ## Submission API
-  - http://kenkoooo.com/atcoder/atcoder-api/results?user=wata&rivals=iwiwi,chokudai
+  - https://kenkoooo.com/atcoder/atcoder-api/v2/results?users=wata,iwiwi,chokudai
