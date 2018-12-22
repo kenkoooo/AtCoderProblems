@@ -227,4 +227,22 @@ class JsonApiTest
       responseAs[String] shouldBe """[{"user_id":"kenkoooo","rating":3.14}]"""
     }
   }
+
+  test("submission api v2 with a user") {
+    val api = new JsonApi(sql)
+
+    Get("/v2/results?users=kenkoooo") ~> api.routes ~> check {
+      status shouldBe OK
+      verify(sql, times(1)).loadUserSubmissions("kenkoooo")
+    }
+  }
+
+  test("submission api v2 with multiple users") {
+    val api = new JsonApi(sql)
+
+    Get("/v2/results?users=kenkoooo,kenkoooo1,kenkoooo2") ~> api.routes ~> check {
+      status shouldBe OK
+      verify(sql, times(1)).loadUserSubmissions("kenkoooo", "kenkoooo1", "kenkoooo2")
+    }
+  }
 }

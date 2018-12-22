@@ -48,18 +48,16 @@ class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
 
             complete(sqlClient.loadUserSubmissions(users: _*).toList)
           }
-        }
-
-        pathPrefix("v2") {
+        } ~ pathPrefix("v2") {
           path("results") {
-            parameters('user ? "", 'rivals ? "") { (user, rivals) =>
-              val rivalList = rivals.split(",").map(_.trim).toList
-              val users = (user :: rivalList).filter(_.length > 0).filter(_.matches(UserNameRegex))
-              complete(sqlClient.loadUserSubmissions(users: _*).toList)
+            parameters('users ? "") { users =>
+              val userList =
+                users.split(",").map(_.trim).filter(_.nonEmpty).filter(_.matches(UserNameRegex))
+              complete(sqlClient.loadUserSubmissions(userList: _*).toList)
             }
-          } ~ path("") {
+          } ~ path("user_info") {
             parameters('user ? "") { user =>
-              val users = Array(user).filter(_.length > 0).filter(_.matches(UserNameRegex))
+              val users = Array(user.trim).filter(_.nonEmpty).filter(_.matches(UserNameRegex))
               complete(sqlClient.loadUserSubmissions(users: _*).toList)
             }
           }
