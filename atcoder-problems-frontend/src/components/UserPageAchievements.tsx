@@ -4,16 +4,17 @@ import { ApiCall } from "../utils/ApiCall";
 import { Row, Col } from "react-bootstrap";
 import { RankingKind } from "../model/RankingKind";
 import { Submission } from "../model/Submission";
+import { some, none, Option } from "ts-option";
 import { TimeFormatter } from "../utils/TimeFormatter";
 import { PredictedRating } from "../model/PredictedRating";
+import { UserInfo } from "../model/UserInfo";
 
 interface UserPageAchievementsState {
-  ac: Array<RankPair>;
   first: Array<RankPair>;
   fast: Array<RankPair>;
   short: Array<RankPair>;
-  sums: Array<RankPair>;
   ratings: Array<PredictedRating>;
+  userInfo: Option<UserInfo>;
 }
 
 export interface UserPageAchievementsProps {
@@ -32,13 +33,10 @@ export class UserPageAchievements extends React.Component<
   > {
   constructor(props: UserPageAchievementsProps) {
     super(props);
-    this.state = { ac: [], first: [], fast: [], short: [], sums: [], ratings: [] };
+    this.state = { first: [], fast: [], short: [], ratings: [], userInfo: none };
   }
 
   componentWillMount() {
-    ApiCall.getRanking(RankingKind.Accepted).then(ranking =>
-      this.setState({ ac: ranking })
-    );
     ApiCall.getRanking(RankingKind.Shortest).then(ranking =>
       this.setState({ short: ranking })
     );
@@ -48,20 +46,36 @@ export class UserPageAchievements extends React.Component<
     ApiCall.getRanking(RankingKind.Fastest).then(ranking =>
       this.setState({ fast: ranking })
     );
-    ApiCall.getRatedPointSumRanking().then(ranking =>
-      this.setState({ sums: ranking })
-    );
     ApiCall.getPredictedRatings().then(ratings =>
       this.setState({ ratings: ratings.filter(rating => rating.user_id === this.props.userId) }));
+    ApiCall.getUserInfo(this.props.userId).then(info => this.setState({ userInfo: some(info) }))
   }
 
   render() {
     let achievement: Array<Achievement> = [
-      { title: "Accepted", ranking: this.state.ac },
+      {
+        title: "Accepted", ranking: this.state.userInfo.match({
+          some: info => [{
+            rank: info.accepted_count_rank,
+            user_id: info.user_id,
+            count: info.accepted_count
+          }],
+          none: () => []
+        })
+      },
       { title: "Shortest Codes", ranking: this.state.short },
       { title: "Fastest Codes", ranking: this.state.fast },
       { title: "First Acceptances", ranking: this.state.first },
-      { title: "Rated Point Sum", ranking: this.state.sums }
+      {
+        title: "Rated Point Sum", ranking: this.state.userInfo.match({
+          some: info => [{
+            rank: info.rated_point_sum_rank,
+            user_id: info.user_id,
+            count: info.rated_point_sum
+          }],
+          none: () => []
+        })
+      }
     ];
 
     let longestStreak = 0;

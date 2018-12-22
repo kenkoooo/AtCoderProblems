@@ -10,6 +10,7 @@ module.exports = function () {
     sums: require("./resources/sums.json"),
     lang: require("./resources/lang.json"),
     results: require("./resources/results.json"),
-    "predicted-ratings": require("./resources/predicted-ratings.json")
+    "predicted-ratings": require("./resources/predicted-ratings.json"),
+    user_info: require("./resources/user_info.json")
   };
 };

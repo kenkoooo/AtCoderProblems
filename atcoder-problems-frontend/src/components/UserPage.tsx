@@ -8,7 +8,6 @@ import { UserSearchForm } from "./UserSearchForm";
 import { Submission } from "../model/Submission";
 import { Problem } from "../model/Problem";
 import { UserPageAchievements } from "./UserPageAchievements";
-import { TimeFormatter } from "../utils/TimeFormatter";
 import { UserPageHeatMap } from "./UserPageHeatMap";
 import { UserPageLanguages } from "./UserPageLanguages";
 
