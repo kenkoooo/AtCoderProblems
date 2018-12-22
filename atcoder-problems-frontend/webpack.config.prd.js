@@ -7,7 +7,7 @@ module.exports = {
   },
 
   optimization: {
-    minimize: false
+    minimize: true
   },
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
