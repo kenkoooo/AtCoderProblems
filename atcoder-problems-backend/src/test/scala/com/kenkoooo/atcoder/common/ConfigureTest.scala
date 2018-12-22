@@ -9,5 +9,6 @@ class ConfigureTest extends FunSuite with Matchers {
     config.scraper.threads shouldBe 11
     config.sql.url shouldBe "sql-url"
     config.server.port shouldBe 9090
+    config.files.path shouldBe "/home/kenkoooo/"
   }
 }
