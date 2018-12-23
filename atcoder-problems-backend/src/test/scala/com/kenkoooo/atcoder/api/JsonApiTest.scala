@@ -35,6 +35,9 @@ class JsonApiTest
     when(sql.fastestSubmissionCounts).thenReturn(List(FastestSubmissionCount("kenkoooo", 114)))
     when(sql.firstSubmissionCounts).thenReturn(List(FirstSubmissionCount("kenkoooo", 114)))
     when(sql.acceptedCounts).thenReturn(List(AcceptedCount("kenkoooo", 114)))
+    when(sql.loadUserLastSubmitted(ArgumentMatchers.any())).thenReturn(
+      DateTime(currentTime)
+    )
     when(sql.loadUserSubmissions(ArgumentMatchers.any())).thenReturn(
       Iterator(
         Submission(
