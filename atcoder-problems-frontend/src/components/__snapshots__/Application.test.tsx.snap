@@ -6693,6 +6693,7 @@ exports[`list view 1`] = `
                                 onSort={[Function]}
                                 reset={false}
                                 searchable={true}
+                                sortFunc={[Function]}
                                 sortIndicator={true}
                                 version="3"
                                 width={null}
@@ -6800,7 +6801,7 @@ exports[`list view 1`] = `
                                 dataAlign="left"
                                 dataField="contest"
                                 dataFormat={[Function]}
-                                dataSort={false}
+                                dataSort={true}
                                 defaultASC={false}
                                 editColumnClassName=""
                                 editable={true}
@@ -6817,12 +6818,13 @@ exports[`list view 1`] = `
                                 onSort={[Function]}
                                 reset={false}
                                 searchable={true}
+                                sortFunc={[Function]}
                                 sortIndicator={true}
                                 version="3"
                                 width={null}
                               >
                                 <th
-                                  className=""
+                                  className="sort-column"
                                   data-is-only-head={false}
                                   onClick={[Function]}
                                   style={
@@ -6834,6 +6836,36 @@ exports[`list view 1`] = `
                                   title="Contest"
                                 >
                                   Contest
+                                  <span
+                                    className="order"
+                                  >
+                                    <span
+                                      className="dropdown"
+                                    >
+                                      <span
+                                        className="caret"
+                                        style={
+                                          Object {
+                                            "color": "#ccc",
+                                            "margin": "10px 0 10px 5px",
+                                          }
+                                        }
+                                      />
+                                    </span>
+                                    <span
+                                      className="dropup"
+                                    >
+                                      <span
+                                        className="caret"
+                                        style={
+                                          Object {
+                                            "color": "#ccc",
+                                            "margin": "10px 0",
+                                          }
+                                        }
+                                      />
+                                    </span>
+                                  </span>
                                   <div
                                     onClick={[Function]}
                                   />
@@ -7299,7 +7331,7 @@ exports[`list view 1`] = `
                             "name": "startEpochSecond",
                             "searchable": true,
                             "sort": true,
-                            "sortFunc": undefined,
+                            "sortFunc": [Function],
                             "sortFuncExtraData": undefined,
                             "style": undefined,
                             "text": "Date",
@@ -7354,8 +7386,8 @@ exports[`list view 1`] = `
                             "invalidEditColumnClassName": "",
                             "name": "contest",
                             "searchable": true,
-                            "sort": false,
-                            "sortFunc": undefined,
+                            "sort": true,
+                            "sortFunc": [Function],
                             "sortFuncExtraData": undefined,
                             "style": undefined,
                             "text": "Contest",
@@ -9946,6 +9978,7 @@ exports[`list view 2`] = `
                                 onSort={[Function]}
                                 reset={false}
                                 searchable={true}
+                                sortFunc={[Function]}
                                 sortIndicator={true}
                                 version="3"
                                 width={null}
@@ -10053,7 +10086,7 @@ exports[`list view 2`] = `
                                 dataAlign="left"
                                 dataField="contest"
                                 dataFormat={[Function]}
-                                dataSort={false}
+                                dataSort={true}
                                 defaultASC={false}
                                 editColumnClassName=""
                                 editable={true}
@@ -10070,12 +10103,13 @@ exports[`list view 2`] = `
                                 onSort={[Function]}
                                 reset={false}
                                 searchable={true}
+                                sortFunc={[Function]}
                                 sortIndicator={true}
                                 version="3"
                                 width={null}
                               >
                                 <th
-                                  className=""
+                                  className="sort-column"
                                   data-is-only-head={false}
                                   onClick={[Function]}
                                   style={
@@ -10087,6 +10121,36 @@ exports[`list view 2`] = `
                                   title="Contest"
                                 >
                                   Contest
+                                  <span
+                                    className="order"
+                                  >
+                                    <span
+                                      className="dropdown"
+                                    >
+                                      <span
+                                        className="caret"
+                                        style={
+                                          Object {
+                                            "color": "#ccc",
+                                            "margin": "10px 0 10px 5px",
+                                          }
+                                        }
+                                      />
+                                    </span>
+                                    <span
+                                      className="dropup"
+                                    >
+                                      <span
+                                        className="caret"
+                                        style={
+                                          Object {
+                                            "color": "#ccc",
+                                            "margin": "10px 0",
+                                          }
+                                        }
+                                      />
+                                    </span>
+                                  </span>
                                   <div
                                     onClick={[Function]}
                                   />
@@ -10552,7 +10616,7 @@ exports[`list view 2`] = `
                             "name": "startEpochSecond",
                             "searchable": true,
                             "sort": true,
-                            "sortFunc": undefined,
+                            "sortFunc": [Function],
                             "sortFuncExtraData": undefined,
                             "style": undefined,
                             "text": "Date",
@@ -10607,8 +10671,8 @@ exports[`list view 2`] = `
                             "invalidEditColumnClassName": "",
                             "name": "contest",
                             "searchable": true,
-                            "sort": false,
-                            "sortFunc": undefined,
+                            "sort": true,
+                            "sortFunc": [Function],
                             "sortFuncExtraData": undefined,
                             "style": undefined,
                             "text": "Contest",
