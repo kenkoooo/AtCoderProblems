@@ -49,13 +49,7 @@ class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
             complete(sqlClient.loadUserSubmissions(users: _*).toList)
           }
         } ~ pathPrefix("v2") {
-          path("results") {
-            parameters('users ? "") { users =>
-              val userList =
-                users.split(",").map(_.trim).filter(_.nonEmpty).filter(_.matches(UserNameRegex))
-              complete(sqlClient.loadUserSubmissions(userList: _*).toList)
-            }
-          } ~ path("user_info") {
+          path("user_info") {
             parameters('user ? "") { userId =>
               val (point, pointRank) = sqlClient.pointAndRankOf(userId)
               val (count, countRank) = sqlClient.countAndRankOf(userId)

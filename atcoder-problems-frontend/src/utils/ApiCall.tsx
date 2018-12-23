@@ -90,8 +90,8 @@ export class ApiCall {
   }
 
   static async getSubmissions(users: Array<string>): Promise<Array<Submission>> {
-    let url = `${this.BaseUrl}/v2/results`;
-    let query = { users: users.join(",") };
+    let url = `${this.BaseUrl}/results`;
+    let query = { rivals: users.join(",") };
     const obj = await this.getJson(url, query);
     let submissions: Submission[] = obj.map((o: Submission) => o as Submission);
     return submissions;
