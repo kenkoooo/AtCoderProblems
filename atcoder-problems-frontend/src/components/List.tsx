@@ -1,29 +1,12 @@
 import * as React from "react";
 import { MergedProblem } from "../model/MergedProblem";
-import {
-  BootstrapTable,
-  TableHeaderColumn,
-  SortOrder
-} from "react-bootstrap-table";
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { DropdownSelect } from "./DropdownSelect";
 import { Contest } from "../model/Contest";
 import { Problem } from "../model/Problem";
 import { HtmlFormatter } from "../utils/HtmlFormatter";
 import { UrlFormatter } from "../utils/UrlFormatter";
-import {
-  Row,
-  Button,
-  Label,
-  PageHeader,
-  ButtonToolbar,
-  ToggleButtonGroup,
-  ToggleButton,
-  ControlLabel,
-  FormGroup,
-  ButtonGroup,
-  FormControl,
-  Form
-} from "react-bootstrap";
+import { Row, Label, ButtonToolbar, ToggleButtonGroup, ToggleButton } from "react-bootstrap";
 import { Submission } from "../model/Submission";
 import { TimeFormatter } from "../utils/TimeFormatter";
 
@@ -92,36 +75,25 @@ function formatShortestSubmission(problem: MergedProblem, row: ProblemRow) {
   );
   let title = `${problem.shortest_user_id} (${
     problem.source_code_length
-  } byte)`;
+    } byte)`;
   return HtmlFormatter.createLink(submissionUrl, title);
 }
 
-function sortStartEpoch(a: ProblemRow, b: ProblemRow, order: string) {
-  if (order === 'desc') {
-    let c = a;
-    a = b;
-    b = c;
-  }
-  if(a.startEpochSecond < b.startEpochSecond)return -1;
-  if(a.startEpochSecond > b.startEpochSecond)return 1;
-  if(a.contest.title < b.contest.title)return -1;
-  if(a.contest.title > b.contest.title)return 1;
-  if(a.problem.title < b.problem.title)return -1;
-  if(a.problem.title > b.problem.title)return 1;
-  return 0;
-}
+function sortProblemRow(a: ProblemRow, b: ProblemRow, order: string): number {
+  let ta: [number, string, string] = [a.startEpochSecond, a.contest.title, a.problem.title];
+  let tb: [number, string, string] = [b.startEpochSecond, b.contest.title, b.problem.title];
 
-function sortContest(a: ProblemRow, b: ProblemRow, order: string) {
-  if (order === 'desc') {
-    let c = a;
-    a = b;
-    b = c;
+  var result = 0;
+  if (ta < tb) {
+    result = -1;
+  } else if (ta > tb) {
+    result = 1;
   }
-  if(a.contest.title < b.contest.title)return -1;
-  if(a.contest.title > b.contest.title)return 1;
-  if(a.problem.title < b.problem.title)return -1;
-  if(a.problem.title > b.problem.title)return 1;
-  return 0;
+
+  if (order === 'desc') {
+    result *= -1;
+  }
+  return result;
 }
 
 /**
@@ -238,7 +210,7 @@ export class List extends React.Component<ListProps, ListState> {
           lastAcceptedDate: lastAcceptedDate ? lastAcceptedDate : ""
         };
       })
-      .sort((a, b) => sortStartEpoch(a,b,'desc'));
+      .sort((a, b) => sortProblemRow(a, b, 'desc'));
 
     return (
       <Row>
@@ -351,7 +323,7 @@ export class List extends React.Component<ListProps, ListState> {
               TimeFormatter.getDateString(second * 1000)
             }
             dataSort
-            sortFunc={sortStartEpoch}
+            sortFunc={sortProblemRow}
             isKey
           >
             Date
@@ -366,7 +338,7 @@ export class List extends React.Component<ListProps, ListState> {
             dataField="contest"
             dataFormat={formatContestTitle}
             dataSort
-            sortFunc={sortContest}
+            sortFunc={sortProblemRow}
           >
             Contest
           </TableHeaderColumn>
