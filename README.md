@@ -82,4 +82,4 @@ npm test
 - https://kenkoooo.com/atcoder/atcoder-api/v2/user_info?user=kenkoooo
 
 ## Submission API
-  - https://kenkoooo.com/atcoder/atcoder-api/v2/results?users=wata,iwiwi,chokudai
+  - https://kenkoooo.com/atcoder/atcoder-api/results?users=wata&rivals=iwiwi,chokudai
