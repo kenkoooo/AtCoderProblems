@@ -1,5 +1,6 @@
 package com.kenkoooo.atcoder.db
 
+import akka.http.scaladsl.model.DateTime
 import com.kenkoooo.atcoder.common.SubmissionStatus
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, UserId}
 import com.kenkoooo.atcoder.db.SqlClient._
@@ -8,7 +9,7 @@ import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import SQLSyntax.min
 import scalikejdbc.interpolation.SQLSyntax
-import sqls.{count, distinct}
+import sqls.{count, distinct, max}
 
 import scala.util.Try
 
@@ -79,6 +80,21 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
       this,
       selectFrom(Submission as SubmissionSyntax).where.in(SubmissionSyntax.id, ids)
     )
+  }
+
+  /**
+    * load the time of the last submission which is submitted by anyone in the given list
+    *
+    * @param userId [[UserId]] to get the epoch of their last submission
+    * @return [[DateTime]] of the last submission
+    */
+  def loadUserLastSubmitted(userIds: UserId*): DateTime = {
+    DB.readOnly { implicit session =>
+      val epochSecond: Long = withSQL {
+        select(max(SubmissionSyntax.epochSecond)).from(Submission as SubmissionSyntax).where.in(SubmissionSyntax.userId, userIds)
+      }.map(_.long(1)).single().apply().getOrElse(0L)
+      DateTime(1000 * epochSecond)
+    }
   }
 
   /**

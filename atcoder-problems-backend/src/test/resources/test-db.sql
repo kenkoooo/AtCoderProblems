@@ -14,7 +14,7 @@ CREATE TABLE submissions (
   execution_time  INT,
   PRIMARY KEY (id)
 );
-CREATE INDEX ON submissions (user_id);
+CREATE INDEX ON submissions (user_id, epoch_second);
 
 DROP TABLE IF EXISTS problems;
 CREATE TABLE problems (
