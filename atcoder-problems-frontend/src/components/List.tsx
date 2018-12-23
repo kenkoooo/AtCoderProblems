@@ -73,9 +73,7 @@ function formatShortestSubmission(problem: MergedProblem, row: ProblemRow) {
     problem.shortest_contest_id,
     problem.shortest_submission_id
   );
-  let title = `${problem.shortest_user_id} (${
-    problem.source_code_length
-    } byte)`;
+  let title = `${problem.shortest_user_id} (${problem.source_code_length} byte)`;
   return HtmlFormatter.createLink(submissionUrl, title);
 }
 
