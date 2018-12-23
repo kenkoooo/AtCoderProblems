@@ -96,6 +96,34 @@ function formatShortestSubmission(problem: MergedProblem, row: ProblemRow) {
   return HtmlFormatter.createLink(submissionUrl, title);
 }
 
+function sortStartEpoch(a: ProblemRow, b: ProblemRow, order: string) {
+  if (order === 'desc') {
+    let c = a;
+    a = b;
+    b = c;
+  }
+  if(a.startEpochSecond < b.startEpochSecond)return -1;
+  if(a.startEpochSecond > b.startEpochSecond)return 1;
+  if(a.contest.title < b.contest.title)return -1;
+  if(a.contest.title > b.contest.title)return 1;
+  if(a.problem.title < b.problem.title)return -1;
+  if(a.problem.title > b.problem.title)return 1;
+  return 0;
+}
+
+function sortContest(a: ProblemRow, b: ProblemRow, order: string) {
+  if (order === 'desc') {
+    let c = a;
+    a = b;
+    b = c;
+  }
+  if(a.contest.title < b.contest.title)return -1;
+  if(a.contest.title > b.contest.title)return 1;
+  if(a.problem.title < b.problem.title)return -1;
+  if(a.problem.title > b.problem.title)return 1;
+  return 0;
+}
+
 /**
  * format first submission link
  */
@@ -210,8 +238,7 @@ export class List extends React.Component<ListProps, ListState> {
           lastAcceptedDate: lastAcceptedDate ? lastAcceptedDate : ""
         };
       })
-      .sort((a, b) => a.startEpochSecond - b.startEpochSecond)
-      .reverse();
+      .sort((a, b) => sortStartEpoch(a,b,'desc'));
 
     return (
       <Row>
@@ -324,6 +351,7 @@ export class List extends React.Component<ListProps, ListState> {
               TimeFormatter.getDateString(second * 1000)
             }
             dataSort
+            sortFunc={sortStartEpoch}
             isKey
           >
             Date
@@ -337,6 +365,8 @@ export class List extends React.Component<ListProps, ListState> {
           <TableHeaderColumn
             dataField="contest"
             dataFormat={formatContestTitle}
+            dataSort
+            sortFunc={sortContest}
           >
             Contest
           </TableHeaderColumn>
