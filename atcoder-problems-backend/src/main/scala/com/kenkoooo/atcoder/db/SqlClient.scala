@@ -83,17 +83,16 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   }
 
   /**
-    * load the time of the last submission which is submitted by anyone in the given list
+    * load the id of the latest submission which is submitted by anyone in the given list
     *
-    * @param userId [[UserId]] to get the epoch of their last submission
-    * @return [[DateTime]] of the last submission
+    * @param userId [[UserId]] to search submissions
+    * @return the id of the latest submission
     */
-  def loadUserLastSubmitted(userIds: UserId*): DateTime = {
+  def loadUserLatestSubmissionId(userIds: UserId*): Long = {
     DB.readOnly { implicit session =>
-      val epochSecond: Long = withSQL {
-        select(max(SubmissionSyntax.epochSecond)).from(Submission as SubmissionSyntax).where.in(SubmissionSyntax.userId, userIds)
+      withSQL {
+        select(max(SubmissionSyntax.id)).from(Submission as SubmissionSyntax).where.in(SubmissionSyntax.userId, userIds)
       }.map(_.long(1)).single().apply().getOrElse(0L)
-      DateTime(1000 * epochSecond)
     }
   }
 

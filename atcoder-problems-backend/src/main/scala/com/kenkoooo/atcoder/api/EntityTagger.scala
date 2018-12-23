@@ -16,4 +16,7 @@ object EntityTagger {
   def calculateDateTimeTag(dateTime: DateTime): EntityTag = {
     EntityTag(md5Sum(dateTime.toIsoDateTimeString()), weak = true)
   }
+  def calculateLatestSubmissionIdTag(latestSubmissionId: Long): EntityTag = {
+    EntityTag(md5Sum(latestSubmissionId.toString()), weak = true)
+  }
 }
