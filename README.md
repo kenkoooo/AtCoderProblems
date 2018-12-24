@@ -55,31 +55,33 @@ npm test
 ## Information API
 
 - Contests Information
-  - http://kenkoooo.com/atcoder/atcoder-api/info/contests
+  - https://kenkoooo.com/atcoder/atcoder-api/info/contests
 - Problems Information
-  - http://kenkoooo.com/atcoder/atcoder-api/info/problems
+  - https://kenkoooo.com/atcoder/atcoder-api/info/problems
 - Detailed Problems Information
-  - http://kenkoooo.com/atcoder/atcoder-api/info/merged-problems
+  - https://kenkoooo.com/atcoder/atcoder-api/info/merged-problems
 
 ## Statistics API
 
 - Accepted Count
-  - http://kenkoooo.com/atcoder/atcoder-api/info/ac
+  - https://kenkoooo.com/atcoder/atcoder-api/info/ac
 - Shortest Code Count
-  - http://kenkoooo.com/atcoder/atcoder-api/info/short
+  - https://kenkoooo.com/atcoder/atcoder-api/info/short
 - Fastest Code Count
-  - http://kenkoooo.com/atcoder/atcoder-api/info/fast
+  - https://kenkoooo.com/atcoder/atcoder-api/info/fast
 - First Accepted Count
-  - http://kenkoooo.com/atcoder/atcoder-api/info/first
+  - https://kenkoooo.com/atcoder/atcoder-api/info/first
 - Rated Point Sum
-  - http://kenkoooo.com/atcoder/atcoder-api/info/sums
+  - https://kenkoooo.com/atcoder/atcoder-api/info/sums
 - Accepted Count for each langages
-  - http://kenkoooo.com/atcoder/atcoder-api/info/lang
+  - https://kenkoooo.com/atcoder/atcoder-api/info/lang
 - Predicted Rating for each user
-  - http://kenkoooo.com/atcoder/atcoder-api/info/predicted-ratings
+  - https://kenkoooo.com/atcoder/atcoder-api/info/predicted-ratings
 
 ## UserInfo API
 - https://kenkoooo.com/atcoder/atcoder-api/v2/user_info?user=kenkoooo
 
 ## Submission API
-  - https://kenkoooo.com/atcoder/atcoder-api/results?users=wata&rivals=iwiwi,chokudai
+- https://kenkoooo.com/atcoder/atcoder-api/results?user=wata
+
+(The API `results?user=wata&rivals=iwiwi,chokudai` is obsoleted since it's difficult to cache. Please call above API 3 times as `results?user=wata`, `results?user=iwiwi` and `results?user=chokudai`.)
