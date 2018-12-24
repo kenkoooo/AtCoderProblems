@@ -1,7 +1,8 @@
 package com.kenkoooo.atcoder.api
 
 import akka.http.scaladsl.model.DateTime
-import akka.http.scaladsl.model.headers.`Access-Control-Allow-Origin`
+import akka.http.scaladsl.model.headers.{`Access-Control-Allow-Origin`, `Cache-Control`}
+import akka.http.scaladsl.model.headers.CacheDirectives.`max-age`
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.kenkoooo.atcoder.db.SqlClient
@@ -46,7 +47,12 @@ class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
             val rivalList = rivals.split(",").map(_.trim).toList
             val users = (user :: rivalList).filter(_.length > 0).filter(_.matches(UserNameRegex))
 
-            complete(sqlClient.loadUserSubmissions(users: _*).toList)
+            val latestSubmissionId: Long = sqlClient.loadUserLatestSubmissionId(users: _*);
+            conditional(EntityTagger.calculateLatestSubmissionIdTag(latestSubmissionId)) {
+              respondWithHeaders(`Cache-Control`(`max-age`(0))) {
+                complete(sqlClient.loadUserSubmissions(users: _*).toList)
+              }
+            }
           }
         } ~ pathPrefix("v2") {
           path("user_info") {
