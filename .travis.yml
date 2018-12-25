@@ -34,4 +34,4 @@ deploy:
     - atcoder-problems-frontend/dist/bundle.js
     - atcoder-problems-backend/target/scala-2.12/atcoder-problems-assembly-0.1.jar
   on:
-    tags: true
+    repo: kenkou/travis_release
