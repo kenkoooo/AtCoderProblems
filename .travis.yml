@@ -12,6 +12,7 @@ matrix:
         - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
       script:
         - sbt clean coverage test coverageReport
+        - sbt assembly
       after_success:
         - bash <(curl -s https://codecov.io/bash)
     - language: node_js
@@ -24,3 +25,13 @@ matrix:
         - npm test
       after_success:
         - codecov
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key: $GITHUB_TOKEN
+  file: 
+    - atcoder-problems-frontend/dist/bundle.js
+    - atcoder-problems-backend/target/scala-2.12/atcoder-problems-assembly-0.1.jar
+  on:
+    tags: true
