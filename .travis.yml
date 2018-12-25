@@ -37,5 +37,4 @@ deploy:
   skip_cleanup: true
   draft: true
   on:
-    repo: kenkoooo/AtCoderProblems
-    branch: kenkou/travis_release
+    tags: true
