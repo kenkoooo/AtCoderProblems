@@ -136,7 +136,7 @@ test("get and parse submissions", () => {
     return new MockRequest(response);
   });
   require("./ApiCall")
-    .ApiCall.getSubmissions(["iwiwi", "chokudai"])
+    .ApiCall.getSubmissions("iwiwi")
     .then((submissions: Submission[]) => {
       expect(submissions[0].id).toEqual(74283);
       expect(submissions[1].id).toEqual(74285);
