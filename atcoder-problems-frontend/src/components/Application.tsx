@@ -66,8 +66,10 @@ export class Application extends React.Component<{}, ApplicationState> {
   setSubmissions() {
     let users = this.state.args.rivals.slice(0);
     users.push(this.state.args.userId);
-    ApiCall.getSubmissions(users.filter(user => user.length > 0))
-      .then(submissions => this.setState({ submissions: submissions }))
+    Promise.all(
+        users.filter(user => user.length > 0)
+          .map(user => ApiCall.getSubmissions(user)))
+      .then(submissions => this.setState({ submissions: Array.prototype.concat.apply([], submissions) }))
       .catch(err => console.error(err));
   }
 
