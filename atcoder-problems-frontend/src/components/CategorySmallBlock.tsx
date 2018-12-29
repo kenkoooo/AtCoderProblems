@@ -39,7 +39,7 @@ export class CategorySmallBlock extends React.Component<
                   {contest.title}
                 </a>
               </strong>
-              <Table striped bordered condensed hover>
+              <Table striped bordered condensed hover responsive>
                 <tbody>
                   <tr>
                     {problems.sort((a, b) => a.title > b.title ? 1 : -1).map((problem, i) => (
