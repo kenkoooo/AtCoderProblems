@@ -68,7 +68,7 @@ export class Application extends React.Component<{}, ApplicationState> {
     users.push(this.state.args.userId);
     Promise.all(
         users.filter(user => user.length > 0)
-          .map(user => ApiCall.getSubmissions([user])))
+          .map(user => ApiCall.getSubmissions(user)))
       .then(submissions => this.setState({ submissions: Array.prototype.concat.apply([], submissions) }))
       .catch(err => console.error(err));
   }
