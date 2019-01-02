@@ -9,7 +9,7 @@ import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import SQLSyntax.min
 import scalikejdbc.interpolation.SQLSyntax
-import sqls.{count, distinct, max}
+import sqls.{count, distinct}
 
 import scala.util.Try
 
@@ -83,15 +83,15 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   }
 
   /**
-    * load the id of the latest submission which is submitted by anyone in the given list
+    * load the number of submissions which are submitted by anyone in the given list
     *
     * @param userId [[UserId]] to search submissions
-    * @return the id of the latest submission
+    * @return the number of submissions
     */
-  def loadUserLatestSubmissionId(userIds: UserId*): Long = {
+  def loadUserSubmissionCount(userIds: UserId*): Long = {
     DB.readOnly { implicit session =>
       withSQL {
-        select(max(SubmissionSyntax.id)).from(Submission as SubmissionSyntax).where.in(SubmissionSyntax.userId, userIds)
+        select(count).from(Submission as SubmissionSyntax).where.in(SubmissionSyntax.userId, userIds)
       }.map(_.long(1)).single().apply().getOrElse(0L)
     }
   }

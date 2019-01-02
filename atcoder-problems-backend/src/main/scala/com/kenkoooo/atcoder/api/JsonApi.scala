@@ -47,8 +47,8 @@ class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
             val rivalList = rivals.split(",").map(_.trim).toList
             val users = (user :: rivalList).filter(_.length > 0).filter(_.matches(UserNameRegex))
 
-            val latestSubmissionId: Long = sqlClient.loadUserLatestSubmissionId(users: _*);
-            conditional(EntityTagger.calculateLatestSubmissionIdTag(latestSubmissionId)) {
+            val submissionCount: Long = sqlClient.loadUserSubmissionCount(users: _*);
+            conditional(EntityTagger.calculateIntegerTag(submissionCount)) {
               respondWithHeaders(`Cache-Control`(`max-age`(0))) {
                 complete(sqlClient.loadUserSubmissions(users: _*).toList)
               }
