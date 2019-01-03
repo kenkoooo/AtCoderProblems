@@ -56,7 +56,7 @@ export class UserPageAchievements extends React.Component<
       {
         title: "Accepted", ranking: this.state.userInfo.match({
           some: info => [{
-            rank: info.accepted_count_rank,
+            rank: info.accepted_count_rank + 1,
             user_id: info.user_id,
             count: info.accepted_count
           }],
@@ -69,7 +69,7 @@ export class UserPageAchievements extends React.Component<
       {
         title: "Rated Point Sum", ranking: this.state.userInfo.match({
           some: info => [{
-            rank: info.rated_point_sum_rank,
+            rank: info.rated_point_sum_rank + 1,
             user_id: info.user_id,
             count: info.rated_point_sum
           }],
