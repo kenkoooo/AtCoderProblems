@@ -56,7 +56,7 @@ export class UserPageAchievements extends React.Component<
       {
         title: "Accepted", ranking: this.state.userInfo.match({
           some: info => [{
-            rank: info.accepted_count_rank,
+            rank: info.accepted_count_rank + 1,
             user_id: info.user_id,
             count: info.accepted_count
           }],
@@ -69,7 +69,7 @@ export class UserPageAchievements extends React.Component<
       {
         title: "Rated Point Sum", ranking: this.state.userInfo.match({
           some: info => [{
-            rank: info.rated_point_sum_rank,
+            rank: info.rated_point_sum_rank + 1,
             user_id: info.user_id,
             count: info.rated_point_sum
           }],
@@ -91,7 +91,6 @@ export class UserPageAchievements extends React.Component<
 
     this.props.acceptNewProblemSeconds.forEach((second, i) => {
       if (i > 0) {
-        let lastSecond = this.props.acceptNewProblemSeconds[i - 1];
         let yesterday = TimeFormatter.getDateString(
           (second - 24 * 3600) * 1000
         );
@@ -129,11 +128,11 @@ export class UserPageAchievements extends React.Component<
           var rankTitle = "-";
           if (rank == 0) {
             rankTitle = "-";
-          } else if (rank % 10 == 1) {
+          } else if (rank % 10 == 1 && rank % 100 != 11) {
             rankTitle = String(rank) + "st";
-          } else if (rank % 10 == 2) {
+          } else if (rank % 10 == 2 && rank % 100 != 12) {
             rankTitle = String(rank) + "nd";
-          } else if (rank % 10 == 3) {
+          } else if (rank % 10 == 3 && rank % 100 != 13) {
             rankTitle = String(rank) + "rd";
           } else {
             rankTitle = String(rank) + "th";
