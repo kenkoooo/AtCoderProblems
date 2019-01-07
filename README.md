@@ -85,3 +85,9 @@ npm test
 - https://kenkoooo.com/atcoder/atcoder-api/results?user=wata
 
 (The API `results?user=wata&rivals=iwiwi,chokudai` is obsoleted since it's difficult to cache. Please call above API 3 times as `results?user=wata`, `results?user=iwiwi` and `results?user=chokudai`.)
+
+# Dataset
+
+- https://s3-ap-northeast-1.amazonaws.com/kenkoooo/atcoder.sql
+
+You can download whole data, which are crawled by the official crawler.
