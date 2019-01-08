@@ -88,6 +88,7 @@ npm test
 
 # Dataset
 
-- https://s3-ap-northeast-1.amazonaws.com/kenkoooo/atcoder.sql
+- [SQL version] https://s3-ap-northeast-1.amazonaws.com/kenkoooo/atcoder.sql
+- [CSV version] https://s3-ap-northeast-1.amazonaws.com/kenkoooo/atcoder_submissions.csv
 
 You can download whole data, which are crawled by the official crawler.
