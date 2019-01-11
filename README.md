@@ -55,28 +55,26 @@ npm test
 ## Information API
 
 - Contests Information
-  - https://kenkoooo.com/atcoder/atcoder-api/info/contests
+  - https://kenkoooo.com/atcoder/resources/contests.json
 - Problems Information
-  - https://kenkoooo.com/atcoder/atcoder-api/info/problems
+  - https://kenkoooo.com/atcoder/resources/problems.json
 - Detailed Problems Information
-  - https://kenkoooo.com/atcoder/atcoder-api/info/merged-problems
+  - https://kenkoooo.com/atcoder/resources/merged-problems.json
 
 ## Statistics API
 
 - Accepted Count
-  - https://kenkoooo.com/atcoder/atcoder-api/info/ac
+  - https://kenkoooo.com/atcoder/resources/ac.json
 - Shortest Code Count
-  - https://kenkoooo.com/atcoder/atcoder-api/info/short
+  - https://kenkoooo.com/atcoder/resources/short.json
 - Fastest Code Count
-  - https://kenkoooo.com/atcoder/atcoder-api/info/fast
+  - https://kenkoooo.com/atcoder/resources/fast.json
 - First Accepted Count
-  - https://kenkoooo.com/atcoder/atcoder-api/info/first
+  - https://kenkoooo.com/atcoder/resources/first.json
 - Rated Point Sum
-  - https://kenkoooo.com/atcoder/atcoder-api/info/sums
+  - https://kenkoooo.com/atcoder/resources/sums.json
 - Accepted Count for each langages
-  - https://kenkoooo.com/atcoder/atcoder-api/info/lang
-- Predicted Rating for each user
-  - https://kenkoooo.com/atcoder/atcoder-api/info/predicted-ratings
+  - https://kenkoooo.com/atcoder/resources/lang.json
 
 ## UserInfo API
 - https://kenkoooo.com/atcoder/atcoder-api/v2/user_info?user=kenkoooo
