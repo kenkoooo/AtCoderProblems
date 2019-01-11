@@ -75,8 +75,6 @@ npm test
   - https://kenkoooo.com/atcoder/resources/sums.json
 - Accepted Count for each langages
   - https://kenkoooo.com/atcoder/resources/lang.json
-- Predicted Rating for each user
-  - https://kenkoooo.com/atcoder/atcoder-api/info/predicted-ratings
 
 ## UserInfo API
 - https://kenkoooo.com/atcoder/atcoder-api/v2/user_info?user=kenkoooo
