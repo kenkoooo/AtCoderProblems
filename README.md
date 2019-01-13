@@ -52,6 +52,17 @@ npm test
 
 # API
 
+Please use API politely.
+Especially, please ensure using cache and adding delay if you develop a bot.
+
+APIは行儀良く利用してください。
+特にbotを開発している場合は、ETagを用いたキャッシュを利用し、連続して呼び出す際はある程度 (例えば1秒) の遅延をはさむようにしてください。
+1日に数万回以上のリクエストをしたい場合は事前に相談してください。
+
+ブラウザ上からJavaScriptで直接利用している場合はあまり気にする必要はありません。
+キャッシュはブラウザがよしなにやってくれますし、呼び出し回数もたいてい多くならないためです。
+botの場合も1日に1000回以下程度のリクエストであればたいした負荷にはならないので心配する必要はありません。
+
 ## Information API
 
 - Contests Information
@@ -60,6 +71,8 @@ npm test
   - https://kenkoooo.com/atcoder/resources/problems.json
 - Detailed Problems Information
   - https://kenkoooo.com/atcoder/resources/merged-problems.json
+
+(The API `info/*` are deprecated. Please use new API.)
 
 ## Statistics API
 
@@ -75,6 +88,8 @@ npm test
   - https://kenkoooo.com/atcoder/resources/sums.json
 - Accepted Count for each langages
   - https://kenkoooo.com/atcoder/resources/lang.json
+
+(The API `info/*` are deprecated. Please use new API.)
 
 ## UserInfo API
 - https://kenkoooo.com/atcoder/atcoder-api/v2/user_info?user=kenkoooo
