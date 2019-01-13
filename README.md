@@ -72,6 +72,8 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
 - Detailed Problems Information
   - https://kenkoooo.com/atcoder/resources/merged-problems.json
 
+(The API `info/*` are deprecated. Please use new API.)
+
 ## Statistics API
 
 - Accepted Count
@@ -86,6 +88,8 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
   - https://kenkoooo.com/atcoder/resources/sums.json
 - Accepted Count for each langages
   - https://kenkoooo.com/atcoder/resources/lang.json
+
+(The API `info/*` are deprecated. Please use new API.)
 
 ## UserInfo API
 - https://kenkoooo.com/atcoder/atcoder-api/v2/user_info?user=kenkoooo
