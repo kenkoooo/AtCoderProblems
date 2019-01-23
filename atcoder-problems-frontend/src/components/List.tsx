@@ -177,7 +177,7 @@ export class List extends React.Component<ListProps, ListState> {
     let data: Array<ProblemRow> = this.props.problems
       .filter(p => contestMap.has(p.contest_id))
       .filter(p => {
-        if (this.state.onlyRated && !p.point) {
+        if (this.state.onlyRated && contestMap.get(p.contest_id).rate_change.match(/[-×]/)) {
           return false;
         } else if (this.state.showAccepted && acceptedDateMap.has(p.id)) {
           return true;
