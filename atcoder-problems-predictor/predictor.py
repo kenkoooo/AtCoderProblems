@@ -17,7 +17,7 @@ def main(filepath: str):
         SELECT problems.id FROM problems
         JOIN contests ON problems.contest_id=contests.id
         WHERE contests.start_epoch_second>=1468670400
-        AND rate_change!='×'
+        AND rate_change!='-'
     )
     GROUP BY s.problem_id
     ORDER BY max
