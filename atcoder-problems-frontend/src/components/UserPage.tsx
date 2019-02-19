@@ -127,7 +127,7 @@ export class UserPage extends React.Component<UserPageProps, {}> {
         </Row>
 
         <PageHeader>Heatmap</PageHeader>
-        <UserPageHeatMap submissions={this.props.submissions} />
+        {/* <UserPageHeatMap submissions={this.props.submissions} /> */}
 
         <PageHeader>Climbing</PageHeader>
         <UserPageLineChart acceptNewProblemSeconds={acceptNewProblemSeconds} />
