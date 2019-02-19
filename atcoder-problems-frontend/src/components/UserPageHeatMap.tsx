@@ -29,7 +29,7 @@ export interface UserPageHeatMapProps {
 export class UserPageHeatMap extends React.Component<
   UserPageHeatMapProps,
   UserPageHeatMapState
-> {
+  > {
   constructor(prop: UserPageHeatMapProps) {
     super(prop);
     this.state = { filter: SubmissionFilter.All };
@@ -114,8 +114,7 @@ export class UserPageHeatMap extends React.Component<
           }}
           transformDayElement={(
             rect,
-            value: { date: string; count: number },
-            index
+            value: { date: string; count: number }
           ) => {
             if (value) {
               return (
