@@ -11,7 +11,7 @@ export interface UserPageBarChartProps {
 export class UserPageBarChart extends React.Component<
   UserPageBarChartProps,
   {}
-> {
+  > {
   render() {
     let name = "user_page_bar_chart";
 
@@ -53,6 +53,9 @@ export class UserPageBarChart extends React.Component<
         width: {
           ratio: 0.02 // this makes bar width 50% of length between ticks
         }
+      },
+      size: {
+        height: 320
       }
     });
 
