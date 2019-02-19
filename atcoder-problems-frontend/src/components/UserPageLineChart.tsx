@@ -11,7 +11,7 @@ export interface UserPageLineChartProps {
 export class UserPageLineChart extends React.Component<
   UserPageLineChartProps,
   {}
-> {
+  > {
   render() {
     let name = "user_page_line_chart";
 
@@ -38,6 +38,9 @@ export class UserPageLineChart extends React.Component<
             format: "%Y-%m-%d"
           }
         }
+      },
+      size: {
+        height: 320
       }
     });
 
