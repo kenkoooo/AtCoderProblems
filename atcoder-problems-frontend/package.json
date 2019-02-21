@@ -52,7 +52,7 @@
     "react": "^16.8.2",
     "react-bootstrap": "^0.32.4",
     "react-bootstrap-table": "^4.3.1",
-    "react-calendar-heatmap": "^1.6.2",
+    "react-calendar-heatmap": "1.6.3",
     "react-dom": "^16.8.2",
     "superagent": "^4.1.0",
     "ts-option": "^1.1.5"
