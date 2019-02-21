@@ -21,7 +21,8 @@ matrix:
     before_script:
     - cd atcoder-problems-frontend
     script:
-    - npm install
+    - npm install yarn -g
+    - yarn
     - npm run build
     - npm test
     after_success:
