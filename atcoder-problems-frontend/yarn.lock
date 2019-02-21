@@ -3919,10 +3919,6 @@ mem@^4.0.0:
     mimic-fn "^1.0.0"
     p-is-promise "^2.0.0"
 
-memoize-one@^4.0.2:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-4.1.0.tgz#a2387c58c03fff27ca390c31b764a79addf3f906"
-
 memory-fs@^0.4.0, memory-fs@~0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.4.1.tgz#3a9a20b8462523e447cfbc7e8bb80ed667bfc552"
@@ -4902,12 +4898,11 @@ react-bootstrap@^0.32.4:
     uncontrollable "^5.0.0"
     warning "^3.0.0"
 
-react-calendar-heatmap@^1.6.2:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/react-calendar-heatmap/-/react-calendar-heatmap-1.8.0.tgz#7672fc697c792c3ab71cb6d8ecb19362ace14ed1"
+react-calendar-heatmap@1.6.3:
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/react-calendar-heatmap/-/react-calendar-heatmap-1.6.3.tgz#17bf56ad175d85ee5793410c36881112246de570"
   dependencies:
-    memoize-one "^4.0.2"
-    prop-types "^15.6.2"
+    prop-types "^15.5.10"
 
 react-dom@^16.8.2:
   version "16.8.2"
