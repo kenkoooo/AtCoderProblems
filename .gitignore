@@ -8,6 +8,5 @@
 **/env/
 **/coverage/
 **/.python-version
-**/*.lock
 **/package-lock.json
 **/.vscode
