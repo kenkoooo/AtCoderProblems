@@ -85,7 +85,7 @@ export class ApiCall {
   static async getContests(): Promise<Array<Contest>> {
     let url = `${this.ResourceUrl}/contests.json`;
     const obj = await this.getJson(url);
-    let contests: Contest[] = obj.map((o: Contest) => o as Contest);
+    let contests: Contest[] = obj.map((o: { id: string, title: string, start_epoch_second: number, rate_change: string }) => new Contest(o.id, o.title, o.start_epoch_second, o.rate_change));
     return contests;
   }
 
