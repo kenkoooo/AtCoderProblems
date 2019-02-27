@@ -15,6 +15,7 @@ import com.kenkoooo.atcoder.model.{ApiJsonSupport, Contest, Problem}
 import com.kenkoooo.atcoder.runner.{AllSubmissionScrapingRunner, NewerSubmissionScrapingRunner}
 import com.kenkoooo.atcoder.scraper.{ContestScraper, ProblemScraper, SubmissionScraper}
 import org.apache.logging.log4j.scala.Logging
+import scalikejdbc.ConnectionPool
 
 import scala.util.{Failure, Success}
 
@@ -27,16 +28,16 @@ object Main extends Logging with ApiJsonSupport {
       case Success(config) =>
         val service: ScheduledExecutorService =
           Executors.newScheduledThreadPool(config.scraper.threads)
-        val sql = new SqlClient(
+
+        Class.forName("org.postgresql.Driver")
+        ConnectionPool.singleton(
           url = config.sql.url,
           user = config.sql.user,
           password = config.sql.password
         )
-        val sqlUpdater = new SqlUpdater(
-          url = config.sql.url,
-          user = config.sql.user,
-          password = config.sql.password
-        )
+
+        val sql = new SqlClient()
+        val sqlUpdater = new SqlUpdater()
         val contestScraper = new ContestScraper
         val submissionScraper = new SubmissionScraper
         val problemScraper = new ProblemScraper

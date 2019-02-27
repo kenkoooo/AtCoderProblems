@@ -11,9 +11,7 @@ import sqls.{count, distinct}
 
 import scala.util.Try
 
-class SqlUpdater(url: String, user: String, password: String) extends Logging {
-  Class.forName("org.postgresql.Driver")
-  ConnectionPool.singleton(url, user, password)
+class SqlUpdater extends Logging {
 
   def updateAll(): Unit = {
     logger.info("start batch table update")

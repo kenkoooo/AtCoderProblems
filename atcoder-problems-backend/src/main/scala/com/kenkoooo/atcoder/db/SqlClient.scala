@@ -12,14 +12,8 @@ import scala.util.Try
 
 /**
   * Data Store of SQL
-  *
-  * @param url      JDBC url of SQL
-  * @param user     username of SQL
-  * @param password password of SQL
   */
-class SqlClient(url: String, user: String, password: String) extends Logging {
-  Class.forName("org.postgresql.Driver")
-  ConnectionPool.singleton(url, user, password)
+class SqlClient extends Logging {
 
   private var _contests: Map[ContestId, Contest] = Map()
   private var _problems: Map[ProblemId, Problem] = Map()

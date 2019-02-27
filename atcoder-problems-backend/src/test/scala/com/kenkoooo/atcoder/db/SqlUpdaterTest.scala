@@ -34,7 +34,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
 
   test("insert and reload contests") {
     val id = "arc999"
-    val store = new SqlUpdater(url, sqlUser, sqlPass)
+    val store = new SqlUpdater()
     store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
     store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
 
@@ -45,7 +45,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   test("insert and reload problems") {
     val id = "arc999_d"
     val title = "日本語の問題 (Japanese Problem)"
-    val store = new SqlUpdater(url, sqlUser, sqlPass)
+    val store = new SqlUpdater()
     store.batchInsert(Problem, Problem(id, "arc999", title))
     store.batchInsert(Problem, Problem(id, "arc999", title))
 
@@ -56,7 +56,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("load user submissions") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
     updater.batchInsert(
       Submission,
       List(
@@ -72,7 +72,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("update solver counts") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
     updater.batchInsert(
       Submission,
       Submission(id = 1, problemId = "problem_1", userId = "user_1", result = "WA"),
@@ -102,7 +102,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("extract shortest submissions") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
     val contestId = "contest_id"
     val startSecond = 114514L
     updater.batchInsert(
@@ -201,7 +201,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("extract shortest contest") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
     val contestId1 = "contest1"
     val contestId2 = "contest2"
     val startSecond = 114514L
@@ -251,7 +251,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("extract fastest submissions") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
     val contestId = "contest_id"
     val startSecond = 114514L
     updater.batchInsert(
@@ -358,7 +358,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("extract first submissions") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
     val contestId = "contest_id"
     val startSecond = 114514L
     updater.batchInsert(
@@ -458,7 +458,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("update accepted count ranking") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
     updater.batchInsert(
       Submission,
       Submission(id = 1, problemId = "p1", userId = "u1", result = "WA"),
@@ -488,7 +488,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("batch execution of statistics functions") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
     val contestId = "arc999"
     val problemId = "arc999_f"
     val contestant = "kenkoooo"
@@ -534,7 +534,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("update rated point sum table") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
 
     val ratedProblemId1 = "p1"
     val ratedProblemId2 = "p2"
@@ -567,7 +567,7 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
   }
 
   test("update language count table") {
-    val updater = new SqlUpdater(url, sqlUser, sqlPass)
+    val updater = new SqlUpdater()
 
     val userId = "u1"
     val pId1 = "p1"
