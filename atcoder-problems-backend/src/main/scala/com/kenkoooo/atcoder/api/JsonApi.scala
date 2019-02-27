@@ -5,16 +5,16 @@ import akka.http.scaladsl.model.headers.CacheDirectives.`max-age`
 import akka.http.scaladsl.model.headers.{`Access-Control-Allow-Origin`, `Cache-Control`}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import com.kenkoooo.atcoder.db.SqlClient
+import com.kenkoooo.atcoder.db.SqlViewer
 import com.kenkoooo.atcoder.model.{ApiJsonSupport, UserInfo}
 import com.kenkoooo.atcoder.scraper.AtCoder.UserNameRegex
 
 /**
   * API routes which connect to SQL and provide JSON-formatted API
   *
-  * @param sqlClient [[SqlClient]] to connect to SQL
+  * @param sqlClient [[SqlViewer]] to connect to SQL
   */
-class JsonApi(sqlClient: SqlClient) extends ApiJsonSupport {
+class JsonApi(sqlClient: SqlViewer) extends ApiJsonSupport {
   val routes: Route = encodeResponse {
     respondWithDefaultHeader(`Access-Control-Allow-Origin`.*) {
       get {
