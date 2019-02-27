@@ -533,64 +533,6 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
     selectRecords(ShortestSubmissionCount).head shouldBe ShortestSubmissionCount(contestant, 1)
   }
 
-  test("load merged problem info") {
-//    val updater = new SqlUpdater(url, sqlUser, sqlPass)
-//
-//    val problemId = "asc999_a"
-//    val contestId = "asc999"
-//    val title = "A * B problem"
-//    val userId = "kenkoooo"
-//
-//    val notSolvedProblemId = "not_solved"
-//
-//    updater.batchInsert(
-//      Problem,
-//      Problem(problemId, contestId, title),
-//      Problem(notSolvedProblemId, "Difficult Contest", "too difficult problem")
-//    )
-//    updater.batchInsert(
-//      Submission,
-//      Submission(
-//        id = 1,
-//        problemId = problemId,
-//        userId = userId,
-//        result = "AC",
-//        length = 114,
-//        executionTime = Some(514),
-//        contestId = contestId
-//      )
-//    )
-//    DB.localTx { implicit session =>
-//      sql"INSERT INTO points (problem_id, point) VALUES ($problemId, 1.0)".execute().apply()
-//      sql"INSERT INTO points (problem_id, predict) VALUES ($notSolvedProblemId, 1.0)"
-//        .execute()
-//        .apply()
-//    }
-//
-//    updater.updateAll()
-//    val problems = updater.loadMergedProblems()
-//    problems.find(_.id == problemId).get.solverCount shouldBe 1
-//    problems.find(_.id == problemId).get.contestId shouldBe contestId
-//    problems.find(_.id == problemId).get.point.get shouldBe 1.0
-//    problems.find(_.id == problemId).get.predict shouldBe None
-//    problems.find(_.id == notSolvedProblemId).get.solverCount shouldBe 0
-//    problems.find(_.id == notSolvedProblemId).get.point shouldBe None
-//    problems.find(_.id == notSolvedProblemId).get.predict.get shouldBe 1.0
-  }
-
-  test("extract contests which don't have any problems") {
-//    val updater = new SqlUpdater(url, sqlUser, sqlPass)
-//    val id1 = "contest1"
-//    val id2 = "contest2"
-//
-//    updater.batchInsert(Contest, Contest(id1, 0, 0, "", ""), Contest(id2, 0, 0, "", ""))
-//    updater.batchInsert(Problem, Problem("problem1", id1, ""))
-//
-//    val contestIds = updater.loadNoProblemContestList()
-//    contestIds.size shouldBe 1
-//    contestIds.head shouldBe id2
-  }
-
   test("update rated point sum table") {
     val updater = new SqlUpdater(url, sqlUser, sqlPass)
 
@@ -650,20 +592,4 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
       .map(c => (c.userId, c.simplifiedLanguage) -> c.problemCount)
       .toMap shouldBe Map(("u1", "Java") -> 2, ("u1", "Rust") -> 1)
   }
-
-  test("load predicted ratings") {
-//    val updater = new SqlUpdater(url, sqlUser, sqlPass)
-//    val userId = "kenkoooo"
-//    val rating = 3.14
-//    DB.localTx { implicit session =>
-//      sql"INSERT INTO predicted_rating (user_id, rating) VALUES ($userId, $rating)"
-//        .execute()
-//        .apply()
-//    }
-//    updater.reloadRecords()
-//    updater.predictedRatings.size shouldBe 1
-//    updater.predictedRatings.head.userId shouldBe userId
-//    updater.predictedRatings.head.rating shouldBe rating
-  }
-
 }
