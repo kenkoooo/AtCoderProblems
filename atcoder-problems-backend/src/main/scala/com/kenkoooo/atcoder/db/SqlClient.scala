@@ -9,8 +9,6 @@ import scalikejdbc._
 import scalikejdbc.interpolation.SQLSyntax
 import sqls.count
 
-import scala.util.Try
-
 /**
   * Data Store of SQL
   */
@@ -202,33 +200,6 @@ class SqlClient extends Logging with ContestLoader {
         .apply()
     }
   }
-
-  /**
-    * insert records to SQL
-    *
-    * @param support support object of inserting records
-    * @param records seq of records to insert
-    * @tparam T type of records
-    */
-  def batchInsert[T](support: SQLSelectInsertSupport[T], records: T*): Unit =
-    this.synchronized {
-      Try {
-        DB.localTx { implicit session =>
-          val params =
-            support.createMapping(records).map(seq => seq.map(_._2))
-          val columnMapping = support.createMapping(records).head.map(_._1 -> sqls.?)
-          withSQL {
-            insertInto(support)
-              .namedValues(columnMapping: _*)
-              .append(sqls"ON CONFLICT DO NOTHING")
-          }.batch(params: _*).apply()
-        }
-      }.recover {
-        case e: Throwable =>
-          logger.catching(e)
-          records.foreach(t => logger.error(t.toString))
-      }
-    }
 
   override def loadContest(): List[Contest] = contests.values.toList
 }

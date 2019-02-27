@@ -1,6 +1,5 @@
 package com.kenkoooo.atcoder.db
 
-import com.kenkoooo.atcoder.model._
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 import scalikejdbc._
 
@@ -34,23 +33,6 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
 
     val notSolvedProblemId = "not_solved"
 
-    client.batchInsert(
-      Problem,
-      Problem(problemId, contestId, title),
-      Problem(notSolvedProblemId, "Difficult Contest", "too difficult problem")
-    )
-    client.batchInsert(
-      Submission,
-      Submission(
-        id = submissionId,
-        problemId = problemId,
-        userId = userId,
-        result = "AC",
-        length = 114,
-        executionTime = Some(514),
-        contestId = contestId
-      )
-    )
     DB.localTx { implicit session =>
       sql"INSERT INTO points (problem_id, point) VALUES ($problemId, 1.0)".execute().apply()
       sql"INSERT INTO points (problem_id, predict) VALUES ($notSolvedProblemId, 1.0)"
@@ -64,6 +46,12 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
         .execute()
         .apply()
       sql"INSERT INTO first (contest_id, problem_id, submission_id) VALUES ($contestId, $problemId, $submissionId)"
+        .execute()
+        .apply()
+      sql"INSERT INTO problems (id, contest_id, title) VALUES ($problemId, $contestId, $title)"
+        .execute()
+        .apply()
+      sql"INSERT INTO problems (id, contest_id, title) VALUES ($notSolvedProblemId, 'Difficult Contest', 'too difficult problem')"
         .execute()
         .apply()
     }
@@ -83,8 +71,17 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     val id1 = "contest1"
     val id2 = "contest2"
 
-    client.batchInsert(Contest, Contest(id1, 0, 0, "", ""), Contest(id2, 0, 0, "", ""))
-    client.batchInsert(Problem, Problem("problem1", id1, ""))
+    DB.localTx { implicit session =>
+      sql"INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change) VALUES ($id1, 0, 0, '', '')"
+        .execute()
+        .apply()
+      sql"INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change) VALUES ($id2, 0, 0, '', '')"
+        .execute()
+        .apply()
+      sql"INSERT INTO problems (id, contest_id, title) VALUES ('problem1', $id1, '')"
+        .execute()
+        .apply()
+    }
 
     val contestIds = client.loadNoProblemContestList()
     contestIds.size shouldBe 1

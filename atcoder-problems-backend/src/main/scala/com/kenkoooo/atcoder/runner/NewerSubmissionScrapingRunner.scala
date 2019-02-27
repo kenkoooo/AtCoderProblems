@@ -1,6 +1,7 @@
 package com.kenkoooo.atcoder.runner
 
 import com.kenkoooo.atcoder.db.SqlClient
+import com.kenkoooo.atcoder.db.traits.SqlInsert
 import com.kenkoooo.atcoder.model.{Contest, Submission}
 import com.kenkoooo.atcoder.runner.NewerSubmissionScrapingRunner._
 import com.kenkoooo.atcoder.scraper.SubmissionScraper
@@ -17,6 +18,7 @@ import org.apache.logging.log4j.scala.Logging
   * @param overlapThreshold    threshold to change the contest
   */
 class NewerSubmissionScrapingRunner(sql: SqlClient,
+                                    sqlInsert: SqlInsert,
                                     contests: List[Contest],
                                     private[runner] val page: Int = Submission.FirstPageNumber,
                                     submissionScraper: SubmissionScraper,
@@ -35,19 +37,22 @@ class NewerSubmissionScrapingRunner(sql: SqlClient,
       case (true, true) =>
         new NewerSubmissionScrapingRunner(
           sql = sql,
+          sqlInsert = sqlInsert,
           contests = sql.loadContest(),
           submissionScraper = submissionScraper
         )
       case (true, false) =>
         new NewerSubmissionScrapingRunner(
           sql = sql,
+          sqlInsert = sqlInsert,
           contests = contests.tail,
           submissionScraper = submissionScraper
         )
       case (false, _) =>
-        sql.batchInsert(Submission, submissions: _*)
+        sqlInsert.batchInsert(Submission, submissions: _*)
         new NewerSubmissionScrapingRunner(
           sql = sql,
+          sqlInsert = sqlInsert,
           contests = contests,
           page = page + 1,
           submissionScraper = submissionScraper,

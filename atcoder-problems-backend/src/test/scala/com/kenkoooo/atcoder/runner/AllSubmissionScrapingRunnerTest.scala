@@ -1,6 +1,6 @@
 package com.kenkoooo.atcoder.runner
 
-import com.kenkoooo.atcoder.db.SqlClient
+import com.kenkoooo.atcoder.db.traits.{ContestLoader, SqlInsert}
 import com.kenkoooo.atcoder.model.{Contest, Submission}
 import com.kenkoooo.atcoder.scraper.SubmissionScraper
 import org.mockito.Mockito
@@ -14,13 +14,15 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
 
     val contest = Contest(currentContestId, 0, 0, "", "")
 
-    val sql = mock[SqlClient]
+    val contestLoader = mock[ContestLoader]
+    val sqlInsert = mock[SqlInsert]
 
     val scraper = mock[SubmissionScraper]
     val submission = mock[Submission]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array(submission))
 
-    val runner = new AllSubmissionScrapingRunner(sql, List(contest), currentPage, scraper)
+    val runner =
+      new AllSubmissionScrapingRunner(contestLoader, sqlInsert, List(contest), currentPage, scraper)
     val nextRunner = runner.scrapeOnePage()
 
     // check the scraper has been called
@@ -35,13 +37,15 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
     val currentContestId = "rco-contest-2017-final-open"
     val nextContestId = "rco-contest-2017-final"
 
-    val sql = mock[SqlClient]
+    val contestLoader = mock[ContestLoader]
+    val sqlInsert = mock[SqlInsert]
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
 
     val runner = new AllSubmissionScrapingRunner(
-      sql,
+      contestLoader,
+      sqlInsert,
       List(Contest(currentContestId, 0, 0, "", ""), Contest(nextContestId, 0, 0, "", "")),
       currentPage,
       scraper
@@ -63,15 +67,18 @@ class AllSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mockit
 
     val contest = Contest(currentContestId, 0, 0, "", "")
 
-    val sql = mock[SqlClient]
-    Mockito.when(sql.contests).thenReturn(Map(currentContestId -> contest))
+    val contestLoader = mock[ContestLoader]
+    val sqlInsert = mock[SqlInsert]
+
+    Mockito.when(contestLoader.loadContest()).thenReturn(List(contest))
 
     val scraper = mock[SubmissionScraper]
     Mockito.when(scraper.scrape(currentContestId, currentPage)).thenReturn(Array[Submission]())
 
-    val runner = new AllSubmissionScrapingRunner(sql, List(contest), currentPage, scraper)
+    val runner =
+      new AllSubmissionScrapingRunner(contestLoader, sqlInsert, List(contest), currentPage, scraper)
     val nextRunner = runner.scrapeOnePage()
     nextRunner.page shouldBe Submission.FirstPageNumber
-    Mockito.verify(sql, Mockito.times(1)).contests
+    Mockito.verify(contestLoader, Mockito.times(1)).loadContest()
   }
 }
