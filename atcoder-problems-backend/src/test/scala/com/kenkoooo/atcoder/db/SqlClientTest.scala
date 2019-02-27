@@ -632,7 +632,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       sql"INSERT INTO points (problem_id, point) VALUES ($ratedProblemId2, 200)".execute().apply()
       sql"INSERT INTO points (problem_id,predict) VALUES ($unratedProblemId,100)".execute().apply()
     }
-    client.updateRatedPoints()
+    client.updateRatedPointSums()
     client.loadRecords(RatedPointSum).map(s => s.userId -> s.pointSum).toMap shouldBe Map(
       userId1 -> 300,
       userId2 -> 200

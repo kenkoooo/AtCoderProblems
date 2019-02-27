@@ -1,6 +1,5 @@
 package com.kenkoooo.atcoder.db
 
-import akka.http.scaladsl.model.DateTime
 import com.kenkoooo.atcoder.common.SubmissionStatus
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, UserId}
 import com.kenkoooo.atcoder.db.SqlClient._
@@ -85,13 +84,16 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   /**
     * load the number of submissions which are submitted by anyone in the given list
     *
-    * @param userId [[UserId]] to search submissions
+    * @param userIds [[UserId]] to search submissions
     * @return the number of submissions
     */
   def loadUserSubmissionCount(userIds: UserId*): Long = {
     DB.readOnly { implicit session =>
       withSQL {
-        select(count).from(Submission as SubmissionSyntax).where.in(SubmissionSyntax.userId, userIds)
+        select(count)
+          .from(Submission as SubmissionSyntax)
+          .where
+          .in(SubmissionSyntax.userId, userIds)
       }.map(_.long(1)).single().apply().getOrElse(0L)
     }
   }
@@ -147,7 +149,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
   /**
     * update user rated point sum
     */
-  private[db] def updateRatedPoints(): Unit = {
+  private[db] def updateRatedPointSums(): Unit = {
     logger.info("updating user rated point sum")
     val points = Point.syntax("points")
     val submissions = Submission.syntax("submissions")
@@ -266,7 +268,7 @@ class SqlClient(url: String, user: String, password: String) extends Logging {
     updateAcceptedCounts()
     updateProblemSolverCounts()
 
-    updateRatedPoints()
+    updateRatedPointSums()
     updateLanguageCount()
 
     updateGreatSubmissions(First)
