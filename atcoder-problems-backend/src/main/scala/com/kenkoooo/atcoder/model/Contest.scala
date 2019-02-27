@@ -1,7 +1,7 @@
 package com.kenkoooo.atcoder.model
 
 import com.kenkoooo.atcoder.common.TypeAnnotations.ContestId
-import com.kenkoooo.atcoder.db.SQLSelectInsertSupport
+import com.kenkoooo.atcoder.db.{Mapping, SQLSelectInsertSupport}
 import scalikejdbc._
 
 /**
@@ -31,17 +31,18 @@ object Contest extends SQLSelectInsertSupport[Contest] {
     rateChange = rs.string(resultName.rateChange)
   )
 
-  override def createMapping(seq: Seq[Contest]): Seq[Seq[(SQLSyntax, ParameterBinder)]] = {
+  override def createMapping(seq: Seq[Contest]): Mapping = {
     val p = Contest.column
-    seq.map(
+    val mapping = seq.map(
       c =>
         Seq(
-          p.id -> c.id,
           p.startEpochSecond -> c.startEpochSecond,
           p.durationSecond -> c.durationSecond,
           p.title -> c.title,
           p.rateChange -> c.rateChange
       )
     )
+    val primaryKey = seq.map(p.id -> _.id)
+    Mapping(primaryKey, mapping)
   }
 }

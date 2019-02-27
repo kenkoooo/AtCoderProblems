@@ -5,7 +5,7 @@ import scalikejdbc._
 
 import scala.io.Source
 
-class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
+class SqlViewerTest extends FunSuite with BeforeAndAfter with Matchers {
   val url = "jdbc:postgresql://localhost:5432/test"
   val sqlUser = "kenkoooo"
   val sqlPass = "pass"
@@ -23,7 +23,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("load merged problem info") {
-    val client = new SqlClient()
+    val client = new SqlViewer()
 
     val problemId = "asc999_a"
     val contestId = "asc999"
@@ -66,7 +66,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("extract contests which don't have any problems") {
-    val client = new SqlClient()
+    val client = new SqlViewer()
     val id1 = "contest1"
     val id2 = "contest2"
 
@@ -88,7 +88,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("load predicted ratings") {
-    val client = new SqlClient()
+    val client = new SqlViewer()
     val userId = "kenkoooo"
     val rating = 3.14
     DB.localTx { implicit session =>

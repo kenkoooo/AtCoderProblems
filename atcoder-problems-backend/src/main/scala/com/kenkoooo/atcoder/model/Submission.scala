@@ -1,7 +1,7 @@
 package com.kenkoooo.atcoder.model
 
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, SubmissionId, UserId}
-import com.kenkoooo.atcoder.db.SQLSelectInsertSupport
+import com.kenkoooo.atcoder.db.{Mapping, SQLSelectInsertSupport}
 import scalikejdbc._
 
 case class Submission(id: SubmissionId,
@@ -34,11 +34,10 @@ object Submission extends SQLSelectInsertSupport[Submission] {
       executionTime = rs.intOpt(row.executionTime)
     )
 
-  override def createMapping(seq: Seq[Submission]): Seq[Seq[(SQLSyntax, ParameterBinder)]] = {
+  override def createMapping(seq: Seq[Submission]): Mapping = {
     val column = Submission.column
-    seq.map { submission =>
+    val mapping = seq.map { submission =>
       Seq(
-        column.id -> submission.id,
         column.epochSecond -> submission.epochSecond,
         column.problemId -> submission.problemId,
         column.userId -> submission.userId,
@@ -50,5 +49,7 @@ object Submission extends SQLSelectInsertSupport[Submission] {
         column.executionTime -> submission.executionTime
       )
     }
+    val key = seq.map(column.id -> _.id)
+    Mapping(key, mapping)
   }
 }

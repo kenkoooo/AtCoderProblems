@@ -1,7 +1,7 @@
 package com.kenkoooo.atcoder.db
 
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, UserId}
-import com.kenkoooo.atcoder.db.SqlClient._
+import com.kenkoooo.atcoder.db.SqlViewer._
 import com.kenkoooo.atcoder.db.traits.ContestLoader
 import com.kenkoooo.atcoder.model._
 import org.apache.logging.log4j.scala.Logging
@@ -12,7 +12,7 @@ import sqls.count
 /**
   * Data Store of SQL
   */
-class SqlClient extends Logging with ContestLoader {
+class SqlViewer extends Logging with ContestLoader {
 
   private var contests: Map[ContestId, Contest] = Map()
   private var _problems: Map[ProblemId, Problem] = Map()
@@ -50,7 +50,7 @@ class SqlClient extends Logging with ContestLoader {
   def pointAndRankOf(userId: UserId): (Double, Int) = ratedPointSumInfo.pointAndRankOf(userId)
   def countAndRankOf(userId: UserId): (Int, Int) = acceptedCountInfo.countAndRankOf(userId)
 
-  private def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] =
+  private[db] def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] =
     this.synchronized {
       DB.readOnly { implicit session =>
         withSQL(builder).map(Submission(SubmissionSyntax)).list().apply()
@@ -204,7 +204,7 @@ class SqlClient extends Logging with ContestLoader {
   override def loadContest(): List[Contest] = contests.values.toList
 }
 
-private object SqlClient {
+private object SqlViewer {
   private val SubmissionSyntax = Submission.syntax("s")
 
   def concat(columns: SQLSyntax*): SQLSyntax = sqls"concat(${sqls.csv(columns: _*)})"
@@ -223,11 +223,11 @@ private object SqlClient {
 /**
   * [[Iterator]] of [[Submission]] to iterate all the submission without expanding all the result to memory
   *
-  * @param sqlClient [[SqlClient]] to connect to SQL
+  * @param sqlClient [[SqlViewer]] to connect to SQL
   * @param builder   [[SQLBuilder]] of selecting query
   * @param fetchSize the number of records in each fetch
   */
-case class SubmissionIterator(sqlClient: SqlClient,
+case class SubmissionIterator(sqlClient: SqlViewer,
                               builder: SQLBuilder[_],
                               fetchSize: Int = SubmissionIterator.DefaultLimit)
     extends Iterator[Submission] {
