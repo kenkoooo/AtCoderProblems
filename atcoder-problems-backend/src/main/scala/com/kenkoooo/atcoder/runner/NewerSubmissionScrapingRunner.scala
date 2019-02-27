@@ -2,9 +2,9 @@ package com.kenkoooo.atcoder.runner
 
 import com.kenkoooo.atcoder.db.SqlClient
 import com.kenkoooo.atcoder.model.{Contest, Submission}
+import com.kenkoooo.atcoder.runner.NewerSubmissionScrapingRunner._
 import com.kenkoooo.atcoder.scraper.SubmissionScraper
 import org.apache.logging.log4j.scala.Logging
-import NewerSubmissionScrapingRunner._
 
 /**
   * runner of scraper to scrape only the new submissions
@@ -35,7 +35,7 @@ class NewerSubmissionScrapingRunner(sql: SqlClient,
       case (true, true) =>
         new NewerSubmissionScrapingRunner(
           sql = sql,
-          contests = sql.contests.values.toList,
+          contests = sql.loadContest(),
           submissionScraper = submissionScraper
         )
       case (true, false) =>

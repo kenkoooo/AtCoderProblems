@@ -2,6 +2,7 @@ package com.kenkoooo.atcoder.db
 
 import com.kenkoooo.atcoder.common.TypeAnnotations.{ContestId, ProblemId, UserId}
 import com.kenkoooo.atcoder.db.SqlClient._
+import com.kenkoooo.atcoder.db.traits.ContestLoader
 import com.kenkoooo.atcoder.model._
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
@@ -13,9 +14,9 @@ import scala.util.Try
 /**
   * Data Store of SQL
   */
-class SqlClient extends Logging {
+class SqlClient extends Logging with ContestLoader {
 
-  private var _contests: Map[ContestId, Contest] = Map()
+  private var contests: Map[ContestId, Contest] = Map()
   private var _problems: Map[ProblemId, Problem] = Map()
   private var _firstSubmissionCounts: List[FirstSubmissionCount] = List()
   private var _fastestSubmissionCounts: List[FastestSubmissionCount] = List()
@@ -27,8 +28,6 @@ class SqlClient extends Logging {
 
   private var ratedPointSumInfo = new RatedPointSumInfo(List())
   private var acceptedCountInfo = new AcceptedCountInfo(List())
-
-  def contests: Map[String, Contest] = _contests
 
   def problems: Map[String, Problem] = _problems
 
@@ -119,7 +118,7 @@ class SqlClient extends Logging {
     * reload internal contests and problems
     */
   def reloadRecords(): Unit = {
-    _contests = loadRecords(Contest).map(s => s.id -> s).toMap
+    contests = loadRecords(Contest).map(s => s.id -> s).toMap
     _problems = loadRecords(Problem).map(s => s.id -> s).toMap
 
     acceptedCountInfo = new AcceptedCountInfo(loadRecords(AcceptedCount).toList)
@@ -230,6 +229,8 @@ class SqlClient extends Logging {
           records.foreach(t => logger.error(t.toString))
       }
     }
+
+  override def loadContest(): List[Contest] = contests.values.toList
 }
 
 private object SqlClient {

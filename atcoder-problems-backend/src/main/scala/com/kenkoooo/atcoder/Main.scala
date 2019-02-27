@@ -47,12 +47,12 @@ object Main extends Logging with ApiJsonSupport {
         // scrape submission pages per 0.5 second
         var allRunner = new AllSubmissionScrapingRunner(
           sql = sql,
-          contests = sql.contests.values.toList,
+          contests = sql.loadContest(),
           submissionScraper = submissionScraper
         )
         var newRunner = new NewerSubmissionScrapingRunner(
           sql = sql,
-          contests = sql.contests.values.toList,
+          contests = sql.loadContest(),
           submissionScraper = submissionScraper
         )
 
@@ -65,7 +65,7 @@ object Main extends Logging with ApiJsonSupport {
         service.tryAtFixedDelay(0, 1, MINUTES)({
           sql.reloadRecords()
 
-          sql.contests.values.toList.toJsonFile(s"${config.files.path}/contests.json")
+          sql.loadContest().toJsonFile(s"${config.files.path}/contests.json")
           sql.problems.values.toList.toJsonFile(s"${config.files.path}/problems.json")
           sql.acceptedCounts.toJsonFile(s"${config.files.path}/ac.json")
           sql.fastestSubmissionCounts.toJsonFile(s"${config.files.path}/fast.json")

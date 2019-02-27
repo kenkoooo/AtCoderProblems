@@ -25,7 +25,7 @@ class AllSubmissionScrapingRunner(sql: SqlClient,
       case (true, true) =>
         new AllSubmissionScrapingRunner(
           sql = sql,
-          contests = sql.contests.values.toList,
+          contests = sql.loadContest(),
           submissionScraper = submissionScraper
         )
       case (true, false) =>
