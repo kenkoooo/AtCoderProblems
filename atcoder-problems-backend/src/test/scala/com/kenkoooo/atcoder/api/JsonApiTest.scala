@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.DateTime
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model.headers.{EntityTag, _}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import com.kenkoooo.atcoder.db.SqlClient
+import com.kenkoooo.atcoder.db.SqlViewer
 import com.kenkoooo.atcoder.model._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.{times, verify, when}
@@ -20,10 +20,10 @@ class JsonApiTest
   val currentTime: Long = System.currentTimeMillis()
   val currentTimeTag: EntityTag = EntityTagger.calculateDateTimeTag(DateTime(currentTime))
 
-  private var sql: SqlClient = mock[SqlClient]
+  private var sql: SqlViewer = mock[SqlViewer]
 
   before {
-    sql = mock[SqlClient]
+    sql = mock[SqlViewer]
     when(sql.loadContest())
       .thenReturn(List(Contest("contest-id", 114, 514, "contest title", "rate change?")))
     when(sql.problems)

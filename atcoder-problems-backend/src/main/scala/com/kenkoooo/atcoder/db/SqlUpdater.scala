@@ -243,14 +243,12 @@ class SqlUpdater extends Logging with SqlInsert {
     this.synchronized {
       Try {
         DB.localTx { implicit session =>
-          val params =
-            support.createMapping(records).map(seq => seq.map(_._2))
-          val columnMapping = support.createMapping(records).head.map(_._1 -> sqls.?)
+          val mapping = support.createMapping(records)
           withSQL {
             insertInto(support)
-              .namedValues(columnMapping: _*)
-              .append(sqls"ON CONFLICT DO NOTHING")
-          }.batch(params: _*).apply()
+              .namedValues(mapping.columnMappings: _*)
+              .append(mapping.onConflictDoUpdate)
+          }.batch(mapping.conflictParams: _*).apply()
         }
       }.recover {
         case e: Throwable =>

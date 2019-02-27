@@ -1,6 +1,6 @@
 package com.kenkoooo.atcoder.runner
 
-import com.kenkoooo.atcoder.db.SqlClient
+import com.kenkoooo.atcoder.db.SqlViewer
 import com.kenkoooo.atcoder.db.traits.SqlInsert
 import com.kenkoooo.atcoder.model.{Contest, Submission}
 import com.kenkoooo.atcoder.scraper.SubmissionScraper
@@ -16,7 +16,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
 
     val contest = Contest(currentContestId, 0, 0, "", "")
 
-    val sql = mock[SqlClient]
+    val sql = mock[SqlViewer]
     val sqlInsert = mock[SqlInsert]
     Mockito.when(sql.loadSubmissions(overlappedId)).thenReturn(Iterator(mock[Submission]))
 
@@ -42,7 +42,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val currentContestId = "rco-contest-2017-final-open"
     val nextContestId = "rco-contest-2017-final"
 
-    val sql = mock[SqlClient]
+    val sql = mock[SqlViewer]
     val sqlInsert = mock[SqlInsert]
     Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(Iterator[Submission]())
 
@@ -76,7 +76,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
     val nextContestId = "rco-contest-2017-final"
     val overlappedSubmissionId = 810893L
 
-    val sql = mock[SqlClient]
+    val sql = mock[SqlViewer]
     val sqlInsert = mock[SqlInsert]
     Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(Iterator[Submission]())
     Mockito.when(sql.loadSubmissions(overlappedSubmissionId)).thenReturn(Iterator(mock[Submission]))
@@ -111,7 +111,7 @@ class NewerSubmissionScrapingRunnerTest extends FunSuite with Matchers with Mock
 
     val contest = Contest(currentContestId, 0, 0, "", "")
 
-    val sql = mock[SqlClient]
+    val sql = mock[SqlViewer]
     val sqlInsert = mock[SqlInsert]
     Mockito.when(sql.loadSubmissions(ArgumentMatchers.any())).thenReturn(Iterator[Submission]())
     Mockito.when(sql.loadContest()).thenReturn(List(contest))
