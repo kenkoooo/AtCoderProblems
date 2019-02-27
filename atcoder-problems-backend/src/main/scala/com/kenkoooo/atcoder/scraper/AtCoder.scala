@@ -4,7 +4,7 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 object AtCoder {
-  val BaseUrl = "https://beta.atcoder.jp/"
+  val BaseUrl = "https://atcoder.jp/"
 
   private val timeFormatPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssXXXX")
 
