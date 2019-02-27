@@ -2,19 +2,21 @@ package com.kenkoooo.atcoder
 
 import java.util.concurrent.TimeUnit.{HOURS, MILLISECONDS, MINUTES}
 import java.util.concurrent.{Executors, ScheduledExecutorService}
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.kenkoooo.atcoder.api.JsonApi
 import com.kenkoooo.atcoder.common.Configure
+import com.kenkoooo.atcoder.common.JsonWriter._
 import com.kenkoooo.atcoder.common.ScheduledExecutorServiceExtension._
-import com.kenkoooo.atcoder.db.SqlClient
+import com.kenkoooo.atcoder.db.{SqlClient, SqlUpdater}
 import com.kenkoooo.atcoder.model.{ApiJsonSupport, Contest, Problem}
 import com.kenkoooo.atcoder.runner.{AllSubmissionScrapingRunner, NewerSubmissionScrapingRunner}
 import com.kenkoooo.atcoder.scraper.{ContestScraper, ProblemScraper, SubmissionScraper}
 import org.apache.logging.log4j.scala.Logging
+
 import scala.util.{Failure, Success}
-import com.kenkoooo.atcoder.common.JsonWriter._
 
 object Main extends Logging with ApiJsonSupport {
   implicit val system: ActorSystem = ActorSystem()
@@ -26,6 +28,11 @@ object Main extends Logging with ApiJsonSupport {
         val service: ScheduledExecutorService =
           Executors.newScheduledThreadPool(config.scraper.threads)
         val sql = new SqlClient(
+          url = config.sql.url,
+          user = config.sql.user,
+          password = config.sql.password
+        )
+        val sqlUpdater = new SqlUpdater(
           url = config.sql.url,
           user = config.sql.user,
           password = config.sql.password
@@ -84,7 +91,7 @@ object Main extends Logging with ApiJsonSupport {
         }
 
         // update tables every 5 minutes
-        service.tryAtFixedDelay(0, 5, MINUTES)(sql.batchUpdateStatisticTables())
+        service.tryAtFixedDelay(0, 5, MINUTES)(sqlUpdater.updateAll())
 
         val port = config.server.port
         val api = new JsonApi(sql)
