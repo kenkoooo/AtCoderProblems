@@ -6,12 +6,13 @@ import com.kenkoooo.atcoder.model._
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc._
 import SQLSyntax.min
+import com.kenkoooo.atcoder.db.traits.SqlInsert
 import scalikejdbc.interpolation.SQLSyntax
 import sqls.{count, distinct}
 
 import scala.util.Try
 
-class SqlUpdater extends Logging {
+class SqlUpdater extends Logging with SqlInsert {
 
   def updateAll(): Unit = {
     logger.info("start batch table update")
@@ -238,7 +239,7 @@ class SqlUpdater extends Logging {
     * @param records seq of records to insert
     * @tparam T type of records
     */
-  def batchInsert[T](support: SQLSelectInsertSupport[T], records: T*): Unit =
+  override def batchInsert[T](support: SQLSelectInsertSupport[T], records: T*): Unit =
     this.synchronized {
       Try {
         DB.localTx { implicit session =>

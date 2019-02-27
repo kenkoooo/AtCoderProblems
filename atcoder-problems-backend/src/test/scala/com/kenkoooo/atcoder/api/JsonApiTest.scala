@@ -24,10 +24,8 @@ class JsonApiTest
 
   before {
     sql = mock[SqlClient]
-    when(sql.contests)
-      .thenReturn(
-        Map("contest-id" -> Contest("contest-id", 114, 514, "contest title", "rate change?"))
-      )
+    when(sql.loadContest())
+      .thenReturn(List(Contest("contest-id", 114, 514, "contest title", "rate change?")))
     when(sql.problems)
       .thenReturn(Map("problem-id" -> Problem("problem-id", "contest-id", "problem title")))
     when(sql.lastReloadedTimeMillis).thenReturn(currentTime)
@@ -35,9 +33,7 @@ class JsonApiTest
     when(sql.fastestSubmissionCounts).thenReturn(List(FastestSubmissionCount("kenkoooo", 114)))
     when(sql.firstSubmissionCounts).thenReturn(List(FirstSubmissionCount("kenkoooo", 114)))
     when(sql.acceptedCounts).thenReturn(List(AcceptedCount("kenkoooo", 114)))
-    when(sql.loadUserSubmissionCount(ArgumentMatchers.any())).thenReturn(
-      1
-    )
+    when(sql.loadUserSubmissionCount(ArgumentMatchers.any())).thenReturn(1)
     when(sql.loadUserSubmissions(ArgumentMatchers.any())).thenReturn(
       Iterator(
         Submission(

@@ -41,17 +41,19 @@ object Main extends Logging with ApiJsonSupport {
         val contestScraper = new ContestScraper
         val submissionScraper = new SubmissionScraper
         val problemScraper = new ProblemScraper
-        sql.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
+        sqlUpdater.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
         sql.reloadRecords()
 
         // scrape submission pages per 0.5 second
         var allRunner = new AllSubmissionScrapingRunner(
-          sql = sql,
+          contestLoader = sql,
+          sqlInsert = sqlUpdater,
           contests = sql.loadContest(),
           submissionScraper = submissionScraper
         )
         var newRunner = new NewerSubmissionScrapingRunner(
           sql = sql,
+          sqlInsert = sqlUpdater,
           contests = sql.loadContest(),
           submissionScraper = submissionScraper
         )
@@ -78,14 +80,14 @@ object Main extends Logging with ApiJsonSupport {
 
         // scrape contests per hour
         service.tryAtFixedDelay(0, 1, HOURS) {
-          sql.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
+          sqlUpdater.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
         }
 
         // scrape problems per hour
         service.tryAtFixedDelay(0, 1, HOURS) {
           sql.loadNoProblemContestList().foreach { contestId =>
             problemScraper.scrape(contestId) match {
-              case Success(problems) => sql.batchInsert(Problem, problems: _*)
+              case Success(problems) => sqlUpdater.batchInsert(Problem, problems: _*)
               case Failure(e)        => logger.catching(e)
             }
           }
