@@ -50,7 +50,7 @@ class SqlClient extends Logging with ContestLoader {
   def pointAndRankOf(userId: UserId): (Double, Int) = ratedPointSumInfo.pointAndRankOf(userId)
   def countAndRankOf(userId: UserId): (Int, Int) = acceptedCountInfo.countAndRankOf(userId)
 
-  private[db] def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] =
+  private def executeAndLoadSubmission(builder: SQLBuilder[_]): List[Submission] =
     this.synchronized {
       DB.readOnly { implicit session =>
         withSQL(builder).map(Submission(SubmissionSyntax)).list().apply()
@@ -138,7 +138,7 @@ class SqlClient extends Logging with ContestLoader {
     * @tparam T type of the loading records
     * @return seq of loaded records
     */
-  def loadRecords[T](support: SQLSelectSupport[T], limit: Int = 1000000): Seq[T] = {
+  private def loadRecords[T](support: SQLSelectSupport[T], limit: Int = 1000000): Seq[T] = {
     logger.info(s"loading ${support.tableName}")
     DB.readOnly { implicit session =>
       val s = support.syntax("s")
@@ -154,7 +154,7 @@ class SqlClient extends Logging with ContestLoader {
     *
     * @return [[Seq]] of [[Problem]]
     */
-  def loadMergedProblems(): Seq[MergedProblem] = {
+  private[db] def loadMergedProblems(): Seq[MergedProblem] = {
     logger.info("loading merged-problems")
     DB.readOnly { implicit session =>
       val problem = Problem.syntax("problem")
