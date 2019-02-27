@@ -10,7 +10,7 @@ import com.kenkoooo.atcoder.api.JsonApi
 import com.kenkoooo.atcoder.common.Configure
 import com.kenkoooo.atcoder.common.JsonWriter._
 import com.kenkoooo.atcoder.common.ScheduledExecutorServiceExtension._
-import com.kenkoooo.atcoder.db.{SqlClient, SqlUpdater}
+import com.kenkoooo.atcoder.db.{SqlUpdater, SqlViewer}
 import com.kenkoooo.atcoder.model.{ApiJsonSupport, Contest, Problem}
 import com.kenkoooo.atcoder.runner.{AllSubmissionScrapingRunner, NewerSubmissionScrapingRunner}
 import com.kenkoooo.atcoder.scraper.{ContestScraper, ProblemScraper, SubmissionScraper}
@@ -36,25 +36,25 @@ object Main extends Logging with ApiJsonSupport {
           password = config.sql.password
         )
 
-        val sql = new SqlClient()
+        val sqlViewer = new SqlViewer()
         val sqlUpdater = new SqlUpdater()
         val contestScraper = new ContestScraper
         val submissionScraper = new SubmissionScraper
         val problemScraper = new ProblemScraper
         sqlUpdater.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
-        sql.reloadRecords()
+        sqlViewer.reloadRecords()
 
         // scrape submission pages per 0.5 second
         var allRunner = new AllSubmissionScrapingRunner(
-          contestLoader = sql,
+          contestLoader = sqlViewer,
           sqlInsert = sqlUpdater,
-          contests = sql.loadContest(),
+          contests = sqlViewer.loadContest(),
           submissionScraper = submissionScraper
         )
         var newRunner = new NewerSubmissionScrapingRunner(
-          sql = sql,
+          sql = sqlViewer,
           sqlInsert = sqlUpdater,
-          contests = sql.loadContest(),
+          contests = sqlViewer.loadContest(),
           submissionScraper = submissionScraper
         )
 
@@ -65,17 +65,17 @@ object Main extends Logging with ApiJsonSupport {
 
         // reload records per minute
         service.tryAtFixedDelay(0, 1, MINUTES)({
-          sql.reloadRecords()
+          sqlViewer.reloadRecords()
 
-          sql.loadContest().toJsonFile(s"${config.files.path}/contests.json")
-          sql.problems.values.toList.toJsonFile(s"${config.files.path}/problems.json")
-          sql.acceptedCounts.toJsonFile(s"${config.files.path}/ac.json")
-          sql.fastestSubmissionCounts.toJsonFile(s"${config.files.path}/fast.json")
-          sql.firstSubmissionCounts.toJsonFile(s"${config.files.path}/first.json")
-          sql.shortestSubmissionCounts.toJsonFile(s"${config.files.path}/short.json")
-          sql.mergedProblems.toJsonFile(s"${config.files.path}/merged-problems.json")
-          sql.ratedPointSums.toJsonFile(s"${config.files.path}/sums.json")
-          sql.languageCounts.toJsonFile(s"${config.files.path}/lang.json")
+          sqlViewer.loadContest().toJsonFile(s"${config.files.path}/contests.json")
+          sqlViewer.problems.values.toList.toJsonFile(s"${config.files.path}/problems.json")
+          sqlViewer.acceptedCounts.toJsonFile(s"${config.files.path}/ac.json")
+          sqlViewer.fastestSubmissionCounts.toJsonFile(s"${config.files.path}/fast.json")
+          sqlViewer.firstSubmissionCounts.toJsonFile(s"${config.files.path}/first.json")
+          sqlViewer.shortestSubmissionCounts.toJsonFile(s"${config.files.path}/short.json")
+          sqlViewer.mergedProblems.toJsonFile(s"${config.files.path}/merged-problems.json")
+          sqlViewer.ratedPointSums.toJsonFile(s"${config.files.path}/sums.json")
+          sqlViewer.languageCounts.toJsonFile(s"${config.files.path}/lang.json")
         })
 
         // scrape contests per hour
@@ -85,7 +85,7 @@ object Main extends Logging with ApiJsonSupport {
 
         // scrape problems per hour
         service.tryAtFixedDelay(0, 1, HOURS) {
-          sql.loadNoProblemContestList().foreach { contestId =>
+          sqlViewer.loadNoProblemContestList().foreach { contestId =>
             problemScraper.scrape(contestId) match {
               case Success(problems) => sqlUpdater.batchInsert(Problem, problems: _*)
               case Failure(e)        => logger.catching(e)
@@ -97,7 +97,7 @@ object Main extends Logging with ApiJsonSupport {
         service.tryAtFixedDelay(0, 5, MINUTES)(sqlUpdater.updateAll())
 
         val port = config.server.port
-        val api = new JsonApi(sql)
+        val api = new JsonApi(sqlViewer)
 
         Http().bindAndHandle(api.routes, interface = "0.0.0.0", port = port)
 

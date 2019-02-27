@@ -32,43 +32,65 @@ class SqlUpdaterTest extends FunSuite with BeforeAndAfter with Matchers with Pri
     }
   }
 
-  test("insert and reload contests") {
+  test("insert and update contests") {
     val id = "arc999"
+    val start = 123456789
     val store = new SqlUpdater()
-    store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
-    store.batchInsert(Contest, Contest(id, 123456789, 987654321, "", ""))
+    store.batchInsert(Contest, Contest(id, start, 987654321, "", ""))
+    store.batchInsert(Contest, Contest(id, start + 1, 987654321, "", ""))
 
     val contests = selectRecords(Contest)
     contests.head.id shouldBe id
+    contests.head.startEpochSecond shouldBe start + 1
   }
 
-  test("insert and reload problems") {
+  test("insert and update problems") {
     val id = "arc999_d"
     val title = "日本語の問題 (Japanese Problem)"
     val store = new SqlUpdater()
-    store.batchInsert(Problem, Problem(id, "arc999", title))
+    store.batchInsert(Problem, Problem(id, "arc998", title))
     store.batchInsert(Problem, Problem(id, "arc999", title))
 
     val problems = selectRecords(Problem)
 
     problems.head.id shouldBe id
     problems.head.title shouldBe title
+    problems.head.contestId shouldBe "arc999"
   }
 
-  test("load user submissions") {
+  test("insert user submissions") {
     val updater = new SqlUpdater()
     updater.batchInsert(
       Submission,
-      List(
-        Submission(id = 1, 0, "", "iwiwi", "", 0.0, 0, "AC", "", None),
-        Submission(id = 2, 0, "", "chokudai", "", 0.0, 0, "AC", "", None)
-      ): _*
+      Submission(id = 1, 0, "", "iwiwi", "", 0.0, 0, "AC", "", None),
+      Submission(id = 2, 0, "", "chokudai", "", 0.0, 0, "AC", "", None)
     )
 
     val submissions = selectRecords(Submission)
     submissions.count(_.userId == "chokudai") shouldBe 1
     submissions.count(s => Array("chokudai", "iwiwi").contains(s.userId)) shouldBe 2
     submissions.count(s => Array("chokudai", "iwiwi", "pter").contains(s.userId)) shouldBe 2
+  }
+
+  test("insert and update user submissions") {
+    val updater = new SqlUpdater()
+    updater.batchInsert(
+      Submission,
+      Submission(id = 2, 0, "", "chokuchoku", "", 0.0, 0, "AC", "", None)
+    )
+
+    val submissions = selectRecords(Submission)
+    submissions.count(_.userId == "chokudai") shouldBe 0
+    submissions.count(_.userId == "chokuchoku") shouldBe 1
+
+    updater.batchInsert(
+      Submission,
+      Submission(id = 2, 0, "", "chokudai", "", 0.0, 0, "AC", "", None)
+    )
+
+    val submissions2 = selectRecords(Submission)
+    submissions2.count(_.userId == "chokudai") shouldBe 1
+    submissions2.count(_.userId == "chokuchoku") shouldBe 0
   }
 
   test("update solver counts") {
