@@ -30,6 +30,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     val contestId = "asc999"
     val title = "A * B problem"
     val userId = "kenkoooo"
+    val submissionId = 114514
 
     val notSolvedProblemId = "not_solved"
 
@@ -41,7 +42,7 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     client.batchInsert(
       Submission,
       Submission(
-        id = 1,
+        id = submissionId,
         problemId = problemId,
         userId = userId,
         result = "AC",
@@ -55,9 +56,18 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
       sql"INSERT INTO points (problem_id, predict) VALUES ($notSolvedProblemId, 1.0)"
         .execute()
         .apply()
+      sql"INSERT INTO solver (problem_id, user_count) VALUES ($problemId, 1)".execute().apply()
+      sql"INSERT INTO shortest (contest_id, problem_id, submission_id) VALUES ($contestId, $problemId, $submissionId)"
+        .execute()
+        .apply()
+      sql"INSERT INTO fastest (contest_id, problem_id, submission_id) VALUES ($contestId, $problemId, $submissionId)"
+        .execute()
+        .apply()
+      sql"INSERT INTO first (contest_id, problem_id, submission_id) VALUES ($contestId, $problemId, $submissionId)"
+        .execute()
+        .apply()
     }
 
-    client.batchUpdateStatisticTables()
     val problems = client.loadMergedProblems()
     problems.find(_.id == problemId).get.solverCount shouldBe 1
     problems.find(_.id == problemId).get.contestId shouldBe contestId
