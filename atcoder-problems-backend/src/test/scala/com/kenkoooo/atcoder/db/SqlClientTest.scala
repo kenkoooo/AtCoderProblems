@@ -28,7 +28,6 @@ class SqlClientTest extends FunSuite with BeforeAndAfter with Matchers {
     val problemId = "asc999_a"
     val contestId = "asc999"
     val title = "A * B problem"
-    val userId = "kenkoooo"
     val submissionId = 114514
 
     val notSolvedProblemId = "not_solved"
