@@ -42,10 +42,10 @@ export class UserPage extends React.Component<UserPageProps, {}> {
       .map(s => s.epoch_second);
 
     this.props.problems
-      .filter(problem => problem.contest_id.match(/^a[rgb]c\d{3}$/))
+      .filter(problem => problem.id.match(/^a[rgb]c\d{3}_\w+$/))
       .forEach(problem => {
         // get problem id
-        let c = problem.id.slice(-1);
+        let c = problem.id.match(/_\w+$/)[0].slice(1, 2);
         // in old contests, problem id format was like "arcXXX_1",
         // but the format is like "arcXXX_a" in the newest one
         let id = c.match(/\d/) ? Number(c) - 1 : "abcdef".split("").indexOf(c);
