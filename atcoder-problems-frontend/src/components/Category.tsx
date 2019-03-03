@@ -24,15 +24,13 @@ export class Category extends React.Component<CategoryProps, {}> {
   ): Array<[Contest, Array<Problem>]> {
     return this.props.contests
       .filter(contest => contest.id.match(regexp))
-      .sort((a, b) => a.id.localeCompare(b.id))
-      .reverse()
+      .sort((a, b) => b.id.localeCompare(a.id))
       .filter(contest => problemMap.has(contest.id))
       .map(contest => {
-        let problems = problemMap
+        const problems = problemMap
           .get(contest.id)
           .sort((a, b) => a.id.localeCompare(b.id));
-        let r: [Contest, Array<Problem>] = [contest, problems];
-        return r;
+        return [contest, problems] as [Contest, Array<Problem>];
       });
   }
 
@@ -47,6 +45,12 @@ export class Category extends React.Component<CategoryProps, {}> {
     let agc = this.filterProblems(problemMap, /^agc\d{3}$/);
     let abc = this.filterProblems(problemMap, /^abc\d{3}$/);
     let arc = this.filterProblems(problemMap, /^arc\d{3}$/);
+
+    // fix agc
+    agc.filter(t => t[1].length == 0).forEach(t => {
+      const contest_id = t[0].id;
+      this.props.problems.filter(p => p.id.match(contest_id)).forEach(p => t[1].push(p));
+    });
 
     // sync
     abc.forEach((v, i) => {
@@ -63,9 +67,7 @@ export class Category extends React.Component<CategoryProps, {}> {
 
     // problems of other contests
     let others = this.filterProblems(problemMap, /^(?!a[rgb]c\d{3}).*$/).sort(
-      (a, b) => {
-        return b[0].start_epoch_second - a[0].start_epoch_second;
-      }
+      (a, b) => b[0].start_epoch_second - a[0].start_epoch_second
     );
 
     let acceptedProblems = this.props.acceptedProblems;
