@@ -52,7 +52,7 @@ object Main extends Logging with ApiJsonSupport {
           submissionScraper = submissionScraper
         )
         var newRunner = new NewerSubmissionScrapingRunner(
-          sql = sqlViewer,
+          sqlViewer = sqlViewer,
           sqlInsert = sqlUpdater,
           contests = sqlViewer.loadContest(),
           submissionScraper = submissionScraper
