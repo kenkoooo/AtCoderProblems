@@ -50,6 +50,7 @@ export class Category extends React.Component<CategoryProps, {}> {
     agc.filter(t => t[1].length == 0).forEach(t => {
       const contest_id = t[0].id;
       this.props.problems.filter(p => p.id.match(contest_id)).forEach(p => t[1].push(p));
+      t[1].sort((a, b) => a.id.localeCompare(b.id));
     });
 
     // sync
