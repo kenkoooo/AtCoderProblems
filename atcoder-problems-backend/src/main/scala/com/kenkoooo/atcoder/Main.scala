@@ -1,7 +1,7 @@
 package com.kenkoooo.atcoder
 
 import java.util.concurrent.TimeUnit.{HOURS, MILLISECONDS, MINUTES}
-import java.util.concurrent.{Executors, ScheduledExecutorService}
+import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -10,13 +10,14 @@ import com.kenkoooo.atcoder.api.JsonApi
 import com.kenkoooo.atcoder.common.Configure
 import com.kenkoooo.atcoder.common.JsonWriter._
 import com.kenkoooo.atcoder.common.ScheduledExecutorServiceExtension._
-import com.kenkoooo.atcoder.db.{SqlUpdater, SqlViewer}
+import com.kenkoooo.atcoder.db.{RecentContestLoader, SqlUpdater, SqlViewer}
 import com.kenkoooo.atcoder.model.{ApiJsonSupport, Contest, Problem}
 import com.kenkoooo.atcoder.runner.{AllSubmissionScrapingRunner, NewerSubmissionScrapingRunner}
 import com.kenkoooo.atcoder.scraper.{ContestScraper, ProblemScraper, SubmissionScraper}
 import org.apache.logging.log4j.scala.Logging
 import scalikejdbc.ConnectionPool
 
+import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 
 object Main extends Logging with ApiJsonSupport {
@@ -44,6 +45,8 @@ object Main extends Logging with ApiJsonSupport {
         sqlUpdater.batchInsert(Contest, contestScraper.scrapeAllContests(): _*)
         sqlViewer.reloadRecords()
 
+        val recentContestLoader = new RecentContestLoader(sqlViewer, Duration(7, TimeUnit.DAYS))
+
         // scrape submission pages per 0.5 second
         var allRunner = new AllSubmissionScrapingRunner(
           contestLoader = sqlViewer,
@@ -51,8 +54,14 @@ object Main extends Logging with ApiJsonSupport {
           contests = sqlViewer.loadContest(),
           submissionScraper = submissionScraper
         )
+        var recentRunner = new AllSubmissionScrapingRunner(
+          contestLoader = recentContestLoader,
+          sqlInsert = sqlUpdater,
+          contests = recentContestLoader.loadContest(),
+          submissionScraper = submissionScraper
+        )
         var newRunner = new NewerSubmissionScrapingRunner(
-          sql = sqlViewer,
+          sqlViewer = sqlViewer,
           sqlInsert = sqlUpdater,
           contests = sqlViewer.loadContest(),
           submissionScraper = submissionScraper
@@ -60,6 +69,7 @@ object Main extends Logging with ApiJsonSupport {
 
         service.tryAtFixedDelay(500, 500, MILLISECONDS) {
           allRunner = allRunner.scrapeOnePage()
+          recentRunner = recentRunner.scrapeOnePage()
           newRunner = newRunner.scrapeOnePage()
         }
 
