@@ -33,32 +33,29 @@ class NewerSubmissionScrapingRunner(sqlViewer: SqlViewer,
     val overlaps = submissions.length - newCount + currentOverlapCount
     logger.info(s"$overlaps submissions overlapped in ${contest.id}")
 
-    (submissions.isEmpty || overlaps > overlapThreshold, contests.tail.isEmpty) match {
-      case (true, true) =>
-        new NewerSubmissionScrapingRunner(
-          sqlViewer = sqlViewer,
-          sqlInsert = sqlInsert,
-          contests = sqlViewer.loadContest(),
-          submissionScraper = submissionScraper
-        )
-      case (true, false) =>
-        new NewerSubmissionScrapingRunner(
-          sqlViewer = sqlViewer,
-          sqlInsert = sqlInsert,
-          contests = contests.tail,
-          submissionScraper = submissionScraper
-        )
-      case (false, _) =>
-        sqlInsert.batchInsert(Submission, submissions: _*)
-        new NewerSubmissionScrapingRunner(
-          sqlViewer = sqlViewer,
-          sqlInsert = sqlInsert,
-          contests = contests,
-          page = page + 1,
-          submissionScraper = submissionScraper,
-          currentOverlapCount = overlaps
-        )
+    if (submissions.isEmpty || overlaps > overlapThreshold) {
+      if (contests.tail.isEmpty) {
+        this.createNext(sqlViewer.loadContest())
+      } else {
+        this.createNext(contests.tail)
+      }
+    } else {
+      sqlInsert.batchInsert(Submission, submissions: _*)
+      this.createNext(contests, page + 1, overlaps)
     }
+  }
+
+  private def createNext(nextContests: List[Contest],
+                         nextPage: Int = Submission.FirstPageNumber,
+                         nextOverlapCount: Int = 0): NewerSubmissionScrapingRunner = {
+    new NewerSubmissionScrapingRunner(
+      sqlViewer = this.sqlViewer,
+      sqlInsert = this.sqlInsert,
+      submissionScraper = this.submissionScraper,
+      contests = nextContests,
+      page = nextPage,
+      currentOverlapCount = nextOverlapCount
+    )
   }
 }
 
