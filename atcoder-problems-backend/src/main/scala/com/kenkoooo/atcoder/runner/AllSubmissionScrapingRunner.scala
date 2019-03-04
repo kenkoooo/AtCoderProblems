@@ -19,34 +19,29 @@ class AllSubmissionScrapingRunner(contestLoader: ContestLoader,
                                   private[runner] val page: Int = Submission.FirstPageNumber,
                                   submissionScraper: SubmissionScraper)
     extends SubmissionScrapingRunner {
+  private def createNext(nextContests: List[Contest],
+                         nextPage: Int = Submission.FirstPageNumber): AllSubmissionScrapingRunner =
+    new AllSubmissionScrapingRunner(
+      contestLoader = contestLoader,
+      sqlInsert = sqlInsert,
+      contests = nextContests,
+      page = nextPage,
+      submissionScraper = submissionScraper
+    )
+
   override def scrapeOnePage(): AllSubmissionScrapingRunner = {
     val contest = contests.head
     val submissions = submissionScraper.scrape(contest.id, page)
 
-    (submissions.isEmpty, contests.tail.isEmpty) match {
-      case (true, true) =>
-        new AllSubmissionScrapingRunner(
-          contestLoader = contestLoader,
-          sqlInsert = sqlInsert,
-          contests = contestLoader.loadContest(),
-          submissionScraper = submissionScraper
-        )
-      case (true, false) =>
-        new AllSubmissionScrapingRunner(
-          contestLoader = contestLoader,
-          sqlInsert = sqlInsert,
-          contests = contests.tail,
-          submissionScraper = submissionScraper
-        )
-      case (false, _) =>
-        sqlInsert.batchInsert(Submission, submissions: _*)
-        new AllSubmissionScrapingRunner(
-          contestLoader = contestLoader,
-          sqlInsert = sqlInsert,
-          contests = contests,
-          page = page + 1,
-          submissionScraper = submissionScraper
-        )
+    if (submissions.isEmpty) {
+      if (contests.tail.isEmpty) {
+        this.createNext(contestLoader.loadContest())
+      } else {
+        this.createNext(contests.tail)
+      }
+    } else {
+      sqlInsert.batchInsert(Submission, submissions: _*)
+      this.createNext(contests, page + 1)
     }
   }
 }
