@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { HashRouter as Router, Route, NavLink as RouterLink, Switch } from "react-router-dom";
-import { NavLink, Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import {
+  NavLink, Navbar, NavbarBrand, NavbarToggler, Collapse,
+  Nav, NavItem, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem
+} from 'reactstrap';
+
+import FastestRanking from "./pages/FastestRanking";
 
 class App extends Component {
   render() {
@@ -46,7 +51,7 @@ class App extends Component {
           </Navbar>
           <Switch>
             <Route exact path="/ac" component={() => <div>ac</div>} />
-            <Route exact path="/fast" component={() => <div>fast</div>} />
+            <Route exact path="/fast" component={FastestRanking} />
             <Route exact path="/short" component={() => <div>short</div>} />
             <Route exact path="/first" component={() => <div>first</div>} />
             <Route exact path="/sum" component={() => <div>sum</div>} />
