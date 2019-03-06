@@ -2,10 +2,15 @@ import React, { Component } from 'react';
 import { HashRouter as Router, Route, NavLink as RouterLink, Switch } from "react-router-dom";
 import {
   NavLink, Navbar, NavbarBrand, NavbarToggler, Collapse,
-  Nav, NavItem, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem
+  Nav, NavItem, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem,
+  Container
 } from 'reactstrap';
 
+import ACRanking from "./pages/ACRanking";
 import FastestRanking from "./pages/FastestRanking";
+import FirstRanking from "./pages/FirstRanking";
+import ShortRanking from "./pages/ShortRanking";
+import SumRanking from "./pages/SumRanking";
 
 class App extends Component {
   render() {
@@ -49,17 +54,19 @@ class App extends Component {
               </Nav>
             </Collapse>
           </Navbar>
-          <Switch>
-            <Route exact path="/ac" component={() => <div>ac</div>} />
-            <Route exact path="/fast" component={FastestRanking} />
-            <Route exact path="/short" component={() => <div>short</div>} />
-            <Route exact path="/first" component={() => <div>first</div>} />
-            <Route exact path="/sum" component={() => <div>sum</div>} />
-            <Route exact path="/lang" component={() => <div>lang</div>} />
-            <Route path="/user/:user_id" component={(props: any) => <div>user: {props.match.params.user_id}</div>} />
+          <Container>
+            <Switch>
+              <Route exact path="/ac" component={ACRanking} />
+              <Route exact path="/fast" component={FastestRanking} />
+              <Route exact path="/short" component={ShortRanking} />
+              <Route exact path="/first" component={FirstRanking} />
+              <Route exact path="/sum" component={SumRanking} />
+              <Route exact path="/lang" component={() => <div>lang</div>} />
+              <Route path="/user/:user_id" component={(props: any) => <div>user: {props.match.params.user_id}</div>} />
 
-            <Route component={() => <div>home</div>} />
-          </Switch>
+              <Route component={() => <div>home</div>} />
+            </Switch>
+          </Container>
         </div>
       </Router>
     );
