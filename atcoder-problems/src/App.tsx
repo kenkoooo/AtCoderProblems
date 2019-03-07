@@ -11,6 +11,7 @@ import FastestRanking from "./pages/FastestRanking";
 import FirstRanking from "./pages/FirstRanking";
 import ShortRanking from "./pages/ShortRanking";
 import SumRanking from "./pages/SumRanking";
+import LanguageOwners from "./pages/LanguageOwners";
 
 class App extends Component {
   render() {
@@ -25,11 +26,11 @@ class App extends Component {
                 <UncontrolledDropdown nav inNavbar>
                   <DropdownToggle nav caret>Rankings</DropdownToggle>
                   <DropdownMenu right>
-                    <DropdownItem tag={RouterLink} to="/ac">Accepted Count</DropdownItem>
-                    <DropdownItem tag={RouterLink} to="/fast">Fastest Submission</DropdownItem>
-                    <DropdownItem tag={RouterLink} to="/short">Shortest Submission</DropdownItem>
+                    <DropdownItem tag={RouterLink} to="/ac">AC Count</DropdownItem>
+                    <DropdownItem tag={RouterLink} to="/fast">Fastest Submissions</DropdownItem>
+                    <DropdownItem tag={RouterLink} to="/short">Shortest Submissions</DropdownItem>
                     <DropdownItem tag={RouterLink} to="/first">First AC</DropdownItem>
-                    <DropdownItem tag={RouterLink} to="/sum">Rated Point</DropdownItem>
+                    <DropdownItem tag={RouterLink} to="/sum">Rated Point Ranking</DropdownItem>
                     <DropdownItem tag={RouterLink} to="/lang">Language Owners</DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
@@ -61,7 +62,7 @@ class App extends Component {
               <Route exact path="/short" component={ShortRanking} />
               <Route exact path="/first" component={FirstRanking} />
               <Route exact path="/sum" component={SumRanking} />
-              <Route exact path="/lang" component={() => <div>lang</div>} />
+              <Route exact path="/lang" component={LanguageOwners} />
               <Route path="/user/:user_id" component={(props: any) => <div>user: {props.match.params.user_id}</div>} />
 
               <Route component={() => <div>home</div>} />

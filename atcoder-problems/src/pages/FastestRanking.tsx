@@ -4,7 +4,7 @@ import Ranking from "../components/Ranking";
 
 const FastestRanking = () => (
     <Ranking
-        title="Top Accelerators"
+        title="Fastest Submission Ranking"
         fetch={() => ApiUrl.fetchFastRanking().then(rows => rows.map(row => ({ count: row.problem_count, id: row.user_id })))}
 
     />
