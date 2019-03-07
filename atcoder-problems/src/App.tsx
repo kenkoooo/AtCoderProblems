@@ -1,10 +1,30 @@
-import React, { Component } from 'react';
-import { HashRouter as Router, Route, NavLink as RouterLink, Switch } from "react-router-dom";
+import React, { Component } from "react";
 import {
-  NavLink, Navbar, NavbarBrand, NavbarToggler, Collapse,
-  Nav, NavItem, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem,
-  Container
-} from 'reactstrap';
+  BrowserRouter as Router,
+  Route,
+  NavLink as RouterLink,
+  Switch
+} from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router";
+import {
+  NavLink,
+  Navbar,
+  NavbarBrand,
+  NavbarToggler,
+  Collapse,
+  Nav,
+  NavItem,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Container,
+  Form,
+  Input,
+  Button,
+  FormGroup,
+  Label
+} from "reactstrap";
 
 import ACRanking from "./pages/ACRanking";
 import FastestRanking from "./pages/FastestRanking";
@@ -12,49 +32,18 @@ import FirstRanking from "./pages/FirstRanking";
 import ShortRanking from "./pages/ShortRanking";
 import SumRanking from "./pages/SumRanking";
 import LanguageOwners from "./pages/LanguageOwners";
+import ListPage from "./pages/ListPage";
+import UserPage from "./pages/UserPage";
+import TablePage from "./pages/TablePage";
+
+import NavigationBar from "./components/NavigationBar";
 
 class App extends Component {
   render() {
     return (
       <Router>
         <div>
-          <Navbar color="light" light expand="md">
-            <NavbarBrand tag={RouterLink} to="/">AtCoder Problems</NavbarBrand>
-            <NavbarToggler />
-            <Collapse navbar>
-              <Nav className="ml-auto" navbar>
-                <UncontrolledDropdown nav inNavbar>
-                  <DropdownToggle nav caret>Rankings</DropdownToggle>
-                  <DropdownMenu right>
-                    <DropdownItem tag={RouterLink} to="/ac">AC Count</DropdownItem>
-                    <DropdownItem tag={RouterLink} to="/fast">Fastest Submissions</DropdownItem>
-                    <DropdownItem tag={RouterLink} to="/short">Shortest Submissions</DropdownItem>
-                    <DropdownItem tag={RouterLink} to="/first">First AC</DropdownItem>
-                    <DropdownItem tag={RouterLink} to="/sum">Rated Point Ranking</DropdownItem>
-                    <DropdownItem tag={RouterLink} to="/lang">Language Owners</DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-
-                <NavItem>
-                  <NavLink tag={RouterLink} to="/user">User Page</NavLink>
-                </NavItem>
-
-                <NavItem>
-                  <NavLink href="https://github.com/reactstrap/reactstrap">GitHub</NavLink>
-                </NavItem>
-
-                <UncontrolledDropdown nav inNavbar>
-                  <DropdownToggle nav caret>Links</DropdownToggle>
-                  <DropdownMenu right>
-                    <DropdownItem tag="a" href="https://atcoder.jp/" target="_blank">AtCoder</DropdownItem>
-                    <DropdownItem tag="a" href="http://aoj-icpc.ichyo.jp/" target="_blank">AOJ-ICPC</DropdownItem>
-                    <DropdownItem tag="a" href="https://github.com/kenkoooo/AtCoderProblems" target="_blank">GitHub</DropdownItem>
-                    <DropdownItem tag="a" href="https://twitter.com/kenkoooo" target="_blank">@kenkoooo</DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-              </Nav>
-            </Collapse>
-          </Navbar>
+          <NavigationBar />
           <Container>
             <Switch>
               <Route exact path="/ac" component={ACRanking} />
@@ -63,9 +52,24 @@ class App extends Component {
               <Route exact path="/first" component={FirstRanking} />
               <Route exact path="/sum" component={SumRanking} />
               <Route exact path="/lang" component={LanguageOwners} />
-              <Route path="/user/:user_id" component={(props: any) => <div>user: {props.match.params.user_id}</div>} />
+              <Route
+                path="/user/:user_id([a-zA-Z0-9]+)*"
+                component={(props: any) => {
+                  const user_id = props.match.params.user_id;
+                  const user_ids = user_id ? user_id.split("/") : [];
+                  return <UserPage user_ids={user_ids} />;
+                }}
+              />
+              <Route
+                path="/table/:user_id([a-zA-Z0-9]+)*"
+                component={(props: any) => {
+                  const user_id = props.match.params.user_id;
+                  const user_ids = user_id ? user_id.split("/") : [];
+                  return <TablePage user_ids={user_ids} />;
+                }}
+              />
 
-              <Route component={() => <div>home</div>} />
+              <Route component={TablePage} />
             </Switch>
           </Container>
         </div>
