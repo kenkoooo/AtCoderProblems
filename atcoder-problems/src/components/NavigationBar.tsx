@@ -1,10 +1,5 @@
-import React, { Component } from "react";
-import {
-  HashRouter as Router,
-  Route,
-  NavLink as RouterLink,
-  Switch
-} from "react-router-dom";
+import React from "react";
+import { NavLink as RouterLink } from "react-router-dom";
 import { withRouter, RouteComponentProps } from "react-router";
 import {
   NavLink,
@@ -18,7 +13,6 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  Container,
   Form,
   Input,
   Button,

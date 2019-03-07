@@ -1,30 +1,6 @@
 import React, { Component } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  NavLink as RouterLink,
-  Switch
-} from "react-router-dom";
-import { withRouter, RouteComponentProps } from "react-router";
-import {
-  NavLink,
-  Navbar,
-  NavbarBrand,
-  NavbarToggler,
-  Collapse,
-  Nav,
-  NavItem,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Container,
-  Form,
-  Input,
-  Button,
-  FormGroup,
-  Label
-} from "reactstrap";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { Container } from "reactstrap";
 
 import ACRanking from "./pages/ACRanking";
 import FastestRanking from "./pages/FastestRanking";
@@ -66,6 +42,14 @@ class App extends Component {
                   const user_id = props.match.params.user_id;
                   const user_ids = user_id ? user_id.split("/") : [];
                   return <TablePage user_ids={user_ids} />;
+                }}
+              />
+              <Route
+                path="/list/:user_id([a-zA-Z0-9]+)*"
+                component={(props: any) => {
+                  const user_id = props.match.params.user_id;
+                  const user_ids = user_id ? user_id.split("/") : [];
+                  return <ListPage user_ids={user_ids} />;
                 }}
               />
 
