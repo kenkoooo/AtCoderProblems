@@ -38,15 +38,18 @@ class ListPage extends React.Component<Props, State> {
   componentDidMount() {
     Promise.all([Api.fetchMergedProblems(), Api.fetchContests()]).then(
       result => {
-        const [problems, contests] = result;
+        const [ps, contests] = result;
         const contestMap = contests.reduce(
           (map, contest) => map.set(contest.id, contest),
           new Map<string, Contest>()
         );
 
-        problems.map(problem => {
+        const problems = ps.map(problem => {
           const p = problem as ListProblem;
           p.contest = contestMap.get(p.contest_id);
+          if (p.contest) {
+            p.date = new Date(p.contest.start_epoch_second * 1000).toLocaleDateString('ja-JP');
+          }
           if (p.point) {
             p.showing_point = p.point;
           } else if (p.predict) {
@@ -55,6 +58,23 @@ class ListPage extends React.Component<Props, State> {
             p.showing_point = INF_POINT;
           }
           return p;
+        });
+        problems.sort((a, b) => {
+          if (a.contest && b.contest) {
+            if (a.contest.start_epoch_second == b.contest.start_epoch_second) {
+              if (a.title < b.title) {
+                return 1;
+              } else if (a.title > b.title) {
+                return -1;
+              } else {
+                return 0;
+              }
+            } else {
+              return b.contest.start_epoch_second - a.contest.start_epoch_second;
+            }
+          } else {
+            return 0;
+          }
         });
         this.setState({ problems, contests });
       }
@@ -65,7 +85,8 @@ class ListPage extends React.Component<Props, State> {
     const columns = [
       {
         dataField: "date",
-        text: "Date"
+        text: "Date",
+        sort: true,
       },
       {
         dataField: "title",
@@ -80,13 +101,14 @@ class ListPage extends React.Component<Props, State> {
         )
       },
       {
-        dataField: "contest",
+        dataField: "contest_id",
         text: "Contest",
-        formatter: (cell: Contest) => (
-          <a href={Url.formatContestUrl(cell.id)} target="_blank">
-            {cell.title}
+        formatter: (cell: string, row: ListProblem) => (
+          <a href={Url.formatContestUrl(cell)} target="_blank">
+            {row.contest ? row.contest.title : ""}
           </a>
-        )
+        ),
+        sort: true,
       },
       {
         dataField: "a",
@@ -97,8 +119,12 @@ class ListPage extends React.Component<Props, State> {
         text: "Last AC Date"
       },
       {
-        dataField: "v",
-        text: "Solvers"
+        dataField: "solver_count",
+        text: "Solvers",
+        formatter: (cell: number, row: ListProblem) => (
+          <a href={Url.formatSolversUrl(row.contest_id, row.id)} target="_blank">{cell}</a>
+        ),
+        sort: true
       },
       {
         dataField: "showing_point",
@@ -108,7 +134,11 @@ class ListPage extends React.Component<Props, State> {
           if (cell >= INF_POINT) {
             return "-";
           } else {
-            return cell;
+            if (cell % 100 == 0) {
+              return cell;
+            } else {
+              return cell.toFixed(2);
+            }
           }
         }
       },

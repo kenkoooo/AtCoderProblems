@@ -7,7 +7,7 @@ const paginationFactory = require("react-bootstrap-table2-paginator").default;
 
 interface Props {
     title: string;
-    fetch: (() => Promise<{count:number,id:string}[]>);
+    fetch: (() => Promise<{ count: number, id: string }[]>);
 }
 
 interface User {

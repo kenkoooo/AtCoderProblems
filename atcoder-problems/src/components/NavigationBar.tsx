@@ -32,7 +32,7 @@ interface State {
   kind: PageKind;
 }
 
-interface Props extends RouteComponentProps {}
+interface Props extends RouteComponentProps { }
 
 class PrimitiveNavigationBar extends React.Component<Props, State> {
   constructor(props: any) {
