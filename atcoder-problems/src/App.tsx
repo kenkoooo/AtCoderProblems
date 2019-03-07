@@ -29,7 +29,7 @@ class App extends Component {
               <Route exact path="/sum" component={SumRanking} />
               <Route exact path="/lang" component={LanguageOwners} />
               <Route
-                path="/user/:user_id([a-zA-Z0-9]+)*"
+                path="/user/:user_id([a-zA-Z0-9]*)*"
                 component={(props: any) => {
                   const user_id = props.match.params.user_id;
                   const user_ids = user_id ? user_id.split("/") : [];
@@ -37,7 +37,7 @@ class App extends Component {
                 }}
               />
               <Route
-                path="/table/:user_id([a-zA-Z0-9]+)*"
+                path="/table/:user_id([a-zA-Z0-9]*)*"
                 component={(props: any) => {
                   const user_id = props.match.params.user_id;
                   const user_ids = user_id ? user_id.split("/") : [];
@@ -45,10 +45,11 @@ class App extends Component {
                 }}
               />
               <Route
-                path="/list/:user_id([a-zA-Z0-9]+)*"
+                path="/list/:user_id([a-zA-Z0-9]*)*"
                 component={(props: any) => {
                   const user_id = props.match.params.user_id;
                   const user_ids = user_id ? user_id.split("/") : [];
+                  console.log(user_ids);
                   return <ListPage user_ids={user_ids} />;
                 }}
               />
