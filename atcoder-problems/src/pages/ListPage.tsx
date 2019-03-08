@@ -1,310 +1,329 @@
-import React from 'react';
-import { Row } from 'reactstrap';
+import React from "react";
+import { Row } from "reactstrap";
 
-const BootstrapTable = require('react-bootstrap-table-next').default;
-const paginationFactory = require('react-bootstrap-table2-paginator').default;
-const { PaginationProvider, PaginationListStandalone } = require('react-bootstrap-table2-paginator');
+const BootstrapTable = require("react-bootstrap-table-next").default;
+const paginationFactory = require("react-bootstrap-table2-paginator").default;
+const {
+  PaginationProvider,
+  PaginationListStandalone
+} = require("react-bootstrap-table2-paginator");
 
-import * as Api from '../utils/Api';
-import * as Url from '../utils/Url';
-import MergedProblem from '../interfaces/MergedProblem';
-import Contest from '../interfaces/Contest';
-import Submission from '../interfaces/Submission';
+import * as Api from "../utils/Api";
+import * as Url from "../utils/Url";
+import MergedProblem from "../interfaces/MergedProblem";
+import Contest from "../interfaces/Contest";
+import Submission from "../interfaces/Submission";
 
 const INF_POINT = 1e18;
 
-const StatelessTable = (props: {
-	problems: Problem[];
-	contestMap: Map<string, Contest>;
-	statusMap: Map<string, { status: string; rivals: string[] }>;
-}) => {
-	const columns = [
-		{
-			dataField: 'date',
-			text: 'Date',
-			sort: true
-		},
-		{
-			dataField: 'title',
-			text: 'Problem',
-			formatter: (_: string, row: Problem) => (
-				<a href={Url.formatProblemUrl(row.id, row.contest_id)} target="_blank">
-					{row.title}
-				</a>
-			)
-		},
-		{
-			dataField: 'contest_id',
-			text: 'Contest',
-			formatter: (cell: string, row: Problem, i: number, data: { contestMap: Map<string, Contest> }) => {
-				const contest = data.contestMap.get(cell);
-				return (
-					<a href={Url.formatContestUrl(cell)} target="_blank">
-						{contest ? contest.title : ''}
-					</a>
-				);
-			},
-			formatExtraData: {
-				contestMap: props.contestMap
-			},
-			sort: true
-		},
-		{
-			dataField: 'id',
-			text: 'Result',
-			formatter: (
-				id: string,
-				problem: Problem,
-				i: number,
-				data: { statusMap: Map<string, { status: string; rivals: string[] }> }
-			) => {
-				const status = data.statusMap.get(id);
-				if (id === 'code_festival_2015_okinawa_c') {
-					console.log('a');
-				}
-				if (status) {
-					if (status.status === 'AC') {
-						return <p>AC</p>;
-					} else if (status.rivals.length > 0) {
-						return <p>RE</p>;
-					} else {
-						return <p>WA</p>;
-					}
-				} else {
-					return null;
-				}
-			},
-			formatExtraData: {
-				statusMap: props.statusMap
-			}
-		},
-		{
-			dataField: 'b',
-			text: 'Last AC Date'
-		},
-		{
-			dataField: 'solver_count',
-			text: 'Solvers',
-			formatter: (cell: number, row: Problem) => (
-				<a href={Url.formatSolversUrl(row.contest_id, row.id)} target="_blank">
-					{cell}
-				</a>
-			),
-			sort: true
-		},
-		{
-			dataField: 'showing_point',
-			text: 'Point',
-			sort: true,
-			formatter: (showing_point: number) => {
-				if (showing_point >= INF_POINT) {
-					return '-';
-				} else {
-					if (showing_point % 100 == 0) {
-						return showing_point;
-					} else {
-						return showing_point.toFixed(2);
-					}
-				}
-			}
-		},
-		{
-			dataField: 'execution_time',
-			text: 'Fastest',
-			formatter: (_: number, row: Problem) => (
-				<a href={Url.formatSubmissionUrl(row.fastest_submission_id, row.fastest_contest_id)} target="_blank">
-					{row.fastest_user_id} ({row.execution_time} ms)
-				</a>
-			),
-			sort: true
-		},
-		{
-			dataField: 'source_code_length',
-			text: 'Shortest',
-			formatter: (_: number, row: Problem) => (
-				<a href={Url.formatSubmissionUrl(row.shortest_submission_id, row.shortest_contest_id)} target="_blank">
-					{row.shortest_user_id} ({row.source_code_length} Bytes)
-				</a>
-			),
-			sort: true
-		},
-		{
-			dataField: 'first_user_id',
-			text: 'First',
-			formatter: (_: string, row: Problem) => (
-				<a href={Url.formatSubmissionUrl(row.first_submission_id, row.first_contest_id)} target="_blank">
-					{row.first_user_id}
-				</a>
-			)
-		}
-	];
-	const options = {
-		sizePerPageList: [
-			{
-				text: '25',
-				value: 25
-			},
-			{
-				text: '50',
-				value: 50
-			},
-			{
-				text: '100',
-				value: 100
-			}
-		],
-		// custom: true,
-		totalSize: props.problems.length
-	};
+const StatelessTable = (props: { problems: Problem[] }) => {
+  const columns = [
+    {
+      dataField: "date",
+      text: "Date",
+      sort: true
+    },
+    {
+      dataField: "title",
+      text: "Problem",
+      formatter: (_: string, row: Problem) => (
+        <a href={Url.formatProblemUrl(row.id, row.contest_id)} target="_blank">
+          {row.title}
+        </a>
+      )
+    },
+    {
+      dataField: "contest_id",
+      text: "Contest",
+      formatter: (contest_id: string, problem: Problem) => {
+        return (
+          <a href={Url.formatContestUrl(contest_id)} target="_blank">
+            {problem.contest.title}
+          </a>
+        );
+      },
+      sort: true
+    },
+    {
+      dataField: "id",
+      text: "Result",
+      formatter: (id: string, problem: Problem) => {
+        if (problem.status === "AC") {
+          return <p>AC</p>;
+        } else if (problem.rivals.length > 0) {
+          return <p>C</p>;
+        } else {
+          return <p>{problem.status}</p>;
+        }
+      }
+    },
+    {
+      dataField: "b",
+      text: "Last AC Date"
+    },
+    {
+      dataField: "solver_count",
+      text: "Solvers",
+      formatter: (cell: number, row: Problem) => (
+        <a href={Url.formatSolversUrl(row.contest_id, row.id)} target="_blank">
+          {cell}
+        </a>
+      ),
+      sort: true
+    },
+    {
+      dataField: "showing_point",
+      text: "Point",
+      sort: true,
+      formatter: (showing_point: number) => {
+        if (showing_point >= INF_POINT) {
+          return "-";
+        } else {
+          if (showing_point % 100 == 0) {
+            return showing_point;
+          } else {
+            return showing_point.toFixed(2);
+          }
+        }
+      }
+    },
+    {
+      dataField: "execution_time",
+      text: "Fastest",
+      formatter: (_: number, row: Problem) => (
+        <a
+          href={Url.formatSubmissionUrl(
+            row.fastest_submission_id,
+            row.fastest_contest_id
+          )}
+          target="_blank"
+        >
+          {row.fastest_user_id} ({row.execution_time} ms)
+        </a>
+      ),
+      sort: true
+    },
+    {
+      dataField: "source_code_length",
+      text: "Shortest",
+      formatter: (_: number, row: Problem) => (
+        <a
+          href={Url.formatSubmissionUrl(
+            row.shortest_submission_id,
+            row.shortest_contest_id
+          )}
+          target="_blank"
+        >
+          {row.shortest_user_id} ({row.source_code_length} Bytes)
+        </a>
+      ),
+      sort: true
+    },
+    {
+      dataField: "first_user_id",
+      text: "First",
+      formatter: (_: string, row: Problem) => (
+        <a
+          href={Url.formatSubmissionUrl(
+            row.first_submission_id,
+            row.first_contest_id
+          )}
+          target="_blank"
+        >
+          {row.first_user_id}
+        </a>
+      )
+    }
+  ];
+  const options = {
+    sizePerPageList: [
+      {
+        text: "25",
+        value: 25
+      },
+      {
+        text: "50",
+        value: 50
+      },
+      {
+        text: "100",
+        value: 100
+      }
+    ],
+    custom: true,
+    totalSize: props.problems.length
+  };
 
-	const data: Problem[] = [];
-	props.problems.forEach((p) => data.push(p));
-	return (
-		<PaginationProvider pagination={paginationFactory(options)}>
-			{({ paginationProps, paginationTableProps }: any) => (
-				<div>
-					<PaginationListStandalone {...paginationProps} />
-					<BootstrapTable keyField="id" columns={columns} data={data} {...paginationTableProps} />
-				</div>
-			)}
-		</PaginationProvider>
-	);
+  return (
+    <PaginationProvider pagination={paginationFactory(options)}>
+      {({ paginationProps, paginationTableProps }: any) => (
+        <div>
+          <PaginationListStandalone {...paginationProps} />
+          <BootstrapTable
+            keyField="id"
+            columns={columns}
+            data={props.problems}
+          />
+        </div>
+      )}
+    </PaginationProvider>
+  );
 };
 
 interface Problem extends MergedProblem {
-	showing_point: number;
-	date: string;
+  showing_point: number;
+  date: string;
+
+  contest: Contest;
+
+  status: string;
+  rivals: string[];
 }
 
 interface Props {
-	user_ids: string[];
+  user_ids: string[];
 }
 
 interface State {
-	problems: Problem[];
-	contestMap: Map<string, Contest>;
-	statusMap: Map<string, { status: string; rivals: string[] }>;
-	user_ids: string[];
+  problems: Problem[];
 }
 
 class ListPage extends React.Component<Props, State> {
-	constructor(props: any) {
-		super(props);
-		this.state = {
-			problems: [],
-			contestMap: new Map(),
-			statusMap: new Map(),
-			user_ids: []
-		};
-	}
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      problems: []
+    };
+  }
 
-	componentDidMount() {
-		Promise.all([ Api.fetchMergedProblems(), Api.fetchContests() ]).then((result) => {
-			const [ problems, contests ] = result;
-			const contestMap = contests.reduce(
-				(map, contest) => map.set(contest.id, contest),
-				new Map<string, Contest>()
-			);
-			problems.sort((a, b) => {
-				const contest_a = contestMap.get(a.contest_id);
-				const contest_b = contestMap.get(b.contest_id);
-				if (contest_a && contest_b) {
-					if (contest_a.start_epoch_second == contest_b.start_epoch_second) {
-						if (a.title < b.title) {
-							return 1;
-						} else if (a.title > b.title) {
-							return -1;
-						} else {
-							return 0;
-						}
-					} else {
-						return contest_b.start_epoch_second - contest_b.start_epoch_second;
-					}
-				} else {
-					return 0;
-				}
-			});
-			this.setState({
-				problems: problems.map((problem) => {
-					const p = problem as Problem;
-					if (p.point) {
-						p.showing_point = p.point;
-					} else if (p.predict) {
-						p.showing_point = p.predict;
-					} else {
-						p.showing_point = INF_POINT;
-					}
+  componentDidMount() {
+    Promise.all([Api.fetchMergedProblems(), Api.fetchContests()]).then(
+      result => {
+        const [merged_problems, contests] = result;
+        const contest_map = contests.reduce(
+          (map, contest) => map.set(contest.id, contest),
+          new Map<string, Contest>()
+        );
 
-					const contest = contestMap.get(p.contest_id);
-					if (contest) {
-						p.date = new Date(contest.start_epoch_second).toLocaleDateString();
-					}
+        const problems: Problem[] = merged_problems.map(problem => {
+          const showing_point = (() => {
+            if (problem.point) {
+              return problem.point;
+            } else if (problem.predict) {
+              return problem.predict;
+            } else {
+              return INF_POINT;
+            }
+          })();
 
-					return p;
-				}),
-				contestMap
-			});
-		});
-	}
+          const contest = (() => {
+            let contest = contest_map.get(problem.contest_id);
+            if (contest) {
+              return contest;
+            } else {
+              throw `${problem.id} is not belonged to any contest.`;
+            }
+          })();
 
-	componentDidUpdate() {
-		if (this.props.user_ids == this.state.user_ids) {
-			return;
-		}
-		this.updateProblems(this.props.user_ids);
-	}
+          const date = new Date(
+            contest.start_epoch_second * 1000
+          ).toLocaleDateString();
 
-	updateProblems(user_ids: string[]) {
-		Promise.all(user_ids.map(Api.fetchSubmissions)).then((r) => r.flat()).then((submissions) => {
-			const user = this.props.user_ids.length > 0 ? this.props.user_ids[0] : '';
-			const rivals = this.props.user_ids.slice(1);
-			const statusMap = submissions.sort((a, b) => a.epoch_second - b.epoch_second).reduce((map, submission) => {
-				let entry = map.get(submission.problem_id);
-				if (!entry) {
-					entry = { status: '', rivals: [] };
-				}
+          const status = "";
+          const rivals: string[] = [];
 
-				enum Pattern {
-					MyAC,
-					MyWA,
-					OtherAC,
-					Other
-				}
+          return { status, showing_point, contest, date, rivals, ...problem };
+        });
 
-				let pattern = Pattern.Other;
-				if (submission.user_id == user) {
-					if (submission.result === 'AC') {
-						pattern = Pattern.MyAC;
-					} else {
-						pattern = Pattern.MyWA;
-					}
-				} else if (rivals.includes(submission.user_id) && submission.result === 'AC') {
-					pattern = Pattern.OtherAC;
-				}
+        problems.sort((a, b) => {
+          if (a.contest.start_epoch_second == b.contest.start_epoch_second) {
+            if (a.title < b.title) {
+              return 1;
+            } else if (a.title > b.title) {
+              return -1;
+            } else {
+              return 0;
+            }
+          } else {
+            return b.contest.start_epoch_second - a.contest.start_epoch_second;
+          }
+        });
 
-				if (pattern == Pattern.MyAC) {
-					entry.status = submission.result;
-				} else if (pattern == Pattern.MyWA && entry.status !== 'AC') {
-					entry.status = submission.result;
-				} else if (pattern == Pattern.OtherAC) {
-					entry.rivals.push(submission.user_id);
-				}
-				map.set(submission.problem_id, entry);
-				return map;
-			}, new Map<string, { status: string; rivals: string[] }>());
-			this.setState({ statusMap, user_ids });
-		});
-	}
+        this.setState({ problems }, () =>
+          this.updateProblems(this.props.user_ids)
+        );
+      }
+    );
+  }
 
-	render() {
-		return (
-			<StatelessTable
-				problems={this.state.problems}
-				statusMap={this.state.statusMap}
-				contestMap={this.state.contestMap}
-			/>
-		);
-	}
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (prevProps.user_ids !== this.props.user_ids) {
+      this.updateProblems(this.props.user_ids);
+    }
+  }
+
+  updateProblems(user_ids: string[]) {
+    return Promise.all(user_ids.map(Api.fetchSubmissions))
+      .then(r => r.flat())
+      .then(submissions => {
+        const submission_map = submissions
+          .sort((a, b) => a.epoch_second - b.epoch_second)
+          .reduce((map, submission) => {
+            const arr = map.get(submission.problem_id);
+            if (arr) {
+              arr.push(submission);
+            } else {
+              map.set(submission.problem_id, [submission]);
+            }
+            return map;
+          }, new Map<string, Submission[]>());
+
+        const user = user_ids.length > 0 ? user_ids[0] : "";
+        const rivals = this.props.user_ids.slice(1);
+
+        const problems = this.state.problems.map(problem => {
+          const submissions = (() => {
+            const s = submission_map.get(problem.id);
+            return s ? s : [];
+          })();
+
+          const new_status = (() => {
+            const mine = submissions.filter(s => s.user_id === user);
+            if (mine.some(s => s.result === "AC")) {
+              return "AC";
+            } else if (mine.length > 0) {
+              return mine[mine.length - 1].result;
+            } else {
+              return "";
+            }
+          })();
+
+          const new_rivals_set = (() =>
+            submissions
+              .filter(s => rivals.includes(s.user_id))
+              .filter(s => s.result === "AC")
+              .reduce(
+                (set, submission) => set.add(submission.user_id),
+                new Set<string>()
+              ))();
+          const new_rivals = Array.from(new_rivals_set).sort();
+          if (new_status !== problem.status || new_rivals !== problem.rivals) {
+            const new_problem = Object.assign({}, problem);
+            new_problem.rivals = new_rivals;
+            new_problem.status = new_status;
+            return new_problem;
+          } else {
+            return problem;
+          }
+        });
+
+        this.setState({ problems });
+      });
+  }
+
+  render() {
+    return <StatelessTable problems={this.state.problems} />;
+  }
 }
 
 export default ListPage;
