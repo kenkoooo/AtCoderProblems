@@ -1,10 +1,8 @@
 import React from 'react';
-import { Row } from 'reactstrap';
+import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
+import { Badge } from 'reactstrap';
 
-const BootstrapTable = require('react-bootstrap-table-next').default;
-const paginationFactory = require('react-bootstrap-table2-paginator').default;
-const { PaginationProvider, PaginationListStandalone } = require('react-bootstrap-table2-paginator');
-
+import { formatDate } from '../utils/DateFormat';
 import * as Api from '../utils/Api';
 import * as Url from '../utils/Url';
 import MergedProblem from '../interfaces/MergedProblem';
@@ -21,6 +19,8 @@ interface Problem extends MergedProblem {
 
 	status: string;
 	rivals: string[];
+
+	last_ac_date: string;
 }
 
 interface Props {
@@ -67,12 +67,13 @@ class ListPage extends React.Component<Props, State> {
 					}
 				})();
 
-				const date = new Date(contest.start_epoch_second * 1000).toLocaleDateString();
+				const date = formatDate(contest.start_epoch_second);
 
 				const status = '';
 				const rivals: string[] = [];
+				const last_ac_date = '';
 
-				return { status, showing_point, contest, date, rivals, ...problem };
+				return { status, showing_point, contest, date, rivals, last_ac_date, ...problem };
 			});
 
 			problems.sort((a, b) => {
@@ -139,10 +140,23 @@ class ListPage extends React.Component<Props, State> {
 						.filter((s) => s.result === 'AC')
 						.reduce((set, submission) => set.add(submission.user_id), new Set<string>()))();
 				const new_rivals = Array.from(new_rivals_set).sort();
-				if (new_status !== problem.status || new_rivals !== problem.rivals) {
+				const new_ac_date = (() => {
+					let s = submissions.filter((s) => s.user_id === user).filter((s) => s.result === 'AC').reverse();
+					if (s.length > 0) {
+						return formatDate(s[0].epoch_second);
+					} else {
+						return '';
+					}
+				})();
+				if (
+					new_status !== problem.status ||
+					new_rivals !== problem.rivals ||
+					new_ac_date !== problem.last_ac_date
+				) {
 					const new_problem = Object.assign({}, problem);
 					new_problem.rivals = new_rivals;
 					new_problem.status = new_status;
+					new_problem.last_ac_date = new_ac_date;
 					return new_problem;
 				} else {
 					return problem;
@@ -154,140 +168,154 @@ class ListPage extends React.Component<Props, State> {
 	}
 
 	render() {
-		const columns = [
-			{
-				dataField: 'date',
-				text: 'Date',
-				sort: true
-			},
-			{
-				dataField: 'title',
-				text: 'Problem',
-				formatter: (_: string, row: Problem) => (
-					<a href={Url.formatProblemUrl(row.id, row.contest_id)} target="_blank">
-						{row.title}
-					</a>
-				)
-			},
-			{
-				dataField: 'contest_id',
-				text: 'Contest',
-				formatter: (contest_id: string, problem: Problem) => {
-					return (
+		return (
+			<BootstrapTable
+				pagination
+				keyField="id"
+				height="auto"
+				hover
+				striped
+				data={this.state.problems}
+				options={{
+					paginationPosition: 'top',
+					sizePerPage: 20,
+					sizePerPageList: [
+						{
+							text: '20',
+							value: 20
+						},
+						{
+							text: '50',
+							value: 50
+						},
+						{
+							text: '100',
+							value: 100
+						},
+						{
+							text: '200',
+							value: 200
+						},
+						{
+							text: 'All',
+							value: this.state.problems.length
+						}
+					]
+				}}
+			>
+				<TableHeaderColumn dataField="date" dataSort>
+					Date
+				</TableHeaderColumn>
+				<TableHeaderColumn
+					dataSort
+					dataField="title"
+					dataFormat={(_: string, row: Problem) => (
+						<a href={Url.formatProblemUrl(row.id, row.contest_id)} target="_blank">
+							{row.title}
+						</a>
+					)}
+				>
+					Problem
+				</TableHeaderColumn>
+				<TableHeaderColumn
+					dataSort
+					dataField="contest_id"
+					dataFormat={(contest_id: string, problem: Problem) => (
 						<a href={Url.formatContestUrl(contest_id)} target="_blank">
 							{problem.contest.title}
 						</a>
-					);
-				},
-				sort: true
-			},
-			{
-				dataField: 'id',
-				text: 'Result',
-				formatter: (id: string, problem: Problem) => {
-					if (problem.status === 'AC') {
-						return <p>AC</p>;
-					} else if (problem.rivals.length > 0) {
-						return <p>C</p>;
-					} else {
-						return <p>{problem.status}</p>;
-					}
-				}
-			},
-			{
-				dataField: 'b',
-				text: 'Last AC Date'
-			},
-			{
-				dataField: 'solver_count',
-				text: 'Solvers',
-				formatter: (cell: number, row: Problem) => (
-					<a href={Url.formatSolversUrl(row.contest_id, row.id)} target="_blank">
-						{cell}
-					</a>
-				),
-				sort: true
-			},
-			{
-				dataField: 'showing_point',
-				text: 'Point',
-				sort: true,
-				formatter: (showing_point: number) => {
-					if (showing_point >= INF_POINT) {
-						return '-';
-					} else {
-						if (showing_point % 100 == 0) {
-							return showing_point;
+					)}
+				>
+					Contest
+				</TableHeaderColumn>
+				<TableHeaderColumn
+					dataField="id"
+					dataFormat={(id: string, problem: Problem) => {
+						if (problem.status === 'AC') {
+							return <Badge color="success">AC</Badge>;
+						} else if (problem.rivals.length > 0) {
+							return <div>{problem.rivals.map((r) => <Badge color="danger">{r}</Badge>)}</div>;
 						} else {
-							return showing_point.toFixed(2);
+							return <Badge color="warning">{problem.status}</Badge>;
 						}
-					}
-				}
-			},
-			{
-				dataField: 'execution_time',
-				text: 'Fastest',
-				formatter: (_: number, row: Problem) => (
-					<a
-						href={Url.formatSubmissionUrl(row.fastest_submission_id, row.fastest_contest_id)}
-						target="_blank"
-					>
-						{row.fastest_user_id} ({row.execution_time} ms)
-					</a>
-				),
-				sort: true
-			},
-			{
-				dataField: 'source_code_length',
-				text: 'Shortest',
-				formatter: (_: number, row: Problem) => (
-					<a
-						href={Url.formatSubmissionUrl(row.shortest_submission_id, row.shortest_contest_id)}
-						target="_blank"
-					>
-						{row.shortest_user_id} ({row.source_code_length} Bytes)
-					</a>
-				),
-				sort: true
-			},
-			{
-				dataField: 'first_user_id',
-				text: 'First',
-				formatter: (_: string, row: Problem) => (
-					<a href={Url.formatSubmissionUrl(row.first_submission_id, row.first_contest_id)} target="_blank">
-						{row.first_user_id}
-					</a>
-				)
-			}
-		];
-		const options = {
-			sizePerPageList: [
-				{
-					text: '25',
-					value: 25
-				},
-				{
-					text: '50',
-					value: 50
-				},
-				{
-					text: '100',
-					value: 100
-				}
-			],
-			custom: true,
-			totalSize: this.state.problems.length
-		};
-
-		return (
-			<PaginationProvider pagination={paginationFactory(options)}>
-				{({ paginationProps, paginationTableProps }: any) => (
-					<div>
-						<PaginationListStandalone {...paginationProps} />
-						<BootstrapTable keyField="id" columns={columns} data={this.state.problems} />
-					</div>
-				)}
-			</PaginationProvider>
+					}}
+				>
+					Result
+				</TableHeaderColumn>
+				<TableHeaderColumn dataSort dataField="last_ac_date">
+					Last AC Date
+				</TableHeaderColumn>
+				<TableHeaderColumn
+					dataSort
+					dataField="solver_count"
+					dataFormat={(cell: number, row: Problem) => (
+						<a href={Url.formatSolversUrl(row.contest_id, row.id)} target="_blank">
+							{cell}
+						</a>
+					)}
+				>
+					Solvers
+				</TableHeaderColumn>
+				<TableHeaderColumn
+					dataField="showing_point"
+					dataFormat={(showing_point: any) => {
+						if (showing_point >= INF_POINT) {
+							return '-';
+						} else {
+							if (showing_point % 100 == 0) {
+								return showing_point;
+							} else {
+								return showing_point.toFixed(2);
+							}
+						}
+					}}
+					dataSort
+				>
+					Point
+				</TableHeaderColumn>
+				<TableHeaderColumn
+					dataField="execution_time"
+					dataSort
+					dataFormat={(_: number, row: Problem) => (
+						<a
+							href={Url.formatSubmissionUrl(row.fastest_submission_id, row.fastest_contest_id)}
+							target="_blank"
+						>
+							{row.fastest_user_id} ({row.execution_time} ms)
+						</a>
+					)}
+				>
+					Fastest
+				</TableHeaderColumn>
+				<TableHeaderColumn
+					dataField="source_code_length"
+					dataSort
+					dataFormat={(_: number, row: Problem) => (
+						<a
+							href={Url.formatSubmissionUrl(row.shortest_submission_id, row.shortest_contest_id)}
+							target="_blank"
+						>
+							{row.shortest_user_id} ({row.source_code_length} Bytes)
+						</a>
+					)}
+				>
+					Shortest
+				</TableHeaderColumn>
+				<TableHeaderColumn
+					dataField="first_user_id"
+					dataSort
+					dataFormat={(_: string, row: Problem) => (
+						<a
+							href={Url.formatSubmissionUrl(row.first_submission_id, row.first_contest_id)}
+							target="_blank"
+						>
+							{row.first_user_id}
+						</a>
+					)}
+				>
+					First
+				</TableHeaderColumn>
+			</BootstrapTable>
 		);
 	}
 }
