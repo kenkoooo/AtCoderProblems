@@ -242,6 +242,7 @@ class ListPage extends React.Component<Props, State> {
 				</TableHeaderColumn>
 				<TableHeaderColumn
 					dataField="id"
+					dataAlign="center"
 					dataFormat={(id: string, problem: Problem) => {
 						if (isAccepted(problem.status)) {
 							return <Badge color="success">AC</Badge>;

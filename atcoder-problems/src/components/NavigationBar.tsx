@@ -80,9 +80,19 @@ class PrimitiveNavigationBar extends React.Component<Props, State> {
 	}
 
 	render() {
+		let root_url = '/';
+		if (this.state.user_id.length > 0 || this.state.rival_id.length > 0) {
+			root_url += 'table/';
+		}
+		if (this.state.user_id.length > 0) {
+			root_url += this.state.user_id + '/';
+		}
+		if (this.state.rival_id.length > 0) {
+			root_url += this.state.rival_id.split(',').filter((s) => s.match(/^[0-9a-zA-Z_]+/)).join('/');
+		}
 		return (
 			<Navbar color="light" light expand="md">
-				<NavbarBrand tag={RouterLink} to="/">
+				<NavbarBrand tag={RouterLink} to={root_url}>
 					AtCoder Problems
 				</NavbarBrand>
 				<NavbarToggler />
