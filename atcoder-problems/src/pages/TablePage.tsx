@@ -1,6 +1,7 @@
 import React from 'react';
 import { Row } from 'reactstrap';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
+import { isAccepted } from '../utils';
 
 import * as Api from '../utils/Api';
 import * as Url from '../utils/Url';
@@ -8,9 +9,10 @@ import Contest from '../interfaces/Contest';
 import Problem from '../interfaces/Problem';
 
 enum Status {
-	Solved,
-	RivalSolved,
-	Trying
+	Nothing = 0,
+	Trying = 1,
+	RivalSolved = 2,
+	Solved = 3
 }
 
 interface ProblemWithStatus extends Problem {
@@ -35,6 +37,7 @@ class TablePage extends React.Component<Props, State> {
 			problems: []
 		};
 	}
+
 	componentDidMount() {
 		Promise.all([ Api.fetchProblems(), Api.fetchContests() ]).then(([ initialProblems, contests ]) => {
 			const contest_map = new Map(contests.map((c) => [ c.id, c ] as [string, Contest]));
@@ -43,12 +46,58 @@ class TablePage extends React.Component<Props, State> {
 				if (!contest) {
 					throw `${p.contest_id} does not exist!`;
 				}
-				const status = Status.Trying;
+				const status = Status.Nothing;
 				return { status, contest, ...p };
 			});
 
-			this.setState({ problems, contests });
+			this.setState({ problems, contests }, () => {
+				console.log(this.props);
+				this.updateState(this.props.user_ids);
+			});
 		});
+	}
+
+	componentDidUpdate(prevProps: Props) {
+		if (this.props !== prevProps) {
+			this.updateState(this.props.user_ids);
+		}
+	}
+
+	updateState(user_ids: string[]) {
+		const user = user_ids.length > 0 ? user_ids[0] : '';
+		const rivals = user_ids.slice(1);
+		Promise.all(user_ids.map((user_id) => Api.fetchSubmissions(user_id)))
+			.then((r) => r.flat())
+			.then((submissions) =>
+				submissions
+					.filter((s) => s.user_id === user || (rivals.includes(s.user_id) && isAccepted(s.result)))
+					.map((s) => {
+						const problem_id = s.problem_id;
+						if (s.user_id === user) {
+							if (isAccepted(s.result)) {
+								return { problem_id, status: Status.Solved };
+							} else {
+								return { problem_id, status: Status.Trying };
+							}
+						} else {
+							return { problem_id, status: Status.RivalSolved };
+						}
+					})
+					.sort((a, b) => a.status - b.status)
+					.reduce((map, s) => map.set(s.problem_id, s.status), new Map<string, Status>())
+			)
+			.then((map) => {
+				const problems = this.state.problems.map((p) => {
+					const status = map.get(p.id);
+					const problem = Object.assign({}, p);
+					problem.status = Status.Nothing;
+					if (status !== undefined) {
+						problem.status = status;
+					}
+					return problem;
+				});
+				this.setState({ problems });
+			});
 	}
 
 	render() {
@@ -80,6 +129,25 @@ class TablePage extends React.Component<Props, State> {
 							<TableHeaderColumn
 								dataField={c}
 								key={c}
+								columnClassName={(_: any, { problems }: { problems: ProblemWithStatus[] }) => {
+									const problem = problems[i];
+									if (problem) {
+										switch (problems[i].status) {
+											case Status.Nothing:
+												return '';
+											case Status.Solved:
+												return 'table-success';
+											case Status.Trying:
+												return 'table-warning';
+											case Status.RivalSolved:
+												return 'table-danger';
+											default:
+												return '';
+										}
+									} else {
+										return '';
+									}
+								}}
 								dataFormat={(_: any, row: { contest_id: string; problems: ProblemWithStatus[] }) => {
 									const problem = row.problems[i];
 									if (problem) {
@@ -123,7 +191,7 @@ const AtCoderRegularTable = ({
 				dataField="contest_id"
 				dataFormat={(_: any, row: { contest_id: string; problems: ProblemWithStatus[] }) => (
 					<a href={Url.formatContestUrl(row.contest_id)} target="_blank">
-						{row.contest_id}
+						{row.contest_id.toUpperCase()}
 					</a>
 				)}
 			>
@@ -133,6 +201,20 @@ const AtCoderRegularTable = ({
 				<TableHeaderColumn
 					dataField={c}
 					key={c}
+					columnClassName={(_: any, { problems }: { problems: ProblemWithStatus[] }) => {
+						switch (problems[i].status) {
+							case Status.Nothing:
+								return '';
+							case Status.Solved:
+								return 'table-success';
+							case Status.Trying:
+								return 'table-warning';
+							case Status.RivalSolved:
+								return 'table-danger';
+							default:
+								return '';
+						}
+					}}
 					dataFormat={(_: any, { problems }: { contest_id: string; problems: ProblemWithStatus[] }) => (
 						<a href={Url.formatProblemUrl(problems[i].id, problems[i].contest_id)} target="_blank">
 							{problems[i].title}

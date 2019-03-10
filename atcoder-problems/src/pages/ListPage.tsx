@@ -2,6 +2,7 @@ import React from 'react';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 import { Badge } from 'reactstrap';
 
+import { isAccepted } from '../utils';
 import { formatDate } from '../utils/DateFormat';
 import * as Api from '../utils/Api';
 import * as Url from '../utils/Url';
@@ -125,7 +126,7 @@ class ListPage extends React.Component<Props, State> {
 
 				const new_status = (() => {
 					const mine = submissions.filter((s) => s.user_id === user);
-					if (mine.some((s) => s.result === 'AC')) {
+					if (mine.some((s) => isAccepted(s.result))) {
 						return 'AC';
 					} else if (mine.length > 0) {
 						return mine[mine.length - 1].result;
@@ -137,11 +138,11 @@ class ListPage extends React.Component<Props, State> {
 				const new_rivals_set = (() =>
 					submissions
 						.filter((s) => rivals.includes(s.user_id))
-						.filter((s) => s.result === 'AC')
+						.filter((s) => isAccepted(s.result))
 						.reduce((set, submission) => set.add(submission.user_id), new Set<string>()))();
 				const new_rivals = Array.from(new_rivals_set).sort();
 				const new_ac_date = (() => {
-					let s = submissions.filter((s) => s.user_id === user).filter((s) => s.result === 'AC').reverse();
+					let s = submissions.filter((s) => s.user_id === user).filter((s) => isAccepted(s.result)).reverse();
 					if (s.length > 0) {
 						return formatDate(s[0].epoch_second);
 					} else {
@@ -175,6 +176,17 @@ class ListPage extends React.Component<Props, State> {
 				height="auto"
 				hover
 				striped
+				trClassName={(problem: Problem) => {
+					if (isAccepted(problem.status)) {
+						return 'table-success';
+					} else if (problem.rivals.length > 0) {
+						return 'table-danger';
+					} else if (problem.status.length > 0) {
+						return 'table-warning';
+					} else {
+						return '';
+					}
+				}}
 				data={this.state.problems}
 				options={{
 					paginationPosition: 'top',
@@ -231,7 +243,7 @@ class ListPage extends React.Component<Props, State> {
 				<TableHeaderColumn
 					dataField="id"
 					dataFormat={(id: string, problem: Problem) => {
-						if (problem.status === 'AC') {
+						if (isAccepted(problem.status)) {
 							return <Badge color="success">AC</Badge>;
 						} else if (problem.rivals.length > 0) {
 							return <div>{problem.rivals.map((r) => <Badge color="danger">{r}</Badge>)}</div>;
