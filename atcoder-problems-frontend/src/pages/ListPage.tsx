@@ -41,26 +41,18 @@ class ListPage extends React.Component<Props, State> {
 	}
 
 	componentDidMount() {
-		Promise.all([ Api.fetchMergedProblems(), Api.fetchContests() ]).then((result) => {
-			const [ merged_problems, contests ] = result;
+		Promise.all([ Api.fetchMergedProblems(), Api.fetchContests() ]).then(([ merged_problems, contests ]) => {
 			const contest_map = contests.reduce(
 				(map, contest) => map.set(contest.id, contest),
 				new Map<string, Contest>()
 			);
 
 			const problems: Problem[] = merged_problems.map((problem) => {
-				const showing_point = (() => {
-					if (problem.point) {
-						return problem.point;
-					} else if (problem.predict) {
-						return problem.predict;
-					} else {
-						return INF_POINT;
-					}
-				})();
+				const { point, predict } = problem;
+				const showing_point = point ? point : predict ? predict : INF_POINT;
 
 				const contest = (() => {
-					let contest = contest_map.get(problem.contest_id);
+					const contest = contest_map.get(problem.contest_id);
 					if (contest) {
 						return contest;
 					} else {
