@@ -83,10 +83,9 @@ class TablePage extends React.Component<Props, State> {
 			.then((submissions) =>
 				submissions
 					.filter((s) => s.user_id === user || (rivals.includes(s.user_id) && isAccepted(s.result)))
-					.map((s) => {
-						const problem_id = s.problem_id;
-						if (s.user_id === user) {
-							if (isAccepted(s.result)) {
+					.map(({ problem_id, user_id, result }) => {
+						if (user_id === user) {
+							if (isAccepted(result)) {
 								return { problem_id, status: Status.Solved };
 							} else {
 								return { problem_id, status: Status.Trying };
@@ -285,44 +284,57 @@ const createAtCoderGrandContestTable = (contests: Contest[], problems: ProblemWi
 		list.push(p);
 	});
 
-	return Array.from(map).sort(([ a, pa ], [ b, pb ]) => b.localeCompare(a)).map(([ contest_id, problems ]) => {
-		problems.sort((a, b) => a.id.localeCompare(b.id));
-		return { contest_id, problems };
+	return Array.from(map)
+		.map(([ contest_id, problems ]) => ({
+			contest_id,
+			problems: problems.sort((a, b) => a.id.localeCompare(b.id))
+		}))
+		.sort((a, b) => b.contest_id.localeCompare(a.contest_id));
+};
+
+const filter = (regexp: RegExp, contests: Contest[]) =>
+	new Map(
+		contests
+			.filter((c) => c.id.match(regexp))
+			.map(
+				(c) =>
+					[ c.start_epoch_second, { contest: c, problems: [] } ] as [
+						number,
+						{ contest: Contest; problems: ProblemWithStatus[] }
+					]
+			)
+	);
+
+const pushToMap = (
+	map: Map<number, { contest: Contest; problems: ProblemWithStatus[] }>,
+	problems: ProblemWithStatus[]
+) => {
+	problems.forEach((p) => {
+		const entry = map.get(p.contest.start_epoch_second);
+		if (entry) {
+			entry.problems.push(p);
+		}
 	});
 };
 
-const createAtCoderBeginnerRegularContestTable = (contests: Contest[], problems: ProblemWithStatus[]) => {
-	type Pair = [Contest, ProblemWithStatus[]];
-	const abc_map = new Map(
-		contests
-			.filter((c) => c.id.match(/^abc\d{3}$/))
-			.map((c) => [ c.start_epoch_second, [ c, [] ] ] as [number, Pair])
-	);
-	const arc_map = new Map(
-		contests
-			.filter((c) => c.id.match(/^arc\d{3}$/))
-			.map((c) => [ c.start_epoch_second, [ c, [] ] ] as [number, Pair])
-	);
-	const pushToMap = (map: Map<number, Pair>) => {
-		problems.forEach((p) => {
-			const entry = map.get(p.contest.start_epoch_second);
-			if (entry) {
-				entry[1].push(p);
-			}
+const sortMap = (map: Map<number, { contest: Contest; problems: ProblemWithStatus[] }>) =>
+	Array.from(map.values())
+		.sort(({ contest: a }, { contest: b }) => b.start_epoch_second - a.start_epoch_second)
+		.map(({ contest, problems }) => {
+			problems.sort((a, b) => a.id.localeCompare(b.id));
+			return { contest_id: contest.id, problems };
 		});
-	};
-	pushToMap(abc_map);
-	pushToMap(arc_map);
-	const sortMap = (map: Map<number, Pair>) => {
-		return Array.from(map.values())
-			.sort(([ a, pa ], [ b, pb ]) => b.start_epoch_second - a.start_epoch_second)
-			.map(([ contest, problems ]) => {
-				problems.sort((a, b) => a.id.localeCompare(b.id));
-				return { contest_id: contest.id, problems };
-			});
-	};
+
+const createAtCoderBeginnerRegularContestTable = (contests: Contest[], problems: ProblemWithStatus[]) => {
+	const abc_map = filter(/^abc\d{3}$/, contests);
+	const arc_map = filter(/^arc\d{3}$/, contests);
+
+	pushToMap(abc_map, problems);
+	pushToMap(arc_map, problems);
+
 	const abc = sortMap(abc_map);
 	const arc = sortMap(arc_map);
+
 	return [ abc, arc ];
 };
 
