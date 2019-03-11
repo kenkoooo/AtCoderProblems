@@ -14,29 +14,35 @@ const COLORS = {
 };
 
 const SmallPieChart = ({
-  data
+  title,
+  trying,
+  accepted
 }: {
-  data: { name: string; value: number }[];
-}) => (
-  <div>
-    <h5>Rated Point Sum</h5>
-    <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie dataKey="value" data={data} outerRadius="80%" fill="#ff0000">
-          {data.map((e, i) => {
-            if (e.name === "Trying" || e.name === "Accepted") {
-              return <Cell key={i} fill={COLORS[e.name]} />;
-            } else {
-              throw `Unknown key: ${e.name}`;
-            }
-          })}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
-    <h5 className="text-muted">Text</h5>
-  </div>
-);
+  title: string;
+  trying: number;
+  accepted: number;
+}) => {
+  const data = [
+    { value: accepted, color: COLORS.Accepted, name: "Accepted" },
+    { value: trying, color: COLORS.Trying, name: "Trying" }
+  ];
+  return (
+    <div>
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie dataKey="value" data={data} outerRadius="80%" fill="#ff0000">
+            {data.map((e, i) => (
+              <Cell key={e.name} fill={e.color} />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+      <h5>{title}</h5>
+      <h5 className="text-muted">{`${accepted} / ${accepted + trying}`}</h5>
+    </div>
+  );
+};
 
 export default SmallPieChart;

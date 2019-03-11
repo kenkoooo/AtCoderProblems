@@ -24,6 +24,7 @@ import { formatDate } from "../../utils/DateFormat";
 import ClimingLineChart from "./ClimingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
 import SmallPieChart from "./SmallPieChart";
+import FilteringHeatmap from "./FilteringHeatmap";
 
 interface Props {
   user_ids: string[];
@@ -160,7 +161,8 @@ class UserPage extends React.Component<Props, State> {
       user_info,
       longest_streak,
       current_streak,
-      last_ac
+      last_ac,
+      problems
     } = this.state;
 
     const shortest_rank = get_rank(user_id, this.state.short_ranking);
@@ -173,6 +175,14 @@ class UserPage extends React.Component<Props, State> {
         climing_data[i].count += climing_data[i - 1].count;
       }
     });
+
+    const ac_submissions = submissions.filter(
+      s => s.user_id === user_id && isAccepted(s.result)
+    );
+
+    const agc_solved = count_solved(/^agc\d{3}_/, problems, ac_submissions);
+    const abc_solved = count_solved(/^abc\d{3}_/, problems, ac_submissions);
+    const arc_solved = count_solved(/^arc\d{3}_/, problems, ac_submissions);
 
     const achievements = [
       {
@@ -231,6 +241,60 @@ class UserPage extends React.Component<Props, State> {
         </Row>
 
         <Row className="my-2 border-bottom">
+          <h1>AtCoder Beginner Contest</h1>
+        </Row>
+        <Row className="my-3">
+          {abc_solved.map(({ solved, total }, i) => {
+            const key = "ABCDEF".split("")[i];
+            return (
+              <Col key={key} className="text-center" xs="3">
+                <SmallPieChart
+                  accepted={solved}
+                  trying={total - solved}
+                  title={`Problem ${key}`}
+                />
+              </Col>
+            );
+          })}
+        </Row>
+
+        <Row className="my-2 border-bottom">
+          <h1>AtCoder Regular Contest</h1>
+        </Row>
+        <Row className="my-3">
+          {arc_solved.map(({ solved, total }, i) => {
+            const key = "ABCDEF".split("")[i];
+            return (
+              <Col key={key} className="text-center" xs="3">
+                <SmallPieChart
+                  accepted={solved}
+                  trying={total - solved}
+                  title={`Problem ${key}`}
+                />
+              </Col>
+            );
+          })}
+        </Row>
+
+        <Row className="my-2 border-bottom">
+          <h1>AtCoder Grand Contest</h1>
+        </Row>
+        <Row className="my-3">
+          {agc_solved.map(({ solved, total }, i) => {
+            const key = "ABCDEF".split("")[i];
+            return (
+              <Col key={key} className="text-center" xs="2">
+                <SmallPieChart
+                  accepted={solved}
+                  trying={total - solved}
+                  title={`Problem ${key}`}
+                />
+              </Col>
+            );
+          })}
+        </Row>
+
+        <Row className="my-2 border-bottom">
           <h1>Daily Effort</h1>
         </Row>
         <DailyEffortBarChart daily_data={this.state.daily_data} />
@@ -241,42 +305,12 @@ class UserPage extends React.Component<Props, State> {
         <ClimingLineChart climing_data={climing_data} />
 
         <Row className="my-2 border-bottom">
-          <h1>Climing</h1>
+          <h1>Heatmap</h1>
         </Row>
-        <Row className="my-3">
-          <Col className="text-center" xs="3">
-            <SmallPieChart
-              data={[
-                { name: "Trying", value: 10 },
-                { name: "Accepted", value: 10 }
-              ]}
-            />
-          </Col>
-          <Col className="text-center" xs="3">
-            <SmallPieChart
-              data={[
-                { name: "Trying", value: 10 },
-                { name: "Accepted", value: 10 }
-              ]}
-            />
-          </Col>
-          <Col className="text-center" xs="3">
-            <SmallPieChart
-              data={[
-                { name: "Trying", value: 10 },
-                { name: "Accepted", value: 10 }
-              ]}
-            />
-          </Col>
-          <Col className="text-center" xs="3">
-            <SmallPieChart
-              data={[
-                { name: "Trying", value: 10 },
-                { name: "Accepted", value: 10 }
-              ]}
-            />
-          </Col>
-        </Row>
+        <FilteringHeatmap
+          submissions={this.state.submissions}
+          user_id={user_id}
+        />
       </div>
     );
   }
@@ -331,6 +365,44 @@ const get_rank = (user_id: string, ranking: RankingEntry[]) => {
     .filter(({ count }) => count == problem_count)
     .reduce((min, { i }) => Math.min(i, min), ranking.length);
   return { count: ranking[index].problem_count, rank: index };
+};
+
+const count_solved = (
+  prefix: RegExp,
+  problems: MergedProblem[],
+  ac_submissions: Submission[]
+) => {
+  const regexps = [/_[a1]/, /_[b2]/, /_[c3]/, /_[d4]/, /_[e5]/, /_[f6]/];
+  const count = (ids: string[]) => {
+    const c = [0, 0, 0, 0, 0, 0];
+    ids
+      .filter(id => id.match(prefix))
+      .forEach(id => {
+        regexps.forEach((e, i) => {
+          if (id.match(e)) {
+            c[i] += 1;
+          }
+        });
+      });
+    return c;
+  };
+
+  const total_count = count(problems.map(p => p.id));
+  const solved_count = count(
+    Array.from(
+      ac_submissions.reduce(
+        (set, s) => set.add(s.problem_id),
+        new Set<string>()
+      )
+    )
+  );
+
+  return total_count
+    .map((total, i) => ({
+      total: total,
+      solved: solved_count[i]
+    }))
+    .filter(({ total }) => total > 0);
 };
 
 export default UserPage;
