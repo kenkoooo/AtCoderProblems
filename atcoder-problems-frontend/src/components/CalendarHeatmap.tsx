@@ -30,20 +30,15 @@ const CalendarHeatmap = (props: { data: Date[]; formatTooltip?: (date: string, c
 	}
 
 	props.data.forEach((date) => {
-		const s = formatDate(date);
-		const count = count_map.get(s);
+		const count = count_map.get(formatDate(date));
 		if (count !== undefined) {
-			count_map.set(s, count + 1);
+			count_map.set(formatDate(date), count + 1);
 		}
 	});
 
-	const table_data = Array.from(count_map).map(([ date, count ]) => ({ count, date })).sort((a, b) => {
-		if (a.date < b.date) {
-			return -1;
-		} else {
-			return 1;
-		}
-	});
+	const table_data = Array.from(count_map)
+		.map(([ date, count ]) => ({ count, date }))
+		.sort((a, b) => a.date.localeCompare(b.date));
 
 	const block_width = 10;
 	const width = block_width * WEEKS;
