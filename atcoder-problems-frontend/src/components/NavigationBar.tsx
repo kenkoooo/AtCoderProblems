@@ -100,10 +100,8 @@ class PrimitiveNavigationBar extends React.Component<Props, State> {
 					<Nav className="ml-auto" navbar>
 						<Form inline>
 							<FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-								<Label for="user_id" className="mr-sm-2">
-									User ID
-								</Label>
 								<Input
+									style={{ width: '150px' }}
 									onKeyPress={(e) => {
 										if (e.key == 'Enter') {
 											this.submit(this.state.kind);
@@ -118,10 +116,8 @@ class PrimitiveNavigationBar extends React.Component<Props, State> {
 								/>
 							</FormGroup>
 							<FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-								<Label for="rival_id" className="mr-sm-2">
-									Rivals
-								</Label>
 								<Input
+									style={{ width: '150px' }}
 									onKeyPress={(e) => {
 										if (e.key == 'Enter') {
 											this.submit(this.state.kind);
@@ -131,7 +127,7 @@ class PrimitiveNavigationBar extends React.Component<Props, State> {
 									type="text"
 									name="rival_id"
 									id="rival_id"
-									placeholder="User ID, User ID, ..."
+									placeholder="Rival ID, ..."
 									onChange={(e) => this.setState({ rival_id: e.target.value })}
 								/>
 							</FormGroup>
