@@ -244,45 +244,37 @@ class UserPage extends React.Component<Props, State> {
           <h1>Climing</h1>
         </Row>
         <Row className="my-3">
-          <Col key="Rated Point Sum" className="text-center" xs="3">
-            <h6>Rated Point Sum</h6>
+          <Col className="text-center" xs="3">
             <SmallPieChart
-              data={[{ name: "t", value: 10 }, { name: "x", value: 10 }]}
+              data={[
+                { name: "Trying", value: 10 },
+                { name: "Accepted", value: 10 }
+              ]}
             />
-            <h6 className="text-muted">{`${this.state.user_info
-              .rated_point_sum_rank + 1}${ordinalSuffixOf(
-              this.state.user_info.rated_point_sum + 1
-            )}`}</h6>
           </Col>
-          <Col key="Rated Point Sum" className="text-center" xs="3">
-            <h6>Rated Point Sum</h6>
+          <Col className="text-center" xs="3">
             <SmallPieChart
-              data={[{ name: "t", value: 10 }, { name: "x", value: 10 }]}
+              data={[
+                { name: "Trying", value: 10 },
+                { name: "Accepted", value: 10 }
+              ]}
             />
-            <h6 className="text-muted">{`${this.state.user_info
-              .rated_point_sum_rank + 1}${ordinalSuffixOf(
-              this.state.user_info.rated_point_sum + 1
-            )}`}</h6>
           </Col>
-          <Col key="Rated Point Sum" className="text-center" xs="3">
-            <h6>Rated Point Sum</h6>
+          <Col className="text-center" xs="3">
             <SmallPieChart
-              data={[{ name: "t", value: 10 }, { name: "x", value: 10 }]}
+              data={[
+                { name: "Trying", value: 10 },
+                { name: "Accepted", value: 10 }
+              ]}
             />
-            <h6 className="text-muted">{`${this.state.user_info
-              .rated_point_sum_rank + 1}${ordinalSuffixOf(
-              this.state.user_info.rated_point_sum + 1
-            )}`}</h6>
           </Col>
-          <Col key="Rated Point Sum" className="text-center" xs="3">
-            <h6>Rated Point Sum</h6>
+          <Col className="text-center" xs="3">
             <SmallPieChart
-              data={[{ name: "t", value: 10 }, { name: "x", value: 10 }]}
+              data={[
+                { name: "Trying", value: 10 },
+                { name: "Accepted", value: 10 }
+              ]}
             />
-            <h6 className="text-muted">{`${this.state.user_info
-              .rated_point_sum_rank + 1}${ordinalSuffixOf(
-              this.state.user_info.rated_point_sum + 1
-            )}`}</h6>
           </Col>
         </Row>
       </div>

@@ -37,7 +37,7 @@ const ClimingLineChart = ({
         />
         <YAxis />
         <Tooltip labelFormatter={(v: any) => formatDate(v / 1000)} />
-        <Line dataKey="count" stroke="#8884d8" activeDot={{ r: 8 }} />
+        <Line dataKey="count" stroke="#8884d8" />
       </LineChart>
     </ResponsiveContainer>
   </Row>
