@@ -1,4 +1,5 @@
 import React from "react";
+import { ButtonGroup, Button, Row } from "reactstrap";
 
 import CalendarHeatmap from "../../components/CalendarHeatmap";
 import Submission from "../../interfaces/Submission";
@@ -46,10 +47,58 @@ class FilteringHeatmap extends React.Component<Props, State> {
           throw "unreachable";
       }
     })(this.state.filter_status);
+
     return (
-      <CalendarHeatmap
-        data={filtered_submissions.map(s => new Date(s.epoch_second * 1000))}
-      />
+      <div>
+        <Row className="my-2">
+          <ButtonGroup>
+            <Button
+              onClick={() =>
+                this.setState({ filter_status: FilterStatus.AllSubmissions })
+              }
+              active={this.state.filter_status === FilterStatus.AllSubmissions}
+            >
+              All Submissions
+            </Button>
+            <Button
+              onClick={() =>
+                this.setState({ filter_status: FilterStatus.AllAccepted })
+              }
+              active={this.state.filter_status === FilterStatus.AllAccepted}
+            >
+              All AC
+            </Button>
+            <Button
+              onClick={() =>
+                this.setState({ filter_status: FilterStatus.UniqueAccepted })
+              }
+              active={this.state.filter_status === FilterStatus.UniqueAccepted}
+            >
+              Unique AC
+            </Button>
+          </ButtonGroup>
+        </Row>
+        <Row>
+          <CalendarHeatmap
+            data={filtered_submissions.map(
+              s => new Date(s.epoch_second * 1000)
+            )}
+            formatTooltip={(date: string, count: number) => {
+              let unit = "";
+              if (this.state.filter_status === FilterStatus.AllAccepted) {
+                unit = "AC";
+              } else if (
+                this.state.filter_status == FilterStatus.AllSubmissions
+              ) {
+                unit = "Submissions";
+              } else {
+                unit = "Unique AC";
+              }
+              return `${date} ${count} ${unit}`;
+            }}
+          />
+        </Row>
+      </div>
     );
   }
 }

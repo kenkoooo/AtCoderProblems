@@ -1,5 +1,5 @@
 import React from "react";
-import { Row } from "reactstrap";
+import { Row, Table } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { isAccepted } from "../utils";
 
@@ -126,6 +126,30 @@ class TablePage extends React.Component<Props, State> {
       const length = row.problems.length;
       row.problems = row.problems.slice(length - 4, length);
     });
+
+    const other_contest_map = this.state.problems
+      .filter(p => !p.contest.id.match(/^a[rgb]c\d{3}$/))
+      .reduce((map, problem) => {
+        const list = map.get(problem.contest.id);
+        if (list) {
+          list.push(problem);
+        } else {
+          map.set(problem.contest.id, [problem]);
+        }
+        return map;
+      }, new Map<string, ProblemWithStatus[]>());
+
+    const other_contests = Array.from(other_contest_map)
+      .map(([contest_id, problems]) => {
+        return {
+          contest: problems[0].contest,
+          problems
+        };
+      })
+      .sort(
+        (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
+      );
+
     return (
       <div>
         <Row>
@@ -196,10 +220,75 @@ class TablePage extends React.Component<Props, State> {
         </Row>
         <AtCoderRegularTable contests={abc} title="AtCoder Beginner Contest" />
         <AtCoderRegularTable contests={arc} title="AtCoder Regular Contest" />
+        <Row className="my-4">
+          <h2>Other Contests</h2>
+        </Row>
+        <ContestTable contests={other_contests} />
       </div>
     );
   }
 }
+
+const ContestTable = ({
+  contests
+}: {
+  contests: { contest: Contest; problems: ProblemWithStatus[] }[];
+}) => (
+  <div>
+    {contests.map(({ contest, problems }) => (
+      <div key={contest.id}>
+        <h5>
+          <strong>
+            <a target="_blank" href={Url.formatContestUrl(contest.id)}>
+              {contest.title}
+            </a>
+          </strong>
+        </h5>
+        <Table striped bordered condensed hover responsive>
+          <tbody>
+            <tr>
+              {problems
+                .sort((a, b) => {
+                  if (a.title > b.title) {
+                    return 1;
+                  } else {
+                    return -1;
+                  }
+                })
+                .map(p => {
+                  const class_name = ((status: Status) => {
+                    switch (status) {
+                      case Status.Nothing:
+                        return "";
+                      case Status.Solved:
+                        return "table-success";
+                      case Status.Trying:
+                        return "table-warning";
+                      case Status.RivalSolved:
+                        return "table-danger";
+                      default:
+                        throw "unreachable";
+                    }
+                  })(p.status);
+
+                  return (
+                    <td key={p.id} className={class_name}>
+                      <a
+                        target="_blank"
+                        href={Url.formatProblemUrl(p.id, p.contest_id)}
+                      >
+                        {p.title}
+                      </a>
+                    </td>
+                  );
+                })}
+            </tr>
+          </tbody>
+        </Table>
+      </div>
+    ))}
+  </div>
+);
 
 const AtCoderRegularTable = ({
   contests,
@@ -208,7 +297,7 @@ const AtCoderRegularTable = ({
   contests: { contest_id: string; problems: ProblemWithStatus[] }[];
   title: string;
 }) => (
-  <Row>
+  <Row className="my-4">
     <h2>{title}</h2>
     <BootstrapTable data={contests}>
       <TableHeaderColumn

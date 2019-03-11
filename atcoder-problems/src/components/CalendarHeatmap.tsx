@@ -1,5 +1,6 @@
 import React from "react";
-import Measure, { BoundingRect } from "react-measure";
+import Measure from "react-measure";
+import { UncontrolledTooltip } from "reactstrap";
 
 const WEEKDAY = 7;
 const WEEKS = 53;
@@ -16,6 +17,7 @@ const formatDate = (date: Date) => {
 
 interface Props {
   data: Date[];
+  formatTooltip?: (date: string, count: number) => string;
 }
 
 interface State {
@@ -102,6 +104,7 @@ class CalendarHeatmap extends React.Component<Props, State> {
                   return (
                     <rect
                       key={date}
+                      id={`rect-${date}`}
                       x={j * block_width}
                       y={i * block_width}
                       width={block_width}
@@ -112,6 +115,25 @@ class CalendarHeatmap extends React.Component<Props, State> {
                 })
               )}
             </svg>
+
+            {tabled.map((row, i) =>
+              row.map((day, j) => {
+                const { date, count } = day;
+
+                return (
+                  <UncontrolledTooltip
+                    delay={{ show: 0, hide: 0 }}
+                    key={date}
+                    placement="right"
+                    target={`rect-${date}`}
+                  >
+                    {this.props.formatTooltip
+                      ? this.props.formatTooltip(date, count)
+                      : `${date}: ${count}`}
+                  </UncontrolledTooltip>
+                );
+              })
+            )}
           </div>
         )}
       </Measure>
