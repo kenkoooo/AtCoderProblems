@@ -12,7 +12,6 @@ enum FilterStatus {
 
 interface Props {
   submissions: Submission[];
-  user_id: string;
 }
 
 interface State {

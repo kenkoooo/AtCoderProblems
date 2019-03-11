@@ -25,6 +25,7 @@ import ClimingLineChart from "./ClimingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
 import SmallPieChart from "./SmallPieChart";
 import FilteringHeatmap from "./FilteringHeatmap";
+import SubmissionList from "./SubmissionList";
 
 interface Props {
   user_ids: string[];
@@ -308,8 +309,15 @@ class UserPage extends React.Component<Props, State> {
           <h1>Heatmap</h1>
         </Row>
         <FilteringHeatmap
-          submissions={this.state.submissions}
-          user_id={user_id}
+          submissions={submissions.filter(s => s.user_id === user_id)}
+        />
+
+        <Row className="my-2 border-bottom">
+          <h1>Submissions</h1>
+        </Row>
+        <SubmissionList
+          problems={problems}
+          submissions={submissions.filter(s => s.user_id === user_id)}
         />
       </div>
     );
