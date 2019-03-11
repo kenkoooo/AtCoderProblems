@@ -1,5 +1,4 @@
 import React from "react";
-import Measure from "react-measure";
 import { UncontrolledTooltip } from "reactstrap";
 
 const WEEKDAY = 7;
@@ -20,25 +19,7 @@ interface Props {
   formatTooltip?: (date: string, count: number) => string;
 }
 
-interface State {
-  dimensions:
-    | {
-        width: number;
-        height: number;
-      }
-    | undefined;
-}
-
-class CalendarHeatmap extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      dimensions: {
-        width: -1,
-        height: -1
-      }
-    };
-  }
+class CalendarHeatmap extends React.Component<Props> {
   render() {
     const next_sunday = new Date();
     while (next_sunday.getDay() != 0) {
@@ -82,61 +63,50 @@ class CalendarHeatmap extends React.Component<Props, State> {
       tabled.push(week_row);
     }
 
-    const { width } = this.state.dimensions
-      ? this.state.dimensions
-      : { width: 0 };
-    const block_width = (width - (width % WEEKS)) / WEEKS;
+    const block_width = 10;
+    const width = block_width * WEEKS;
     const height = block_width * WEEKDAY;
     return (
-      <Measure
-        bounds
-        onResize={contentRect => {
-          this.setState({ dimensions: contentRect.bounds });
-        }}
-      >
-        {({ measureRef }) => (
-          <div ref={measureRef}>
-            <svg width={width} height={height}>
-              {tabled.map((row, i) =>
-                row.map((day, j) => {
-                  const { date, count } = day;
-                  const color = COLORS[Math.min(count, COLORS.length - 1)];
-                  return (
-                    <rect
-                      key={date}
-                      id={`rect-${date}`}
-                      x={j * block_width}
-                      y={i * block_width}
-                      width={block_width}
-                      height={block_width}
-                      fill={color}
-                    />
-                  );
-                })
-              )}
-            </svg>
+      <div>
+        <svg viewBox={`0 0 ${width} ${height}`}>
+          {tabled.map((row, i) =>
+            row.map((day, j) => {
+              const { date, count } = day;
+              const color = COLORS[Math.min(count, COLORS.length - 1)];
+              return (
+                <rect
+                  key={date}
+                  id={`rect-${date}`}
+                  x={j * block_width}
+                  y={i * block_width}
+                  width={block_width}
+                  height={block_width}
+                  fill={color}
+                />
+              );
+            })
+          )}
+        </svg>
 
-            {tabled.map((row, i) =>
-              row.map((day, j) => {
-                const { date, count } = day;
+        {tabled.map((row, i) =>
+          row.map((day, j) => {
+            const { date, count } = day;
 
-                return (
-                  <UncontrolledTooltip
-                    delay={{ show: 0, hide: 0 }}
-                    key={date}
-                    placement="right"
-                    target={`rect-${date}`}
-                  >
-                    {this.props.formatTooltip
-                      ? this.props.formatTooltip(date, count)
-                      : `${date}: ${count}`}
-                  </UncontrolledTooltip>
-                );
-              })
-            )}
-          </div>
+            return (
+              <UncontrolledTooltip
+                delay={{ show: 0, hide: 0 }}
+                key={date}
+                placement="right"
+                target={`rect-${date}`}
+              >
+                {this.props.formatTooltip
+                  ? this.props.formatTooltip(date, count)
+                  : `${date}: ${count}`}
+              </UncontrolledTooltip>
+            );
+          })
         )}
-      </Measure>
+      </div>
     );
   }
 }
