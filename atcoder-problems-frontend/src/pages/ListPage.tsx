@@ -163,6 +163,119 @@ class ListPage extends React.Component<Props, State> {
 	}
 
 	render() {
+		const columns: {
+			header: string;
+			dataField: string;
+			dataSort?: boolean;
+			dataAlign?: 'center';
+			dataFormat?: (cell: any, row: Problem) => JSX.Element;
+		}[] = [
+			{
+				header: 'Date',
+				dataField: 'date'
+			},
+			{
+				header: 'Problem',
+				dataField: 'title',
+				dataSort: true,
+				dataFormat: (_: string, row: Problem) => (
+					<a href={Url.formatProblemUrl(row.id, row.contest_id)} target="_blank">
+						{row.title}
+					</a>
+				)
+			},
+			{
+				header: 'Contest',
+				dataField: 'contest_id',
+				dataSort: true,
+				dataFormat: (contest_id: string, problem: Problem) => (
+					<a href={Url.formatContestUrl(contest_id)} target="_blank">
+						{problem.contest.title}
+					</a>
+				)
+			},
+			{
+				header: 'Result',
+				dataField: 'id',
+				dataAlign: 'center',
+				dataFormat: (id: string, problem: Problem) => {
+					if (isAccepted(problem.status)) {
+						return <Badge color="success">AC</Badge>;
+					} else if (problem.rivals.length > 0) {
+						return <div>{problem.rivals.map((r) => <Badge color="danger">{r}</Badge>)}</div>;
+					} else {
+						return <Badge color="warning">{problem.status}</Badge>;
+					}
+				}
+			},
+			{
+				header: 'Last AC Date',
+				dataField: 'last_ac_date',
+				dataSort: true
+			},
+			{
+				header: 'Solvers',
+				dataField: 'solver_count',
+				dataSort: true,
+				dataFormat: (cell: number, row: Problem) => (
+					<a href={Url.formatSolversUrl(row.contest_id, row.id)} target="_blank">
+						{cell}
+					</a>
+				)
+			},
+			{
+				header: 'Point',
+				dataField: 'showing_point',
+				dataSort: true,
+				dataFormat: (showing_point: any) => {
+					if (showing_point >= INF_POINT) {
+						return '-';
+					} else {
+						if (showing_point % 100 == 0) {
+							return showing_point;
+						} else {
+							return showing_point.toFixed(2);
+						}
+					}
+				}
+			},
+			{
+				header: 'Fastest',
+				dataField: 'execution_time',
+				dataSort: true,
+				dataFormat: (_: number, row: Problem) => (
+					<a
+						href={Url.formatSubmissionUrl(row.fastest_submission_id, row.fastest_contest_id)}
+						target="_blank"
+					>
+						{row.fastest_user_id} ({row.execution_time} ms)
+					</a>
+				)
+			},
+			{
+				header: 'Shortest',
+				dataField: 'source_code_length',
+				dataSort: true,
+				dataFormat: (_: number, row: Problem) => (
+					<a
+						href={Url.formatSubmissionUrl(row.shortest_submission_id, row.shortest_contest_id)}
+						target="_blank"
+					>
+						{row.shortest_user_id} ({row.source_code_length} Bytes)
+					</a>
+				)
+			},
+			{
+				header: 'First',
+				dataField: 'first_user_id',
+				dataSort: true,
+				dataFormat: (_: string, row: Problem) => (
+					<a href={Url.formatSubmissionUrl(row.first_submission_id, row.first_contest_id)} target="_blank">
+						{row.first_user_id}
+					</a>
+				)
+			}
+		];
 		return (
 			<BootstrapTable
 				pagination
@@ -209,119 +322,11 @@ class ListPage extends React.Component<Props, State> {
 					]
 				}}
 			>
-				<TableHeaderColumn dataField="date" dataSort>
-					Date
-				</TableHeaderColumn>
-				<TableHeaderColumn
-					dataSort
-					dataField="title"
-					dataFormat={(_: string, row: Problem) => (
-						<a href={Url.formatProblemUrl(row.id, row.contest_id)} target="_blank">
-							{row.title}
-						</a>
-					)}
-				>
-					Problem
-				</TableHeaderColumn>
-				<TableHeaderColumn
-					dataSort
-					dataField="contest_id"
-					dataFormat={(contest_id: string, problem: Problem) => (
-						<a href={Url.formatContestUrl(contest_id)} target="_blank">
-							{problem.contest.title}
-						</a>
-					)}
-				>
-					Contest
-				</TableHeaderColumn>
-				<TableHeaderColumn
-					dataField="id"
-					dataAlign="center"
-					dataFormat={(id: string, problem: Problem) => {
-						if (isAccepted(problem.status)) {
-							return <Badge color="success">AC</Badge>;
-						} else if (problem.rivals.length > 0) {
-							return <div>{problem.rivals.map((r) => <Badge color="danger">{r}</Badge>)}</div>;
-						} else {
-							return <Badge color="warning">{problem.status}</Badge>;
-						}
-					}}
-				>
-					Result
-				</TableHeaderColumn>
-				<TableHeaderColumn dataSort dataField="last_ac_date">
-					Last AC Date
-				</TableHeaderColumn>
-				<TableHeaderColumn
-					dataSort
-					dataField="solver_count"
-					dataFormat={(cell: number, row: Problem) => (
-						<a href={Url.formatSolversUrl(row.contest_id, row.id)} target="_blank">
-							{cell}
-						</a>
-					)}
-				>
-					Solvers
-				</TableHeaderColumn>
-				<TableHeaderColumn
-					dataField="showing_point"
-					dataFormat={(showing_point: any) => {
-						if (showing_point >= INF_POINT) {
-							return '-';
-						} else {
-							if (showing_point % 100 == 0) {
-								return showing_point;
-							} else {
-								return showing_point.toFixed(2);
-							}
-						}
-					}}
-					dataSort
-				>
-					Point
-				</TableHeaderColumn>
-				<TableHeaderColumn
-					dataField="execution_time"
-					dataSort
-					dataFormat={(_: number, row: Problem) => (
-						<a
-							href={Url.formatSubmissionUrl(row.fastest_submission_id, row.fastest_contest_id)}
-							target="_blank"
-						>
-							{row.fastest_user_id} ({row.execution_time} ms)
-						</a>
-					)}
-				>
-					Fastest
-				</TableHeaderColumn>
-				<TableHeaderColumn
-					dataField="source_code_length"
-					dataSort
-					dataFormat={(_: number, row: Problem) => (
-						<a
-							href={Url.formatSubmissionUrl(row.shortest_submission_id, row.shortest_contest_id)}
-							target="_blank"
-						>
-							{row.shortest_user_id} ({row.source_code_length} Bytes)
-						</a>
-					)}
-				>
-					Shortest
-				</TableHeaderColumn>
-				<TableHeaderColumn
-					dataField="first_user_id"
-					dataSort
-					dataFormat={(_: string, row: Problem) => (
-						<a
-							href={Url.formatSubmissionUrl(row.first_submission_id, row.first_contest_id)}
-							target="_blank"
-						>
-							{row.first_user_id}
-						</a>
-					)}
-				>
-					First
-				</TableHeaderColumn>
+				{columns.map((c) => (
+					<TableHeaderColumn key={c.header} {...c}>
+						{c.header}
+					</TableHeaderColumn>
+				))}
 			</BootstrapTable>
 		);
 	}
