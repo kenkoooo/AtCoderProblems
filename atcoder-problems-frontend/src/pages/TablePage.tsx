@@ -15,6 +15,19 @@ enum Status {
 	Solved = 3
 }
 
+const get_table_class = (status: Status) => {
+	switch (status) {
+		case Status.Nothing:
+			return '';
+		case Status.Solved:
+			return 'table-success';
+		case Status.Trying:
+			return 'table-warning';
+		case Status.RivalSolved:
+			return 'table-danger';
+	}
+};
+
 interface ProblemWithStatus extends Problem {
 	status: Status;
 	contest: Contest;
@@ -153,18 +166,7 @@ class TablePage extends React.Component<Props, State> {
 								columnClassName={(_: any, { problems }: { problems: ProblemWithStatus[] }) => {
 									const problem = problems[i];
 									if (problem) {
-										switch (problems[i].status) {
-											case Status.Nothing:
-												return '';
-											case Status.Solved:
-												return 'table-success';
-											case Status.Trying:
-												return 'table-warning';
-											case Status.RivalSolved:
-												return 'table-danger';
-											default:
-												return '';
-										}
+										return get_table_class(problems[i].status);
 									} else {
 										return '';
 									}
@@ -215,30 +217,13 @@ const ContestTable = ({ contests }: { contests: { contest: Contest; problems: Pr
 				<Table striped bordered hover responsive>
 					<tbody>
 						<tr>
-							{problems.sort((a, b) => a.title.localeCompare(b.title)).map((p) => {
-								const class_name = ((status: Status) => {
-									switch (status) {
-										case Status.Nothing:
-											return '';
-										case Status.Solved:
-											return 'table-success';
-										case Status.Trying:
-											return 'table-warning';
-										case Status.RivalSolved:
-											return 'table-danger';
-										default:
-											throw 'unreachable';
-									}
-								})(p.status);
-
-								return (
-									<td key={p.id} className={class_name}>
-										<a target="_blank" href={Url.formatProblemUrl(p.id, p.contest_id)}>
-											{p.title}
-										</a>
-									</td>
-								);
-							})}
+							{problems.sort((a, b) => a.title.localeCompare(b.title)).map((p) => (
+								<td key={p.id} className={get_table_class(p.status)}>
+									<a target="_blank" href={Url.formatProblemUrl(p.id, p.contest_id)}>
+										{p.title}
+									</a>
+								</td>
+							))}
 						</tr>
 					</tbody>
 				</Table>
@@ -272,20 +257,8 @@ const AtCoderRegularTable = ({
 				<TableHeaderColumn
 					dataField={c}
 					key={c}
-					columnClassName={(_: any, { problems }: { problems: ProblemWithStatus[] }) => {
-						switch (problems[i].status) {
-							case Status.Nothing:
-								return '';
-							case Status.Solved:
-								return 'table-success';
-							case Status.Trying:
-								return 'table-warning';
-							case Status.RivalSolved:
-								return 'table-danger';
-							default:
-								return '';
-						}
-					}}
+					columnClassName={(_: any, { problems }: { problems: ProblemWithStatus[] }) =>
+						get_table_class(problems[i].status)}
 					dataFormat={(_: any, { problems }: { contest_id: string; problems: ProblemWithStatus[] }) => (
 						<a href={Url.formatProblemUrl(problems[i].id, problems[i].contest_id)} target="_blank">
 							{problems[i].title}
