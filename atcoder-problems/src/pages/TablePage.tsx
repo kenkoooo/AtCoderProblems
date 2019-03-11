@@ -244,7 +244,7 @@ const ContestTable = ({
             </a>
           </strong>
         </h5>
-        <Table striped bordered condensed hover responsive>
+        <Table striped bordered hover responsive>
           <tbody>
             <tr>
               {problems
