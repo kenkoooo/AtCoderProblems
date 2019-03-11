@@ -194,7 +194,15 @@ class ListPage extends React.Component<Props, State> {
 					if (isAccepted(problem.status)) {
 						return <Badge color="success">AC</Badge>;
 					} else if (problem.rivals.length > 0) {
-						return <div>{problem.rivals.map((r) => <Badge color="danger">{r}</Badge>)}</div>;
+						return (
+							<div>
+								{problem.rivals.map((r) => (
+									<Badge key={r} color="danger">
+										{r}
+									</Badge>
+								))}
+							</div>
+						);
 					} else {
 						return <Badge color="warning">{problem.status}</Badge>;
 					}
