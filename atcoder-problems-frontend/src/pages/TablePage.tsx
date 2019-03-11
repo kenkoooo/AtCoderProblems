@@ -135,12 +135,7 @@ class TablePage extends React.Component<Props, State> {
 			}, new Map<string, ProblemWithStatus[]>());
 
 		const other_contests = Array.from(other_contest_map)
-			.map(([ contest_id, problems ]) => {
-				return {
-					contest: problems[0].contest,
-					problems
-				};
-			})
+			.map(([ _, problems ]) => ({ contest: problems[0].contest, problems }))
 			.sort((a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second);
 
 		return (
