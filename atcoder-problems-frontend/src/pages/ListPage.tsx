@@ -79,13 +79,7 @@ class ListPage extends React.Component<Props, State> {
 
 			problems.sort((a, b) => {
 				if (a.contest.start_epoch_second == b.contest.start_epoch_second) {
-					if (a.title < b.title) {
-						return 1;
-					} else if (a.title > b.title) {
-						return -1;
-					} else {
-						return 0;
-					}
+					return b.title.localeCompare(a.title);
 				} else {
 					return b.contest.start_epoch_second - a.contest.start_epoch_second;
 				}
