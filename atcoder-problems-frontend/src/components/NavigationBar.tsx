@@ -27,9 +27,10 @@ interface State {
   kind: PageKind;
 }
 
-interface Props extends RouteComponentProps {}
-
-class PrimitiveNavigationBar extends React.Component<Props, State> {
+class PrimitiveNavigationBar extends React.Component<
+  RouteComponentProps,
+  State
+> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -62,7 +63,7 @@ class PrimitiveNavigationBar extends React.Component<Props, State> {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     let kind = PageKind.TABLE;
     const { pathname } = this.props.history.location;
     if (pathname.match(/^\/user/)) {
