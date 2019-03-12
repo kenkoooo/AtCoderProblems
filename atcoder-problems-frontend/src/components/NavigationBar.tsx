@@ -2,13 +2,9 @@ import React from "react";
 import { NavLink as RouterLink } from "react-router-dom";
 import { withRouter, RouteComponentProps } from "react-router";
 import {
-  NavLink,
   Navbar,
   NavbarBrand,
-  NavbarToggler,
-  Collapse,
   Nav,
-  NavItem,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
@@ -16,8 +12,7 @@ import {
   Form,
   Input,
   Button,
-  FormGroup,
-  Label
+  FormGroup
 } from "reactstrap";
 
 enum PageKind {
