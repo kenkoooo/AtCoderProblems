@@ -28,6 +28,8 @@ const get_table_class = (status: Status) => {
   }
 };
 
+type ContestAndProblems = { contest: Contest; problems: ProblemWithStatus[] };
+
 interface ProblemWithStatus extends Problem {
   status: Status;
   contest: Contest;
@@ -54,16 +56,16 @@ class TablePage extends React.Component<Props, State> {
   componentDidMount() {
     Promise.all([Api.fetchProblems(), Api.fetchContests()]).then(
       ([initialProblems, contests]) => {
-        const contest_map = new Map(
-          contests.map(c => [c.id, c] as [string, Contest])
+        const contest_map = contests.reduce(
+          (map, c) => map.set(c.id, c),
+          new Map<string, Contest>()
         );
         const problems = initialProblems.map(p => {
           const contest = contest_map.get(p.contest_id);
           if (!contest) {
             throw `${p.contest_id} does not exist!`;
           }
-          const status = Status.Nothing;
-          return { status, contest, ...p };
+          return { status: Status.Nothing, contest, ...p };
         });
 
         this.setState({ problems, contests }, () => {
@@ -226,11 +228,7 @@ class TablePage extends React.Component<Props, State> {
   }
 }
 
-const ContestTable = ({
-  contests
-}: {
-  contests: { contest: Contest; problems: ProblemWithStatus[] }[];
-}) => (
+const ContestTable = ({ contests }: { contests: ContestAndProblems[] }) => (
   <div>
     {contests.map(({ contest, problems }) => (
       <div key={contest.id}>
@@ -322,11 +320,13 @@ const createAtCoderGrandContestTable = (
   contests: Contest[],
   problems: ProblemWithStatus[]
 ) => {
-  const map = new Map(
-    contests
-      .filter(c => c.id.match(/^agc\d{3}$/))
-      .map(c => [c.id, []] as [string, ProblemWithStatus[]])
-  );
+  const map = contests
+    .filter(c => c.id.match(/^agc\d{3}$/))
+    .reduce(
+      (map, c) => map.set(c.id, []),
+      new Map<string, ProblemWithStatus[]>()
+    );
+
   problems
     .filter(p => p.id.match(/^agc\d{3}_\w$/))
     .forEach(p => {
@@ -347,20 +347,15 @@ const createAtCoderGrandContestTable = (
 };
 
 const filter = (regexp: RegExp, contests: Contest[]) =>
-  new Map(
-    contests
-      .filter(c => c.id.match(regexp))
-      .map(
-        c =>
-          [c.start_epoch_second, { contest: c, problems: [] }] as [
-            number,
-            { contest: Contest; problems: ProblemWithStatus[] }
-          ]
-      )
-  );
+  contests
+    .filter(c => c.id.match(regexp))
+    .reduce(
+      (map, c) => map.set(c.start_epoch_second, { contest: c, problems: [] }),
+      new Map<number, ContestAndProblems>()
+    );
 
 const pushToMap = (
-  map: Map<number, { contest: Contest; problems: ProblemWithStatus[] }>,
+  map: Map<number, ContestAndProblems>,
   problems: ProblemWithStatus[]
 ) => {
   problems.forEach(p => {
@@ -371,9 +366,7 @@ const pushToMap = (
   });
 };
 
-const sortMap = (
-  map: Map<number, { contest: Contest; problems: ProblemWithStatus[] }>
-) =>
+const sortMap = (map: Map<number, ContestAndProblems>) =>
   Array.from(map.values())
     .sort(
       ({ contest: a }, { contest: b }) =>
