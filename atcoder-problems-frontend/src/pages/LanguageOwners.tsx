@@ -10,17 +10,23 @@ interface Ranking {
   ranking: { name: string; count: number }[];
 }
 
-const OneOwner = (props: { entry: Ranking }) => (
+const OneOwner = ({
+  language,
+  ranking
+}: {
+  language: string;
+  ranking: { name: string; count: number }[];
+}) => (
   <div>
     <Row className="justify-content-center my-2 border-bottom">
-      <h1>{props.entry.language}</h1>
+      <h1>{language}</h1>
     </Row>
     <Row>
-      {props.entry.ranking.slice(0, 3).map((rank, i) => (
-        <Col key={rank.name} className="text-center">
+      {ranking.slice(0, 3).map(({ name, count }, i) => (
+        <Col key={name} className="text-center">
           <h5>{ordinalNumbers[i]}</h5>
-          <h3>{rank.name}</h3>
-          <h5 className="text-muted">{rank.count} AC</h5>
+          <h3>{name}</h3>
+          <h5 className="text-muted">{count} AC</h5>
         </Col>
       ))}
     </Row>
@@ -55,21 +61,23 @@ class LanguageOwners extends React.Component<{}, State> {
         }
       });
 
-      const rankings = Array.from(map).map(entry => ({
-        language: entry[0],
-        ranking: entry[1]
+      const rankings = Array.from(map).map(([language, ranking]) => ({
+        language,
+        ranking: ranking.sort((a, b) => b.count - a.count)
       }));
-      rankings.forEach(ranking =>
-        ranking.ranking.sort((a, b) => b.count - a.count)
-      );
       this.setState({ rankings });
     });
   }
+
   render() {
     return (
       <div>
         {this.state.rankings.map(entry => (
-          <OneOwner key={entry.language} entry={entry} />
+          <OneOwner
+            key={entry.language}
+            language={entry.language}
+            ranking={entry.ranking}
+          />
         ))}
       </div>
     );
