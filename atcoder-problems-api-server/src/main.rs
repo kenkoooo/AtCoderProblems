@@ -170,7 +170,7 @@ fn get_accepted_count(user: &str, conn: &Connection) -> Result<(usize, usize), S
     let rows = conn
         .query(query, &[&user])
         .map_err(|e| format!("{:?}", e))?;
-    let point: u32 = rows
+    let point: i32 = rows
         .iter()
         .map(|row| row.get("problem_count"))
         .next()
