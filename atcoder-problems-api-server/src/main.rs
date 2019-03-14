@@ -16,16 +16,16 @@ struct Config {
 }
 
 struct Submission {
-    id: u32,
+    id: i32,
     epoch_second: i64,
     problem_id: String,
     contest_id: String,
     user_id: String,
     language: String,
-    point: u32,
-    length: u32,
+    point: f64,
+    length: i32,
     result: String,
-    execution_time: Option<u32>,
+    execution_time: Option<i32>,
 }
 
 fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Config, Box<Error>> {
