@@ -16,7 +16,7 @@ struct Config {
 }
 
 struct Submission {
-    id: i32,
+    id: i64,
     epoch_second: i64,
     problem_id: String,
     contest_id: String,
