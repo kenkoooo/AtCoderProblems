@@ -183,8 +183,9 @@ fn get_count_rank<T: FromSql + ToSql>(
         .unwrap_or(min_count);
 
     let query = format!(
-        "SELECT count(user_id) FROM {table} WHERE point_sum > $1",
-        table = table
+        "SELECT count(user_id) FROM {table} WHERE {column} > $1",
+        table = table,
+        column = column
     );
     let rows = conn
         .query(&query, &[&point])
