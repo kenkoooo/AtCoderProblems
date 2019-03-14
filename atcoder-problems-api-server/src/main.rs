@@ -16,6 +16,14 @@ struct Config {
     postgresql_pass: String,
     postgresql_host: String,
 }
+impl Config {
+    fn create_from_file<P: AsRef<Path>>(path: P) -> Result<Config, Box<Error>> {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let config = serde_json::from_reader(reader)?;
+        Ok(config)
+    }
+}
 
 #[derive(Serialize, Debug)]
 struct Submission {
@@ -34,7 +42,7 @@ struct Submission {
 #[derive(Serialize, Debug)]
 struct UserInfo {
     user_id: String,
-    accepted_count: usize,
+    accepted_count: i32,
     accepted_count_rank: usize,
     rated_point_sum: f64,
     rated_point_sum_rank: usize,
@@ -56,7 +64,7 @@ impl<T> UserNameExtractor for HttpRequest<T> {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let config = read_user_from_file(&args[1]).unwrap();
+    let config = Config::create_from_file(&args[1]).unwrap();
 
     server::new(move || {
         App::with_state(config.clone())
@@ -83,38 +91,30 @@ fn result_api(request: HttpRequest<Config>) -> HttpResponse {
 }
 
 fn user_info_api(request: HttpRequest<Config>) -> HttpResponse {
-    let user = request.extract_user();
-    match get_connection(
-        &request.state().postgresql_user,
-        &request.state().postgresql_pass,
-        &request.state().postgresql_host,
-    )
-    .and_then(|conn| {
-        get_count_rank::<i32>(&user, &conn, "accepted_count", "problem_count", 0)
-            .map(|(count, rank)| (count as usize, rank, conn))
-    })
-    .and_then(|(count, count_rank, conn)| {
-        get_count_rank::<f64>(&user, &conn, "rated_point_sum", "point_sum", 0.0)
-            .map(|(point, point_rank)| (count, count_rank, point, point_rank))
-    }) {
-        Ok((accepted_count, accepted_count_rank, rated_point_sum, rated_point_sum_rank)) => {
-            HttpResponse::Ok().json(UserInfo {
-                user_id: user,
-                accepted_count,
-                accepted_count_rank,
-                rated_point_sum,
-                rated_point_sum_rank,
-            })
-        }
+    let user_id = request.extract_user();
+    match get_user_info(request.state(), user_id) {
+        Ok(user_info) => HttpResponse::Ok().json(user_info),
         _ => HttpResponse::new(http::StatusCode::INTERNAL_SERVER_ERROR),
     }
 }
 
-fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Config, Box<Error>> {
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-    let config = serde_json::from_reader(reader)?;
-    Ok(config)
+fn get_user_info(config: &Config, user_id: String) -> Result<UserInfo, String> {
+    let conn = get_connection(
+        &config.postgresql_user,
+        &config.postgresql_pass,
+        &config.postgresql_host,
+    )?;
+    let (accepted_count, accepted_count_rank) =
+        get_count_rank::<i32>(&user_id, &conn, "accepted_count", "problem_count", 0)?;
+    let (rated_point_sum, rated_point_sum_rank) =
+        get_count_rank::<f64>(&user_id, &conn, "rated_point_sum", "point_sum", 0.0)?;
+    Ok(UserInfo {
+        user_id,
+        accepted_count,
+        accepted_count_rank,
+        rated_point_sum,
+        rated_point_sum_rank,
+    })
 }
 
 fn get_connection(user: &str, pass: &str, host: &str) -> Result<Connection, String> {
