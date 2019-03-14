@@ -1,13 +1,35 @@
 use postgres::{Connection, TlsMode};
 
+use serde::Deserialize;
+
+use std::env;
+use std::error::Error;
+use std::fs::File;
+use std::io::BufReader;
+use std::path::Path;
+
+#[derive(Deserialize, Debug)]
+struct Config {
+    postgresql_user: String,
+    postgresql_pass: String,
+    postgresql_host: String,
+}
+
+fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Config, Box<Error>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let config = serde_json::from_reader(reader)?;
+    Ok(config)
+}
+
 fn main() {
-    let s = std::io::stdin();
-    let mut sc = Scanner { stdin: s.lock() };
-    let password: String = sc.read();
+    let args: Vec<String> = env::args().collect();
+    let config = read_user_from_file(&args[1]).unwrap();
+
     let conn = Connection::connect(
         format!(
-            "postgresql://ubuntu:{}@atcoder.cxu3byr36ara.ap-northeast-1.rds.amazonaws.com/atcoder",
-            password
+            "postgresql://{}:{}@{}/atcoder",
+            config.postgresql_user, config.postgresql_pass, config.postgresql_host
         ),
         TlsMode::None,
     );
@@ -16,33 +38,5 @@ fn main() {
         Err(e) => {
             println!("{:#?}", e);
         }
-    }
-}
-
-pub struct Scanner<R> {
-    stdin: R,
-}
-
-impl<R: std::io::Read> Scanner<R> {
-    pub fn read<T: std::str::FromStr>(&mut self) -> T {
-        use std::io::Read;
-        let buf = self
-            .stdin
-            .by_ref()
-            .bytes()
-            .map(|b| b.unwrap())
-            .skip_while(|&b| b == b' ' || b == b'\n' || b == b'\r')
-            .take_while(|&b| b != b' ' && b != b'\n' && b != b'\r')
-            .collect::<Vec<_>>();
-        unsafe { std::str::from_utf8_unchecked(&buf) }
-            .parse()
-            .ok()
-            .expect("Parse error.")
-    }
-    pub fn vec<T: std::str::FromStr>(&mut self, n: usize) -> Vec<T> {
-        (0..n).map(|_| self.read()).collect()
-    }
-    pub fn chars(&mut self) -> Vec<char> {
-        self.read::<String>().chars().collect()
     }
 }
