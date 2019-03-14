@@ -161,7 +161,7 @@ fn get_rated_point_sum(user: &str, conn: &Connection) -> Result<(f64, usize), St
     let rows = conn
         .query(query, &[&point])
         .map_err(|e| format!("{:?}", e))?;
-    let rank: u32 = rows.iter().map(|row| row.get("count")).next().unwrap();
+    let rank: i32 = rows.iter().map(|row| row.get("count")).next().unwrap();
     Ok((point, rank as usize))
 }
 
