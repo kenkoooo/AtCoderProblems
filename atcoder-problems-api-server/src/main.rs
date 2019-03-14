@@ -8,6 +8,7 @@ use iron;
 use iron::prelude::*;
 use postgres::{Connection, TlsMode};
 use serde::Deserialize;
+use urlencoded::UrlEncodedQuery;
 
 #[derive(Deserialize, Debug)]
 struct Config {
@@ -33,12 +34,16 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let config = read_user_from_file(&args[1]).unwrap();
 
-    let mut chain = Chain::new(result);
+    let mut chain = Chain::new(result_api);
     Iron::new(chain).http("localhost:3000");
     // let submissions = get_connection(&config).and_then(|conn| get_submissions("kenkoooo", &conn));
 }
 
-fn result(_: &mut Request) -> IronResult<Response> {
+fn result_api(req: &mut Request) -> IronResult<Response> {
+    match req.get_ref::<UrlEncodedQuery>() {
+        Ok(ref hashmap) => println!("Parsed GET request query string:\n {:?}", hashmap),
+        Err(ref e) => println!("{:?}", e),
+    };
     Ok(Response::with((iron::status::Ok, "Hello World")))
 }
 
