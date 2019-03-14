@@ -4,19 +4,20 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
-use iron;
-use iron::prelude::*;
+use actix::prelude::*;
+use actix_web::{http, server, App, HttpRequest, HttpResponse};
 use postgres::{Connection, TlsMode};
-use serde::Deserialize;
-use urlencoded::UrlEncodedQuery;
+use regex::Regex;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 struct Config {
     postgresql_user: String,
     postgresql_pass: String,
     postgresql_host: String,
 }
 
+#[derive(Serialize, Debug)]
 struct Submission {
     id: i64,
     epoch_second: i64,
@@ -34,17 +35,25 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let config = read_user_from_file(&args[1]).unwrap();
 
-    let mut chain = Chain::new(result_api);
-    Iron::new(chain).http("localhost:3000");
-    // let submissions = get_connection(&config).and_then(|conn| get_submissions("kenkoooo", &conn));
+    server::new(move || {
+        App::with_state(config.clone()).route("/results", http::Method::GET, result_api)
+    })
+    .bind("127.0.0.1:8080")
+    .unwrap()
+    .run();
 }
 
-fn result_api(req: &mut Request) -> IronResult<Response> {
-    match req.get_ref::<UrlEncodedQuery>() {
-        Ok(ref hashmap) => println!("Parsed GET request query string:\n {:?}", hashmap),
-        Err(ref e) => println!("{:?}", e),
-    };
-    Ok(Response::with((iron::status::Ok, "Hello World")))
+fn result_api(request: HttpRequest<Config>) -> HttpResponse {
+    let user = request
+        .query()
+        .get("user")
+        .filter(|user| Regex::new("[a-zA-Z0-9_]+").unwrap().is_match(user))
+        .map(|user| user.clone())
+        .unwrap_or("".to_owned());
+    match get_connection(request.state()).and_then(|conn| get_submissions(&user, &conn)) {
+        Ok(submission) => HttpResponse::Ok().json(submission),
+        _ => HttpResponse::new(http::StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Config, Box<Error>> {
