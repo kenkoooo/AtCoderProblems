@@ -4,7 +4,6 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
-use actix::prelude::*;
 use actix_web::{http, server, App, HttpRequest, HttpResponse};
 use postgres::{Connection, TlsMode};
 use regex::Regex;
