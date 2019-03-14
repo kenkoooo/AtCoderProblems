@@ -1,35 +1,11 @@
 use std::env;
 
 use actix_web::{http, server, App, HttpRequest, HttpResponse};
-use postgres::types::{FromSql, ToSql};
-use postgres::{Connection, TlsMode};
 use regex::Regex;
-use serde::Serialize;
 
 use atcoder_problems_api_server::config::Config;
-
-#[derive(Serialize, Debug)]
-struct Submission {
-    id: i64,
-    epoch_second: i64,
-    problem_id: String,
-    contest_id: String,
-    user_id: String,
-    language: String,
-    point: f64,
-    length: i32,
-    result: String,
-    execution_time: Option<i32>,
-}
-
-#[derive(Serialize, Debug)]
-struct UserInfo {
-    user_id: String,
-    accepted_count: i32,
-    accepted_count_rank: usize,
-    rated_point_sum: f64,
-    rated_point_sum_rank: usize,
-}
+use atcoder_problems_api_server::sql::*;
+use atcoder_problems_api_server::UserInfo;
 
 trait UserNameExtractor {
     fn extract_user(&self) -> String;
@@ -98,81 +74,4 @@ fn get_user_info(config: &Config, user_id: String) -> Result<UserInfo, String> {
         rated_point_sum,
         rated_point_sum_rank,
     })
-}
-
-fn get_connection(user: &str, pass: &str, host: &str) -> Result<Connection, String> {
-    Connection::connect(
-        format!("postgresql://{}:{}@{}/atcoder", user, pass, host),
-        TlsMode::None,
-    )
-    .map_err(|e| format!("{:?}", e))
-}
-
-fn get_submissions(user: &str, conn: &Connection) -> Result<Vec<Submission>, String> {
-    let query = r#"
-            SELECT
-                id, 
-                epoch_second, 
-                problem_id, 
-                contest_id, 
-                user_id, 
-                language, 
-                point, 
-                length, 
-                result, 
-                execution_time
-            FROM submissions
-            WHERE user_id=$1"#;
-    let rows = conn
-        .query(query, &[&user])
-        .map_err(|e| format!("{:?}", e))?;
-    let submissions = rows
-        .iter()
-        .map(|row| Submission {
-            id: row.get("id"),
-            epoch_second: row.get("epoch_second"),
-            problem_id: row.get("problem_id"),
-            contest_id: row.get("contest_id"),
-            user_id: row.get("user_id"),
-            language: row.get("language"),
-            point: row.get("point"),
-            length: row.get("length"),
-            result: row.get("result"),
-            execution_time: row.get("execution_time"),
-        })
-        .collect::<Vec<_>>();
-    Ok(submissions)
-}
-
-fn get_count_rank<T: FromSql + ToSql>(
-    user: &str,
-    conn: &Connection,
-    table: &str,
-    column: &str,
-    min_count: T,
-) -> Result<(T, usize), String> {
-    let query = format!(
-        "SELECT {column} FROM {table} WHERE user_id=$1",
-        column = column,
-        table = table
-    );
-    let rows = conn
-        .query(&query, &[&user])
-        .map_err(|e| format!("{:?}", e))?;
-    let point: T = rows
-        .iter()
-        .map(|row| row.get(column))
-        .next()
-        .unwrap_or(min_count);
-
-    let query = format!(
-        "SELECT count(user_id) FROM {table} WHERE {column} > $1",
-        table = table,
-        column = column
-    );
-    let rows = conn
-        .query(&query, &[&point])
-        .map_err(|e| format!("{:?}", e))?;
-    let rank: i64 = rows.iter().map(|row| row.get("count")).next().unwrap();
-    Ok((point, rank as usize))
 }
