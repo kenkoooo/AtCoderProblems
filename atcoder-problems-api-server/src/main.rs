@@ -161,7 +161,7 @@ fn get_rated_point_sum(user: &str, conn: &Connection) -> Result<(f64, usize), St
     let rows = conn
         .query(query, &[&point])
         .map_err(|e| format!("{:?}", e))?;
-    let rank: i32 = rows.iter().map(|row| row.get("count")).next().unwrap();
+    let rank: i64 = rows.iter().map(|row| row.get("count")).next().unwrap();
     Ok((point, rank as usize))
 }
 
@@ -180,6 +180,6 @@ fn get_accepted_count(user: &str, conn: &Connection) -> Result<(usize, usize), S
     let rows = conn
         .query(query, &[&point])
         .map_err(|e| format!("{:?}", e))?;
-    let rank: i32 = rows.iter().map(|row| row.get("count")).next().unwrap();
+    let rank: i64 = rows.iter().map(|row| row.get("count")).next().unwrap();
     Ok((point as usize, rank as usize))
 }
