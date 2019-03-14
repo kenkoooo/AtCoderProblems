@@ -5,6 +5,7 @@ use std::io::BufReader;
 use std::path::Path;
 
 use actix_web::{http, server, App, HttpRequest, HttpResponse};
+use postgres::types::{FromSql, ToSql};
 use postgres::{Connection, TlsMode};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -39,6 +40,20 @@ struct UserInfo {
     rated_point_sum_rank: usize,
 }
 
+trait UserNameExtractor {
+    fn extract_user(&self) -> String;
+}
+
+impl<T> UserNameExtractor for HttpRequest<T> {
+    fn extract_user(&self) -> String {
+        self.query()
+            .get("user")
+            .filter(|user| Regex::new("[a-zA-Z0-9_]+").unwrap().is_match(user))
+            .map(|user| user.clone())
+            .unwrap_or("".to_owned())
+    }
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let config = read_user_from_file(&args[1]).unwrap();
@@ -54,31 +69,34 @@ fn main() {
 }
 
 fn result_api(request: HttpRequest<Config>) -> HttpResponse {
-    let user = request
-        .query()
-        .get("user")
-        .filter(|user| Regex::new("[a-zA-Z0-9_]+").unwrap().is_match(user))
-        .map(|user| user.clone())
-        .unwrap_or("".to_owned());
-    match get_connection(request.state()).and_then(|conn| get_submissions(&user, &conn)) {
+    let user = request.extract_user();
+    match get_connection(
+        &request.state().postgresql_user,
+        &request.state().postgresql_pass,
+        &request.state().postgresql_host,
+    )
+    .and_then(|conn| get_submissions(&user, &conn))
+    {
         Ok(submission) => HttpResponse::Ok().json(submission),
         _ => HttpResponse::new(http::StatusCode::INTERNAL_SERVER_ERROR),
     }
 }
 
 fn user_info_api(request: HttpRequest<Config>) -> HttpResponse {
-    let user = request
-        .query()
-        .get("user")
-        .filter(|user| Regex::new("[a-zA-Z0-9_]+").unwrap().is_match(user))
-        .map(|user| user.clone())
-        .unwrap_or("".to_owned());
-    match get_connection(request.state())
-        .and_then(|conn| get_accepted_count(&user, &conn).map(|(count, rank)| (count, rank, conn)))
-        .and_then(|(count, count_rank, conn)| {
-            get_rated_point_sum(&user, &conn)
-                .map(|(point, point_rank)| (count, count_rank, point, point_rank))
-        }) {
+    let user = request.extract_user();
+    match get_connection(
+        &request.state().postgresql_user,
+        &request.state().postgresql_pass,
+        &request.state().postgresql_host,
+    )
+    .and_then(|conn| {
+        get_count_rank::<i32>(&user, &conn, "accepted_count", "problem_count", 0)
+            .map(|(count, rank)| (count as usize, rank, conn))
+    })
+    .and_then(|(count, count_rank, conn)| {
+        get_count_rank::<f64>(&user, &conn, "rated_point_sum", "point_sum", 0.0)
+            .map(|(point, point_rank)| (count, count_rank, point, point_rank))
+    }) {
         Ok((accepted_count, accepted_count_rank, rated_point_sum, rated_point_sum_rank)) => {
             HttpResponse::Ok().json(UserInfo {
                 user_id: user,
@@ -99,12 +117,9 @@ fn read_user_from_file<P: AsRef<Path>>(path: P) -> Result<Config, Box<Error>> {
     Ok(config)
 }
 
-fn get_connection(config: &Config) -> Result<Connection, String> {
+fn get_connection(user: &str, pass: &str, host: &str) -> Result<Connection, String> {
     Connection::connect(
-        format!(
-            "postgresql://{}:{}@{}/atcoder",
-            config.postgresql_user, config.postgresql_pass, config.postgresql_host
-        ),
+        format!("postgresql://{}:{}@{}/atcoder", user, pass, host),
         TlsMode::None,
     )
     .map_err(|e| format!("{:?}", e))
@@ -146,40 +161,34 @@ fn get_submissions(user: &str, conn: &Connection) -> Result<Vec<Submission>, Str
     Ok(submissions)
 }
 
-fn get_rated_point_sum(user: &str, conn: &Connection) -> Result<(f64, usize), String> {
-    let query = "SELECT point_sum FROM rated_point_sum WHERE user_id=$1";
+fn get_count_rank<T: FromSql + ToSql>(
+    user: &str,
+    conn: &Connection,
+    table: &str,
+    column: &str,
+    min_count: T,
+) -> Result<(T, usize), String> {
+    let query = format!(
+        "SELECT {column} FROM {table} WHERE user_id=$1",
+        column = column,
+        table = table
+    );
     let rows = conn
-        .query(query, &[&user])
+        .query(&query, &[&user])
         .map_err(|e| format!("{:?}", e))?;
-    let point: f64 = rows
+    let point: T = rows
         .iter()
-        .map(|row| row.get("point_sum"))
+        .map(|row| row.get(column))
         .next()
-        .unwrap_or(0.0);
+        .unwrap_or(min_count);
 
-    let query = "SELECT count(user_id) FROM rated_point_sum WHERE point_sum > $1";
+    let query = format!(
+        "SELECT count(user_id) FROM {table} WHERE point_sum > $1",
+        table = table
+    );
     let rows = conn
-        .query(query, &[&point])
+        .query(&query, &[&point])
         .map_err(|e| format!("{:?}", e))?;
     let rank: i64 = rows.iter().map(|row| row.get("count")).next().unwrap();
     Ok((point, rank as usize))
-}
-
-fn get_accepted_count(user: &str, conn: &Connection) -> Result<(usize, usize), String> {
-    let query = "SELECT problem_count FROM accepted_count WHERE user_id=$1";
-    let rows = conn
-        .query(query, &[&user])
-        .map_err(|e| format!("{:?}", e))?;
-    let point: i32 = rows
-        .iter()
-        .map(|row| row.get("problem_count"))
-        .next()
-        .unwrap_or(0);
-
-    let query = "SELECT count(user_id) FROM accepted_count WHERE problem_count > $1";
-    let rows = conn
-        .query(query, &[&point])
-        .map_err(|e| format!("{:?}", e))?;
-    let rank: i64 = rows.iter().map(|row| row.get("count")).next().unwrap();
-    Ok((point as usize, rank as usize))
 }
