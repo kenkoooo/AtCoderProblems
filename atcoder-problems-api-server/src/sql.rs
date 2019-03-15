@@ -3,17 +3,17 @@ use postgres::{Connection, TlsMode};
 
 use crate::{Submission, UserInfo};
 
-pub(crate) trait ConnectorTrait {
+pub trait ConnectorTrait {
     fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String>;
     fn get_user_info(&self, user_id: &str) -> Result<UserInfo, String>;
 }
 
-pub(crate) struct SqlConnector {
+pub struct SqlConnector {
     conn: Connection,
 }
 
 impl SqlConnector {
-    pub(crate) fn new(user: &str, pass: &str, host: &str) -> Result<Self, String> {
+    pub fn new(user: &str, pass: &str, host: &str) -> Result<Self, String> {
         Connection::connect(
             format!("postgresql://{}:{}@{}/atcoder", user, pass, host),
             TlsMode::None,
