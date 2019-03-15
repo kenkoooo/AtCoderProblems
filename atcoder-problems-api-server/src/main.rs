@@ -47,7 +47,11 @@ fn main() {
 }
 
 fn result_api(request: HttpRequest<Config>) -> HttpResponse {
-    let old_tag = request.headers().get(IF_NONE_MATCH);
+    let old_tag = request
+        .headers()
+        .get(IF_NONE_MATCH)
+        .and_then(|tag| tag.to_str().ok())
+        .and_then(|tag_str| tag_str.parse::<EntityTag>().ok());
     let hash = |user: &str, count: usize| {
         let mut hasher = Sha256::new();
         hasher.input(user.as_bytes());
@@ -64,18 +68,16 @@ fn result_api(request: HttpRequest<Config>) -> HttpResponse {
     .and_then(|conn| get_submissions(&user, &conn))
     {
         Ok(submission) => {
-            let new_tag = hash(&user, submission.len());
-            println!("{:?}", old_tag);
-            println!("{:?}", new_tag);
+            let new_tag = EntityTag::new(true, hash(&user, submission.len()));
             match old_tag {
-                Some(old_tag) if old_tag == &new_tag => {
+                Some(ref old_tag) if old_tag.weak_eq(&new_tag) => {
                     let mut builder = HttpResponse::NotModified();
-                    builder.set(ETag(EntityTag::new(true, new_tag)));
+                    builder.set(ETag(new_tag));
                     builder.finish()
                 }
                 _ => {
                     let mut builder = HttpResponse::Ok();
-                    builder.set(ETag(EntityTag::new(true, new_tag)));
+                    builder.set(ETag(new_tag));
                     builder.json(submission)
                 }
             }
