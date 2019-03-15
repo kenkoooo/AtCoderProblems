@@ -19,9 +19,9 @@ pub struct Submission {
 
 #[derive(Serialize, Debug)]
 pub struct UserInfo {
-    user_id: String,
-    accepted_count: i32,
-    accepted_count_rank: usize,
-    rated_point_sum: f64,
-    rated_point_sum_rank: usize,
+    pub(crate) user_id: String,
+    pub(crate) accepted_count: i32,
+    pub(crate) accepted_count_rank: usize,
+    pub(crate) rated_point_sum: f64,
+    pub(crate) rated_point_sum_rank: usize,
 }
