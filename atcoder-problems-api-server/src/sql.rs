@@ -3,26 +3,47 @@ use postgres::{Connection, TlsMode};
 
 use crate::{Submission, UserInfo};
 
-pub(crate) trait Connector {
-    fn new(user: &str, pass: &str, host: &str) -> Self;
-    fn get_submission(user: &str) -> Result<Vec<Submission>, String>;
-    fn get_user_info(user: &str) -> Result<UserInfo, String>;
+pub(crate) trait ConnectorTrait {
+    fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String>;
+    fn get_user_info(&self, user_id: &str) -> Result<UserInfo, String>;
 }
 
-pub(crate) struct SqlClient {
+pub(crate) struct SqlConnector {
     conn: Connection,
 }
 
-
-pub fn get_connection(user: &str, pass: &str, host: &str) -> Result<Connection, String> {
-    Connection::connect(
-        format!("postgresql://{}:{}@{}/atcoder", user, pass, host),
-        TlsMode::None,
-    )
-    .map_err(|e| format!("{:?}", e))
+impl SqlConnector {
+    pub(crate) fn new(user: &str, pass: &str, host: &str) -> Result<Self, String> {
+        Connection::connect(
+            format!("postgresql://{}:{}@{}/atcoder", user, pass, host),
+            TlsMode::None,
+        )
+        .map(|conn| SqlConnector { conn })
+        .map_err(|e| format!("{:?}", e))
+    }
 }
 
-pub fn get_submissions(user: &str, conn: &Connection) -> Result<Vec<Submission>, String> {
+impl ConnectorTrait for SqlConnector {
+    fn get_submissions(&self, user: &str) -> Result<Vec<Submission>, String> {
+        get_submissions(user, &self.conn)
+    }
+
+    fn get_user_info(&self, user_id: &str) -> Result<UserInfo, String> {
+        let (accepted_count, accepted_count_rank) =
+            get_count_rank::<i32>(user_id, &self.conn, "accepted_count", "problem_count", 0)?;
+        let (rated_point_sum, rated_point_sum_rank) =
+            get_count_rank::<f64>(user_id, &self.conn, "rated_point_sum", "point_sum", 0.0)?;
+        Ok(UserInfo {
+            user_id: user_id.to_owned(),
+            accepted_count,
+            accepted_count_rank,
+            rated_point_sum,
+            rated_point_sum_rank,
+        })
+    }
+}
+
+fn get_submissions(user: &str, conn: &Connection) -> Result<Vec<Submission>, String> {
     let query = r#"
             SELECT
                 id, 
@@ -58,7 +79,7 @@ pub fn get_submissions(user: &str, conn: &Connection) -> Result<Vec<Submission>,
     Ok(submissions)
 }
 
-pub fn get_count_rank<T: FromSql + ToSql>(
+fn get_count_rank<T: FromSql + ToSql>(
     user: &str,
     conn: &Connection,
     table: &str,
