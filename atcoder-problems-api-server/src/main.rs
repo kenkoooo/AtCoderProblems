@@ -30,7 +30,7 @@ fn main() {
             .route("/results", http::Method::GET, result_api)
             .route("/v2/user_info", http::Method::GET, user_info_api)
     })
-    .bind("127.0.0.1:8080")
+    .bind("0.0.0.0:8080")
     .unwrap()
     .run();
 }
