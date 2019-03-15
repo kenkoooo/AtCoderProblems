@@ -16,14 +16,15 @@ pub struct Problem {
     title: String,
 }
 
+#[derive(Debug)]
 pub struct Submission {
     id: u64,
-    epoch_second: u64,
+    epoch_second: i64,
     problem_id: String,
     contest_id: String,
     user_id: String,
     language: String,
-    point: Option<f64>,
+    point: f64,
     length: i32,
     result: String,
     execution_time: Option<i32>,
