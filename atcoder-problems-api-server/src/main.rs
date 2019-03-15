@@ -48,7 +48,6 @@ fn main() {
 
 fn result_api(request: HttpRequest<Config>) -> HttpResponse {
     let old_tag = request.headers().get(IF_NONE_MATCH);
-    println!("{:?}", old_tag);
     let hash = |user: &str, count: usize| {
         let mut hasher = Sha256::new();
         hasher.input(user.as_bytes());
@@ -66,6 +65,8 @@ fn result_api(request: HttpRequest<Config>) -> HttpResponse {
     {
         Ok(submission) => {
             let new_tag = hash(&user, submission.len());
+            println!("{:?}", old_tag);
+            println!("{:?}", new_tag);
             match old_tag {
                 Some(old_tag) if old_tag == &new_tag => {
                     let mut builder = HttpResponse::NotModified();
