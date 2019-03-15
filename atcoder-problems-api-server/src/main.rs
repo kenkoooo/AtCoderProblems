@@ -48,6 +48,7 @@ fn main() {
 
 fn result_api(request: HttpRequest<Config>) -> HttpResponse {
     let old_tag = request.headers().get(IF_NONE_MATCH);
+    println!("{:?}", old_tag);
     let hash = |user: &str, count: usize| {
         let mut hasher = Sha256::new();
         hasher.input(user.as_bytes());
