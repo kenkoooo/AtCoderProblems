@@ -1,7 +1,18 @@
 use postgres::types::{FromSql, ToSql};
 use postgres::{Connection, TlsMode};
 
-use crate::Submission;
+use crate::{Submission, UserInfo};
+
+pub(crate) trait Connector {
+    fn new(user: &str, pass: &str, host: &str) -> Self;
+    fn get_submission(user: &str) -> Result<Vec<Submission>, String>;
+    fn get_user_info(user: &str) -> Result<UserInfo, String>;
+}
+
+pub(crate) struct SqlClient {
+    conn: Connection,
+}
+
 
 pub fn get_connection(user: &str, pass: &str, host: &str) -> Result<Connection, String> {
     Connection::connect(
