@@ -1,8 +1,8 @@
 use std::env;
 
-use actix_web::http::header::{ETag, EntityTag};
+use actix_web::http::header::{ETag, EntityTag, IF_NONE_MATCH};
 use actix_web::middleware::cors::Cors;
-use actix_web::{http, server, App, HttpRequest, HttpResponse};
+use actix_web::{http, server, App, HttpMessage, HttpRequest, HttpResponse};
 use regex::Regex;
 use sha2::{Digest, Sha256};
 
@@ -47,13 +47,14 @@ fn main() {
 }
 
 fn result_api(request: HttpRequest<Config>) -> HttpResponse {
-    fn hash(user: &str, count: usize) -> String {
+    let old_tag = request.headers().get(IF_NONE_MATCH);
+    let hash = |user: &str, count: usize| {
         let mut hasher = Sha256::new();
         hasher.input(user.as_bytes());
         hasher.input(" ".as_bytes());
         hasher.input(count.to_be_bytes());
         format!("{:x}", hasher.result())
-    }
+    };
     let user = request.extract_user();
     match get_connection(
         &request.state().postgresql_user,
@@ -63,9 +64,19 @@ fn result_api(request: HttpRequest<Config>) -> HttpResponse {
     .and_then(|conn| get_submissions(&user, &conn))
     {
         Ok(submission) => {
-            let mut builder = HttpResponse::Ok();
-            builder.set(ETag(EntityTag::new(true, hash(&user, submission.len()))));
-            builder.json(submission)
+            let new_tag = hash(&user, submission.len());
+            match old_tag {
+                Some(old_tag) if old_tag == &new_tag => {
+                    let mut builder = HttpResponse::NotModified();
+                    builder.set(ETag(EntityTag::new(true, new_tag)));
+                    builder.finish()
+                }
+                _ => {
+                    let mut builder = HttpResponse::Ok();
+                    builder.set(ETag(EntityTag::new(true, new_tag)));
+                    builder.json(submission)
+                }
+            }
         }
         _ => HttpResponse::new(http::StatusCode::INTERNAL_SERVER_ERROR),
     }
