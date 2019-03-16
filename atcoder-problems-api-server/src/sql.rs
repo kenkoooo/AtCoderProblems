@@ -8,17 +8,30 @@ pub trait ConnectorTrait {
     fn get_user_info(&self, user_id: &str) -> Result<UserInfo, String>;
 }
 
+#[derive(Clone)]
 pub struct SqlConnector {
-    conn: Connection,
+    user: String,
+    pass: String,
+    host: String,
 }
 
 impl SqlConnector {
-    pub fn new(user: &str, pass: &str, host: &str) -> Result<Self, String> {
+    pub fn new(user: &str, pass: &str, host: &str) -> Self {
+        Self {
+            user: user.to_owned(),
+            pass: pass.to_owned(),
+            host: host.to_owned(),
+        }
+    }
+
+    fn connect(&self) -> Result<Connection, String> {
         Connection::connect(
-            format!("postgresql://{}:{}@{}/atcoder", user, pass, host),
+            format!(
+                "postgresql://{}:{}@{}/atcoder",
+                self.user, self.pass, self.host
+            ),
             TlsMode::None,
         )
-        .map(|conn| SqlConnector { conn })
         .map_err(|e| format!("{:?}", e))
     }
 }
@@ -40,9 +53,8 @@ impl ConnectorTrait for SqlConnector {
             FROM submissions
             WHERE user_id=$1"#;
         let rows = self
-            .conn
-            .query(query, &[&user])
-            .map_err(|e| format!("{:?}", e))?;
+            .connect()
+            .and_then(|conn| conn.query(query, &[&user]).map_err(|e| format!("{:?}", e)))?;
         let submissions = rows
             .iter()
             .map(|row| Submission {
@@ -62,10 +74,11 @@ impl ConnectorTrait for SqlConnector {
     }
 
     fn get_user_info(&self, user_id: &str) -> Result<UserInfo, String> {
+        let conn = self.connect()?;
         let (accepted_count, accepted_count_rank) =
-            get_count_rank::<i32>(user_id, &self.conn, "accepted_count", "problem_count", 0)?;
+            get_count_rank::<i32>(user_id, &conn, "accepted_count", "problem_count", 0)?;
         let (rated_point_sum, rated_point_sum_rank) =
-            get_count_rank::<f64>(user_id, &self.conn, "rated_point_sum", "point_sum", 0.0)?;
+            get_count_rank::<f64>(user_id, &conn, "rated_point_sum", "point_sum", 0.0)?;
         Ok(UserInfo {
             user_id: user_id.to_owned(),
             accepted_count,
