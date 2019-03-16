@@ -1,5 +1,6 @@
 use actix_web::http::header::{ETag, EntityTag, IF_NONE_MATCH};
-use actix_web::{http, HttpMessage, HttpRequest, HttpResponse};
+use actix_web::middleware::cors::Cors;
+use actix_web::{http, App, HttpMessage, HttpRequest, HttpResponse};
 use regex::Regex;
 use sha2::{Digest, Sha256};
 
@@ -19,7 +20,7 @@ impl<T> UserNameExtractor for HttpRequest<T> {
     }
 }
 
-pub fn result_api<C: ConnectorTrait>(request: HttpRequest<C>) -> HttpResponse {
+fn result_api<C: ConnectorTrait>(request: HttpRequest<C>) -> HttpResponse {
     let old_tag = request
         .headers()
         .get(IF_NONE_MATCH)
@@ -49,11 +50,23 @@ pub fn result_api<C: ConnectorTrait>(request: HttpRequest<C>) -> HttpResponse {
         .unwrap_or_else(|_| HttpResponse::new(http::StatusCode::INTERNAL_SERVER_ERROR))
 }
 
-pub fn user_info_api<C: ConnectorTrait>(request: HttpRequest<C>) -> HttpResponse {
+fn user_info_api<C: ConnectorTrait>(request: HttpRequest<C>) -> HttpResponse {
     let user_id = request.extract_user();
     request
         .state()
         .get_user_info(&user_id)
         .map(|user_info| HttpResponse::Ok().json(user_info))
         .unwrap_or_else(|_| HttpResponse::new(http::StatusCode::INTERNAL_SERVER_ERROR))
+}
+
+pub fn server_config<S: ConnectorTrait + 'static>(app: App<S>) -> App<S> {
+    Cors::for_app(app)
+        .allowed_origin("*")
+        .resource("/results", |r| {
+            r.method(http::Method::GET).with(result_api);
+        })
+        .resource("/v2/user_info", |r| {
+            r.method(http::Method::GET).with(user_info_api);
+        })
+        .register()
 }

@@ -3,6 +3,7 @@ pub mod config;
 pub mod sql;
 
 use serde::Serialize;
+
 #[derive(Serialize, Debug)]
 pub struct Submission {
     id: i64,
@@ -19,9 +20,9 @@ pub struct Submission {
 
 #[derive(Serialize, Debug)]
 pub struct UserInfo {
-    pub(crate) user_id: String,
-    pub(crate) accepted_count: i32,
-    pub(crate) accepted_count_rank: usize,
-    pub(crate) rated_point_sum: f64,
-    pub(crate) rated_point_sum_rank: usize,
+    user_id: String,
+    accepted_count: i32,
+    accepted_count_rank: usize,
+    rated_point_sum: f64,
+    rated_point_sum_rank: usize,
 }
