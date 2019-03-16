@@ -50,6 +50,24 @@ npm run build
 npm test
 ```
 
+# Docker
+
+```bash
+#build Dockerfile
+docker build ./
+
+#run docker image
+docker run -h spam -i -t {image_name} /bin/bash
+
+#after you entered shell
+#please start db server
+service postgresql start
+
+```
+You can login db server with this user:name="kenkoooo",password="pass",dbname="test".
+This docker image has everything you need for building and testing this repository(including prepared db server).
+You can use git to get data and start testing.
+
 # API
 
 Please use API politely.
