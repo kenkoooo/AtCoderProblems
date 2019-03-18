@@ -31,15 +31,15 @@ class App extends Component {
 							<Route exact path="/sum" component={SumRanking} />
 							<Route exact path="/lang" component={LanguageOwners} />
 							<Route
-								path="/user/:user_id([a-zA-Z0-9]*)*"
+								path="/user/:user_id([a-zA-Z0-9_]*)*"
 								component={(props: MatchUserId) => <UserPage user_ids={extractUserId(props)} />}
 							/>
 							<Route
-								path="/table/:user_id([a-zA-Z0-9]*)*"
+								path="/table/:user_id([a-zA-Z0-9_]*)*"
 								component={(props: MatchUserId) => <TablePage user_ids={extractUserId(props)} />}
 							/>
 							<Route
-								path="/list/:user_id([a-zA-Z0-9]*)*"
+								path="/list/:user_id([a-zA-Z0-9_]*)*"
 								component={(props: MatchUserId) => <ListPage user_ids={extractUserId(props)} />}
 							/>
 
