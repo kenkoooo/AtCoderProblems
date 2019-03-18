@@ -45,10 +45,10 @@ class PrimitiveNavigationBar extends React.Component<
     const { user_id, rival_id } = this.state;
 
     const users: string[] = [];
-    if (user_id.match(/^[a-zA-Z0-9]*$/)) {
+    if (user_id.match(/^[a-zA-Z0-9_]*$/)) {
       users.push(user_id);
     }
-    if (rival_id.match(/^[a-zA-Z0-9,]+$/)) {
+    if (rival_id.match(/^[a-zA-Z0-9_,]+$/)) {
       rival_id
         .split(",")
         .filter(user => user.length > 0)
