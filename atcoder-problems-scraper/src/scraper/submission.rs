@@ -4,11 +4,8 @@ use chrono::DateTime;
 use regex::Regex;
 use scraper::{Html, Selector};
 
-pub fn get_max_submission_page(contest_id: &str) -> Result<usize, String> {
-    let url = format!("{}/contests/{}/submissions", ATCODER_HOST, contest_id);
-    let page_html = get_html(&url)?;
-
-    Html::parse_document(&page_html)
+pub(crate) fn get_max_submission_page_from_html(html: &str) -> Option<usize> {
+    Html::parse_document(&html)
         .select(&Selector::parse("a").unwrap())
         .filter(|el| match el.value().attr("href") {
             Some(href) => Regex::new(r"page=\d+$").unwrap().is_match(href),
@@ -25,92 +22,56 @@ pub fn get_max_submission_page(contest_id: &str) -> Result<usize, String> {
                 .unwrap()
         })
         .max()
-        .ok_or(url.clone())
 }
 
-pub fn scrape_submissions(contest_id: &str, page: usize) -> Result<Vec<Submission>, String> {
-    let url = format!(
-        "{}/contests/{}/submissions?page={}",
-        ATCODER_HOST, contest_id, page
-    );
+pub fn get_max_submission_page(contest_id: &str) -> Result<usize, String> {
+    let url = format!("{}/contests/{}/submissions", ATCODER_HOST, contest_id);
     let page_html = get_html(&url)?;
+    get_max_submission_page_from_html(&page_html).ok_or(url.clone())
+}
 
-    Html::parse_document(&page_html)
+pub(crate) fn scrape_submissions_from_html(
+    html_text: &str,
+    contest_id: &str,
+) -> Option<Vec<Submission>> {
+    Html::parse_document(&html_text)
         .select(&Selector::parse("tbody").unwrap())
-        .next()
-        .ok_or(url.clone())?
+        .next()?
         .select(&Selector::parse("tr").unwrap())
         .map(|tr| {
             let selector = Selector::parse("td").unwrap();
             let mut tds = tr.select(&selector);
 
-            let time = tds
-                .next()
-                .ok_or(url.clone())?
-                .text()
-                .next()
-                .ok_or(url.clone())?;
-            let time = DateTime::parse_from_str(&time, "%Y-%m-%d %H:%M:%S%z")
-                .map_err(|e| format!("{:?}", e))?;
+            let time = tds.next()?.text().next()?;
+            let time = DateTime::parse_from_str(&time, "%Y-%m-%d %H:%M:%S%z").ok()?;
             let epoch_second = time.timestamp();
 
             let problem_id = tds
-                .next()
-                .ok_or(url.clone())?
+                .next()?
                 .select(&Selector::parse("a").unwrap())
-                .next()
-                .ok_or(url.clone())?
+                .next()?
                 .value()
-                .attr("href")
-                .ok_or(url.clone())?
+                .attr("href")?
                 .rsplit("/")
-                .next()
-                .ok_or("c".to_owned())?
+                .next()?
                 .to_owned();
 
-            let user_id = tds
-                .next()
-                .ok_or(url.clone())?
-                .text()
-                .next()
-                .ok_or(url.clone())?
-                .to_owned();
+            let user_id = tds.next()?.text().next()?.to_owned();
 
-            let language = tds
-                .next()
-                .ok_or(url.clone())?
-                .text()
-                .next()
-                .ok_or(url.clone())?
-                .to_owned();
+            let language = tds.next()?.text().next()?.to_owned();
 
-            let point: f64 = tds
-                .next()
-                .ok_or(url.clone())?
-                .text()
-                .next()
-                .ok_or(url.clone())?
-                .parse()
-                .map_err(|e| format!("{:?}", e))?;
+            let point: f64 = tds.next()?.text().next()?.parse().ok()?;
 
             let length = tds
-                .next()
-                .ok_or(url.clone())?
+                .next()?
                 .text()
-                .next()
-                .ok_or(url.clone())?
+                .next()?
                 .replace("Byte", "")
                 .trim()
                 .parse::<i32>()
-                .map_err(|e| format!("{:?}", e))?;
+                .ok()?;
 
-            let result = tds
-                .next()
-                .ok_or(url.clone())?
-                .text()
-                .next()
-                .ok_or(url.clone())?
-                .to_owned();
+            let result = tds.next()?.text().next()?.to_owned();
 
             let execution_time = tds
                 .next()
@@ -124,8 +85,7 @@ pub fn scrape_submissions(contest_id: &str, page: usize) -> Result<Vec<Submissio
                     Some(href) => Regex::new(r"submissions/\d+$").unwrap().is_match(href),
                     None => false,
                 })
-                .next()
-                .ok_or(url.clone())?
+                .next()?
                 .value()
                 .attr("href")
                 .unwrap()
@@ -135,7 +95,7 @@ pub fn scrape_submissions(contest_id: &str, page: usize) -> Result<Vec<Submissio
                 .trim()
                 .parse::<u64>()
                 .unwrap();
-            Ok(Submission {
+            Some(Submission {
                 id,
                 epoch_second,
                 problem_id,
@@ -149,4 +109,13 @@ pub fn scrape_submissions(contest_id: &str, page: usize) -> Result<Vec<Submissio
             })
         })
         .collect()
+}
+
+pub fn scrape_submissions(contest_id: &str, page: usize) -> Result<Vec<Submission>, String> {
+    let url = format!(
+        "{}/contests/{}/submissions?page={}",
+        ATCODER_HOST, contest_id, page
+    );
+    let page_html = get_html(&url)?;
+    scrape_submissions_from_html(&page_html, contest_id).ok_or_else(|| format!("Error: {}", url))
 }

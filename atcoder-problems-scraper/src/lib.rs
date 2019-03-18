@@ -1,6 +1,6 @@
 pub mod scraper;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct Contest {
     id: String,
     start_epoch_second: i64,
@@ -9,7 +9,7 @@ pub struct Contest {
     rate_change: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct Problem {
     id: String,
     contest_id: String,
