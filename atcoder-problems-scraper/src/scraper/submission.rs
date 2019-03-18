@@ -93,7 +93,7 @@ pub(crate) fn scrape_submissions_from_html(
                 .next()
                 .unwrap()
                 .trim()
-                .parse::<u64>()
+                .parse::<i64>()
                 .unwrap();
             Some(Submission {
                 id,

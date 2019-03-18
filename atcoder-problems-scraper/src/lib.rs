@@ -1,4 +1,5 @@
 pub mod scraper;
+pub mod sql;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Contest {
@@ -18,7 +19,7 @@ pub struct Problem {
 
 #[derive(Debug)]
 pub struct Submission {
-    id: u64,
+    id: i64,
     epoch_second: i64,
     problem_id: String,
     contest_id: String,
