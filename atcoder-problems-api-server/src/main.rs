@@ -1,6 +1,6 @@
 use std::env;
 
-use actix_web::{http, server, App};
+use actix_web::{http, server, App, HttpResponse};
 
 use actix_web::middleware::cors::Cors;
 use atcoder_problems_api_server::api::*;
@@ -20,6 +20,7 @@ fn main() {
         App::with_state(connector.clone()).configure(|app| {
             Cors::for_app(app)
                 .allowed_origin("*")
+                .resource("/", |r| r.f(|_| HttpResponse::Ok()))
                 .resource("/results", |r| {
                     r.method(http::Method::GET).with(result_api);
                 })
@@ -29,7 +30,7 @@ fn main() {
                 .register()
         })
     })
-    .bind("0.0.0.0:8080")
+    .bind("0.0.0.0:80")
     .unwrap()
     .run();
 }
