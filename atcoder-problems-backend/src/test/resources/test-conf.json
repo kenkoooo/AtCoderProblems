@@ -1,0 +1,16 @@
+{
+  "scraper": {
+    "threads": 11
+  },
+  "sql": {
+    "url": "sql-url",
+    "user": "sql-user",
+    "password": "sql-pass"
+  },
+  "server": {
+    "port": 9090
+  },
+  "files": {
+    "path": "/home/kenkoooo/"
+  }
+}
