@@ -1,0 +1,17 @@
+[package]
+name = "atcoder-problems-api-lambda"
+version = "0.1.0"
+authors = ["Kenko Nakamura <kenkou.n@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+lambda_runtime = "^0.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "^0.4"
+simple_logger = "^1"
+postgres = "0.15"
+
+[[bin]]
+name = "bootstrap"
+path = "src/main.rs"

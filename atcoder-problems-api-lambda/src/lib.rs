@@ -1,10 +1,8 @@
-pub mod api;
-pub mod config;
 pub mod sql;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Submission {
     id: i64,
     epoch_second: i64,
