@@ -22,6 +22,7 @@ fn main() {
 
     server::new(move || {
         App::with_state(connector.clone())
+            .prefix("/atcoder/atcoder-api")
             .configure(|app| {
                 Cors::for_app(app)
                     .allowed_origin("*")
