@@ -26,7 +26,7 @@ fn main() {
                 let max_page = scraper::get_max_submission_page(&contest.id).unwrap();
                 for page in (1..=max_page).rev() {
                     info!("all submission crawling: {} {}", contest.id, page);
-                    let submissions = scraper::scrape_submissions(&contest.id, page).unwrap();
+                    let submissions = scraper::scrape_submissions(&contest.id, page);
                     conn.insert_submissions(&submissions).unwrap();
                     thread::sleep(time::Duration::from_millis(500));
                 }
@@ -42,7 +42,7 @@ fn main() {
             for contest in contests.iter() {
                 for page in 1..=2 {
                     info!("new submission crawling: {} {}", contest.id, page);
-                    let submissions = scraper::scrape_submissions(&contest.id, page).unwrap();
+                    let submissions = scraper::scrape_submissions(&contest.id, page);
                     conn.insert_submissions(&submissions).unwrap();
                     thread::sleep(time::Duration::from_millis(500));
                 }
@@ -65,7 +65,7 @@ fn main() {
                 let max_page = scraper::get_max_submission_page(&contest.id).unwrap();
                 for page in (1..=max_page).rev() {
                     info!("recent submission crawling: {} {}", contest.id, page);
-                    let submissions = scraper::scrape_submissions(&contest.id, page).unwrap();
+                    let submissions = scraper::scrape_submissions(&contest.id, page);
                     conn.insert_submissions(&submissions).unwrap();
                     thread::sleep(time::Duration::from_millis(500));
                 }

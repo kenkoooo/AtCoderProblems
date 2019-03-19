@@ -30,91 +30,105 @@ pub fn get_max_submission_page(contest_id: &str) -> Result<usize, String> {
     get_max_submission_page_from_html(&page_html).ok_or_else(|| url.clone())
 }
 
-pub(crate) fn scrape_submissions_from_html(
-    html_text: &str,
-    contest_id: &str,
-) -> Option<Vec<Submission>> {
-    Html::parse_document(&html_text)
+pub(crate) fn scrape_submissions_from_html(html_text: &str, contest_id: &str) -> Vec<Submission> {
+    match Html::parse_document(&html_text)
         .select(&Selector::parse("tbody").unwrap())
-        .next()?
-        .select(&Selector::parse("tr").unwrap())
-        .map(|tr| {
-            let selector = Selector::parse("td").unwrap();
-            let mut tds = tr.select(&selector);
+        .next()
+    {
+        Some(tbody) => tbody
+            .select(&Selector::parse("tr").unwrap())
+            .filter_map(|tr| {
+                let selector = Selector::parse("td").unwrap();
+                let mut tds = tr.select(&selector);
 
-            let time = tds.next()?.text().next()?;
-            let time = DateTime::parse_from_str(&time, "%Y-%m-%d %H:%M:%S%z").ok()?;
-            let epoch_second = time.timestamp();
+                let time = tds.next()?.text().next()?;
+                let time = DateTime::parse_from_str(&time, "%Y-%m-%d %H:%M:%S%z").ok()?;
+                let epoch_second = time.timestamp();
 
-            let problem_id = tds
-                .next()?
-                .select(&Selector::parse("a").unwrap())
-                .next()?
-                .value()
-                .attr("href")?
-                .rsplit('/')
-                .next()?
-                .to_owned();
+                let problem_id = tds
+                    .next()?
+                    .select(&Selector::parse("a").unwrap())
+                    .next()?
+                    .value()
+                    .attr("href")?
+                    .rsplit('/')
+                    .next()?
+                    .to_owned();
 
-            let user_id = tds.next()?.text().next()?.to_owned();
+                let user_id = tds
+                    .next()?
+                    .select(&Selector::parse("a").unwrap())
+                    .next()?
+                    .value()
+                    .attr("href")?
+                    .rsplit('/')
+                    .next()?
+                    .to_owned();
 
-            let language = tds.next()?.text().next()?.to_owned();
+                let language = tds
+                    .next()
+                    .and_then(|t| t.text().next())
+                    .unwrap_or("")
+                    .to_owned();
 
-            let point: f64 = tds.next()?.text().next()?.parse().ok()?;
+                let point: f64 = tds.next()?.text().next()?.parse().ok()?;
 
-            let length = tds
-                .next()?
-                .text()
-                .next()?
-                .replace("Byte", "")
-                .trim()
-                .parse::<i32>()
-                .ok()?;
+                let length = tds
+                    .next()?
+                    .text()
+                    .next()?
+                    .replace("Byte", "")
+                    .trim()
+                    .parse::<i32>()
+                    .ok()?;
 
-            let result = tds.next()?.text().next()?.to_owned();
+                let result = tds.next()?.text().next()?.to_owned();
 
-            let execution_time = tds
-                .next()
-                .and_then(|e| e.text().next())
-                .map(|s| s.replace("ms", ""))
-                .and_then(|s| s.trim().parse::<i32>().ok());
+                let execution_time = tds
+                    .next()
+                    .and_then(|e| e.text().next())
+                    .map(|s| s.replace("ms", ""))
+                    .and_then(|s| s.trim().parse::<i32>().ok());
 
-            let id = tr
-                .select(&Selector::parse("a").unwrap())
-                .find(|e| match e.value().attr("href") {
-                    Some(href) => Regex::new(r"submissions/\d+$").unwrap().is_match(href),
-                    None => false,
-                })?
-                .value()
-                .attr("href")
-                .unwrap()
-                .rsplit('/')
-                .next()
-                .unwrap()
-                .trim()
-                .parse::<i64>()
-                .unwrap();
-            Some(Submission {
-                id,
-                epoch_second,
-                problem_id,
-                contest_id: contest_id.to_owned(),
-                user_id,
-                language,
-                point,
-                length,
-                result,
-                execution_time,
+                let id = tr
+                    .select(&Selector::parse("a").unwrap())
+                    .find(|e| match e.value().attr("href") {
+                        Some(href) => Regex::new(r"submissions/\d+$").unwrap().is_match(href),
+                        None => false,
+                    })?
+                    .value()
+                    .attr("href")
+                    .unwrap()
+                    .rsplit('/')
+                    .next()
+                    .unwrap()
+                    .trim()
+                    .parse::<i64>()
+                    .unwrap();
+                Some(Submission {
+                    id,
+                    epoch_second,
+                    problem_id,
+                    contest_id: contest_id.to_owned(),
+                    user_id,
+                    language,
+                    point,
+                    length,
+                    result,
+                    execution_time,
+                })
             })
-        })
-        .collect()
+            .collect(),
+        None => Vec::new(),
+    }
 }
 
-pub fn scrape_submissions(contest_id: &str, page: usize) -> Result<Vec<Submission>, String> {
+pub fn scrape_submissions(contest_id: &str, page: usize) -> Vec<Submission> {
     let url = format!(
         "{}/contests/{}/submissions?page={}",
         ATCODER_HOST, contest_id, page
     );
-    let page_html = get_html(&url)?;
-    scrape_submissions_from_html(&page_html, contest_id).ok_or_else(|| format!("Error: {}", url))
+    get_html(&url)
+        .map(|page_html| scrape_submissions_from_html(&page_html, contest_id))
+        .unwrap_or_else(|_| Vec::new())
 }
