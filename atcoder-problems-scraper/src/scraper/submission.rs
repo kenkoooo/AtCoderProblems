@@ -15,7 +15,7 @@ pub(crate) fn get_max_submission_page_from_html(html: &str) -> Option<usize> {
             el.value()
                 .attr("href")
                 .unwrap()
-                .rsplit("=")
+                .rsplit('=')
                 .next()
                 .unwrap()
                 .parse::<usize>()
@@ -27,7 +27,7 @@ pub(crate) fn get_max_submission_page_from_html(html: &str) -> Option<usize> {
 pub fn get_max_submission_page(contest_id: &str) -> Result<usize, String> {
     let url = format!("{}/contests/{}/submissions", ATCODER_HOST, contest_id);
     let page_html = get_html(&url)?;
-    get_max_submission_page_from_html(&page_html).ok_or(url.clone())
+    get_max_submission_page_from_html(&page_html).ok_or_else(|| url.clone())
 }
 
 pub(crate) fn scrape_submissions_from_html(
@@ -52,7 +52,7 @@ pub(crate) fn scrape_submissions_from_html(
                 .next()?
                 .value()
                 .attr("href")?
-                .rsplit("/")
+                .rsplit('/')
                 .next()?
                 .to_owned();
 
@@ -81,15 +81,14 @@ pub(crate) fn scrape_submissions_from_html(
 
             let id = tr
                 .select(&Selector::parse("a").unwrap())
-                .filter(|e| match e.value().attr("href") {
+                .find(|e| match e.value().attr("href") {
                     Some(href) => Regex::new(r"submissions/\d+$").unwrap().is_match(href),
                     None => false,
-                })
-                .next()?
+                })?
                 .value()
                 .attr("href")
                 .unwrap()
-                .rsplit("/")
+                .rsplit('/')
                 .next()
                 .unwrap()
                 .trim()
