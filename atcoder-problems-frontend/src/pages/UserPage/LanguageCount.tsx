@@ -10,7 +10,7 @@ const LanguageCount = ({ submissions }: { submissions: Submission[] }) => {
 		if (problems) {
 			problems.add(submission.problem_id);
 		} else {
-			map.set(language, new Set(submission.problem_id));
+			map.set(language, new Set([submission.problem_id]));
 		}
 		return map;
 	}, new Map<string, Set<string>>());
