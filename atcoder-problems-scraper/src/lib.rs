@@ -13,7 +13,7 @@ pub struct Contest {
 #[derive(Debug, Eq, PartialEq)]
 pub struct Problem {
     id: String,
-    contest_id: String,
+    pub contest_id: String,
     title: String,
 }
 
