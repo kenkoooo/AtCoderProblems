@@ -3,8 +3,8 @@ pub mod sql;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Contest {
-    id: String,
-    start_epoch_second: i64,
+    pub id: String,
+    pub start_epoch_second: i64,
     duration_second: i64,
     title: String,
     rate_change: String,

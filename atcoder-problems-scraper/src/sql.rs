@@ -9,6 +9,15 @@ pub struct SqlClient {
 }
 
 impl SqlClient {
+    pub fn new(user: &str, pass: &str, host: &str, db: &str) -> Self {
+        Self {
+            user: user.to_owned(),
+            pass: pass.to_owned(),
+            host: host.to_owned(),
+            db: db.to_owned(),
+        }
+    }
+
     fn connect(&self) -> Result<Connection, String> {
         Connection::connect(
             format!(
@@ -20,7 +29,7 @@ impl SqlClient {
         .map_err(|e| format!("{:?}", e))
     }
 
-    fn insert_submissions(&self, submissions: &[Submission]) -> Result<Vec<u64>, String> {
+    pub fn insert_submissions(&self, submissions: &[Submission]) -> Result<Vec<u64>, String> {
         let conn = self.connect()?;
         let query = r"
         INSERT INTO submissions (
@@ -59,7 +68,7 @@ impl SqlClient {
             .collect()
     }
 
-    fn insert_contests(&self, contests: &[Contest]) -> Result<Vec<u64>, String> {
+    pub fn insert_contests(&self, contests: &[Contest]) -> Result<Vec<u64>, String> {
         let conn = self.connect()?;
         let statement = conn
             .prepare(
@@ -85,7 +94,7 @@ impl SqlClient {
             .collect()
     }
 
-    fn insert_problems(&self, problems: &[Problem]) -> Result<Vec<u64>, String> {
+    pub fn insert_problems(&self, problems: &[Problem]) -> Result<Vec<u64>, String> {
         let conn = self.connect()?;
         let statement = conn
             .prepare(
@@ -105,7 +114,7 @@ impl SqlClient {
             .collect()
     }
 
-    fn get_problems(&self) -> Result<Vec<Problem>, String> {
+    pub fn get_problems(&self) -> Result<Vec<Problem>, String> {
         let conn = self.connect()?;
         conn.query("SELECT id, contest_id, title FROM problems", &[])
             .map_err(|e| format!("{:?}", e))?
@@ -120,7 +129,7 @@ impl SqlClient {
             .collect()
     }
 
-    fn get_contests(&self) -> Result<Vec<Contest>, String> {
+    pub fn get_contests(&self) -> Result<Vec<Contest>, String> {
         let conn = self.connect()?;
         conn.query(
             "SELECT id, start_epoch_second, duration_second, title, rate_change FROM contests",
