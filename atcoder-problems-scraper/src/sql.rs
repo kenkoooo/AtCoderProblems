@@ -1,3 +1,5 @@
+pub mod query;
+
 use crate::{Contest, Problem, Submission};
 use postgres::{Connection, TlsMode};
 
