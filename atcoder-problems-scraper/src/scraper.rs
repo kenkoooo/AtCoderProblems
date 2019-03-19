@@ -37,8 +37,9 @@ mod tests {
     fn test_submission_scraper() {
         let html = read_file("assets/abc107_submissions.html");
 
-        let submissions = submission::scrape_submissions_from_html(&html, "abc107").unwrap();
+        let submissions = submission::scrape_submissions_from_html(&html, "abc107");
         assert_eq!(submissions.len(), 20);
+        assert!(submissions.iter().all(|s| s.user_id.is_ascii()));
 
         let max_page = submission::get_max_submission_page_from_html(&html).unwrap();
         assert_eq!(max_page, 818);
