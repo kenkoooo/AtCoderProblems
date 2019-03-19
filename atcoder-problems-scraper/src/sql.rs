@@ -37,12 +37,12 @@ impl SqlClient {
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         ON CONFLICT (id) DO UPDATE SET user_id = $5
         ";
+        let statement = conn.prepare(query).map_err(|e| format!("{:?}", e))?;
         submissions
             .iter()
             .map(|submission| {
-                conn.execute(
-                    query,
-                    &[
+                statement
+                    .execute(&[
                         &submission.id,
                         &submission.epoch_second,
                         &submission.problem_id,
@@ -53,9 +53,54 @@ impl SqlClient {
                         &submission.length,
                         &&submission.result,
                         &submission.execution_time,
-                    ],
-                )
-                .map_err(|e| format!("{:?}", e))
+                    ])
+                    .map_err(|e| format!("{:?}", e))
+            })
+            .collect()
+    }
+
+    fn insert_contests(&self, contests: &[Contest]) -> Result<Vec<u64>, String> {
+        let conn = self.connect()?;
+        let statement = conn
+            .prepare(
+                r"
+            INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change)
+            VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id) DO NOTHING
+        ",
+            )
+            .map_err(|e| format!("{:?}", e))?;
+        contests
+            .iter()
+            .map(|contest| {
+                statement
+                    .execute(&[
+                        &contest.id,
+                        &contest.start_epoch_second,
+                        &contest.duration_second,
+                        &contest.title,
+                        &contest.rate_change,
+                    ])
+                    .map_err(|e| format!("{:?}", e))
+            })
+            .collect()
+    }
+
+    fn insert_problems(&self, problems: &[Problem]) -> Result<Vec<u64>, String> {
+        let conn = self.connect()?;
+        let statement = conn
+            .prepare(
+                r"
+            INSERT INTO problems (id, contest_id, title)
+            VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING
+        ",
+            )
+            .map_err(|e| format!("{:?}", e))?;
+        problems
+            .iter()
+            .map(|problem| {
+                statement
+                    .execute(&[&problem.id, &problem.contest_id, &problem.title])
+                    .map_err(|e| format!("{:?}", e))
             })
             .collect()
     }
@@ -82,6 +127,15 @@ mod tests {
         conn.batch_execute(&sql).unwrap();
     }
 
+    fn connect_to_test() -> SqlClient {
+        SqlClient {
+            user: "kenkoooo".to_owned(),
+            pass: "pass".to_owned(),
+            host: "localhost".to_owned(),
+            db: "test".to_owned(),
+        }
+    }
+
     #[test]
     fn test_insert_submission() {
         setup_test_db();
@@ -99,12 +153,7 @@ mod tests {
             execution_time: None,
         }];
 
-        let conn = SqlClient {
-            user: "kenkoooo".to_owned(),
-            pass: "pass".to_owned(),
-            host: "localhost".to_owned(),
-            db: "test".to_owned(),
-        };
+        let conn = connect_to_test();
         v[0].id = 1;
         conn.insert_submissions(&v).unwrap();
 
@@ -144,12 +193,7 @@ mod tests {
             execution_time: None,
         }];
 
-        let conn = SqlClient {
-            user: "kenkoooo".to_owned(),
-            pass: "pass".to_owned(),
-            host: "localhost".to_owned(),
-            db: "test".to_owned(),
-        };
+        let conn = connect_to_test();
 
         v[0].user_id = "kenkoooo".to_owned();
         conn.insert_submissions(&v).unwrap();
@@ -174,5 +218,81 @@ mod tests {
             .unwrap()
             .get(0);
         assert_eq!(user_id, "ooooknek".to_owned());
+    }
+
+    #[test]
+    fn test_insert_problems() {
+        setup_test_db();
+        let conn = connect_to_test();
+
+        let count = Connection::connect(URL, TlsMode::None)
+            .unwrap()
+            .query("SELECT id FROM problems", &[])
+            .unwrap()
+            .into_iter()
+            .count();
+        assert_eq!(count, 0);
+
+        let problems = vec![
+            Problem {
+                id: "arc001_a".to_owned(),
+                contest_id: "arc001".to_owned(),
+                title: "Problem 1".to_owned(),
+            },
+            Problem {
+                id: "arc001_b".to_owned(),
+                contest_id: "arc001".to_owned(),
+                title: "Problem 2".to_owned(),
+            },
+        ];
+        conn.insert_problems(&problems).unwrap();
+
+        let count = Connection::connect(URL, TlsMode::None)
+            .unwrap()
+            .query("SELECT id FROM problems", &[])
+            .unwrap()
+            .into_iter()
+            .count();
+        assert_eq!(count, 2);
+    }
+
+    #[test]
+    fn test_insert_contests() {
+        setup_test_db();
+        let conn = connect_to_test();
+
+        let count = Connection::connect(URL, TlsMode::None)
+            .unwrap()
+            .query("SELECT id FROM contests", &[])
+            .unwrap()
+            .into_iter()
+            .count();
+        assert_eq!(count, 0);
+
+        let contests = vec![
+            Contest {
+                id: "arc001".to_owned(),
+                start_epoch_second: 0,
+                duration_second: 0,
+                title: "Contest 1".to_owned(),
+                rate_change: "-".to_owned(),
+            },
+            Contest {
+                id: "arc002".to_owned(),
+                start_epoch_second: 0,
+                duration_second: 0,
+                title: "Contest 2".to_owned(),
+                rate_change: "-".to_owned(),
+            },
+        ];
+        conn.insert_contests(&contests).unwrap();
+
+        let count = Connection::connect(URL, TlsMode::None)
+            .unwrap()
+            .query("SELECT id FROM contests", &[])
+            .unwrap()
+            .into_iter()
+            .count();
+        assert_eq!(count, 2);
     }
 }
