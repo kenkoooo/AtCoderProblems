@@ -104,6 +104,41 @@ impl SqlClient {
             })
             .collect()
     }
+
+    fn get_problems(&self) -> Result<Vec<Problem>, String> {
+        let conn = self.connect()?;
+        conn.query("SELECT id, contest_id, title FROM problems", &[])
+            .map_err(|e| format!("{:?}", e))?
+            .into_iter()
+            .map(|row| {
+                Ok(Problem {
+                    id: row.get("id"),
+                    contest_id: row.get("contest_id"),
+                    title: row.get("title"),
+                })
+            })
+            .collect()
+    }
+
+    fn get_contests(&self) -> Result<Vec<Contest>, String> {
+        let conn = self.connect()?;
+        conn.query(
+            "SELECT id, start_epoch_second, duration_second, title, rate_change FROM contests",
+            &[],
+        )
+        .map_err(|e| format!("{:?}", e))?
+        .into_iter()
+        .map(|row| {
+            Ok(Contest {
+                id: row.get("id"),
+                start_epoch_second: row.get("start_epoch_second"),
+                duration_second: row.get("duration_second"),
+                title: row.get("title"),
+                rate_change: row.get("rate_change"),
+            })
+        })
+        .collect()
+    }
 }
 
 #[cfg(test)]
@@ -294,5 +329,79 @@ mod tests {
             .into_iter()
             .count();
         assert_eq!(count, 2);
+    }
+
+    #[test]
+    fn test_get_contests_problems() {
+        setup_test_db();
+        Connection::connect(URL, TlsMode::None)
+            .unwrap()
+            .batch_execute(
+                r"
+            INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change)
+            VALUES (1, 0, 0, 'Contest 1', '-'), (2, 0, 0, 'Contest 2', '-'), (3, 0, 0, 'Contest 3', '-');",
+            )
+            .unwrap();
+
+        let conn = connect_to_test();
+        let contests = conn.get_contests().unwrap();
+        assert_eq!(
+            vec![
+                Contest {
+                    id: "1".to_owned(),
+                    start_epoch_second: 0,
+                    duration_second: 0,
+                    title: "Contest 1".to_owned(),
+                    rate_change: "-".to_owned()
+                },
+                Contest {
+                    id: "2".to_owned(),
+                    start_epoch_second: 0,
+                    duration_second: 0,
+                    title: "Contest 2".to_owned(),
+                    rate_change: "-".to_owned()
+                },
+                Contest {
+                    id: "3".to_owned(),
+                    start_epoch_second: 0,
+                    duration_second: 0,
+                    title: "Contest 3".to_owned(),
+                    rate_change: "-".to_owned()
+                }
+            ],
+            contests
+        );
+
+        Connection::connect(URL, TlsMode::None)
+            .unwrap()
+            .batch_execute(
+                r"
+            INSERT INTO problems (id, contest_id, title)
+            VALUES ('problem_a', 'contest_a', 'Problem A'), ('problem_b', 'contest_a', 'Problem B'), ('problem_z', 'contest_b', 'Problem Z');",
+            )
+            .unwrap();
+
+        let conn = connect_to_test();
+        let problems = conn.get_problems().unwrap();
+        assert_eq!(
+            vec![
+                Problem {
+                    id: "problem_a".to_owned(),
+                    contest_id: "contest_a".to_owned(),
+                    title: "Problem A".to_owned()
+                },
+                Problem {
+                    id: "problem_b".to_owned(),
+                    contest_id: "contest_a".to_owned(),
+                    title: "Problem B".to_owned()
+                },
+                Problem {
+                    id: "problem_z".to_owned(),
+                    contest_id: "contest_b".to_owned(),
+                    title: "Problem Z".to_owned()
+                }
+            ],
+            problems
+        );
     }
 }
