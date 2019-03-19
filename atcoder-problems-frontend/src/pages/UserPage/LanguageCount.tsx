@@ -18,15 +18,15 @@ const LanguageCount = ({ submissions }: { submissions: Submission[] }) => {
 		.map(([ language, set ]) => ({ language, count: set.size }))
 		.sort((a, b) => a.language.localeCompare(b.language));
 	return (
-		<Row>
-			{language_count.map(({ language, count }) => (
-				<Col key={language} className="text-center col-sm-3 my-3">
-					<h3>{language}</h3>
-					<h5 className="text-muted">{count} AC</h5>
-				</Col>
-			))}
-		</Row>
-	);
+    <Row>
+      {language_count.map(({ language, count }) => (
+        <Col key={language} className="text-center col-sm-3 my-3">
+          <h6>{language}</h6>
+          <h3>{count}</h3>
+        </Col>
+      ))}
+    </Row>
+  );
 };
 
 export default LanguageCount;
