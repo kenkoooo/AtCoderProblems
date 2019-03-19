@@ -16,7 +16,7 @@ pub(crate) fn scrape_problems_from_html(html: &str, contest_id: &str) -> Option<
                 .next()?
                 .value()
                 .attr("href")?
-                .rsplit("/")
+                .rsplit('/')
                 .next()?
                 .to_owned();
             let title = problem.text().next()?.to_owned();

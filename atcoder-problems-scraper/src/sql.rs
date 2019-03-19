@@ -20,7 +20,7 @@ impl SqlClient {
         .map_err(|e| format!("{:?}", e))
     }
 
-    fn insert_submission(&self, submission: &Submission) -> Result<u64, String> {
+    fn insert_submissions(&self, submissions: &[Submission]) -> Result<Vec<u64>, String> {
         let conn = self.connect()?;
         let query = r"
         INSERT INTO submissions (
@@ -37,22 +37,27 @@ impl SqlClient {
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         ON CONFLICT (id) DO UPDATE SET user_id = $5
         ";
-        conn.execute(
-            query,
-            &[
-                &submission.id,
-                &submission.epoch_second,
-                &submission.problem_id,
-                &submission.contest_id,
-                &submission.user_id,
-                &submission.language,
-                &submission.point,
-                &submission.length,
-                &&submission.result,
-                &submission.execution_time,
-            ],
-        )
-        .map_err(|e| format!("{:?}", e))
+        submissions
+            .iter()
+            .map(|submission| {
+                conn.execute(
+                    query,
+                    &[
+                        &submission.id,
+                        &submission.epoch_second,
+                        &submission.problem_id,
+                        &submission.contest_id,
+                        &submission.user_id,
+                        &submission.language,
+                        &submission.point,
+                        &submission.length,
+                        &&submission.result,
+                        &submission.execution_time,
+                    ],
+                )
+                .map_err(|e| format!("{:?}", e))
+            })
+            .collect()
     }
 }
 
@@ -81,7 +86,7 @@ mod tests {
     fn test_insert_submission() {
         setup_test_db();
 
-        let mut s = Submission {
+        let mut v = vec![Submission {
             id: 0,
             epoch_second: 0,
             problem_id: "".to_owned(),
@@ -92,7 +97,7 @@ mod tests {
             length: 0,
             result: "".to_owned(),
             execution_time: None,
-        };
+        }];
 
         let conn = SqlClient {
             user: "kenkoooo".to_owned(),
@@ -100,8 +105,8 @@ mod tests {
             host: "localhost".to_owned(),
             db: "test".to_owned(),
         };
-        s.id = 1;
-        conn.insert_submission(&s).unwrap();
+        v[0].id = 1;
+        conn.insert_submissions(&v).unwrap();
 
         let count = Connection::connect(URL, TlsMode::None)
             .unwrap()
@@ -111,8 +116,8 @@ mod tests {
             .count();
         assert_eq!(count, 1);
 
-        s.id = 2;
-        conn.insert_submission(&s).unwrap();
+        v[0].id = 2;
+        conn.insert_submissions(&v).unwrap();
         let count = Connection::connect(URL, TlsMode::None)
             .unwrap()
             .query("SELECT id FROM submissions", &[])
@@ -126,7 +131,7 @@ mod tests {
     fn test_update_submission() {
         setup_test_db();
 
-        let mut s = Submission {
+        let mut v = vec![Submission {
             id: 0,
             epoch_second: 0,
             problem_id: "".to_owned(),
@@ -137,7 +142,7 @@ mod tests {
             length: 0,
             result: "".to_owned(),
             execution_time: None,
-        };
+        }];
 
         let conn = SqlClient {
             user: "kenkoooo".to_owned(),
@@ -146,8 +151,8 @@ mod tests {
             db: "test".to_owned(),
         };
 
-        s.user_id = "kenkoooo".to_owned();
-        conn.insert_submission(&s).unwrap();
+        v[0].user_id = "kenkoooo".to_owned();
+        conn.insert_submissions(&v).unwrap();
         let user_id: String = Connection::connect(URL, TlsMode::None)
             .unwrap()
             .query("SELECT user_id FROM submissions", &[])
@@ -158,8 +163,8 @@ mod tests {
             .get(0);
         assert_eq!(user_id, "kenkoooo".to_owned());
 
-        s.user_id = "ooooknek".to_owned();
-        conn.insert_submission(&s).unwrap();
+        v[0].user_id = "ooooknek".to_owned();
+        conn.insert_submissions(&v).unwrap();
         let user_id: String = Connection::connect(URL, TlsMode::None)
             .unwrap()
             .query("SELECT user_id FROM submissions", &[])
