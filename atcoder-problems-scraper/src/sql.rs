@@ -19,14 +19,13 @@ pub trait SqlClient {
 
 impl SqlClient for PgConnection {
     fn insert_submissions(&self, values: &[Submission]) -> Result<usize, String> {
-        // insert_into(submissions::table)
-        //     .values(values)
-        //     .on_conflict(submissions::id)
-        //     .do_update()
-        //     .set(submissions::user_id.eq(excluded(submissions::user_id)))
-        //     .execute(self)
-        //     .map_err(|e| format!("{:?}", e))
-        Ok(1)
+        insert_into(submissions::table)
+            .values(values)
+            .on_conflict(submissions::id)
+            .do_update()
+            .set(submissions::user_id.eq(excluded(submissions::user_id)))
+            .execute(self)
+            .map_err(|e| format!("{:?}", e))
     }
 
     fn insert_contests(&self, values: &[Contest]) -> Result<usize, String> {
