@@ -1,29 +1,31 @@
 services:
-- postgresql
+  - postgresql
 addons:
-  postgresql: '9.6'
+  postgresql: "9.6"
 matrix:
   include:
-  - language: scala
-    scala: 2.12.3
-    before_script:
-    - cd atcoder-problems-backend
-    - psql -c "CREATE USER kenkoooo PASSWORD 'pass';" -U postgres
-    - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
-    script:
-    - sbt clean coverage test coverageReport
-    - sbt assembly
-    after_success:
-    - bash <(curl -s https://codecov.io/bash)
-    - cd ../
-  - language: node_js
-    node_js: node
-    before_script:
-    - cd atcoder-problems-frontend
-    script:
-    - npm install yarn -g
-    - yarn
-    - npm run build
-    - npm test
-    after_success:
-    - cd ../
+    - language: rust
+      before_script:
+        - psql -c "CREATE USER kenkoooo PASSWORD 'pass';" -U postgres
+        - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
+      script:
+        - cd atcoder-problems-api-lambda/
+        - cargo build --release
+        - cargo test
+        - cd ../
+        - cd atcoder-problems-scraper/
+        - cargo build --release
+        - cargo test
+        - cd ../
+
+    - language: node_js
+      node_js: node
+      before_script:
+        - cd atcoder-problems-frontend
+      script:
+        - npm install yarn -g
+        - yarn
+        - npm run build
+        - npm test
+      after_success:
+        - cd ../
