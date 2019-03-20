@@ -8,81 +8,61 @@ use diesel::pg::upsert::excluded;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 
-pub struct SqlClient {
-    user: String,
-    pass: String,
-    host: String,
-    db: String,
+pub trait SqlClient {
+    fn insert_submissions(&self, values: &[Submission]) -> Result<usize, String>;
+    fn insert_contests(&self, values: &[Contest]) -> Result<usize, String>;
+    fn insert_problems(&self, values: &[Problem]) -> Result<usize, String>;
+    fn get_problems(&self) -> Result<Vec<Problem>, String>;
+    fn get_contests(&self) -> Result<Vec<Contest>, String>;
+    fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String>;
 }
 
-impl SqlClient {
-    pub fn new(user: &str, pass: &str, host: &str, db: &str) -> Self {
-        Self {
-            user: user.to_owned(),
-            pass: pass.to_owned(),
-            host: host.to_owned(),
-            db: db.to_owned(),
-        }
+impl SqlClient for PgConnection {
+    fn insert_submissions(&self, values: &[Submission]) -> Result<usize, String> {
+        // insert_into(submissions::table)
+        //     .values(values)
+        //     .on_conflict(submissions::id)
+        //     .do_update()
+        //     .set(submissions::user_id.eq(excluded(submissions::user_id)))
+        //     .execute(self)
+        //     .map_err(|e| format!("{:?}", e))
+        Ok(1)
     }
 
-    fn connect(&self) -> Result<PgConnection, String> {
-        let url = format!(
-            "postgresql://{}:{}@{}/{}",
-            self.user, self.pass, self.host, self.db
-        );
-        PgConnection::establish(&url).map_err(|e| format!("{:?}", e))
-    }
-
-    pub fn insert_submissions(&self, values: &[Submission]) -> Result<usize, String> {
-        let conn = self.connect()?;
-        insert_into(submissions::table)
-            .values(values)
-            .on_conflict(submissions::id)
-            .do_update()
-            .set(submissions::user_id.eq(excluded(submissions::user_id)))
-            .execute(&conn)
-            .map_err(|e| format!("{:?}", e))
-    }
-
-    pub fn insert_contests(&self, values: &[Contest]) -> Result<usize, String> {
-        let conn = self.connect()?;
+    fn insert_contests(&self, values: &[Contest]) -> Result<usize, String> {
         insert_into(contests::table)
             .values(values)
             .on_conflict(contests::id)
             .do_nothing()
-            .execute(&conn)
+            .execute(self)
             .map_err(|e| format!("{:?}", e))
     }
 
-    pub fn insert_problems(&self, values: &[Problem]) -> Result<usize, String> {
-        let conn = self.connect()?;
+    fn insert_problems(&self, values: &[Problem]) -> Result<usize, String> {
         insert_into(problems::table)
             .values(values)
             .on_conflict(problems::id)
             .do_nothing()
-            .execute(&conn)
+            .execute(self)
             .map_err(|e| format!("{:?}", e))
     }
 
-    pub fn get_problems(&self) -> Result<Vec<Problem>, String> {
-        let conn = self.connect()?;
+    fn get_problems(&self) -> Result<Vec<Problem>, String> {
         problems::dsl::problems
-            .load::<Problem>(&conn)
+            .load::<Problem>(self)
             .map_err(|e| format!("{:?}", e))
     }
 
-    pub fn get_contests(&self) -> Result<Vec<Contest>, String> {
-        let conn = self.connect()?;
+    fn get_contests(&self) -> Result<Vec<Contest>, String> {
         contests::dsl::contests
-            .load::<Contest>(&conn)
+            .load::<Contest>(self)
             .map_err(|e| format!("{:?}", e))
     }
 
-    pub fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String> {
-        let conn = self.connect()?;
+    fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String> {
         submissions::dsl::submissions
             .filter(submissions::user_id.eq(user_id))
-            .load::<Submission>(&conn)
+            .load::<Submission>(self)
             .map_err(|e| format!("{:?}", e))
     }
 }
@@ -109,13 +89,15 @@ mod tests {
         conn.batch_execute(&sql).unwrap();
     }
 
-    fn connect_to_test() -> SqlClient {
-        SqlClient {
-            user: "kenkoooo".to_owned(),
-            pass: "pass".to_owned(),
-            host: "localhost".to_owned(),
-            db: "test".to_owned(),
-        }
+    fn connect_to_test() -> PgConnection {
+        PgConnection::establish("postgres://kenkoooo:pass@localhost/test").expect(
+            r"
+            Please prepare a database on your localhost with the following properties.
+            database:   test
+            username:   kenkoooo
+            password:   pass
+            ",
+        )
     }
 
     #[test]
