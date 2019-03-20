@@ -3,11 +3,10 @@ pub mod query;
 use crate::schema::{contests, problems, submissions};
 use crate::{Contest, Problem, Submission};
 
-use diesel::dsl::{insert_into, sql_query};
+use diesel::dsl::insert_into;
 use diesel::pg::upsert::excluded;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use diesel::sql_types::VarChar;
 
 pub struct SqlClient {
     user: String,
