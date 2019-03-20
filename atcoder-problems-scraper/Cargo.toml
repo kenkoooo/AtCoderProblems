@@ -11,7 +11,6 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 chrono = "0.4"
 regex = "1"
-postgres = "0.15"
 env_logger = "0.6.1"
 log = "0.4.6"
 lambda_runtime = "^0.1"

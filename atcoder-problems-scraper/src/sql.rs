@@ -1,7 +1,13 @@
 pub mod query;
 
+use crate::schema::{contests, problems, submissions};
 use crate::{Contest, Problem, Submission};
-use postgres::{Connection, TlsMode};
+
+use diesel::dsl::{insert_into, sql_query};
+use diesel::pg::upsert::excluded;
+use diesel::pg::PgConnection;
+use diesel::prelude::*;
+use diesel::sql_types::VarChar;
 
 pub struct SqlClient {
     user: String,
@@ -20,141 +26,72 @@ impl SqlClient {
         }
     }
 
-    fn connect(&self) -> Result<Connection, String> {
-        Connection::connect(
-            format!(
-                "postgresql://{}:{}@{}/{}",
-                self.user, self.pass, self.host, self.db
-            ),
-            TlsMode::None,
-        )
-        .map_err(|e| format!("{:?}", e))
+    fn connect(&self) -> Result<PgConnection, String> {
+        let url = format!(
+            "postgresql://{}:{}@{}/{}",
+            self.user, self.pass, self.host, self.db
+        );
+        PgConnection::establish(&url).map_err(|e| format!("{:?}", e))
     }
 
-    pub fn insert_submissions(&self, submissions: &[Submission]) -> Result<Vec<u64>, String> {
+    pub fn insert_submissions(&self, values: &[Submission]) -> Result<usize, String> {
         let conn = self.connect()?;
-        let query = r"
-        INSERT INTO submissions (
-            id,
-            epoch_second,
-            problem_id,
-            contest_id,
-            user_id,
-            language,
-            point,
-            length,
-            result,
-            execution_time
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ON CONFLICT (id) DO UPDATE SET user_id = $5
-        ";
-        let statement = conn.prepare(query).map_err(|e| format!("{:?}", e))?;
-        submissions
-            .iter()
-            .map(|submission| {
-                statement
-                    .execute(&[
-                        &submission.id,
-                        &submission.epoch_second,
-                        &submission.problem_id,
-                        &submission.contest_id,
-                        &submission.user_id,
-                        &submission.language,
-                        &submission.point,
-                        &submission.length,
-                        &&submission.result,
-                        &submission.execution_time,
-                    ])
-                    .map_err(|e| format!("{:?}", e))
-            })
-            .collect()
+        insert_into(submissions::table)
+            .values(values)
+            .on_conflict(submissions::id)
+            .do_update()
+            .set(submissions::user_id.eq(excluded(submissions::user_id)))
+            .execute(&conn)
+            .map_err(|e| format!("{:?}", e))
     }
 
-    pub fn insert_contests(&self, contests: &[Contest]) -> Result<Vec<u64>, String> {
+    pub fn insert_contests(&self, values: &[Contest]) -> Result<usize, String> {
         let conn = self.connect()?;
-        let statement = conn
-            .prepare(
-                r"
-            INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change)
-            VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id) DO NOTHING
-        ",
-            )
-            .map_err(|e| format!("{:?}", e))?;
-        contests
-            .iter()
-            .map(|contest| {
-                statement
-                    .execute(&[
-                        &contest.id,
-                        &contest.start_epoch_second,
-                        &contest.duration_second,
-                        &contest.title,
-                        &contest.rate_change,
-                    ])
-                    .map_err(|e| format!("{:?}", e))
-            })
-            .collect()
+        insert_into(contests::table)
+            .values(values)
+            .on_conflict(contests::id)
+            .do_nothing()
+            .execute(&conn)
+            .map_err(|e| format!("{:?}", e))
     }
 
-    pub fn insert_problems(&self, problems: &[Problem]) -> Result<Vec<u64>, String> {
+    pub fn insert_problems(&self, values: &[Problem]) -> Result<usize, String> {
         let conn = self.connect()?;
-        let statement = conn
-            .prepare(
-                r"
-            INSERT INTO problems (id, contest_id, title)
-            VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING
-        ",
-            )
-            .map_err(|e| format!("{:?}", e))?;
-        problems
-            .iter()
-            .map(|problem| {
-                statement
-                    .execute(&[&problem.id, &problem.contest_id, &problem.title])
-                    .map_err(|e| format!("{:?}", e))
-            })
-            .collect()
+        insert_into(problems::table)
+            .values(values)
+            .on_conflict(problems::id)
+            .do_nothing()
+            .execute(&conn)
+            .map_err(|e| format!("{:?}", e))
     }
 
     pub fn get_problems(&self) -> Result<Vec<Problem>, String> {
         let conn = self.connect()?;
-        conn.query("SELECT id, contest_id, title FROM problems", &[])
-            .map_err(|e| format!("{:?}", e))?
-            .into_iter()
-            .map(|row| {
-                Ok(Problem {
-                    id: row.get("id"),
-                    contest_id: row.get("contest_id"),
-                    title: row.get("title"),
-                })
-            })
-            .collect()
+        problems::dsl::problems
+            .load::<Problem>(&conn)
+            .map_err(|e| format!("{:?}", e))
     }
 
     pub fn get_contests(&self) -> Result<Vec<Contest>, String> {
         let conn = self.connect()?;
-        conn.query(
-            "SELECT id, start_epoch_second, duration_second, title, rate_change FROM contests",
-            &[],
-        )
-        .map_err(|e| format!("{:?}", e))?
-        .into_iter()
-        .map(|row| {
-            Ok(Contest {
-                id: row.get("id"),
-                start_epoch_second: row.get("start_epoch_second"),
-                duration_second: row.get("duration_second"),
-                title: row.get("title"),
-                rate_change: row.get("rate_change"),
-            })
-        })
-        .collect()
+        contests::dsl::contests
+            .load::<Contest>(&conn)
+            .map_err(|e| format!("{:?}", e))
+    }
+
+    pub fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String> {
+        let conn = self.connect()?;
+        submissions::dsl::submissions
+            .filter(submissions::user_id.eq(user_id))
+            .load::<Submission>(&conn)
+            .map_err(|e| format!("{:?}", e))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use diesel::connection::SimpleConnection;
     use std::fs::File;
     use std::io::prelude::*;
 
@@ -168,7 +105,7 @@ mod tests {
     }
 
     fn setup_test_db() {
-        let conn = Connection::connect(URL, TlsMode::None).unwrap();
+        let conn = PgConnection::establish(URL).unwrap();
         let sql = read_file("../config/database-definition.sql");
         conn.batch_execute(&sql).unwrap();
     }
@@ -203,9 +140,8 @@ mod tests {
         v[0].id = 1;
         conn.insert_submissions(&v).unwrap();
 
-        let count = Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .query("SELECT id FROM submissions", &[])
+        let count = submissions::dsl::submissions
+            .load::<Submission>(&PgConnection::establish(&URL).unwrap())
             .unwrap()
             .into_iter()
             .count();
@@ -213,9 +149,8 @@ mod tests {
 
         v[0].id = 2;
         conn.insert_submissions(&v).unwrap();
-        let count = Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .query("SELECT id FROM submissions", &[])
+        let count = submissions::dsl::submissions
+            .load::<Submission>(&PgConnection::establish(&URL).unwrap())
             .unwrap()
             .into_iter()
             .count();
@@ -236,34 +171,20 @@ mod tests {
             point: 0.0,
             length: 0,
             result: "".to_owned(),
-            execution_time: None,
+            execution_time: Some(10),
         }];
 
         let conn = connect_to_test();
 
         v[0].user_id = "kenkoooo".to_owned();
         conn.insert_submissions(&v).unwrap();
-        let user_id: String = Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .query("SELECT user_id FROM submissions", &[])
-            .unwrap()
-            .into_iter()
-            .next()
-            .unwrap()
-            .get(0);
-        assert_eq!(user_id, "kenkoooo".to_owned());
+        assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 1);
 
         v[0].user_id = "ooooknek".to_owned();
         conn.insert_submissions(&v).unwrap();
-        let user_id: String = Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .query("SELECT user_id FROM submissions", &[])
-            .unwrap()
-            .into_iter()
-            .next()
-            .unwrap()
-            .get(0);
-        assert_eq!(user_id, "ooooknek".to_owned());
+        println!("{:?}", conn.get_submissions("kenkoooo").unwrap());
+        assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 0);
+        assert_eq!(conn.get_submissions("ooooknek").unwrap().len(), 1);
     }
 
     #[test]
@@ -271,13 +192,7 @@ mod tests {
         setup_test_db();
         let conn = connect_to_test();
 
-        let count = Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .query("SELECT id FROM problems", &[])
-            .unwrap()
-            .into_iter()
-            .count();
-        assert_eq!(count, 0);
+        assert_eq!(conn.get_problems().unwrap().len(), 0);
 
         let problems = vec![
             Problem {
@@ -292,14 +207,7 @@ mod tests {
             },
         ];
         conn.insert_problems(&problems).unwrap();
-
-        let count = Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .query("SELECT id FROM problems", &[])
-            .unwrap()
-            .into_iter()
-            .count();
-        assert_eq!(count, 2);
+        assert_eq!(conn.get_problems().unwrap().len(), 2);
     }
 
     #[test]
@@ -307,13 +215,7 @@ mod tests {
         setup_test_db();
         let conn = connect_to_test();
 
-        let count = Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .query("SELECT id FROM contests", &[])
-            .unwrap()
-            .into_iter()
-            .count();
-        assert_eq!(count, 0);
+        assert_eq!(conn.get_contests().unwrap().len(), 0);
 
         let contests = vec![
             Contest {
@@ -333,86 +235,6 @@ mod tests {
         ];
         conn.insert_contests(&contests).unwrap();
 
-        let count = Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .query("SELECT id FROM contests", &[])
-            .unwrap()
-            .into_iter()
-            .count();
-        assert_eq!(count, 2);
-    }
-
-    #[test]
-    fn test_get_contests_problems() {
-        setup_test_db();
-        Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .batch_execute(
-                r"
-            INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change)
-            VALUES (1, 0, 0, 'Contest 1', '-'), (2, 0, 0, 'Contest 2', '-'), (3, 0, 0, 'Contest 3', '-');",
-            )
-            .unwrap();
-
-        let conn = connect_to_test();
-        let contests = conn.get_contests().unwrap();
-        assert_eq!(
-            vec![
-                Contest {
-                    id: "1".to_owned(),
-                    start_epoch_second: 0,
-                    duration_second: 0,
-                    title: "Contest 1".to_owned(),
-                    rate_change: "-".to_owned()
-                },
-                Contest {
-                    id: "2".to_owned(),
-                    start_epoch_second: 0,
-                    duration_second: 0,
-                    title: "Contest 2".to_owned(),
-                    rate_change: "-".to_owned()
-                },
-                Contest {
-                    id: "3".to_owned(),
-                    start_epoch_second: 0,
-                    duration_second: 0,
-                    title: "Contest 3".to_owned(),
-                    rate_change: "-".to_owned()
-                }
-            ],
-            contests
-        );
-
-        Connection::connect(URL, TlsMode::None)
-            .unwrap()
-            .batch_execute(
-                r"
-            INSERT INTO problems (id, contest_id, title)
-            VALUES ('problem_a', 'contest_a', 'Problem A'), ('problem_b', 'contest_a', 'Problem B'), ('problem_z', 'contest_b', 'Problem Z');",
-            )
-            .unwrap();
-
-        let conn = connect_to_test();
-        let problems = conn.get_problems().unwrap();
-        assert_eq!(
-            vec![
-                Problem {
-                    id: "problem_a".to_owned(),
-                    contest_id: "contest_a".to_owned(),
-                    title: "Problem A".to_owned()
-                },
-                Problem {
-                    id: "problem_b".to_owned(),
-                    contest_id: "contest_a".to_owned(),
-                    title: "Problem B".to_owned()
-                },
-                Problem {
-                    id: "problem_z".to_owned(),
-                    contest_id: "contest_b".to_owned(),
-                    title: "Problem Z".to_owned()
-                }
-            ],
-            problems
-        );
+        assert_eq!(conn.get_contests().unwrap().len(), 2);
     }
 }
