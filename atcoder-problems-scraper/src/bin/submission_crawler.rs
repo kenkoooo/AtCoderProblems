@@ -11,9 +11,9 @@ fn main() {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
-    let user = env::var("SQL_USER").unwrap();
-    let pass = env::var("SQL_PASS").unwrap();
-    let host = env::var("SQL_HOST").unwrap();
+    let user = env::var("SQL_USER").expect("SQL_USER must be set");
+    let pass = env::var("SQL_PASS").expect("SQL_PASS must be set");
+    let host = env::var("SQL_HOST").expect("SQL_HOST must be set");
     let conn = SqlClient::new(&user, &pass, &host, "atcoder");
     let conn = Arc::new(conn);
 
