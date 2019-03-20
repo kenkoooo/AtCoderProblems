@@ -1,5 +1,7 @@
 use atcoder_problems_scraper::scraper;
 use atcoder_problems_scraper::sql::SqlClient;
+use diesel::pg::PgConnection;
+use diesel::prelude::*;
 use env_logger;
 use log::{error, info};
 use std::collections::HashSet;
@@ -10,10 +12,8 @@ fn main() {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
-    let user = env::var("SQL_USER").unwrap();
-    let pass = env::var("SQL_PASS").unwrap();
-    let host = env::var("SQL_HOST").unwrap();
-    let conn = SqlClient::new(&user, &pass, &host, "atcoder");
+    let url = env::var("SQL_URL").expect("SQL_URL must be set.");
+    let conn = PgConnection::establish(&url).unwrap();
 
     loop {
         info!("Starting...");
