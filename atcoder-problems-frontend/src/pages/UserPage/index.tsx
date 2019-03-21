@@ -131,10 +131,10 @@ class UserPage extends React.Component<Props, State> {
 		const fastest_rank = get_rank(user_id, this.state.fast_ranking);
 		const first_rank = get_rank(user_id, this.state.first_ranking);
 
-		const climing_data = this.state.daily_data.map((d) => Object.assign({}, d));
-		climing_data.forEach((_, i) => {
+		const climbing_data = this.state.daily_data.map((d) => Object.assign({}, d));
+		climbing_data.forEach((_, i) => {
 			if (i > 0) {
-				climing_data[i].count += climing_data[i - 1].count;
+				climbing_data[i].count += climbing_data[i - 1].count;
 			}
 		});
 
@@ -249,9 +249,9 @@ class UserPage extends React.Component<Props, State> {
 				<DailyEffortBarChart daily_data={this.state.daily_data} />
 
 				<Row className="my-2 border-bottom">
-					<h1>Climing</h1>
+					<h1>Climbing</h1>
 				</Row>
-				<ClimbingLineChart climbing_data={climing_data} />
+				<ClimbingLineChart climbing_data={climbing_data} />
 
 				<Row className="my-2 border-bottom">
 					<h1>Heatmap</h1>

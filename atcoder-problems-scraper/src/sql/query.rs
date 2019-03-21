@@ -51,7 +51,7 @@ impl SqlUpdater for PgConnection {
 
     fn update_language_count(&self) -> QueryResult<()> {
         self.batch_execute(r"
-    DELETE FROM langauge_count;
+    DELETE FROM language_count;
     INSERT INTO language_count (user_id, simplified_language, problem_count)
     SELECT user_id, simplified_language, COUNT(DISTINCT(problem_id)) FROM (
         SELECT regexp_replace(language, '((?<!Perl)\d*|) \(.*\)', '') AS simplified_language, user_id, problem_id
