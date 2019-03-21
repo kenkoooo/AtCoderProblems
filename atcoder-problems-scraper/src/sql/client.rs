@@ -21,7 +21,10 @@ impl SqlClient for PgConnection {
             .values(values)
             .on_conflict(submissions::id)
             .do_update()
-            .set(submissions::user_id.eq(excluded(submissions::user_id)))
+            .set((
+                submissions::user_id.eq(excluded(submissions::user_id)),
+                submissions::result.eq(excluded(submissions::result)),
+            ))
             .execute(self)
             .map_err(|e| format!("{:?}", e))
     }

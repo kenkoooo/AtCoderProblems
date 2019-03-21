@@ -100,14 +100,23 @@ mod tests {
         let conn = connect_to_test();
 
         v[0].user_id = "kenkoooo".to_owned();
+        v[0].result = "WJ".to_owned();
         conn.insert_submissions(&v).unwrap();
         assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 1);
+        assert_eq!(
+            conn.get_submissions("kenkoooo").unwrap()[0].result,
+            "WJ".to_owned()
+        );
 
         v[0].user_id = "a".to_owned();
+        v[0].result = "AC".to_owned();
         conn.insert_submissions(&v).unwrap();
-        println!("{:?}", conn.get_submissions("kenkoooo").unwrap());
         assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 0);
         assert_eq!(conn.get_submissions("a").unwrap().len(), 1);
+        assert_eq!(
+            conn.get_submissions("a").unwrap()[0].result,
+            "AC".to_owned()
+        );
     }
 
     #[test]
