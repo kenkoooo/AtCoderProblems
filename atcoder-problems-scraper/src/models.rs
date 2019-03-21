@@ -16,7 +16,7 @@ pub struct Problem {
     pub(crate) title: String,
 }
 
-#[derive(Debug, Queryable, Insertable)]
+#[derive(Debug, Queryable, Insertable, Clone)]
 pub struct Submission {
     pub(crate) id: i64,
     pub(crate) epoch_second: i64,

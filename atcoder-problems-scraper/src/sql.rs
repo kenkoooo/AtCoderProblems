@@ -1,75 +1,18 @@
-pub mod query;
+mod client;
+mod updater;
 
-use crate::schema::{contests, problems, submissions};
-use crate::{Contest, Problem, Submission};
-
-use diesel::dsl::insert_into;
-use diesel::pg::upsert::excluded;
-use diesel::pg::PgConnection;
-use diesel::prelude::*;
-
-pub trait SqlClient {
-    fn insert_submissions(&self, values: &[Submission]) -> Result<usize, String>;
-    fn insert_contests(&self, values: &[Contest]) -> Result<usize, String>;
-    fn insert_problems(&self, values: &[Problem]) -> Result<usize, String>;
-    fn get_problems(&self) -> Result<Vec<Problem>, String>;
-    fn get_contests(&self) -> Result<Vec<Contest>, String>;
-    fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String>;
-}
-
-impl SqlClient for PgConnection {
-    fn insert_submissions(&self, values: &[Submission]) -> Result<usize, String> {
-        insert_into(submissions::table)
-            .values(values)
-            .on_conflict(submissions::id)
-            .do_update()
-            .set(submissions::user_id.eq(excluded(submissions::user_id)))
-            .execute(self)
-            .map_err(|e| format!("{:?}", e))
-    }
-
-    fn insert_contests(&self, values: &[Contest]) -> Result<usize, String> {
-        insert_into(contests::table)
-            .values(values)
-            .on_conflict(contests::id)
-            .do_nothing()
-            .execute(self)
-            .map_err(|e| format!("{:?}", e))
-    }
-
-    fn insert_problems(&self, values: &[Problem]) -> Result<usize, String> {
-        insert_into(problems::table)
-            .values(values)
-            .on_conflict(problems::id)
-            .do_nothing()
-            .execute(self)
-            .map_err(|e| format!("{:?}", e))
-    }
-
-    fn get_problems(&self) -> Result<Vec<Problem>, String> {
-        problems::dsl::problems
-            .load::<Problem>(self)
-            .map_err(|e| format!("{:?}", e))
-    }
-
-    fn get_contests(&self) -> Result<Vec<Contest>, String> {
-        contests::dsl::contests
-            .load::<Contest>(self)
-            .map_err(|e| format!("{:?}", e))
-    }
-
-    fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String> {
-        submissions::dsl::submissions
-            .filter(submissions::user_id.eq(user_id))
-            .load::<Submission>(self)
-            .map_err(|e| format!("{:?}", e))
-    }
-}
+pub use client::SqlClient;
+pub use updater::SqlUpdater;
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::schema::*;
+    use crate::{Contest, Problem, Submission};
     use diesel::connection::SimpleConnection;
+    use diesel::prelude::*;
+    use diesel::Connection;
+    use diesel::PgConnection;
     use std::fs::File;
     use std::io::prelude::*;
 
@@ -160,11 +103,11 @@ mod tests {
         conn.insert_submissions(&v).unwrap();
         assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 1);
 
-        v[0].user_id = "ooooknek".to_owned();
+        v[0].user_id = "a".to_owned();
         conn.insert_submissions(&v).unwrap();
         println!("{:?}", conn.get_submissions("kenkoooo").unwrap());
         assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 0);
-        assert_eq!(conn.get_submissions("ooooknek").unwrap().len(), 1);
+        assert_eq!(conn.get_submissions("a").unwrap().len(), 1);
     }
 
     #[test]
@@ -216,5 +159,44 @@ mod tests {
         conn.insert_contests(&contests).unwrap();
 
         assert_eq!(conn.get_contests().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn test_update_accepted_count() {
+        setup_test_db();
+        let conn = connect_to_test();
+
+        conn.insert_submissions(
+            &[
+                ("user1", "problem1"),
+                ("user1", "problem1"),
+                ("user1", "problem2"),
+                ("user2", "problem1"),
+            ]
+            .into_iter()
+            .enumerate()
+            .map(|(i, (user, problem))| Submission {
+                id: i as i64,
+                epoch_second: 0,
+                problem_id: problem.to_string(),
+                contest_id: "".to_string(),
+                user_id: user.to_string(),
+                language: "".to_string(),
+                point: 0.0,
+                length: 0,
+                result: "AC".to_string(),
+                execution_time: Some(10),
+            })
+            .collect::<Vec<_>>(),
+        )
+        .unwrap();
+        conn.update_accepted_count().unwrap();
+
+        let mut v = accepted_count::table
+            .select((accepted_count::user_id, accepted_count::problem_count))
+            .load::<(String, i32)>(&conn)
+            .unwrap();
+        v.sort_by_key(|&(_, x)| x);
+        assert_eq!(v, vec![("user2".to_string(), 1), ("user1".to_string(), 2)]);
     }
 }
