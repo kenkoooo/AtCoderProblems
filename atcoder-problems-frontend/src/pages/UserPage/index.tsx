@@ -186,7 +186,7 @@ class UserPage extends React.Component<Props, State> {
 						<h6>Rated Point Sum</h6>
 						<h3>{user_info.rated_point_sum} pt</h3>
 						<h6 className="text-muted">{`${user_info.rated_point_sum_rank + 1}${ordinalSuffixOf(
-							user_info.rated_point_sum + 1
+							user_info.rated_point_sum_rank + 1
 						)}`}</h6>
 					</Col>
 					<Col key="Longest Streak" className="text-center">
