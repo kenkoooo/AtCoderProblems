@@ -1,18 +1,42 @@
-const UPDATE_ACCEPTED_COUNT: &str = r"
+use crate::schema::{accepted_count, contests, problems, submissions};
+
+use diesel::pg::Pg;
+use diesel::prelude::*;
+use diesel::PgConnection;
+use diesel::{connection::SimpleConnection, QueryResult};
+
+pub trait SqlUpdater {
+    fn update_accepted_count(&self) -> QueryResult<()>;
+    fn update_problem_solver_count(&self) -> QueryResult<()>;
+    fn update_rated_point_sums(&self) -> QueryResult<()>;
+    fn update_language_count(&self) -> QueryResult<()>;
+}
+
+impl SqlUpdater for PgConnection {
+    fn update_accepted_count(&self) -> QueryResult<()> {
+        self.batch_execute(
+            r"
     DELETE FROM accepted_count;
     INSERT INTO accepted_count (user_id, problem_count)
     SELECT user_id, count(distinct(problem_id)) FROM submissions WHERE result='AC'
     GROUP BY user_id;
-";
-
-const UPDATE_PROBLEM_SOLVER_COUNT: &str = r"
+            ",
+        )
+    }
+    fn update_problem_solver_count(&self) -> QueryResult<()> {
+        self.batch_execute(
+            r"
     DELETE FROM solver;
     INSERT INTO solver (user_count, problem_id)
     SELECT COUNT(DISTINCT(user_id)), problem_id FROM submissions WHERE result='AC'
     GROUP BY problem_id;
-";
+            ",
+        )
+    }
 
-const UPDATE_RATED_POINT_SUMS: &str = r"
+    fn update_rated_point_sums(&self) -> QueryResult<()> {
+        self.batch_execute(
+            r"
     DELETE FROM rated_point_sum;
     INSERT INTO rated_point_sum (point_sum, user_id)
     SELECT SUM(point), user_id FROM (
@@ -22,16 +46,20 @@ const UPDATE_RATED_POINT_SUMS: &str = r"
         AND points.point IS NOT NULL
         AND submissions.user_id NOT LIKE 'vjudge_' 
     ) AS sub GROUP BY user_id;        
-";
+        ")
+    }
 
-const UPDATE_LANGUAGE_COUNT: &str = r"
+    fn update_language_count(&self) -> QueryResult<()> {
+        self.batch_execute(r"
     DELETE FROM langauge_count;
     INSERT INTO language_count (user_id, simplified_language, problem_count)
     SELECT user_id, simplified_language, COUNT(DISTINCT(problem_id)) FROM (
         SELECT regexp_replace(language, '((?<!Perl)\d*|) \(.*\)', '') AS simplified_language, user_id, problem_id
         FROM submissions WHERE result='AC'
     ) AS sub GROUP BY (simplified_language, user_id);
-";
+                ")
+    }
+}
 
 const UPDATE_GREAT_SUBMISSIONS: &str = r"
     DELETE FROM {table};
