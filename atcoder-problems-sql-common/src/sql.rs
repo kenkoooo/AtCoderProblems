@@ -13,6 +13,7 @@ mod tests {
     use diesel::prelude::*;
     use diesel::Connection;
     use diesel::PgConnection;
+    use std::collections::HashMap;
     use std::fs::File;
     use std::io::prelude::*;
 
@@ -417,5 +418,78 @@ mod tests {
             .load::<(String, i32)>(&conn)
             .unwrap();
         assert_eq!(v, vec![("user3".to_owned(), 1)]);
+    }
+
+    #[test]
+    fn test_update_problem_points() {
+        setup_test_db();
+        let first_agc_time = 1468670400;
+
+        let conn = connect_to_test();
+        conn.insert_contests(&[
+            Contest {
+                // rated contest
+                title: "".to_owned(),
+                id: "rated1".to_owned(),
+                start_epoch_second: first_agc_time + 100,
+                duration_second: 0,
+                rate_change: "".to_owned(),
+            },
+            Contest {
+                // unrated contest
+                title: "".to_owned(),
+                id: "unrated1".to_owned(),
+                start_epoch_second: first_agc_time + 100,
+                duration_second: 0,
+                rate_change: "-".to_owned(),
+            },
+            Contest {
+                // unrated contest
+                title: "".to_owned(),
+                id: "unrated2".to_owned(),
+                start_epoch_second: 0,
+                duration_second: 0,
+                rate_change: "".to_owned(),
+            },
+        ])
+        .unwrap();
+
+        let submissions = [
+            ("problem1", "rated1", 10.0),
+            ("problem1", "rated1", 100.0),
+            ("problem2", "rated1", 10.0),
+            ("problem3", "unrated1", 10.0),
+            ("problem1", "unrated2", 10.0),
+        ]
+        .into_iter()
+        .enumerate()
+        .map(|(i, &(problem, contest, point))| Submission {
+            id: i as i64,
+            epoch_second: 0,
+            problem_id: problem.to_string(),
+            contest_id: contest.to_string(),
+            user_id: "".to_string(),
+            language: "".to_string(),
+            point: point,
+            length: 0,
+            result: "AC".to_string(),
+            execution_time: Some(10),
+        })
+        .collect::<Vec<_>>();
+        conn.insert_submissions(&submissions).unwrap();
+        conn.update_problem_points().unwrap();
+
+        let points = points::table
+            .select((points::problem_id, points::point))
+            .load::<(String, Option<f64>)>(&conn)
+            .unwrap()
+            .into_iter()
+            .collect::<HashMap<_, _>>();
+
+        let mut expected = HashMap::new();
+        expected.insert("problem1".to_owned(), Some(100.0));
+        expected.insert("problem2".to_owned(), Some(10.0));
+
+        assert_eq!(points, expected);
     }
 }
