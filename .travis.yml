@@ -25,7 +25,6 @@ matrix:
       script:
         - npm install yarn -g
         - yarn
-        - npm run build
-        - npm test
+        - yarn build
       after_success:
         - cd ../
