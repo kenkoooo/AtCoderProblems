@@ -11,7 +11,6 @@ use std::env;
 use std::error::Error;
 
 use atcoder_problems_api_lambda::sql::{ConnectorTrait, SqlConnector};
-use atcoder_problems_api_lambda::{Submission, UserInfo};
 
 #[derive(Serialize, Clone)]
 struct CustomOutput {
