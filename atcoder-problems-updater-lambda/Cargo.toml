@@ -10,6 +10,8 @@ lambda_runtime = "^0.1"
 diesel = { version = "1.4.2", features = ["postgres"] }
 openssl-probe = "0.1.2"
 openssl = "*"
+log = "^0.4"
+simple_logger = "^1"
 
 [[bin]]
 name = "bootstrap"
