@@ -10,14 +10,14 @@ matrix:
         - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
       script:
         - cd atcoder-problems-api-lambda/
-        - cargo build --release
         - cargo test
         - cd ../
         - cd atcoder-problems-scraper/
-        - cargo build --release
         - cargo test
         - cd ../
-
+        - cd atcoder-problems-sql-common/
+        - RUST_TEST_THREADS=1 cargo test
+        - cd ../
     - language: node_js
       node_js: node
       before_script:
