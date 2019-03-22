@@ -8,7 +8,7 @@ pub use updater::SqlUpdater;
 mod tests {
     use super::*;
     use crate::schema::*;
-    use crate::{Contest, Problem, Submission};
+    use crate::models::{Contest, Problem, Submission};
     use diesel::connection::SimpleConnection;
     use diesel::prelude::*;
     use diesel::Connection;
