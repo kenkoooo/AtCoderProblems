@@ -17,3 +17,5 @@ lambda_runtime = "^0.1"
 diesel = { version = "1.4.2", features = ["postgres"] }
 r2d2 = "0.8.3"
 r2d2-diesel = "1.0.0"
+
+atcoder-problems-sql-common = { path = "../atcoder-problems-sql-common" }
