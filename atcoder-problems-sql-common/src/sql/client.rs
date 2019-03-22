@@ -1,5 +1,5 @@
 use crate::schema::{contests, problems, submissions};
-use crate::{Contest, Problem, Submission};
+use crate::models::{Contest, Problem, Submission};
 
 use diesel::dsl::insert_into;
 use diesel::pg::upsert::excluded;
