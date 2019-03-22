@@ -1,0 +1,16 @@
+[package]
+name = "atcoder-problems-updater-lambda"
+version = "0.1.0"
+authors = ["kenkoooo <kenkou.n@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+atcoder-problems-sql-common = { path = "../atcoder-problems-sql-common" }
+lambda_runtime = "^0.1"
+diesel = { version = "1.4.2", features = ["postgres"] }
+openssl-probe = "0.1.2"
+openssl = "*"
+
+[[bin]]
+name = "bootstrap"
+path = "src/main.rs"
