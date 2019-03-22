@@ -110,13 +110,14 @@ impl SqlUpdater for PgConnection {
     }
 
     fn update_great_submissions(&self) -> QueryResult<()> {
-        let pairs = [
+        let query = [
             ("first", "epoch_second"),
             ("fastest", "execution_time"),
             ("shortest", "length"),
-        ];
-        for (table, column) in pairs.into_iter() {
-            self.batch_execute(&format!(
+        ]
+        .into_iter()
+        .map(|(table, column)| {
+            format!(
                 r"
                 DELETE FROM
                     {table};
@@ -149,9 +150,13 @@ impl SqlUpdater for PgConnection {
                     ordering = 1;",
                 table = table,
                 column = column
-            ))?
-        }
-        Ok(())
+            )
+        })
+        .fold(String::new(), |mut acc, q| {
+            acc.push_str(&q);
+            acc
+        });
+        self.batch_execute(&query)
     }
 
     fn aggregate_great_submissions(&self) -> QueryResult<()> {
