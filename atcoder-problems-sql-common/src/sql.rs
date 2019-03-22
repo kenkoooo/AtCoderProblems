@@ -477,18 +477,25 @@ mod tests {
         })
         .collect::<Vec<_>>();
         conn.insert_submissions(&submissions).unwrap();
+        conn.execute(
+            r"INSERT INTO points (problem_id, point, predict) 
+                VALUES ('problem0', NULL, 123.4), ('problem1', 500.0, NULL);",
+        )
+        .unwrap();
+
         conn.update_problem_points().unwrap();
 
         let points = points::table
-            .select((points::problem_id, points::point))
-            .load::<(String, Option<f64>)>(&conn)
+            .select((points::problem_id, (points::point, points::predict)))
+            .load::<(String, (Option<f64>, Option<f64>))>(&conn)
             .unwrap()
             .into_iter()
             .collect::<HashMap<_, _>>();
 
         let mut expected = HashMap::new();
-        expected.insert("problem1".to_owned(), Some(100.0));
-        expected.insert("problem2".to_owned(), Some(10.0));
+        expected.insert("problem0".to_owned(), (None, Some(123.4)));
+        expected.insert("problem1".to_owned(), (Some(100.0), None));
+        expected.insert("problem2".to_owned(), (Some(10.0), None));
 
         assert_eq!(points, expected);
     }

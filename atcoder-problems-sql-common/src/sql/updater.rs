@@ -195,21 +195,23 @@ impl SqlUpdater for PgConnection {
     fn update_problem_points(&self) -> QueryResult<()> {
         self.batch_execute(
             r"
-            DELETE FROM
-                points;
-            INSERT INTO
-                points (problem_id, point)
-            SELECT
-                submissions.problem_id,
-                MAX(submissions.point)
-            FROM
-                submissions
-                INNER JOIN contests ON contests.id = submissions.contest_id
-            WHERE
-                contests.start_epoch_second >= 1468670400
-                AND contests.rate_change != '-'
-            GROUP BY
-                submissions.problem_id;
+                DELETE FROM
+                    points
+                WHERE
+                    point IS NOT NULL;
+                INSERT INTO
+                    points (problem_id, point)
+                SELECT
+                    submissions.problem_id,
+                    MAX(submissions.point)
+                FROM
+                    submissions
+                    INNER JOIN contests ON contests.id = submissions.contest_id
+                WHERE
+                    contests.start_epoch_second >= 1468670400
+                    AND contests.rate_change != '-'
+                GROUP BY
+                    submissions.problem_id;
             ",
         )
     }
