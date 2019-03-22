@@ -121,40 +121,32 @@ impl SqlUpdater for PgConnection {
                 DELETE FROM
                     {table};
                 INSERT INTO
-                    {table} (contest_id, problem_id, submission_id)
+                    {table} (submission_id, problem_id, contest_id)
                 SELECT
-                    submissions.contest_id,
-                    submissions.problem_id,
-                    submissions.id
+                    id,
+                    problem_id,
+                    contest_id
                 FROM
-                    submissions
-                WHERE
-                    submissions.id IN(
+                    (
                         SELECT
-                            MIN(submissions.id)
+                            submissions.id,
+                            submissions.problem_id,
+                            submissions.contest_id,
+                            ROW_NUMBER() OVER(
+                                PARTITION BY problem_id
+                                ORDER BY
+                                    submissions.{column} ASC,
+                                    submissions.id ASC
+                            ) ordering
                         FROM
                             submissions
-                            JOIN contests ON contests.id = submissions.contest_id
+                            INNER JOIN contests ON submissions.contest_id = contests.id
                         WHERE
-                            (submissions.problem_id, submissions.{column}) IN (
-                                SELECT
-                                    submissions.problem_id,
-                                    MIN(submissions.{column})
-                                FROM
-                                    submissions
-                                    JOIN contests ON contests.id = submissions.contest_id
-                                WHERE
-                                    submissions.result = 'AC'
-                                    AND submissions.epoch_second > contests.start_epoch_second
-                                GROUP BY
-                                    submissions.problem_id
-                            )
-                            AND submissions.result = 'AC'
+                            submissions.result = 'AC'
                             AND submissions.epoch_second > contests.start_epoch_second
-                        GROUP BY
-                            submissions.problem_id,
-                            submissions.{column}
-                    );",
+                    ) AS a
+                WHERE
+                    ordering = 1;",
                 table = table,
                 column = column
             ))?
