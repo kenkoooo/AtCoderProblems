@@ -30,6 +30,7 @@ dependencies = [
 name = "atcoder-problems-scraper"
 version = "0.1.0"
 dependencies = [
+ "atcoder-problems-sql-common 0.1.0",
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -42,6 +43,13 @@ dependencies = [
  "scraper 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "atcoder-problems-sql-common"
+version = "0.1.0"
+dependencies = [
+ "diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
