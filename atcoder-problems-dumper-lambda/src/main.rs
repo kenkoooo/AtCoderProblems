@@ -6,7 +6,6 @@ extern crate simple_logger;
 extern crate lambda_runtime as lambda;
 extern crate openssl;
 
-
 use atcoder_problems_dumper_lambda::models::*;
 use atcoder_problems_sql_common::schema::*;
 use diesel::prelude::*;
@@ -34,33 +33,37 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
     let conn = PgConnection::establish(&url).new_err(&c)?;
 
     let merged_query=    sql_query(r"
-        SELECT
-            problems.id,
-            problems.contest_id,
-            problems.title,
-            shortest.submission_id AS shortest_submission_id,
-            shortest.problem_id AS shortest_problem_id,
-            shortest.contest_id AS shortest_contest_id,
-            fastest.submission_id AS fastest_submission_id,
-            fastest.problem_id AS fastest_problem_id,
-            fastest.contest_id AS fastest_contest_id,
-            first.submission_id AS first_submission_id,
-            first.problem_id AS first_problem_id,
-            first.contest_id AS first_contest_id,
-            shortest_submissions.length AS source_code_length,
-            fastest_submissions.execution_time AS execution_time,
-            points.point,
-            points.predict,
-            solver.user_count AS solver_count
-        FROM
-            problems
-            LEFT JOIN shortest ON shortest.problem_id = problems.id
-            LEFT JOIN fastest ON fastest.problem_id = problems.id
-            LEFT JOIN first ON first.problem_id = problems.id
-            LEFT JOIN submissions AS shortest_submissions ON shortest.submission_id = shortest_submissions.id
-            LEFT JOIN submissions AS fastest_submissions ON fastest.submission_id = fastest_submissions.id
-            LEFT JOIN points ON points.problem_id = problems.id
-            LEFT JOIN solver ON solver.problem_id = problems.id;
+            SELECT
+                problems.id,
+                problems.contest_id,
+                problems.title,
+                shortest.submission_id AS shortest_submission_id,
+                shortest.problem_id AS shortest_problem_id,
+                shortest.contest_id AS shortest_contest_id,
+                shortest_submissions.user_id AS shortest_user_id,
+                fastest.submission_id AS fastest_submission_id,
+                fastest.problem_id AS fastest_problem_id,
+                fastest.contest_id AS fastest_contest_id,
+                fastest_submissions.user_id AS fastest_user_id,
+                first.submission_id AS first_submission_id,
+                first.problem_id AS first_problem_id,
+                first.contest_id AS first_contest_id,
+                first_submissions.user_id AS first_user_id,
+                shortest_submissions.length AS source_code_length,
+                fastest_submissions.execution_time AS execution_time,
+                points.point,
+                points.predict,
+                solver.user_count AS solver_count
+            FROM
+                problems
+                LEFT JOIN shortest ON shortest.problem_id = problems.id
+                LEFT JOIN fastest ON fastest.problem_id = problems.id
+                LEFT JOIN first ON first.problem_id = problems.id
+                LEFT JOIN submissions AS shortest_submissions ON shortest.submission_id = shortest_submissions.id
+                LEFT JOIN submissions AS fastest_submissions ON fastest.submission_id = fastest_submissions.id
+                LEFT JOIN submissions AS first_submissions ON first.submission_id = first_submissions.id
+                LEFT JOIN points ON points.problem_id = problems.id
+                LEFT JOIN solver ON solver.problem_id = problems.id;
         ");
 
     let data = vec![
@@ -129,6 +132,7 @@ fn create_request<T: Serialize>(obj: T, path: &str) -> serde_json::Result<PutObj
     request.body = Some(ByteStream::from(
         serde_json::to_string(&obj)?.as_bytes().to_vec(),
     ));
+    request.content_type = Some(String::from("application/json;charset=utf-8"));
     Ok(request)
 }
 
