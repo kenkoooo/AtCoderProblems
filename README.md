@@ -1,54 +1,54 @@
 # AtCoder Problems
 
 [![Build Status](https://travis-ci.org/kenkoooo/AtCoderProblems.svg?branch=master)](https://travis-ci.org/kenkoooo/AtCoderProblems)
-[![codecov](https://codecov.io/gh/kenkoooo/AtCoderProblems/branch/master/graph/badge.svg)](https://codecov.io/gh/kenkoooo/AtCoderProblems)
 
-# Backend API Server
+# atcoder-problems-api-lambda
 
-API server application and scrapers are written in Scala.
+`atcoder-problems-api-lambda` is a backend API server which runs on AWS Lambda.
+
+# atcoder-problems-dumper-lambda
+
+`atcoder-problems-dumper-lambda` is a tool to dump data in PostgreSQL to AWS S3.
+
+# atcoder-problems-frontend
+
+`atcoder-problems-frontend` is a web application written in TypeScript.
+
+## Install required packages
+```
+yarn
+```
+
+## Start the web application on your local
+```
+yarn start
+```
+
+## Build optimized files for distribution
+```
+yarn build
+```
+
+# atcoder-problems-scraper
+
+`atcoder-problems-scraper` is a tool to crawl AtCoder's webpages and store to PostgreSQL. 
 
 ## Build
-
 ```bash
-sbt assembly
+cargo build
 ```
 
-## Test
-To run all the tests, you need to prepare PostgreSQL with a test database.
+## Run
+Before running, please make sure the URL of PostgreSQL is set to `SQL_URL`, and [SQL table schema](config/database-definition.sql) is loaded on your database.
 
 ```bash
-sbt test
+cargo run --bin submission_crawler
+cargo run --bin contest_problem_crawler
 ```
 
-## Run 
-After running the build command, you will have `target/scala-*/atcoder-problems-assembly-*.jar`. It is a `.jar` package, which is executable of Java. You can run the API server by the following command with a configuration files `env.json`. Please make sure you already have the PostgreSQL environment with required databases before running.
-A sample of the config file and the schema file of the database are in [atcoder-problems-backend/src/test/resources](https://github.com/kenkoooo/AtCoderProblems/tree/master/atcoder-problems-backend/src/test/resources).
-```bash
-java -jar target/scala-*/atcoder-problems-*.jar env.json
-```
+# atcoder-problems-updater-lambda
+`atcoder-problems-updater-lambda` is a tool to execute SQL commands to aggrigate data on the database.
 
-# Frontend Web Application
-
-Frontend web application is written in TypeScript.
-
-## Build
-
-```bash
-# install node modules
-npm install
-
-# generate js file and source map
-webpack
-
-# generate minified js file
-npm run build
-```
-
-## Test
-
-```bash
-npm test
-```
 
 # Docker
 
