@@ -1,41 +1,30 @@
 services:
-- postgresql
+  - postgresql
 addons:
-  postgresql: '9.6'
+  postgresql: "9.6"
 matrix:
   include:
-  - language: scala
-    scala: 2.12.3
-    before_script:
-    - cd atcoder-problems-backend
-    - psql -c "CREATE USER kenkoooo PASSWORD 'pass';" -U postgres
-    - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
-    script:
-    - sbt clean coverage test coverageReport
-    - sbt assembly
-    after_success:
-    - bash <(curl -s https://codecov.io/bash)
-    - cd ../
-  - language: node_js
-    node_js: node
-    before_script:
-    - cd atcoder-problems-frontend
-    script:
-    - npm install yarn -g
-    - yarn
-    - npm run build
-    - npm test
-    after_success:
-    - codecov
-    - cd ../
-deploy:
-  provider: releases
-  api_key:
-    secure: q0OKi9YwHQvf24BmUqKl4u6SAefWSHSHW4pvNpP9b98LXWgdVzCGa0aKddnD45AQU0qqmxhyuKOaQETjdcu9r+ZVaxoRPX+P00DjxJjGXIT88wSr/MLvPjX5JjQlbQ54GqlzXF9QQ+iNNswN63NJxI+MOYdC2zNWvugyttUiC1m0P2rhzg8KJmEMDGcjWeMkoKOd8p/hp/paayZE6GCqf8zcVGDO59ojy+RwITS746bo0lT6aFmLBh0XLU6EOx+nnf4vq6pJNlyCENvPoi5XKXmN/MtaE3B8xxWkviDByxZIt+11/+805EcCS2txcZYY/6QjJkT33TjGoB8KY1kZRqrPjo+g3zboD1m+BgFyQp3Qe1G+8w3OXNe8qqdwOU80DQg2Lss2iOLgkk2qEIthdEdh4+1qOz/VeECTqcUxysIjoBujLuM/dyrwO1Z4qFOglyXzDe3WRV//qaFicpcCCDG7zAxP/zsalJrHnmMJIp+bowdJDKzbg5lOUOYAftn+A2uVie56KrS/05zHPLCOqPQc+BBUuQY+ybwsQDkAXBLwRG0XIOiOYsc9AHCrBFTF9ShpJ67urcx7fJBwtAGqIFHNLCigXvqoYoYFZSMC7YOfxOcLU9mryqMeYsg+2DZNmqhqphcoz7e9lDcnLvI+6rxC6VhB12b3S6aPOFWPXMo=
-  file:
-  - atcoder-problems-frontend/dist/bundle.js
-  - atcoder-problems-backend/target/scala-2.12/atcoder-problems-assembly-0.1.jar
-  skip_cleanup: true
-  draft: true
-  on:
-    tags: true
+    - language: rust
+      before_script:
+        - psql -c "CREATE USER kenkoooo PASSWORD 'pass';" -U postgres
+        - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
+      script:
+        - cd atcoder-problems-api-lambda/
+        - cargo test
+        - cd ../
+        - cd atcoder-problems-scraper/
+        - cargo test
+        - cd ../
+        - cd atcoder-problems-sql-common/
+        - RUST_TEST_THREADS=1 cargo test
+        - cd ../
+    - language: node_js
+      node_js: node
+      before_script:
+        - cd atcoder-problems-frontend
+      script:
+        - npm install yarn -g
+        - yarn
+        - yarn build
+      after_success:
+        - cd ../
