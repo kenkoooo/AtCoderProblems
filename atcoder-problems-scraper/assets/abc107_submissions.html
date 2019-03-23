@@ -1,0 +1,813 @@
+
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+	<title>All Submissions - AtCoder Beginner Contest 107</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Language" content='en'>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="google-site-verification" content="nXGC_JxO0yoP1qBzMnYD_xgufO6leSLw1kyNo2HZltM" />
+
+	
+	<meta name="description" content="AtCoder is a programming contest site for anyone from beginners to experts. We hold weekly programming contests online.">
+	<meta name="author" content="AtCoder Inc.">
+	<link rel="canonical" href="https://atcoder.jp/">
+
+	<meta property="og:site_name" content="AtCoder">
+	
+	<meta property="og:title" content="All Submissions - AtCoder Beginner Contest 107" />
+	<meta property="og:description" content="AtCoder is a programming contest site for anyone from beginners to experts. We hold weekly programming contests online." />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://atcoder.jp/contests/abc107/submissions" />
+	<meta property="og:image" content="https://img.atcoder.jp/assets/atcoder.png" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:site" content="@atcoder" />
+	
+	<meta property="twitter:title" content="All Submissions - AtCoder Beginner Contest 107" />
+
+	<link href='//fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href='/public/css/bootstrap.min.css?v=201903152347'>
+	<link rel="stylesheet" type="text/css" href='/public/css/base.css?v=201903152347'>
+	<link rel="shortcut icon" type="image/png" href="//img.atcoder.jp/assets/favicon.png">
+	<link rel="apple-touch-icon" href="//img.atcoder.jp/assets/favicon.png">
+	<script src='/public/js/lib/jquery-1.9.1.min.js?v=201903152347'></script>
+	<script src='/public/js/lib/bootstrap.min.js?v=201903152347'></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.4/js.cookie.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/ja.js"></script>
+	<script>
+		var LANG = "en";
+		var userScreenName = "";
+	</script>
+	<script src='/public/js/utils.js?v=201903152347'></script>
+	
+	
+		<script src='/public/js/contest.js?v=201903152347'></script>
+		<link href='/public/css/contest.css?v=201903152347' rel="stylesheet" />
+		<script>
+			var contestScreenName = "abc107";
+			var remainingText = "Remaining Time";
+			var countDownText = "Contest begins in";
+			var startTime = moment("2018-08-25T21:00:00+09:00");
+			var endTime = moment("2018-08-25T22:40:00+09:00");
+		</script>
+		<style></style>
+	
+	
+	
+	
+	
+		<link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+		<link href="//cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" rel="stylesheet" />
+		<script src='/public/js/lib/select2.min.js?v=201903152347'></script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<script src='/public/js/base.js?v=201903152347'></script>
+	<script src='/public/js/ga.js?v=201903152347'></script>
+</head>
+
+<body>
+<div id="modal-contest-start" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Contest started</h4>
+			</div>
+			<div class="modal-body">
+				<p>AtCoder Beginner Contest 107 has begun.</p>
+			</div>
+			<div class="modal-footer">
+				
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				
+			</div>
+		</div>
+	</div>
+</div>
+<div id="modal-contest-end" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Contest is over</h4>
+			</div>
+			<div class="modal-body">
+				<p>AtCoder Beginner Contest 107 has ended.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="main-div" class="float-container">
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+					<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/"></a>
+			</div>
+			<div class="collapse navbar-collapse" id="navbar-collapse">
+				<ul class="nav navbar-nav">
+				
+					<li><a class="contest-title" href='/contests/abc107'>AtCoder Beginner Contest 107</a></li>
+				
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+							<img src='//img.atcoder.jp/assets/flag-lang/en.png'> English <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href='/contests/abc107/submissions?lang=ja'><img src='//img.atcoder.jp/assets/flag-lang/ja.png'> 日本語</a></li>
+							<li><a href='/contests/abc107/submissions?lang=en'><img src='//img.atcoder.jp/assets/flag-lang/en.png'> English</a></li>
+						</ul>
+					</li>
+					
+					
+						<li><a href="/register?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Fabc107%2Fsubmissions">Sign Up</a></li>
+						<li><a href="/login?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Fabc107%2Fsubmissions">Sign In</a></li>
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<form method="POST" name="form_logout" action='/logout?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Fabc107%2Fsubmissions'>
+		<input type="hidden" name="csrf_token" value='R7hh4QxWtA2Wm9vMA6pU&#43;UjevVel69SwdqP1VmvA59c=' />
+	</form>
+	<div id="main-container" class="container" style="padding-top:50px;">
+		
+
+<div class="row">
+	<div id="contest-nav-tabs" class="col-sm-12 mb-2 cnvtb-fixed">
+	<div>
+		<small class="contest-duration">Contest Duration: <a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=20180825T2100&p1=248' target='blank'><time class='fixtime fixtime-full'>2018-08-25 21:00:00+0900</time></a> ~ <a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=20180825T2240&p1=248' target='blank'><time class='fixtime fixtime-full'>2018-08-25 22:40:00+0900</time></a> (local time)</small>
+		<small class="back-to-home pull-right"><a href='/'>Back to Home</a></small>
+	</div>
+	<ul class="nav nav-tabs">
+		<li><a href='/contests/abc107'><span class="glyphicon glyphicon-home" aria-hidden="true"></span> Top</a></li>
+		
+			<li><a href='/contests/abc107/tasks'><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> Tasks</a></li>
+		
+
+		
+			<li><a href='/contests/abc107/clarifications'><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> Clarifications <span id="clar-badge" class="badge"></span></a></li>
+		
+
+		
+
+		
+			<li class="active">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> Submissions<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href='/contests/abc107/submissions'><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> All Submissions</a></li>
+					
+				</ul>
+			</li>
+		
+
+		
+			<li><a href='/contests/abc107/standings'><span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span> Standings</a></li>
+		
+
+		
+
+		
+			<li><a href='https://img.atcoder.jp/arc101/editorial.pdf' target="_blank"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> Editorial</a></li>
+		
+
+		<li class="pull-right"><a id="fix-cnvtb" href="javascript:void(0)"><span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span></a></li>
+	</ul>
+</div>
+	<div class="col-sm-12">
+		<ul class="nav nav-pills small">
+			<li class="active"><a href='/contests/abc107/submissions'>All Submissions</a></li>
+			<li><a href='/contests/abc107/submissions/me'>My Submissions</a></li>
+		</ul>
+	</div>
+	<div class="col-sm-12">
+		<h2>All Submissions</h2>
+		<hr>
+		<script>var submissionAPI = "/contests/abc107/submissions/status/json";</script>
+		<div class="text-center">
+	<ul class="pagination pagination-sm mt-0 mb-1">
+		
+			<li class="active"><a href='/contests/abc107/submissions?page=1'>1</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=2'>2</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=4'>4</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=8'>8</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=16'>16</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=32'>32</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=64'>64</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=128'>128</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=256'>256</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=512'>512</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=818'>818</a></li>
+		
+	</ul>
+</div>
+<div class="panel panel-default panel-submission">
+	<div class="panel-heading">
+		<form class="form-inline form-filter" action='/contests/abc107/submissions'>
+			
+			<div class="form-group form-group-sm">
+				<label for="select-task">Task: </label>
+				<select id="select-task" class="form-control" style="width:240px" data-placeholder="-" data-allow-clear="true" name='f.Task'>
+					<option></option>
+					
+						<option value="abc107_a">A - Train</option>
+					
+						<option value="abc107_b">B - Grid Compression</option>
+					
+						<option value="arc101_a">C - Candles</option>
+					
+						<option value="arc101_b">D - Median of Medians</option>
+					
+				</select>
+			</div>
+			
+			
+			<div class="form-group form-group-sm">
+				<label for="select-language">Language: </label>
+				<select id="select-language" class="form-control" data-placeholder="-" data-allow-clear="true" name='f.Language'>
+					<option></option>
+					
+						<option value="3003">C&#43;&#43;14 (GCC 5.4.1)</option>
+					
+						<option value="3001">Bash (GNU bash v4.3.11)</option>
+					
+						<option value="3002">C (GCC 5.4.1)</option>
+					
+						<option value="3004">C (Clang 3.8.0)</option>
+					
+						<option value="3005">C&#43;&#43;14 (Clang 3.8.0)</option>
+					
+						<option value="3006">C# (Mono 4.6.2.0)</option>
+					
+						<option value="3007">Clojure (1.8.0)</option>
+					
+						<option value="3008">Common Lisp (SBCL 1.1.14)</option>
+					
+						<option value="3009">D (DMD64 v2.070.1)</option>
+					
+						<option value="3010">D (LDC 0.17.0)</option>
+					
+						<option value="3011">D (GDC 4.9.4)</option>
+					
+						<option value="3012">Fortran (gfortran v4.8.4)</option>
+					
+						<option value="3013">Go (1.6)</option>
+					
+						<option value="3014">Haskell (GHC 7.10.3)</option>
+					
+						<option value="3015">Java7 (OpenJDK 1.7.0)</option>
+					
+						<option value="3016">Java8 (OpenJDK 1.8.0)</option>
+					
+						<option value="3017">JavaScript (node.js v5.12)</option>
+					
+						<option value="3018">OCaml (4.02.3)</option>
+					
+						<option value="3019">Pascal (FPC 2.6.2)</option>
+					
+						<option value="3020">Perl (v5.18.2)</option>
+					
+						<option value="3021">PHP (5.6.30)</option>
+					
+						<option value="3022">Python2 (2.7.6)</option>
+					
+						<option value="3023">Python3 (3.4.3)</option>
+					
+						<option value="3024">Ruby (2.3.3)</option>
+					
+						<option value="3025">Scala (2.11.7)</option>
+					
+						<option value="3026">Scheme (Gauche 0.9.3.3)</option>
+					
+						<option value="3027">Text (cat)</option>
+					
+						<option value="3028">Visual Basic (Mono 4.0.1)</option>
+					
+						<option value="3029">C&#43;&#43; (GCC 5.4.1)</option>
+					
+						<option value="3030">C&#43;&#43; (Clang 3.8.0)</option>
+					
+						<option value="3501">Objective-C (GCC 5.3.0)</option>
+					
+						<option value="3502">Objective-C (Clang3.8.0)</option>
+					
+						<option value="3503">Swift (swift-2.2-RELEASE)</option>
+					
+						<option value="3504">Rust (1.15.1)</option>
+					
+						<option value="3505">Sed (GNU sed 4.2.2)</option>
+					
+						<option value="3506">Awk (mawk 1.3.3)</option>
+					
+						<option value="3507">Brainfuck (bf 20041219)</option>
+					
+						<option value="3508">Standard ML (MLton 20100608)</option>
+					
+						<option value="3509">PyPy2 (5.6.0)</option>
+					
+						<option value="3510">PyPy3 (2.4.0)</option>
+					
+						<option value="3511">Crystal (0.20.5)</option>
+					
+						<option value="3512">F# (Mono 4.0)</option>
+					
+						<option value="3513">Unlambda (0.1.3)</option>
+					
+						<option value="3514">Lua (5.3.2)</option>
+					
+						<option value="3515">LuaJIT (2.0.4)</option>
+					
+						<option value="3516">MoonScript (0.5.0)</option>
+					
+						<option value="3517">Ceylon (1.2.1)</option>
+					
+						<option value="3518">Julia (0.5.0)</option>
+					
+						<option value="3519">Octave (4.0.2)</option>
+					
+						<option value="3520">Nim (0.13.0)</option>
+					
+						<option value="3521">TypeScript (2.1.6)</option>
+					
+						<option value="3522">Perl6 (rakudo-star 2016.01)</option>
+					
+						<option value="3523">Kotlin (1.0.0)</option>
+					
+						<option value="3524">PHP7 (7.0.15)</option>
+					
+						<option value="3525">COBOL - Fixed (OpenCOBOL 1.1.0)</option>
+					
+						<option value="3526">COBOL - Free (OpenCOBOL 1.1.0)</option>
+					
+				</select>
+			</div>
+			
+			
+			<div class="form-group form-group-sm">
+				<label for="select-status">Status: </label>
+				<select id="select-status" class="form-control" style="width:80px;" data-placeholder="-" data-allow-clear="true" name='f.Status'>
+					<option></option>
+					
+						<option value="AC">AC</option>
+					
+						<option value="WA">WA</option>
+					
+						<option value="TLE">TLE</option>
+					
+						<option value="MLE">MLE</option>
+					
+						<option value="RE">RE</option>
+					
+						<option value="CE">CE</option>
+					
+						<option value="QLE">QLE</option>
+					
+						<option value="OLE">OLE</option>
+					
+						<option value="IE">IE</option>
+					
+						<option value="WJ">WJ</option>
+					
+						<option value="WR">WR</option>
+					
+						<option value="Judging">Judging</option>
+					
+				</select>
+			</div>
+			
+			
+			<div class="form-group form-group-sm">
+				<label for="input-user">User: </label>
+				<input type="text" id="input-user" class="form-control" name='f.User' value=''
+					   data-html='true' data-toggle='tooltip' data-trigger='focus' title='You can use wildcards.&lt;br&gt;?: any character&lt;br&gt;*: any string'>
+			</div>
+			
+			<div class="form-group">
+				<div>
+					<button type="submit" class="btn btn-primary btn-sm">Search</button>
+					<a class="btn btn-default btn-sm" href='/contests/abc107/submissions'>Reset</a>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	
+		<div class="table-responsive">
+			<table class="table table-bordered table-striped small th-center">
+				<thead>
+				<tr>
+					
+					<th width="12%"><a href='/contests/abc107/submissions?desc=true&amp;orderBy=created'>Submission Time</a></th>
+					<th>Task</th>
+					<th>User</th>
+					<th>Language</th>
+					<th width="5%"><a href='/contests/abc107/submissions?desc=true&amp;orderBy=score'>Score</a></th>
+					<th width="9%"><a href='/contests/abc107/submissions?orderBy=source_length'>Code Size</a></th>
+					<th width="5%">Status</th>
+					<th width="7%"><a href='/contests/abc107/submissions?orderBy=time_consumption'>Exec Time</a></th>
+					<th width="8%"><a href='/contests/abc107/submissions?orderBy=memory_consumption'>Memory</a></th>
+					<th width="5%"></th>
+				</tr>
+				</thead>
+				<tbody>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-19 04:01:10+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_b'>B - Grid Compression</a></td>
+						<td><a href='/users/cn449'>cn449</a> <a href='/contests/abc107/submissions?f.User=cn449'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view cn449's submissions'></span></a></td>
+						<td>C&#43;&#43;14 (GCC 5.4.1)</td>
+						<td class="text-right submission-score" data-id="4627045">200</td>
+						<td class="text-right">734 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>4 ms</td><td class='text-right'>256 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4627045'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-19 04:00:04+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_b'>B - Grid Compression</a></td>
+						<td><a href='/users/cn449'>cn449</a> <a href='/contests/abc107/submissions?f.User=cn449'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view cn449's submissions'></span></a></td>
+						<td>C&#43;&#43;14 (GCC 5.4.1)</td>
+						<td class="text-right submission-score" data-id="4627039">200</td>
+						<td class="text-right">841 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>4 ms</td><td class='text-right'>256 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4627039'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-19 02:43:07+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_b'>B - Grid Compression</a></td>
+						<td><a href='/users/rinrinta121'>rinrinta121</a> <a href='/contests/abc107/submissions?f.User=rinrinta121'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view rinrinta121's submissions'></span></a></td>
+						<td>C&#43;&#43;14 (GCC 5.4.1)</td>
+						<td class="text-right submission-score" data-id="4626808">200</td>
+						<td class="text-right">852 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>2 ms</td><td class='text-right'>256 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4626808'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 23:38:41+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_a'>A - Train</a></td>
+						<td><a href='/users/Kize'>Kize</a> <a href='/contests/abc107/submissions?f.User=Kize'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view Kize's submissions'></span></a></td>
+						<td>C&#43;&#43;14 (GCC 5.4.1)</td>
+						<td class="text-right submission-score" data-id="4625564">100</td>
+						<td class="text-right">116 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>1 ms</td><td class='text-right'>128 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4625564'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 23:35:56+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_b'>B - Grid Compression</a></td>
+						<td><a href='/users/Dice64'>Dice64</a> <a href='/contests/abc107/submissions?f.User=Dice64'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view Dice64's submissions'></span></a></td>
+						<td>Python3 (3.4.3)</td>
+						<td class="text-right submission-score" data-id="4625535">200</td>
+						<td class="text-right">396 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>28 ms</td><td class='text-right'>4340 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4625535'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 23:32:59+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_a'>A - Train</a></td>
+						<td><a href='/users/Lilyyy'>Lilyyy</a> <a href='/contests/abc107/submissions?f.User=Lilyyy'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view Lilyyy's submissions'></span></a></td>
+						<td>Go (1.6)</td>
+						<td class="text-right submission-score" data-id="4625493">100</td>
+						<td class="text-right">107 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>1 ms</td><td class='text-right'>512 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4625493'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 23:31:16+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_a'>A - Train</a></td>
+						<td><a href='/users/Lilyyy'>Lilyyy</a> <a href='/contests/abc107/submissions?f.User=Lilyyy'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view Lilyyy's submissions'></span></a></td>
+						<td>Go (1.6)</td>
+						<td class="text-right submission-score" data-id="4625470">100</td>
+						<td class="text-right">177 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>3 ms</td><td class='text-right'>512 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4625470'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 23:09:28+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_b'>B - Grid Compression</a></td>
+						<td><a href='/users/Michele'>Michele</a> <a href='/contests/abc107/submissions?f.User=Michele'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view Michele's submissions'></span></a></td>
+						<td>Ruby (2.3.3)</td>
+						<td class="text-right submission-score" data-id="4625220">200</td>
+						<td class="text-right">265 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>9 ms</td><td class='text-right'>1788 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4625220'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 23:06:19+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_a'>A - Train</a></td>
+						<td><a href='/users/hururu'>hururu</a> <a href='/contests/abc107/submissions?f.User=hururu'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view hururu's submissions'></span></a></td>
+						<td>Java8 (OpenJDK 1.8.0)</td>
+						<td class="text-right submission-score" data-id="4625183">100</td>
+						<td class="text-right">226 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>93 ms</td><td class='text-right'>23252 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4625183'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 22:05:58+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_a'>A - Train</a></td>
+						<td><a href='/users/hir35'>hir35</a> <a href='/contests/abc107/submissions?f.User=hir35'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view hir35's submissions'></span></a></td>
+						<td>Python3 (3.4.3)</td>
+						<td class="text-right submission-score" data-id="4624549">100</td>
+						<td class="text-right">42 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>17 ms</td><td class='text-right'>2940 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4624549'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 21:24:32+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_b'>B - Grid Compression</a></td>
+						<td><a href='/users/nozma'>nozma</a> <a href='/contests/abc107/submissions?f.User=nozma'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view nozma's submissions'></span></a></td>
+						<td>C&#43;&#43;14 (GCC 5.4.1)</td>
+						<td class="text-right submission-score" data-id="4624165">200</td>
+						<td class="text-right">836 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>2 ms</td><td class='text-right'>256 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4624165'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 21:14:16+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_a'>A - Train</a></td>
+						<td><a href='/users/nan'>なん</a> <a href='/contests/abc107/submissions?f.User=nan'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view nan's submissions'></span></a></td>
+						<td>Python3 (3.4.3)</td>
+						<td class="text-right submission-score" data-id="4624052">100</td>
+						<td class="text-right">48 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>17 ms</td><td class='text-right'>2940 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4624052'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 19:27:46+0900</time></td>
+						<td><a href='/contests/abc107/tasks/arc101_a'>C - Candles</a></td>
+						<td><a href='/users/tinsep19'>tinsep19</a> <a href='/contests/abc107/submissions?f.User=tinsep19'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view tinsep19's submissions'></span></a></td>
+						<td></td>
+						<td class="text-right submission-score" data-id="4623130">300</td>
+						<td class="text-right">301 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>61 ms</td><td class='text-right'>8452 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4623130'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 19:24:21+0900</time></td>
+						<td><a href='/contests/abc107/tasks/arc101_a'>C - Candles</a></td>
+						<td><a href='/users/tinsep19'>tinsep19</a> <a href='/contests/abc107/submissions?f.User=tinsep19'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view tinsep19's submissions'></span></a></td>
+						<td>Ruby (2.3.3)</td>
+						<td class="text-right submission-score" data-id="4623101">300</td>
+						<td class="text-right">344 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>60 ms</td><td class='text-right'>8452 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4623101'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 19:18:26+0900</time></td>
+						<td><a href='/contests/abc107/tasks/arc101_a'>C - Candles</a></td>
+						<td><a href='/users/tinsep19'>tinsep19</a> <a href='/contests/abc107/submissions?f.User=tinsep19'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view tinsep19's submissions'></span></a></td>
+						<td>Ruby (2.3.3)</td>
+						<td class="text-right submission-score" data-id="4623036">300</td>
+						<td class="text-right">267 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>62 ms</td><td class='text-right'>8964 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4623036'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 18:19:31+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_a'>A - Train</a></td>
+						<td><a href='/users/vjudge4'>vjudge4</a> <a href='/contests/abc107/submissions?f.User=vjudge4'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view vjudge4's submissions'></span></a></td>
+						<td>C&#43;&#43;14 (Clang 3.8.0)</td>
+						<td class="text-right submission-score" data-id="4622502">100</td>
+						<td class="text-right">136 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>1 ms</td><td class='text-right'>256 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4622502'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 18:08:59+0900</time></td>
+						<td><a href='/contests/abc107/tasks/arc101_b'>D - Median of Medians</a></td>
+						<td><a href='/users/yuto953'>yuto953</a> <a href='/contests/abc107/submissions?f.User=yuto953'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view yuto953's submissions'></span></a></td>
+						<td>C&#43;&#43;14 (GCC 5.4.1)</td>
+						<td class="text-right submission-score" data-id="4622363">700</td>
+						<td class="text-right">1673 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>175 ms</td><td class='text-right'>2560 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4622363'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 17:31:12+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_a'>A - Train</a></td>
+						<td><a href='/users/kurataku'>kurataku</a> <a href='/contests/abc107/submissions?f.User=kurataku'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view kurataku's submissions'></span></a></td>
+						<td>Java8 (OpenJDK 1.8.0)</td>
+						<td class="text-right submission-score" data-id="4621929">100</td>
+						<td class="text-right">214 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>94 ms</td><td class='text-right'>23508 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4621929'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 17:30:59+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_b'>B - Grid Compression</a></td>
+						<td><a href='/users/hakuchan'>hakuchan</a> <a href='/contests/abc107/submissions?f.User=hakuchan'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view hakuchan's submissions'></span></a></td>
+						<td>C&#43;&#43;14 (GCC 5.4.1)</td>
+						<td class="text-right submission-score" data-id="4621925">200</td>
+						<td class="text-right">1082 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>3 ms</td><td class='text-right'>256 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4621925'>Detail</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2019-03-18 17:18:55+0900</time></td>
+						<td><a href='/contests/abc107/tasks/abc107_a'>A - Train</a></td>
+						<td><a href='/users/Hecatia'>Hecatia</a> <a href='/contests/abc107/submissions?f.User=Hecatia'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='view Hecatia's submissions'></span></a></td>
+						<td>C&#43;&#43;14 (GCC 5.4.1)</td>
+						<td class="text-right submission-score" data-id="4621785">100</td>
+						<td class="text-right">113 Byte</td>
+						<td class='text-center'><span class='label label-success' aria-hidden='true' data-toggle='tooltip' data-placement='top' title="Accepted">AC</span></td><td class='text-right'>1 ms</td><td class='text-right'>256 KB</td>
+						<td class="text-center">
+							<a href='/contests/abc107/submissions/4621785'>Detail</a>
+						</td>
+					</tr>
+				
+				</tbody>
+			</table>
+		</div>
+	
+</div>
+
+<div class="text-center">
+	<ul class="pagination pagination-sm mt-0 mb-1">
+		
+			<li class="active"><a href='/contests/abc107/submissions?page=1'>1</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=2'>2</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=4'>4</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=8'>8</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=16'>16</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=32'>32</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=64'>64</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=128'>128</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=256'>256</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=512'>512</a></li>
+		
+			<li ><a href='/contests/abc107/submissions?page=818'>818</a></li>
+		
+	</ul>
+</div>
+	</div>
+</div>
+
+
+		
+			<hr>
+			
+			
+			
+<div class="a2a_kit a2a_kit_size_20 a2a_default_style pull-right" data-a2a-url="https://atcoder.jp/contests/abc107/submissions?lang=en" data-a2a-title="All Submissions - AtCoder Beginner Contest 107">
+	<a class="a2a_button_facebook"></a>
+	<a class="a2a_button_twitter"></a>
+	
+		<a class="a2a_button_telegram"></a>
+	
+	<a class="a2a_dd" href="https://www.addtoany.com/share"></a>
+</div>
+
+		
+		<script async src="//static.addtoany.com/menu/page.js"></script>
+		
+	</div> 
+	<hr>
+</div> 
+<div class="container">
+    <footer class="footer">
+		
+			<ul>
+				<li><a href='/contests/abc107/rules'>Rule</a></li>
+				<li><a href='/contests/abc107/glossary'>Glossary</a></li>
+				
+			</ul>
+		
+		<ul>
+			<li><a href='/tos'>Terms of service</a></li>
+			<li><a href='/privacy'>Privacy Policy</a></li>
+			<li><a href='/personal'>Information Protection Policy</a></li>
+			<li><a href='/company'>Company</a></li>
+			<li><a href='/faq'>FAQ</a></li>
+			<li><a href='/contact'>Contact</a></li>
+			
+		</ul>
+    <div class="text-center">
+        <small id="copyright">Copyright Since 2012 &copy;<a href="http://atcoder.co.jp">AtCoder Inc.</a> All rights reserved.</small>
+    </div>
+    </footer>
+</div>
+<p id="fixed-server-timer" class='contest-timer'></p>
+
+	<div id="scroll-page-top" style="display:none;"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> Page Top</div>
+
+</body>
+</html>
+

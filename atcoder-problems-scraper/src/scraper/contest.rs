@@ -6,7 +6,7 @@ use scraper::{Html, Selector};
 
 pub fn scrape_all_contests() -> Vec<Contest> {
     (1..)
-        .map(|page| scrape_contests(page))
+        .map(scrape_contests)
         .take_while(|contests| contests.is_ok() && !contests.as_ref().unwrap().is_empty())
         .map(|contests| contests.unwrap())
         .flatten()
@@ -26,51 +26,51 @@ fn scrape_contests(page: usize) -> Result<Vec<Contest>, String> {
     Html::parse_document(&page_html)
         .select(&Selector::parse("tbody").unwrap())
         .next()
-        .ok_or(url.clone())?
+        .ok_or_else(|| url.clone())?
         .select(&Selector::parse("tr").unwrap())
         .map(|tr| {
             let selector = Selector::parse("td").unwrap();
             let mut tds = tr.select(&selector);
             let start = tds
                 .next()
-                .ok_or(url.clone())?
+                .ok_or_else(|| url.clone())?
                 .text()
                 .next()
-                .ok_or(url.clone())?;
+                .ok_or_else(|| url.clone())?;
             let start = DateTime::parse_from_str(&start, "%Y-%m-%d %H:%M:%S%z")
                 .map_err(|e| format!("{:?}", e))?;
             let start = start.timestamp();
 
-            let contest = tds.next().ok_or(url.clone())?;
-            let contest_title = contest.text().next().ok_or(url.clone())?;
+            let contest = tds.next().ok_or_else(|| url.clone())?;
+            let contest_title = contest.text().next().ok_or_else(|| url.clone())?;
             let contest_link = contest
                 .select(&Selector::parse("a").unwrap())
                 .next()
-                .ok_or(url.clone())?
+                .ok_or_else(|| url.clone())?
                 .value()
                 .attr("href")
-                .ok_or(url.clone())?;
-            let contest_id = contest_link.rsplit("/").next().ok_or(url.clone())?;
+                .ok_or_else(|| url.clone())?;
+            let contest_id = contest_link.rsplit('/').next().ok_or_else(|| url.clone())?;
 
             let duration = tds.next().unwrap().text().next().unwrap();
-            let mut duration = duration.split(":");
+            let mut duration = duration.split(':');
             let hours = duration
                 .next()
-                .ok_or(url.clone())?
+                .ok_or_else(|| url.clone())?
                 .parse::<i64>()
                 .map_err(|e| format!("{:?}", e))?;
             let minutes = duration
                 .next()
-                .ok_or(url.clone())?
+                .ok_or_else(|| url.clone())?
                 .parse::<i64>()
                 .map_err(|e| format!("{:?}", e))?;
             let duration = hours * 3600 + minutes * 60;
             let rated = tds
                 .next()
-                .ok_or(url.clone())?
+                .ok_or_else(|| url.clone())?
                 .text()
                 .next()
-                .ok_or(url.clone())?;
+                .ok_or_else(|| url.clone())?;
             Ok(Contest {
                 id: contest_id.to_owned(),
                 start_epoch_second: start,

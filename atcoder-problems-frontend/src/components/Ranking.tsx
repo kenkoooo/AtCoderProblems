@@ -1,119 +1,94 @@
-import * as React from "react";
-import { ApiCall } from "../utils/ApiCall";
-import { RankPair } from "../model/RankPair";
-import { Row, PageHeader } from "react-bootstrap";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { RankingKind } from "../model/RankingKind";
-import { HtmlFormatter } from "../utils/HtmlFormatter";
+import React from 'react';
+import { Row } from 'reactstrap';
+import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
-export interface RankingProps {
-  ranking: string;
+interface Props {
+	title: string;
+	fetch: (() => Promise<{ count: number; id: string }[]>);
 }
 
-interface RankingState {
-  ranking: Array<RankPair>;
+interface User {
+	count: number;
+	id: string;
+	rank: number;
 }
 
-export class Ranking extends React.Component<RankingProps, RankingState> {
-  constructor(props: RankingProps) {
-    super(props);
-    this.state = { ranking: [] };
-  }
-
-  componentWillMount() {
-    switch (this.props.ranking) {
-      case RankingKind.Sums:
-        ApiCall.getRatedPointSumRanking().then(ranking =>
-          this.setState({ ranking: ranking })
-        );
-        break;
-      default:
-        ApiCall.getRanking(this.props.ranking).then(ranking =>
-          this.setState({ ranking: ranking })
-        );
-        break;
-    }
-  }
-
-  render() {
-    let getTitle = (rankingString: string) => {
-      switch (rankingString) {
-        case RankingKind.Accepted:
-          return "Top Problem Solvers";
-        case RankingKind.Fastest:
-          return "Top Accelerators";
-        case RankingKind.First:
-          return "Top Speed Runners";
-        case RankingKind.Shortest:
-          return "Top Code Golfers";
-        case RankingKind.Sums:
-          return "Rated Point Ranking";
-      }
-      return "";
-    };
-
-    let getColumnName = (rankingString: string) => {
-      switch (rankingString) {
-        case RankingKind.Sums:
-          return "Point Sum";
-        default:
-          return "Problems";
-      }
-    };
-
-    return (
-      <Row>
-        <PageHeader>{getTitle(this.props.ranking)}</PageHeader>
-        <BootstrapTable
-          data={this.state.ranking}
-          striped
-          search
-          pagination
-          options={{
-            paginationPosition: "top",
-            sizePerPage: 200,
-            sizePerPageList: [
-              {
-                text: "200",
-                value: 200
-              },
-              {
-                text: "500",
-                value: 500
-              },
-              {
-                text: "1000",
-                value: 1000
-              },
-              {
-                text: "All",
-                value: this.state.ranking.length
-              }
-            ]
-          }}
-        >
-          <TableHeaderColumn dataField="rank" isKey dataSort>
-            Rank
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="user_id"
-            dataSort
-            dataFormat={(user: string) =>
-              HtmlFormatter.createLink(`./?user=${user}&kind=user`, user, true)
-            }
-          >
-            User ID
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="count"
-            dataSort
-            dataAlign="right"
-            headerAlign="left"
-          >
-            {getColumnName(this.props.ranking)}
-          </TableHeaderColumn>
-        </BootstrapTable>
-      </Row>
-    );
-  }
+interface State {
+	data: User[];
 }
+
+class Ranking extends React.Component<Props, State> {
+	constructor(props: any) {
+		super(props);
+		this.state = { data: [] };
+	}
+
+	componentDidMount() {
+		this.props.fetch().then((users) => {
+			users.sort((a, b) => b.count - a.count);
+			const rank: number[] = [];
+			let cur = 1;
+			users.forEach((_, i) => {
+				if (i > 0 && users[i].count < users[i - 1].count) {
+					cur = i + 1;
+				}
+				rank.push(cur);
+			});
+			const data = users.map((u, i) => ({
+				count: u.count,
+				id: u.id,
+				rank: rank[i]
+			}));
+			this.setState({ data });
+		});
+	}
+
+	render() {
+		return (
+			<Row>
+				<h2>{this.props.title}</h2>
+				<BootstrapTable
+					height="auto"
+					data={this.state.data}
+					pagination
+					striped
+					hover
+					options={{
+						paginationPosition: 'top',
+						sizePerPage: 20,
+						sizePerPageList: [
+							{
+								text: '20',
+								value: 20
+							},
+							{
+								text: '50',
+								value: 50
+							},
+							{
+								text: '100',
+								value: 100
+							},
+							{
+								text: '200',
+								value: 200
+							},
+							{
+								text: 'All',
+								value: this.state.data.length
+							}
+						]
+					}}
+				>
+					<TableHeaderColumn dataField="rank">#</TableHeaderColumn>
+					<TableHeaderColumn dataField="id" isKey>
+						User
+					</TableHeaderColumn>
+					<TableHeaderColumn dataField="count">Count</TableHeaderColumn>
+				</BootstrapTable>
+			</Row>
+		);
+	}
+}
+
+export default Ranking;
