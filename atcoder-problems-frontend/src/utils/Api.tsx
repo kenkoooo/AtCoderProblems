@@ -4,7 +4,7 @@ import MergedProblem from '../interfaces/MergedProblem';
 import UserInfo from '../interfaces/UserInfo';
 import Submission from '../interfaces/Submission';
 
-const BASE_URL = 'https://kenkoooo.com/atcoder';
+const BASE_URL = 'https://beta.kenkoooo.com/atcoder';
 const STATIC_API_BASE_URL = BASE_URL + '/resources';
 const DYNAMIC_API_BASE_URL = BASE_URL + '/atcoder-api';
 
