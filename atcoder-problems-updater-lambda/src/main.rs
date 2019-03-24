@@ -27,25 +27,38 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
     let conn = PgConnection::establish(&url).map_err(|_| c.new_error("Failed to connect."))?;
 
     info!("Executing update_accepted_count...");
-    conn.update_accepted_count()
-        .map_err(|_| c.new_error("Failed update_accepted_count"))?;
+    conn.update_accepted_count().lambda_err(&c)?;
+
     info!("Executing update_problem_solver_count...");
-    conn.update_problem_solver_count()
-        .map_err(|_| c.new_error("Failed update_problem_solver_count"))?;
+    conn.update_problem_solver_count().lambda_err(&c)?;
+
     info!("Executing update_rated_point_sums...");
-    conn.update_rated_point_sums()
-        .map_err(|_| c.new_error("Failed update_rated_point_sums"))?;
+    conn.update_rated_point_sums().lambda_err(&c)?;
+
     info!("Executing update_language_count...");
-    conn.update_language_count()
-        .map_err(|_| c.new_error("Failed update_language_count"))?;
+    conn.update_language_count().lambda_err(&c)?;
+
     info!("Executing update_great_submissions...");
-    conn.update_great_submissions()
-        .map_err(|_| c.new_error("Failed update_great_submissions"))?;
+    conn.update_great_submissions().lambda_err(&c)?;
+
     info!("Executing aggregate_great_submissions...");
-    conn.aggregate_great_submissions()
-        .map_err(|_| c.new_error("Failed aggregate_great_submissions"))?;
+    conn.aggregate_great_submissions().lambda_err(&c)?;
+
     info!("Executing update_problem_points...");
-    conn.update_problem_points()
-        .map_err(|_| c.new_error("Failed update_problem_points"))?;
+    conn.update_problem_points().lambda_err(&c)?;
+
     Ok("Finished".to_owned())
+}
+
+trait ErrorMapper<T> {
+    fn lambda_err(self, c: &lambda::Context) -> Result<T, HandlerError>;
+}
+
+impl<T, E> ErrorMapper<T> for Result<T, E>
+where
+    E: std::fmt::Debug,
+{
+    fn lambda_err(self, c: &lambda::Context) -> Result<T, HandlerError> {
+        self.map_err(|e| c.new_error(&format!("{:?}", e)))
+    }
 }
