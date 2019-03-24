@@ -318,8 +318,6 @@ mod tests {
                 ("user1", "problem2", "Perl"),
                 ("user1", "problem3", "Java9 (aaa)"),
                 ("user2", "problem1", "Java10 (aaaaa)"),
-                ("user2", "problem1", "C++ (a)"),
-                ("user2", "problem1", "C++11 (a)"),
             ]
             .into_iter()
             .enumerate()
