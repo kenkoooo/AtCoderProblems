@@ -42,12 +42,13 @@ cargo build
 Before running, please make sure the URL of PostgreSQL is set to `SQL_URL`, and [SQL table schema](config/database-definition.sql) is loaded on your database.
 
 ```bash
-cargo run --bin submission_crawler
-cargo run --bin contest_problem_crawler
+cargo run --bin contest_problem_crawler # which crawls problems and contests
+cargo run --bin all_submission_crawler # which crawls all the submissions
+cargo run --bin naive_submission_crawler # which crawls only new submissions in each contests
 ```
 
 # atcoder-problems-updater-lambda
-`atcoder-problems-updater-lambda` is a tool to execute SQL commands to aggrigate data on the database.
+`atcoder-problems-updater-lambda` is a tool to execute SQL commands to aggregate data on the database.
 
 
 # Docker
@@ -104,7 +105,7 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
   - https://kenkoooo.com/atcoder/resources/first.json
 - Rated Point Sum
   - https://kenkoooo.com/atcoder/resources/sums.json
-- Accepted Count for each langages
+- Accepted Count for each language
   - https://kenkoooo.com/atcoder/resources/lang.json
 
 (The API `info/*` are deprecated. Please use new API.)
