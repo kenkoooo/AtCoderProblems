@@ -9,11 +9,11 @@ extern crate openssl;
 use atcoder_problems_dumper_lambda::models::*;
 use atcoder_problems_sql_common::schema::*;
 use diesel::prelude::*;
-use diesel::{sql_query, Connection, PgConnection, Queryable};
+use diesel::{sql_query, Connection, PgConnection};
 use lambda::error::HandlerError;
 use openssl_probe;
 use rusoto_core::{ByteStream, Region};
-use rusoto_s3::{GetObjectRequest, PutObjectRequest, S3Client, S3};
+use rusoto_s3::{PutObjectRequest, S3Client, S3};
 use serde::Serialize;
 use serde_json;
 use std::env;
@@ -32,7 +32,7 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
     let url = env::var("SQL_URL").new_err(&c)?;
     let conn = PgConnection::establish(&url).new_err(&c)?;
 
-    let merged_query=    sql_query(r"
+    let merged_query = sql_query(r"
             SELECT
                 problems.id,
                 problems.contest_id,
