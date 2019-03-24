@@ -130,35 +130,30 @@ impl SqlUpdater for PgConnection {
             .load::<(i64, String, String, Option<i32>, i32)>(self)
             .and_then(|mut submissions| {
                 submissions.sort_by_key(|s| s.0);
-                let mut first_map: BTreeMap<String, (String, i64)> = BTreeMap::new();
-                let mut fastest_map: BTreeMap<String, (String, i64, i32)> = BTreeMap::new();
-                let mut shortest_map: BTreeMap<String, (String, i64, i32)> = BTreeMap::new();
-                for (id, problem_id, contest_id, execution_time, length) in submissions.into_iter()
-                {
-                    if !first_map.contains_key(&problem_id) {
-                        first_map.insert(problem_id.clone(), (contest_id.clone(), id));
+                let mut first_map: BTreeMap<&str, (&str, i64)> = BTreeMap::new();
+                let mut fastest_map: BTreeMap<&str, (&str, i64, i32)> = BTreeMap::new();
+                let mut shortest_map: BTreeMap<&str, (&str, i64, i32)> = BTreeMap::new();
+                for (id, problem_id, contest_id, execution_time, length) in submissions.iter() {
+                    if !first_map.contains_key(problem_id.as_str()) {
+                        first_map.insert(problem_id, (contest_id, *id));
                     }
                     if let Some(execution_time) = execution_time {
-                        let fastest = fastest_map.entry(problem_id.clone()).or_insert((
-                            contest_id.clone(),
-                            0,
-                            MAX,
-                        ));
-                        if fastest.2 > execution_time {
-                            fastest.0 = contest_id.clone();
-                            fastest.1 = id;
-                            fastest.2 = execution_time;
+                        let fastest = fastest_map
+                            .entry(problem_id)
+                            .or_insert((contest_id, 0, MAX));
+                        if fastest.2 > *execution_time {
+                            fastest.0 = contest_id;
+                            fastest.1 = *id;
+                            fastest.2 = *execution_time;
                         }
                     }
-                    let shortest = shortest_map.entry(problem_id.clone()).or_insert((
-                        contest_id.clone(),
-                        0,
-                        MAX,
-                    ));
-                    if shortest.2 > length {
-                        shortest.0 = contest_id.clone();
-                        shortest.1 = id;
-                        shortest.2 = length;
+                    let shortest = shortest_map
+                        .entry(problem_id)
+                        .or_insert((contest_id, 0, MAX));
+                    if shortest.2 > *length {
+                        shortest.0 = contest_id;
+                        shortest.1 = *id;
+                        shortest.2 = *length;
                     }
                 }
 
