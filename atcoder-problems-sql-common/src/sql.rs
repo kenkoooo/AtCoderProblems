@@ -316,8 +316,10 @@ mod tests {
                 ("user1", "problem1", "Perl6 (foo)"),
                 ("user1", "problem1", "Perl (baa)"),
                 ("user1", "problem2", "Perl"),
-                ("user1", "problem3", "Java"),
-                ("user2", "problem1", "Java"),
+                ("user1", "problem3", "Java9 (aaa)"),
+                ("user2", "problem1", "Java10 (aaaaa)"),
+                ("user2", "problem1", "C++ (a)"),
+                ("user2", "problem1", "C++11 (a)"),
             ]
             .into_iter()
             .enumerate()
@@ -367,7 +369,7 @@ mod tests {
         let conn = connect_to_test();
         conn.insert_contests(&[Contest {
             id: contest_id.to_owned(),
-            start_epoch_second: start_epoch_second,
+            start_epoch_second,
             duration_second: 0,
             title: "".to_owned(),
             rate_change: "".to_owned(),
@@ -383,14 +385,14 @@ mod tests {
             ]
             .into_iter()
             .map(|&(id, user, problem, length, epoch_second)| Submission {
-                id: id,
-                epoch_second: epoch_second,
+                id,
+                epoch_second,
                 problem_id: problem.to_string(),
                 contest_id: contest_id.to_string(),
                 user_id: user.to_string(),
                 language: "".to_string(),
                 point: 0.0,
-                length: length,
+                length,
                 result: "AC".to_string(),
                 execution_time: Some(10),
             })
@@ -470,7 +472,7 @@ mod tests {
             contest_id: contest.to_string(),
             user_id: "".to_string(),
             language: "".to_string(),
-            point: point,
+            point,
             length: 0,
             result: "AC".to_string(),
             execution_time: Some(10),
