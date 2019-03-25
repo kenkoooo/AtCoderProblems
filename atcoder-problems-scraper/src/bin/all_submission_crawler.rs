@@ -3,7 +3,7 @@ use atcoder_problems_scraper::sql::SqlClient;
 use diesel::pg::PgConnection;
 use diesel::Connection;
 use env_logger;
-use log::info;
+use log::{error, info};
 use std::env;
 
 fn main() {
@@ -19,15 +19,20 @@ fn main() {
         let contests = conn.get_contests().expect("Failed to load contests");
         for contest in contests.into_iter() {
             info!("Starting for {}", contest.id);
-            let max_page =
-                scraper::get_max_submission_page(&contest.id).expect("Failed to scrape page list");
-            info!("There are {} pages on {}", max_page, contest.id);
+            match scraper::get_max_submission_page(&contest.id) {
+                Ok(max_page) => {
+                    info!("There are {} pages on {}", max_page, contest.id);
 
-            for page in (1..=max_page).rev() {
-                info!("Crawling {} {}", contest.id, page);
-                let new_submissions = scraper::scrape_submissions(&contest.id, page);
-                conn.insert_submissions(&new_submissions)
-                    .expect("Failed to insert submissions");
+                    for page in (1..=max_page).rev() {
+                        info!("Crawling {} {}", contest.id, page);
+                        let new_submissions = scraper::scrape_submissions(&contest.id, page);
+                        conn.insert_submissions(&new_submissions)
+                            .expect("Failed to insert submissions");
+                    }
+                }
+                Err(msg) => {
+                    error!("Error to load the page list: {}", msg);
+                }
             }
         }
     }
