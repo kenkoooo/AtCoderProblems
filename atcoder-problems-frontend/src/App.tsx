@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Route,
   Switch,
   Redirect
@@ -28,6 +28,11 @@ const extractUserId = ({
 
 class App extends Component {
   render() {
+    const params = new URLSearchParams(location.search);
+    const user_param = params.get("user");
+    const rivals_param = params.get("rivals");
+    const kind_param = params.get("kind");
+
     return (
       <Router>
         <div>
@@ -61,27 +66,22 @@ class App extends Component {
               <Route
                 exact
                 path="/"
-                render={({ location }) => {
-                  const params = new URLSearchParams(location.search);
-                  const user_param = params.get("user");
-                  const rivals_param = params.get("rivals");
-                  const kind_param = params.get("kind");
-
+                render={() => {
                   const user =
                     user_param != null && user_param.match(ATCODER_USER_REGEXP)
                       ? user_param
                       : "";
                   const rivals =
                     rivals_param != null &&
-                    rivals_param.match(ATCODER_RIVALS_REGEXP)
+                      rivals_param.match(ATCODER_RIVALS_REGEXP)
                       ? rivals_param.split(",")
                       : [];
                   const kind =
                     kind_param === "list"
                       ? "list"
                       : kind_param === "user"
-                      ? "user"
-                      : "table";
+                        ? "user"
+                        : "table";
 
                   return (
                     <Redirect to={`/${kind}/${user}/${rivals.join("/")}`} />
