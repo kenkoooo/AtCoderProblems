@@ -5,24 +5,24 @@ export default interface MergedProblem {
   title: string;
 
   // Information for first AC
-  first_user_id: string;
-  first_contest_id: string;
-  first_submission_id: number;
+  first_user_id: string | null;
+  first_contest_id: string | null;
+  first_submission_id: number | null;
 
   // Information for fastest code
-  fastest_user_id: string;
-  fastest_contest_id: string;
-  fastest_submission_id: number;
-  execution_time: number;
+  fastest_user_id: string | null;
+  fastest_contest_id: string | null;
+  fastest_submission_id: number | null;
+  execution_time: number | null;
 
   // Information for shortest code
-  shortest_user_id: string;
-  shortest_contest_id: string;
-  shortest_submission_id: number;
-  source_code_length: number;
+  shortest_user_id: string | null;
+  shortest_contest_id: string | null;
+  shortest_submission_id: number | null;
+  source_code_length: number | null;
 
-  solver_count: number;
+  solver_count: number | null;
 
-  predict?: number;
-  point?: number;
+  predict?: number | null;
+  point?: number | null;
 }
