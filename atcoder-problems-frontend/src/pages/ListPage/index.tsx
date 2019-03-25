@@ -1,6 +1,6 @@
 import React from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { Badge, Row } from "reactstrap";
+import { Badge, Row, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Col } from "reactstrap";
 
 import { isAccepted } from "../../utils";
 import { formatDate } from "../../utils/DateFormat";
@@ -10,18 +10,28 @@ import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import Submission from "../../interfaces/Submission";
 import SmallTable from "./SmallTable";
+import ButtonGroup from "reactstrap/lib/ButtonGroup";
 
 const INF_POINT = 1e18;
+
+enum StatusFilterState {
+  All = "All",
+  Trying = "Only Trying",
+  Accepted = "Only AC"
+}
+
+enum RatedFilterState {
+  All = "All",
+  Rated = "Only Rated",
+  Unrated = "Only Unrated",
+}
 
 interface Problem extends MergedProblem {
   showing_point: number;
   date: string;
-
   contest: Contest;
-
   status: string;
   rivals: string[];
-
   last_ac_date: string;
 }
 
@@ -31,13 +41,22 @@ interface Props {
 
 interface State {
   problems: Problem[];
+
+  fromPoint: number,
+  toPoint: number,
+  statusFilterState: StatusFilterState,
+  ratedFilterState: RatedFilterState,
 }
 
 class ListPage extends React.Component<Props, State> {
   constructor(props: any) {
     super(props);
     this.state = {
-      problems: []
+      problems: [],
+      fromPoint: 0,
+      toPoint: INF_POINT,
+      statusFilterState: StatusFilterState.All,
+      ratedFilterState: RatedFilterState.All,
     };
   }
 
@@ -372,6 +391,11 @@ class ListPage extends React.Component<Props, State> {
           hidden: true
         }
       ];
+
+    const point_set = this.state.problems.reduce((set, p) => {
+      if (p.point) { return set.add(p.point); } else { return set; }
+    }, new Set<number>());
+    const points = Array.from(point_set).sort((a, b) => a - b);
     return (
       <div>
         <Row>
@@ -379,6 +403,42 @@ class ListPage extends React.Component<Props, State> {
             problems={this.state.problems}
             user_id={this.props.user_ids[0]}
           />
+        </Row>
+        <Row>
+          <ButtonGroup className="mr-4">
+            <UncontrolledDropdown>
+              <DropdownToggle caret>{this.state.fromPoint == 0 ? "From" : this.state.fromPoint}</DropdownToggle>
+              <DropdownMenu>
+                {points.map(p => <DropdownItem key={p} onClick={() => this.setState({ fromPoint: p })}>{p}</DropdownItem>)}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+            <UncontrolledDropdown>
+              <DropdownToggle caret>{this.state.toPoint == INF_POINT ? "To" : this.state.toPoint}</DropdownToggle>
+              <DropdownMenu>
+                {points.map(p => <DropdownItem key={p} onClick={() => this.setState({ toPoint: p })}>{p}</DropdownItem>)}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </ButtonGroup>
+          <ButtonGroup className="mr-4">
+            <UncontrolledDropdown>
+              <DropdownToggle caret>{this.state.statusFilterState}</DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem onClick={() => this.setState({ statusFilterState: StatusFilterState.All })}>{StatusFilterState.All}</DropdownItem>
+                <DropdownItem onClick={() => this.setState({ statusFilterState: StatusFilterState.Trying })}>{StatusFilterState.Trying}</DropdownItem>
+                <DropdownItem onClick={() => this.setState({ statusFilterState: StatusFilterState.Accepted })}>{StatusFilterState.Accepted}</DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </ButtonGroup>
+          <ButtonGroup className="mr-4">
+            <UncontrolledDropdown>
+              <DropdownToggle caret>{this.state.ratedFilterState}</DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem onClick={() => this.setState({ ratedFilterState: RatedFilterState.All })}>{RatedFilterState.All}</DropdownItem>
+                <DropdownItem onClick={() => this.setState({ ratedFilterState: RatedFilterState.Rated })}>{RatedFilterState.Rated}</DropdownItem>
+                <DropdownItem onClick={() => this.setState({ ratedFilterState: RatedFilterState.Unrated })}>{RatedFilterState.Unrated}</DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </ButtonGroup>
         </Row>
         <Row>
           <BootstrapTable
@@ -399,7 +459,36 @@ class ListPage extends React.Component<Props, State> {
                 return "";
               }
             }}
-            data={this.state.problems}
+            data={
+              this.state.problems
+                .filter(({ point, predict }) => {
+                  if (point) {
+                    return this.state.fromPoint <= point && point <= this.state.toPoint;
+                  } else if (predict) {
+                    return this.state.fromPoint <= predict && predict <= this.state.toPoint;
+                  } else {
+                    return this.state.toPoint == INF_POINT;
+                  }
+                }).filter(({ status }) => {
+                  switch (this.state.statusFilterState) {
+                    case StatusFilterState.All:
+                      return true;
+                    case StatusFilterState.Trying:
+                      return !isAccepted(status);
+                    case StatusFilterState.Accepted:
+                      return isAccepted(status);
+                  }
+                }).filter(({ point }) => {
+                  switch (this.state.ratedFilterState) {
+                    case RatedFilterState.All:
+                      return true;
+                    case RatedFilterState.Rated:
+                      return point && point != null;
+                    case RatedFilterState.Unrated:
+                      return !point;
+                  }
+                })
+            }
             options={{
               paginationPosition: "top",
               sizePerPage: 20,

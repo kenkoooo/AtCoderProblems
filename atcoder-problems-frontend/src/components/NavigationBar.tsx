@@ -31,7 +31,7 @@ interface State {
 class PrimitiveNavigationBar extends React.Component<
   RouteComponentProps,
   State
-> {
+  > {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -89,7 +89,6 @@ class PrimitiveNavigationBar extends React.Component<
     } else if (pathname.match(/^\/list/)) {
       kind = PageKind.LIST;
     }
-    console.log(pathname);
 
     const params = pathname.split("/");
     const user_id = params.length >= 3 ? params[2] : "";

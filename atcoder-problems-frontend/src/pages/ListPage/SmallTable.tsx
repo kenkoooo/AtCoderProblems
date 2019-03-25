@@ -69,9 +69,9 @@ const SmallTable = ({ problems, user_id }: Props) => {
             {point_count.map(({ point }) => {
               const count = map.get(point);
               if (count != undefined) {
-                return <td>{count}</td>;
+                return <td key={point}>{count}</td>;
               } else {
-                return <td>0</td>;
+                return <td key={point}>0</td>;
               }
             })}
           </tr>
