@@ -78,6 +78,7 @@ class PrimitiveNavigationBar extends React.Component<
       this.state.user_id !== user_id ||
       this.state.rival_id !== rival_id
     ) {
+      this.setState({ kind, user_id, rival_id });
     }
   }
 
@@ -113,6 +114,7 @@ class PrimitiveNavigationBar extends React.Component<
         .filter(s => s.match(ATCODER_USER_REGEXP))
         .join("/");
     }
+    console.log(this.state);
     return (
       <Navbar color="light" light expand="md">
         <NavbarBrand tag={RouterLink} to={root_url}>
