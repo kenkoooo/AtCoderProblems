@@ -50,15 +50,15 @@ const SmallTable = ({ problems, user_id }: Props) => {
     <Table striped bordered hover responsive>
       <thead>
         <tr>
-          <td />
+          <th>User</th>
           {point_count.map(({ point }) => (
-            <td key={point}>{point}</td>
+            <th key={point}>{point}</th>
           ))}
         </tr>
         <tr>
-          <td>count</td>
+          <th>Sum</th>
           {point_count.map(({ point, count }) => (
-            <td key={point}>{count}</td>
+            <th key={point}>{count}</th>
           ))}
         </tr>
       </thead>
