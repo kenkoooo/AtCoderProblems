@@ -65,6 +65,7 @@ name = "atcoder-problems-sql-common"
 version = "0.1.0"
 dependencies = [
  "diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
