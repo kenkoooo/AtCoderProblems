@@ -58,7 +58,7 @@ class PrimitiveNavigationBar extends React.Component<
         .forEach(user => users.push(user));
     }
 
-    const current_pathname = this.props.history.location.pathname;
+    const current_pathname = this.props.location.pathname;
 
     const next_pathname = "/" + nextKind + "/" + users.join("/");
     if (current_pathname !== next_pathname) {
@@ -71,20 +71,17 @@ class PrimitiveNavigationBar extends React.Component<
     this.setState({ kind, user_id, rival_id });
   }
 
-  componentDidUpdate() {
-    const { kind, user_id, rival_id } = this.mapPropsToState();
-    if (
-      this.state.kind !== kind ||
-      this.state.user_id !== user_id ||
-      this.state.rival_id !== rival_id
-    ) {
+  componentDidUpdate(prevProps: RouteComponentProps) {
+    console.log(this.props, prevProps);
+    if (this.props.location.pathname !== prevProps.location.pathname) {
+      const { kind, user_id, rival_id } = this.mapPropsToState();
       this.setState({ kind, user_id, rival_id });
     }
   }
 
   mapPropsToState() {
     let kind = PageKind.TABLE;
-    const { pathname } = this.props.history.location;
+    const { pathname } = this.props.location;
     if (pathname.match(/^\/user/)) {
       kind = PageKind.USER;
     } else if (pathname.match(/^\/list/)) {
