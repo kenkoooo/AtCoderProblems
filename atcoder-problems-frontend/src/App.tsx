@@ -88,7 +88,6 @@ class App extends Component {
                   );
                 }}
               />
-              {/* <Redirect path="/" to="/table" /> */}
             </Switch>
           </Container>
         </div>
