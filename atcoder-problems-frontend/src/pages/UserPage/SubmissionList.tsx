@@ -19,13 +19,19 @@ const SubmissionList = ({
     (map, p) => map.set(p.id, p.title),
     new Map<string, string>()
   );
+
+  let verdictOptions: any = {};
+  submissions.reduce((set, s) => set.add(s.result), new Set<string>()).forEach((verdict, index) => {
+    verdictOptions[index] = verdict;
+  });
   return (
     <BootstrapTable
-      data={submissions.sort((a, b) => b.epoch_second - a.epoch_second)}
+      data={submissions.sort((a, b) => b.epoch_second - a.epoch_second).map(s => ({ title: title_map.get(s.problem_id), ...s }))}
       keyField="id"
       height="auto"
       hover
       striped
+      search
       pagination
       options={{
         paginationPosition: "top",
@@ -62,6 +68,7 @@ const SubmissionList = ({
         Date
       </TableHeaderColumn>
       <TableHeaderColumn
+        filterFormatted
         dataSort
         dataField="problem_id"
         dataFormat={(_: string, { problem_id, contest_id }: Submission) => (
@@ -77,14 +84,15 @@ const SubmissionList = ({
       </TableHeaderColumn>
       <TableHeaderColumn
         dataSort
+        filter={{ type: 'SelectFilter', options: verdictOptions }}
         dataField="result"
         dataAlign="center"
         dataFormat={result =>
           isAccepted(result) ? (
             <Badge color="success">{result}</Badge>
           ) : (
-            <Badge color="warning">{result}</Badge>
-          )
+              <Badge color="warning">{result}</Badge>
+            )
         }
       >
         Status
@@ -103,7 +111,8 @@ const SubmissionList = ({
       >
         Detail
       </TableHeaderColumn>
-    </BootstrapTable>
+      <TableHeaderColumn dataField="title" hidden />
+    </BootstrapTable >
   );
 };
 
