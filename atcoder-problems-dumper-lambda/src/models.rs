@@ -3,6 +3,16 @@ use diesel::Queryable;
 use serde::Serialize;
 
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
+pub struct UserLanguageCount {
+    user_id: String,
+    #[serde(rename = "language")]
+    simplified_language: String,
+
+    #[serde(rename = "count")]
+    problem_count: i32,
+}
+
+#[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
 pub struct UserProblemCount {
     user_id: String,
     problem_count: i32,

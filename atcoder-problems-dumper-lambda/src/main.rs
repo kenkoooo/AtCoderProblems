@@ -113,6 +113,12 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
             rated_point_sum::table.load::<UserSum>(&conn).new_err(&c)?,
             "resources/sums.json",
         ),
+        create_request(
+            language_count::table
+                .load::<UserLanguageCount>(&conn)
+                .new_err(&c)?,
+            "resources/lang.json",
+        ),
     ];
 
     let client = S3Client::new(Region::ApNortheast1);
