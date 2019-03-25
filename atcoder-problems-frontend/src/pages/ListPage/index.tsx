@@ -184,194 +184,194 @@ class ListPage extends React.Component<Props, State> {
       dataFormat?: (cell: any, row: Problem) => JSX.Element;
       hidden?: boolean;
     }[] = [
-      {
-        header: "Date",
-        dataField: "date",
-        dataSort: true
-      },
-      {
-        header: "Problem",
-        dataField: "title",
-        dataSort: true,
-        dataFormat: (_: string, row: Problem) => (
-          <a
-            href={Url.formatProblemUrl(row.id, row.contest_id)}
-            target="_blank"
-          >
-            {row.title}
-          </a>
-        )
-      },
-      {
-        header: "Contest",
-        dataField: "contest_id",
-        dataSort: true,
-        dataFormat: (contest_id: string, problem: Problem) => (
-          <a href={Url.formatContestUrl(contest_id)} target="_blank">
-            {problem.contest.title}
-          </a>
-        )
-      },
-      {
-        header: "Result",
-        dataField: "id",
-        dataAlign: "center",
-        dataFormat: (id: string, problem: Problem) => {
-          if (isAccepted(problem.status)) {
-            return <Badge color="success">AC</Badge>;
-          } else if (problem.rivals.length > 0) {
-            return (
-              <div>
-                {problem.rivals.map(r => (
-                  <Badge key={r} color="danger">
-                    {r}
-                  </Badge>
-                ))}
-              </div>
-            );
-          } else {
-            return <Badge color="warning">{problem.status}</Badge>;
-          }
-        }
-      },
-      {
-        header: "Last AC Date",
-        dataField: "last_ac_date",
-        dataSort: true
-      },
-      {
-        header: "Solvers",
-        dataField: "solver_count",
-        dataSort: true,
-        dataFormat: (cell: number | null, row: Problem) => (
-          <a
-            href={Url.formatSolversUrl(row.contest_id, row.id)}
-            target="_blank"
-          >
-            {cell}
-          </a>
-        )
-      },
-      {
-        header: "Point",
-        dataField: "showing_point",
-        dataSort: true,
-        dataFormat: (showing_point: any) => {
-          if (showing_point >= INF_POINT) {
-            return "-";
-          } else {
-            if (showing_point % 100 == 0) {
-              return showing_point;
+        {
+          header: "Date",
+          dataField: "date",
+          dataSort: true
+        },
+        {
+          header: "Problem",
+          dataField: "title",
+          dataSort: true,
+          dataFormat: (_: string, row: Problem) => (
+            <a
+              href={Url.formatProblemUrl(row.id, row.contest_id)}
+              target="_blank"
+            >
+              {row.title}
+            </a>
+          )
+        },
+        {
+          header: "Contest",
+          dataField: "contest_id",
+          dataSort: true,
+          dataFormat: (contest_id: string, problem: Problem) => (
+            <a href={Url.formatContestUrl(contest_id)} target="_blank">
+              {problem.contest.title}
+            </a>
+          )
+        },
+        {
+          header: "Result",
+          dataField: "id",
+          dataAlign: "center",
+          dataFormat: (id: string, problem: Problem) => {
+            if (isAccepted(problem.status)) {
+              return <Badge color="success">AC</Badge>;
+            } else if (problem.rivals.length > 0) {
+              return (
+                <div>
+                  {problem.rivals.map(r => (
+                    <Badge key={r} color="danger">
+                      {r}
+                    </Badge>
+                  ))}
+                </div>
+              );
             } else {
-              return showing_point.toFixed(2);
+              return <Badge color="warning">{problem.status}</Badge>;
             }
           }
-        }
-      },
-      {
-        header: "Fastest",
-        dataField: "execution_time",
-        dataSort: true,
-        dataFormat: (_: number, row: Problem) => {
-          const {
-            fastest_submission_id,
-            fastest_contest_id,
-            fastest_user_id,
-            execution_time
-          } = row;
-          if (
-            fastest_submission_id != null &&
-            fastest_contest_id != null &&
-            fastest_user_id != null &&
-            execution_time != null
-          ) {
-            return (
-              <a
-                href={Url.formatSubmissionUrl(
-                  fastest_submission_id,
-                  fastest_contest_id
-                )}
-                target="_blank"
-              >
-                {fastest_user_id} ({execution_time} ms)
-              </a>
-            );
-          } else {
-            return <p />;
+        },
+        {
+          header: "Last AC Date",
+          dataField: "last_ac_date",
+          dataSort: true
+        },
+        {
+          header: "Solvers",
+          dataField: "solver_count",
+          dataSort: true,
+          dataFormat: (cell: number | null, row: Problem) => (
+            <a
+              href={Url.formatSolversUrl(row.contest_id, row.id)}
+              target="_blank"
+            >
+              {cell}
+            </a>
+          )
+        },
+        {
+          header: "Point",
+          dataField: "showing_point",
+          dataSort: true,
+          dataFormat: (showing_point: any) => {
+            if (showing_point >= INF_POINT) {
+              return "-";
+            } else {
+              if (showing_point % 100 == 0) {
+                return showing_point;
+              } else {
+                return showing_point.toFixed(2);
+              }
+            }
           }
-        }
-      },
-      {
-        header: "Shortest",
-        dataField: "source_code_length",
-        dataSort: true,
-        dataFormat: (_: number, row: Problem) => {
-          const {
-            shortest_submission_id,
-            shortest_contest_id,
-            shortest_user_id,
-            source_code_length
-          } = row;
-          if (
-            shortest_contest_id != null &&
-            shortest_submission_id != null &&
-            shortest_user_id != null &&
-            source_code_length != null
-          ) {
-            return (
-              <a
-                href={Url.formatSubmissionUrl(
-                  shortest_submission_id,
-                  shortest_contest_id
-                )}
-                target="_blank"
-              >
-                {shortest_user_id} ({source_code_length} Bytes)
+        },
+        {
+          header: "Fastest",
+          dataField: "execution_time",
+          dataSort: true,
+          dataFormat: (_: number, row: Problem) => {
+            const {
+              fastest_submission_id,
+              fastest_contest_id,
+              fastest_user_id,
+              execution_time
+            } = row;
+            if (
+              fastest_submission_id != null &&
+              fastest_contest_id != null &&
+              fastest_user_id != null &&
+              execution_time != null
+            ) {
+              return (
+                <a
+                  href={Url.formatSubmissionUrl(
+                    fastest_submission_id,
+                    fastest_contest_id
+                  )}
+                  target="_blank"
+                >
+                  {fastest_user_id} ({execution_time} ms)
               </a>
-            );
-          } else {
-            return <p />;
+              );
+            } else {
+              return <p />;
+            }
           }
-        }
-      },
-      {
-        header: "First",
-        dataField: "first_user_id",
-        dataSort: true,
-        dataFormat: (_: string, row: Problem) => {
-          const { first_submission_id, first_contest_id, first_user_id } = row;
-          if (
-            first_submission_id != null &&
-            first_contest_id != null &&
-            first_user_id != null
-          ) {
-            return (
-              <a
-                href={Url.formatSubmissionUrl(
-                  first_submission_id,
-                  first_contest_id
-                )}
-                target="_blank"
-              >
-                {first_user_id}
+        },
+        {
+          header: "Shortest",
+          dataField: "source_code_length",
+          dataSort: true,
+          dataFormat: (_: number, row: Problem) => {
+            const {
+              shortest_submission_id,
+              shortest_contest_id,
+              shortest_user_id,
+              source_code_length
+            } = row;
+            if (
+              shortest_contest_id != null &&
+              shortest_submission_id != null &&
+              shortest_user_id != null &&
+              source_code_length != null
+            ) {
+              return (
+                <a
+                  href={Url.formatSubmissionUrl(
+                    shortest_submission_id,
+                    shortest_contest_id
+                  )}
+                  target="_blank"
+                >
+                  {shortest_user_id} ({source_code_length} Bytes)
               </a>
-            );
-          } else {
-            return <p />;
+              );
+            } else {
+              return <p />;
+            }
           }
+        },
+        {
+          header: "First",
+          dataField: "first_user_id",
+          dataSort: true,
+          dataFormat: (_: string, row: Problem) => {
+            const { first_submission_id, first_contest_id, first_user_id } = row;
+            if (
+              first_submission_id != null &&
+              first_contest_id != null &&
+              first_user_id != null
+            ) {
+              return (
+                <a
+                  href={Url.formatSubmissionUrl(
+                    first_submission_id,
+                    first_contest_id
+                  )}
+                  target="_blank"
+                >
+                  {first_user_id}
+                </a>
+              );
+            } else {
+              return <p />;
+            }
+          }
+        },
+        {
+          header: "Shortest User for Search",
+          dataField: "shortest_user_id",
+          hidden: true
+        },
+        {
+          header: "Fastest User for Search",
+          dataField: "fastest_user_id",
+          hidden: true
         }
-      },
-      {
-        header: "Shortest User for Search",
-        dataField: "shortest_user_id",
-        hidden: true
-      },
-      {
-        header: "Fastest User for Search",
-        dataField: "fastest_user_id",
-        hidden: true
-      }
-    ];
+      ];
     return (
       <div>
         <Row>
