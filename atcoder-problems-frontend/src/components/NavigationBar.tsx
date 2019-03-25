@@ -114,7 +114,6 @@ class PrimitiveNavigationBar extends React.Component<
         .filter(s => s.match(ATCODER_USER_REGEXP))
         .join("/");
     }
-    console.log(this.state);
     return (
       <Navbar color="light" light expand="md">
         <NavbarBrand tag={RouterLink} to={root_url}>
