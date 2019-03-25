@@ -181,10 +181,12 @@ class ListPage extends React.Component<Props, State> {
       dataSort?: boolean;
       dataAlign?: "center";
       dataFormat?: (cell: any, row: Problem) => JSX.Element;
+      hidden?: boolean;
     }[] = [
       {
         header: "Date",
-        dataField: "date"
+        dataField: "date",
+        dataSort: true
       },
       {
         header: "Problem",
@@ -240,7 +242,7 @@ class ListPage extends React.Component<Props, State> {
         header: "Solvers",
         dataField: "solver_count",
         dataSort: true,
-        dataFormat: (cell: number, row: Problem) => (
+        dataFormat: (cell: number | null, row: Problem) => (
           <a
             href={Url.formatSolversUrl(row.contest_id, row.id)}
             target="_blank"
@@ -269,49 +271,104 @@ class ListPage extends React.Component<Props, State> {
         header: "Fastest",
         dataField: "execution_time",
         dataSort: true,
-        dataFormat: (_: number, row: Problem) => (
-          <a
-            href={Url.formatSubmissionUrl(
-              row.fastest_submission_id,
-              row.fastest_contest_id
-            )}
-            target="_blank"
-          >
-            {row.fastest_user_id} ({row.execution_time} ms)
-          </a>
-        )
+        dataFormat: (_: number, row: Problem) => {
+          const {
+            fastest_submission_id,
+            fastest_contest_id,
+            fastest_user_id,
+            execution_time
+          } = row;
+          if (
+            fastest_submission_id != null &&
+            fastest_contest_id != null &&
+            fastest_user_id != null &&
+            execution_time != null
+          ) {
+            return (
+              <a
+                href={Url.formatSubmissionUrl(
+                  fastest_submission_id,
+                  fastest_contest_id
+                )}
+                target="_blank"
+              >
+                {fastest_user_id} ({execution_time} ms)
+              </a>
+            );
+          } else {
+            return <p />;
+          }
+        }
       },
       {
         header: "Shortest",
         dataField: "source_code_length",
         dataSort: true,
-        dataFormat: (_: number, row: Problem) => (
-          <a
-            href={Url.formatSubmissionUrl(
-              row.shortest_submission_id,
-              row.shortest_contest_id
-            )}
-            target="_blank"
-          >
-            {row.shortest_user_id} ({row.source_code_length} Bytes)
-          </a>
-        )
+        dataFormat: (_: number, row: Problem) => {
+          const {
+            shortest_submission_id,
+            shortest_contest_id,
+            shortest_user_id,
+            source_code_length
+          } = row;
+          if (
+            shortest_contest_id != null &&
+            shortest_submission_id != null &&
+            shortest_user_id != null &&
+            source_code_length != null
+          ) {
+            return (
+              <a
+                href={Url.formatSubmissionUrl(
+                  shortest_submission_id,
+                  shortest_contest_id
+                )}
+                target="_blank"
+              >
+                {shortest_user_id} ({source_code_length} Bytes)
+              </a>
+            );
+          } else {
+            return <p />;
+          }
+        }
       },
       {
         header: "First",
         dataField: "first_user_id",
         dataSort: true,
-        dataFormat: (_: string, row: Problem) => (
-          <a
-            href={Url.formatSubmissionUrl(
-              row.first_submission_id,
-              row.first_contest_id
-            )}
-            target="_blank"
-          >
-            {row.first_user_id}
-          </a>
-        )
+        dataFormat: (_: string, row: Problem) => {
+          const { first_submission_id, first_contest_id, first_user_id } = row;
+          if (
+            first_submission_id != null &&
+            first_contest_id != null &&
+            first_user_id != null
+          ) {
+            return (
+              <a
+                href={Url.formatSubmissionUrl(
+                  first_submission_id,
+                  first_contest_id
+                )}
+                target="_blank"
+              >
+                {first_user_id}
+              </a>
+            );
+          } else {
+            return <p />;
+          }
+        }
+      },
+      {
+        header: "Shortest User for Search",
+        dataField: "shortest_user_id",
+        hidden: true
+      },
+      {
+        header: "Fastest User for Search",
+        dataField: "fastest_user_id",
+        hidden: true
       }
     ];
     return (
@@ -321,6 +378,7 @@ class ListPage extends React.Component<Props, State> {
         height="auto"
         hover
         striped
+        search
         trClassName={(problem: Problem) => {
           if (isAccepted(problem.status)) {
             return "table-success";
