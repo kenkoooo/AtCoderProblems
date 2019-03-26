@@ -4,16 +4,7 @@ use chrono::DateTime;
 use reqwest::{header, Client};
 use scraper::{Html, Selector};
 
-pub fn scrape_all_contests() -> Vec<Contest> {
-    (1..)
-        .map(scrape_contests)
-        .take_while(|contests| contests.is_ok() && !contests.as_ref().unwrap().is_empty())
-        .map(|contests| contests.unwrap())
-        .flatten()
-        .collect()
-}
-
-fn scrape_contests(page: usize) -> Result<Vec<Contest>, String> {
+pub fn scrape_contests(page: usize) -> Result<Vec<Contest>, String> {
     let url = format!("{}/contests/archive?lang=ja&page={}", ATCODER_HOST, page);
     let client = Client::new();
     let mut res = client
