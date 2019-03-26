@@ -64,8 +64,6 @@ impl SqlUpdater for PgConnection {
     fn update_problem_solver_count(&self) -> QueryResult<()> {
         self.batch_execute(
             r"
-            DELETE FROM
-                solver;
             INSERT INTO
                 solver (user_count, problem_id)
             SELECT
@@ -76,7 +74,10 @@ impl SqlUpdater for PgConnection {
             WHERE
                 result = 'AC'
             GROUP BY
-                problem_id;
+                problem_id ON CONFLICT (problem_id) DO
+            UPDATE
+            SET
+                user_count = EXCLUDED.user_count;
             ",
         )
     }
