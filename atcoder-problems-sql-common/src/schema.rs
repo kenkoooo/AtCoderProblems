@@ -16,6 +16,13 @@ table! {
 }
 
 table! {
+    contest_problem (contest_id, problem_id) {
+        contest_id -> Varchar,
+        problem_id -> Varchar,
+    }
+}
+
+table! {
     fastest (problem_id) {
         contest_id -> Varchar,
         problem_id -> Varchar,
