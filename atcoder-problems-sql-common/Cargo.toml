@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 diesel = { version = "1.4.2", features = ["postgres"] }
 regex = "1"
+serde = { version = "1.0", features = ["derive"] }
