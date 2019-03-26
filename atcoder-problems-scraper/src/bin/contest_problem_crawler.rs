@@ -4,7 +4,6 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use env_logger;
 use log::{error, info};
-use std::collections::HashSet;
 use std::env;
 use std::{thread, time};
 
@@ -35,34 +34,9 @@ fn main() {
         info!("There are {} contests.", contests.len());
         conn.insert_contests(&contests).unwrap();
 
-        let crawled_problems = conn.get_problems().expect("Failed to load problems.");
-        conn.insert_contest_problem_pair(
-            &crawled_problems
-                .iter()
-                .map(|problem| (problem.contest_id.as_str(), problem.id.as_str()))
-                .collect::<Vec<_>>(),
-        )
-        .expect("Failed to insert contest-problem pairs");
-
-        let crawled_contest_ids = crawled_problems
-            .iter()
-            .map(|problem| problem.contest_id.clone())
-            .collect::<HashSet<_>>();
-        info!("There are {} crawled contests.", crawled_contest_ids.len());
-
-        let uncrawled_contest_ids = contests
-            .into_iter()
-            .filter(|contest| !crawled_contest_ids.contains(&contest.id))
-            .map(|contest| contest.id)
-            .collect::<Vec<_>>();
-        info!(
-            "There are {} uncrawled contests.",
-            uncrawled_contest_ids.len()
-        );
-
-        for contest_id in uncrawled_contest_ids.into_iter() {
-            info!("Crawling problems of {},,,", contest_id);
-            match scraper::scrape_problems(&contest_id) {
+        for contest in contests.into_iter() {
+            info!("Crawling problems of {},,,", contest.id);
+            match scraper::scrape_problems(&contest.id) {
                 Ok(problems) => {
                     info!("Inserting {} problems...", problems.len());
                     conn.insert_problems(&problems)
