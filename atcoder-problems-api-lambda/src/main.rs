@@ -1,16 +1,23 @@
 #[macro_use]
 extern crate lambda_runtime as lambda;
+#[macro_use]
+extern crate log;
+extern crate openssl;
 
+use atcoder_problems_sql_common::models::Submission;
+use atcoder_problems_sql_common::schema::*;
+use diesel::dsl::*;
+use diesel::prelude::*;
+use diesel::{Connection, PgConnection};
 use lambda::error::HandlerError;
+use openssl_probe;
 use serde::Serialize;
 use serde_json;
 use serde_json::Value;
-
+use simple_logger;
 use std::collections::HashMap;
 use std::env;
 use std::error::Error;
-
-use atcoder_problems_api_lambda::sql::{ConnectorTrait, SqlConnector};
 
 #[derive(Serialize, Clone)]
 struct CustomOutput {
@@ -22,46 +29,86 @@ struct CustomOutput {
     headers: HashMap<String, String>,
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    lambda!(my_handler);
+#[derive(Serialize)]
+struct UserInfo<'a> {
+    user_id: &'a str,
+    accepted_count: i32,
+    accepted_count_rank: i64,
+    rated_point_sum: f64,
+    rated_point_sum_rank: i64,
+}
 
+fn main() -> Result<(), Box<dyn Error>> {
+    simple_logger::init_with_level(log::Level::Info)?;
+    openssl_probe::init_ssl_cert_env_vars();
+    lambda!(my_handler);
     Ok(())
 }
 
 fn my_handler(e: Value, c: lambda::Context) -> Result<CustomOutput, HandlerError> {
-    let host = env::var("SQL_HOST").unwrap();
-    let user = env::var("SQL_USER").unwrap();
-    let pass = env::var("SQL_PASS").unwrap();
+    let url = env::var("SQL_URL").map_err(|_| c.new_error("SQL_URL must be set"))?;
+    let conn =
+        PgConnection::establish(&url).map_err(|_| c.new_error("Failed to connect to SQL"))?;
 
     let mut headers = HashMap::new();
     headers.insert("Access-Control-Allow-Origin".to_owned(), "*".to_owned());
 
-    let conn = SqlConnector::new(&user, &pass, &host);
-
     let path = e
         .get("pathParameters")
-        .unwrap()
+        .ok_or_else(|| c.new_error("Input doesn't have pathParameters"))?
         .get("proxy")
-        .unwrap()
+        .ok_or_else(|| c.new_error("Input doesn't have pathParameters.proxy"))?
         .as_str()
-        .unwrap();
+        .ok_or_else(|| c.new_error("pathParameters.proxy is not a string"))?;
     let user_id = e
         .get("queryStringParameters")
-        .unwrap()
+        .ok_or_else(|| c.new_error("Input doesn't have queryStringParameters"))?
         .get("user")
-        .unwrap()
+        .ok_or_else(|| c.new_error("Input doesn't have queryStringParameters.user"))?
         .as_str()
-        .unwrap();
+        .ok_or_else(|| c.new_error("queryStringParameters.user is not a string"))?;
 
+    info!("Loading {}:{}", path, user_id);
     match path {
-        "results" => conn
-            .get_submissions(user_id)
-            .map_err(|e| c.new_error(&format!("{:?}", e)))
-            .and_then(|s| serde_json::to_string(&s).map_err(|e| c.new_error(&format!("{:?}", e)))),
-        "v2/user_info" => conn
-            .get_user_info(user_id)
-            .map_err(|e| c.new_error(&format!("{:?}", e)))
-            .and_then(|s| serde_json::to_string(&s).map_err(|e| c.new_error(&format!("{:?}", e)))),
+        "results" => {
+            let submissions = submissions::table
+                .filter(submissions::user_id.eq(user_id))
+                .load::<Submission>(&conn)
+                .map_err(|_| c.new_error("Failed to load submissions"))?;
+            serde_json::to_string(&submissions)
+                .map_err(|_| c.new_error("Failed to convert submissions to JSON"))
+        }
+        "v2/user_info" => {
+            let accepted_count = accepted_count::table
+                .filter(accepted_count::user_id.eq(user_id))
+                .select(accepted_count::problem_count)
+                .first::<i32>(&conn)
+                .map_err(|_| c.new_error("Failed to load accepted_count"))?;
+            let accepted_count_rank = accepted_count::table
+                .filter(accepted_count::problem_count.gt(accepted_count))
+                .select(count_star())
+                .first::<i64>(&conn)
+                .map_err(|_| c.new_error("Failed to load accepted_count_rank"))?;
+            let rated_point_sum = rated_point_sum::table
+                .filter(rated_point_sum::user_id.eq(user_id))
+                .select(rated_point_sum::point_sum)
+                .first::<f64>(&conn)
+                .map_err(|_| c.new_error("Failed to load rated_point_sum"))?;
+            let rated_point_sum_rank = rated_point_sum::table
+                .filter(rated_point_sum::point_sum.gt(rated_point_sum))
+                .select(count_star())
+                .first::<i64>(&conn)
+                .map_err(|_| c.new_error("Failed to load rated_point_sum_rank"))?;
+
+            serde_json::to_string(&UserInfo {
+                user_id,
+                accepted_count,
+                accepted_count_rank,
+                rated_point_sum,
+                rated_point_sum_rank,
+            })
+            .map_err(|_| c.new_error("Failed to convert user_info to JSON"))
+        }
         _ => Err(c.new_error("invalid path")),
     }
     .map(|body| CustomOutput {

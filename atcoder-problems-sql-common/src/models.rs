@@ -1,4 +1,5 @@
 use super::schema::{contests, problems, submissions};
+use serde::Serialize;
 
 #[derive(Debug, Eq, PartialEq, Queryable, Insertable)]
 pub struct Contest {
@@ -16,7 +17,7 @@ pub struct Problem {
     pub title: String,
 }
 
-#[derive(Debug, Queryable, Insertable, Clone)]
+#[derive(Debug, Queryable, Insertable, Clone, Serialize)]
 pub struct Submission {
     pub id: i64,
     pub epoch_second: i64,
