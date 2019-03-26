@@ -4,7 +4,6 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use env_logger;
 use log::{error, info};
-use std::collections::HashSet;
 use std::env;
 use std::{thread, time};
 
@@ -17,35 +16,38 @@ fn main() {
 
     loop {
         info!("Starting...");
+        let contests: Vec<_> = (1..)
+            .map(|page| {
+                info!("crawling contest page-{}", page);
+                match scraper::scrape_contests(page) {
+                    Ok(contests) => {
+                        thread::sleep(time::Duration::from_secs(1));
+                        contests
+                    }
+                    Err(_) => Vec::new(),
+                }
+            })
+            .take_while(|contests| !contests.is_empty())
+            .flatten()
+            .collect();
 
-        let contests = scraper::scrape_all_contests();
         info!("There are {} contests.", contests.len());
         conn.insert_contests(&contests).unwrap();
 
-        let crawled_contest_ids = conn
-            .get_problems()
-            .unwrap()
-            .into_iter()
-            .map(|problem| problem.contest_id)
-            .collect::<HashSet<_>>();
-        info!("There are {} crawled contests.", crawled_contest_ids.len());
-
-        let uncrawled_contest_ids = contests
-            .into_iter()
-            .filter(|contest| !crawled_contest_ids.contains(&contest.id))
-            .map(|contest| contest.id)
-            .collect::<Vec<_>>();
-        info!(
-            "There are {} uncrawled contests.",
-            uncrawled_contest_ids.len()
-        );
-
-        for contest_id in uncrawled_contest_ids.into_iter() {
-            info!("Crawling problems of {},,,", contest_id);
-            match scraper::scrape_problems(&contest_id) {
+        for contest in contests.into_iter() {
+            info!("Crawling problems of {},,,", contest.id);
+            match scraper::scrape_problems(&contest.id) {
                 Ok(problems) => {
                     info!("Inserting {} problems...", problems.len());
-                    conn.insert_problems(&problems).unwrap();
+                    conn.insert_problems(&problems)
+                        .expect("Failed to insert problems");
+                    conn.insert_contest_problem_pair(
+                        &problems
+                            .iter()
+                            .map(|problem| (problem.contest_id.as_str(), problem.id.as_str()))
+                            .collect::<Vec<_>>(),
+                    )
+                    .expect("Failed to insert contest-problem pairs");
                 }
                 Err(e) => error!("{}", e),
             }
