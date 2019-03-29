@@ -35,7 +35,7 @@ mod tests {
 
     #[test]
     fn test_submission_scraper() {
-        let html = read_file("assets/abc107_submissions.html");
+        let html = read_file("assets/abc107_submissions");
 
         let submissions = submission::scrape_submissions_from_html(&html, "abc107");
         assert_eq!(submissions.len(), 20);
@@ -47,7 +47,7 @@ mod tests {
 
     #[test]
     fn test_problem_scraper() {
-        let html = read_file("assets/abc107_tasks.html");
+        let html = read_file("assets/abc107_tasks");
         let problems = problem::scrape_problems_from_html(&html, "abc107").unwrap();
         assert_eq!(
             problems,

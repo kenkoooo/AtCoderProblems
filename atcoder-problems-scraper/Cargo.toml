@@ -14,7 +14,5 @@ regex = "1"
 env_logger = "0.6.1"
 log = "0.4.6"
 diesel = { version = "1.4.2", features = ["postgres"] }
-r2d2 = "0.8.3"
-r2d2-diesel = "1.0.0"
 
 atcoder-problems-sql-common = { path = "../atcoder-problems-sql-common" }
