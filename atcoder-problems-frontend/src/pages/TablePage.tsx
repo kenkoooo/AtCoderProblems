@@ -232,13 +232,11 @@ const ContestTable = ({ contests }: { contests: ContestAndProblems[] }) => (
   <div>
     {contests.map(({ contest, problems }) => (
       <div key={contest.id}>
-        <h5>
-          <strong>
-            <a target="_blank" href={Url.formatContestUrl(contest.id)}>
-              {contest.title}
-            </a>
-          </strong>
-        </h5>
+        <strong>
+          <a target="_blank" href={Url.formatContestUrl(contest.id)}>
+            {contest.title}
+          </a>
+        </strong>
         <Table striped bordered hover responsive>
           <tbody>
             <tr>
@@ -269,52 +267,52 @@ const AtCoderRegularTable = ({
   contests: { contest_id: string; problems: ProblemWithStatus[] }[];
   title: string;
 }) => (
-  <Row className="my-4">
-    <h2>{title}</h2>
-    <BootstrapTable data={contests}>
-      <TableHeaderColumn
-        isKey
-        dataField="contest_id"
-        dataFormat={(
-          _: any,
-          row: { contest_id: string; problems: ProblemWithStatus[] }
-        ) => (
-          <a href={Url.formatContestUrl(row.contest_id)} target="_blank">
-            {row.contest_id.toUpperCase()}
-          </a>
-        )}
-      >
-        Contest
-      </TableHeaderColumn>
-      {"ABCD".split("").map((c, i) => (
+    <Row className="my-4">
+      <h2>{title}</h2>
+      <BootstrapTable data={contests}>
         <TableHeaderColumn
-          dataField={c}
-          key={c}
-          columnClassName={(
-            _: any,
-            { problems }: { problems: ProblemWithStatus[] }
-          ) => get_table_class(problems[i].status)}
+          isKey
+          dataField="contest_id"
           dataFormat={(
             _: any,
-            { problems }: { contest_id: string; problems: ProblemWithStatus[] }
+            row: { contest_id: string; problems: ProblemWithStatus[] }
           ) => (
-            <a
-              href={Url.formatProblemUrl(
-                problems[i].id,
-                problems[i].contest_id
-              )}
-              target="_blank"
-            >
-              {problems[i].title}
-            </a>
-          )}
+              <a href={Url.formatContestUrl(row.contest_id)} target="_blank">
+                {row.contest_id.toUpperCase()}
+              </a>
+            )}
         >
-          {c}
-        </TableHeaderColumn>
-      ))}
-    </BootstrapTable>
-  </Row>
-);
+          Contest
+      </TableHeaderColumn>
+        {"ABCD".split("").map((c, i) => (
+          <TableHeaderColumn
+            dataField={c}
+            key={c}
+            columnClassName={(
+              _: any,
+              { problems }: { problems: ProblemWithStatus[] }
+            ) => get_table_class(problems[i].status)}
+            dataFormat={(
+              _: any,
+              { problems }: { contest_id: string; problems: ProblemWithStatus[] }
+            ) => (
+                <a
+                  href={Url.formatProblemUrl(
+                    problems[i].id,
+                    problems[i].contest_id
+                  )}
+                  target="_blank"
+                >
+                  {problems[i].title}
+                </a>
+              )}
+          >
+            {c}
+          </TableHeaderColumn>
+        ))}
+      </BootstrapTable>
+    </Row>
+  );
 
 const createAtCoderGrandContestTable = (
   contests: Contest[],
