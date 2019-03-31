@@ -10,7 +10,8 @@ pub(crate) fn scrape_problems_from_html(html: &str, contest_id: &str) -> Option<
         .map(|tr| {
             let selector = Selector::parse("td").unwrap();
             let mut tds = tr.select(&selector);
-            let problem = tds.nth(1)?;
+            let prefix = tds.next()?.text().next()?.to_owned();
+            let problem = tds.next()?;
             let id = problem
                 .select(&Selector::parse("a").unwrap())
                 .next()?
@@ -19,11 +20,11 @@ pub(crate) fn scrape_problems_from_html(html: &str, contest_id: &str) -> Option<
                 .rsplit('/')
                 .next()?
                 .to_owned();
-            let title = problem.text().next()?.to_owned();
+            let title = problem.text().next()?;
             Some(Problem {
                 id: id,
                 contest_id: contest_id.to_owned(),
-                title,
+                title: prefix + ". " + title,
             })
         })
         .collect()

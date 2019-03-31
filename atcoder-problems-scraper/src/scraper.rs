@@ -55,22 +55,22 @@ mod tests {
                 Problem {
                     id: "abc107_a".to_owned(),
                     contest_id: "abc107".to_owned(),
-                    title: "Train".to_owned()
+                    title: "A. Train".to_owned()
                 },
                 Problem {
                     id: "abc107_b".to_owned(),
                     contest_id: "abc107".to_owned(),
-                    title: "Grid Compression".to_owned()
+                    title: "B. Grid Compression".to_owned()
                 },
                 Problem {
                     id: "arc101_a".to_owned(),
                     contest_id: "abc107".to_owned(),
-                    title: "Candles".to_owned()
+                    title: "C. Candles".to_owned()
                 },
                 Problem {
                     id: "arc101_b".to_owned(),
                     contest_id: "abc107".to_owned(),
-                    title: "Median of Medians".to_owned()
+                    title: "D. Median of Medians".to_owned()
                 }
             ]
         );
