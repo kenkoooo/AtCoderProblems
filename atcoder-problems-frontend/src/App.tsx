@@ -5,7 +5,7 @@ import {
   Switch,
   Redirect
 } from "react-router-dom";
-import { Container } from "reactstrap";
+import { Badge, Container } from "reactstrap";
 
 import ACRanking from "./pages/ACRanking";
 import FastestRanking from "./pages/FastestRanking";
@@ -26,6 +26,12 @@ const extractUserId = ({
   }
 }: MatchUserId) => (user_id ? user_id.split("/") : []);
 
+const EdgeWarning = () => {
+  const user_agent = window.navigator.userAgent;
+  const is_edge_browser = user_agent.indexOf("Edge") !== -1;
+  return is_edge_browser ? <Badge color="danger">MicrosoftEdge is not supported.</Badge> : null;
+};
+
 class App extends Component {
   render() {
     const params = new URLSearchParams(location.search);
@@ -38,6 +44,7 @@ class App extends Component {
         <div>
           <NavigationBar />
           <Container style={{ width: "100%", maxWidth: "90%" }}>
+            <EdgeWarning></EdgeWarning>
             <Switch>
               <Route exact path="/ac" component={ACRanking} />
               <Route exact path="/fast" component={FastestRanking} />
