@@ -23,7 +23,7 @@ fn main() {
 
         contests.sort_by_key(|contest| -contest.start_epoch_second);
         for (_, contest) in contests.into_iter().enumerate().filter(|(i, contest)| {
-            *i == 0 || now - contest.start_epoch_second > Duration::days(3).num_seconds()
+            *i == 0 || now - contest.start_epoch_second < Duration::days(3).num_seconds()
         }) {
             info!("Starting for {}", contest.id);
             match scraper::get_max_submission_page(&contest.id) {
