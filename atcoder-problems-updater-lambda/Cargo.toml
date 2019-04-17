@@ -5,6 +5,7 @@ authors = ["kenkoooo <kenkou.n@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+regex = "1"
 atcoder-problems-sql-common = { path = "../atcoder-problems-sql-common" }
 lambda_runtime = "^0.1"
 diesel = { version = "1.4.2", features = ["postgres"] }
