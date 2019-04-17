@@ -18,6 +18,9 @@ matrix:
         - cd atcoder-problems-sql-common/
         - RUST_TEST_THREADS=1 cargo test
         - cd ../
+        - cd atcoder-problems-updater-lambda/
+        - RUST_TEST_THREADS=1 cargo test
+        - cd ../
     - language: node_js
       node_js: node
       before_script:
