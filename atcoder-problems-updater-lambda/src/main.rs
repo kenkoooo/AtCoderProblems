@@ -6,7 +6,7 @@ extern crate simple_logger;
 extern crate lambda_runtime as lambda;
 extern crate openssl;
 
-use atcoder_problems_sql_common::sql::SqlUpdater;
+use atcoder_problems_updater_lambda::updater::SqlUpdater;
 use diesel::{Connection, PgConnection};
 use lambda::error::HandlerError;
 use openssl_probe;
