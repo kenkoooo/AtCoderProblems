@@ -364,15 +364,12 @@ impl SqlUpdater for PgConnection {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use atcoder_problems_sql_common::models::{Contest, Problem, Submission};
-    use atcoder_problems_sql_common::schema::*;
+    use atcoder_problems_sql_common::models::{Contest, Submission};
     use atcoder_problems_sql_common::sql::SqlClient;
     use diesel::connection::SimpleConnection;
-    use diesel::prelude::*;
     use diesel::Connection;
     use diesel::PgConnection;
     use std::collections::HashMap;
@@ -395,7 +392,7 @@ mod tests {
     }
 
     fn connect_to_test() -> PgConnection {
-        PgConnection::establish("postgres://kenkoooo:pass@localhost/test").expect(
+        PgConnection::establish(URL).expect(
             r"
             Please prepare a database on your localhost with the following properties.
             database:   test
