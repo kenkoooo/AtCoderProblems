@@ -13,7 +13,3 @@ openssl-probe = "0.1.2"
 openssl = "*"
 log = "^0.4"
 simple_logger = "^1"
-
-[[bin]]
-name = "bootstrap"
-path = "src/main.rs"
