@@ -29,6 +29,8 @@ impl SqlClient for PgConnection {
             .set((
                 submissions::user_id.eq(excluded(submissions::user_id)),
                 submissions::result.eq(excluded(submissions::result)),
+                submissions::point.eq(excluded(submissions::point)),
+                submissions::execution_time.eq(excluded(submissions::execution_time)),
             ))
             .execute(self)
             .map_err(|e| format!("{:?}", e))

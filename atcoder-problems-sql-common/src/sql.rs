@@ -11,7 +11,6 @@ mod tests {
     use diesel::prelude::*;
     use diesel::Connection;
     use diesel::PgConnection;
-    use std::collections::HashMap;
     use std::fs::File;
     use std::io::prelude::*;
 
@@ -93,29 +92,37 @@ mod tests {
             point: 0.0,
             length: 0,
             result: "".to_owned(),
-            execution_time: Some(10),
+            execution_time: None,
         }];
 
         let conn = connect_to_test();
 
         v[0].user_id = "kenkoooo".to_owned();
         v[0].result = "WJ".to_owned();
+        v[0].execution_time = None;
+        v[0].point = 0.0;
         conn.insert_submissions(&v).unwrap();
         assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 1);
-        assert_eq!(
-            conn.get_submissions("kenkoooo").unwrap()[0].result,
-            "WJ".to_owned()
-        );
+
+        let submissions = conn.get_submissions("kenkoooo").unwrap();
+        assert_eq!(submissions[0].result, "WJ".to_owned());
+        assert_eq!(submissions[0].user_id, "kenkoooo".to_owned());
+        assert_eq!(submissions[0].execution_time, None);
+        assert_eq!(submissions[0].point, 0.0);
 
         v[0].user_id = "a".to_owned();
         v[0].result = "AC".to_owned();
+        v[0].execution_time = Some(10);
+        v[0].point = 100.0;
         conn.insert_submissions(&v).unwrap();
         assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 0);
         assert_eq!(conn.get_submissions("a").unwrap().len(), 1);
-        assert_eq!(
-            conn.get_submissions("a").unwrap()[0].result,
-            "AC".to_owned()
-        );
+
+        let submissions = conn.get_submissions("a").unwrap();
+        assert_eq!(submissions[0].result, "AC".to_owned());
+        assert_eq!(submissions[0].user_id, "a".to_owned());
+        assert_eq!(submissions[0].execution_time, Some(10));
+        assert_eq!(submissions[0].point, 100.0);
     }
 
     #[test]
