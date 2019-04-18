@@ -13,6 +13,8 @@ use openssl_probe;
 use std::env;
 use std::error::Error;
 
+const WINDOW_SECOND: i64 = 60 * 15;
+
 fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Info)?;
     openssl_probe::init_ssl_cert_env_vars();
@@ -29,6 +31,18 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
     info!("Connected");
 
     let recent_submissions = conn.get_recent_submissions(1000).lambda_err(&c)?;
+    info!("There are latest {} submissions.", recent_submissions.len());
+    let latest_second = recent_submissions
+        .iter()
+        .map(|s| s.epoch_second)
+        .max()
+        .unwrap();
+    let recent_submissions = recent_submissions
+        .into_iter()
+        .filter(|s| s.epoch_second > latest_second - WINDOW_SECOND)
+        .collect::<Vec<_>>();
+    info!("There are {} submissions.", recent_submissions.len());
+
     let user_submissions = conn
         .get_user_submissions(&recent_submissions)
         .lambda_err(&c)?;
