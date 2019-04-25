@@ -9,9 +9,6 @@ const STATIC_API_BASE_URL = BASE_URL + '/resources';
 const DYNAMIC_API_BASE_URL = BASE_URL + '/atcoder-api';
 
 const AC_COUNT_URL = STATIC_API_BASE_URL + '/ac.json';
-const SHORT_COUNT_URL = STATIC_API_BASE_URL + '/short.json';
-const FAST_COUNT_URL = STATIC_API_BASE_URL + '/fast.json';
-const FIRST_COUNT_URL = STATIC_API_BASE_URL + '/first.json';
 const SUM_URL = STATIC_API_BASE_URL + '/sums.json';
 const LANG_URL = STATIC_API_BASE_URL + '/lang.json';
 
@@ -20,12 +17,27 @@ interface RankingEntry {
 	user_id: string;
 }
 
-const fetchRanking = (url: string) => fetch(url).then((r) => r.json()).then((r) => r as RankingEntry[]);
+const fetchAndGenerateRanking = (property: "fastest_user_id" | "shortest_user_id" | "first_user_id") => fetchMergedProblems()
+	.then(problems => problems.reduce((map, problem) => {
+		const user_id = problem[property];
+		if (user_id) {
+			const count = map.get(user_id);
+			if (count) {
+				return map.set(user_id, count + 1);
+			} else {
+				return map.set(user_id, 1);
+			}
+		} else {
+			return map;
+		}
+	}, new Map<string, number>()))
+	.then(map => Array.from(map).map(([user_id, problem_count]) => ({ user_id, problem_count })));
 
-export const fetchACRanking = () => fetchRanking(AC_COUNT_URL);
-export const fetchShortRanking = () => fetchRanking(SHORT_COUNT_URL);
-export const fetchFastRanking = () => fetchRanking(FAST_COUNT_URL);
-export const fetchFirstRanking = () => fetchRanking(FIRST_COUNT_URL);
+export const fetchACRanking = () => fetch(AC_COUNT_URL).then((r) => r.json()).then((r) => r as RankingEntry[]);
+export const fetchShortRanking = () => fetchAndGenerateRanking("shortest_user_id");
+export const fetchFastRanking = () => fetchAndGenerateRanking("fastest_user_id");
+export const fetchFirstRanking = () => fetchAndGenerateRanking("first_user_id");
+
 export const fetchSumRanking = () =>
 	fetch(SUM_URL).then((r) => r.json()).then(
 		(r) =>
@@ -34,6 +46,7 @@ export const fetchSumRanking = () =>
 				point_sum: number;
 			}[]
 	);
+
 export const fetchLangRanking = () =>
 	fetch(LANG_URL).then((r) => r.json()).then(
 		(r) =>
