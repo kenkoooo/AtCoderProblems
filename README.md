@@ -97,12 +97,6 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
 
 - Accepted Count
   - https://kenkoooo.com/atcoder/resources/ac.json
-- Shortest Code Count
-  - https://kenkoooo.com/atcoder/resources/short.json
-- Fastest Code Count
-  - https://kenkoooo.com/atcoder/resources/fast.json
-- First Accepted Count
-  - https://kenkoooo.com/atcoder/resources/first.json
 - Rated Point Sum
   - https://kenkoooo.com/atcoder/resources/sums.json
 - Accepted Count for each language
