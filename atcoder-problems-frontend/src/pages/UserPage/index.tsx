@@ -67,16 +67,12 @@ class UserPage extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    Api.fetchFirstRanking()
-      .then((ranking) => ranking.sort((a, b) => b.problem_count - a.problem_count))
-      .then((first_ranking) => this.setState({ first_ranking }));
-    Api.fetchShortRanking()
-      .then((ranking) => ranking.sort((a, b) => b.problem_count - a.problem_count))
-      .then((short_ranking) => this.setState({ short_ranking }));
-    Api.fetchFastRanking()
-      .then((ranking) => ranking.sort((a, b) => b.problem_count - a.problem_count))
-      .then((fast_ranking) => this.setState({ fast_ranking }));
-    Api.fetchMergedProblems().then((problems) => this.setState({ problems }));
+    Api.fetchMergedProblems().then((problems) => {
+      const fast_ranking = Api.getFastRanking(problems).sort((a, b) => b.problem_count - a.problem_count);
+      const short_ranking = Api.getShortRanking(problems).sort((a, b) => b.problem_count - a.problem_count);
+      const first_ranking = Api.getFirstRanking(problems).sort((a, b) => b.problem_count - a.problem_count);
+      this.setState({ fast_ranking, first_ranking, short_ranking, problems });
+    });
     this.updateState(this.getUserIdFromProps());
   }
   componentDidUpdate(prevProps: Props) {

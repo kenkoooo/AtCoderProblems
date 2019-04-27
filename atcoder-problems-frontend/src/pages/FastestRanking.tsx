@@ -5,8 +5,7 @@ import Ranking from "../components/Ranking";
 const FastestRanking = () => (
     <Ranking
         title="Fastest Submission Ranking"
-        fetch={() => ApiUrl.fetchFastRanking().then(rows => rows.map(row => ({ count: row.problem_count, id: row.user_id })))}
-
+        fetch={() => ApiUrl.fetchMergedProblems().then(problems => ApiUrl.getFastRanking(problems).map(({ problem_count, user_id }) => ({ count: problem_count, id: user_id })))}
     />
 );
 

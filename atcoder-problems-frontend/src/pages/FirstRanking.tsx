@@ -5,7 +5,7 @@ import Ranking from "../components/Ranking";
 const FirstRanking = () => (
     <Ranking
         title="First AC Ranking"
-        fetch={() => ApiUrl.fetchFirstRanking().then(rows => rows.map(row => ({ count: row.problem_count, id: row.user_id })))}
+        fetch={() => ApiUrl.fetchMergedProblems().then(problems => ApiUrl.getFirstRanking(problems).map(({ problem_count, user_id }) => ({ count: problem_count, id: user_id })))}
     />
 );
 
