@@ -17,8 +17,8 @@ interface RankingEntry {
 	user_id: string;
 }
 
-const fetchAndGenerateRanking = (property: "fastest_user_id" | "shortest_user_id" | "first_user_id") => fetchMergedProblems()
-	.then(problems => problems.reduce((map, problem) => {
+const generateRanking = (problems: MergedProblem[], property: "fastest_user_id" | "shortest_user_id" | "first_user_id") => {
+	const map = problems.reduce((map, problem) => {
 		const user_id = problem[property];
 		if (user_id) {
 			const count = map.get(user_id);
@@ -30,13 +30,16 @@ const fetchAndGenerateRanking = (property: "fastest_user_id" | "shortest_user_id
 		} else {
 			return map;
 		}
-	}, new Map<string, number>()))
-	.then(map => Array.from(map).map(([user_id, problem_count]) => ({ user_id, problem_count })));
+	}, new Map<string, number>());
+	return Array.from(map).map(([user_id, problem_count]) => ({ user_id, problem_count }));
+};
+
+export const getShortRanking = (problems: MergedProblem[]) => generateRanking(problems, "shortest_user_id");
+export const getFastRanking = (problems: MergedProblem[]) => generateRanking(problems, "fastest_user_id");
+export const getFirstRanking = (problems: MergedProblem[]) => generateRanking(problems, "first_user_id");
+
 
 export const fetchACRanking = () => fetch(AC_COUNT_URL).then((r) => r.json()).then((r) => r as RankingEntry[]);
-export const fetchShortRanking = () => fetchAndGenerateRanking("shortest_user_id");
-export const fetchFastRanking = () => fetchAndGenerateRanking("fastest_user_id");
-export const fetchFirstRanking = () => fetchAndGenerateRanking("first_user_id");
 
 export const fetchSumRanking = () =>
 	fetch(SUM_URL).then((r) => r.json()).then(
