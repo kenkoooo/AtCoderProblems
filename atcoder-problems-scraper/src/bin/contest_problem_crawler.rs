@@ -7,6 +7,8 @@ use log::{error, info};
 use std::env;
 use std::{thread, time};
 
+use atcoder_problems_sql_common::schema::*;
+
 fn main() {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
@@ -33,9 +35,16 @@ fn main() {
     info!("There are {} contests.", contests.len());
     conn.insert_contests(&contests).unwrap();
 
-    for contest in contests.into_iter() {
-        info!("Crawling problems of {},,,", contest.id);
-        match scraper::scrape_problems(&contest.id) {
+    let no_problem_contests = contests::table
+        .left_join(problems::table.on(contests::id.eq(problems::contest_id)))
+        .filter(contests::id.is_null())
+        .select(contests::id)
+        .load::<String>(&conn)
+        .expect("Invalid contest extraction query");
+
+    for contest in no_problem_contests.into_iter() {
+        info!("Crawling problems of {},,,", contest);
+        match scraper::scrape_problems(&contest) {
             Ok(problems) => {
                 info!("Inserting {} problems...", problems.len());
                 conn.insert_problems(&problems)
