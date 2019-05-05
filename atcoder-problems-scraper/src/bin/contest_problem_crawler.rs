@@ -37,7 +37,7 @@ fn main() {
 
     let no_problem_contests = contests::table
         .left_join(problems::table.on(contests::id.eq(problems::contest_id)))
-        .filter(contests::id.is_null())
+        .filter(problems::id.is_null())
         .select(contests::id)
         .load::<String>(&conn)
         .expect("Invalid contest extraction query");
