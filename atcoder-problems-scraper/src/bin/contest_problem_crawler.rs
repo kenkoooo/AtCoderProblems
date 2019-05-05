@@ -36,7 +36,8 @@ fn main() {
     conn.insert_contests(&contests).unwrap();
 
     let no_problem_contests = contests::table
-        .left_join(problems::table.on(contests::id.eq(problems::contest_id)))
+        .left_join(contest_problem::table.on(contests::id.eq(contest_problem::contest_id)))
+        .left_join(problems::table.on(contest_problem::problem_id.eq(problems::id)))
         .filter(problems::id.is_null())
         .select(contests::id)
         .load::<String>(&conn)
