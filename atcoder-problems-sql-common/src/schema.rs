@@ -130,6 +130,7 @@ table! {
 allow_tables_to_appear_in_same_query!(
     accepted_count,
     contests,
+    contest_problem,
     fastest,
     fastest_submission_count,
     first,
