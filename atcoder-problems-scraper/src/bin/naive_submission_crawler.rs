@@ -8,7 +8,6 @@ use diesel::Connection;
 use env_logger;
 use log::info;
 use std::env;
-use std::{thread, time};
 
 const NEW_CONTEST_THRESHOLD_DAYS: i64 = 2;
 const NEW_PAGE_THRESHOLD: usize = 5;
@@ -33,9 +32,11 @@ fn main() {
                 info!("Crawling {} {}", contest.id, page);
                 let new_submissions = scraper::scrape_submissions(&contest.id, page);
                 if new_submissions.is_empty() {
+                    info!("There is no submission on {}-{}", contest.id, page);
                     break;
                 }
 
+                info!("Inserting {} submissions...", new_submissions.len());
                 let min_id = new_submissions.iter().map(|s| s.id).min().unwrap();
                 let exists = submissions::table
                     .select(submissions::id)
@@ -47,7 +48,6 @@ fn main() {
                     .is_some();
                 conn.insert_submissions(&new_submissions)
                     .expect("Failed to insert submissions");
-                thread::sleep(time::Duration::from_millis(500));
                 if exists {
                     break;
                 }
