@@ -5,7 +5,6 @@ use diesel::Connection;
 use env_logger;
 use log::{error, info};
 use std::env;
-use std::{thread, time};
 
 fn main() {
     env::set_var("RUST_LOG", "info");
@@ -27,9 +26,9 @@ fn main() {
                     for page in (1..=max_page).rev() {
                         info!("Crawling {} {}", contest.id, page);
                         let new_submissions = scraper::scrape_submissions(&contest.id, page);
+                        info!("Inserting {} submissions", new_submissions.len());
                         conn.insert_submissions(&new_submissions)
                             .expect("Failed to insert submissions");
-                        thread::sleep(time::Duration::from_millis(500));
                     }
                 }
                 Err(msg) => {
