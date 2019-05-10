@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use diesel::Connection;
 use env_logger;
 use log::info;
-use std::env;
+use std::{env, thread, time};
 
 const NEW_CONTEST_THRESHOLD_DAYS: i64 = 2;
 const NEW_PAGE_THRESHOLD: usize = 5;
@@ -48,6 +48,8 @@ fn main() {
                     .is_some();
                 conn.insert_submissions(&new_submissions)
                     .expect("Failed to insert submissions");
+                thread::sleep(time::Duration::from_millis(200));
+
                 if exists {
                     break;
                 }

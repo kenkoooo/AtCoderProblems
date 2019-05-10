@@ -5,7 +5,7 @@ use diesel::pg::PgConnection;
 use diesel::Connection;
 use env_logger;
 use log::{error, info};
-use std::env;
+use std::{env, thread, time};
 
 fn main() {
     env::set_var("RUST_LOG", "info");
@@ -35,6 +35,7 @@ fn main() {
                         info!("Inserting {} submissions...", new_submissions.len());
                         conn.insert_submissions(&new_submissions)
                             .expect("Failed to insert submissions");
+                        thread::sleep(time::Duration::from_millis(200));
                     }
                 }
                 Err(msg) => {
