@@ -2,6 +2,7 @@ pub(crate) const ATCODER_HOST: &str = "https://atcoder.jp";
 
 pub mod contest;
 pub mod problem;
+pub mod results;
 pub mod submission;
 
 pub use self::contest::scrape_contests;
