@@ -44,7 +44,7 @@ fn main() {
         .expect("Invalid contest extraction query");
 
     for contest in no_problem_contests.into_iter() {
-        info!("Crawling problems of {},,,", contest);
+        info!("Crawling problems of {}...", contest);
         match scraper::scrape_problems(&contest) {
             Ok(problems) => {
                 info!("Inserting {} problems...", problems.len());
@@ -61,6 +61,20 @@ fn main() {
             Err(e) => error!("{}", e),
         }
 
+        thread::sleep(time::Duration::from_millis(500));
+    }
+
+    let contests_without_performances = conn
+        .get_contests_without_performances()
+        .expect("Invalid query.");
+    for contest in contests_without_performances.into_iter() {
+        info!("Crawling results of {}", contest);
+        let performances = scraper::get_performances(&contest).unwrap();
+
+        info!("Inserting results of {}", contest);
+        conn.insert_performances(&performances).unwrap();
+
+        info!("Sleeping...");
         thread::sleep(time::Duration::from_millis(500));
     }
 }

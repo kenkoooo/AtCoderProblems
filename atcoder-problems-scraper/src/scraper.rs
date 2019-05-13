@@ -8,6 +8,7 @@ pub mod submission;
 pub use self::contest::scrape_contests;
 pub use self::problem::scrape_problems;
 pub use self::submission::{get_max_submission_page, scrape_submissions};
+pub use self::results::get_performances;
 
 use reqwest::{header, Client};
 

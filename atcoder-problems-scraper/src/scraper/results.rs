@@ -1,4 +1,5 @@
 use crate::scraper::ATCODER_HOST;
+use crate::Performance;
 use reqwest;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -27,12 +28,6 @@ struct ContestStanding {
     user_id: String,
 }
 
-pub struct Performance<'a> {
-    pub user_id: String,
-    pub inner_performance: i64,
-    pub contest_id: &'a str,
-}
-
 fn get_standings(contest_id: &str) -> reqwest::Result<Vec<ContestStanding>> {
     let url = format!("{}/contests/{}/standings/json", ATCODER_HOST, contest_id);
     reqwest::get(&url)
@@ -56,7 +51,7 @@ pub fn get_performances(contest_id: &str) -> reqwest::Result<Vec<Performance>> {
             standings.get(&p.place).map(|user_id| Performance {
                 inner_performance: p.inner_performance,
                 user_id: user_id.to_string(),
-                contest_id: contest_id,
+                contest_id: contest_id.to_string(),
             })
         })
         .collect();
