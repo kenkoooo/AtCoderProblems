@@ -184,20 +184,33 @@ mod tests {
 
         let contest_id = "contest_id";
 
-        conn.insert_contests(&[Contest {
-            id: contest_id.to_owned(),
-            start_epoch_second: FIRST_AGC_EPOCH_SECOND,
-            duration_second: 0,
-            title: "Contest 1".to_owned(),
-            rate_change: "All".to_owned(),
-        }])
+        conn.insert_contests(&[
+            Contest {
+                id: "too_old_contest".to_owned(),
+                start_epoch_second: 0,
+                duration_second: 0,
+                title: "Too Old Contest".to_owned(),
+                rate_change: "All".to_owned(),
+            },
+            Contest {
+                id: "unrated_contest".to_owned(),
+                start_epoch_second: FIRST_AGC_EPOCH_SECOND,
+                duration_second: 0,
+                title: "Unrated Contest".to_owned(),
+                rate_change: "-".to_owned(),
+            },
+            Contest {
+                id: contest_id.to_owned(),
+                start_epoch_second: FIRST_AGC_EPOCH_SECOND,
+                duration_second: 0,
+                title: "Contest 1".to_owned(),
+                rate_change: "All".to_owned(),
+            },
+        ])
         .unwrap();
 
-        let contests_without_performances = contests::table
-            .left_join(performances::table.on(performances::contest_id.eq(contests::id)))
-            .filter(performances::contest_id.is_null())
-            .select(contests::id)
-            .load::<String>(&conn)
+        let contests_without_performances = conn
+            .get_contests_without_performances()
             .expect("Invalid contest extraction query");
 
         assert_eq!(contests_without_performances, vec![contest_id.to_owned()]);
@@ -209,11 +222,8 @@ mod tests {
         }])
         .unwrap();
 
-        let contests_without_performances = contests::table
-            .left_join(performances::table.on(performances::contest_id.eq(contests::id)))
-            .filter(performances::contest_id.is_null())
-            .select(contests::id)
-            .load::<String>(&conn)
+        let contests_without_performances = conn
+            .get_contests_without_performances()
             .expect("Invalid contest extraction query");
 
         assert!(contests_without_performances.is_empty());

@@ -1,5 +1,6 @@
 use crate::models::*;
 use crate::schema::*;
+use crate::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 
 use diesel::dsl::insert_into;
 use diesel::pg::upsert::excluded;
@@ -16,9 +17,11 @@ pub trait SqlClient {
         contest_problem_pairs: &[(&str, &str)],
     ) -> QueryResult<usize>;
     fn insert_performances(&self, performances: &[Performance]) -> QueryResult<usize>;
+
     fn get_problems(&self) -> Result<Vec<Problem>, String>;
     fn get_contests(&self) -> Result<Vec<Contest>, String>;
     fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String>;
+    fn get_contests_without_performances(&self) -> QueryResult<Vec<String>>;
 }
 
 impl SqlClient for PgConnection {
@@ -99,5 +102,15 @@ impl SqlClient for PgConnection {
             .filter(submissions::user_id.eq(user_id))
             .load::<Submission>(self)
             .map_err(|e| format!("{:?}", e))
+    }
+
+    fn get_contests_without_performances(&self) -> QueryResult<Vec<String>> {
+        contests::table
+            .left_join(performances::table.on(performances::contest_id.eq(contests::id)))
+            .filter(performances::contest_id.is_null())
+            .filter(contests::start_epoch_second.ge(FIRST_AGC_EPOCH_SECOND))
+            .filter(contests::rate_change.ne(UNRATED_STATE))
+            .select(contests::id)
+            .load::<String>(self)
     }
 }
