@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate diesel;
 
-pub mod schema;
 pub mod models;
+pub mod schema;
 pub mod sql;
+
+pub const FIRST_AGC_EPOCH_SECOND: i64 = 1468670400;

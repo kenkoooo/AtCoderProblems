@@ -127,6 +127,14 @@ table! {
     }
 }
 
+table! {
+    performances (contest_id, user_id) {
+        contest_id -> Varchar,
+        user_id -> Varchar,
+        inner_performance -> Int8,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     accepted_count,
     contests,
@@ -139,6 +147,7 @@ allow_tables_to_appear_in_same_query!(
     points,
     predicted_rating,
     problems,
+    performances,
     rated_point_sum,
     shortest,
     shortest_submission_count,

@@ -1,5 +1,5 @@
-use crate::models::{Contest, Problem, Submission};
-use crate::schema::{contest_problem, contests, problems, submissions};
+use crate::models::*;
+use crate::schema::*;
 
 use diesel::dsl::insert_into;
 use diesel::pg::upsert::excluded;
@@ -15,6 +15,7 @@ pub trait SqlClient {
         &self,
         contest_problem_pairs: &[(&str, &str)],
     ) -> QueryResult<usize>;
+    fn insert_performances(&self, performances: &[Performance]) -> QueryResult<usize>;
     fn get_problems(&self) -> Result<Vec<Problem>, String>;
     fn get_contests(&self) -> Result<Vec<Contest>, String>;
     fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String>;
@@ -72,6 +73,12 @@ impl SqlClient for PgConnection {
             )
             .on_conflict((contest_problem::contest_id, contest_problem::problem_id))
             .do_nothing()
+            .execute(self)
+    }
+
+    fn insert_performances(&self, performances: &[Performance]) -> QueryResult<usize> {
+        insert_into(performances::table)
+            .values(performances)
             .execute(self)
     }
 

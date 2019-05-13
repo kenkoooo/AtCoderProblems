@@ -5,8 +5,9 @@ pub use client::SqlClient;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{Contest, Problem, Submission};
+    use crate::models::*;
     use crate::schema::*;
+    use crate::FIRST_AGC_EPOCH_SECOND;
     use diesel::connection::SimpleConnection;
     use diesel::prelude::*;
     use diesel::Connection;
@@ -174,5 +175,47 @@ mod tests {
         conn.insert_contests(&contests).unwrap();
 
         assert_eq!(conn.get_contests().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn test_insert_performances() {
+        setup_test_db();
+        let conn = connect_to_test();
+
+        let contest_id = "contest_id";
+
+        conn.insert_contests(&[Contest {
+            id: contest_id.to_owned(),
+            start_epoch_second: FIRST_AGC_EPOCH_SECOND,
+            duration_second: 0,
+            title: "Contest 1".to_owned(),
+            rate_change: "All".to_owned(),
+        }])
+        .unwrap();
+
+        let contests_without_performances = contests::table
+            .left_join(performances::table.on(performances::contest_id.eq(contests::id)))
+            .filter(performances::contest_id.is_null())
+            .select(contests::id)
+            .load::<String>(&conn)
+            .expect("Invalid contest extraction query");
+
+        assert_eq!(contests_without_performances, vec![contest_id.to_owned()]);
+
+        conn.insert_performances(&[Performance {
+            inner_performance: 100,
+            user_id: "kenkoooo".to_owned(),
+            contest_id: contest_id.to_owned(),
+        }])
+        .unwrap();
+
+        let contests_without_performances = contests::table
+            .left_join(performances::table.on(performances::contest_id.eq(contests::id)))
+            .filter(performances::contest_id.is_null())
+            .select(contests::id)
+            .load::<String>(&conn)
+            .expect("Invalid contest extraction query");
+
+        assert!(contests_without_performances.is_empty());
     }
 }

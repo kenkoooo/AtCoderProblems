@@ -1,4 +1,4 @@
-use super::schema::{contests, problems, submissions};
+use super::schema::{contests, performances, problems, submissions};
 use serde::Serialize;
 
 #[derive(Debug, Eq, PartialEq, Queryable, Insertable)]
@@ -29,4 +29,11 @@ pub struct Submission {
     pub length: i32,
     pub result: String,
     pub execution_time: Option<i32>,
+}
+
+#[derive(Debug, Queryable, Insertable, Clone, Serialize)]
+pub struct Performance {
+    pub inner_performance: i64,
+    pub contest_id: String,
+    pub user_id: String,
 }
