@@ -82,6 +82,8 @@ impl SqlClient for PgConnection {
     fn insert_performances(&self, performances: &[Performance]) -> QueryResult<usize> {
         insert_into(performances::table)
             .values(performances)
+            .on_conflict((performances::contest_id, performances::user_id))
+            .do_nothing()
             .execute(self)
     }
 
