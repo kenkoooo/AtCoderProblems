@@ -1,3 +1,4 @@
+use atcoder_problems_sql_common::FIRST_AGC_EPOCH_SECOND;
 use atcoder_problems_sql_common::models::Submission;
 use atcoder_problems_sql_common::schema::*;
 use diesel::dsl::*;
@@ -7,7 +8,6 @@ use diesel::{PgConnection, QueryResult};
 use regex::Regex;
 use std::collections::{BTreeMap, BTreeSet};
 
-const FIRST_AGC_EPOCH_SECOND: i64 = 1468670400;
 const UNRATED_CONTEST_LABEL: &str = "-";
 
 pub trait DeltaUpdater {

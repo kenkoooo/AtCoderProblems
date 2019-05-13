@@ -130,3 +130,11 @@ CREATE TABLE contest_problem (
   problem_id            VARCHAR(255) NOT NULL,
   PRIMARY KEY (contest_id, problem_id)
 );
+
+DROP TABLE IF EXISTS performances;
+CREATE TABLE performances (
+  contest_id            VARCHAR(255) NOT NULL,
+  user_id               VARCHAR(255) NOT NULL,
+  inner_performance     BIGINT NOT NULL,
+  PRIMARY KEY (contest_id, user_id)
+);
