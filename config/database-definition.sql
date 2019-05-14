@@ -138,3 +138,10 @@ CREATE TABLE performances (
   inner_performance     BIGINT NOT NULL,
   PRIMARY KEY (contest_id, user_id)
 );
+
+DROP TABLE IF EXISTS minimum_performances;
+CREATE TABLE minimum_performances (
+  problem_id            VARCHAR(255) NOT NULL,
+  minimum_performance  BIGINT NOT NULL,
+  PRIMARY KEY (problem_id)
+);
