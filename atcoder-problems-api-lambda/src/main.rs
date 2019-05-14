@@ -9,7 +9,9 @@ use atcoder_problems_sql_common::schema::*;
 use diesel::dsl::*;
 use diesel::prelude::*;
 use diesel::{Connection, PgConnection};
+use hex;
 use lambda::error::HandlerError;
+use md5::{Digest, Md5};
 use openssl_probe;
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -44,6 +46,8 @@ struct LambdaInput {
 
     #[serde(rename = "queryStringParameters")]
     query_string_parameters: LambdaInputQueryParameters,
+
+    headers: HashMap<String, String>,
 }
 
 #[derive(Deserialize)]
@@ -85,6 +89,7 @@ fn map_params<'a>(params: &'a LambdaInputQueryParameters) -> Option<SubmissionAP
 }
 
 fn my_handler(e: LambdaInput, c: lambda::Context) -> Result<CustomOutput, HandlerError> {
+    info!("header: {:?}", e.headers);
     let url = env::var("SQL_URL").map_err(|_| c.new_error("SQL_URL must be set"))?;
     let conn =
         PgConnection::establish(&url).map_err(|_| c.new_error("Failed to connect to SQL"))?;
@@ -99,24 +104,23 @@ fn my_handler(e: LambdaInput, c: lambda::Context) -> Result<CustomOutput, Handle
         "results" => {
             info!("Submission API");
             let params = map_params(&params).ok_or_else(|| c.new_error("Failed to load params"))?;
-            match params {
-                SubmissionAPIParam::UserSubmission { user_id } => {
-                    let submissions = submissions::table
-                        .filter(submissions::user_id.eq(user_id))
-                        .load::<Submission>(&conn)
-                        .map_err(|_| c.new_error("Failed to load submissions"))?;
-                    serde_json::to_string(&submissions)
-                        .map_err(|_| c.new_error("Failed to convert submissions to JSON"))
-                }
-                SubmissionAPIParam::TimeSubmission { from_epoch_second } => {
-                    let submissions = submissions::table
-                        .filter(submissions::epoch_second.ge(from_epoch_second))
-                        .order_by(submissions::epoch_second.asc())
-                        .limit(1000)
-                        .load::<Submission>(&conn)
-                        .map_err(|_| c.new_error("Failed to load submissions"))?;
-                    serde_json::to_string(&submissions)
-                        .map_err(|_| c.new_error("Failed to convert submissions to JSON"))
+            let (body, etag) = get_results(params, &conn, &c)?;
+
+            match get_header(&e.headers, "If-None-Match") {
+                Some(tag) if tag == &etag => Ok(CustomOutput {
+                    is_base64_encoded: false,
+                    status_code: 304,
+                    body: String::new(),
+                    headers,
+                }),
+                _ => {
+                    headers.insert("etag".to_owned(), etag);
+                    Ok(CustomOutput {
+                        is_base64_encoded: false,
+                        status_code: 200,
+                        body,
+                        headers,
+                    })
                 }
             }
         }
@@ -154,13 +158,67 @@ fn my_handler(e: LambdaInput, c: lambda::Context) -> Result<CustomOutput, Handle
                 rated_point_sum_rank,
             })
             .map_err(|_| c.new_error("Failed to convert user_info to JSON"))
+            .map(|body| CustomOutput {
+                is_base64_encoded: false,
+                status_code: 200,
+                body,
+                headers,
+            })
         }
         _ => Err(c.new_error("invalid path")),
     }
-    .map(|body| CustomOutput {
-        is_base64_encoded: false,
-        status_code: 200,
-        body,
-        headers,
-    })
+}
+
+fn get_header<'a>(headers: &'a HashMap<String, String>, field: &str) -> Option<&'a str> {
+    headers
+        .iter()
+        .find(|(key, _)| key.to_ascii_lowercase() == field.to_ascii_lowercase())
+        .map(|(_, value)| value.as_str())
+}
+
+fn get_results<'a>(
+    params: SubmissionAPIParam<'a>,
+    conn: &PgConnection,
+    c: &lambda::Context,
+) -> Result<(String, String), HandlerError> {
+    match params {
+        SubmissionAPIParam::UserSubmission { user_id } => {
+            let submissions = submissions::table
+                .filter(submissions::user_id.eq(user_id))
+                .load::<Submission>(conn)
+                .map_err(|_| c.new_error("Failed to load submissions"))?;
+
+            let mut hasher = Md5::new();
+            hasher.input(user_id.as_bytes());
+            hasher.input(b" ");
+            hasher.input(submissions.len().to_be_bytes());
+            let etag = hex::encode(hasher.result());
+
+            serde_json::to_string(&submissions)
+                .map_err(|_| c.new_error("Failed to convert submissions to JSON"))
+                .map(|body| (body, etag))
+        }
+        SubmissionAPIParam::TimeSubmission { from_epoch_second } => {
+            let submissions = submissions::table
+                .filter(submissions::epoch_second.ge(from_epoch_second))
+                .order_by(submissions::epoch_second.asc())
+                .limit(1000)
+                .load::<Submission>(conn)
+                .map_err(|_| c.new_error("Failed to load submissions"))?;
+
+            let max_id = submissions.iter().map(|s| s.id).max().unwrap_or(0);
+
+            let mut hasher = Md5::new();
+            hasher.input(from_epoch_second.to_be_bytes());
+            hasher.input(b" ");
+            hasher.input(submissions.len().to_be_bytes());
+            hasher.input(b" ");
+            hasher.input(max_id.to_be_bytes());
+            let etag = hex::encode(hasher.result());
+
+            serde_json::to_string(&submissions)
+                .map_err(|_| c.new_error("Failed to convert submissions to JSON"))
+                .map(|body| (body, etag))
+        }
+    }
 }
