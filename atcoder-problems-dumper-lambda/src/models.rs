@@ -4,7 +4,7 @@ use serde::Serialize;
 
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
 pub struct UserLanguageCount {
-    user_id: String,
+    pub user_id: String,
     #[serde(rename = "language")]
     simplified_language: String,
 
@@ -14,20 +14,20 @@ pub struct UserLanguageCount {
 
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
 pub struct UserProblemCount {
-    user_id: String,
+    pub user_id: String,
     problem_count: i32,
 }
 
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
 pub struct Problem {
-    id: String,
+    pub id: String,
     contest_id: String,
     title: String,
 }
 
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
 pub struct Contest {
-    id: String,
+    pub id: String,
     start_epoch_second: i64,
     duration_second: i64,
     title: String,
@@ -36,14 +36,14 @@ pub struct Contest {
 
 #[derive(Debug, Queryable, Serialize)]
 pub struct UserSum {
-    user_id: String,
+    pub user_id: String,
     point_sum: f64,
 }
 
 #[derive(Debug, QueryableByName, Serialize)]
 pub struct MergedProblem {
     #[sql_type = "Varchar"]
-    id: String,
+    pub id: String,
     #[sql_type = "Varchar"]
     contest_id: String,
     #[sql_type = "Varchar"]
