@@ -89,3 +89,9 @@ pub struct MinimumPerformance {
     problem_id: String,
     minimum_performance: i64,
 }
+
+#[derive(Debug, Queryable, Serialize)]
+pub struct ContestProblem {
+    contest_id: String,
+    problem_id: String,
+}

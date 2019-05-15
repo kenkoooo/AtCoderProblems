@@ -7,18 +7,14 @@ extern crate lambda_runtime as lambda;
 extern crate openssl;
 
 use atcoder_problems_dumper_lambda::models::*;
+use atcoder_problems_dumper_lambda::s3::S3Client;
 use atcoder_problems_sql_common::schema::*;
 use diesel::prelude::*;
 use diesel::{sql_query, Connection, PgConnection};
 use lambda::error::HandlerError;
 use openssl_probe;
-use rusoto_core::{ByteStream, Region};
-use rusoto_s3::{GetObjectRequest, PutObjectRequest, S3Client, S3};
-use serde::Serialize;
-use serde_json;
 use std::env;
 use std::error::Error;
-use std::io::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Info)?;
@@ -68,167 +64,115 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
                 ORDER BY problems.id;
         ");
 
-    let client = S3Client::new(Region::ApNortheast1);
+    let client = S3Client::new();
 
-    update(
-        merged_query.load::<MergedProblem>(&conn).new_err(&c)?,
-        "resources/merged-problems.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        contests::table
-            .order_by(contests::id)
-            .load::<Contest>(&conn)
-            .new_err(&c)?,
-        "resources/contests.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        accepted_count::table
-            .order_by(accepted_count::user_id)
-            .load::<UserProblemCount>(&conn)
-            .new_err(&c)?,
-        "resources/ac.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        problems::table
-            .order_by(problems::id)
-            .load::<Problem>(&conn)
-            .new_err(&c)?,
-        "resources/problems.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        shortest_submission_count::table
-            .order_by(shortest_submission_count::user_id)
-            .load::<UserProblemCount>(&conn)
-            .new_err(&c)?,
-        "resources/short.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        shortest_submission_count::table
-            .order_by(shortest_submission_count::user_id)
-            .load::<UserProblemCount>(&conn)
-            .new_err(&c)?,
-        "resources/short.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        fastest_submission_count::table
-            .order_by(fastest_submission_count::user_id)
-            .load::<UserProblemCount>(&conn)
-            .new_err(&c)?,
-        "resources/fast.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        first_submission_count::table
-            .order_by(first_submission_count::user_id)
-            .load::<UserProblemCount>(&conn)
-            .new_err(&c)?,
-        "resources/first.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        rated_point_sum::table
-            .order_by(rated_point_sum::user_id)
-            .load::<UserSum>(&conn)
-            .new_err(&c)?,
-        "resources/sums.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        language_count::table
-            .order_by(language_count::user_id)
-            .load::<UserLanguageCount>(&conn)
-            .new_err(&c)?,
-        "resources/lang.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
-    update(
-        minimum_performances::table
-            .order_by(minimum_performances::problem_id)
-            .load::<MinimumPerformance>(&conn)
-            .new_err(&c)?,
-        "resources/problem_performances.json",
-        &client,
-        &c,
-    )
-    .new_err(&c)?;
+    client
+        .update(
+            merged_query.load::<MergedProblem>(&conn).new_err(&c)?,
+            "resources/merged-problems.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            contests::table
+                .order_by(contests::id)
+                .load::<Contest>(&conn)
+                .new_err(&c)?,
+            "resources/contests.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            accepted_count::table
+                .order_by(accepted_count::user_id)
+                .load::<UserProblemCount>(&conn)
+                .new_err(&c)?,
+            "resources/ac.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            problems::table
+                .order_by(problems::id)
+                .load::<Problem>(&conn)
+                .new_err(&c)?,
+            "resources/problems.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            shortest_submission_count::table
+                .order_by(shortest_submission_count::user_id)
+                .load::<UserProblemCount>(&conn)
+                .new_err(&c)?,
+            "resources/short.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            shortest_submission_count::table
+                .order_by(shortest_submission_count::user_id)
+                .load::<UserProblemCount>(&conn)
+                .new_err(&c)?,
+            "resources/short.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            fastest_submission_count::table
+                .order_by(fastest_submission_count::user_id)
+                .load::<UserProblemCount>(&conn)
+                .new_err(&c)?,
+            "resources/fast.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            first_submission_count::table
+                .order_by(first_submission_count::user_id)
+                .load::<UserProblemCount>(&conn)
+                .new_err(&c)?,
+            "resources/first.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            rated_point_sum::table
+                .order_by(rated_point_sum::user_id)
+                .load::<UserSum>(&conn)
+                .new_err(&c)?,
+            "resources/sums.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            language_count::table
+                .order_by(language_count::user_id)
+                .load::<UserLanguageCount>(&conn)
+                .new_err(&c)?,
+            "resources/lang.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            minimum_performances::table
+                .order_by(minimum_performances::problem_id)
+                .load::<MinimumPerformance>(&conn)
+                .new_err(&c)?,
+            "resources/problem-performances.json",
+        )
+        .new_err(&c)?;
+    client
+        .update(
+            contest_problem::table
+                .order_by(contest_problem::problem_id)
+                .load::<ContestProblem>(&conn)
+                .new_err(&c)?,
+            "resources/contest-problem.json",
+        )
+        .new_err(&c)?;
 
     Ok(String::new())
-}
-
-fn update<T>(
-    new_vec: Vec<T>,
-    path: &str,
-    client: &S3Client,
-    c: &lambda::Context,
-) -> Result<(), HandlerError>
-where
-    T: Serialize,
-{
-    let mut get_request = GetObjectRequest::default();
-    get_request.bucket = String::from("kenkoooo.com");
-    get_request.key = String::from(path);
-
-    info!("Downloading {}...", path);
-    let old_string = client
-        .get_object(get_request)
-        .sync()
-        .ok()
-        .and_then(|object| object.body)
-        .and_then(|stream| {
-            let mut old_string = String::new();
-            stream
-                .into_blocking_read()
-                .read_to_string(&mut old_string)
-                .ok();
-            Some(old_string)
-        })
-        .unwrap_or(String::new());
-
-    info!("Serializing...");
-    let new_string = serde_json::to_string(&new_vec).new_err(c)?;
-
-    info!("Comparing...");
-    let is_updated = old_string != new_string;
-    if is_updated {
-        info!("Updating {}...", path);
-        let mut request = PutObjectRequest::default();
-        request.bucket = String::from("kenkoooo.com");
-        request.key = String::from(path);
-        request.body = Some(ByteStream::from(new_string.as_bytes().to_vec()));
-        request.content_type = Some(String::from("application/json;charset=utf-8"));
-        client.put_object(request).sync().new_err(&c)?;
-        info!("Updated");
-    } else {
-        info!("{} is not updated.", path);
-    }
-
-    Ok(())
 }
 
 trait ErrorMapper<S> {
