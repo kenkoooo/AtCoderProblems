@@ -1,19 +1,19 @@
-import React from 'react';
-import { Row, Col } from 'reactstrap';
+import React from "react";
+import { Row, Col } from "reactstrap";
 
-import * as Api from '../../utils/Api';
-import Submission from '../../interfaces/Submission';
-import UserInfo from '../../interfaces/UserInfo';
-import MergedProblem from '../../interfaces/MergedProblem';
-import { ordinalSuffixOf, isAccepted } from '../../utils';
-import { formatDate } from '../../utils/DateFormat';
+import * as Api from "../../utils/Api";
+import Submission from "../../interfaces/Submission";
+import UserInfo from "../../interfaces/UserInfo";
+import MergedProblem from "../../interfaces/MergedProblem";
+import { ordinalSuffixOf, isAccepted } from "../../utils";
+import { formatDate } from "../../utils/DateFormat";
 
-import ClimbingLineChart from './ClimbingLineChart';
-import DailyEffortBarChart from './DailyEffortBarChart';
-import SmallPieChart from './SmallPieChart';
-import FilteringHeatmap from './FilteringHeatmap';
-import SubmissionList from './SubmissionList';
-import LanguageCount from './LanguageCount';
+import ClimbingLineChart from "./ClimbingLineChart";
+import DailyEffortBarChart from "./DailyEffortBarChart";
+import SmallPieChart from "./SmallPieChart";
+import FilteringHeatmap from "./FilteringHeatmap";
+import SubmissionList from "./SubmissionList";
+import LanguageCount from "./LanguageCount";
 
 interface Props {
   user_ids: string[];
@@ -38,6 +38,7 @@ interface State {
   last_ac: string;
 
   daily_data: { date: number; count: number }[];
+  edges: { contest_id: string; problem_id: string }[];
 }
 
 class UserPage extends React.Component<Props, State> {
@@ -55,26 +56,43 @@ class UserPage extends React.Component<Props, State> {
         accepted_count_rank: 1e9 + 7,
         rated_point_sum: 1e9 + 7,
         rated_point_sum_rank: 1e9 + 7,
-        user_id: ''
+        user_id: ""
       },
 
       current_streak: 1e9 + 7,
       longest_streak: 1e9 + 7,
-      last_ac: '',
+      last_ac: "",
 
-      daily_data: []
+      daily_data: [],
+      edges: []
     };
   }
 
   componentDidMount() {
-    Api.fetchMergedProblems().then((problems) => {
-      const fast_ranking = Api.getFastRanking(problems).sort((a, b) => b.problem_count - a.problem_count);
-      const short_ranking = Api.getShortRanking(problems).sort((a, b) => b.problem_count - a.problem_count);
-      const first_ranking = Api.getFirstRanking(problems).sort((a, b) => b.problem_count - a.problem_count);
-      this.setState({ fast_ranking, first_ranking, short_ranking, problems });
+    Promise.all([
+      Api.fetchMergedProblems(),
+      Api.fetchContestProblemPairs()
+    ]).then(([problems, edges]) => {
+      const fast_ranking = Api.getFastRanking(problems).sort(
+        (a, b) => b.problem_count - a.problem_count
+      );
+      const short_ranking = Api.getShortRanking(problems).sort(
+        (a, b) => b.problem_count - a.problem_count
+      );
+      const first_ranking = Api.getFirstRanking(problems).sort(
+        (a, b) => b.problem_count - a.problem_count
+      );
+      this.setState({
+        fast_ranking,
+        first_ranking,
+        short_ranking,
+        problems,
+        edges
+      });
     });
     this.updateState(this.getUserIdFromProps());
   }
+
   componentDidUpdate(prevProps: Props) {
     if (this.props !== prevProps) {
       this.updateState(this.getUserIdFromProps());
@@ -82,21 +100,29 @@ class UserPage extends React.Component<Props, State> {
   }
 
   updateState(user_id: string) {
-    Api.fetchSubmissions(user_id).then((submissions) => {
+    Api.fetchSubmissions(user_id).then(submissions => {
       const first_ac_map = submissions
-        .filter((s) => isAccepted(s.result))
+        .filter(s => isAccepted(s.result))
         .sort((a, b) => b.epoch_second - a.epoch_second)
-        .reduce((map, s) => map.set(s.problem_id, s.epoch_second), new Map<string, number>());
-      const { longest_streak, current_streak, last_ac } = get_streak(first_ac_map);
-      const date_count_map = Array.from(first_ac_map).reduce((map, [problem_id, second]) => {
-        const date = formatDate(second);
-        const count = map.get(date);
-        if (count) {
-          return map.set(date, count + 1);
-        } else {
-          return map.set(date, 1);
-        }
-      }, new Map<string, number>());
+        .reduce(
+          (map, s) => map.set(s.problem_id, s.epoch_second),
+          new Map<string, number>()
+        );
+      const { longest_streak, current_streak, last_ac } = get_streak(
+        first_ac_map
+      );
+      const date_count_map = Array.from(first_ac_map).reduce(
+        (map, [problem_id, second]) => {
+          const date = formatDate(second);
+          const count = map.get(date);
+          if (count) {
+            return map.set(date, count + 1);
+          } else {
+            return map.set(date, 1);
+          }
+        },
+        new Map<string, number>()
+      );
       const daily_data = Array.from(date_count_map)
         .map(([date, count]) => ({ date: new Date(date).getTime(), count }))
         .sort((a, b) => a.date - b.date);
@@ -108,11 +134,11 @@ class UserPage extends React.Component<Props, State> {
         daily_data
       });
     });
-    Api.fetchUserInfo(user_id).then((user_info) => this.setState({ user_info }));
+    Api.fetchUserInfo(user_id).then(user_info => this.setState({ user_info }));
   }
 
   getUserIdFromProps() {
-    return this.props.user_ids.length > 0 ? this.props.user_ids[0] : '';
+    return this.props.user_ids.length > 0 ? this.props.user_ids[0] : "";
   }
 
   render() {
@@ -121,43 +147,53 @@ class UserPage extends React.Component<Props, State> {
       return <div />;
     }
 
-    const { submissions, user_info, longest_streak, current_streak, last_ac, problems } = this.state;
+    const {
+      submissions,
+      user_info,
+      longest_streak,
+      current_streak,
+      last_ac,
+      problems,
+      edges
+    } = this.state;
 
     const shortest_rank = get_rank(user_id, this.state.short_ranking);
     const fastest_rank = get_rank(user_id, this.state.fast_ranking);
     const first_rank = get_rank(user_id, this.state.first_ranking);
 
-    const climbing_data = this.state.daily_data.map((d) => Object.assign({}, d));
+    const climbing_data = this.state.daily_data.map(d => Object.assign({}, d));
     climbing_data.forEach((_, i) => {
       if (i > 0) {
         climbing_data[i].count += climbing_data[i - 1].count;
       }
     });
 
-    const ac_submissions = submissions.filter((s) => s.user_id === user_id && isAccepted(s.result));
+    const ac_submissions = submissions.filter(
+      s => s.user_id === user_id && isAccepted(s.result)
+    );
 
-    const agc_solved = count_solved(/^agc\d{3}_/, problems, ac_submissions);
-    const abc_solved = count_solved(/^abc\d{3}_/, problems, ac_submissions);
-    const arc_solved = count_solved(/^arc\d{3}_/, problems, ac_submissions);
+    const agc_solved = countSolved(/^agc\d{3}$/, edges, ac_submissions);
+    const abc_solved = countSolved(/^abc\d{3}$/, edges, ac_submissions);
+    const arc_solved = countSolved(/^arc\d{3}$/, edges, ac_submissions);
 
     const achievements = [
       {
-        key: 'Accepted',
+        key: "Accepted",
         value: user_info.accepted_count,
         rank: user_info.accepted_count_rank
       },
       {
-        key: 'Shortest Code',
+        key: "Shortest Code",
         value: shortest_rank.count,
         rank: shortest_rank.rank
       },
       {
-        key: 'Fastest Code',
+        key: "Fastest Code",
         value: fastest_rank.count,
         rank: fastest_rank.rank
       },
       {
-        key: 'First AC',
+        key: "First AC",
         value: first_rank.count,
         rank: first_rank.rank
       }
@@ -173,15 +209,16 @@ class UserPage extends React.Component<Props, State> {
             <Col key={key} className="text-center" xs="6" md="3">
               <h6>{key}</h6>
               <h3>{value}</h3>
-              <h6 className="text-muted">{`${rank + 1}${ordinalSuffixOf(rank + 1)}`}</h6>
+              <h6 className="text-muted">{`${rank + 1}${ordinalSuffixOf(
+                rank + 1
+              )}`}</h6>
             </Col>
           ))}
           <Col key="Rated Point Sum" className="text-center" xs="6" md="3">
             <h6>Rated Point Sum</h6>
             <h3>{user_info.rated_point_sum} pt</h3>
-            <h6 className="text-muted">{`${user_info.rated_point_sum_rank + 1}${ordinalSuffixOf(
-              user_info.rated_point_sum_rank + 1
-            )}`}</h6>
+            <h6 className="text-muted">{`${user_info.rated_point_sum_rank +
+              1}${ordinalSuffixOf(user_info.rated_point_sum_rank + 1)}`}</h6>
           </Col>
           <Col key="Longest Streak" className="text-center" xs="6" md="3">
             <h6>Longest Streak</h6>
@@ -200,10 +237,14 @@ class UserPage extends React.Component<Props, State> {
         </Row>
         <Row className="my-3">
           {abc_solved.map(({ solved, total }, i) => {
-            const key = 'ABCDEF'.split('')[i];
+            const key = "ABCDEF".charAt(i);
             return (
               <Col key={key} className="text-center" xs="6" md="3">
-                <SmallPieChart accepted={solved} trying={total - solved} title={`Problem ${key}`} />
+                <SmallPieChart
+                  accepted={solved}
+                  trying={total - solved}
+                  title={`Problem ${key}`}
+                />
               </Col>
             );
           })}
@@ -214,10 +255,14 @@ class UserPage extends React.Component<Props, State> {
         </Row>
         <Row className="my-3">
           {arc_solved.map(({ solved, total }, i) => {
-            const key = 'ABCDEF'.split('')[i];
+            const key = "ABCDEF".charAt(i);
             return (
               <Col key={key} className="text-center" xs="6" md="3">
-                <SmallPieChart accepted={solved} trying={total - solved} title={`Problem ${key}`} />
+                <SmallPieChart
+                  accepted={solved}
+                  trying={total - solved}
+                  title={`Problem ${key}`}
+                />
               </Col>
             );
           })}
@@ -228,10 +273,14 @@ class UserPage extends React.Component<Props, State> {
         </Row>
         <Row className="my-3">
           {agc_solved.map(({ solved, total }, i) => {
-            const key = 'ABCDEF'.split('')[i];
+            const key = "ABCDEF".charAt(i);
             return (
               <Col key={key} className="text-center" xs="6" md="2">
-                <SmallPieChart accepted={solved} trying={total - solved} title={`Problem ${key}`} />
+                <SmallPieChart
+                  accepted={solved}
+                  trying={total - solved}
+                  title={`Problem ${key}`}
+                />
               </Col>
             );
           })}
@@ -250,17 +299,24 @@ class UserPage extends React.Component<Props, State> {
         <Row className="my-2 border-bottom">
           <h1>Heatmap</h1>
         </Row>
-        <FilteringHeatmap submissions={submissions.filter((s) => s.user_id === user_id)} />
+        <FilteringHeatmap
+          submissions={submissions.filter(s => s.user_id === user_id)}
+        />
 
         <Row className="my-2 border-bottom">
           <h1>Submissions</h1>
         </Row>
-        <SubmissionList problems={problems} submissions={submissions.filter((s) => s.user_id === user_id)} />
+        <SubmissionList
+          problems={problems}
+          submissions={submissions.filter(s => s.user_id === user_id)}
+        />
 
         <Row className="my-2 border-bottom">
           <h1>Languages</h1>
         </Row>
-        <LanguageCount submissions={submissions.filter((s) => s.user_id === user_id)} />
+        <LanguageCount
+          submissions={submissions.filter(s => s.user_id === user_id)}
+        />
       </div>
     );
   }
@@ -269,7 +325,9 @@ class UserPage extends React.Component<Props, State> {
 const get_streak = (first_ac_map: Map<string, number>) => {
   let longest_streak = 1;
   let current_streak = 1;
-  const seconds = Array.from(first_ac_map).map(([problem_id, epoch_second]) => epoch_second).sort();
+  const seconds = Array.from(first_ac_map)
+    .map(([problem_id, epoch_second]) => epoch_second)
+    .sort();
   for (let index = 1; index < seconds.length; index++) {
     const second1 = seconds[index - 1];
     const second2 = seconds[index];
@@ -301,7 +359,7 @@ const get_streak = (first_ac_map: Map<string, number>) => {
 };
 
 const get_rank = (user_id: string, ranking: RankingEntry[]) => {
-  const rank = ranking.filter((rank) => rank.user_id == user_id)[0];
+  const rank = ranking.filter(rank => rank.user_id == user_id)[0];
   if (!rank) {
     return { count: 0, rank: ranking.length };
   }
@@ -315,29 +373,50 @@ const get_rank = (user_id: string, ranking: RankingEntry[]) => {
   return { count: ranking[index].problem_count, rank: index };
 };
 
-const count_solved = (prefix: RegExp, problems: MergedProblem[], ac_submissions: Submission[]) => {
+const countSolved = (
+  contestRegexp: RegExp,
+  edges: { contest_id: string; problem_id: string }[],
+  acSubmissions: Submission[]
+) => {
   const regexps = [/_[a1]/, /_[b2]/, /_[c3]/, /_[d4]/, /_[e5]/, /_[f6]/];
-  const count = (ids: string[]) => {
-    const c = [0, 0, 0, 0, 0, 0];
-    ids.filter((id) => id.match(prefix)).forEach((id) => {
-      regexps.forEach((e, i) => {
-        if (id.match(e)) {
-          c[i] += 1;
+  const problemIdSet = new Set(
+    edges.filter(e => e.contest_id.match(contestRegexp)).map(e => e.problem_id)
+  );
+  const acProblemIdSet = new Set(
+    acSubmissions
+      .filter(s => problemIdSet.has(s.problem_id))
+      .map(s => s.problem_id)
+  );
+
+  const shiftedProblemIds = new Set(
+    edges
+      .filter(e => e.contest_id.match(contestRegexp))
+      .filter(e => e.contest_id.substring(0, 6) != e.problem_id.substring(0, 6))
+      .map(e => e.problem_id)
+  );
+
+  const count = regexps.map(_ => ({ total: 0, solved: 0 }));
+  regexps.forEach((regexp, i) => {
+    problemIdSet.forEach(id => {
+      if (id.match(regexp)) {
+        if (shiftedProblemIds.has(id)) {
+          count[i + 2].total += 1;
+        } else {
+          count[i].total += 1;
         }
-      });
+      }
     });
-    return c;
-  };
-
-  const total_count = count(problems.map((p) => p.id));
-  const solved_count = count(Array.from(ac_submissions.reduce((set, s) => set.add(s.problem_id), new Set<string>())));
-
-  return total_count
-    .map((total, i) => ({
-      total: total,
-      solved: solved_count[i]
-    }))
-    .filter(({ total }) => total > 0);
+    acProblemIdSet.forEach(id => {
+      if (id.match(regexp)) {
+        if (shiftedProblemIds.has(id)) {
+          count[i + 2].solved += 1;
+        } else {
+          count[i].solved += 1;
+        }
+      }
+    });
+  });
+  return count.filter(c => c.total > 0);
 };
 
 export default UserPage;
