@@ -90,6 +90,8 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
   - https://kenkoooo.com/atcoder/resources/problems.json
 - Detailed Problems Information
   - https://kenkoooo.com/atcoder/resources/merged-problems.json
+- Pairs of contests and problems
+  - https://kenkoooo.com/atcoder/resources/contest-problem.json
 
 (The API `info/*` are deprecated. Please use new API.)
 
@@ -102,7 +104,7 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
 - Accepted Count for each language
   - https://kenkoooo.com/atcoder/resources/lang.json
 - Minimum performances for each problems
-  - https://kenkoooo.com/atcoder/resources/problem_performances.json
+  - https://kenkoooo.com/atcoder/resources/problem-performances.json
 
 (The API `info/*` are deprecated. Please use new API.)
 
