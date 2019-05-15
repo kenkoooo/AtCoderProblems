@@ -66,7 +66,7 @@ export const fetchLangRanking = () =>
     }[]
   >(LANG_URL);
 export const fetchContestProblemPairs = () =>
-  fetchJson<{ contest_id: string; problem_id: string }>(
+  fetchJson<{ contest_id: string; problem_id: string }[]>(
     STATIC_API_BASE_URL + "/contest-problem.json"
   );
 export const fetchContests = () =>
