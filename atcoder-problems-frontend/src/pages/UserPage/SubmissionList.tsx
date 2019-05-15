@@ -6,7 +6,6 @@ import { formatDate } from "../../utils/DateFormat";
 import * as Url from "../../utils/Url";
 import { isAccepted } from "../../utils";
 import { Badge } from "reactstrap";
-import { string } from "prop-types";
 
 const SubmissionList = ({
   submissions,
@@ -21,12 +20,16 @@ const SubmissionList = ({
   );
 
   let verdictOptions: any = {};
-  submissions.reduce((set, s) => set.add(s.result), new Set<string>()).forEach((verdict, index) => {
-    verdictOptions[index] = verdict;
-  });
+  submissions
+    .reduce((set, s) => set.add(s.result), new Set<string>())
+    .forEach((verdict, index) => {
+      verdictOptions[index] = verdict;
+    });
   return (
     <BootstrapTable
-      data={submissions.sort((a, b) => b.epoch_second - a.epoch_second).map(s => ({ title: title_map.get(s.problem_id), ...s }))}
+      data={submissions
+        .sort((a, b) => b.epoch_second - a.epoch_second)
+        .map(s => ({ title: title_map.get(s.problem_id), ...s }))}
       keyField="id"
       height="auto"
       hover
@@ -84,15 +87,15 @@ const SubmissionList = ({
       </TableHeaderColumn>
       <TableHeaderColumn
         dataSort
-        filter={{ type: 'SelectFilter', options: verdictOptions }}
+        filter={{ type: "SelectFilter", options: verdictOptions }}
         dataField="result"
         dataAlign="center"
         dataFormat={result =>
           isAccepted(result) ? (
             <Badge color="success">{result}</Badge>
           ) : (
-              <Badge color="warning">{result}</Badge>
-            )
+            <Badge color="warning">{result}</Badge>
+          )
         }
       >
         Status
@@ -112,7 +115,7 @@ const SubmissionList = ({
         Detail
       </TableHeaderColumn>
       <TableHeaderColumn dataField="title" hidden />
-    </BootstrapTable >
+    </BootstrapTable>
   );
 };
 
