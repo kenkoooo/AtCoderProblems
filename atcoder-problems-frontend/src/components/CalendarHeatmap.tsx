@@ -16,9 +16,7 @@ const formatDate = (date: Date) => {
 
 const CalendarHeatmap = (props: { data: Date[]; formatTooltip?: (date: string, count: number) => string }) => {
   const next_sunday = new Date();
-  while (next_sunday.getDay() != 0) {
-    next_sunday.setDate(next_sunday.getDate() + 1);
-  }
+  next_sunday.setDate(next_sunday.getDate() + (WEEKDAY - next_sunday.getDay()));
 
   const current_date = new Date(next_sunday);
   current_date.setDate(current_date.getDate() - WEEKS * WEEKDAY);
