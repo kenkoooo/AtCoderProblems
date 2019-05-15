@@ -167,6 +167,16 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
         &c,
     )
     .new_err(&c)?;
+    update(
+        minimum_performances::table
+            .order_by(minimum_performances::problem_id)
+            .load::<MinimumPerformance>(&conn)
+            .new_err(&c)?,
+        "resources/problem_performances.json",
+        &client,
+        &c,
+    )
+    .new_err(&c)?;
 
     Ok(String::new())
 }
@@ -185,16 +195,20 @@ where
     get_request.key = String::from(path);
 
     info!("Downloading {}...", path);
-    let mut stream = client
+    let mut old_string = client
         .get_object(get_request)
         .sync()
-        .new_err(c)?
-        .body
-        .ok_or(())
-        .new_err(c)?
-        .into_blocking_read();
-    let mut old_string = String::new();
-    stream.read_to_string(&mut old_string).new_err(c)?;
+        .ok()
+        .and_then(|object| object.body)
+        .and_then(|mut stream| {
+            let mut old_string = String::new();
+            stream
+                .into_blocking_read()
+                .read_to_string(&mut old_string)
+                .ok();
+            Some(old_string)
+        })
+        .unwrap_or(String::new());
 
     info!("Serializing...");
     let new_string = serde_json::to_string(&new_vec).new_err(c)?;
