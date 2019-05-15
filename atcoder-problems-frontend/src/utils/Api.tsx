@@ -75,9 +75,15 @@ export const fetchProblems = () =>
   fetchJson<Problem[]>(STATIC_API_BASE_URL + "/problems.json");
 export const fetchMergedProblems = () =>
   fetchJson<MergedProblem[]>(STATIC_API_BASE_URL + "/merged-problems.json");
+export const fetchProblemPerformances = () =>
+  fetchJson<
+    {
+      problem_id: string;
+      minimum_performance: number;
+    }[]
+  >(STATIC_API_BASE_URL + "/problem-performances.json");
 export const fetchUserInfo = (user: string) =>
   fetchJson<UserInfo>(`${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`);
-
 export const fetchSubmissions = (user: string) =>
   fetchJson<Submission[]>(`${DYNAMIC_API_BASE_URL}/results?user=${user}`);
 
