@@ -195,12 +195,12 @@ where
     get_request.key = String::from(path);
 
     info!("Downloading {}...", path);
-    let mut old_string = client
+    let old_string = client
         .get_object(get_request)
         .sync()
         .ok()
         .and_then(|object| object.body)
-        .and_then(|mut stream| {
+        .and_then(|stream| {
             let mut old_string = String::new();
             stream
                 .into_blocking_read()
