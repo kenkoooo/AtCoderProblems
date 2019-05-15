@@ -14,6 +14,7 @@ import SmallPieChart from "./SmallPieChart";
 import FilteringHeatmap from "./FilteringHeatmap";
 import SubmissionList from "./SubmissionList";
 import LanguageCount from "./LanguageCount";
+import Recommendations from "./Recommendations";
 
 interface Props {
   user_ids: string[];
@@ -32,6 +33,8 @@ interface State {
   problems: MergedProblem[];
   submissions: Submission[];
   user_info: UserInfo;
+
+  problem_performances: { problem_id: string; minimum_performance: number }[];
 
   current_streak: number;
   longest_streak: number;
@@ -59,6 +62,8 @@ class UserPage extends React.Component<Props, State> {
         user_id: ""
       },
 
+      problem_performances: [],
+
       current_streak: 1e9 + 7,
       longest_streak: 1e9 + 7,
       last_ac: "",
@@ -71,8 +76,9 @@ class UserPage extends React.Component<Props, State> {
   componentDidMount() {
     Promise.all([
       Api.fetchMergedProblems(),
-      Api.fetchContestProblemPairs()
-    ]).then(([problems, edges]) => {
+      Api.fetchContestProblemPairs(),
+      Api.fetchProblemPerformances()
+    ]).then(([problems, edges, problem_performances]) => {
       const fast_ranking = Api.getFastRanking(problems).sort(
         (a, b) => b.problem_count - a.problem_count
       );
@@ -87,7 +93,8 @@ class UserPage extends React.Component<Props, State> {
         first_ranking,
         short_ranking,
         problems,
-        edges
+        edges,
+        problem_performances
       });
     });
     this.updateState(this.getUserIdFromProps());
@@ -143,10 +150,6 @@ class UserPage extends React.Component<Props, State> {
 
   render() {
     const user_id = this.getUserIdFromProps();
-    if (user_id.length == 0) {
-      return <div />;
-    }
-
     const {
       submissions,
       user_info,
@@ -154,8 +157,12 @@ class UserPage extends React.Component<Props, State> {
       current_streak,
       last_ac,
       problems,
-      edges
+      edges,
+      problem_performances
     } = this.state;
+    if (user_id.length == 0 || submissions.length == 0) {
+      return null;
+    }
 
     const shortest_rank = get_rank(user_id, this.state.short_ranking);
     const fastest_rank = get_rank(user_id, this.state.fast_ranking);
@@ -316,6 +323,15 @@ class UserPage extends React.Component<Props, State> {
         </Row>
         <LanguageCount
           submissions={submissions.filter(s => s.user_id === user_id)}
+        />
+
+        <Row className="my-2 border-bottom">
+          <h1>Recommendations</h1>
+        </Row>
+        <Recommendations
+          submissions={submissions}
+          problems={problems}
+          performances={problem_performances}
         />
       </div>
     );
