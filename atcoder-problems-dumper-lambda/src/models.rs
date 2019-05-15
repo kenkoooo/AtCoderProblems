@@ -83,3 +83,9 @@ pub struct MergedProblem {
     #[sql_type = "Nullable<Int4>"]
     solver_count: Option<i32>,
 }
+
+#[derive(Debug, Queryable, Serialize)]
+pub struct MinimumPerformance {
+    problem_id: String,
+    minimum_performance: i64,
+}

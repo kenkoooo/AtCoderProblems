@@ -135,6 +135,13 @@ table! {
     }
 }
 
+table! {
+    minimum_performances (problem_id) {
+        problem_id -> Varchar,
+        minimum_performance -> Int8,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     accepted_count,
     contests,
