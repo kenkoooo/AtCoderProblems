@@ -28,11 +28,10 @@ const get_table_class = (status: Status) => {
   }
 };
 
-type ContestAndProblems = { contest: Contest; problems: ProblemWithStatus[] };
+type ContestWithProblemIds = { contest: Contest; problemIds: string[] };
 
 interface ProblemWithStatus extends Problem {
   status: Status;
-  contest: Contest;
 }
 
 interface Props {
@@ -40,8 +39,8 @@ interface Props {
 }
 
 interface State {
-  contests: Contest[];
-  problems: ProblemWithStatus[];
+  contests: ContestWithProblemIds[];
+  problems: Map<string, ProblemWithStatus>;
 }
 
 class TablePage extends React.Component<Props, State> {
@@ -49,30 +48,49 @@ class TablePage extends React.Component<Props, State> {
     super(props);
     this.state = {
       contests: [],
-      problems: []
+      problems: new Map()
     };
   }
 
   componentDidMount() {
-    Promise.all([Api.fetchProblems(), Api.fetchContests()]).then(
-      ([initialProblems, contests]) => {
-        const contest_map = contests.reduce(
-          (map, c) => map.set(c.id, c),
-          new Map<string, Contest>()
-        );
-        const problems = initialProblems.map(p => {
-          const contest = contest_map.get(p.contest_id);
-          if (!contest) {
-            throw `${p.contest_id} does not exist!`;
-          }
-          return { status: Status.Nothing, contest, ...p };
-        });
+    Promise.all([
+      Api.fetchProblems(),
+      Api.fetchContests(),
+      Api.fetchContestProblemPairs()
+    ]).then(([problems, contests, edges]) => {
+      const graph = edges.reduce((map, edge) => {
+        const list = map.get(edge.contest_id);
+        if (list) {
+          list.push(edge.problem_id);
+        } else {
+          map.set(edge.contest_id, [edge.problem_id]);
+        }
+        return map;
+      }, new Map<string, string[]>());
 
-        this.setState({ problems, contests }, () => {
+      const problemsMap = problems
+        .map(p => ({ status: Status.Nothing, ...p }))
+        .reduce(
+          (map, p) => map.set(p.id, p),
+          new Map<string, ProblemWithStatus>()
+        );
+
+      const contestsWithProblemIds = contests.map(contest => {
+        const problemIds = graph.get(contest.id);
+        if (problemIds) {
+          return { contest, problemIds };
+        } else {
+          return { contest, problemIds: [] };
+        }
+      });
+
+      this.setState(
+        { contests: contestsWithProblemIds, problems: problemsMap },
+        () => {
           this.updateState(this.props.user_ids);
-        });
-      }
-    );
+        }
+      );
+    });
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -84,6 +102,7 @@ class TablePage extends React.Component<Props, State> {
   updateState(user_ids: string[]) {
     const user = user_ids.length > 0 ? user_ids[0] : "";
     const rivals = user_ids.slice(1);
+
     Promise.all(user_ids.map(user_id => Api.fetchSubmissions(user_id)))
       .then(r => r.flat())
       .then(submissions =>
@@ -111,53 +130,49 @@ class TablePage extends React.Component<Props, State> {
           )
       )
       .then(map => {
-        const problems = this.state.problems.map(p => {
-          const status = map.get(p.id);
-          const problem = Object.assign({}, p);
-          problem.status = Status.Nothing;
-          if (status !== undefined) {
-            problem.status = status;
-          }
-          return problem;
-        });
+        const problems = Array.from(this.state.problems.values())
+          .map(p => {
+            const status = map.get(p.id);
+            const problem = Object.assign({}, p);
+            problem.status = Status.Nothing;
+            if (status !== undefined) {
+              problem.status = status;
+            }
+            return problem;
+          })
+          .reduce(
+            (map, p) => map.set(p.id, p),
+            new Map<string, ProblemWithStatus>()
+          );
         this.setState({ problems });
       });
   }
 
   render() {
-    const [abc, arc] = createAtCoderBeginnerRegularContestTable(
-      this.state.contests,
-      this.state.problems
-    );
-    const agc = createAtCoderGrandContestTable(
-      this.state.contests,
-      this.state.problems
-    );
-    abc.forEach(row => {
-      row.problems = row.problems.slice(0, 4);
-    });
-    arc.forEach(row => {
-      const length = row.problems.length;
-      row.problems = row.problems.slice(length - 4, length);
-    });
+    const { problems, contests } = this.state;
+    const contestsWithProblems = contests
+      .map(({ contest, problemIds }) => {
+        const problemList: ProblemWithStatus[] = [];
+        problemIds
+          .map(id => problems.get(id))
+          .forEach(problem => {
+            if (problem) {
+              problemList.push(problem);
+            }
+          });
+        return {
+          problems: problemList.sort((a, b) => a.title.localeCompare(b.title)),
+          ...contest
+        };
+      })
+      .sort((a, b) => b.start_epoch_second - a.start_epoch_second);
 
-    const other_contest_map = this.state.problems
-      .filter(p => !p.contest.id.match(/^a[rgb]c\d{3}$/))
-      .reduce((map, problem) => {
-        const list = map.get(problem.contest.id);
-        if (list) {
-          list.push(problem);
-        } else {
-          map.set(problem.contest.id, [problem]);
-        }
-        return map;
-      }, new Map<string, ProblemWithStatus[]>());
-
-    const other_contests = Array.from(other_contest_map)
-      .map(([_, problems]) => ({ contest: problems[0].contest, problems }))
-      .sort(
-        (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
-      );
+    const abc = contestsWithProblems.filter(({ id }) => id.match(/^abc\d{3}$/));
+    const arc = contestsWithProblems.filter(({ id }) => id.match(/^arc\d{3}$/));
+    const agc = contestsWithProblems.filter(({ id }) => id.match(/^agc\d{3}$/));
+    const others = contestsWithProblems.filter(({ id }) =>
+      id.match(/^(?!a[rgb]c\d{3}).*$/)
+    );
 
     return (
       <div>
@@ -166,12 +181,12 @@ class TablePage extends React.Component<Props, State> {
 
         <Row>
           <h2>AtCoder Grand Contest</h2>
-          <BootstrapTable data={agc} keyField="contest_id">
+          <BootstrapTable data={agc} keyField="id">
             <TableHeaderColumn
-              dataField="contest_id"
-              dataFormat={(contest_id: string) => (
-                <a href={Url.formatContestUrl(contest_id)} target="_blank">
-                  {contest_id.toUpperCase()}
+              dataField="id"
+              dataFormat={(id: string) => (
+                <a href={Url.formatContestUrl(id)} target="_blank">
+                  {id.toUpperCase()}
                 </a>
               )}
             >
@@ -194,17 +209,14 @@ class TablePage extends React.Component<Props, State> {
                 }}
                 dataFormat={(
                   _: any,
-                  row: { contest_id: string; problems: ProblemWithStatus[] }
+                  row: { id: string; problems: ProblemWithStatus[] }
                 ) => {
                   const problem = row.problems[i];
                   if (problem) {
                     return (
                       <a
                         target="_blank"
-                        href={Url.formatProblemUrl(
-                          problem.id,
-                          problem.contest_id
-                        )}
+                        href={Url.formatProblemUrl(problem.id, row.id)}
                       >
                         {problem.title}
                       </a>
@@ -222,19 +234,23 @@ class TablePage extends React.Component<Props, State> {
         <Row className="my-4">
           <h2>Other Contests</h2>
         </Row>
-        <ContestTable contests={other_contests} />
+        <ContestTable contests={others} />
       </div>
     );
   }
 }
 
-const ContestTable = ({ contests }: { contests: ContestAndProblems[] }) => (
+const ContestTable = ({
+  contests
+}: {
+  contests: { id: string; title: string; problems: ProblemWithStatus[] }[];
+}) => (
   <div>
-    {contests.map(({ contest, problems }) => (
-      <div key={contest.id}>
+    {contests.map(({ id, title, problems }) => (
+      <div key={id}>
         <strong>
-          <a target="_blank" href={Url.formatContestUrl(contest.id)}>
-            {contest.title}
+          <a target="_blank" href={Url.formatContestUrl(id)}>
+            {title}
           </a>
         </strong>
         <Table striped bordered hover responsive>
@@ -264,131 +280,48 @@ const AtCoderRegularTable = ({
   contests,
   title
 }: {
-  contests: { contest_id: string; problems: ProblemWithStatus[] }[];
+  contests: { id: string; problems: ProblemWithStatus[] }[];
   title: string;
 }) => (
-    <Row className="my-4">
-      <h2>{title}</h2>
-      <BootstrapTable data={contests}>
+  <Row className="my-4">
+    <h2>{title}</h2>
+    <BootstrapTable data={contests}>
+      <TableHeaderColumn
+        isKey
+        dataField="id"
+        dataFormat={(
+          _: any,
+          row: { id: string; problems: ProblemWithStatus[] }
+        ) => (
+          <a href={Url.formatContestUrl(row.id)} target="_blank">
+            {row.id.toUpperCase()}
+          </a>
+        )}
+      >
+        Contest
+      </TableHeaderColumn>
+      {"ABCD".split("").map((c, i) => (
         <TableHeaderColumn
-          isKey
-          dataField="contest_id"
+          dataField={c}
+          key={c}
+          columnClassName={(
+            _: any,
+            { problems }: { problems: ProblemWithStatus[] }
+          ) => get_table_class(problems[i].status)}
           dataFormat={(
             _: any,
-            row: { contest_id: string; problems: ProblemWithStatus[] }
+            { id, problems }: { id: string; problems: ProblemWithStatus[] }
           ) => (
-              <a href={Url.formatContestUrl(row.contest_id)} target="_blank">
-                {row.contest_id.toUpperCase()}
-              </a>
-            )}
+            <a href={Url.formatProblemUrl(problems[i].id, id)} target="_blank">
+              {problems[i].title}
+            </a>
+          )}
         >
-          Contest
-      </TableHeaderColumn>
-        {"ABCD".split("").map((c, i) => (
-          <TableHeaderColumn
-            dataField={c}
-            key={c}
-            columnClassName={(
-              _: any,
-              { problems }: { problems: ProblemWithStatus[] }
-            ) => get_table_class(problems[i].status)}
-            dataFormat={(
-              _: any,
-              { problems }: { contest_id: string; problems: ProblemWithStatus[] }
-            ) => (
-                <a
-                  href={Url.formatProblemUrl(
-                    problems[i].id,
-                    problems[i].contest_id
-                  )}
-                  target="_blank"
-                >
-                  {problems[i].title}
-                </a>
-              )}
-          >
-            {c}
-          </TableHeaderColumn>
-        ))}
-      </BootstrapTable>
-    </Row>
-  );
-
-const createAtCoderGrandContestTable = (
-  contests: Contest[],
-  problems: ProblemWithStatus[]
-) => {
-  const map = contests
-    .filter(c => c.id.match(/^agc\d{3}$/))
-    .reduce(
-      (map, c) => map.set(c.id, []),
-      new Map<string, ProblemWithStatus[]>()
-    );
-
-  problems
-    .filter(p => p.id.match(/^agc\d{3}_\w$/))
-    .forEach(p => {
-      const contest_id = p.id.slice(0, 6);
-      const list = map.get(contest_id);
-      if (!list) {
-        throw `${contest_id} does not exist!`;
-      }
-      list.push(p);
-    });
-
-  return Array.from(map)
-    .map(([contest_id, problems]) => ({
-      contest_id,
-      problems: problems.sort((a, b) => a.id.localeCompare(b.id))
-    }))
-    .sort((a, b) => b.contest_id.localeCompare(a.contest_id));
-};
-
-const filter = (regexp: RegExp, contests: Contest[]) =>
-  contests
-    .filter(c => c.id.match(regexp))
-    .reduce(
-      (map, c) => map.set(c.start_epoch_second, { contest: c, problems: [] }),
-      new Map<number, ContestAndProblems>()
-    );
-
-const pushToMap = (
-  map: Map<number, ContestAndProblems>,
-  problems: ProblemWithStatus[]
-) => {
-  problems.forEach(p => {
-    const entry = map.get(p.contest.start_epoch_second);
-    if (entry) {
-      entry.problems.push(p);
-    }
-  });
-};
-
-const sortMap = (map: Map<number, ContestAndProblems>) =>
-  Array.from(map.values())
-    .sort(
-      ({ contest: a }, { contest: b }) =>
-        b.start_epoch_second - a.start_epoch_second
-    )
-    .map(({ contest, problems }) => {
-      problems.sort((a, b) => a.id.localeCompare(b.id));
-      return { contest_id: contest.id, problems };
-    });
-
-const createAtCoderBeginnerRegularContestTable = (
-  contests: Contest[],
-  problems: ProblemWithStatus[]
-) => {
-  const abc_map = filter(/^abc\d{3}$/, contests);
-  const arc_map = filter(/^arc\d{3}$/, contests);
-
-  pushToMap(abc_map, problems);
-  pushToMap(arc_map, problems);
-
-  const abc = sortMap(abc_map);
-  const arc = sortMap(arc_map);
-
-  return [abc, arc];
-};
+          {c}
+        </TableHeaderColumn>
+      ))}
+    </BootstrapTable>
+  </Row>
+);
 
 export default TablePage;
