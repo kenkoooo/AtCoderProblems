@@ -31,7 +31,7 @@ interface State {
 class PrimitiveNavigationBar extends React.Component<
   RouteComponentProps,
   State
-  > {
+> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -72,7 +72,6 @@ class PrimitiveNavigationBar extends React.Component<
   }
 
   componentDidUpdate(prevProps: RouteComponentProps) {
-    console.log(this.props, prevProps);
     if (this.props.location.pathname !== prevProps.location.pathname) {
       const { kind, user_id, rival_id } = this.mapPropsToState();
       this.setState({ kind, user_id, rival_id });
