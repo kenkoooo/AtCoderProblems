@@ -35,9 +35,13 @@ const Recommendations = ({
     .filter(p => p !== undefined) as number[];
   accepted_problem_performances.sort((a, b) => b - a);
   const top_last_index =
-    Math.min(accepted_problem_performances.length, TOP_PERFORMANCES) - 1;
+    Math.min(
+      Math.ceil(accepted_problem_performances.length / 5.0),
+      TOP_PERFORMANCES
+    ) - 1;
   const predicted_performance = accepted_problem_performances[top_last_index];
 
+  console.log(accepted_problem_performances);
   console.log(predicted_performance);
 
   const recommended_problems = problems
