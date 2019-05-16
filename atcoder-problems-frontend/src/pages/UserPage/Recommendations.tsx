@@ -78,18 +78,6 @@ const Recommendations = ({
       striped
     >
       <TableHeaderColumn
-        dataField="contest"
-        dataFormat={(
-          {id, title}: {id: string, title: string}
-        ) => (
-          <a href={Url.formatContestUrl(id)} target="_blank">
-            {title}
-          </a>
-        )}
-      >
-        Contest
-      </TableHeaderColumn>
-      <TableHeaderColumn
         dataField="title"
         dataFormat={(
           title: string,
@@ -101,6 +89,18 @@ const Recommendations = ({
         )}
       >
         Title
+      </TableHeaderColumn>
+      <TableHeaderColumn
+        dataField="contest"
+        dataFormat={(
+          {id, title}: {id: string, title: string}
+        ) => (
+          <a href={Url.formatContestUrl(id)} target="_blank">
+            {title}
+          </a>
+        )}
+      >
+        Contest
       </TableHeaderColumn>
       <TableHeaderColumn
         dataField="difficulty"
