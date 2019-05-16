@@ -431,11 +431,18 @@ class ListPage extends React.Component<Props, State> {
     const points = Array.from(point_set).sort((a, b) => a - b);
     return (
       <div>
+        <Row className="my-2 border-bottom">
+          <h1>Point Status</h1>
+        </Row>
         <Row>
           <SmallTable
             problems={this.state.problems}
             user_id={this.props.user_ids[0]}
           />
+        </Row>
+
+        <Row className="my-2 border-bottom">
+          <h1>Problem List</h1>
         </Row>
         <Row>
           <ButtonGroup className="mr-4">
