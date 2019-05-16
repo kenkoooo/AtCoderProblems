@@ -5,6 +5,7 @@ import * as Api from "../../utils/Api";
 import Submission from "../../interfaces/Submission";
 import UserInfo from "../../interfaces/UserInfo";
 import MergedProblem from "../../interfaces/MergedProblem";
+import Contest from "../../interfaces/Contest";
 import { ordinalSuffixOf, isAccepted } from "../../utils";
 import { formatDate } from "../../utils/DateFormat";
 
@@ -33,6 +34,7 @@ interface State {
   problems: MergedProblem[];
   submissions: Submission[];
   user_info: UserInfo;
+  contests: Contest[];
 
   problem_performances: { problem_id: string; minimum_performance: number }[];
 
@@ -61,6 +63,7 @@ class UserPage extends React.Component<Props, State> {
         rated_point_sum_rank: 1e9 + 7,
         user_id: ""
       },
+      contests: [],
 
       problem_performances: [],
 
@@ -77,8 +80,9 @@ class UserPage extends React.Component<Props, State> {
     Promise.all([
       Api.fetchMergedProblems(),
       Api.fetchContestProblemPairs(),
-      Api.fetchProblemPerformances()
-    ]).then(([problems, edges, problem_performances]) => {
+      Api.fetchProblemPerformances(),
+      Api.fetchContests()
+    ]).then(([problems, edges, problem_performances, contests]) => {
       const fast_ranking = Api.getFastRanking(problems).sort(
         (a, b) => b.problem_count - a.problem_count
       );
@@ -94,7 +98,8 @@ class UserPage extends React.Component<Props, State> {
         short_ranking,
         problems,
         edges,
-        problem_performances
+        problem_performances,
+        contests
       });
     });
     this.updateState(this.getUserIdFromProps());
@@ -158,7 +163,8 @@ class UserPage extends React.Component<Props, State> {
       last_ac,
       problems,
       edges,
-      problem_performances
+      problem_performances,
+      contests
     } = this.state;
     if (user_id.length == 0 || submissions.length == 0) {
       return null;
@@ -331,6 +337,7 @@ class UserPage extends React.Component<Props, State> {
         <Recommendations
           submissions={submissions}
           problems={problems}
+          contests={contests}
           performances={problem_performances}
         />
       </div>

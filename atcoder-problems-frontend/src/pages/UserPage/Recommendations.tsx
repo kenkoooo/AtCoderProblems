@@ -2,6 +2,7 @@ import React from "react";
 
 import { isAccepted } from "../../utils";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import Contest from "../../interfaces/Contest";
 import * as Url from "../../utils/Url";
 
 const TOP_PERFORMANCES = 50;
@@ -10,10 +11,12 @@ const RECOMMEND_NUM = 10;
 const Recommendations = ({
   submissions,
   problems,
+  contests,
   performances
 }: {
   submissions: { result: string; problem_id: string; epoch_second: number }[];
   problems: { id: string; title: string; contest_id: string }[];
+  contests: Contest[];
   performances: { problem_id: string; minimum_performance: number }[];
 }) => {
   if (submissions.length == 0) {
@@ -23,6 +26,11 @@ const Recommendations = ({
     (map, { problem_id, minimum_performance }) =>
       map.set(problem_id, minimum_performance),
     new Map<string, number>()
+  );
+
+  const contest_map = contests.reduce(
+    (map, contest) => map.set(contest.id, contest),
+    new Map<string, Contest>()
   );
 
   const accepted_problem_ids = submissions
@@ -54,7 +62,12 @@ const Recommendations = ({
       const db = Math.abs(pb - predicted_performance);
       return da - db;
     })
-    .slice(0, RECOMMEND_NUM);
+    .slice(0, RECOMMEND_NUM)
+    .map(p => Object.assign({
+      difficulty: performance_map.get(p.id) as number,
+      contest: contest_map.get(p.contest_id) as Contest
+    }, p))
+    .sort((a, b) => b.difficulty - a.difficulty);
 
   return (
     <BootstrapTable
@@ -75,7 +88,24 @@ const Recommendations = ({
           </a>
         )}
       >
-        Title
+        Problem
+      </TableHeaderColumn>
+      <TableHeaderColumn
+        dataField="contest"
+        dataFormat={(
+          {id, title}: {id: string, title: string}
+        ) => (
+          <a href={Url.formatContestUrl(id)} target="_blank">
+            {title}
+          </a>
+        )}
+      >
+        Contest
+      </TableHeaderColumn>
+      <TableHeaderColumn
+        dataField="difficulty"
+      >
+        Difficulty
       </TableHeaderColumn>
     </BootstrapTable>
   );
