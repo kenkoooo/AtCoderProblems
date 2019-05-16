@@ -88,7 +88,7 @@ const Recommendations = ({
           </a>
         )}
       >
-        Title
+        Problem
       </TableHeaderColumn>
       <TableHeaderColumn
         dataField="contest"
