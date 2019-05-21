@@ -305,7 +305,7 @@ class ListPage extends React.Component<Props, State> {
         }
       },
       {
-        header: "Performance",
+        header: "Difficulty",
         dataField: "showing_performance",
         dataSort: true,
         dataFormat: (cell: number) => {
