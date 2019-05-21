@@ -245,59 +245,9 @@ class UserPage extends React.Component<Props, State> {
           <Col />
         </Row>
 
-        <Row className="my-2 border-bottom">
-          <h1>AtCoder Beginner Contest</h1>
-        </Row>
-        <Row className="my-3">
-          {abc_solved.map(({ solved, total }, i) => {
-            const key = "ABCDEF".charAt(i);
-            return (
-              <Col key={key} className="text-center" xs="6" md="3">
-                <SmallPieChart
-                  accepted={solved}
-                  trying={total - solved}
-                  title={`Problem ${key}`}
-                />
-              </Col>
-            );
-          })}
-        </Row>
-
-        <Row className="my-2 border-bottom">
-          <h1>AtCoder Regular Contest</h1>
-        </Row>
-        <Row className="my-3">
-          {arc_solved.map(({ solved, total }, i) => {
-            const key = "ABCDEF".charAt(i);
-            return (
-              <Col key={key} className="text-center" xs="6" md="3">
-                <SmallPieChart
-                  accepted={solved}
-                  trying={total - solved}
-                  title={`Problem ${key}`}
-                />
-              </Col>
-            );
-          })}
-        </Row>
-
-        <Row className="my-2 border-bottom">
-          <h1>AtCoder Grand Contest</h1>
-        </Row>
-        <Row className="my-3">
-          {agc_solved.map(({ solved, total }, i) => {
-            const key = "ABCDEF".charAt(i);
-            return (
-              <Col key={key} className="text-center" xs="6" md="2">
-                <SmallPieChart
-                  accepted={solved}
-                  trying={total - solved}
-                  title={`Problem ${key}`}
-                />
-              </Col>
-            );
-          })}
-        </Row>
+        <PieCharts problems={abc_solved} title="AtCoder Beginner Contest" />
+        <PieCharts problems={arc_solved} title="AtCoder Regular Contest" />
+        <PieCharts problems={agc_solved} title="AtCoder Grand Contest" />
 
         <Row className="my-2 border-bottom">
           <h1>Daily Effort</h1>
@@ -344,6 +294,39 @@ class UserPage extends React.Component<Props, State> {
     );
   }
 }
+
+const PieCharts = ({
+  problems,
+  title
+}: {
+  problems: { total: number; solved: number }[];
+  title: string;
+}) => (
+  <div>
+    <Row className="my-2 border-bottom">
+      <h1>{title}</h1>
+    </Row>
+    <Row className="my-3">
+      {problems.map(({ solved, total }, i) => {
+        const key = "ABCDEF".charAt(i);
+        return (
+          <Col
+            key={key}
+            className="text-center"
+            xs="6"
+            md={12 / problems.length}
+          >
+            <SmallPieChart
+              accepted={solved}
+              trying={total - solved}
+              title={`Problem ${key}`}
+            />
+          </Col>
+        );
+      })}
+    </Row>
+  </div>
+);
 
 const get_streak = (first_ac_map: Map<string, number>) => {
   let longest_streak = 1;
