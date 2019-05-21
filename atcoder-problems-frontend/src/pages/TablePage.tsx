@@ -178,59 +178,8 @@ class TablePage extends React.Component<Props, State> {
       <div>
         <AtCoderRegularTable contests={abc} title="AtCoder Beginner Contest" />
         <AtCoderRegularTable contests={arc} title="AtCoder Regular Contest" />
+        <AtCoderRegularTable contests={agc} title="AtCoder Grand Contest" />
 
-        <Row>
-          <h2>AtCoder Grand Contest</h2>
-          <BootstrapTable data={agc} keyField="id">
-            <TableHeaderColumn
-              dataField="id"
-              dataFormat={(id: string) => (
-                <a href={Url.formatContestUrl(id)} target="_blank">
-                  {id.toUpperCase()}
-                </a>
-              )}
-            >
-              Contest
-            </TableHeaderColumn>
-            {"ABCDEF".split("").map((c, i) => (
-              <TableHeaderColumn
-                dataField={c}
-                key={c}
-                columnClassName={(
-                  _: any,
-                  { problems }: { problems: ProblemWithStatus[] }
-                ) => {
-                  const problem = problems[i];
-                  if (problem) {
-                    return get_table_class(problems[i].status);
-                  } else {
-                    return "";
-                  }
-                }}
-                dataFormat={(
-                  _: any,
-                  row: { id: string; problems: ProblemWithStatus[] }
-                ) => {
-                  const problem = row.problems[i];
-                  if (problem) {
-                    return (
-                      <a
-                        target="_blank"
-                        href={Url.formatProblemUrl(problem.id, row.id)}
-                      >
-                        {problem.title}
-                      </a>
-                    );
-                  } else {
-                    return "-";
-                  }
-                }}
-              >
-                {c}
-              </TableHeaderColumn>
-            ))}
-          </BootstrapTable>
-        </Row>
         <Row className="my-4">
           <h2>Other Contests</h2>
         </Row>
@@ -282,46 +231,73 @@ const AtCoderRegularTable = ({
 }: {
   contests: { id: string; problems: ProblemWithStatus[] }[];
   title: string;
-}) => (
-  <Row className="my-4">
-    <h2>{title}</h2>
-    <BootstrapTable data={contests}>
-      <TableHeaderColumn
-        isKey
-        dataField="id"
-        dataFormat={(
-          _: any,
-          row: { id: string; problems: ProblemWithStatus[] }
-        ) => (
-          <a href={Url.formatContestUrl(row.id)} target="_blank">
-            {row.id.toUpperCase()}
-          </a>
-        )}
-      >
-        Contest
-      </TableHeaderColumn>
-      {"ABCD".split("").map((c, i) => (
+}) => {
+  const max_problem_count = contests
+    .map(c => c.problems.length)
+    .reduce((current, count) => Math.max(current, count), 0);
+  const problem_heads = ["A", "B", "C", "D", "E", "F", "F2"].slice(
+    0,
+    max_problem_count
+  );
+
+  return (
+    <Row className="my-4">
+      <h2>{title}</h2>
+      <BootstrapTable data={contests}>
         <TableHeaderColumn
-          dataField={c}
-          key={c}
-          columnClassName={(
-            _: any,
-            { problems }: { problems: ProblemWithStatus[] }
-          ) => get_table_class(problems[i].status)}
+          isKey
+          dataField="id"
           dataFormat={(
             _: any,
-            { id, problems }: { id: string; problems: ProblemWithStatus[] }
+            row: { id: string; problems: ProblemWithStatus[] }
           ) => (
-            <a href={Url.formatProblemUrl(problems[i].id, id)} target="_blank">
-              {problems[i].title}
+            <a href={Url.formatContestUrl(row.id)} target="_blank">
+              {row.id.toUpperCase()}
             </a>
           )}
         >
-          {c}
+          Contest
         </TableHeaderColumn>
-      ))}
-    </BootstrapTable>
-  </Row>
-);
+        {problem_heads.map((c, i) => (
+          <TableHeaderColumn
+            dataField={c}
+            key={c}
+            columnClassName={(
+              _: any,
+              { problems }: { problems: ProblemWithStatus[] }
+            ) => {
+              const problem = problems[i];
+              if (problem) {
+                return get_table_class(problems[i].status);
+              } else {
+                return "";
+              }
+            }}
+            dataFormat={(
+              _: any,
+              { id, problems }: { id: string; problems: ProblemWithStatus[] }
+            ) => {
+              const problem = problems[i];
+              if (problem) {
+                return (
+                  <a
+                    href={Url.formatProblemUrl(problems[i].id, id)}
+                    target="_blank"
+                  >
+                    {problems[i].title}
+                  </a>
+                );
+              } else {
+                return "-";
+              }
+            }}
+          >
+            {c}
+          </TableHeaderColumn>
+        ))}
+      </BootstrapTable>
+    </Row>
+  );
+};
 
 export default TablePage;
