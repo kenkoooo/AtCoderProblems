@@ -16,6 +16,7 @@ import LanguageOwners from "./pages/LanguageOwners";
 import ListPage from "./pages/ListPage";
 import UserPage from "./pages/UserPage";
 import TablePage from "./pages/TablePage";
+import Monitor from './pages/Monitor';
 
 import NavigationBar from "./components/NavigationBar";
 import { ATCODER_USER_REGEXP, ATCODER_RIVALS_REGEXP } from "./utils";
@@ -52,6 +53,7 @@ class App extends Component {
               <Route exact path="/first" component={FirstRanking} />
               <Route exact path="/sum" component={SumRanking} />
               <Route exact path="/lang" component={LanguageOwners} />
+              <Route exact path="/monitor" component={Monitor} />
               <Route
                 path="/user/:user_id([a-zA-Z0-9_]*)*"
                 component={(props: MatchUserId) => (

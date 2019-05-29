@@ -31,7 +31,7 @@ interface State {
 class PrimitiveNavigationBar extends React.Component<
   RouteComponentProps,
   State
-> {
+  > {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -198,6 +198,17 @@ class PrimitiveNavigationBar extends React.Component<
               </DropdownItem>
               <DropdownItem tag={RouterLink} to="/lang">
                 Language Owners
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+
+          <UncontrolledDropdown nav inNavbar>
+            <DropdownToggle nav caret>
+              Other
+            </DropdownToggle>
+            <DropdownMenu right>
+              <DropdownItem tag={RouterLink} to="/monitor">
+                Monitoring
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
