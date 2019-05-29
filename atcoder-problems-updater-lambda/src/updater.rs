@@ -14,7 +14,6 @@ pub trait SqlUpdater {
     fn update_rated_point_sums(&self) -> QueryResult<()>;
     fn update_language_count(&self) -> QueryResult<()>;
     fn update_great_submissions(&self) -> QueryResult<()>;
-    fn aggregate_great_submissions(&self) -> QueryResult<()>;
     fn update_problem_points(&self) -> QueryResult<()>;
 }
 
@@ -307,36 +306,6 @@ impl SqlUpdater for PgConnection {
                     .execute(self)?;
                 Ok(())
             })
-    }
-
-    fn aggregate_great_submissions(&self) -> QueryResult<()> {
-        for (table, parent) in [
-            ("first_submission_count", "first"),
-            ("shortest_submission_count", "shortest"),
-            ("fastest_submission_count", "fastest"),
-        ]
-        .into_iter()
-        {
-            self.batch_execute(&format!(
-                r"
-                DELETE FROM
-                    {table};
-                INSERT INTO
-                    {table} (problem_count, user_id)
-                SELECT
-                    COUNT(DISTINCT({parent}.problem_id)),
-                    user_id
-                FROM
-                    {parent}
-                    JOIN submissions ON submissions.id = {parent}.submission_id
-                GROUP BY
-                    submissions.user_id;
-                ",
-                table = table,
-                parent = parent
-            ))?
-        }
-        Ok(())
     }
 
     fn update_problem_points(&self) -> QueryResult<()> {
