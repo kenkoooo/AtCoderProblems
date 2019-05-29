@@ -31,24 +31,10 @@ table! {
 }
 
 table! {
-    fastest_submission_count (user_id) {
-        user_id -> Varchar,
-        problem_count -> Int4,
-    }
-}
-
-table! {
     first (problem_id) {
         contest_id -> Varchar,
         problem_id -> Varchar,
         submission_id -> Int8,
-    }
-}
-
-table! {
-    first_submission_count (user_id) {
-        user_id -> Varchar,
-        problem_count -> Int4,
     }
 }
 
@@ -99,13 +85,6 @@ table! {
 }
 
 table! {
-    shortest_submission_count (user_id) {
-        user_id -> Varchar,
-        problem_count -> Int4,
-    }
-}
-
-table! {
     solver (problem_id) {
         problem_id -> Varchar,
         user_count -> Int4,
@@ -147,9 +126,7 @@ allow_tables_to_appear_in_same_query!(
     contests,
     contest_problem,
     fastest,
-    fastest_submission_count,
     first,
-    first_submission_count,
     language_count,
     points,
     predicted_rating,
@@ -157,7 +134,6 @@ allow_tables_to_appear_in_same_query!(
     performances,
     rated_point_sum,
     shortest,
-    shortest_submission_count,
     solver,
     submissions,
 );
