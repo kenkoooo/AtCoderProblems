@@ -248,16 +248,6 @@ fn test_update_great_submissions() {
         .load::<(String, String, i64)>(&conn)
         .unwrap();
     assert_eq!(v, vec![("contest".to_owned(), "problem1".to_owned(), 3)]);
-
-    conn.aggregate_great_submissions().unwrap();
-    let v = shortest_submission_count::table
-        .select((
-            shortest_submission_count::user_id,
-            shortest_submission_count::problem_count,
-        ))
-        .load::<(String, i32)>(&conn)
-        .unwrap();
-    assert_eq!(v, vec![("user3".to_owned(), 1)]);
 }
 
 #[test]
