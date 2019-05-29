@@ -41,9 +41,6 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
     info!("Executing update_great_submissions...");
     conn.update_great_submissions().lambda_err(&c)?;
 
-    info!("Executing aggregate_great_submissions...");
-    conn.aggregate_great_submissions().lambda_err(&c)?;
-
     info!("Executing update_problem_points...");
     conn.update_problem_points().lambda_err(&c)?;
 

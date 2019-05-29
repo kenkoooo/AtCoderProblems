@@ -101,42 +101,6 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
         .new_err(&c)?;
     client
         .update(
-            shortest_submission_count::table
-                .order_by(shortest_submission_count::user_id)
-                .load::<UserProblemCount>(&conn)
-                .new_err(&c)?,
-            "resources/short.json",
-        )
-        .new_err(&c)?;
-    client
-        .update(
-            shortest_submission_count::table
-                .order_by(shortest_submission_count::user_id)
-                .load::<UserProblemCount>(&conn)
-                .new_err(&c)?,
-            "resources/short.json",
-        )
-        .new_err(&c)?;
-    client
-        .update(
-            fastest_submission_count::table
-                .order_by(fastest_submission_count::user_id)
-                .load::<UserProblemCount>(&conn)
-                .new_err(&c)?,
-            "resources/fast.json",
-        )
-        .new_err(&c)?;
-    client
-        .update(
-            first_submission_count::table
-                .order_by(first_submission_count::user_id)
-                .load::<UserProblemCount>(&conn)
-                .new_err(&c)?,
-            "resources/first.json",
-        )
-        .new_err(&c)?;
-    client
-        .update(
             rated_point_sum::table
                 .order_by(rated_point_sum::user_id)
                 .load::<UserSum>(&conn)
