@@ -1,5 +1,5 @@
 import React from "react";
-import { Media, Row, Card, CardImg, CardTitle, CardSubtitle, CardBody, CardText, Button } from "reactstrap";
+import { Row, Card, CardImg, CardTitle, CardSubtitle, CardBody } from "reactstrap";
 import Col from "reactstrap/lib/Col";
 
 const Monitor = () => (
