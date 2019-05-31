@@ -1,5 +1,5 @@
 [package]
-name = "atcoder-problems-sql-common"
+name = "atcoder-problems-backend"
 version = "0.1.0"
 authors = ["kenkoooo <kenkou.n@gmail.com>"]
 edition = "2018"

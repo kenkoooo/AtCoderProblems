@@ -1,6 +1,6 @@
-use crate::models::*;
-use crate::schema::*;
-use crate::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
+use super::models::*;
+use super::schema::*;
+use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 
 use diesel::dsl::insert_into;
 use diesel::pg::upsert::excluded;
@@ -9,23 +9,23 @@ use diesel::prelude::*;
 use diesel::QueryResult;
 
 pub trait SqlClient {
-    fn insert_submissions(&self, values: &[Submission]) -> Result<usize, String>;
-    fn insert_contests(&self, values: &[Contest]) -> Result<usize, String>;
-    fn insert_problems(&self, values: &[Problem]) -> Result<usize, String>;
+    fn insert_submissions(&self, values: &[Submission]) -> QueryResult<usize>;
+    fn insert_contests(&self, values: &[Contest]) -> QueryResult<usize>;
+    fn insert_problems(&self, values: &[Problem]) -> QueryResult<usize>;
     fn insert_contest_problem_pair(
         &self,
         contest_problem_pairs: &[(&str, &str)],
     ) -> QueryResult<usize>;
     fn insert_performances(&self, performances: &[Performance]) -> QueryResult<usize>;
 
-    fn get_problems(&self) -> Result<Vec<Problem>, String>;
-    fn get_contests(&self) -> Result<Vec<Contest>, String>;
-    fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String>;
+    fn get_problems(&self) -> QueryResult<Vec<Problem>>;
+    fn get_contests(&self) -> QueryResult<Vec<Contest>>;
+    fn get_submissions(&self, user_id: &str) -> QueryResult<Vec<Submission>>;
     fn get_contests_without_performances(&self) -> QueryResult<Vec<String>>;
 }
 
 impl SqlClient for PgConnection {
-    fn insert_submissions(&self, values: &[Submission]) -> Result<usize, String> {
+    fn insert_submissions(&self, values: &[Submission]) -> QueryResult<usize> {
         insert_into(submissions::table)
             .values(values)
             .on_conflict(submissions::id)
@@ -37,25 +37,22 @@ impl SqlClient for PgConnection {
                 submissions::execution_time.eq(excluded(submissions::execution_time)),
             ))
             .execute(self)
-            .map_err(|e| format!("{:?}", e))
     }
 
-    fn insert_contests(&self, values: &[Contest]) -> Result<usize, String> {
+    fn insert_contests(&self, values: &[Contest]) -> QueryResult<usize> {
         insert_into(contests::table)
             .values(values)
             .on_conflict(contests::id)
             .do_nothing()
             .execute(self)
-            .map_err(|e| format!("{:?}", e))
     }
 
-    fn insert_problems(&self, values: &[Problem]) -> Result<usize, String> {
+    fn insert_problems(&self, values: &[Problem]) -> QueryResult<usize> {
         insert_into(problems::table)
             .values(values)
             .on_conflict(problems::id)
             .do_nothing()
             .execute(self)
-            .map_err(|e| format!("{:?}", e))
     }
 
     fn insert_contest_problem_pair(
@@ -87,23 +84,18 @@ impl SqlClient for PgConnection {
             .execute(self)
     }
 
-    fn get_problems(&self) -> Result<Vec<Problem>, String> {
-        problems::dsl::problems
-            .load::<Problem>(self)
-            .map_err(|e| format!("{:?}", e))
+    fn get_problems(&self) -> QueryResult<Vec<Problem>> {
+        problems::dsl::problems.load::<Problem>(self)
     }
 
-    fn get_contests(&self) -> Result<Vec<Contest>, String> {
-        contests::dsl::contests
-            .load::<Contest>(self)
-            .map_err(|e| format!("{:?}", e))
+    fn get_contests(&self) -> QueryResult<Vec<Contest>> {
+        contests::dsl::contests.load::<Contest>(self)
     }
 
-    fn get_submissions(&self, user_id: &str) -> Result<Vec<Submission>, String> {
+    fn get_submissions(&self, user_id: &str) -> QueryResult<Vec<Submission>> {
         submissions::dsl::submissions
             .filter(submissions::user_id.eq(user_id))
             .load::<Submission>(self)
-            .map_err(|e| format!("{:?}", e))
     }
 
     fn get_contests_without_performances(&self) -> QueryResult<Vec<String>> {
