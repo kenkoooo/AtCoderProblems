@@ -1,13 +1,16 @@
-mod client;
+pub mod client;
+pub mod models;
+pub mod schema;
 
-pub use client::SqlClient;
+pub const FIRST_AGC_EPOCH_SECOND: i64 = 1468670400;
+pub const UNRATED_STATE: &str = "-";
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::models::*;
-    use crate::schema::*;
-    use crate::FIRST_AGC_EPOCH_SECOND;
+    use super::client::*;
+    use super::models::*;
+    use super::schema::*;
+    use super::FIRST_AGC_EPOCH_SECOND;
     use diesel::connection::SimpleConnection;
     use diesel::prelude::*;
     use diesel::Connection;
@@ -16,6 +19,7 @@ mod tests {
     use std::io::prelude::*;
 
     const URL: &str = "postgresql://kenkoooo:pass@localhost/test";
+    const SQL_FILE_PATH: &str = "../config/database-definition.sql";
 
     fn read_file(path: &str) -> String {
         let mut file = File::open(path).unwrap();
@@ -26,12 +30,12 @@ mod tests {
 
     fn setup_test_db() {
         let conn = PgConnection::establish(URL).unwrap();
-        let sql = read_file("../config/database-definition.sql");
+        let sql = read_file(SQL_FILE_PATH);
         conn.batch_execute(&sql).unwrap();
     }
 
     fn connect_to_test() -> PgConnection {
-        PgConnection::establish("postgres://kenkoooo:pass@localhost/test").expect(
+        PgConnection::establish(URL).expect(
             r"
             Please prepare a database on your localhost with the following properties.
             database:   test
