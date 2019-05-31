@@ -7,8 +7,8 @@ pub mod submission;
 
 pub use self::contest::scrape_contests;
 pub use self::problem::scrape_problems;
-pub use self::submission::{get_max_submission_page, scrape_submissions};
 pub use self::results::get_performances;
+pub use self::submission::{get_max_submission_page, scrape_submissions};
 
 use reqwest::{header, Client};
 
@@ -24,7 +24,7 @@ pub(crate) fn get_html(url: &str) -> Result<String, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Problem;
+    use crate::sql::models::Problem;
     use std::fs::File;
     use std::io::prelude::*;
 

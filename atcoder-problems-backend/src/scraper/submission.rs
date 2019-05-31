@@ -1,5 +1,5 @@
 use crate::scraper::{get_html, ATCODER_HOST};
-use crate::Submission;
+use crate::sql::models::Submission;
 use chrono::DateTime;
 use regex::Regex;
 use scraper::{Html, Selector};

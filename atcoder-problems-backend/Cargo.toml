@@ -8,3 +8,8 @@ edition = "2018"
 diesel = { version = "1.4.2", features = ["postgres"] }
 regex = "1"
 serde = { version = "1.0", features = ["derive"] }
+scraper = "0.9"
+reqwest = { version = "0.9", features = ["rustls-tls"], default-features = false }
+chrono = "0.4"
+log = "0.4.6"
+simple_logger = "1.2"
