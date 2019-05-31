@@ -1,5 +1,5 @@
 use crate::scraper::ATCODER_HOST;
-use crate::Contest;
+use crate::sql::models::Contest;
 use chrono::DateTime;
 use reqwest::{header, Client};
 use scraper::{Html, Selector};

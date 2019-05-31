@@ -1,20 +1,20 @@
-use atcoder_problems_scraper::scraper;
-use atcoder_problems_scraper::sql::SqlClient;
-use atcoder_problems_sql_common::schema::*;
+use atcoder_problems_backend::scraper;
+use atcoder_problems_backend::sql::client::SqlClient;
+use atcoder_problems_backend::sql::schema::*;
 use chrono::{Duration, Utc};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::Connection;
-use env_logger;
 use log::info;
-use std::{env, thread, time};
+use simple_logger;
+use std::env;
+use std::{thread, time};
 
 const NEW_CONTEST_THRESHOLD_DAYS: i64 = 2;
 const NEW_PAGE_THRESHOLD: usize = 5;
 
 fn main() {
-    env::set_var("RUST_LOG", "info");
-    env_logger::init();
+    simple_logger::init_with_level(log::Level::Info).unwrap();
     info!("Started");
 
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");

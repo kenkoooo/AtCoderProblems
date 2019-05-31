@@ -1,17 +1,15 @@
-use atcoder_problems_scraper::scraper;
-use atcoder_problems_scraper::sql::SqlClient;
+use atcoder_problems_backend::scraper;
+use atcoder_problems_backend::sql::client::SqlClient;
+use atcoder_problems_backend::sql::schema::*;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use env_logger;
 use log::{error, info};
+use simple_logger;
 use std::env;
 use std::{thread, time};
 
-use atcoder_problems_sql_common::schema::*;
-
 fn main() {
-    env::set_var("RUST_LOG", "info");
-    env_logger::init();
+    simple_logger::init_with_level(log::Level::Info).unwrap();
 
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
     let conn = PgConnection::establish(&url).unwrap();

@@ -1,5 +1,5 @@
 use crate::scraper::{get_html, ATCODER_HOST};
-use crate::Problem;
+use crate::sql::models::Problem;
 use scraper::{Html, Selector};
 
 pub(crate) fn scrape_problems_from_html(html: &str, contest_id: &str) -> Option<Vec<Problem>> {

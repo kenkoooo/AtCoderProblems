@@ -1,5 +1,5 @@
 use crate::scraper::ATCODER_HOST;
-use crate::Performance;
+use crate::sql::models::Performance;
 use reqwest;
 use serde::Deserialize;
 use std::collections::BTreeMap;
