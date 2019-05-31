@@ -104,7 +104,7 @@ fn my_handler(e: LambdaInput, c: lambda::Context) -> Result<CustomOutput, Handle
         "results" => {
             info!("Submission API");
             let params = map_params(&params).ok_or_else(|| c.new_error("Failed to load params"))?;
-            let (body, etag) = get_results(params, &conn, &c)?;
+            let etag = get_etag(&params, &conn, &c)?;
 
             match get_header(&e.headers, "If-None-Match") {
                 Some(tag) if tag == &etag => Ok(CustomOutput {
@@ -114,6 +114,7 @@ fn my_handler(e: LambdaInput, c: lambda::Context) -> Result<CustomOutput, Handle
                     headers,
                 }),
                 _ => {
+                    let body = get_body(&params, &conn, &c)?;
                     headers.insert("etag".to_owned(), etag);
                     Ok(CustomOutput {
                         is_base64_encoded: false,
@@ -176,11 +177,56 @@ fn get_header<'a>(headers: &'a HashMap<String, String>, field: &str) -> Option<&
         .map(|(_, value)| value.as_str())
 }
 
-fn get_results<'a>(
-    params: SubmissionAPIParam<'a>,
+fn get_etag<'a>(
+    params: &SubmissionAPIParam<'a>,
     conn: &PgConnection,
     c: &lambda::Context,
-) -> Result<(String, String), HandlerError> {
+) -> Result<String, HandlerError> {
+    match params {
+        SubmissionAPIParam::UserSubmission { user_id } => {
+            let count: i64 = submissions::table
+                .filter(submissions::user_id.eq(user_id))
+                .select(count_star())
+                .first(conn)
+                .map_err(|_| c.new_error("Failed to load submissions"))?;
+
+            let mut hasher = Md5::new();
+            hasher.input(user_id.as_bytes());
+            hasher.input(b" ");
+            hasher.input(count.to_be_bytes());
+            let etag = hex::encode(hasher.result());
+            Ok(etag)
+        }
+        SubmissionAPIParam::TimeSubmission { from_epoch_second } => {
+            let count: i64 = submissions::table
+                .filter(submissions::epoch_second.ge(from_epoch_second))
+                .select(count_star())
+                .first(conn)
+                .map_err(|_| c.new_error("Failed to load submissions"))?;
+
+            let max_id: Option<i64> = submissions::table
+                .filter(submissions::epoch_second.ge(from_epoch_second))
+                .select(max(submissions::id))
+                .first(conn)
+                .map_err(|_| c.new_error("Failed to load submissions"))?;
+
+            let mut hasher = Md5::new();
+            hasher.input(from_epoch_second.to_be_bytes());
+            hasher.input(b" ");
+            hasher.input(count.to_be_bytes());
+            hasher.input(b" ");
+            hasher.input(std::cmp::min(1000, max_id.unwrap_or(0)).to_be_bytes());
+            let etag = hex::encode(hasher.result());
+            Ok(etag)
+        }
+    }
+}
+
+fn get_body<'a>(
+    params: &SubmissionAPIParam<'a>,
+    conn: &PgConnection,
+    c: &lambda::Context,
+) -> Result<String, HandlerError> {
     match params {
         SubmissionAPIParam::UserSubmission { user_id } => {
             let submissions = submissions::table
@@ -188,15 +234,8 @@ fn get_results<'a>(
                 .load::<Submission>(conn)
                 .map_err(|_| c.new_error("Failed to load submissions"))?;
 
-            let mut hasher = Md5::new();
-            hasher.input(user_id.as_bytes());
-            hasher.input(b" ");
-            hasher.input(submissions.len().to_be_bytes());
-            let etag = hex::encode(hasher.result());
-
             serde_json::to_string(&submissions)
                 .map_err(|_| c.new_error("Failed to convert submissions to JSON"))
-                .map(|body| (body, etag))
         }
         SubmissionAPIParam::TimeSubmission { from_epoch_second } => {
             let submissions = submissions::table
@@ -206,19 +245,8 @@ fn get_results<'a>(
                 .load::<Submission>(conn)
                 .map_err(|_| c.new_error("Failed to load submissions"))?;
 
-            let max_id = submissions.iter().map(|s| s.id).max().unwrap_or(0);
-
-            let mut hasher = Md5::new();
-            hasher.input(from_epoch_second.to_be_bytes());
-            hasher.input(b" ");
-            hasher.input(submissions.len().to_be_bytes());
-            hasher.input(b" ");
-            hasher.input(max_id.to_be_bytes());
-            let etag = hex::encode(hasher.result());
-
             serde_json::to_string(&submissions)
                 .map_err(|_| c.new_error("Failed to convert submissions to JSON"))
-                .map(|body| (body, etag))
         }
     }
 }
