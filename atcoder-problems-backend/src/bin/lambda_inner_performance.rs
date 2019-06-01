@@ -1,15 +1,10 @@
-#[macro_use]
-extern crate log;
-extern crate simple_logger;
-
-#[macro_use]
-extern crate lambda_runtime as lambda;
-extern crate openssl;
-
+use atcoder_problems_backend::error::MapHandlerError;
 use diesel::connection::SimpleConnection;
 use diesel::{Connection, PgConnection};
-use lambda::error::HandlerError;
+use lambda_runtime::{error::HandlerError, lambda, Context};
+use log::{self, info};
 use openssl_probe;
+use simple_logger;
 use std::env;
 use std::error::Error;
 
@@ -17,14 +12,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Info)?;
     openssl_probe::init_ssl_cert_env_vars();
     info!("Started!");
-    lambda!(my_handler);
+    lambda!(handler);
 
     Ok(())
 }
 
-fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
-    let url = env::var("SQL_URL").map_err(|_| c.new_error("SQL_URL must be set."))?;
-    let conn = PgConnection::establish(&url).map_err(|_| c.new_error("Failed to connect."))?;
+fn handler(_: String, _: Context) -> Result<String, HandlerError> {
+    let url = env::var("SQL_URL")?;
+    let conn = PgConnection::establish(&url).map_handler_error()?;
 
     conn.batch_execute(
         r#"
@@ -45,7 +40,7 @@ fn my_handler(_: String, c: lambda::Context) -> Result<String, HandlerError> {
             ON CONFLICT (problem_id) DO NOTHING;
         "#,
     )
-    .map_err(|_| c.new_error("Execution Failed."))?;
+    .map_handler_error()?;
 
     Ok("Finished".to_owned())
 }

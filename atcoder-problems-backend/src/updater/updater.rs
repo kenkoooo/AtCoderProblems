@@ -1,4 +1,4 @@
-use atcoder_problems_sql_common::schema::*;
+use crate::sql::schema::*;
 use diesel::connection::SimpleConnection;
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;

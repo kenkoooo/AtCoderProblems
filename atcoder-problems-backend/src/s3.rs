@@ -10,11 +10,17 @@ pub struct S3Client {
     client: rusoto_s3::S3Client,
 }
 
-impl S3Client {
-    pub fn new() -> Self {
+impl Default for S3Client {
+    fn default() -> Self {
         Self {
             client: rusoto_s3::S3Client::new(Region::ApNortheast1),
         }
+    }
+}
+
+impl S3Client {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn update<T>(&self, new_vec: Vec<T>, path: &str) -> Result<bool, &str>
@@ -39,7 +45,7 @@ impl S3Client {
                     .ok();
                 Some(old_string)
             })
-            .unwrap_or(String::new());
+            .unwrap_or_else(String::new);
 
         let new_string = serde_json::to_string(&new_vec).map_err(|_| "Failed to serialize.")?;
 

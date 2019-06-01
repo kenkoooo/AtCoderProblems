@@ -1,6 +1,6 @@
-use atcoder_problems_sql_common::FIRST_AGC_EPOCH_SECOND;
-use atcoder_problems_sql_common::models::Submission;
-use atcoder_problems_sql_common::schema::*;
+use crate::sql::models::Submission;
+use crate::sql::schema::*;
+use crate::sql::FIRST_AGC_EPOCH_SECOND;
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
@@ -42,7 +42,7 @@ impl DeltaUpdater for PgConnection {
             .map(|s| (s.user_id.as_str(), s.problem_id.as_str()))
             .fold(BTreeMap::new(), |mut map, (user_id, problem_id)| {
                 map.entry(user_id)
-                    .or_insert(BTreeSet::new())
+                    .or_insert_with(BTreeSet::new)
                     .insert(problem_id);
                 map
             })
@@ -82,7 +82,7 @@ impl DeltaUpdater for PgConnection {
                         re.replace(&language, "").to_string()
                     };
                     map.entry((user_id, simplified_language))
-                        .or_insert(BTreeSet::new())
+                        .or_insert_with(BTreeSet::new)
                         .insert(problem_id);
                     map
                 },
@@ -120,7 +120,7 @@ impl DeltaUpdater for PgConnection {
             .map(|s| (s.user_id.as_str(), s.problem_id.as_str(), s.point))
             .fold(BTreeMap::new(), |mut map, (user_id, problem_id, point)| {
                 map.entry(user_id)
-                    .or_insert(BTreeSet::new())
+                    .or_insert_with(BTreeSet::new)
                     .insert((problem_id, point as u32));
                 map
             })
@@ -129,7 +129,7 @@ impl DeltaUpdater for PgConnection {
                 let sum = set.into_iter().map(|(_, point)| point).sum::<u32>();
                 (
                     rated_point_sum::user_id.eq(user_id),
-                    rated_point_sum::point_sum.eq(sum as f64),
+                    rated_point_sum::point_sum.eq(f64::from(sum)),
                 )
             })
             .collect::<Vec<_>>();
