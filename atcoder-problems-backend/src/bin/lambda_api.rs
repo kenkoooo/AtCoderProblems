@@ -1,16 +1,12 @@
-#[macro_use]
-extern crate lambda_runtime as lambda;
-#[macro_use]
-extern crate log;
-extern crate openssl;
-
-use atcoder_problems_sql_common::models::Submission;
-use atcoder_problems_sql_common::schema::*;
+use atcoder_problems_backend::error::MapHandlerError;
+use atcoder_problems_backend::sql::models::Submission;
+use atcoder_problems_backend::sql::schema::*;
 use diesel::dsl::*;
 use diesel::prelude::*;
 use diesel::{Connection, PgConnection};
 use hex;
-use lambda::error::HandlerError;
+use lambda_runtime::{error::HandlerError, lambda, Context};
+use log::{self, info};
 use md5::{Digest, Md5};
 use openssl_probe;
 use serde::{Deserialize, Serialize};
@@ -70,11 +66,11 @@ enum SubmissionAPIParam<'a> {
 fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Info)?;
     openssl_probe::init_ssl_cert_env_vars();
-    lambda!(my_handler);
+    lambda!(handler);
     Ok(())
 }
 
-fn map_params<'a>(params: &'a LambdaInputQueryParameters) -> Option<SubmissionAPIParam<'a>> {
+fn map_params(params: &LambdaInputQueryParameters) -> Option<SubmissionAPIParam> {
     params
         .user
         .as_ref()
@@ -88,11 +84,10 @@ fn map_params<'a>(params: &'a LambdaInputQueryParameters) -> Option<SubmissionAP
         })
 }
 
-fn my_handler(e: LambdaInput, c: lambda::Context) -> Result<CustomOutput, HandlerError> {
+fn handler(e: LambdaInput, _: Context) -> Result<CustomOutput, HandlerError> {
     info!("header: {:?}", e.headers);
-    let url = env::var("SQL_URL").map_err(|_| c.new_error("SQL_URL must be set"))?;
-    let conn =
-        PgConnection::establish(&url).map_err(|_| c.new_error("Failed to connect to SQL"))?;
+    let url = env::var("SQL_URL")?;
+    let conn = PgConnection::establish(&url).map_handler_error()?;
 
     let mut headers = HashMap::new();
     headers.insert("Access-Control-Allow-Origin".to_owned(), "*".to_owned());
@@ -103,18 +98,19 @@ fn my_handler(e: LambdaInput, c: lambda::Context) -> Result<CustomOutput, Handle
     match path.as_str() {
         "results" => {
             info!("Submission API");
-            let params = map_params(&params).ok_or_else(|| c.new_error("Failed to load params"))?;
-            let etag = get_etag(&params, &conn, &c)?;
+            let params =
+                map_params(&params).ok_or_else(|| HandlerError::from("Failed to load params"))?;
+            let etag = get_etag(&params, &conn)?;
 
             match get_header(&e.headers, "If-None-Match") {
-                Some(tag) if tag == &etag => Ok(CustomOutput {
+                Some(tag) if tag == etag => Ok(CustomOutput {
                     is_base64_encoded: false,
                     status_code: 304,
                     body: String::new(),
                     headers,
                 }),
                 _ => {
-                    let body = get_body(&params, &conn, &c)?;
+                    let body = get_body(&params, &conn)?;
                     headers.insert("etag".to_owned(), etag);
                     Ok(CustomOutput {
                         is_base64_encoded: false,
@@ -129,44 +125,43 @@ fn my_handler(e: LambdaInput, c: lambda::Context) -> Result<CustomOutput, Handle
             info!("UserInfo API");
             let user_id = params
                 .user
-                .ok_or_else(|| c.new_error("user_id is required"))?;
+                .ok_or_else(|| HandlerError::from("user_id is required"))?;
             let accepted_count = accepted_count::table
                 .filter(accepted_count::user_id.eq(&user_id))
                 .select(accepted_count::problem_count)
                 .first::<i32>(&conn)
-                .map_err(|_| c.new_error("Failed to load accepted_count"))?;
+                .map_handler_error()?;
             let accepted_count_rank = accepted_count::table
                 .filter(accepted_count::problem_count.gt(accepted_count))
                 .select(count_star())
                 .first::<i64>(&conn)
-                .map_err(|_| c.new_error("Failed to load accepted_count_rank"))?;
+                .map_handler_error()?;
             let rated_point_sum = rated_point_sum::table
                 .filter(rated_point_sum::user_id.eq(&user_id))
                 .select(rated_point_sum::point_sum)
                 .first::<f64>(&conn)
-                .map_err(|_| c.new_error("Failed to load rated_point_sum"))?;
+                .map_handler_error()?;
             let rated_point_sum_rank = rated_point_sum::table
                 .filter(rated_point_sum::point_sum.gt(rated_point_sum))
                 .select(count_star())
                 .first::<i64>(&conn)
-                .map_err(|_| c.new_error("Failed to load rated_point_sum_rank"))?;
+                .map_handler_error()?;
 
-            serde_json::to_string(&UserInfo {
+            let body = serde_json::to_string(&UserInfo {
                 user_id,
                 accepted_count,
                 accepted_count_rank,
                 rated_point_sum,
                 rated_point_sum_rank,
-            })
-            .map_err(|_| c.new_error("Failed to convert user_info to JSON"))
-            .map(|body| CustomOutput {
+            })?;
+            Ok(CustomOutput {
                 is_base64_encoded: false,
                 status_code: 200,
                 body,
                 headers,
             })
         }
-        _ => Err(c.new_error("invalid path")),
+        x => Err(HandlerError::from(format!("Unknown path: {}", x).as_str())),
     }
 }
 
@@ -180,7 +175,6 @@ fn get_header<'a>(headers: &'a HashMap<String, String>, field: &str) -> Option<&
 fn get_etag<'a>(
     params: &SubmissionAPIParam<'a>,
     conn: &PgConnection,
-    c: &lambda::Context,
 ) -> Result<String, HandlerError> {
     match params {
         SubmissionAPIParam::UserSubmission { user_id } => {
@@ -188,7 +182,7 @@ fn get_etag<'a>(
                 .filter(submissions::user_id.eq(user_id))
                 .select(count_star())
                 .first(conn)
-                .map_err(|_| c.new_error("Failed to load submissions"))?;
+                .map_handler_error()?;
 
             let mut hasher = Md5::new();
             hasher.input(user_id.as_bytes());
@@ -202,13 +196,13 @@ fn get_etag<'a>(
                 .filter(submissions::epoch_second.ge(from_epoch_second))
                 .select(count_star())
                 .first(conn)
-                .map_err(|_| c.new_error("Failed to load submissions"))?;
+                .map_handler_error()?;
 
             let max_id: Option<i64> = submissions::table
                 .filter(submissions::epoch_second.ge(from_epoch_second))
                 .select(max(submissions::id))
                 .first(conn)
-                .map_err(|_| c.new_error("Failed to load submissions"))?;
+                .map_handler_error()?;
 
             let mut hasher = Md5::new();
             hasher.input(from_epoch_second.to_be_bytes());
@@ -225,17 +219,16 @@ fn get_etag<'a>(
 fn get_body<'a>(
     params: &SubmissionAPIParam<'a>,
     conn: &PgConnection,
-    c: &lambda::Context,
 ) -> Result<String, HandlerError> {
     match params {
         SubmissionAPIParam::UserSubmission { user_id } => {
             let submissions = submissions::table
                 .filter(submissions::user_id.eq(user_id))
                 .load::<Submission>(conn)
-                .map_err(|_| c.new_error("Failed to load submissions"))?;
+                .map_handler_error()?;
 
-            serde_json::to_string(&submissions)
-                .map_err(|_| c.new_error("Failed to convert submissions to JSON"))
+            let result = serde_json::to_string(&submissions)?;
+            Ok(result)
         }
         SubmissionAPIParam::TimeSubmission { from_epoch_second } => {
             let submissions = submissions::table
@@ -243,10 +236,10 @@ fn get_body<'a>(
                 .order_by(submissions::epoch_second.asc())
                 .limit(1000)
                 .load::<Submission>(conn)
-                .map_err(|_| c.new_error("Failed to load submissions"))?;
+                .map_handler_error()?;
 
-            serde_json::to_string(&submissions)
-                .map_err(|_| c.new_error("Failed to convert submissions to JSON"))
+            let result = serde_json::to_string(&submissions)?;
+            Ok(result)
         }
     }
 }
