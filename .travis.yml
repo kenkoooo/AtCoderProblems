@@ -9,18 +9,9 @@ matrix:
         - psql -c "CREATE USER kenkoooo PASSWORD 'pass';" -U postgres
         - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
       script:
-        - cd atcoder-problems-api-lambda/
-        - cargo test
-        - cd ../
-        - cd atcoder-problems-scraper/
-        - cargo test
-        - cd ../
-        - cd atcoder-problems-sql-common/
+        - cd atcoder-problems-backend/
+        - cargo build
         - RUST_TEST_THREADS=1 cargo test
-        - cd ../
-        - cd atcoder-problems-updater-lambda/
-        - RUST_TEST_THREADS=1 cargo test
-        - cd ../
     - language: node_js
       node_js: node
       before_script:

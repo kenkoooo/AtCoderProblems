@@ -63,8 +63,8 @@ fn handler(_: String, _: Context) -> Result<(), HandlerError> {
 
 #[derive(Serialize)]
 struct MetricWidget<S>
-    where
-        S: Serialize,
+where
+    S: Serialize,
 {
     metrics: Vec<Vec<S>>,
     timezone: S,
