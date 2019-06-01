@@ -9,7 +9,7 @@ struct ContestPerformance {
     #[serde(rename = "Place")]
     place: u64,
 
-    #[serde(rename = "InnerPerformance")]
+    #[serde(rename = "Performance")]
     inner_performance: i64,
 }
 
