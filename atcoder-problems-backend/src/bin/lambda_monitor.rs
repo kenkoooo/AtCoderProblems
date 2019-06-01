@@ -42,7 +42,7 @@ fn handler(_: String, _: Context) -> Result<(), HandlerError> {
         .sync()
         .map_err(|e| HandlerError::from(e.to_string().as_str()))?
         .metric_widget_image
-        .ok_or(HandlerError::from(""))?;
+        .ok_or_else(|| HandlerError::from(""))?;
     let bytes = base64::decode(&encoded).map_err(|e| HandlerError::from(e.to_string().as_str()))?;
 
     info!("Uploading to S3...");

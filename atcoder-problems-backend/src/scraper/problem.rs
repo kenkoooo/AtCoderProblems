@@ -22,7 +22,7 @@ pub(crate) fn scrape_problems_from_html(html: &str, contest_id: &str) -> Option<
                 .to_owned();
             let title = problem.text().next()?;
             Some(Problem {
-                id: id,
+                id,
                 contest_id: contest_id.to_owned(),
                 title: prefix + ". " + title,
             })

@@ -2,7 +2,7 @@ pub mod client;
 pub mod models;
 pub mod schema;
 
-pub const FIRST_AGC_EPOCH_SECOND: i64 = 1468670400;
+pub const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
 pub const UNRATED_STATE: &str = "-";
 
 #[cfg(test)]
