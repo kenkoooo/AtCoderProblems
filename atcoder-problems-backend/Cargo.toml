@@ -5,11 +5,19 @@ authors = ["kenkoooo <kenkou.n@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-diesel = { version = "1.4.2", features = ["postgres"] }
-regex = "1"
-serde = { version = "1.0", features = ["derive"] }
-scraper = "0.9"
-reqwest = { version = "0.9", features = ["rustls-tls"], default-features = false }
+base64 = "0.10"
 chrono = "0.4"
+diesel = { version = "1.4.2", features = ["postgres"] }
+lambda_runtime = "0.2"
 log = "0.4.6"
+openssl = "*"
+openssl-probe = "0.1.2"
+regex = "1"
+reqwest = { version = "0.9", features = ["rustls-tls"], default-features = false }
+rusoto_cloudwatch = "0.39.0"
+rusoto_s3 = "0.39.0"
+rusoto_core = "0.39.0"
+scraper = "0.9"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 simple_logger = "1.2"
