@@ -5,13 +5,22 @@ addons:
 matrix:
   include:
     - language: rust
+      os: linux
+      rust: nightly
+      before_install:
+        - cd atcoder-problems-backend/
+        - curl -L https://github.com/mozilla/grcov/releases/download/v0.5.1/grcov-linux-x86_64.tar.bz2 | tar jxf -
       before_script:
         - psql -c "CREATE USER kenkoooo PASSWORD 'pass';" -U postgres
         - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
       script:
-        - cd atcoder-problems-backend/
-        - cargo build
-        - RUST_TEST_THREADS=1 cargo test
+        - export CARGO_INCREMENTAL=0
+        - export RUSTFLAGS="-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads"
+        - cargo build --verbose $CARGO_OPTIONS
+        - RUST_TEST_THREADS=1 cargo test --verbose $CARGO_OPTIONS
+        - zip -0 ccov.zip `find . \( -name "atcoder_problems_backend*.gc*" \) -print`;
+        - RUST_BACKTRACE=1 ./grcov ccov.zip -s . -t lcov --llvm --branch --ignore-not-existing --ignore-dir "/*" -o lcov.info
+        - bash <(curl -s https://codecov.io/bash) -f lcov.info
     - language: node_js
       node_js: node
       before_script:
@@ -20,5 +29,3 @@ matrix:
         - npm install yarn -g
         - yarn
         - yarn build
-      after_success:
-        - cd ../
