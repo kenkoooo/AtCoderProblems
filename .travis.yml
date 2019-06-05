@@ -5,6 +5,7 @@ addons:
 matrix:
   include:
     - language: rust
+      rust: nightly
       before_install:
         - cd atcoder-problems-backend/
         - curl -L https://github.com/mozilla/grcov/releases/download/v0.4.1/grcov-linux-x86_64.tar.bz2 | tar jxf -
