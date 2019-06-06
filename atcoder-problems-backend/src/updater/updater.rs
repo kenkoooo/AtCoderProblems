@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::i32::MAX;
 
 pub trait SqlUpdater {
-    fn update_accepted_count(&self) -> QueryResult<()>;
+    fn update_accepted_count(&self) -> QueryResult<usize>;
     fn update_problem_solver_count(&self) -> QueryResult<()>;
     fn update_rated_point_sums(&self) -> QueryResult<usize>;
     fn update_language_count(&self) -> QueryResult<usize>;
@@ -19,47 +19,41 @@ pub trait SqlUpdater {
 }
 
 impl SqlUpdater for PgConnection {
-    fn update_accepted_count(&self) -> QueryResult<()> {
-        accepted_count::table
+    fn update_accepted_count(&self) -> QueryResult<usize> {
+        let current_count: Vec<(String, i32)> = accepted_count::table
             .select((accepted_count::user_id, accepted_count::problem_count))
-            .load::<(String, i32)>(self)
-            .and_then(|current_count| {
-                submissions::table
-                    .filter(submissions::result.eq("AC"))
-                    .select((submissions::user_id, submissions::problem_id))
-                    .load::<(String, String)>(self)
-                    .map(|submission| (submission, current_count))
+            .load(self)?;
+        let submissions: Vec<(String, String)> = submissions::table
+            .filter(submissions::result.eq("AC"))
+            .select((submissions::user_id, submissions::problem_id))
+            .load(self)?;
+        let current_set = current_count
+            .iter()
+            .map(|(user_id, count)| (user_id.as_str(), *count))
+            .collect::<BTreeSet<(&str, i32)>>();
+        let mut map: BTreeMap<&str, BTreeSet<&str>> = BTreeMap::new();
+        for (user_id, problem_id) in submissions.iter() {
+            map.entry(user_id)
+                .or_insert_with(BTreeSet::new)
+                .insert(problem_id);
+        }
+        let user_count = map
+            .into_iter()
+            .map(|(user_id, set)| (user_id, set.len() as i32))
+            .filter(|t| !current_set.contains(t))
+            .map(|(user_id, count)| {
+                (
+                    accepted_count::user_id.eq(user_id),
+                    accepted_count::problem_count.eq(count),
+                )
             })
-            .and_then(|(submissions, current_count)| {
-                let current_set = current_count
-                    .iter()
-                    .map(|(user_id, count)| (user_id.as_str(), *count))
-                    .collect::<BTreeSet<(&str, i32)>>();
-                let mut map: BTreeMap<&str, BTreeSet<&str>> = BTreeMap::new();
-                for (user_id, problem_id) in submissions.iter() {
-                    map.entry(user_id)
-                        .or_insert_with(BTreeSet::new)
-                        .insert(problem_id);
-                }
-                let user_count = map
-                    .into_iter()
-                    .map(|(user_id, set)| (user_id, set.len() as i32))
-                    .filter(|t| !current_set.contains(t))
-                    .map(|(user_id, count)| {
-                        (
-                            accepted_count::user_id.eq(user_id),
-                            accepted_count::problem_count.eq(count),
-                        )
-                    })
-                    .collect::<Vec<_>>();
-                insert_into(accepted_count::table)
-                    .values(&user_count)
-                    .on_conflict(accepted_count::user_id)
-                    .do_update()
-                    .set(accepted_count::problem_count.eq(excluded(accepted_count::problem_count)))
-                    .execute(self)
-            })
-            .map(|_| ())
+            .collect::<Vec<_>>();
+        insert_into(accepted_count::table)
+            .values(&user_count)
+            .on_conflict(accepted_count::user_id)
+            .do_update()
+            .set(accepted_count::problem_count.eq(excluded(accepted_count::problem_count)))
+            .execute(self)
     }
     fn update_problem_solver_count(&self) -> QueryResult<()> {
         self.batch_execute(
