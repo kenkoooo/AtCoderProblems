@@ -4,7 +4,6 @@ use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
 use diesel::{PgConnection, QueryResult};
-use log::{self, info};
 use regex::Regex;
 use std::collections::{BTreeMap, BTreeSet};
 use std::i32::MAX;
