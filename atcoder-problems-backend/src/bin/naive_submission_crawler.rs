@@ -30,7 +30,10 @@ fn main() {
         }) {
             for page in 1..=NEW_PAGE_THRESHOLD {
                 info!("Crawling {} {}", contest.id, page);
-                let new_submissions = scraper::scrape_submissions(&contest.id, page);
+                let new_submissions = scraper::scrape_submissions(&contest.id, Some(page))
+                    .map(|(s, _)| s)
+                    .unwrap_or(Vec::new());
+
                 if new_submissions.is_empty() {
                     info!("There is no submission on {}-{}", contest.id, page);
                     break;
