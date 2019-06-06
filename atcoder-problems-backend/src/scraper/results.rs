@@ -30,14 +30,15 @@ struct ContestStanding {
 
 fn get_standings(contest_id: &str) -> reqwest::Result<Vec<ContestStanding>> {
     let url = format!("{}/contests/{}/standings/json", ATCODER_HOST, contest_id);
-    reqwest::get(&url)
-        .and_then(|mut response| response.json::<ContestStandings>())
-        .map(|standings| standings.standings)
+    let mut response = reqwest::get(&url)?;
+    let standings = response.json::<ContestStandings>()?;
+    Ok(standings.standings)
 }
 
 fn get_contest_performances(contest_id: &str) -> reqwest::Result<Vec<ContestPerformance>> {
     let url = format!("{}/contests/{}/results/json", ATCODER_HOST, contest_id);
-    reqwest::get(&url).and_then(|mut response| response.json())
+    let mut response = reqwest::get(&url)?;
+    response.json()
 }
 
 pub fn get_performances(contest_id: &str) -> reqwest::Result<Vec<Performance>> {
