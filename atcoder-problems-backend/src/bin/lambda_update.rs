@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn handler(_: String, _: Context) -> Result<String, HandlerError> {
     let url = env::var("SQL_URL")?;
-    let conn = PgConnection::establish(&url).map_handler_error()?;
+    let conn: PgConnection = PgConnection::establish(&url).map_handler_error()?;
 
     info!("Executing update_accepted_count...");
     conn.update_accepted_count().map_handler_error()?;
