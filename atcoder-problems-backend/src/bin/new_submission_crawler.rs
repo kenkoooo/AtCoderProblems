@@ -25,21 +25,22 @@ fn main() {
             *i == 0 || now - contest.start_epoch_second < Duration::days(3).num_seconds()
         }) {
             info!("Starting for {}", contest.id);
-            match scraper::get_max_submission_page(&contest.id) {
-                Ok(max_page) => {
+            match scraper::scrape_submissions(&contest.id, None) {
+                Some((_, max_page)) => {
                     info!("There are {} pages on {}", max_page, contest.id);
                     for page in (1..=max_page).rev() {
                         info!("Crawling {} {}", contest.id, page);
-                        let new_submissions = scraper::scrape_submissions(&contest.id, page);
-
+                        let new_submissions = scraper::scrape_submissions(&contest.id, Some(page))
+                            .map(|(s, _)| s)
+                            .unwrap_or(Vec::new());
                         info!("Inserting {} submissions...", new_submissions.len());
                         conn.insert_submissions(&new_submissions)
                             .expect("Failed to insert submissions");
                         thread::sleep(time::Duration::from_millis(200));
                     }
                 }
-                Err(msg) => {
-                    error!("Error to load the page list: {}", msg);
+                None => {
+                    error!("Error to load!");
                 }
             }
         }
