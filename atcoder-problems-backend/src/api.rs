@@ -1,1 +1,1 @@
-mod lambda;
+pub mod lambda;

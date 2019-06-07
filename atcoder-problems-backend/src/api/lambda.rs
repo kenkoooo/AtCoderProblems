@@ -2,25 +2,6 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::HashMap;
 
-#[derive(Serialize, Clone)]
-struct CustomOutput {
-    #[serde(rename = "isBase64Encoded")]
-    is_base64_encoded: bool,
-    #[serde(rename = "statusCode")]
-    status_code: u32,
-    body: String,
-    headers: HashMap<String, String>,
-}
-
-#[derive(Serialize)]
-struct UserInfo {
-    user_id: String,
-    accepted_count: i32,
-    accepted_count_rank: i64,
-    rated_point_sum: f64,
-    rated_point_sum_rank: i64,
-}
-
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 pub struct LambdaInput {
     #[serde(rename = "pathParameters")]
@@ -45,31 +26,71 @@ struct LambdaInputQueryParameters {
 }
 
 #[derive(Deserialize, Debug, Eq, PartialEq)]
-pub enum LambdaRequest {
-    UserSubmission { user_id: String },
+pub enum LambdaRequest<'a> {
+    UserSubmission { user_id: &'a str },
     TimeSubmission { from_epoch_second: i64 },
-    UserInfo { user_id: String },
+    UserInfo { user_id: &'a str },
 }
 
 impl LambdaInput {
-    pub fn request(self) -> Option<LambdaRequest> {
-        let path = self.path_parameters.path;
-        let params = self.query_string_parameters;
-        match path.as_str() {
+    pub fn request(&self) -> Option<LambdaRequest> {
+        let path = self.path_parameters.path.as_str();
+        let params = &self.query_string_parameters;
+        match path {
             "results" => {
                 let user = params
                     .user
-                    .map(|user_id| LambdaRequest::UserSubmission { user_id });
+                    .as_ref()
+                    .map(|user_id| LambdaRequest::UserSubmission { user_id: user_id });
                 let from = params
                     .from
+                    .as_ref()
                     .and_then(|from| from.parse::<i64>().ok())
                     .map(|from_epoch_second| LambdaRequest::TimeSubmission { from_epoch_second });
                 user.or(from)
             }
             "v2/user_info" => params
                 .user
-                .map(|user_id| LambdaRequest::UserInfo { user_id }),
+                .as_ref()
+                .map(|user_id| LambdaRequest::UserInfo { user_id: user_id }),
             _ => unreachable!(),
+        }
+    }
+
+    pub fn header(&self, field: &str) -> Option<&str> {
+        self.headers
+            .iter()
+            .find(|(key, _)| key.to_ascii_lowercase() == field.to_ascii_lowercase())
+            .map(|(_, value)| value.as_str())
+    }
+}
+
+#[derive(Serialize, Clone)]
+pub struct LambdaOutput {
+    #[serde(rename = "isBase64Encoded")]
+    is_base64_encoded: bool,
+    #[serde(rename = "statusCode")]
+    status_code: u32,
+    body: String,
+    headers: HashMap<String, String>,
+}
+
+impl LambdaOutput {
+    pub fn new200(body: String, headers: HashMap<String, String>) -> Self {
+        Self {
+            is_base64_encoded: false,
+            status_code: 200,
+            body,
+            headers,
+        }
+    }
+
+    pub fn new304(headers: HashMap<String, String>) -> Self {
+        Self {
+            is_base64_encoded: false,
+            status_code: 304,
+            body: String::new(),
+            headers,
         }
     }
 }
@@ -80,8 +101,9 @@ mod tests {
 
     #[test]
     fn test_lambda_input() {
-        let input = serde_json::from_str::<LambdaInput>(
-            r#"{
+        assert_eq!(
+            serde_json::from_str::<LambdaInput>(
+                r#"{
             "pathParameters": {
                 "proxy": "results"
             },
@@ -90,9 +112,73 @@ mod tests {
             },
             "headers": {}
         }"#,
-        )
-        .unwrap()
-        .request();
-        assert!(false, "{:?}", input);
+            )
+            .unwrap()
+            .request()
+            .unwrap(),
+            LambdaRequest::UserSubmission {
+                user_id: "kenkoooo"
+            }
+        );
+
+        assert_eq!(
+            serde_json::from_str::<LambdaInput>(
+                r#"{
+            "pathParameters": {
+                "proxy": "results"
+            },
+            "queryStringParameters": {
+                "user": "kenkoooo"
+            },
+            "headers": {}
+        }"#,
+            )
+            .unwrap()
+            .request()
+            .unwrap(),
+            LambdaRequest::UserSubmission {
+                user_id: "kenkoooo"
+            }
+        );
+
+        assert_eq!(
+            serde_json::from_str::<LambdaInput>(
+                r#"{
+            "pathParameters": {
+                "proxy": "results"
+            },
+            "queryStringParameters": {
+                "from": "1"
+            },
+            "headers": {}
+        }"#,
+            )
+            .unwrap()
+            .request()
+            .unwrap(),
+            LambdaRequest::TimeSubmission {
+                from_epoch_second: 1
+            }
+        );
+
+        assert_eq!(
+            serde_json::from_str::<LambdaInput>(
+                r#"{
+            "pathParameters": {
+                "proxy": "v2/user_info"
+            },
+            "queryStringParameters": {
+                "user": "kenkoooo"
+            },
+            "headers": {}
+        }"#,
+            )
+            .unwrap()
+            .request()
+            .unwrap(),
+            LambdaRequest::UserInfo {
+                user_id: "kenkoooo"
+            }
+        );
     }
 }
