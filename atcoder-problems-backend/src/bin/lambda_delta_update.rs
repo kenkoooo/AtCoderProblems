@@ -1,5 +1,8 @@
 use atcoder_problems_backend::error::MapHandlerError;
 use atcoder_problems_backend::sql::delta_update::DeltaUpdater;
+use atcoder_problems_backend::sql::{
+    AcceptedCountUpdater, LanguageCountUpdater, RatedPointSumUpdater,
+};
 use diesel::{Connection, PgConnection};
 use lambda_runtime::{error::HandlerError, lambda, Context};
 use log::{self, info};
@@ -45,15 +48,15 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
     info!("There are {} submissions.", user_submissions.len());
 
     info!("Executing delta_update_rated_point_sum...");
-    conn.delta_update_rated_point_sum(&user_submissions)
+    conn.update_rated_point_sum(&user_submissions)
         .map_handler_error()?;
 
     info!("Executing delta_update_accepted_count...");
-    conn.delta_update_accepted_count(&user_submissions)
+    conn.update_accepted_count(&user_submissions)
         .map_handler_error()?;
 
     info!("Executing delta_update_language_count...");
-    conn.delta_update_language_count(&user_submissions)
+    conn.update_language_count(&user_submissions)
         .map_handler_error()?;
     info!("Finished");
 
