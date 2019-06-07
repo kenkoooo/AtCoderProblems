@@ -1,6 +1,7 @@
 use crate::sql::models::Submission;
 use crate::sql::schema::submissions;
 
+use diesel::expression::count::count_star;
 use diesel::prelude::*;
 use diesel::{PgConnection, QueryResult};
 
@@ -13,6 +14,7 @@ pub enum SubmissionRequest<'a> {
 
 pub trait SubmissionClient {
     fn get_submissions(&self, request: SubmissionRequest) -> QueryResult<Vec<Submission>>;
+    fn get_user_submission_count(&self, user_id: &str) -> QueryResult<i64>;
 }
 
 impl SubmissionClient for PgConnection {
@@ -23,6 +25,7 @@ impl SubmissionClient for PgConnection {
                 .load(self),
             SubmissionRequest::FromTime { from_second, count } => submissions::table
                 .filter(submissions::epoch_second.ge(from_second))
+                .order_by(submissions::epoch_second.asc())
                 .limit(count)
                 .load(self),
             SubmissionRequest::RecentAccepted { count } => submissions::table
@@ -35,5 +38,11 @@ impl SubmissionClient for PgConnection {
                 .filter(submissions::user_id.eq_any(user_ids))
                 .load(self),
         }
+    }
+    fn get_user_submission_count(&self, user_id: &str) -> QueryResult<i64> {
+        submissions::table
+            .filter(submissions::user_id.eq(user_id))
+            .select(count_star())
+            .first(self)
     }
 }

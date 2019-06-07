@@ -90,4 +90,7 @@ fn test_submission_client() {
     };
     let submissions = conn.get_submissions(request).unwrap();
     assert_eq!(submissions.len(), 2);
+
+    assert_eq!(conn.get_user_submission_count("user1").unwrap(), 2);
+    assert_eq!(conn.get_user_submission_count("user2").unwrap(), 1);
 }
