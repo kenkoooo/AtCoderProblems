@@ -47,15 +47,15 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
 
     info!("There are {} submissions.", user_submissions.len());
 
-    info!("Executing delta_update_rated_point_sum...");
+    info!("Executing update_rated_point_sum...");
     conn.update_rated_point_sum(&user_submissions)
         .map_handler_error()?;
 
-    info!("Executing delta_update_accepted_count...");
+    info!("Executing update_accepted_count...");
     conn.update_accepted_count(&user_submissions)
         .map_handler_error()?;
 
-    info!("Executing delta_update_language_count...");
+    info!("Executing update_language_count...");
     conn.update_language_count(&user_submissions)
         .map_handler_error()?;
     info!("Finished");
