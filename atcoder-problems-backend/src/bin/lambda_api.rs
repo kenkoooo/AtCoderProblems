@@ -2,6 +2,7 @@ use atcoder_problems_backend::api::lambda::{LambdaInput, LambdaOutput, LambdaReq
 use atcoder_problems_backend::error::MapHandlerError;
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::schema::*;
+use atcoder_problems_backend::sql::{SubmissionClient, SubmissionRequest};
 
 use diesel::dsl::*;
 use diesel::prelude::*;
@@ -27,7 +28,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
     let url = env::var("SQL_URL")?;
-    let conn = PgConnection::establish(&url).map_handler_error()?;
+    let conn: PgConnection = PgConnection::establish(&url).map_handler_error()?;
 
     let mut headers = HashMap::new();
     headers.insert("Access-Control-Allow-Origin".to_owned(), "*".to_owned());
@@ -40,10 +41,8 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
         LambdaRequest::UserSubmission { user_id } => {
             info!("Submission API");
 
-            let count: i64 = submissions::table
-                .filter(submissions::user_id.eq(user_id))
-                .select(count_star())
-                .first(&conn)
+            let count: i64 = conn
+                .get_user_submission_count(user_id)
                 .map_handler_error()?;
 
             let mut hasher = Md5::new();
@@ -55,9 +54,8 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
             match e.header("If-None-Match") {
                 Some(tag) if tag == etag => Ok(LambdaOutput::new304(headers)),
                 _ => {
-                    let submissions = submissions::table
-                        .filter(submissions::user_id.eq(user_id))
-                        .load::<Submission>(&conn)
+                    let submissions = conn
+                        .get_submissions(SubmissionRequest::UserAll { user_id })
                         .map_handler_error()?;
                     let body = serde_json::to_string(&submissions)?;
                     headers.insert("etag".to_owned(), etag);
@@ -88,11 +86,11 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
             match e.header("If-None-Match") {
                 Some(tag) if tag == etag => Ok(LambdaOutput::new304(headers)),
                 _ => {
-                    let submissions = submissions::table
-                        .filter(submissions::epoch_second.ge(from_epoch_second))
-                        .order_by(submissions::epoch_second.asc())
-                        .limit(1000)
-                        .load::<Submission>(&conn)
+                    let submissions = conn
+                        .get_submissions(SubmissionRequest::FromTime {
+                            from_second: from_epoch_second,
+                            count: 1000,
+                        })
                         .map_handler_error()?;
                     let body = serde_json::to_string(&submissions)?;
                     headers.insert("etag".to_owned(), etag);
