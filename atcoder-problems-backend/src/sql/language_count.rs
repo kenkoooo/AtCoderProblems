@@ -1,4 +1,4 @@
-use super::models::Submission;
+use super::models::{Submission, UserLanguageCount};
 use super::schema::language_count;
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
@@ -7,11 +7,12 @@ use diesel::{PgConnection, QueryResult};
 use regex::Regex;
 use std::collections::{BTreeMap, BTreeSet};
 
-pub trait LanguageCountUpdater {
+pub trait LanguageCountClient {
     fn update_language_count(&self, submissions: &[Submission]) -> QueryResult<usize>;
+    fn load_language_count(&self) -> QueryResult<Vec<UserLanguageCount>>;
 }
 
-impl LanguageCountUpdater for PgConnection {
+impl LanguageCountClient for PgConnection {
     fn update_language_count(&self, submissions: &[Submission]) -> QueryResult<usize> {
         let re = Regex::new(r"\d* \(.*\)").unwrap();
         let language_count = submissions
@@ -53,5 +54,11 @@ impl LanguageCountUpdater for PgConnection {
             .do_update()
             .set(language_count::problem_count.eq(excluded(language_count::problem_count)))
             .execute(self)
+    }
+
+    fn load_language_count(&self) -> QueryResult<Vec<UserLanguageCount>> {
+        language_count::table
+            .order_by(language_count::user_id)
+            .load::<UserLanguageCount>(self)
     }
 }

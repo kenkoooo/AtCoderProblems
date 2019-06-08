@@ -19,7 +19,7 @@ pub struct Problem {
     pub title: String,
 }
 
-#[derive(Debug, Queryable, Insertable, Clone, Serialize)]
+#[derive(Debug, Queryable, Insertable, Clone, Serialize, Default)]
 pub struct Submission {
     pub id: i64,
     pub epoch_second: i64,
@@ -43,11 +43,12 @@ pub struct Performance {
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
 pub struct UserLanguageCount {
     pub user_id: String,
+
     #[serde(rename = "language")]
-    simplified_language: String,
+    pub simplified_language: String,
 
     #[serde(rename = "count")]
-    problem_count: i32,
+    pub problem_count: i32,
 }
 
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
