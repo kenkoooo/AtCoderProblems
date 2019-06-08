@@ -10,6 +10,7 @@ pub enum SubmissionRequest<'a> {
     UsersAccepted { user_ids: &'a [&'a str] },
     FromTime { from_second: i64, count: i64 },
     RecentAccepted { count: i64 },
+    AllAccepted,
 }
 
 pub trait SubmissionClient {
@@ -36,6 +37,9 @@ impl SubmissionClient for PgConnection {
             SubmissionRequest::UsersAccepted { user_ids } => submissions::table
                 .filter(submissions::result.eq("AC"))
                 .filter(submissions::user_id.eq_any(user_ids))
+                .load(self),
+            SubmissionRequest::AllAccepted => submissions::table
+                .filter(submissions::result.eq("AC"))
                 .load(self),
         }
     }
