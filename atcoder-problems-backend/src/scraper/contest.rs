@@ -39,3 +39,20 @@ pub(super) fn scrape(html: &str) -> Option<Vec<Contest>> {
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::File;
+    use std::io::prelude::*;
+
+    #[test]
+    fn test_scrape() {
+        let mut file = File::open("assets/contests").unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+
+        let contests = scrape(&contents).unwrap();
+        assert_eq!(contests.len(), 50);
+    }
+}
