@@ -4,7 +4,6 @@ use atcoder_problems_backend::sql::{
     AcceptedCountUpdater, LanguageCountUpdater, RatedPointSumUpdater, SubmissionClient,
     SubmissionRequest,
 };
-use diesel::expression::IntoSql;
 use diesel::{Connection, PgConnection};
 use lambda_runtime::{error::HandlerError, lambda, Context};
 use log::{self, info};

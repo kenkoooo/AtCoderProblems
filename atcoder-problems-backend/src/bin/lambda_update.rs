@@ -1,5 +1,10 @@
 use atcoder_problems_backend::error::MapHandlerError;
+use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::update::SqlUpdater;
+use atcoder_problems_backend::sql::{
+    AcceptedCountUpdater, LanguageCountUpdater, RatedPointSumUpdater, SubmissionClient,
+    SubmissionRequest,
+};
 use diesel::{Connection, PgConnection};
 use lambda_runtime::{error::HandlerError, lambda, Context};
 use log::{self, info};
@@ -21,17 +26,24 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
     let url = env::var("SQL_URL")?;
     let conn: PgConnection = PgConnection::establish(&url).map_handler_error()?;
 
+    let submissions: Vec<Submission> = conn
+        .get_submissions(SubmissionRequest::AllAccepted)
+        .map_handler_error()?;
+
     info!("Executing update_accepted_count...");
-    conn.update_accepted_count().map_handler_error()?;
+    conn.update_accepted_count(&submissions)
+        .map_handler_error()?;
 
     info!("Executing update_problem_solver_count...");
     conn.update_problem_solver_count().map_handler_error()?;
 
     info!("Executing update_rated_point_sums...");
-    conn.update_rated_point_sums().map_handler_error()?;
+    conn.update_rated_point_sum(&submissions)
+        .map_handler_error()?;
 
     info!("Executing update_language_count...");
-    conn.update_language_count().map_handler_error()?;
+    conn.update_language_count(&submissions)
+        .map_handler_error()?;
 
     info!("Executing update_great_submissions...");
     conn.update_great_submissions().map_handler_error()?;
