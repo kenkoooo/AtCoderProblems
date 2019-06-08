@@ -1,4 +1,6 @@
 use atcoder_problems_backend::sql;
+
+use atcoder_problems_backend::sql::models::{Submission, UserLanguageCount};
 use diesel::connection::SimpleConnection;
 use diesel::Connection;
 use diesel::PgConnection;
@@ -25,14 +27,15 @@ fn test_submission_client() {
         VALUES
             (1, 0, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'AC'),
             (2, 1, 'problem1', 'contest1', 'user2', 'language1', 1.0, 1, 'AC'),
-            (3, 2, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'AC');
+            (3, 2, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'WA'),
+            (4, 3, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'AC');
     "#,
     )
     .unwrap();
 
     let request = SubmissionRequest::UserAll { user_id: "user1" };
     let submissions = conn.get_submissions(request).unwrap();
-    assert_eq!(submissions.len(), 2);
+    assert_eq!(submissions.len(), 3);
 
     let request = SubmissionRequest::UserAll { user_id: "user2" };
     let submissions = conn.get_submissions(request).unwrap();
@@ -63,14 +66,14 @@ fn test_submission_client() {
         count: 10,
     };
     let submissions = conn.get_submissions(request).unwrap();
-    assert_eq!(submissions.len(), 3);
+    assert_eq!(submissions.len(), 4);
 
     let request = SubmissionRequest::FromTime {
         from_second: 1,
         count: 10,
     };
     let submissions = conn.get_submissions(request).unwrap();
-    assert_eq!(submissions.len(), 2);
+    assert_eq!(submissions.len(), 3);
 
     let request = SubmissionRequest::FromTime {
         from_second: 1,
@@ -91,6 +94,76 @@ fn test_submission_client() {
     let submissions = conn.get_submissions(request).unwrap();
     assert_eq!(submissions.len(), 2);
 
-    assert_eq!(conn.get_user_submission_count("user1").unwrap(), 2);
+    assert_eq!(conn.get_user_submission_count("user1").unwrap(), 3);
     assert_eq!(conn.get_user_submission_count("user2").unwrap(), 1);
+
+    let submissions = conn
+        .get_submissions(SubmissionRequest::AllAccepted)
+        .unwrap();
+    assert_eq!(submissions.len(), 3);
+}
+
+#[test]
+fn test_language_count() {
+    use sql::LanguageCountClient;
+    let conn = connect_to_test_sql();
+    let submissions = [
+        Submission {
+            id: 1,
+            problem_id: "problem1".to_owned(),
+            user_id: "user1".to_owned(),
+            language: "language1".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 2,
+            problem_id: "problem2".to_owned(),
+            user_id: "user1".to_owned(),
+            language: "language1".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 3,
+            problem_id: "problem1".to_owned(),
+            user_id: "user1".to_owned(),
+            language: "language1".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 4,
+            problem_id: "problem1".to_owned(),
+            user_id: "user1".to_owned(),
+            language: "language2".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 5,
+            problem_id: "problem1".to_owned(),
+            user_id: "user2".to_owned(),
+            language: "language1".to_owned(),
+            ..Default::default()
+        },
+    ];
+    conn.update_language_count(&submissions).unwrap();
+    let language_count = conn.load_language_count().unwrap();
+    assert_eq!(
+        language_count,
+        vec![
+            UserLanguageCount {
+                user_id: "user1".to_owned(),
+                simplified_language: "language1".to_owned(),
+                problem_count: 2
+            },
+            UserLanguageCount {
+                user_id: "user1".to_owned(),
+                simplified_language: "language2".to_owned(),
+                problem_count: 1
+            },
+            UserLanguageCount {
+                user_id: "user2".to_owned(),
+                simplified_language: "language1".to_owned(),
+                problem_count: 1
+            }
+        ]
+    );
 }

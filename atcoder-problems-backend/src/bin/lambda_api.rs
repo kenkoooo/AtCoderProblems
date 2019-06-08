@@ -1,7 +1,6 @@
 use atcoder_problems_backend::api::lambda::{LambdaInput, LambdaOutput, LambdaRequest};
 use atcoder_problems_backend::error::MapHandlerError;
 use atcoder_problems_backend::sql::models::Submission;
-use atcoder_problems_backend::sql::schema::*;
 use atcoder_problems_backend::sql::{SubmissionClient, SubmissionRequest};
 
 use diesel::dsl::*;
@@ -88,6 +87,7 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
             }
         }
         LambdaRequest::UserInfo { user_id } => {
+            use atcoder_problems_backend::sql::schema::*;
             info!("UserInfo API");
             let accepted_count = accepted_count::table
                 .filter(accepted_count::user_id.eq(user_id))
