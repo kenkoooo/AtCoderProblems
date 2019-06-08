@@ -12,7 +12,7 @@ use lambda_runtime::{error::HandlerError, lambda, Context};
 use log::{self, info};
 use md5::{Digest, Md5};
 use openssl_probe;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use serde_json;
 use simple_logger;
 use std::collections::HashMap;
@@ -64,34 +64,23 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
             }
         }
         LambdaRequest::TimeSubmission { from_epoch_second } => {
-            let count: i64 = submissions::table
-                .filter(submissions::epoch_second.ge(from_epoch_second))
-                .select(count_star())
-                .first(&conn)
+            let submissions: Vec<Submission> = conn
+                .get_submissions(SubmissionRequest::FromTime {
+                    from_second: from_epoch_second,
+                    count: 1000,
+                })
                 .map_handler_error()?;
-
-            let max_id: Option<i64> = submissions::table
-                .filter(submissions::epoch_second.ge(from_epoch_second))
-                .select(max(submissions::id))
-                .first(&conn)
-                .map_handler_error()?;
+            let max_id = submissions.iter().map(|s| s.id).max().unwrap_or(0);
 
             let mut hasher = Md5::new();
             hasher.input(from_epoch_second.to_be_bytes());
             hasher.input(b" ");
-            hasher.input(count.to_be_bytes());
-            hasher.input(b" ");
-            hasher.input(std::cmp::min(1000, max_id.unwrap_or(0)).to_be_bytes());
+            hasher.input(max_id.to_be_bytes());
             let etag = hex::encode(hasher.result());
+
             match e.header("If-None-Match") {
                 Some(tag) if tag == etag => Ok(LambdaOutput::new304(headers)),
                 _ => {
-                    let submissions = conn
-                        .get_submissions(SubmissionRequest::FromTime {
-                            from_second: from_epoch_second,
-                            count: 1000,
-                        })
-                        .map_handler_error()?;
                     let body = serde_json::to_string(&submissions)?;
                     headers.insert("etag".to_owned(), etag);
                     Ok(LambdaOutput::new200(body, headers))
@@ -122,7 +111,7 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
                 .map_handler_error()?;
 
             let body = serde_json::to_string(&UserInfo {
-                user_id: user_id.to_string(),
+                user_id,
                 accepted_count,
                 accepted_count_rank,
                 rated_point_sum,
@@ -134,8 +123,8 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
 }
 
 #[derive(Serialize)]
-struct UserInfo {
-    user_id: String,
+struct UserInfo<'a> {
+    user_id: &'a str,
     accepted_count: i32,
     accepted_count_rank: i64,
     rated_point_sum: f64,
