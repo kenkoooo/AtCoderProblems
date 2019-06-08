@@ -2,6 +2,7 @@ use atcoder_problems_backend::error::MapHandlerError;
 use atcoder_problems_backend::s3::S3Client;
 use atcoder_problems_backend::sql::models::*;
 use atcoder_problems_backend::sql::schema::*;
+use atcoder_problems_backend::sql::LanguageCountClient;
 use diesel::prelude::*;
 use diesel::{sql_query, Connection, PgConnection};
 use lambda_runtime::{error::HandlerError, lambda, Context};
@@ -21,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn handler(_: String, _: Context) -> Result<(), HandlerError> {
     info!("Started!");
     let url = env::var("SQL_URL")?;
-    let conn = PgConnection::establish(&url).map_handler_error()?;
+    let conn: PgConnection = PgConnection::establish(&url).map_handler_error()?;
 
     let merged_query = sql_query(r"
             SELECT
@@ -95,10 +96,7 @@ fn handler(_: String, _: Context) -> Result<(), HandlerError> {
         "resources/sums.json",
     )?;
     client.update(
-        language_count::table
-            .order_by(language_count::user_id)
-            .load::<UserLanguageCount>(&conn)
-            .map_handler_error()?,
+        conn.load_language_count().map_handler_error()?,
         "resources/lang.json",
     )?;
     client.update(
