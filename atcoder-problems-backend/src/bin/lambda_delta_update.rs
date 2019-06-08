@@ -1,5 +1,5 @@
 use atcoder_problems_backend::error::MapHandlerError;
-use atcoder_problems_backend::updater::delta_updater::DeltaUpdater;
+use atcoder_problems_backend::sql::delta_update::DeltaUpdater;
 use diesel::{Connection, PgConnection};
 use lambda_runtime::{error::HandlerError, lambda, Context};
 use log::{self, info};

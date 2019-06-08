@@ -19,11 +19,11 @@ fn main() {
         .map(|page| {
             info!("crawling contest page-{}", page);
             match scraper::scrape_contests(page) {
-                Ok(contests) => {
+                Some(contests) => {
                     thread::sleep(time::Duration::from_secs(1));
                     contests
                 }
-                Err(_) => Vec::new(),
+                None => Vec::new(),
             }
         })
         .take_while(|contests| !contests.is_empty())
@@ -44,7 +44,7 @@ fn main() {
     for contest in no_problem_contests.into_iter() {
         info!("Crawling problems of {}...", contest);
         match scraper::scrape_problems(&contest) {
-            Ok(problems) => {
+            Some(problems) => {
                 info!("Inserting {} problems...", problems.len());
                 conn.insert_problems(&problems)
                     .expect("Failed to insert problems");
@@ -56,7 +56,7 @@ fn main() {
                 )
                 .expect("Failed to insert contest-problem pairs");
             }
-            Err(e) => error!("{}", e),
+            None => error!("Failed to crawl contests!"),
         }
 
         thread::sleep(time::Duration::from_millis(500));
