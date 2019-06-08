@@ -4,8 +4,7 @@ use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
 use diesel::{PgConnection, QueryResult};
-use regex::Regex;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::i32::MAX;
 
 pub trait SqlUpdater {

@@ -1,4 +1,6 @@
 use atcoder_problems_backend::sql;
+
+use atcoder_problems_backend::sql::models::{Submission, UserLanguageCount};
 use diesel::connection::SimpleConnection;
 use diesel::Connection;
 use diesel::PgConnection;
@@ -99,4 +101,69 @@ fn test_submission_client() {
         .get_submissions(SubmissionRequest::AllAccepted)
         .unwrap();
     assert_eq!(submissions.len(), 3);
+}
+
+#[test]
+fn test_language_count() {
+    use sql::LanguageCountClient;
+    let conn = connect_to_test_sql();
+    let submissions = [
+        Submission {
+            id: 1,
+            problem_id: "problem1".to_owned(),
+            user_id: "user1".to_owned(),
+            language: "language1".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 2,
+            problem_id: "problem2".to_owned(),
+            user_id: "user1".to_owned(),
+            language: "language1".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 3,
+            problem_id: "problem1".to_owned(),
+            user_id: "user1".to_owned(),
+            language: "language1".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 4,
+            problem_id: "problem1".to_owned(),
+            user_id: "user1".to_owned(),
+            language: "language2".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 5,
+            problem_id: "problem1".to_owned(),
+            user_id: "user2".to_owned(),
+            language: "language1".to_owned(),
+            ..Default::default()
+        },
+    ];
+    conn.update_language_count(&submissions).unwrap();
+    let language_count = conn.load_language_count().unwrap();
+    assert_eq!(
+        language_count,
+        vec![
+            UserLanguageCount {
+                user_id: "user1".to_owned(),
+                simplified_language: "language1".to_owned(),
+                problem_count: 2
+            },
+            UserLanguageCount {
+                user_id: "user1".to_owned(),
+                simplified_language: "language2".to_owned(),
+                problem_count: 1
+            },
+            UserLanguageCount {
+                user_id: "user2".to_owned(),
+                simplified_language: "language1".to_owned(),
+                problem_count: 1
+            }
+        ]
+    );
 }
