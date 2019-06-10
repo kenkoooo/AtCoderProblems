@@ -32,7 +32,7 @@ fn main() {
                 info!("Crawling {} {}", contest.id, page);
                 let new_submissions = scraper::scrape_submissions(&contest.id, Some(page))
                     .map(|(s, _)| s)
-                    .unwrap_or(Vec::new());
+                    .unwrap_or_else(Vec::new);
 
                 if new_submissions.is_empty() {
                     info!("There is no submission on {}-{}", contest.id, page);

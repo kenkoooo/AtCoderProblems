@@ -32,7 +32,7 @@ fn main() {
                         info!("Crawling {} {}", contest.id, page);
                         let new_submissions = scraper::scrape_submissions(&contest.id, Some(page))
                             .map(|(s, _)| s)
-                            .unwrap_or(Vec::new());
+                            .unwrap_or_else(Vec::new);
                         info!("Inserting {} submissions...", new_submissions.len());
                         conn.insert_submissions(&new_submissions)
                             .expect("Failed to insert submissions");
