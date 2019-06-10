@@ -1,6 +1,7 @@
 use atcoder_problems_backend::scraper;
 use atcoder_problems_backend::sql::client::SqlClient;
 use atcoder_problems_backend::sql::schema::*;
+use atcoder_problems_backend::sql::SubmissionClient;
 use chrono::{Duration, Utc};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -49,7 +50,7 @@ fn main() {
                     .into_iter()
                     .next()
                     .is_some();
-                conn.insert_submissions(&new_submissions)
+                conn.update_submissions(&new_submissions)
                     .expect("Failed to insert submissions");
                 thread::sleep(time::Duration::from_millis(200));
 

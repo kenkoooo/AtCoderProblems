@@ -1,5 +1,6 @@
 use atcoder_problems_backend::scraper;
 use atcoder_problems_backend::sql::client::SqlClient;
+use atcoder_problems_backend::sql::SubmissionClient;
 use chrono::{Duration, Utc};
 use diesel::pg::PgConnection;
 use diesel::Connection;
@@ -34,7 +35,7 @@ fn main() {
                             .map(|(s, _)| s)
                             .unwrap_or_else(Vec::new);
                         info!("Inserting {} submissions...", new_submissions.len());
-                        conn.insert_submissions(&new_submissions)
+                        conn.update_submissions(&new_submissions)
                             .expect("Failed to insert submissions");
                         thread::sleep(time::Duration::from_millis(200));
                     }

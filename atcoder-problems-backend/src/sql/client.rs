@@ -9,7 +9,6 @@ use diesel::prelude::*;
 use diesel::QueryResult;
 
 pub trait SqlClient {
-    fn insert_submissions(&self, values: &[Submission]) -> QueryResult<usize>;
     fn insert_contests(&self, values: &[Contest]) -> QueryResult<usize>;
     fn insert_problems(&self, values: &[Problem]) -> QueryResult<usize>;
     fn insert_contest_problem_pair(
@@ -24,20 +23,6 @@ pub trait SqlClient {
 }
 
 impl SqlClient for PgConnection {
-    fn insert_submissions(&self, values: &[Submission]) -> QueryResult<usize> {
-        insert_into(submissions::table)
-            .values(values)
-            .on_conflict(submissions::id)
-            .do_update()
-            .set((
-                submissions::user_id.eq(excluded(submissions::user_id)),
-                submissions::result.eq(excluded(submissions::result)),
-                submissions::point.eq(excluded(submissions::point)),
-                submissions::execution_time.eq(excluded(submissions::execution_time)),
-            ))
-            .execute(self)
-    }
-
     fn insert_contests(&self, values: &[Contest]) -> QueryResult<usize> {
         insert_into(contests::table)
             .values(values)
@@ -118,42 +103,6 @@ mod tests {
         let conn = PgConnection::establish("postgresql://kenkoooo:pass@localhost/test").unwrap();
         conn.batch_execute(&sql).unwrap();
         conn
-    }
-
-    #[test]
-    fn test_insert_submission() {
-        let mut v = vec![Submission {
-            id: 0,
-            epoch_second: 0,
-            problem_id: "".to_owned(),
-            contest_id: "".to_owned(),
-            user_id: "".to_owned(),
-            language: "".to_owned(),
-            point: 0.0,
-            length: 0,
-            result: "".to_owned(),
-            execution_time: None,
-        }];
-
-        let conn = connect_to_test_sql();
-        v[0].id = 1;
-        conn.insert_submissions(&v).unwrap();
-
-        let count = submissions::dsl::submissions
-            .load::<Submission>(&conn)
-            .unwrap()
-            .into_iter()
-            .count();
-        assert_eq!(count, 1);
-
-        v[0].id = 2;
-        conn.insert_submissions(&v).unwrap();
-        let count = submissions::dsl::submissions
-            .load::<Submission>(&conn)
-            .unwrap()
-            .into_iter()
-            .count();
-        assert_eq!(count, 2);
     }
 
     #[test]
