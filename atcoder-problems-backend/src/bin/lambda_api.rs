@@ -1,7 +1,7 @@
 use atcoder_problems_backend::api::lambda::{LambdaInput, LambdaOutput, LambdaRequest};
 use atcoder_problems_backend::error::MapHandlerError;
 use atcoder_problems_backend::sql::models::Submission;
-use atcoder_problems_backend::sql::{SubmissionClient, SubmissionRequest};
+use atcoder_problems_backend::sql::{AcceptedCountClient, SubmissionClient, SubmissionRequest};
 
 use diesel::dsl::*;
 use diesel::prelude::*;
@@ -94,10 +94,8 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
                 .select(accepted_count::problem_count)
                 .first::<i32>(&conn)
                 .map_handler_error()?;
-            let accepted_count_rank = accepted_count::table
-                .filter(accepted_count::problem_count.gt(accepted_count))
-                .select(count_star())
-                .first::<i64>(&conn)
+            let accepted_count_rank = conn
+                .load_users_accepted_count_rank(user_id)
                 .map_handler_error()?;
             let rated_point_sum = rated_point_sum::table
                 .filter(rated_point_sum::user_id.eq(user_id))
