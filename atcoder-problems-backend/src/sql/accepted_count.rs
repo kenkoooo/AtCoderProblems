@@ -8,7 +8,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 pub trait AcceptedCountClient {
     fn load_accepted_count(&self) -> QueryResult<Vec<UserProblemCount>>;
-    fn load_users_accepted_count_rank(&self, user_id: &str) -> QueryResult<i64>;
+    fn get_users_accepted_count(&self, user_id: &str) -> QueryResult<i32>;
+    fn get_accepted_count_rank(&self, accepted_count: i32) -> QueryResult<i64>;
     fn update_accepted_count(&self, submissions: &[Submission]) -> QueryResult<usize>;
 }
 
@@ -20,11 +21,14 @@ impl AcceptedCountClient for PgConnection {
             .load::<UserProblemCount>(self)
     }
 
-    fn load_users_accepted_count_rank(&self, user_id: &str) -> QueryResult<i64> {
-        let accepted_count = accepted_count::table
+    fn get_users_accepted_count(&self, user_id: &str) -> QueryResult<i32> {
+        accepted_count::table
             .filter(accepted_count::user_id.eq(user_id))
             .select(accepted_count::problem_count)
-            .first::<i32>(self)?;
+            .first::<i32>(self)
+    }
+
+    fn get_accepted_count_rank(&self, accepted_count: i32) -> QueryResult<i64> {
         accepted_count::table
             .filter(accepted_count::problem_count.gt(accepted_count))
             .select(count_star())
