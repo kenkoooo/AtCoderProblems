@@ -89,13 +89,9 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
         LambdaRequest::UserInfo { user_id } => {
             use atcoder_problems_backend::sql::schema::*;
             info!("UserInfo API");
-            let accepted_count = accepted_count::table
-                .filter(accepted_count::user_id.eq(user_id))
-                .select(accepted_count::problem_count)
-                .first::<i32>(&conn)
-                .map_handler_error()?;
+            let accepted_count = conn.get_users_accepted_count(user_id).map_handler_error()?;
             let accepted_count_rank = conn
-                .load_users_accepted_count_rank(user_id)
+                .get_accepted_count_rank(accepted_count)
                 .map_handler_error()?;
             let rated_point_sum = rated_point_sum::table
                 .filter(rated_point_sum::user_id.eq(user_id))

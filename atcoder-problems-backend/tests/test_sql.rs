@@ -252,6 +252,9 @@ fn test_accepted_count() {
             }
         ]
     );
-    assert_eq!(conn.load_users_accepted_count_rank("user1").unwrap(), 1);
-    assert_eq!(conn.load_users_accepted_count_rank("user2").unwrap(), 0);
+
+    assert_eq!(conn.get_users_accepted_count("user1").unwrap(), 2);
+    assert_eq!(conn.get_users_accepted_count("user2").unwrap(), 3);
+    assert_eq!(conn.get_accepted_count_rank(3).unwrap(), 0);
+    assert_eq!(conn.get_accepted_count_rank(2).unwrap(), 1);
 }
