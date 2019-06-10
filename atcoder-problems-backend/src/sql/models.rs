@@ -54,7 +54,7 @@ pub struct UserLanguageCount {
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
 pub struct UserProblemCount {
     pub user_id: String,
-    problem_count: i32,
+    pub problem_count: i32,
 }
 
 #[derive(Debug, Queryable, Serialize)]
