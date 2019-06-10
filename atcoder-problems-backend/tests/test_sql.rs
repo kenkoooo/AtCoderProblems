@@ -1,6 +1,6 @@
 use atcoder_problems_backend::sql;
 
-use atcoder_problems_backend::sql::models::{Submission, UserLanguageCount};
+use atcoder_problems_backend::sql::models::Submission;
 use diesel::connection::SimpleConnection;
 use diesel::Connection;
 use diesel::PgConnection;
@@ -105,6 +105,7 @@ fn test_submission_client() {
 
 #[test]
 fn test_language_count() {
+    use sql::models::UserLanguageCount;
     use sql::LanguageCountClient;
     let conn = connect_to_test_sql();
     let submissions = [
@@ -190,4 +191,67 @@ fn test_language_count() {
             }
         ]
     );
+}
+
+#[test]
+fn test_accepted_count() {
+    use sql::models::UserProblemCount;
+    use sql::AcceptedCountClient;
+    let conn = connect_to_test_sql();
+    let submissions = [
+        Submission {
+            id: 1,
+            user_id: "user1".to_owned(),
+            problem_id: "problem1".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 2,
+            user_id: "user1".to_owned(),
+            problem_id: "problem1".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 3,
+            user_id: "user1".to_owned(),
+            problem_id: "problem2".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 4,
+            user_id: "user2".to_owned(),
+            problem_id: "problem1".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 5,
+            user_id: "user2".to_owned(),
+            problem_id: "problem2".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 6,
+            user_id: "user2".to_owned(),
+            problem_id: "problem3".to_owned(),
+            ..Default::default()
+        },
+    ];
+    conn.update_accepted_count(&submissions).unwrap();
+
+    let accepted_count = conn.load_accepted_count().unwrap();
+    assert_eq!(
+        accepted_count,
+        vec![
+            UserProblemCount {
+                user_id: "user2".to_owned(),
+                problem_count: 3
+            },
+            UserProblemCount {
+                user_id: "user1".to_owned(),
+                problem_count: 2
+            }
+        ]
+    );
+    assert_eq!(conn.load_users_accepted_count_rank("user1").unwrap(), 1);
+    assert_eq!(conn.load_users_accepted_count_rank("user2").unwrap(), 0);
 }
