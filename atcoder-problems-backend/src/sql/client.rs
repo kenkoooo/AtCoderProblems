@@ -20,7 +20,6 @@ pub trait SqlClient {
 
     fn get_problems(&self) -> QueryResult<Vec<Problem>>;
     fn get_contests(&self) -> QueryResult<Vec<Contest>>;
-    fn get_submissions(&self, user_id: &str) -> QueryResult<Vec<Submission>>;
     fn get_contests_without_performances(&self) -> QueryResult<Vec<String>>;
 }
 
@@ -92,12 +91,6 @@ impl SqlClient for PgConnection {
         contests::dsl::contests.load::<Contest>(self)
     }
 
-    fn get_submissions(&self, user_id: &str) -> QueryResult<Vec<Submission>> {
-        submissions::dsl::submissions
-            .filter(submissions::user_id.eq(user_id))
-            .load::<Submission>(self)
-    }
-
     fn get_contests_without_performances(&self) -> QueryResult<Vec<String>> {
         contests::table
             .left_join(performances::table.on(performances::contest_id.eq(contests::id)))
@@ -161,51 +154,6 @@ mod tests {
             .into_iter()
             .count();
         assert_eq!(count, 2);
-    }
-
-    #[test]
-    fn test_update_submission() {
-        let mut v = vec![Submission {
-            id: 0,
-            epoch_second: 0,
-            problem_id: "".to_owned(),
-            contest_id: "".to_owned(),
-            user_id: "".to_owned(),
-            language: "".to_owned(),
-            point: 0.0,
-            length: 0,
-            result: "".to_owned(),
-            execution_time: None,
-        }];
-
-        let conn = connect_to_test_sql();
-
-        v[0].user_id = "kenkoooo".to_owned();
-        v[0].result = "WJ".to_owned();
-        v[0].execution_time = None;
-        v[0].point = 0.0;
-        conn.insert_submissions(&v).unwrap();
-        assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 1);
-
-        let submissions = conn.get_submissions("kenkoooo").unwrap();
-        assert_eq!(submissions[0].result, "WJ".to_owned());
-        assert_eq!(submissions[0].user_id, "kenkoooo".to_owned());
-        assert_eq!(submissions[0].execution_time, None);
-        assert_eq!(submissions[0].point, 0.0);
-
-        v[0].user_id = "a".to_owned();
-        v[0].result = "AC".to_owned();
-        v[0].execution_time = Some(10);
-        v[0].point = 100.0;
-        conn.insert_submissions(&v).unwrap();
-        assert_eq!(conn.get_submissions("kenkoooo").unwrap().len(), 0);
-        assert_eq!(conn.get_submissions("a").unwrap().len(), 1);
-
-        let submissions = conn.get_submissions("a").unwrap();
-        assert_eq!(submissions[0].result, "AC".to_owned());
-        assert_eq!(submissions[0].user_id, "a".to_owned());
-        assert_eq!(submissions[0].execution_time, Some(10));
-        assert_eq!(submissions[0].point, 100.0);
     }
 
     #[test]
