@@ -143,6 +143,20 @@ fn test_language_count() {
             language: "language1".to_owned(),
             ..Default::default()
         },
+        Submission {
+            id: 6,
+            problem_id: "problem1".to_owned(),
+            user_id: "user3".to_owned(),
+            language: "Perl (5)".to_owned(),
+            ..Default::default()
+        },
+        Submission {
+            id: 7,
+            problem_id: "problem1".to_owned(),
+            user_id: "user3".to_owned(),
+            language: "Perl6".to_owned(),
+            ..Default::default()
+        },
     ];
     conn.update_language_count(&submissions).unwrap();
     let language_count = conn.load_language_count().unwrap();
@@ -162,6 +176,16 @@ fn test_language_count() {
             UserLanguageCount {
                 user_id: "user2".to_owned(),
                 simplified_language: "language1".to_owned(),
+                problem_count: 1
+            },
+            UserLanguageCount {
+                user_id: "user3".to_owned(),
+                simplified_language: "Perl".to_owned(),
+                problem_count: 1
+            },
+            UserLanguageCount {
+                user_id: "user3".to_owned(),
+                simplified_language: "Perl6".to_owned(),
                 problem_count: 1
             }
         ]
