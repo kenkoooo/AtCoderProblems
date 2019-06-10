@@ -104,6 +104,67 @@ fn test_submission_client() {
 }
 
 #[test]
+fn test_update_submissions() {
+    use sql::{SubmissionClient, SubmissionRequest};
+    let conn = connect_to_test_sql();
+    conn.update_submissions(&[Submission {
+        id: 0,
+        user_id: "old_user_name".to_owned(),
+        result: "WJ".to_owned(),
+        point: 0.0,
+        execution_time: None,
+        ..Default::default()
+    }])
+    .unwrap();
+
+    let submissions = conn
+        .get_submissions(SubmissionRequest::UserAll {
+            user_id: "old_user_name",
+        })
+        .unwrap();
+    assert_eq!(submissions.len(), 1);
+    assert_eq!(submissions[0].user_id, "old_user_name".to_owned());
+    assert_eq!(submissions[0].result, "WJ".to_owned());
+    assert_eq!(submissions[0].point, 0.0);
+    assert_eq!(submissions[0].execution_time, None);
+
+    let submissions = conn
+        .get_submissions(SubmissionRequest::UserAll {
+            user_id: "new_user_name",
+        })
+        .unwrap();
+    assert_eq!(submissions.len(), 0);
+
+    conn.update_submissions(&[Submission {
+        id: 0,
+        user_id: "new_user_name".to_owned(),
+        result: "AC".to_owned(),
+        point: 100.0,
+        execution_time: Some(1),
+        ..Default::default()
+    }])
+    .unwrap();
+
+    let submissions = conn
+        .get_submissions(SubmissionRequest::UserAll {
+            user_id: "old_user_name",
+        })
+        .unwrap();
+    assert_eq!(submissions.len(), 0);
+
+    let submissions = conn
+        .get_submissions(SubmissionRequest::UserAll {
+            user_id: "new_user_name",
+        })
+        .unwrap();
+    assert_eq!(submissions.len(), 1);
+    assert_eq!(submissions[0].user_id, "new_user_name".to_owned());
+    assert_eq!(submissions[0].result, "AC".to_owned());
+    assert_eq!(submissions[0].point, 100.0);
+    assert_eq!(submissions[0].execution_time, Some(1));
+}
+
+#[test]
 fn test_language_count() {
     use sql::models::UserLanguageCount;
     use sql::LanguageCountClient;
