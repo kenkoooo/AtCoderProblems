@@ -319,3 +319,10 @@ fn test_accepted_count() {
     assert_eq!(conn.get_accepted_count_rank(3).unwrap(), 0);
     assert_eq!(conn.get_accepted_count_rank(2).unwrap(), 1);
 }
+
+#[test]
+fn test_problem_info_aggregator() {
+    use sql::ProblemInfoAggregator;
+    let conn = connect_to_test_sql();
+    conn.update_first_submissions(&[]).unwrap();
+}
