@@ -2,8 +2,8 @@ use atcoder_problems_backend::error::MapHandlerError;
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::update::SqlUpdater;
 use atcoder_problems_backend::sql::{
-    AcceptedCountClient, LanguageCountClient, RatedPointSumUpdater, SubmissionClient,
-    SubmissionRequest,
+    AcceptedCountClient, LanguageCountClient, ProblemInfoAggregator, RatedPointSumUpdater,
+    SubmissionClient, SubmissionRequest,
 };
 use diesel::{Connection, PgConnection};
 use lambda_runtime::{error::HandlerError, lambda, Context};
@@ -45,8 +45,15 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
     conn.update_language_count(&submissions)
         .map_handler_error()?;
 
-    info!("Executing update_great_submissions...");
-    conn.update_great_submissions().map_handler_error()?;
+    info!("Executing update_fastest_submissions...");
+    conn.update_fastest_submissions(&submissions)
+        .map_handler_error()?;
+    info!("Executing update_first_submissions...");
+    conn.update_first_submissions(&submissions)
+        .map_handler_error()?;
+    info!("Executing update_shortest_submissions...");
+    conn.update_shortest_submissions(&submissions)
+        .map_handler_error()?;
 
     info!("Executing update_problem_points...");
     conn.update_problem_points().map_handler_error()?;
