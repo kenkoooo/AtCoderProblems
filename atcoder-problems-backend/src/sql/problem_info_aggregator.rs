@@ -83,22 +83,23 @@ impl ProblemInfoAggregator for PgConnection {
     }
 }
 
-struct CompetitiveRecord<'a, T> {
-    contest_id: &'a str,
-    target: T,
-    submission_id: i64,
-    is_updated: bool,
-}
-
 fn update_aggregation<'a, T, F>(
     values: &'a [(String, String, i64, T)],
     submissions: &'a [Submission],
     submission_mapper: F,
 ) -> Vec<(&'a str, &'a str, i64)>
 where
-    T: Copy + PartialEq + PartialOrd,
+    T: Copy + PartialEq + PartialOrd + std::fmt::Debug,
     F: Fn(&Submission) -> T,
 {
+    #[derive(Debug)]
+    struct CompetitiveRecord<'a, T> {
+        contest_id: &'a str,
+        target: T,
+        submission_id: i64,
+        is_updated: bool,
+    }
+
     let submissions: Vec<_> = submissions
         .iter()
         .map(|submission| {
@@ -128,6 +129,10 @@ where
             )
         })
         .collect::<BTreeMap<&str, CompetitiveRecord<'_, T>>>();
+    eprintln!("submissions: {:?}", submissions);
+    eprintln!("map: {:?}", map);
+    eprintln!("values: {:?}", values);
+    eprintln!();
     for (problem_id, record) in submissions.into_iter() {
         match map.get_mut(problem_id) {
             Some(current) => {
