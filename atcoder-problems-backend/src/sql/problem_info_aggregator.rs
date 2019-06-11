@@ -1,16 +1,46 @@
 use crate::sql::models::Submission;
-use crate::sql::schema::first;
+use crate::sql::schema::{fastest, first, shortest, submissions};
 use diesel;
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
-use diesel::{PgConnection, QueryResult, Queryable};
+use diesel::{PgConnection, QueryResult};
 use std::collections::BTreeMap;
 
-macro_rules! upsert_info {
+macro_rules! load_records {
+    ($table:ident, $conn:ident, $column:ident: $t:tt) => {
+        $table::table
+            .select($table::submission_id)
+            .load::<i64>($conn)
+            .and_then(|ids| {
+                submissions::table
+                    .filter(submissions::id.eq_any(ids))
+                    .select((
+                        submissions::problem_id,
+                        submissions::contest_id,
+                        submissions::id,
+                        submissions::$column,
+                    ))
+                    .load::<(String, String, i64, $t)>($conn)
+            })
+    };
+}
+
+macro_rules! upsert_values {
     ($table:ident, $values:ident, $conn:ident) => {
         insert_into($table::table)
-            .values($values)
+            .values(
+                $values
+                    .into_iter()
+                    .map(|(problem_id, contest_id, submission_id)| {
+                        (
+                            $table::problem_id.eq(problem_id),
+                            $table::contest_id.eq(contest_id),
+                            $table::submission_id.eq(submission_id),
+                        )
+                    })
+                    .collect::<Vec<_>>(),
+            )
             .on_conflict($table::problem_id)
             .do_update()
             .set((
@@ -29,46 +59,93 @@ pub trait ProblemInfoAggregator {
 
 impl ProblemInfoAggregator for PgConnection {
     fn update_first_submissions(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
-        #[derive(Debug, Queryable)]
-        struct FirstAcceptedRecord {
-            problem_id: String,
-            contest_id: String,
-            submission_id: i64,
-        }
-
-        let first: Vec<FirstAcceptedRecord> = first::table.load::<FirstAcceptedRecord>(self)?;
-        let mut first_map: BTreeMap<_, _> = first
-            .iter()
-            .map(|r| (&r.problem_id, (r.submission_id, &r.contest_id, false)))
-            .collect();
-        for s in ac_submissions.iter() {
-            let t = first_map
-                .entry(&s.problem_id)
-                .or_insert((s.id, &s.contest_id, true));
-            if t.0 > s.id {
-                *t = (s.id, &s.contest_id, true);
-            }
-        }
-
-        let values = first_map
-            .into_iter()
-            .filter(|&(_, (_, _, is_updated))| is_updated)
-            .map(|(problem_id, (submission_id, contest_id, _))| {
-                (
-                    first::problem_id.eq(problem_id),
-                    first::contest_id.eq(contest_id),
-                    first::submission_id.eq(submission_id),
-                )
-            })
-            .collect::<Vec<_>>();
-        upsert_info!(first, values, self)
+        let records = load_records!(first, self, id: i64)?;
+        let values = update_aggregation(&records, ac_submissions, |s| s.id);
+        upsert_values!(first, values, self)
     }
 
     fn update_fastest_submissions(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
-        unimplemented!()
+        type Opi32 = Option<i32>;
+        let records = load_records!(fastest, self, execution_time: Opi32)?
+            .into_iter()
+            .map(|(problem_id, contest_id, id, execution_time)| {
+                (problem_id, contest_id, id, execution_time.unwrap())
+            })
+            .collect::<Vec<_>>();
+        let values = update_aggregation(&records, ac_submissions, |s| s.execution_time.unwrap());
+        upsert_values!(fastest, values, self)
     }
 
     fn update_shortest_submissions(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
-        unimplemented!()
+        let records = load_records!(shortest, self, length: i32)?;
+        let values = update_aggregation(&records, ac_submissions, |s| s.length);
+        upsert_values!(shortest, values, self)
     }
+}
+
+struct CompetitiveRecord<'a, T> {
+    contest_id: &'a str,
+    target: T,
+    submission_id: i64,
+    is_updated: bool,
+}
+
+fn update_aggregation<'a, T, F>(
+    values: &'a [(String, String, i64, T)],
+    submissions: &'a [Submission],
+    submission_mapper: F,
+) -> Vec<(&'a str, &'a str, i64)>
+where
+    T: Copy + PartialEq + PartialOrd,
+    F: Fn(&Submission) -> T,
+{
+    let submissions: Vec<_> = submissions
+        .iter()
+        .map(|submission| {
+            (
+                submission.problem_id.as_str(),
+                CompetitiveRecord {
+                    contest_id: &submission.contest_id,
+                    submission_id: submission.id,
+                    target: submission_mapper(submission),
+                    is_updated: true,
+                },
+            )
+        })
+        .collect();
+
+    let mut map = values
+        .iter()
+        .map(|(problem_id, contest_id, id, target)| {
+            (
+                problem_id.as_str(),
+                CompetitiveRecord {
+                    contest_id,
+                    submission_id: *id,
+                    target: *target,
+                    is_updated: false,
+                },
+            )
+        })
+        .collect::<BTreeMap<&str, CompetitiveRecord<'_, T>>>();
+    for (problem_id, record) in submissions.into_iter() {
+        match map.get_mut(problem_id) {
+            Some(current) => {
+                if current.target > record.target
+                    || (current.target == record.target
+                        && current.submission_id > record.submission_id)
+                {
+                    *current = record;
+                }
+            }
+            None => {
+                map.insert(problem_id, record);
+            }
+        }
+    }
+
+    map.into_iter()
+        .filter(|(_, record)| record.is_updated)
+        .map(|(problem_id, record)| (problem_id, record.contest_id, record.submission_id))
+        .collect()
 }
