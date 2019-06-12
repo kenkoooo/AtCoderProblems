@@ -1,5 +1,5 @@
 use atcoder_problems_backend::scraper;
-use atcoder_problems_backend::sql::client::SqlClient;
+use atcoder_problems_backend::sql::simple_client::SimpleClient;
 use atcoder_problems_backend::sql::SubmissionClient;
 use diesel::pg::PgConnection;
 use diesel::Connection;
@@ -17,7 +17,7 @@ fn main() {
 
     loop {
         info!("Starting new loop...");
-        let contests = conn.get_contests().expect("Failed to load contests");
+        let contests = conn.load_contests().expect("Failed to load contests");
         for contest in contests.into_iter() {
             info!("Starting for {}", contest.id);
             match scraper::scrape_submissions(&contest.id, None) {

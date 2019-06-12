@@ -1,6 +1,8 @@
 use atcoder_problems_backend::scraper;
-use atcoder_problems_backend::sql::client::SqlClient;
+use atcoder_problems_backend::sql::models::ContestProblem;
 use atcoder_problems_backend::sql::schema::*;
+use atcoder_problems_backend::sql::simple_client::SimpleClient;
+use atcoder_problems_backend::sql::ContestProblemClient;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use log::{error, info};
@@ -48,13 +50,15 @@ fn main() {
                 info!("Inserting {} problems...", problems.len());
                 conn.insert_problems(&problems)
                     .expect("Failed to insert problems");
-                conn.insert_contest_problem_pair(
-                    &problems
-                        .iter()
-                        .map(|problem| (problem.contest_id.as_str(), problem.id.as_str()))
-                        .collect::<Vec<_>>(),
-                )
-                .expect("Failed to insert contest-problem pairs");
+                let contest_problem = problems
+                    .iter()
+                    .map(|problem| ContestProblem {
+                        problem_id: problem.id.clone(),
+                        contest_id: problem.contest_id.clone(),
+                    })
+                    .collect::<Vec<_>>();
+                conn.insert_contest_problem(&contest_problem)
+                    .expect("Failed to insert contest-problem pairs");
             }
             None => error!("Failed to crawl contests!"),
         }
@@ -63,7 +67,7 @@ fn main() {
     }
 
     let contests_without_performances = conn
-        .get_contests_without_performances()
+        .load_contest_ids_without_performances()
         .expect("Invalid query.");
     for contest in contests_without_performances.into_iter() {
         info!("Crawling results of {}", contest);
