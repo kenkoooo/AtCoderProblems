@@ -8,20 +8,20 @@ use diesel::{PgConnection, QueryResult};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub trait RatedPointSumUpdater {
-    fn update_rated_point_sum(&self, submissions: &[Submission]) -> QueryResult<usize>;
+    fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> QueryResult<usize>;
 }
 
 impl RatedPointSumUpdater for PgConnection {
-    fn update_rated_point_sum(&self, submissions: &[Submission]) -> QueryResult<usize> {
+    fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
         let rated_contest_ids = contests::table
-            .filter(contests::start_epoch_second.gt(FIRST_AGC_EPOCH_SECOND))
+            .filter(contests::start_epoch_second.ge(FIRST_AGC_EPOCH_SECOND))
             .filter(contests::rate_change.ne(UNRATED_STATE))
             .select(contests::id)
             .load::<String>(self)?
             .into_iter()
             .collect::<BTreeSet<_>>();
 
-        let rated_point_sum = submissions
+        let rated_point_sum = ac_submissions
             .iter()
             .filter(|s| rated_contest_ids.contains(&s.contest_id))
             .map(|s| (s.user_id.as_str(), s.problem_id.as_str(), s.point))
