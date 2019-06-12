@@ -52,35 +52,48 @@ macro_rules! upsert_values {
 }
 
 pub trait ProblemInfoAggregator {
-    fn update_first_submissions(&self, ac_submissions: &[Submission]) -> QueryResult<usize>;
-    fn update_fastest_submissions(&self, ac_submissions: &[Submission]) -> QueryResult<usize>;
-    fn update_shortest_submissions(&self, ac_submissions: &[Submission]) -> QueryResult<usize>;
+    fn update_submissions_of_problems(&self, ac_submissions: &[Submission]) -> QueryResult<usize>;
 }
 
 impl ProblemInfoAggregator for PgConnection {
-    fn update_first_submissions(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
-        let records = load_records!(first, self, id: i64)?;
-        let values = update_aggregation(&records, ac_submissions, |s| s.id);
-        upsert_values!(first, values, self)
+    fn update_submissions_of_problems(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
+        update_fastest_submissions(self, ac_submissions)?;
+        update_shortest_submissions(self, ac_submissions)?;
+        update_first_submissions(self, ac_submissions)
     }
+}
 
-    fn update_fastest_submissions(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
-        type Opi32 = Option<i32>;
-        let records = load_records!(fastest, self, execution_time: Opi32)?
-            .into_iter()
-            .map(|(problem_id, contest_id, id, execution_time)| {
-                (problem_id, contest_id, id, execution_time.unwrap())
-            })
-            .collect::<Vec<_>>();
-        let values = update_aggregation(&records, ac_submissions, |s| s.execution_time.unwrap());
-        upsert_values!(fastest, values, self)
-    }
+fn update_first_submissions(
+    conn: &PgConnection,
+    ac_submissions: &[Submission],
+) -> QueryResult<usize> {
+    let records = load_records!(first, conn, id: i64)?;
+    let values = update_aggregation(&records, ac_submissions, |s| s.id);
+    upsert_values!(first, values, conn)
+}
 
-    fn update_shortest_submissions(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
-        let records = load_records!(shortest, self, length: i32)?;
-        let values = update_aggregation(&records, ac_submissions, |s| s.length);
-        upsert_values!(shortest, values, self)
-    }
+fn update_fastest_submissions(
+    conn: &PgConnection,
+    ac_submissions: &[Submission],
+) -> QueryResult<usize> {
+    type Opi32 = Option<i32>;
+    let records = load_records!(fastest, conn, execution_time: Opi32)?
+        .into_iter()
+        .map(|(problem_id, contest_id, id, execution_time)| {
+            (problem_id, contest_id, id, execution_time.unwrap())
+        })
+        .collect::<Vec<_>>();
+    let values = update_aggregation(&records, ac_submissions, |s| s.execution_time.unwrap());
+    upsert_values!(fastest, values, conn)
+}
+
+fn update_shortest_submissions(
+    conn: &PgConnection,
+    ac_submissions: &[Submission],
+) -> QueryResult<usize> {
+    let records = load_records!(shortest, conn, length: i32)?;
+    let values = update_aggregation(&records, ac_submissions, |s| s.length);
+    upsert_values!(shortest, values, conn)
 }
 
 fn update_aggregation<'a, T, F>(
@@ -129,10 +142,6 @@ where
             )
         })
         .collect::<BTreeMap<&str, CompetitiveRecord<'_, T>>>();
-    eprintln!("submissions: {:?}", submissions);
-    eprintln!("map: {:?}", map);
-    eprintln!("values: {:?}", values);
-    eprintln!();
     for (problem_id, record) in submissions.into_iter() {
         match map.get_mut(problem_id) {
             Some(current) => {
