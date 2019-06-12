@@ -1,14 +1,13 @@
 pub mod models;
 pub mod schema;
 
-pub mod simple_client;
-
 mod accepted_count;
 mod contest_problem;
 mod language_count;
 mod problem_info;
 mod problems_submissions;
 mod rated_point_sum;
+mod simple_client;
 mod submission_client;
 
 const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;

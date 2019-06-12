@@ -1,8 +1,8 @@
 use atcoder_problems_backend::scraper;
 use atcoder_problems_backend::sql::models::ContestProblem;
 use atcoder_problems_backend::sql::schema::*;
-use atcoder_problems_backend::sql::simple_client::SimpleClient;
 use atcoder_problems_backend::sql::ContestProblemClient;
+use atcoder_problems_backend::sql::SimpleClient;
 use atcoder_problems_backend::utils;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;

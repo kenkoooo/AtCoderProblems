@@ -1,5 +1,5 @@
 use atcoder_problems_backend::scraper;
-use atcoder_problems_backend::sql::simple_client::SimpleClient;
+use atcoder_problems_backend::sql::SimpleClient;
 use atcoder_problems_backend::sql::SubmissionClient;
 use diesel::pg::PgConnection;
 use diesel::Connection;
