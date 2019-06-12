@@ -11,8 +11,8 @@ mod problems_submissions;
 mod rated_point_sum;
 mod submission_client;
 
-pub const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
-pub const UNRATED_STATE: &str = "-";
+const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
+const UNRATED_STATE: &str = "-";
 
 pub use accepted_count::AcceptedCountClient;
 pub use contest_problem::ContestProblemClient;
