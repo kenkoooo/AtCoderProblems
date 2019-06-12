@@ -1,6 +1,6 @@
 use atcoder_problems_backend::scraper;
 use atcoder_problems_backend::sql::schema::*;
-use atcoder_problems_backend::sql::simple_client::SimpleClient;
+use atcoder_problems_backend::sql::SimpleClient;
 use atcoder_problems_backend::sql::SubmissionClient;
 use chrono::{Duration, Utc};
 use diesel::pg::PgConnection;
