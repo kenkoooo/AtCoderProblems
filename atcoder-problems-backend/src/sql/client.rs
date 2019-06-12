@@ -3,7 +3,6 @@ use super::schema::*;
 use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 
 use diesel::dsl::insert_into;
-use diesel::pg::upsert::excluded;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::QueryResult;
