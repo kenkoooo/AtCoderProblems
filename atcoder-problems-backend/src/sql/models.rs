@@ -3,7 +3,7 @@ use diesel::sql_types::*;
 use diesel::Queryable;
 use serde::Serialize;
 
-#[derive(Debug, Eq, PartialEq, Queryable, Insertable, Serialize)]
+#[derive(Default, Debug, Eq, PartialEq, Queryable, Insertable, Serialize)]
 pub struct Contest {
     pub id: String,
     pub start_epoch_second: i64,
@@ -33,7 +33,7 @@ pub struct Submission {
     pub execution_time: Option<i32>,
 }
 
-#[derive(Debug, Queryable, Insertable, Clone, Serialize)]
+#[derive(Default, Debug, Queryable, Insertable, Clone, Serialize)]
 pub struct Performance {
     pub contest_id: String,
     pub user_id: String,

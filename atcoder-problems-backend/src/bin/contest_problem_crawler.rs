@@ -3,6 +3,7 @@ use atcoder_problems_backend::sql::models::ContestProblem;
 use atcoder_problems_backend::sql::schema::*;
 use atcoder_problems_backend::sql::simple_client::SimpleClient;
 use atcoder_problems_backend::sql::ContestProblemClient;
+use atcoder_problems_backend::utils;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use log::{error, info};
@@ -66,14 +67,15 @@ fn main() {
         thread::sleep(time::Duration::from_millis(500));
     }
 
-    let contests_without_performances = conn
-        .load_contest_ids_without_performances()
-        .expect("Invalid query.");
-    for contest in contests_without_performances.into_iter() {
-        info!("Crawling results of {}", contest);
-        let performances = scraper::get_performances(&contest).unwrap();
+    let performances = conn
+        .load_performances()
+        .expect("Failed to load performances.");
+    let contests = utils::extract_non_performance_contests(&contests, &performances);
+    for contest in contests.into_iter() {
+        info!("Crawling results of {}", contest.id);
+        let performances = scraper::get_performances(&contest.id).unwrap();
 
-        info!("Inserting results of {}", contest);
+        info!("Inserting results of {}", contest.id);
         conn.insert_performances(&performances).unwrap();
 
         info!("Sleeping...");
