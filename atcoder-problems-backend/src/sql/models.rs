@@ -60,7 +60,7 @@ pub struct UserProblemCount {
 #[derive(Debug, Queryable, Serialize)]
 pub struct UserSum {
     pub user_id: String,
-    point_sum: f64,
+    pub point_sum: f64,
 }
 
 #[derive(Debug, QueryableByName, Serialize)]
