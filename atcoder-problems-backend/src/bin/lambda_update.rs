@@ -45,14 +45,8 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
     conn.update_language_count(&submissions)
         .map_handler_error()?;
 
-    info!("Executing update_fastest_submissions...");
-    conn.update_fastest_submissions(&submissions)
-        .map_handler_error()?;
-    info!("Executing update_first_submissions...");
-    conn.update_first_submissions(&submissions)
-        .map_handler_error()?;
-    info!("Executing update_shortest_submissions...");
-    conn.update_shortest_submissions(&submissions)
+    info!("Executing update_submissions_of_problems...");
+    conn.update_submissions_of_problems(&submissions)
         .map_handler_error()?;
 
     info!("Executing update_problem_points...");

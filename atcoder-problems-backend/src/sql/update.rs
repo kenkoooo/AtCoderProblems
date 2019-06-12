@@ -20,7 +20,8 @@ impl SqlUpdater for PgConnection {
             WHERE
                 result = 'AC'
             GROUP BY
-                problem_id ON CONFLICT (problem_id) DO
+                problem_id
+            ON CONFLICT (problem_id) DO
             UPDATE
             SET
                 user_count = EXCLUDED.user_count;
