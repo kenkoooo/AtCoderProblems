@@ -51,11 +51,11 @@ macro_rules! upsert_values {
     };
 }
 
-pub trait ProblemInfoAggregator {
+pub trait ProblemsSubmissionUpdater {
     fn update_submissions_of_problems(&self, ac_submissions: &[Submission]) -> QueryResult<usize>;
 }
 
-impl ProblemInfoAggregator for PgConnection {
+impl ProblemsSubmissionUpdater for PgConnection {
     fn update_submissions_of_problems(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
         update_fastest_submissions(self, ac_submissions)?;
         update_shortest_submissions(self, ac_submissions)?;

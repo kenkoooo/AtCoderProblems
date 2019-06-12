@@ -1,6 +1,6 @@
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::schema::{fastest, first, shortest, submissions};
-use atcoder_problems_backend::sql::ProblemInfoAggregator;
+use atcoder_problems_backend::sql::ProblemsSubmissionUpdater;
 use diesel::dsl::*;
 use diesel::prelude::*;
 
