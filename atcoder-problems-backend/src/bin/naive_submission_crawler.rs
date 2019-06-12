@@ -1,6 +1,6 @@
 use atcoder_problems_backend::scraper;
-use atcoder_problems_backend::sql::client::SqlClient;
 use atcoder_problems_backend::sql::schema::*;
+use atcoder_problems_backend::sql::simple_client::SimpleClient;
 use atcoder_problems_backend::sql::SubmissionClient;
 use chrono::{Duration, Utc};
 use diesel::pg::PgConnection;
@@ -23,7 +23,7 @@ fn main() {
 
     loop {
         info!("Starting new loop...");
-        let contests = conn.get_contests().expect("Failed to load contests");
+        let contests = conn.load_contests().expect("Failed to load contests");
         let now = Utc::now().timestamp();
         for contest in contests.into_iter().filter(|contest| {
             now - contest.start_epoch_second

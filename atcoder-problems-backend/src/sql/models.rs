@@ -1,4 +1,4 @@
-use super::schema::{contests, performances, problems, submissions};
+use super::schema::{contest_problem, contests, performances, problems, submissions};
 use diesel::sql_types::*;
 use diesel::Queryable;
 use serde::Serialize;
@@ -35,9 +35,9 @@ pub struct Submission {
 
 #[derive(Debug, Queryable, Insertable, Clone, Serialize)]
 pub struct Performance {
-    pub inner_performance: i64,
     pub contest_id: String,
     pub user_id: String,
+    pub inner_performance: i64,
 }
 
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
@@ -113,8 +113,9 @@ pub struct MinimumPerformance {
     minimum_performance: i64,
 }
 
-#[derive(Debug, Queryable, Serialize)]
+#[derive(PartialEq, Debug, Queryable, Serialize, Insertable)]
+#[table_name = "contest_problem"]
 pub struct ContestProblem {
-    contest_id: String,
-    problem_id: String,
+    pub contest_id: String,
+    pub problem_id: String,
 }
