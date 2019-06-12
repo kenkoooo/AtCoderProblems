@@ -35,7 +35,7 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
         .map_handler_error()?;
 
     info!("Executing update_problem_solver_count...");
-    conn.update_problem_solver_count().map_handler_error()?;
+    conn.update_solver_count().map_handler_error()?;
 
     info!("Executing update_rated_point_sums...");
     conn.update_rated_point_sum(&submissions)
