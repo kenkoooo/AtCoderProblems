@@ -1,6 +1,5 @@
 use super::models::*;
 use super::schema::*;
-use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 
 use diesel::dsl::insert_into;
 use diesel::pg::PgConnection;
@@ -15,8 +14,6 @@ pub trait SimpleClient {
     fn load_problems(&self) -> QueryResult<Vec<Problem>>;
     fn load_contests(&self) -> QueryResult<Vec<Contest>>;
     fn load_performances(&self) -> QueryResult<Vec<Performance>>;
-
-    fn load_contest_ids_without_performances(&self) -> QueryResult<Vec<String>>;
 }
 
 impl SimpleClient for PgConnection {
@@ -54,15 +51,5 @@ impl SimpleClient for PgConnection {
 
     fn load_performances(&self) -> QueryResult<Vec<Performance>> {
         performances::table.load::<Performance>(self)
-    }
-
-    fn load_contest_ids_without_performances(&self) -> QueryResult<Vec<String>> {
-        contests::table
-            .left_join(performances::table.on(performances::contest_id.eq(contests::id)))
-            .filter(performances::contest_id.is_null())
-            .filter(contests::start_epoch_second.ge(FIRST_AGC_EPOCH_SECOND))
-            .filter(contests::rate_change.ne(UNRATED_STATE))
-            .select(contests::id)
-            .load::<String>(self)
     }
 }
