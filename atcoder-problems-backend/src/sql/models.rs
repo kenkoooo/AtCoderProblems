@@ -1,15 +1,22 @@
-use super::schema::{contests, performances, problems, submissions};
+use super::schema::{contest_problem, contests, performances, problems, submissions};
+use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 use diesel::sql_types::*;
 use diesel::Queryable;
 use serde::Serialize;
 
-#[derive(Debug, Eq, PartialEq, Queryable, Insertable, Serialize)]
+#[derive(Default, Debug, Eq, PartialEq, Queryable, Insertable, Serialize)]
 pub struct Contest {
     pub id: String,
     pub start_epoch_second: i64,
     pub duration_second: i64,
     pub title: String,
     pub rate_change: String,
+}
+
+impl Contest {
+    pub fn is_rated(&self) -> bool {
+        self.start_epoch_second >= FIRST_AGC_EPOCH_SECOND && &self.rate_change != UNRATED_STATE
+    }
 }
 
 #[derive(Debug, Eq, PartialEq, Queryable, Insertable, Serialize)]
@@ -33,11 +40,11 @@ pub struct Submission {
     pub execution_time: Option<i32>,
 }
 
-#[derive(Debug, Queryable, Insertable, Clone, Serialize)]
+#[derive(Default, Debug, Queryable, Insertable, Clone, Serialize)]
 pub struct Performance {
-    pub inner_performance: i64,
     pub contest_id: String,
     pub user_id: String,
+    pub inner_performance: i64,
 }
 
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
@@ -113,8 +120,9 @@ pub struct MinimumPerformance {
     minimum_performance: i64,
 }
 
-#[derive(Debug, Queryable, Serialize)]
+#[derive(PartialEq, Debug, Queryable, Serialize, Insertable)]
+#[table_name = "contest_problem"]
 pub struct ContestProblem {
-    contest_id: String,
-    problem_id: String,
+    pub contest_id: String,
+    pub problem_id: String,
 }
