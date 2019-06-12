@@ -1,6 +1,9 @@
 use atcoder_problems_backend::scraper;
-use atcoder_problems_backend::sql::client::SqlClient;
+use atcoder_problems_backend::sql::models::ContestProblem;
 use atcoder_problems_backend::sql::schema::*;
+use atcoder_problems_backend::sql::ContestProblemClient;
+use atcoder_problems_backend::sql::SimpleClient;
+use atcoder_problems_backend::utils;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use log::{error, info};
@@ -48,13 +51,15 @@ fn main() {
                 info!("Inserting {} problems...", problems.len());
                 conn.insert_problems(&problems)
                     .expect("Failed to insert problems");
-                conn.insert_contest_problem_pair(
-                    &problems
-                        .iter()
-                        .map(|problem| (problem.contest_id.as_str(), problem.id.as_str()))
-                        .collect::<Vec<_>>(),
-                )
-                .expect("Failed to insert contest-problem pairs");
+                let contest_problem = problems
+                    .iter()
+                    .map(|problem| ContestProblem {
+                        problem_id: problem.id.clone(),
+                        contest_id: problem.contest_id.clone(),
+                    })
+                    .collect::<Vec<_>>();
+                conn.insert_contest_problem(&contest_problem)
+                    .expect("Failed to insert contest-problem pairs");
             }
             None => error!("Failed to crawl contests!"),
         }
@@ -62,14 +67,15 @@ fn main() {
         thread::sleep(time::Duration::from_millis(500));
     }
 
-    let contests_without_performances = conn
-        .get_contests_without_performances()
-        .expect("Invalid query.");
-    for contest in contests_without_performances.into_iter() {
-        info!("Crawling results of {}", contest);
-        let performances = scraper::get_performances(&contest).unwrap();
+    let performances = conn
+        .load_performances()
+        .expect("Failed to load performances.");
+    let contests = utils::extract_non_performance_contests(&contests, &performances);
+    for contest in contests.into_iter() {
+        info!("Crawling results of {}", contest.id);
+        let performances = scraper::get_performances(&contest.id).unwrap();
 
-        info!("Inserting results of {}", contest);
+        info!("Inserting results of {}", contest.id);
         conn.insert_performances(&performances).unwrap();
 
         info!("Sleeping...");
