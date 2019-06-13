@@ -76,3 +76,59 @@ impl S3Client {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rusoto_core::signature::SignedRequestPayload;
+    use rusoto_mock;
+    use rusoto_mock::{MockCredentialsProvider, MockRequestDispatcher};
+
+    #[test]
+    fn test_update() {
+        let mock_body = "content text";
+
+        let dispatcher = MockRequestDispatcher::default()
+            .with_body(mock_body)
+            .with_request_checker(|request| {
+                assert_eq!(request.path, "/kenkoooo.com/path");
+                if request.method == "GET" {
+                } else if request.method == "PUT" {
+                    let bytes = request.headers.get("content-type").unwrap();
+                    let content_type = String::from_utf8_lossy(&bytes[0]).to_string();
+                    assert_eq!(content_type, "application/json;charset=utf-8");
+
+                    match &request.payload {
+                        Some(stream) => match stream {
+                            SignedRequestPayload::Stream(_) => {}
+                            _ => unreachable!(),
+                        },
+                        _ => unreachable!(),
+                    }
+                } else {
+                    unreachable!();
+                }
+            });
+
+        let s3 = rusoto_s3::S3Client::new_with(
+            dispatcher,
+            MockCredentialsProvider,
+            Region::ApNortheast1,
+        );
+        let client = S3Client { client: s3 };
+
+        // uploading same data
+        assert!(!client
+            .update(
+                String::from(mock_body).bytes().collect(),
+                "path",
+                ContentType::Json,
+            )
+            .unwrap());
+
+        // uploading different data with mock is always failed
+        assert!(client
+            .update(vec![1, 2, 3], "path", ContentType::Json)
+            .is_err());
+    }
+}
