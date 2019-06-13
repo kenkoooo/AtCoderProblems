@@ -1,10 +1,25 @@
 use rusoto_core::{ByteStream, Region};
 use rusoto_s3;
 use rusoto_s3::{GetObjectRequest, PutObjectRequest, S3};
-use serde::Serialize;
 use std::io::prelude::*;
 
 const BUCKET_NAME: &str = "kenkoooo.com";
+
+pub enum ContentType {
+    Json,
+    Png,
+    Other,
+}
+
+impl ContentType {
+    fn get(self) -> Option<String> {
+        match self {
+            ContentType::Json => Some("application/json;charset=utf-8".to_string()),
+            ContentType::Png => Some("image/png".to_string()),
+            ContentType::Other => None,
+        }
+    }
+}
 
 pub struct S3Client {
     client: rusoto_s3::S3Client,
@@ -23,38 +38,34 @@ impl S3Client {
         Self::default()
     }
 
-    pub fn update<T>(&self, new_vec: Vec<T>, path: &str) -> Result<bool, &str>
-    where
-        T: Serialize,
-    {
+    pub fn update(
+        &self,
+        data: Vec<u8>,
+        path: &str,
+        content_type: ContentType,
+    ) -> Result<bool, &str> {
         let mut get_request = GetObjectRequest::default();
         get_request.bucket = String::from(BUCKET_NAME);
         get_request.key = String::from(path);
 
-        let old_string = self
+        let old_data = self
             .client
             .get_object(get_request)
             .sync()
             .ok()
             .and_then(|object| object.body)
             .and_then(|stream| {
-                let mut old_string = String::new();
-                stream
-                    .into_blocking_read()
-                    .read_to_string(&mut old_string)
-                    .ok();
-                Some(old_string)
+                let mut buffer = Vec::new();
+                stream.into_blocking_read().read_to_end(&mut buffer).ok()?;
+                Some(buffer)
             })
-            .unwrap_or_else(String::new);
-
-        let new_string = serde_json::to_string(&new_vec).map_err(|_| "Failed to serialize.")?;
-
-        if old_string != new_string {
+            .unwrap_or_else(Vec::new);
+        if old_data != data {
             let mut request = PutObjectRequest::default();
-            request.bucket = String::from("kenkoooo.com");
+            request.bucket = String::from(BUCKET_NAME);
             request.key = String::from(path);
-            request.body = Some(ByteStream::from(new_string.as_bytes().to_vec()));
-            request.content_type = Some(String::from("application/json;charset=utf-8"));
+            request.body = Some(ByteStream::from(data));
+            request.content_type = content_type.get();
             self.client
                 .put_object(request)
                 .sync()
