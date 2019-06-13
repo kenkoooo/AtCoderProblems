@@ -85,11 +85,38 @@ mod tests {
     use rusoto_mock::{MockCredentialsProvider, MockRequestDispatcher};
 
     #[test]
-    fn test_update() {
-        let mock_body = "content text";
-
+    fn test_non_update() {
         let dispatcher = MockRequestDispatcher::default()
-            .with_body(mock_body)
+            .with_body("mock content text")
+            .with_request_checker(|request| {
+                assert_eq!(request.path, "/kenkoooo.com/path");
+                if request.method == "GET" {
+                } else {
+                    unreachable!();
+                }
+            });
+
+        let s3 = rusoto_s3::S3Client::new_with(
+            dispatcher,
+            MockCredentialsProvider,
+            Region::ApNortheast1,
+        );
+        let client = S3Client { client: s3 };
+
+        // uploading same data
+        assert!(!client
+            .update(
+                String::from("mock content text").bytes().collect(),
+                "path",
+                ContentType::Json,
+            )
+            .unwrap());
+    }
+
+    #[test]
+    fn test_update() {
+        let dispatcher = MockRequestDispatcher::default()
+            .with_body("mock content text")
             .with_request_checker(|request| {
                 assert_eq!(request.path, "/kenkoooo.com/path");
                 if request.method == "GET" {
@@ -116,15 +143,6 @@ mod tests {
             Region::ApNortheast1,
         );
         let client = S3Client { client: s3 };
-
-        // uploading same data
-        assert!(!client
-            .update(
-                String::from(mock_body).bytes().collect(),
-                "path",
-                ContentType::Json,
-            )
-            .unwrap());
 
         // uploading different data with mock is always failed
         assert!(client
