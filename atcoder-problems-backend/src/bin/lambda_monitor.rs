@@ -1,11 +1,10 @@
+use atcoder_problems_backend::s3;
 use base64;
 use lambda_runtime::{error::HandlerError, lambda, Context};
 use log::{self, info};
 use openssl_probe;
 use rusoto_cloudwatch::{CloudWatch, CloudWatchClient, GetMetricWidgetImageInput};
-use rusoto_core::{ByteStream, Region};
-use rusoto_s3;
-use rusoto_s3::{PutObjectRequest, S3};
+use rusoto_core::Region;
 use serde::Serialize;
 use serde_json;
 use simple_logger;
@@ -29,7 +28,7 @@ fn handler(_: String, _: Context) -> Result<(), HandlerError> {
             "vol-034640312c7427ebb",
         ]],
         timezone: "+0900",
-        start: "-P10D",
+        start: "-PT3H",
         title: "Remaining BurstBalance of PostgreSQL",
     };
     let metric_widget = serde_json::to_string(&metrics)?;
@@ -46,17 +45,8 @@ fn handler(_: String, _: Context) -> Result<(), HandlerError> {
     let bytes = base64::decode(&encoded).map_err(|e| HandlerError::from(e.to_string().as_str()))?;
 
     info!("Uploading to S3...");
-    let client = rusoto_s3::S3Client::new(Region::ApNortheast1);
-    let mut request = PutObjectRequest::default();
-    request.bucket = String::from("kenkoooo.com");
-    request.key = String::from("monitor/postgresql-ebs.png");
-    request.body = Some(ByteStream::from(bytes));
-    request.content_type = Some(String::from("image/png"));
-    client
-        .put_object(request)
-        .sync()
-        .map_err(|e| HandlerError::from(e.to_string().as_str()))?;
-
+    let client = s3::S3Client::new();
+    client.update(bytes, "monitor/postgresql-ebs.png", s3::ContentType::Png)?;
     info!("Done");
     Ok(())
 }

@@ -1,5 +1,5 @@
 use atcoder_problems_backend::error::MapHandlerError;
-use atcoder_problems_backend::s3::S3Client;
+use atcoder_problems_backend::s3;
 use atcoder_problems_backend::sql::models::*;
 use atcoder_problems_backend::sql::schema::*;
 use atcoder_problems_backend::sql::LanguageCountClient;
@@ -8,6 +8,8 @@ use diesel::{sql_query, Connection, PgConnection};
 use lambda_runtime::{error::HandlerError, lambda, Context};
 use log::{self, info};
 use openssl_probe;
+use serde::Serialize;
+use serde_json;
 use simple_logger;
 use std::env;
 use std::error::Error;
@@ -59,60 +61,88 @@ fn handler(_: String, _: Context) -> Result<(), HandlerError> {
                 ORDER BY problems.id;
         ");
 
-    let client = S3Client::new();
+    let data_paths = vec![
+        (
+            merged_query
+                .load::<MergedProblem>(&conn)
+                .serialize_to_bytes()?,
+            "resources/merged-problems.json",
+        ),
+        (
+            contests::table
+                .order_by(contests::id)
+                .load::<Contest>(&conn)
+                .serialize_to_bytes()?,
+            "resources/contests.json",
+        ),
+        (
+            accepted_count::table
+                .order_by(accepted_count::user_id)
+                .load::<UserProblemCount>(&conn)
+                .serialize_to_bytes()?,
+            "resources/ac.json",
+        ),
+        (
+            problems::table
+                .order_by(problems::id)
+                .load::<Problem>(&conn)
+                .serialize_to_bytes()?,
+            "resources/problems.json",
+        ),
+        (
+            rated_point_sum::table
+                .order_by(rated_point_sum::user_id)
+                .load::<UserSum>(&conn)
+                .serialize_to_bytes()?,
+            "resources/sums.json",
+        ),
+        (
+            conn.load_language_count().serialize_to_bytes()?,
+            "resources/lang.json",
+        ),
+        (
+            minimum_performances::table
+                .order_by(minimum_performances::problem_id)
+                .load::<MinimumPerformance>(&conn)
+                .serialize_to_bytes()?,
+            "resources/problem-performances.json",
+        ),
+        (
+            contest_problem::table
+                .order_by(contest_problem::problem_id)
+                .load::<ContestProblem>(&conn)
+                .serialize_to_bytes()?,
+            "resources/contest-problem.json",
+        ),
+        (
+            contest_problem::table
+                .order_by(contest_problem::problem_id)
+                .load::<ContestProblem>(&conn)
+                .serialize_to_bytes()?,
+            "resources/contest-problem.json",
+        ),
+    ];
 
-    client.update(
-        merged_query
-            .load::<MergedProblem>(&conn)
-            .map_handler_error()?,
-        "resources/merged-problems.json",
-    )?;
-    client.update(
-        contests::table
-            .order_by(contests::id)
-            .load::<Contest>(&conn)
-            .map_handler_error()?,
-        "resources/contests.json",
-    )?;
-    client.update(
-        accepted_count::table
-            .order_by(accepted_count::user_id)
-            .load::<UserProblemCount>(&conn)
-            .map_handler_error()?,
-        "resources/ac.json",
-    )?;
-    client.update(
-        problems::table
-            .order_by(problems::id)
-            .load::<Problem>(&conn)
-            .map_handler_error()?,
-        "resources/problems.json",
-    )?;
-    client.update(
-        rated_point_sum::table
-            .order_by(rated_point_sum::user_id)
-            .load::<UserSum>(&conn)
-            .map_handler_error()?,
-        "resources/sums.json",
-    )?;
-    client.update(
-        conn.load_language_count().map_handler_error()?,
-        "resources/lang.json",
-    )?;
-    client.update(
-        minimum_performances::table
-            .order_by(minimum_performances::problem_id)
-            .load::<MinimumPerformance>(&conn)
-            .map_handler_error()?,
-        "resources/problem-performances.json",
-    )?;
-    client.update(
-        contest_problem::table
-            .order_by(contest_problem::problem_id)
-            .load::<ContestProblem>(&conn)
-            .map_handler_error()?,
-        "resources/contest-problem.json",
-    )?;
+    let client = s3::S3Client::new();
+    for (data, path) in data_paths.into_iter() {
+        info!("Uploading {}", path);
+        client.update(data, path, s3::ContentType::Json)?;
+    }
 
     Ok(())
+}
+
+trait SerializeToBytes {
+    fn serialize_to_bytes(self) -> Result<Vec<u8>, HandlerError>;
+}
+
+impl<T> SerializeToBytes for QueryResult<T>
+where
+    T: Serialize,
+{
+    fn serialize_to_bytes(self) -> Result<Vec<u8>, HandlerError> {
+        let result = self.map_handler_error()?;
+        let vec = serde_json::to_vec(&result)?;
+        Ok(vec)
+    }
 }
