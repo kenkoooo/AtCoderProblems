@@ -2,6 +2,7 @@
 extern crate diesel;
 
 pub mod api;
+pub mod crawler;
 pub mod error;
 pub mod s3;
 pub mod scraper;

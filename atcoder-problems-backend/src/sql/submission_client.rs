@@ -18,6 +18,7 @@ pub enum SubmissionRequest<'a> {
 pub trait SubmissionClient {
     fn get_submissions(&self, request: SubmissionRequest) -> QueryResult<Vec<Submission>>;
     fn get_user_submission_count(&self, user_id: &str) -> QueryResult<i64>;
+    fn get_submission_by_id(&self, id: i64) -> QueryResult<Option<Submission>>;
     fn update_submissions(&self, values: &[Submission]) -> QueryResult<usize>;
 }
 
@@ -51,6 +52,12 @@ impl SubmissionClient for PgConnection {
             .filter(submissions::user_id.eq(user_id))
             .select(count_star())
             .first(self)
+    }
+    fn get_submission_by_id(&self, id: i64) -> QueryResult<Option<Submission>> {
+        let submissions: Vec<Submission> = submissions::table
+            .filter(submissions::id.eq(id))
+            .load::<Submission>(self)?;
+        Ok(submissions.into_iter().next())
     }
 
     fn update_submissions(&self, values: &[Submission]) -> QueryResult<usize> {
