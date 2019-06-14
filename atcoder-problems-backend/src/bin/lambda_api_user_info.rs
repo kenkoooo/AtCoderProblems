@@ -11,7 +11,6 @@ use openssl_probe;
 use serde::Serialize;
 use serde_json;
 use simple_logger;
-use std::collections::HashMap;
 use std::env;
 use std::error::Error;
 
@@ -25,9 +24,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
     let url = env::var("SQL_URL")?;
     let conn: PgConnection = PgConnection::establish(&url).map_handler_error()?;
-
-    let mut headers = HashMap::new();
-    headers.insert("Access-Control-Allow-Origin".to_owned(), "*".to_owned());
 
     let user_id = e
         .param("user")
@@ -57,7 +53,7 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
         rated_point_sum,
         rated_point_sum_rank,
     })?;
-    Ok(LambdaOutput::new200(body, headers))
+    Ok(LambdaOutput::new200(body, None))
 }
 
 #[derive(Serialize)]

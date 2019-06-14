@@ -41,7 +41,12 @@ pub struct LambdaOutput {
 }
 
 impl LambdaOutput {
-    pub fn new200(body: String, headers: HashMap<String, String>) -> Self {
+    pub fn new200(body: String, etag: Option<String>) -> Self {
+        let mut headers = HashMap::new();
+        headers.insert("Access-Control-Allow-Origin".to_owned(), "*".to_owned());
+        if let Some(etag) = etag {
+            headers.insert("etag".to_owned(), etag);
+        }
         Self {
             is_base64_encoded: false,
             status_code: 200,
@@ -50,7 +55,9 @@ impl LambdaOutput {
         }
     }
 
-    pub fn new304(headers: HashMap<String, String>) -> Self {
+    pub fn new304() -> Self {
+        let mut headers = HashMap::new();
+        headers.insert("Access-Control-Allow-Origin".to_owned(), "*".to_owned());
         Self {
             is_base64_encoded: false,
             status_code: 304,
