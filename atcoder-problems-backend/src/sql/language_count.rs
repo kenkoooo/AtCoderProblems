@@ -1,5 +1,7 @@
 use super::models::{Submission, UserLanguageCount};
 use super::schema::language_count;
+use super::MAX_INSERT_ROWS;
+use crate::utils::SplitToSegments;
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
@@ -8,12 +10,12 @@ use regex::Regex;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub trait LanguageCountClient {
-    fn update_language_count(&self, submissions: &[Submission]) -> QueryResult<usize>;
+    fn update_language_count(&self, submissions: &[Submission]) -> QueryResult<()>;
     fn load_language_count(&self) -> QueryResult<Vec<UserLanguageCount>>;
 }
 
 impl LanguageCountClient for PgConnection {
-    fn update_language_count(&self, submissions: &[Submission]) -> QueryResult<usize> {
+    fn update_language_count(&self, submissions: &[Submission]) -> QueryResult<()> {
         let re = Regex::new(r"\d* \(.*\)").unwrap();
         let language_count = submissions
             .iter()
@@ -48,12 +50,18 @@ impl LanguageCountClient for PgConnection {
             })
             .collect::<Vec<_>>();
 
-        insert_into(language_count::table)
-            .values(language_count)
-            .on_conflict((language_count::user_id, language_count::simplified_language))
-            .do_update()
-            .set(language_count::problem_count.eq(excluded(language_count::problem_count)))
-            .execute(self)
+        for segment in language_count
+            .split_into_segments(MAX_INSERT_ROWS)
+            .into_iter()
+        {
+            insert_into(language_count::table)
+                .values(segment)
+                .on_conflict((language_count::user_id, language_count::simplified_language))
+                .do_update()
+                .set(language_count::problem_count.eq(excluded(language_count::problem_count)))
+                .execute(self)?;
+        }
+        Ok(())
     }
 
     fn load_language_count(&self) -> QueryResult<Vec<UserLanguageCount>> {

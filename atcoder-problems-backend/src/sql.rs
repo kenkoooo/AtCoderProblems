@@ -12,6 +12,7 @@ mod submission_client;
 
 const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
 const UNRATED_STATE: &str = "-";
+const MAX_INSERT_ROWS: usize = 10_000;
 
 pub use accepted_count::AcceptedCountClient;
 pub use contest_problem::ContestProblemClient;
