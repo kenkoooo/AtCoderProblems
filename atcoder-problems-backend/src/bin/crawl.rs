@@ -23,7 +23,9 @@ fn main() {
         "all" => {
             crawler::crawl_all_submissions(&conn, &scraper);
         }
-        "contest" => {}
+        "contest" => {
+            crawler::crawl_contest_and_problems(&conn, &scraper);
+        }
         _ => {
             unimplemented!("Unsupported: {}", args[0]);
         }

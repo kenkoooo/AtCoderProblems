@@ -1,4 +1,3 @@
-use crate::scraper;
 use crate::scraper::ScraperTrait;
 use crate::sql::models::{Contest, ContestProblem, Problem};
 use crate::sql::{ContestProblemClient, SimpleClient, SubmissionClient};
@@ -185,7 +184,7 @@ where
     let contests = utils::extract_non_performance_contests(&contests, &performances);
     for contest in contests.into_iter() {
         info!("Crawling results of {}", contest.id);
-        let performances = scraper::get_performances(&contest.id).unwrap();
+        let performances = scraper.scrape_performances(&contest.id).unwrap();
 
         info!("Inserting results of {}", contest.id);
         conn.insert_performances(&performances).unwrap();
