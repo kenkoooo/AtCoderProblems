@@ -1,5 +1,7 @@
+use super::MAX_INSERT_ROWS;
 use crate::sql::models::{Submission, UserProblemCount};
 use crate::sql::schema::accepted_count;
+use crate::utils::SplitToSegments;
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
@@ -10,7 +12,7 @@ pub trait AcceptedCountClient {
     fn load_accepted_count(&self) -> QueryResult<Vec<UserProblemCount>>;
     fn get_users_accepted_count(&self, user_id: &str) -> QueryResult<i32>;
     fn get_accepted_count_rank(&self, accepted_count: i32) -> QueryResult<i64>;
-    fn update_accepted_count(&self, submissions: &[Submission]) -> QueryResult<usize>;
+    fn update_accepted_count(&self, submissions: &[Submission]) -> QueryResult<()>;
 }
 
 impl AcceptedCountClient for PgConnection {
@@ -35,7 +37,7 @@ impl AcceptedCountClient for PgConnection {
             .first::<i64>(self)
     }
 
-    fn update_accepted_count(&self, submissions: &[Submission]) -> QueryResult<usize> {
+    fn update_accepted_count(&self, submissions: &[Submission]) -> QueryResult<()> {
         let accepted_count = submissions
             .iter()
             .map(|s| (s.user_id.as_str(), s.problem_id.as_str()))
@@ -53,11 +55,18 @@ impl AcceptedCountClient for PgConnection {
                 )
             })
             .collect::<Vec<_>>();
-        insert_into(accepted_count::table)
-            .values(accepted_count)
-            .on_conflict(accepted_count::user_id)
-            .do_update()
-            .set(accepted_count::problem_count.eq(excluded(accepted_count::problem_count)))
-            .execute(self)
+
+        for segment in accepted_count
+            .split_into_segments(MAX_INSERT_ROWS)
+            .into_iter()
+        {
+            insert_into(accepted_count::table)
+                .values(segment)
+                .on_conflict(accepted_count::user_id)
+                .do_update()
+                .set(accepted_count::problem_count.eq(excluded(accepted_count::problem_count)))
+                .execute(self)?;
+        }
+        Ok(())
     }
 }

@@ -5,7 +5,9 @@ use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
 use diesel::{PgConnection, QueryResult};
+use log::info;
 use std::collections::BTreeMap;
+use std::iter::Iterator;
 
 macro_rules! load_records {
     ($table:ident, $conn:ident, $column:ident: $t:tt) => {
@@ -57,9 +59,14 @@ pub trait ProblemsSubmissionUpdater {
 
 impl ProblemsSubmissionUpdater for PgConnection {
     fn update_submissions_of_problems(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
-        update_fastest_submissions(self, ac_submissions)?;
+        info!("Updating shortest submissions...");
         update_shortest_submissions(self, ac_submissions)?;
-        update_first_submissions(self, ac_submissions)
+
+        info!("Updating first submissions...");
+        update_first_submissions(self, ac_submissions)?;
+
+        info!("Updating fastest submissions...");
+        update_fastest_submissions(self, ac_submissions)
     }
 }
 
@@ -68,7 +75,7 @@ fn update_first_submissions(
     ac_submissions: &[Submission],
 ) -> QueryResult<usize> {
     let records = load_records!(first, conn, id: i64)?;
-    let values = update_aggregation(&records, ac_submissions, |s| s.id);
+    let values = update_aggregation(&records, ac_submissions.iter(), |s| s.id);
     upsert_values!(first, values, conn)
 }
 
@@ -79,11 +86,15 @@ fn update_fastest_submissions(
     type Opi32 = Option<i32>;
     let records = load_records!(fastest, conn, execution_time: Opi32)?
         .into_iter()
-        .map(|(problem_id, contest_id, id, execution_time)| {
-            (problem_id, contest_id, id, execution_time.unwrap())
+        .filter_map(|(problem_id, contest_id, id, execution_time)| {
+            execution_time.map(|time| (problem_id, contest_id, id, time))
         })
         .collect::<Vec<_>>();
-    let values = update_aggregation(&records, ac_submissions, |s| s.execution_time.unwrap());
+    let values = update_aggregation(
+        &records,
+        ac_submissions.iter().filter(|s| s.execution_time.is_some()),
+        |s| s.execution_time.unwrap(),
+    );
     upsert_values!(fastest, values, conn)
 }
 
@@ -92,18 +103,19 @@ fn update_shortest_submissions(
     ac_submissions: &[Submission],
 ) -> QueryResult<usize> {
     let records = load_records!(shortest, conn, length: i32)?;
-    let values = update_aggregation(&records, ac_submissions, |s| s.length);
+    let values = update_aggregation(&records, ac_submissions.iter(), |s| s.length);
     upsert_values!(shortest, values, conn)
 }
 
-fn update_aggregation<'a, T, F>(
+fn update_aggregation<'a, T, F, I>(
     values: &'a [(String, String, i64, T)],
-    submissions: &'a [Submission],
+    iter: I,
     submission_mapper: F,
 ) -> Vec<(&'a str, &'a str, i64)>
 where
     T: Copy + PartialEq + PartialOrd + std::fmt::Debug,
     F: Fn(&Submission) -> T,
+    I: Iterator<Item = &'a Submission>,
 {
     #[derive(Debug)]
     struct CompetitiveRecord<'a, T> {
@@ -113,8 +125,7 @@ where
         is_updated: bool,
     }
 
-    let submissions: Vec<_> = submissions
-        .iter()
+    let submissions: Vec<_> = iter
         .map(|submission| {
             (
                 submission.problem_id.as_str(),
