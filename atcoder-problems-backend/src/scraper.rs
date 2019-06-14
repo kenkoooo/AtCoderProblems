@@ -43,3 +43,13 @@ pub fn scrape_problems(contest_id: &str) -> Option<Vec<Problem>> {
     let page_html = get_html(&url).ok()?;
     problem::scrape(&page_html, contest_id)
 }
+
+pub trait Scraper {
+    fn scrape_contests(&self, page: usize) -> Option<Vec<Contest>>;
+    fn scrape_submissions(
+        &self,
+        contest_id: &str,
+        page: Option<usize>,
+    ) -> Option<(Vec<Submission>, usize)>;
+    fn scrape_problems(&self, contest_id: &str) -> Option<Vec<Problem>>;
+}
