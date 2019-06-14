@@ -17,11 +17,11 @@ pub fn extract_non_performance_contests<'a>(
 }
 
 pub trait SplitToSegments<T> {
-    fn split_to_segments(&self, size: usize) -> Vec<&[T]>;
+    fn split_into_segments(&self, size: usize) -> Vec<&[T]>;
 }
 
 impl<T> SplitToSegments<T> for [T] {
-    fn split_to_segments(&self, size: usize) -> Vec<&[T]> {
+    fn split_into_segments(&self, size: usize) -> Vec<&[T]> {
         let mut result = vec![];
         let mut cur = self;
         while !cur.is_empty() {
@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn test_split_to_segments() {
         let values = (0..25000usize).collect::<Vec<usize>>();
-        let segments = values.split_to_segments(10000);
+        let segments = values.split_into_segments(10000);
         assert_eq!(segments.len(), 3);
         assert_eq!(segments[0].len(), 10000);
         assert_eq!(segments[1].len(), 10000);
