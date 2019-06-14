@@ -9,11 +9,13 @@ use diesel::prelude::*;
 use diesel::{PgConnection, QueryResult};
 use std::collections::{BTreeMap, BTreeSet};
 
-pub trait RatedPointSumUpdater {
+pub trait RatedPointSumClient {
     fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> QueryResult<()>;
+    fn get_users_rated_point_sum(&self, user_id: &str) -> QueryResult<f64>;
+    fn get_rated_point_sum_rank(&self, point: f64) -> QueryResult<i64>;
 }
 
-impl RatedPointSumUpdater for PgConnection {
+impl RatedPointSumClient for PgConnection {
     fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> QueryResult<()> {
         let rated_contest_ids = contests::table
             .filter(contests::start_epoch_second.ge(FIRST_AGC_EPOCH_SECOND))
@@ -55,5 +57,19 @@ impl RatedPointSumUpdater for PgConnection {
                 .execute(self)?;
         }
         Ok(())
+    }
+
+    fn get_users_rated_point_sum(&self, user_id: &str) -> QueryResult<f64> {
+        rated_point_sum::table
+            .filter(rated_point_sum::user_id.eq(user_id))
+            .select(rated_point_sum::point_sum)
+            .first::<f64>(self)
+    }
+
+    fn get_rated_point_sum_rank(&self, rated_point_sum: f64) -> QueryResult<i64> {
+        rated_point_sum::table
+            .filter(rated_point_sum::point_sum.gt(rated_point_sum))
+            .select(count_star())
+            .first::<i64>(self)
     }
 }

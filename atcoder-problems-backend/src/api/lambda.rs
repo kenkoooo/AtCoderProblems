@@ -66,3 +66,22 @@ impl LambdaOutput {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_get_header() {
+        let mut input = LambdaInput {
+            paths: None,
+            params: None,
+            headers: Some(HashMap::new()),
+        };
+        input
+            .headers
+            .as_mut()
+            .unwrap()
+            .insert("if-none-match".to_string(), "123".to_string());
+        assert_eq!(input.header("If-None-Match"), Some("123"));
+    }
+}
