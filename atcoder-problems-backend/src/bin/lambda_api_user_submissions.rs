@@ -10,7 +10,6 @@ use md5::{Digest, Md5};
 use openssl_probe;
 use serde_json;
 use simple_logger;
-use std::collections::HashMap;
 use std::env;
 use std::error::Error;
 
@@ -26,8 +25,6 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
     let conn: PgConnection = PgConnection::establish(&url).map_handler_error()?;
 
     info!("User Submission API: {:?}", e);
-    let mut headers = HashMap::new();
-    headers.insert("Access-Control-Allow-Origin".to_owned(), "*".to_owned());
 
     let user_id = e
         .param("user")
@@ -43,14 +40,13 @@ fn handler(e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
     let etag = hex::encode(hasher.result());
 
     match e.header("If-None-Match") {
-        Some(tag) if tag == etag => Ok(LambdaOutput::new304(headers)),
+        Some(tag) if tag == etag => Ok(LambdaOutput::new304()),
         _ => {
             let submissions = conn
                 .get_submissions(SubmissionRequest::UserAll { user_id })
                 .map_handler_error()?;
             let body = serde_json::to_string(&submissions)?;
-            headers.insert("etag".to_owned(), etag);
-            Ok(LambdaOutput::new200(body, headers))
+            Ok(LambdaOutput::new200(body, Some(etag)))
         }
     }
 }
