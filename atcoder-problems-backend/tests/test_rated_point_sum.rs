@@ -1,6 +1,6 @@
 use atcoder_problems_backend::sql::models::{Contest, Submission, UserSum};
 use atcoder_problems_backend::sql::schema::{contests, rated_point_sum};
-use atcoder_problems_backend::sql::RatedPointSumUpdater;
+use atcoder_problems_backend::sql::RatedPointSumClient;
 use diesel::dsl::*;
 use diesel::prelude::*;
 
@@ -93,4 +93,6 @@ fn test_update_rated_point_sum() {
     assert_eq!(sums.len(), 1);
     assert_eq!(sums[0].user_id, user_id.to_string());
     assert_eq!(sums[0].point_sum, 200.0);
+    assert_eq!(conn.get_users_rated_point_sum(user_id).unwrap(), 200.0);
+    assert_eq!(conn.get_rated_point_sum_rank(200.0).unwrap(), 0);
 }

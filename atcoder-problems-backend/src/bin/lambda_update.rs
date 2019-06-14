@@ -2,7 +2,7 @@ use atcoder_problems_backend::error::MapHandlerError;
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::ProblemInfoUpdater;
 use atcoder_problems_backend::sql::{
-    AcceptedCountClient, LanguageCountClient, ProblemsSubmissionUpdater, RatedPointSumUpdater,
+    AcceptedCountClient, LanguageCountClient, ProblemsSubmissionUpdater, RatedPointSumClient,
     SubmissionClient, SubmissionRequest,
 };
 use diesel::{Connection, PgConnection};
