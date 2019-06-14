@@ -30,6 +30,8 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
         .get_submissions(SubmissionRequest::AllAccepted)
         .map_handler_error()?;
 
+    info!("There are {} AC submissions.", submissions.len());
+
     info!("Executing update_accepted_count...");
     conn.update_accepted_count(&submissions)
         .map_handler_error()?;
