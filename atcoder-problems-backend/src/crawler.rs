@@ -3,6 +3,7 @@ use crate::sql::models::{Contest, ContestProblem, Problem};
 use crate::sql::{ContestProblemClient, SimpleClient, SubmissionClient};
 use crate::utils;
 use chrono::{Duration, Utc};
+use diesel::QueryResult;
 use log::{error, info};
 use std::collections::BTreeSet;
 use std::{thread, time};
@@ -10,14 +11,14 @@ use std::{thread, time};
 const NEW_CONTEST_THRESHOLD_DAYS: i64 = 2;
 const NEW_PAGE_THRESHOLD: usize = 5;
 
-pub fn crawl_from_new_contests<C, S>(conn: &C, scraper: &S)
+pub fn crawl_from_new_contests<C, S>(conn: &C, scraper: &S) -> QueryResult<()>
 where
     C: SimpleClient + SubmissionClient,
     S: ScraperTrait,
 {
     loop {
         info!("Starting new loop...");
-        let mut contests = conn.load_contests().expect("Failed to load contests");
+        let mut contests = conn.load_contests()?;
         let now = Utc::now().timestamp();
 
         contests.sort_by_key(|contest| -contest.start_epoch_second);
@@ -35,8 +36,7 @@ where
                             .map(|(s, _)| s)
                             .unwrap_or_else(Vec::new);
                         info!("Inserting {} submissions...", new_submissions.len());
-                        conn.update_submissions(&new_submissions)
-                            .expect("Failed to insert submissions");
+                        conn.update_submissions(&new_submissions)?;
                         thread::sleep(time::Duration::from_millis(200));
                     }
                 }
@@ -48,14 +48,14 @@ where
     }
 }
 
-pub fn crawl_all_submissions<C, S>(conn: &C, scraper: &S)
+pub fn crawl_all_submissions<C, S>(conn: &C, scraper: &S) -> QueryResult<()>
 where
     C: SimpleClient + SubmissionClient,
     S: ScraperTrait,
 {
     loop {
         info!("Starting new loop...");
-        let contests = conn.load_contests().expect("Failed to load contests");
+        let contests = conn.load_contests()?;
         for contest in contests.into_iter() {
             info!("Starting for {}", contest.id);
             match scraper.scrape_submissions(&contest.id, None) {
@@ -69,8 +69,7 @@ where
                             .map(|(s, _)| s)
                             .unwrap_or_else(Vec::new);
                         info!("Inserting {} submissions", new_submissions.len());
-                        conn.update_submissions(&new_submissions)
-                            .expect("Failed to insert submissions");
+                        conn.update_submissions(&new_submissions)?;
                         thread::sleep(time::Duration::from_millis(200));
                     }
                 }
@@ -82,14 +81,14 @@ where
     }
 }
 
-pub fn crawl_new_submissions<C, S>(conn: &C, scraper: &S)
+pub fn crawl_new_submissions<C, S>(conn: &C, scraper: &S) -> QueryResult<()>
 where
     C: SimpleClient + SubmissionClient,
     S: ScraperTrait,
 {
     loop {
         info!("Starting new loop...");
-        let contests = conn.load_contests().expect("Failed to load contests");
+        let contests = conn.load_contests()?;
         let now = Utc::now().timestamp();
         for contest in contests.into_iter().filter(|contest| {
             now - contest.start_epoch_second
@@ -108,13 +107,9 @@ where
                 }
 
                 info!("Inserting {} submissions...", new_submissions.len());
-                let min_id = new_submissions.iter().map(|s| s.id).min().unwrap();
-                let exists = conn
-                    .get_submission_by_id(min_id)
-                    .expect("Failed to load submissions")
-                    .is_some();
-                conn.update_submissions(&new_submissions)
-                    .expect("Failed to insert submissions");
+                let min_id = new_submissions.iter().map(|s| s.id).min().unwrap_or(0);
+                let exists = conn.get_submission_by_id(min_id)?.is_some();
+                conn.update_submissions(&new_submissions)?;
                 thread::sleep(time::Duration::from_millis(200));
 
                 if exists {
@@ -125,7 +120,7 @@ where
     }
 }
 
-pub fn crawl_contest_and_problems<C, S>(conn: &C, scraper: &S)
+pub fn crawl_contest_and_problems<C, S>(conn: &C, scraper: &S) -> QueryResult<()>
 where
     C: SimpleClient + ContestProblemClient,
     S: ScraperTrait,
@@ -147,11 +142,11 @@ where
         .collect();
 
     info!("There are {} contests.", contests.len());
-    conn.insert_contests(&contests).unwrap();
+    conn.insert_contests(&contests)?;
 
-    let contests = conn.load_contests().expect("");
-    let problems = conn.load_problems().expect("");
-    let contest_problem = conn.load_contest_problem().expect("");
+    let contests = conn.load_contests()?;
+    let problems = conn.load_problems()?;
+    let contest_problem = conn.load_contest_problem()?;
 
     let no_problem_contests = extract_no_problem_contests(&contests, &problems, &contest_problem);
 
@@ -160,8 +155,7 @@ where
         match scraper.scrape_problems(&contest.id) {
             Some(problems) => {
                 info!("Inserting {} problems...", problems.len());
-                conn.insert_problems(&problems)
-                    .expect("Failed to insert problems");
+                conn.insert_problems(&problems)?;
                 let contest_problem = problems
                     .iter()
                     .map(|problem| ContestProblem {
@@ -169,8 +163,7 @@ where
                         contest_id: problem.contest_id.clone(),
                     })
                     .collect::<Vec<_>>();
-                conn.insert_contest_problem(&contest_problem)
-                    .expect("Failed to insert contest-problem pairs");
+                conn.insert_contest_problem(&contest_problem)?;
             }
             None => error!("Failed to crawl contests!"),
         }
@@ -178,20 +171,21 @@ where
         thread::sleep(time::Duration::from_millis(500));
     }
 
-    let performances = conn
-        .load_performances()
-        .expect("Failed to load performances.");
+    let performances = conn.load_performances()?;
     let contests = utils::extract_non_performance_contests(&contests, &performances);
     for contest in contests.into_iter() {
         info!("Crawling results of {}", contest.id);
-        let performances = scraper.scrape_performances(&contest.id).unwrap();
+        let performances = scraper
+            .scrape_performances(&contest.id)
+            .unwrap_or_else(Vec::new);
 
         info!("Inserting results of {}", contest.id);
-        conn.insert_performances(&performances).unwrap();
+        conn.insert_performances(&performances)?;
 
         info!("Sleeping...");
         thread::sleep(time::Duration::from_millis(500));
     }
+    Ok(())
 }
 
 fn extract_no_problem_contests<'a>(
