@@ -87,6 +87,9 @@ fn test_submission_client() {
         .get_submissions(SubmissionRequest::AllAccepted)
         .unwrap();
     assert_eq!(submissions.len(), 3);
+
+    assert!(conn.get_submission_by_id(1).unwrap().is_some());
+    assert!(conn.get_submission_by_id(9).unwrap().is_none());
 }
 
 #[test]
