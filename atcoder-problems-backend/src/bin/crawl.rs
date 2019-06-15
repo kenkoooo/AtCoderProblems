@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let scraper = scraper::Scraper;
 
     let args: Vec<_> = env::args().collect();
-    match args[0].as_str() {
+    match args[1].as_str() {
         "naive" => {
             crawler::crawl_from_new_contests(&conn, &scraper)?;
         }
