@@ -5,13 +5,31 @@
 
 
 
-# atcoder-problems-api-lambda
+# atcoder-problems-backend
 
-`atcoder-problems-api-lambda` is a backend API server which runs on AWS Lambda.
+`atcoder-problems-backend` is a set of backend applications written in Rust.
 
-# atcoder-problems-dumper-lambda
+## Lambda functions
 
-`atcoder-problems-dumper-lambda` is a tool to dump data in PostgreSQL to AWS S3.
+## Crawler
+
+### Build
+```bash
+cd atcoder-problems-backend/
+cargo build --release --bin crawl
+```
+### Run
+Before running, please make sure the URL of PostgreSQL is set to `SQL_URL`, and [SQL table schema](config/database-definition.sql) is loaded on your database.
+```
+export SQL_URL="postgresql://..." # URL of PostgreSQL database
+cargo run --release --bin crawl [option]
+```
+
+#### Options
+- `naive`
+- `new`
+- `all`
+- `contest`
 
 # atcoder-problems-frontend
 
@@ -31,28 +49,6 @@ yarn start
 ```
 yarn build
 ```
-
-# atcoder-problems-scraper
-
-`atcoder-problems-scraper` is a tool to crawl AtCoder's webpages and store to PostgreSQL. 
-
-## Build
-```bash
-cargo build
-```
-
-## Run
-Before running, please make sure the URL of PostgreSQL is set to `SQL_URL`, and [SQL table schema](config/database-definition.sql) is loaded on your database.
-
-```bash
-cargo run --bin contest_problem_crawler # which crawls problems and contests
-cargo run --bin all_submission_crawler # which crawls all the submissions
-cargo run --bin naive_submission_crawler # which crawls only new submissions in each contests
-```
-
-# atcoder-problems-updater-lambda
-`atcoder-problems-updater-lambda` is a tool to execute SQL commands to aggregate data on the database.
-
 
 # Docker
 
@@ -122,6 +118,5 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
 # Dataset
 
 - [SQL version] https://s3-ap-northeast-1.amazonaws.com/kenkoooo/atcoder.sql
-- [CSV version] https://s3-ap-northeast-1.amazonaws.com/kenkoooo/atcoder_submissions.csv
 
 You can download whole data, which are crawled by the crawler.
