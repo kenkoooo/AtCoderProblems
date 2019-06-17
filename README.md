@@ -20,7 +20,7 @@ cargo build --release --bin crawl
 ```
 ### Run
 Before running, please make sure the URL of PostgreSQL is set to `SQL_URL`, and [SQL table schema](config/database-definition.sql) is loaded on your database.
-```
+```bash
 export SQL_URL="postgresql://..." # URL of PostgreSQL database
 cargo run --release --bin crawl [option]
 ```
@@ -36,17 +36,17 @@ cargo run --release --bin crawl [option]
 `atcoder-problems-frontend` is a web application written in TypeScript.
 
 ## Install required packages
-```
+```bash
 yarn
 ```
 
 ## Start the web application on your local
-```
+```bash
 yarn start
 ```
 
 ## Build optimized files for distribution
-```
+```bash
 yarn build
 ```
 
