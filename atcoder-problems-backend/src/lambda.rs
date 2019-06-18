@@ -1,3 +1,5 @@
+pub mod user_info;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

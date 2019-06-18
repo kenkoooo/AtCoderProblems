@@ -1,5 +1,5 @@
-use atcoder_problems_backend::api::lambda::{LambdaInput, LambdaOutput};
 use atcoder_problems_backend::error::MapHandlerError;
+use atcoder_problems_backend::lambda::{LambdaInput, LambdaOutput};
 use atcoder_problems_backend::sql::{SubmissionClient, SubmissionRequest};
 
 use diesel::{Connection, PgConnection};
