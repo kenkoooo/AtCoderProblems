@@ -1,6 +1,6 @@
-use atcoder_problems_backend::api::lambda::{LambdaInput, LambdaOutput};
-use atcoder_problems_backend::api::user_info;
 use atcoder_problems_backend::error::MapHandlerError;
+use atcoder_problems_backend::lambda::user_info;
+use atcoder_problems_backend::lambda::{LambdaInput, LambdaOutput};
 
 use diesel::{Connection, PgConnection};
 use lambda_runtime::{error::HandlerError, lambda, Context};
