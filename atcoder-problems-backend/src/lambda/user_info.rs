@@ -1,9 +1,13 @@
+use super::{LambdaInput, LambdaOutput};
+use crate::error::MapHandlerError;
 use crate::sql::{AcceptedCountClient, RatedPointSumClient};
 
-use diesel::QueryResult;
+use diesel::{Connection, ConnectionResult, PgConnection, QueryResult};
+use lambda_runtime::{error::HandlerError, Context, Handler};
+use log::info;
 use serde::Serialize;
 
-pub fn get_user_info<'a, C>(conn: &C, user_id: &'a str) -> QueryResult<UserInfo<'a>>
+fn get_user_info<'a, C>(conn: &C, user_id: &'a str) -> QueryResult<UserInfo<'a>>
 where
     C: AcceptedCountClient + RatedPointSumClient,
 {
@@ -21,10 +25,38 @@ where
 }
 
 #[derive(Serialize)]
-pub struct UserInfo<'a> {
+struct UserInfo<'a> {
     user_id: &'a str,
     accepted_count: i32,
     accepted_count_rank: i64,
     rated_point_sum: f64,
     rated_point_sum_rank: i64,
+}
+
+pub struct UserInfoHandler<C> {
+    connection: C,
+}
+
+impl UserInfoHandler<PgConnection> {
+    pub fn new(url: &str) -> ConnectionResult<Self> {
+        let connection = PgConnection::establish(&url)?;
+        Ok(Self { connection })
+    }
+}
+
+impl<C> Handler<LambdaInput, LambdaOutput, HandlerError> for UserInfoHandler<C>
+where
+    C: AcceptedCountClient + RatedPointSumClient,
+{
+    fn run(&mut self, e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
+        let user_id = e
+            .param("user")
+            .ok_or_else(|| HandlerError::from("There is no user."))?;
+
+        info!("UserInfo API");
+        let user_info = get_user_info(&self.connection, user_id).map_handler_error()?;
+
+        let body = serde_json::to_string(&user_info)?;
+        Ok(LambdaOutput::new200(body, None))
+    }
 }
