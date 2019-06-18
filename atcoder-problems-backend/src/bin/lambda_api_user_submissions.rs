@@ -11,7 +11,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Info)?;
     openssl_probe::init_ssl_cert_env_vars();
     let url = env::var("SQL_URL")?;
-    let handler = UserSubmissionsHandler::new(&url)?;
-    lambda_runtime::start(handler, None);
+    lambda_runtime::start(UserSubmissionsHandler::new(&url)?, None);
     Ok(())
 }
