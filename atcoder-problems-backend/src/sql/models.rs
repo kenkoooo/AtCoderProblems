@@ -15,7 +15,7 @@ pub struct Contest {
 
 impl Contest {
     pub fn is_rated(&self) -> bool {
-        self.start_epoch_second >= FIRST_AGC_EPOCH_SECOND && &self.rate_change != UNRATED_STATE
+        self.start_epoch_second >= FIRST_AGC_EPOCH_SECOND && self.rate_change != UNRATED_STATE
     }
 }
 
