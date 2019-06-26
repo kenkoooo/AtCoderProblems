@@ -1,5 +1,5 @@
 use crate::sql::models::Submission;
-use crate::sql::schema::{fastest, first, shortest, submissions};
+use crate::sql::schema::{contests, fastest, first, shortest, submissions};
 use diesel;
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
@@ -59,30 +59,51 @@ pub trait ProblemsSubmissionUpdater {
 
 impl ProblemsSubmissionUpdater for PgConnection {
     fn update_submissions_of_problems(&self, ac_submissions: &[Submission]) -> QueryResult<usize> {
-        info!("Updating shortest submissions...");
-        update_shortest_submissions(self, ac_submissions)?;
+        let contests: BTreeMap<String, i64> = contests::table
+            .select((contests::id, contests::start_epoch_second))
+            .load::<(String, i64)>(self)?
+            .into_iter()
+            .collect::<BTreeMap<_, _>>();
+
+        let f = |s: &&Submission| {
+            contests
+                .get(&s.contest_id)
+                .filter(|&&start| start < s.epoch_second)
+                .is_some()
+        };
 
         info!("Updating first submissions...");
-        update_first_submissions(self, ac_submissions)?;
+        update_first_submissions(self, ac_submissions, f)?;
+
+        info!("Updating shortest submissions...");
+        update_shortest_submissions(self, ac_submissions, f)?;
 
         info!("Updating fastest submissions...");
-        update_fastest_submissions(self, ac_submissions)
+        update_fastest_submissions(self, ac_submissions, f)
     }
 }
 
-fn update_first_submissions(
+fn update_first_submissions<F>(
     conn: &PgConnection,
     ac_submissions: &[Submission],
-) -> QueryResult<usize> {
+    f: F,
+) -> QueryResult<usize>
+where
+    F: Fn(&&Submission) -> bool,
+{
     let records = load_records!(first, conn, id: i64)?;
-    let values = update_aggregation(&records, ac_submissions.iter(), |s| s.id);
+    let values = update_aggregation(&records, ac_submissions.iter().filter(f), |s| s.id);
     upsert_values!(first, values, conn)
 }
 
-fn update_fastest_submissions(
+fn update_fastest_submissions<F>(
     conn: &PgConnection,
     ac_submissions: &[Submission],
-) -> QueryResult<usize> {
+    f: F,
+) -> QueryResult<usize>
+where
+    F: Fn(&&Submission) -> bool,
+{
     type Opi32 = Option<i32>;
     let records = load_records!(fastest, conn, execution_time: Opi32)?
         .into_iter()
@@ -92,18 +113,25 @@ fn update_fastest_submissions(
         .collect::<Vec<_>>();
     let values = update_aggregation(
         &records,
-        ac_submissions.iter().filter(|s| s.execution_time.is_some()),
+        ac_submissions
+            .iter()
+            .filter(|s| s.execution_time.is_some())
+            .filter(f),
         |s| s.execution_time.unwrap(),
     );
     upsert_values!(fastest, values, conn)
 }
 
-fn update_shortest_submissions(
+fn update_shortest_submissions<F>(
     conn: &PgConnection,
     ac_submissions: &[Submission],
-) -> QueryResult<usize> {
+    f: F,
+) -> QueryResult<usize>
+where
+    F: Fn(&&Submission) -> bool,
+{
     let records = load_records!(shortest, conn, length: i32)?;
-    let values = update_aggregation(&records, ac_submissions.iter(), |s| s.length);
+    let values = update_aggregation(&records, ac_submissions.iter().filter(f), |s| s.length);
     upsert_values!(shortest, values, conn)
 }
 
