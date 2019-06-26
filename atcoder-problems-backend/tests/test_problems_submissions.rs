@@ -44,10 +44,24 @@ fn insert_submissions(conn: &PgConnection, submissions: &[Submission]) {
 
 #[test]
 fn test_problem_info_aggregator() {
+    use diesel::connection::SimpleConnection;
+
+    fn setup_contests() -> PgConnection {
+        let conn = utils::connect_to_test_sql();
+        conn.batch_execute(
+            r#"
+                INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change) VALUES
+                ('contest1', 0, 0, '', ''), ('contest2', 0, 0, '', '');
+            "#,
+        )
+        .unwrap();
+        conn
+    }
     let submissions1 = vec![Submission {
         id: 1,
         problem_id: "problem1".to_owned(),
         contest_id: "contest1".to_owned(),
+        epoch_second: 10,
         length: 20,
         execution_time: Some(10),
         ..Default::default()
@@ -56,13 +70,14 @@ fn test_problem_info_aggregator() {
         id: 2,
         problem_id: "problem1".to_owned(),
         contest_id: "contest2".to_owned(),
+        epoch_second: 10,
         length: 10,
         execution_time: Some(10),
         ..Default::default()
     }];
 
     {
-        let conn = utils::connect_to_test_sql();
+        let conn = setup_contests();
 
         conn.update_submissions_of_problems(&submissions1).unwrap();
         insert_submissions(&conn, &submissions1);
@@ -81,7 +96,7 @@ fn test_problem_info_aggregator() {
         assert_eq!(first[0].2, submissions1[0].id);
     }
     {
-        let conn = utils::connect_to_test_sql();
+        let conn = setup_contests();
 
         conn.update_submissions_of_problems(&submissions2).unwrap();
         insert_submissions(&conn, &submissions2);
@@ -101,7 +116,7 @@ fn test_problem_info_aggregator() {
     }
 
     {
-        let conn = utils::connect_to_test_sql();
+        let conn = setup_contests();
         conn.update_submissions_of_problems(&submissions1).unwrap();
         insert_submissions(&conn, &submissions1);
         let shortest = get_shortest(&conn);
@@ -120,7 +135,7 @@ fn test_problem_info_aggregator() {
     }
 
     {
-        let conn = utils::connect_to_test_sql();
+        let conn = setup_contests();
 
         conn.update_submissions_of_problems(&submissions2).unwrap();
         insert_submissions(&conn, &submissions2);
