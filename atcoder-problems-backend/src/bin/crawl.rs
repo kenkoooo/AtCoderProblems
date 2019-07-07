@@ -1,3 +1,5 @@
+extern crate openssl;
+
 use atcoder_problems_backend::{crawler, scraper};
 use diesel::pg::PgConnection;
 use diesel::Connection;
