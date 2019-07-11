@@ -83,9 +83,13 @@ export const fetchProblemPerformances = () =>
     }[]
   >(STATIC_API_BASE_URL + "/problem-performances.json");
 export const fetchUserInfo = (user: string) =>
-  fetchJson<UserInfo>(`${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`);
+  user.length > 0 ?
+    fetchJson<UserInfo|undefined>(`${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`) :
+    Promise.resolve(undefined);
 export const fetchSubmissions = (user: string) =>
-  fetchJson<Submission[]>(`${DYNAMIC_API_BASE_URL}/results?user=${user}`);
+  user.length > 0 ?
+    fetchJson<Submission[]>(`${DYNAMIC_API_BASE_URL}/results?user=${user}`) :
+    Promise.resolve([]);
 
 async function fetchJson<T>(url: string): Promise<T> {
   const r = await fetch(url);
