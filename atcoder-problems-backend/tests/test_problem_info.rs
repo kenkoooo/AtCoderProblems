@@ -2,7 +2,6 @@ use atcoder_problems_backend::sql::models::{Contest, Submission};
 use atcoder_problems_backend::sql::schema::{points, solver};
 use atcoder_problems_backend::sql::{ProblemInfoUpdater, SimpleClient, SubmissionClient};
 
-use diesel::dsl::*;
 use diesel::prelude::*;
 use diesel::PgConnection;
 
