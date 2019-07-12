@@ -33,7 +33,7 @@ interface State {
 
   problems: MergedProblem[];
   submissions: Submission[];
-  user_info: UserInfo;
+  user_info?: UserInfo;
   contests: Contest[];
 
   problem_performances: { problem_id: string; minimum_performance: number }[];
@@ -56,13 +56,6 @@ class UserPage extends React.Component<Props, State> {
 
       problems: [],
       submissions: [],
-      user_info: {
-        accepted_count: 1e9 + 7,
-        accepted_count_rank: 1e9 + 7,
-        rated_point_sum: 1e9 + 7,
-        rated_point_sum_rank: 1e9 + 7,
-        user_id: ""
-      },
       contests: [],
 
       problem_performances: [],
@@ -166,7 +159,7 @@ class UserPage extends React.Component<Props, State> {
       problem_performances,
       contests
     } = this.state;
-    if (user_id.length == 0 || submissions.length == 0) {
+    if (user_id.length == 0 || submissions.length == 0 || !user_info) {
       return null;
     }
 
