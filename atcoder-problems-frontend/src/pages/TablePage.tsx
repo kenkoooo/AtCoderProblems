@@ -1,7 +1,7 @@
 import React from "react";
-import { Row, Table } from "reactstrap";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { isAccepted } from "../utils";
+import {FormGroup, Input, Label, Row, Table} from "reactstrap";
+import {BootstrapTable, TableHeaderColumn} from "react-bootstrap-table";
+import {isAccepted} from "../utils";
 
 import * as Api from "../utils/Api";
 import * as Url from "../utils/Url";
@@ -29,6 +29,7 @@ const get_table_class = (status: Status) => {
 };
 
 type ContestWithProblemIds = { contest: Contest; problemIds: string[] };
+type ContestWithProblems = { id: string; problems: ProblemWithStatus[] };
 
 interface ProblemWithStatus extends Problem {
   status: Status;
@@ -41,6 +42,7 @@ interface Props {
 interface State {
   contests: ContestWithProblemIds[];
   problems: Map<string, ProblemWithStatus>;
+  showSolved: boolean;
 }
 
 class TablePage extends React.Component<Props, State> {
@@ -48,7 +50,8 @@ class TablePage extends React.Component<Props, State> {
     super(props);
     this.state = {
       contests: [],
-      problems: new Map()
+      problems: new Map(),
+      showSolved: true,
     };
   }
 
@@ -69,7 +72,7 @@ class TablePage extends React.Component<Props, State> {
       }, new Map<string, string[]>());
 
       const problemsMap = problems
-        .map(p => ({ status: Status.Nothing, ...p }))
+        .map(p => ({status: Status.Nothing, ...p}))
         .reduce(
           (map, p) => map.set(p.id, p),
           new Map<string, ProblemWithStatus>()
@@ -78,14 +81,14 @@ class TablePage extends React.Component<Props, State> {
       const contestsWithProblemIds = contests.map(contest => {
         const problemIds = graph.get(contest.id);
         if (problemIds) {
-          return { contest, problemIds };
+          return {contest, problemIds};
         } else {
-          return { contest, problemIds: [] };
+          return {contest, problemIds: []};
         }
       });
 
       this.setState(
-        { contests: contestsWithProblemIds, problems: problemsMap },
+        {contests: contestsWithProblemIds, problems: problemsMap},
         () => {
           this.updateState(this.props.user_ids);
         }
@@ -112,15 +115,15 @@ class TablePage extends React.Component<Props, State> {
               s.user_id === user ||
               (rivals.includes(s.user_id) && isAccepted(s.result))
           )
-          .map(({ problem_id, user_id, result }) => {
+          .map(({problem_id, user_id, result}) => {
             if (user_id === user) {
               if (isAccepted(result)) {
-                return { problem_id, status: Status.Solved };
+                return {problem_id, status: Status.Solved};
               } else {
-                return { problem_id, status: Status.Trying };
+                return {problem_id, status: Status.Trying};
               }
             } else {
-              return { problem_id, status: Status.RivalSolved };
+              return {problem_id, status: Status.RivalSolved};
             }
           })
           .sort((a, b) => a.status - b.status)
@@ -144,14 +147,14 @@ class TablePage extends React.Component<Props, State> {
             (map, p) => map.set(p.id, p),
             new Map<string, ProblemWithStatus>()
           );
-        this.setState({ problems });
+        this.setState({problems});
       });
   }
 
   render() {
-    const { problems, contests } = this.state;
+    const {problems, contests, showSolved} = this.state;
     const contestsWithProblems = contests
-      .map(({ contest, problemIds }) => {
+      .map(({contest, problemIds}) => {
         const problemList: ProblemWithStatus[] = [];
         problemIds
           .map(id => problems.get(id))
@@ -164,38 +167,49 @@ class TablePage extends React.Component<Props, State> {
           problems: problemList.sort((a, b) => a.title.localeCompare(b.title)),
           ...contest
         };
+      }).filter(c => {
+        const solvedAll = c.problems.every(p => p.status === Status.Solved);
+        return showSolved || !solvedAll;
       })
       .sort((a, b) => b.start_epoch_second - a.start_epoch_second);
 
-    const abc = contestsWithProblems.filter(({ id }) => id.match(/^abc\d{3}$/));
-    const arc = contestsWithProblems.filter(({ id }) => id.match(/^arc\d{3}$/));
-    const agc = contestsWithProblems.filter(({ id }) => id.match(/^agc\d{3}$/));
-    const others = contestsWithProblems.filter(({ id }) =>
+    const abc = contestsWithProblems.filter(({id}) => id.match(/^abc\d{3}$/));
+    const arc = contestsWithProblems.filter(({id}) => id.match(/^arc\d{3}$/));
+    const agc = contestsWithProblems.filter(({id}) => id.match(/^agc\d{3}$/));
+    const others = contestsWithProblems.filter(({id}) =>
       id.match(/^(?!a[rgb]c\d{3}).*$/)
     );
 
     return (
       <div>
-        <AtCoderRegularTable contests={abc} title="AtCoder Beginner Contest" />
-        <AtCoderRegularTable contests={arc} title="AtCoder Regular Contest" />
-        <AtCoderRegularTable contests={agc} title="AtCoder Grand Contest" />
+        <Row className="my-4">
+          <FormGroup check>
+            <Label check>
+              <Input type="checkbox" checked={showSolved} onChange={() => this.setState({showSolved: !showSolved})}/>
+              Show Accepted
+            </Label>
+          </FormGroup>
+        </Row>
+        <AtCoderRegularTable contests={abc} title="AtCoder Beginner Contest"/>
+        <AtCoderRegularTable contests={arc} title="AtCoder Regular Contest"/>
+        <AtCoderRegularTable contests={agc} title="AtCoder Grand Contest"/>
 
         <Row className="my-4">
           <h2>Other Contests</h2>
         </Row>
-        <ContestTable contests={others} />
+        <ContestTable contests={others}/>
       </div>
     );
   }
 }
 
 const ContestTable = ({
-  contests
-}: {
+                        contests
+                      }: {
   contests: { id: string; title: string; problems: ProblemWithStatus[] }[];
 }) => (
   <div>
-    {contests.map(({ id, title, problems }) => (
+    {contests.map(({id, title, problems}) => (
       <div key={id}>
         <strong>
           <a target="_blank" href={Url.formatContestUrl(id)}>
@@ -204,20 +218,20 @@ const ContestTable = ({
         </strong>
         <Table striped bordered hover responsive>
           <tbody>
-            <tr>
-              {problems
-                .sort((a, b) => a.title.localeCompare(b.title))
-                .map(p => (
-                  <td key={p.id} className={get_table_class(p.status)}>
-                    <a
-                      target="_blank"
-                      href={Url.formatProblemUrl(p.id, p.contest_id)}
-                    >
-                      {p.title}
-                    </a>
-                  </td>
-                ))}
-            </tr>
+          <tr>
+            {problems
+              .sort((a, b) => a.title.localeCompare(b.title))
+              .map(p => (
+                <td key={p.id} className={get_table_class(p.status)}>
+                  <a
+                    target="_blank"
+                    href={Url.formatProblemUrl(p.id, p.contest_id)}
+                  >
+                    {p.title}
+                  </a>
+                </td>
+              ))}
+          </tr>
           </tbody>
         </Table>
       </div>
@@ -226,10 +240,10 @@ const ContestTable = ({
 );
 
 const AtCoderRegularTable = ({
-  contests,
-  title
-}: {
-  contests: { id: string; problems: ProblemWithStatus[] }[];
+                               contests,
+                               title
+                             }: {
+  contests: ContestWithProblems[];
   title: string;
 }) => {
   const max_problem_count = contests
@@ -247,9 +261,19 @@ const AtCoderRegularTable = ({
         <TableHeaderColumn
           isKey
           dataField="id"
+          columnClassName={(
+            _: any,
+            {problems}: ContestWithProblems
+          ) => {
+            if (problems.every(p => p.status === Status.Solved)) {
+              return get_table_class(Status.Solved);
+            } else {
+              return "";
+            }
+          }}
           dataFormat={(
             _: any,
-            row: { id: string; problems: ProblemWithStatus[] }
+            row: ContestWithProblems
           ) => (
             <a href={Url.formatContestUrl(row.id)} target="_blank">
               {row.id.toUpperCase()}
@@ -264,7 +288,7 @@ const AtCoderRegularTable = ({
             key={c}
             columnClassName={(
               _: any,
-              { problems }: { problems: ProblemWithStatus[] }
+              {problems}: ContestWithProblems
             ) => {
               const problem = problems[i];
               if (problem) {
@@ -275,7 +299,7 @@ const AtCoderRegularTable = ({
             }}
             dataFormat={(
               _: any,
-              { id, problems }: { id: string; problems: ProblemWithStatus[] }
+              {id, problems}: ContestWithProblems
             ) => {
               const problem = problems[i];
               if (problem) {
@@ -288,7 +312,7 @@ const AtCoderRegularTable = ({
                   </a>
                 );
               } else {
-                return "-";
+                return "";
               }
             }}
           >
