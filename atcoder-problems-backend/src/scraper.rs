@@ -4,15 +4,19 @@ mod submission;
 
 use crate::sql::models::{Contest, Performance, Problem, Submission};
 
+use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_ENCODING};
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
 const ATCODER_HOST: &str = "https://atcoder.jp";
 
 fn get_html(url: &str) -> reqwest::Result<String> {
+    let mut headers = HeaderMap::new();
+    headers.insert(ACCEPT, HeaderValue::from_static("text/html"));
+    headers.insert(ACCEPT_ENCODING, HeaderValue::from_static("gzip"));
     reqwest::Client::new()
         .get(url)
-        .header(reqwest::header::ACCEPT, "text/html")
+        .headers(headers)
         .send()?
         .text()
 }
