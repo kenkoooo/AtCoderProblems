@@ -2,8 +2,10 @@ import React from "react";
 import { NavLink as RouterLink } from "react-router-dom";
 import { withRouter, RouteComponentProps } from "react-router";
 import {
+  Collapse,
   Navbar,
   NavbarBrand,
+  NavbarToggler,
   Nav,
   UncontrolledDropdown,
   DropdownToggle,
@@ -23,6 +25,7 @@ enum PageKind {
 }
 
 interface State {
+  isOpen: boolean;
   user_id: string;
   rival_id: string;
   kind: PageKind;
@@ -34,11 +37,19 @@ class PrimitiveNavigationBar extends React.Component<
   > {
   constructor(props: any) {
     super(props);
+    this.toggle = this.toggle.bind(this);
     this.state = {
+      isOpen: false,
       user_id: "",
       rival_id: "",
       kind: PageKind.TABLE
     };
+  }
+  
+  toggle() {
+    this.setState({
+      isOpen: !this.state.isOpen
+    });
   }
 
   submit(nextKind: PageKind) {
@@ -111,141 +122,144 @@ class PrimitiveNavigationBar extends React.Component<
         .join("/");
     }
     return (
-      <Navbar color="light" light expand="md" fixed="top">
+      <Navbar color="light" light expand="lg" fixed="top">
         <NavbarBrand tag={RouterLink} to={root_url}>
           AtCoder Problems
         </NavbarBrand>
-        <Nav className="ml-auto" navbar>
-          <Form inline>
-            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-              <Input
-                style={{ width: "150px" }}
-                onKeyPress={e => {
-                  if (e.key == "Enter") {
-                    this.submit(this.state.kind);
-                  }
+        <NavbarToggler onClick={this.toggle} />
+        <Collapse isOpen={this.state.isOpen} navbar>
+          <Nav className="ml-auto" navbar>
+            <Form inline>
+              <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                <Input
+                  style={{ width: "150px" }}
+                  onKeyPress={e => {
+                    if (e.key == "Enter") {
+                      this.submit(this.state.kind);
+                    }
+                  }}
+                  value={this.state.user_id}
+                  type="text"
+                  name="user_id"
+                  id="user_id"
+                  placeholder="User ID"
+                  onChange={e => this.setState({ user_id: e.target.value })}
+                />
+              </FormGroup>
+              <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                <Input
+                  style={{ width: "150px" }}
+                  onKeyPress={e => {
+                    if (e.key == "Enter") {
+                      this.submit(this.state.kind);
+                    }
+                  }}
+                  value={this.state.rival_id}
+                  type="text"
+                  name="rival_id"
+                  id="rival_id"
+                  placeholder="Rival ID, ..."
+                  onChange={e => this.setState({ rival_id: e.target.value })}
+                />
+              </FormGroup>
+              <Button
+                className="mb-2 mr-sm-2 mb-sm-0"
+                onClick={() => {
+                  this.submit(PageKind.TABLE);
                 }}
-                value={this.state.user_id}
-                type="text"
-                name="user_id"
-                id="user_id"
-                placeholder="User ID"
-                onChange={e => this.setState({ user_id: e.target.value })}
-              />
-            </FormGroup>
-            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-              <Input
-                style={{ width: "150px" }}
-                onKeyPress={e => {
-                  if (e.key == "Enter") {
-                    this.submit(this.state.kind);
-                  }
+              >
+                Table
+              </Button>
+              <Button
+                className="mb-2 mr-sm-2 mb-sm-0"
+                onClick={() => {
+                  this.submit(PageKind.LIST);
                 }}
-                value={this.state.rival_id}
-                type="text"
-                name="rival_id"
-                id="rival_id"
-                placeholder="Rival ID, ..."
-                onChange={e => this.setState({ rival_id: e.target.value })}
-              />
-            </FormGroup>
-            <Button
-              className="mb-2 mr-sm-2 mb-sm-0"
-              onClick={() => {
-                this.submit(PageKind.TABLE);
-              }}
-            >
-              Table
-            </Button>
-            <Button
-              className="mb-2 mr-sm-2 mb-sm-0"
-              onClick={() => {
-                this.submit(PageKind.LIST);
-              }}
-            >
-              List
-            </Button>
-            <Button
-              className="mb-2 mr-sm-2 mb-sm-0"
-              disabled={this.state.user_id.length === 0}
-              onClick={() => {
-                this.submit(PageKind.USER);
-              }}
-            >
-              User Page
-            </Button>
-          </Form>
-        </Nav>
-        <Nav className="ml-auto" navbar>
-          <UncontrolledDropdown nav inNavbar>
-            <DropdownToggle nav caret>
-              Rankings
-            </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem tag={RouterLink} to="/ac">
-                AC Count
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/fast">
-                Fastest Submissions
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/short">
-                Shortest Submissions
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/first">
-                First AC
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/sum">
-                Rated Point Ranking
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/lang">
-                Language Owners
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
+              >
+                List
+              </Button>
+              <Button
+                className="mb-2 mr-sm-2 mb-sm-0"
+                disabled={this.state.user_id.length === 0}
+                onClick={() => {
+                  this.submit(PageKind.USER);
+                }}
+              >
+                User Page
+              </Button>
+            </Form>
+          </Nav>
+          <Nav className="ml-auto" navbar>
+            <UncontrolledDropdown nav inNavbar>
+              <DropdownToggle nav caret>
+                Rankings
+              </DropdownToggle>
+              <DropdownMenu right>
+                <DropdownItem tag={RouterLink} to="/ac">
+                  AC Count
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/fast">
+                  Fastest Submissions
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/short">
+                  Shortest Submissions
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/first">
+                  First AC
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/sum">
+                  Rated Point Ranking
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/lang">
+                  Language Owners
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
 
-          <UncontrolledDropdown nav inNavbar>
-            <DropdownToggle nav caret>
-              Other
-            </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem tag={RouterLink} to="/monitor">
-                Monitoring
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
+            <UncontrolledDropdown nav inNavbar>
+              <DropdownToggle nav caret>
+                Other
+              </DropdownToggle>
+              <DropdownMenu right>
+                <DropdownItem tag={RouterLink} to="/monitor">
+                  Monitoring
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
 
-          <UncontrolledDropdown nav inNavbar>
-            <DropdownToggle nav caret>
-              Links
-            </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem tag="a" href="https://atcoder.jp/" target="_blank">
-                AtCoder
-              </DropdownItem>
-              <DropdownItem
-                tag="a"
-                href="http://aoj-icpc.ichyo.jp/"
-                target="_blank"
-              >
-                AOJ-ICPC
-              </DropdownItem>
-              <DropdownItem
-                tag="a"
-                href="https://github.com/kenkoooo/AtCoderProblems"
-                target="_blank"
-              >
-                GitHub
-              </DropdownItem>
-              <DropdownItem
-                tag="a"
-                href="https://twitter.com/kenkoooo"
-                target="_blank"
-              >
-                @kenkoooo
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
-        </Nav>{" "}
+            <UncontrolledDropdown nav inNavbar>
+              <DropdownToggle nav caret>
+                Links
+              </DropdownToggle>
+              <DropdownMenu right>
+                <DropdownItem tag="a" href="https://atcoder.jp/" target="_blank">
+                  AtCoder
+                </DropdownItem>
+                <DropdownItem
+                  tag="a"
+                  href="http://aoj-icpc.ichyo.jp/"
+                  target="_blank"
+                >
+                  AOJ-ICPC
+                </DropdownItem>
+                <DropdownItem
+                  tag="a"
+                  href="https://github.com/kenkoooo/AtCoderProblems"
+                  target="_blank"
+                >
+                  GitHub
+                </DropdownItem>
+                <DropdownItem
+                  tag="a"
+                  href="https://twitter.com/kenkoooo"
+                  target="_blank"
+                >
+                  @kenkoooo
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </Nav>{" "}
+        </Collapse>
       </Navbar>
     );
   }
