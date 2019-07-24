@@ -111,7 +111,7 @@ class PrimitiveNavigationBar extends React.Component<
         .join("/");
     }
     return (
-      <Navbar color="light" light expand="md">
+      <Navbar color="light" light expand="md" fixed="top">
         <NavbarBrand tag={RouterLink} to={root_url}>
           AtCoder Problems
         </NavbarBrand>
