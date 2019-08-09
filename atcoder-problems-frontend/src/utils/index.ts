@@ -1,5 +1,15 @@
-export const ATCODER_USER_REGEXP = /^[0-9a-zA-Z_]+$/;
-export const ATCODER_RIVALS_REGEXP = /^[a-zA-Z0-9_,]+$/;
+const userIdRegex = /[0-9a-zA-Z_]+/;
+export const ATCODER_USER_REGEXP = new RegExp(`^${userIdRegex.source}$`);
+export const ATCODER_RIVALS_REGEXP = new RegExp(
+  `^\\s*(${userIdRegex.source})\\s*(,\\s*(${userIdRegex.source})\\s*)*$`
+);
+
+export const extractRivalsParam = (rivalsParam: string) : string[] => {
+  return rivalsParam.split(",")
+    .map(rival => rival.trim())
+    .filter(rival => rival.length > 0);
+};
+
 export const isAccepted = (result: string) => result === "AC";
 export const ordinalSuffixOf = (i: number) => {
   const j = i % 10;
