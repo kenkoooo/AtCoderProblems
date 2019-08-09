@@ -19,7 +19,11 @@ import TablePage from "./pages/TablePage";
 import Monitor from './pages/Monitor';
 
 import NavigationBar from "./components/NavigationBar";
-import { ATCODER_USER_REGEXP, ATCODER_RIVALS_REGEXP } from "./utils";
+import {
+  ATCODER_USER_REGEXP,
+  ATCODER_RIVALS_REGEXP,
+  extractRivalsParam
+} from "./utils";
 type MatchUserId = { match: { params: { user_id?: string } } };
 const extractUserId = ({
   match: {
@@ -83,7 +87,7 @@ class App extends Component {
                   const rivals =
                     rivals_param != null &&
                       rivals_param.match(ATCODER_RIVALS_REGEXP)
-                      ? rivals_param.split(",")
+                      ? extractRivalsParam(rivals_param)
                       : [];
                   const kind =
                     kind_param === "list"
