@@ -1,4 +1,8 @@
-import {ATCODER_RIVALS_REGEXP, ATCODER_USER_REGEXP} from "./index";
+import {
+  ATCODER_RIVALS_REGEXP,
+  ATCODER_USER_REGEXP,
+  extractRivalsParam
+} from "./index";
 
 describe ("user regex", () => {
   it ("should match", () => {
@@ -26,4 +30,9 @@ describe ("rival regex", () => {
   it ("user names including invalid char should not match", () => {
     expect("user^, user|".match(ATCODER_RIVALS_REGEXP)).toBeFalsy();
   });
+});
+
+it ("extract rival params", () => {
+  expect(extractRivalsParam(" user1 , USER2, user_3 "))
+    .toMatchObject(["user1", "USER2", "user_3"]);
 });

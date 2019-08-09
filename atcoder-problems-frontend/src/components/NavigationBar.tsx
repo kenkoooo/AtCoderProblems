@@ -16,7 +16,11 @@ import {
   Button,
   FormGroup
 } from "reactstrap";
-import { ATCODER_USER_REGEXP, ATCODER_RIVALS_REGEXP } from "../utils";
+import {
+  ATCODER_USER_REGEXP,
+  ATCODER_RIVALS_REGEXP,
+  extractRivalsParam
+} from "../utils";
 
 enum PageKind {
   TABLE = "table",
@@ -63,10 +67,8 @@ class PrimitiveNavigationBar extends React.Component<
       users.push("");
     }
     if (rival_id.match(ATCODER_RIVALS_REGEXP)) {
-      rival_id
-        .split(",")
-        .filter(user => user.length > 0)
-        .forEach(user => users.push(user));
+      const rivals = extractRivalsParam(rival_id);
+      users.push(...rivals);
     }
 
     const current_pathname = this.props.location.pathname;

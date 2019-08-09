@@ -3,6 +3,13 @@ export const ATCODER_USER_REGEXP = new RegExp(`^${userIdRegex.source}$`);
 export const ATCODER_RIVALS_REGEXP = new RegExp(
   `^\\s*(${userIdRegex.source})\\s*(,\\s*(${userIdRegex.source})\\s*)*$`
 );
+
+export const extractRivalsParam = (rivalsParam: string) : string[] => {
+  return rivalsParam.split(",")
+    .map(rival => rival.trim())
+    .filter(rival => rival.length > 0);
+};
+
 export const isAccepted = (result: string) => result === "AC";
 export const ordinalSuffixOf = (i: number) => {
   const j = i % 10;
