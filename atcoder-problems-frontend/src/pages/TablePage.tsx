@@ -202,6 +202,11 @@ const AtCoderRegularTable = (props: {
       .get(contest.id, List<Problem>())
       .every(problem => props.getColor(problem) === "success");
   };
+  const ithProblem = (contest: Contest, i: number) =>
+    contestToProblems
+      .get(contest.id, List<Problem>())
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .get(i);
   const contests = props.contests
     .valueSeq()
     .filter(contest => !showSolved || !solvedAll(contest))
@@ -243,17 +248,11 @@ const AtCoderRegularTable = (props: {
             dataField={c}
             key={c}
             columnClassName={(_: any, contest: Contest) => {
-              const problems = contestToProblems
-                .get(contest.id, List<Problem>())
-                .sort((a, b) => a.title.localeCompare(b.title));
-              const problem = problems.get(i);
+              const problem = ithProblem(contest, i);
               return problem ? props.getColor(problem) : "";
             }}
             dataFormat={(_: any, contest: Contest) => {
-              const problems = contestToProblems
-                .get(contest.id, List<Problem>())
-                .sort((a, b) => a.title.localeCompare(b.title));
-              const problem = problems.get(i);
+              const problem = ithProblem(contest, i);
               return problem ? (
                 <a
                   href={Url.formatProblemUrl(problem.id, contest.id)}
