@@ -3,6 +3,7 @@ import Problem from "../interfaces/Problem";
 import MergedProblem from "../interfaces/MergedProblem";
 import UserInfo from "../interfaces/UserInfo";
 import Submission from "../interfaces/Submission";
+import { List } from "immutable";
 
 const BASE_URL = "https://kenkoooo.com/atcoder";
 const STATIC_API_BASE_URL = BASE_URL + "/resources";
@@ -70,9 +71,13 @@ export const fetchContestProblemPairs = () =>
     STATIC_API_BASE_URL + "/contest-problem.json"
   );
 export const fetchContests = () =>
-  fetchJson<Contest[]>(STATIC_API_BASE_URL + "/contests.json");
+  fetchJson<Contest[]>(STATIC_API_BASE_URL + "/contests.json").then(contests =>
+    List(contests)
+  );
 export const fetchProblems = () =>
-  fetchJson<Problem[]>(STATIC_API_BASE_URL + "/problems.json");
+  fetchJson<Problem[]>(STATIC_API_BASE_URL + "/problems.json").then(problems =>
+    List(problems)
+  );
 export const fetchMergedProblems = () =>
   fetchJson<MergedProblem[]>(STATIC_API_BASE_URL + "/merged-problems.json");
 export const fetchProblemPerformances = () =>
@@ -83,13 +88,15 @@ export const fetchProblemPerformances = () =>
     }[]
   >(STATIC_API_BASE_URL + "/problem-performances.json");
 export const fetchUserInfo = (user: string) =>
-  user.length > 0 ?
-    fetchJson<UserInfo|undefined>(`${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`) :
-    Promise.resolve(undefined);
+  user.length > 0
+    ? fetchJson<UserInfo | undefined>(
+        `${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`
+      )
+    : Promise.resolve(undefined);
 export const fetchSubmissions = (user: string) =>
-  user.length > 0 ?
-    fetchJson<Submission[]>(`${DYNAMIC_API_BASE_URL}/results?user=${user}`) :
-    Promise.resolve([]);
+  user.length > 0
+    ? fetchJson<Submission[]>(`${DYNAMIC_API_BASE_URL}/results?user=${user}`)
+    : Promise.resolve([]);
 
 async function fetchJson<T>(url: string): Promise<T> {
   const r = await fetch(url);

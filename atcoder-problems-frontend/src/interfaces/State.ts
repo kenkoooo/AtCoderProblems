@@ -1,16 +1,22 @@
-import { List } from "immutable";
+import { List, Map } from "immutable";
 import Submission from "./Submission";
 import Problem from "./Problem";
 import MergedProblem from "./MergedProblem";
 import UserInfo from "./UserInfo";
 import Contest from "./Contest";
 
+type ContestId = string;
+type ProblemId = string;
+
 export default interface State {
-  readonly userId: string;
-  readonly rivals: List<string>;
-  readonly contests: List<Contest>;
-  readonly problems: List<Problem>;
-  readonly mergedProblems: List<MergedProblem>;
-  readonly submissions: List<Submission>;
+  readonly users: {
+    readonly userId: string;
+    readonly rivals: List<string>;
+  };
+  readonly contests: Map<ContestId, Contest>;
+  readonly problems: Map<ProblemId, Problem>;
+  readonly mergedProblems: Map<ProblemId, MergedProblem>;
+  readonly submissions: Map<ProblemId, List<Submission>>;
+  readonly contestToProblems: Map<ContestId, List<ProblemId>>;
   readonly userInfo: UserInfo | undefined;
 }

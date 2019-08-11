@@ -1,5 +1,10 @@
 import React from "react";
-import { HashRouter as Router, Route, Switch } from "react-router-dom";
+import {
+  HashRouter as Router,
+  Route,
+  Switch,
+  Redirect
+} from "react-router-dom";
 import { Container } from "reactstrap";
 
 import ACRanking from "./pages/ACRanking";
@@ -40,18 +45,14 @@ const App = () => (
               <UserPage user_ids={extractUserId(props)} />
             )}
           />
-          <Route
-            path="/table/:user_id([a-zA-Z0-9_]*)*"
-            component={(props: MatchUserId) => (
-              <TablePage user_ids={extractUserId(props)} />
-            )}
-          />
+          <Route path="/table/:user_id([a-zA-Z0-9_]*)*" component={TablePage} />
           <Route
             path="/list/:user_id([a-zA-Z0-9_]*)*"
             component={(props: MatchUserId) => (
               <ListPage user_ids={extractUserId(props)} />
             )}
           />
+          <Redirect path="/" to="/table/" />
         </Switch>
       </Container>
     </div>
