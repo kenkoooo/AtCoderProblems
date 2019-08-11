@@ -14,14 +14,18 @@
     "@types/reactstrap": "^7.1.3",
     "@types/recharts": "^1.1.14",
     "bootstrap": "^4.3.1",
+    "immutable": "^4.0.0-rc.12",
     "react": "^16.8.3",
     "react-bootstrap-table": "^4.3.1",
     "react-dom": "^16.8.3",
     "react-measure": "^2.2.4",
+    "react-redux": "^7.1.0",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.5",
     "reactstrap": "^7.1.0",
     "recharts": "^1.5.0",
+    "redux": "^4.0.4",
+    "redux-saga": "^1.0.5",
     "typescript": "3.3.3333"
   },
   "scripts": {
@@ -38,5 +42,9 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "@types/react-redux": "^7.1.1",
+    "prettier": "^1.18.2"
+  }
 }
