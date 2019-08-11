@@ -1,7 +1,7 @@
 export default interface Contest {
-  start_epoch_second: number;
-  rate_change: string;
-  id: string;
-  duration_second: number;
-  title: string;
+  readonly start_epoch_second: number;
+  readonly rate_change: string;
+  readonly id: string;
+  readonly duration_second: number;
+  readonly title: string;
 }
