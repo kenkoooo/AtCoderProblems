@@ -4,11 +4,9 @@ import Submission from "./interfaces/Submission";
 
 import Action, {
   CLEAR_SUBMISSIONS,
-  RECEIVE_CONTEST_PROBLEM_PAIR,
-  RECEIVE_CONTESTS,
+  RECEIVE_INITIAL_DATA,
   RECEIVE_MERGED_PROBLEMS,
   RECEIVE_PERF,
-  RECEIVE_PROBLEMS,
   RECEIVE_SUBMISSIONS,
   RECEIVE_USER_INFO,
   UPDATE_USER_IDS
@@ -49,16 +47,39 @@ const mergedProblemReducer = (
   }
 };
 
-const problemReducer = (problems: Map<string, Problem>, action: Action) => {
+const dataReducer = (
+  problems: Map<string, Problem>,
+  contests: Map<string, Contest>,
+  contestToProblems: Map<string, List<string>>,
+  action: Action
+) => {
   switch (action.type) {
-    case RECEIVE_PROBLEMS: {
-      return action.problems.reduce(
+    case RECEIVE_INITIAL_DATA: {
+      const newProblems = action.problems.reduce(
         (map, problem) => map.set(problem.id, problem),
         Map<string, Problem>()
       );
+      const newContests = action.contests.reduce(
+        (map, contest) => map.set(contest.id, contest),
+        Map<string, Contest>()
+      );
+      const newContestToProblems = action.pairs.reduce(
+        (map, { contest_id, problem_id }) =>
+          map.update(contest_id, List<string>(), list => list.push(problem_id)),
+        Map<string, List<string>>()
+      );
+      return {
+        problems: newProblems,
+        contests: newContests,
+        contestToProblems: newContestToProblems
+      };
     }
     default: {
-      return problems;
+      return {
+        problems,
+        contests,
+        contestToProblems
+      };
     }
   }
 };
@@ -101,24 +122,6 @@ const submissionReducer = (
   }
 };
 
-const contestToProblemsReducer = (
-  contestToProblems: Map<string, List<string>>,
-  action: Action
-) => {
-  switch (action.type) {
-    case RECEIVE_CONTEST_PROBLEM_PAIR: {
-      return action.contestProblemPairs.reduce(
-        (map, { contest_id, problem_id }) =>
-          map.update(contest_id, List<string>(), list => list.push(problem_id)),
-        Map<string, List<string>>()
-      );
-    }
-    default: {
-      return contestToProblems;
-    }
-  }
-};
-
 const userInfoReducer = (userInfo: UserInfo | undefined, action: Action) => {
   switch (action.type) {
     case RECEIVE_USER_INFO: {
@@ -147,33 +150,22 @@ const performanceReducer = (
   }
 };
 
-const contestReducer = (contests: Map<string, Contest>, action: Action) => {
-  switch (action.type) {
-    case RECEIVE_CONTESTS: {
-      return action.contests.reduce(
-        (map, contest) => map.set(contest.id, contest),
-        Map<string, Contest>()
-      );
-    }
-    default: {
-      return contests;
-    }
-  }
-};
-
 const rootReducer = (state: State = initialState, action: Action): State => {
+  const { contests, problems, contestToProblems } = dataReducer(
+    state.problems,
+    state.contests,
+    state.contestToProblems,
+    action
+  );
   return {
     submissions: submissionReducer(state.submissions, action),
-    contestToProblems: contestToProblemsReducer(
-      state.contestToProblems,
-      action
-    ),
+    contestToProblems,
     users: usersReducer(state.users, action),
-    problems: problemReducer(state.problems, action),
+    problems,
     mergedProblems: mergedProblemReducer(state.mergedProblems, action),
     userInfo: userInfoReducer(state.userInfo, action),
     problemPerformances: performanceReducer(state.problemPerformances, action),
-    contests: contestReducer(state.contests, action)
+    contests
   };
 };
 

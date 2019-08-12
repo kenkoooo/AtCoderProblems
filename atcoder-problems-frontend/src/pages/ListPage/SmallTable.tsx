@@ -6,7 +6,7 @@ import { List, Map, Set } from "immutable";
 import MergedProblem from "../../interfaces/MergedProblem";
 
 interface Props {
-  mergedProblems: List<MergedProblem>;
+  mergedProblems: Map<string, MergedProblem>;
   submissions: Map<string, List<Submission>>;
   userIds: List<string>;
 }
@@ -19,12 +19,16 @@ const SmallTable = ({ submissions, userIds, mergedProblems }: Props) => {
         list
           .filter(s => s.user_id === userId)
           .filter(s => isAccepted(s.result))
-          .map(s => s.point)
+          .map(s => mergedProblems.get(s.problem_id))
+          .filter(p => p && p.point)
           .first(undefined)
       )
       .valueSeq()
       .reduce(
-        (map, p) => (p ? map.update(p, 0, count => count + 1) : map),
+        (map, problem) =>
+          problem && problem.point
+            ? map.update(problem.point, 0, count => count + 1)
+            : map,
         Map<number, number>()
       )
   }));

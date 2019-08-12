@@ -17,12 +17,7 @@ import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
 import State from "../../interfaces/State";
 import { Dispatch } from "redux";
-import {
-  requestContestProblemPair,
-  requestContests,
-  requestMergedProblems,
-  requestPerf
-} from "../../actions";
+import { requestMergedProblems, requestPerf } from "../../actions";
 import { List, Map } from "immutable";
 import { connect } from "react-redux";
 import {
@@ -42,10 +37,7 @@ interface Props {
   submissions: Map<string, List<Submission>>;
   problemPerformances: Map<string, number>;
 
-  requestMergedProblems: () => void;
-  requestContests: () => void;
-  requestContestProblemPairs: () => void;
-  requestPerf: () => void;
+  requestData: () => void;
 }
 
 const solvedCountForPieChart = (
@@ -143,10 +135,7 @@ const findFromRanking = (
 
 class UserPage extends React.Component<Props> {
   componentDidMount() {
-    this.props.requestContests();
-    this.props.requestMergedProblems();
-    this.props.requestContestProblemPairs();
-    this.props.requestPerf();
+    this.props.requestData();
   }
 
   render() {
@@ -406,10 +395,10 @@ const stateToProps = (state: State) => ({
 });
 
 const dispatchToProps = (dispatch: Dispatch) => ({
-  requestContests: () => dispatch(requestContests()),
-  requestContestProblemPairs: () => dispatch(requestContestProblemPair()),
-  requestMergedProblems: () => dispatch(requestMergedProblems()),
-  requestPerf: () => dispatch(requestPerf())
+  requestData: () => {
+    dispatch(requestMergedProblems());
+    dispatch(requestPerf());
+  }
 });
 
 export default connect(

@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactFragment } from "react";
+import React, { ReactElement } from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import {
   Badge,
@@ -11,7 +11,6 @@ import {
 
 import { isAccepted } from "../../utils";
 import { formatDate } from "../../utils/DateFormat";
-import * as Api from "../../utils/Api";
 import * as Url from "../../utils/Url";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
@@ -22,11 +21,7 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import State from "../../interfaces/State";
 import { Set, List, Map } from "immutable";
-import {
-  requestContests,
-  requestMergedProblems,
-  requestPerf
-} from "../../actions";
+import { requestMergedProblems, requestPerf } from "../../actions";
 
 const INF_POINT = 1e18;
 
@@ -64,6 +59,7 @@ const getProblemStatus = (
 };
 
 interface ProblemRowData {
+  readonly id: string;
   readonly title: string;
   readonly contestDate: string;
   readonly contestTitle: string;
@@ -145,6 +141,7 @@ class ListPage extends React.Component<Props, ListPageState> {
           const fastestUserId = p.fastest_user_id ? p.fastest_user_id : "";
 
           return {
+            id: p.id,
             title: p.title,
             contestDate,
             contestTitle,
@@ -213,7 +210,7 @@ class ListPage extends React.Component<Props, ListPageState> {
       },
       {
         header: "Result",
-        dataField: "title",
+        dataField: "a",
         dataAlign: "center",
         dataFormat: (_: string, row) => {
           const { status } = row;
@@ -400,7 +397,7 @@ class ListPage extends React.Component<Props, ListPageState> {
         </Row>
         <Row>
           <SmallTable
-            mergedProblems={mergedProblems.valueSeq().toList()}
+            mergedProblems={mergedProblems}
             submissions={submissions}
             userIds={rivals.insert(0, userId)}
           />
@@ -618,7 +615,6 @@ const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => {
     dispatch(requestMergedProblems());
     dispatch(requestPerf());
-    dispatch(requestContests());
   }
 });
 
