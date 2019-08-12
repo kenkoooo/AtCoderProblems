@@ -49,38 +49,78 @@ interface Props {
 }
 
 const solvedCountForPieChart = (
-  problemIds: List<string>,
+  contestToProblems: Map<string, List<string>>,
   submissions: Map<string, List<Submission>>,
   userId: string
 ) => {
-  const userCount = problemIds
-    .map(id => submissions.get(id, List<Submission>()))
+  const mapProblemPosition = (contestId: string, problemId: string) => {
+    const contestPrefix = contestId.substring(0, 3);
+    const problemPrefix = problemId.substring(0, 3);
+    const shift = contestPrefix === "abc" && problemPrefix === "arc";
+    switch (problemId.substring(7, 8)) {
+      case "1":
+      case "a": {
+        return shift ? 2 : 0;
+      }
+      case "2":
+      case "b": {
+        return shift ? 3 : 1;
+      }
+      case "3":
+      case "c": {
+        return 2;
+      }
+      case "4":
+      case "d": {
+        return 3;
+      }
+      case "e": {
+        return 4;
+      }
+      case "f": {
+        return 5;
+      }
+      default: {
+        console.error(`Unsupported problemId: ${contestId}/${problemId}`);
+        return 0;
+      }
+    }
+  };
+
+  const userCount = contestToProblems
+    .map(problemIds =>
+      problemIds.filter(
+        problemId =>
+          submissions
+            .get(problemId, List<Submission>())
+            .filter(s => s.user_id === userId)
+            .filter(s => isAccepted(s.result))
+            .count() > 0
+      )
+    )
+    .map((problemIds, contestId) =>
+      problemIds.map(problemId => mapProblemPosition(contestId, problemId))
+    )
+    .valueSeq()
     .flatMap(list => list)
-    .filter(s => s.user_id === userId)
-    .filter(s => isAccepted(s.result))
-    .reduce((set, s) => set.add(s.problem_id), Set<string>())
-    .map(problemId => problemId.substring(7, 8))
     .reduce(
-      (map, fragment) => map.update(fragment, 0, count => count + 1),
-      Map<string, number>()
+      (count, position) => count.update(position, value => value + 1),
+      List.of(0, 0, 0, 0, 0, 0)
     );
-  const totalCount = problemIds
-    .map(id => id.substring(7, 8))
+  const totalCount = contestToProblems
+    .map((problemIds, contestId) =>
+      problemIds.map(problemId => mapProblemPosition(contestId, problemId))
+    )
+    .valueSeq()
+    .flatMap(list => list)
     .reduce(
-      (map, fragment) => map.update(fragment, 0, count => count + 1),
-      Map<string, number>()
+      (count, position) => count.update(position, value => value + 1),
+      List.of(0, 0, 0, 0, 0, 0)
     );
-  return List([
-    ["a", "1"],
-    ["b", "2"],
-    ["c", "3"],
-    ["d", "4"],
-    ["e", "5"],
-    ["f", "6"]
-  ])
-    .map(([label1, label2]) => ({
-      solved: userCount.get(label1, 0) + userCount.get(label2, 0),
-      total: totalCount.get(label1, 0) + totalCount.get(label2, 0)
+  return totalCount
+    .map((total, index) => ({
+      total,
+      solved: userCount.get(index, 0)
     }))
     .filter(x => x.total > 0);
 };
@@ -187,34 +227,24 @@ class UserPage extends React.Component<Props> {
       );
 
     const isIncreasing =
-      formatDate(new Date().getTime() - ONE_DAY_MILLI_SECONDS) ===
-        formatDate(prevMilliSecond) ||
-      formatDate(new Date().getTime()) === formatDate(prevMilliSecond);
+      formatDate((new Date().getTime() - ONE_DAY_MILLI_SECONDS) / 1000) ===
+        formatDate(prevMilliSecond / 1000) ||
+      formatDate(new Date().getTime() / 1000) ===
+        formatDate(prevMilliSecond / 1000);
 
     const abcSolved = solvedCountForPieChart(
-      contestToProblems
-        .filter((value, key) => key.substring(0, 3) === "abc")
-        .valueSeq()
-        .flatMap(list => list)
-        .toList(),
+      contestToProblems.filter((value, key) => key.substring(0, 3) === "abc"),
       submissions,
       userId
     );
     const arcSolved = solvedCountForPieChart(
-      contestToProblems
-        .filter((value, key) => key.substring(0, 3) === "arc")
-        .valueSeq()
-        .flatMap(list => list)
-        .toList(),
+      contestToProblems.filter((value, key) => key.substring(0, 3) === "arc"),
+
       submissions,
       userId
     );
     const agcSolved = solvedCountForPieChart(
-      contestToProblems
-        .filter((value, key) => key.substring(0, 3) === "agc")
-        .valueSeq()
-        .flatMap(list => list)
-        .toList(),
+      contestToProblems.filter((value, key) => key.substring(0, 3) === "agc"),
       submissions,
       userId
     );
@@ -271,7 +301,7 @@ class UserPage extends React.Component<Props> {
             <h6>Current Streak</h6>
             <h3>{isIncreasing ? currentStreak : 0} days</h3>
             <h6 className="text-muted">{`Last AC: ${formatDate(
-              prevMilliSecond
+              prevMilliSecond / 1000
             )}`}</h6>
           </Col>
           <Col />
