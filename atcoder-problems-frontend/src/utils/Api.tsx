@@ -3,7 +3,7 @@ import Problem from "../interfaces/Problem";
 import MergedProblem from "../interfaces/MergedProblem";
 import UserInfo from "../interfaces/UserInfo";
 import Submission from "../interfaces/Submission";
-import { List } from "immutable";
+import { List, Map } from "immutable";
 
 const BASE_URL = "https://kenkoooo.com/atcoder";
 const STATIC_API_BASE_URL = BASE_URL + "/resources";
@@ -19,33 +19,24 @@ interface RankingEntry {
 }
 
 const generateRanking = (
-  problems: MergedProblem[],
+  problems: List<MergedProblem>,
   property: "fastest_user_id" | "shortest_user_id" | "first_user_id"
 ) => {
   const map = problems.reduce((map, problem) => {
     const user_id = problem[property];
-    if (user_id) {
-      const count = map.get(user_id);
-      if (count) {
-        return map.set(user_id, count + 1);
-      } else {
-        return map.set(user_id, 1);
-      }
-    } else {
-      return map;
-    }
-  }, new Map<string, number>());
+    return user_id ? map.set(user_id, map.get(user_id, 0) + 1) : map;
+  }, Map<string, number>());
   return Array.from(map).map(([user_id, problem_count]) => ({
     user_id,
     problem_count
   }));
 };
 
-export const getShortRanking = (problems: MergedProblem[]) =>
+export const getShortRanking = (problems: List<MergedProblem>) =>
   generateRanking(problems, "shortest_user_id");
-export const getFastRanking = (problems: MergedProblem[]) =>
+export const getFastRanking = (problems: List<MergedProblem>) =>
   generateRanking(problems, "fastest_user_id");
-export const getFirstRanking = (problems: MergedProblem[]) =>
+export const getFirstRanking = (problems: List<MergedProblem>) =>
   generateRanking(problems, "first_user_id");
 
 export const fetchACRanking = () => fetchJson<RankingEntry[]>(AC_COUNT_URL);
@@ -79,7 +70,9 @@ export const fetchProblems = () =>
     List(problems)
   );
 export const fetchMergedProblems = () =>
-  fetchJson<MergedProblem[]>(STATIC_API_BASE_URL + "/merged-problems.json");
+  fetchJson<MergedProblem[]>(
+    STATIC_API_BASE_URL + "/merged-problems.json"
+  ).then(problems => List(problems));
 export const fetchProblemPerformances = () =>
   fetchJson<
     {

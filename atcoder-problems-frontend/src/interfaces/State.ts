@@ -19,4 +19,5 @@ export default interface State {
   readonly submissions: Map<ProblemId, List<Submission>>;
   readonly contestToProblems: Map<ContestId, List<ProblemId>>;
   readonly userInfo: UserInfo | undefined;
+  readonly problemPerformances: Map<ProblemId, number>;
 }
