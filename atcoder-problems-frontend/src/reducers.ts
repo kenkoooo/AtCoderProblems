@@ -137,7 +137,7 @@ const performanceReducer = (
   switch (action.type) {
     case RECEIVE_PERF: {
       return action.perf.reduce(
-        (map, p) => map.set(p.problem_id, p.minimum_performances),
+        (map, p) => map.set(p.problem_id, p.minimum_performance),
         Map<string, number>()
       );
     }

@@ -23,7 +23,7 @@ import {
   requestMergedProblems,
   requestPerf
 } from "../../actions";
-import { List, Map, Set } from "immutable";
+import { List, Map } from "immutable";
 import { connect } from "react-redux";
 import {
   getFastRanking,
@@ -352,16 +352,10 @@ class UserPage extends React.Component<Props> {
           <h1>Recommendations</h1>
         </Row>
         <Recommendations
-          submissions={userSubmissions.toArray()}
-          problems={mergedProblems.valueSeq().toArray()}
-          contests={contests.valueSeq().toArray()}
-          performances={problemPerformances
-            .entrySeq()
-            .map(([problem_id, minimum_performance]) => ({
-              problem_id,
-              minimum_performance
-            }))
-            .toArray()}
+          userSubmissions={userSubmissions.toList()}
+          problems={mergedProblems.valueSeq().toList()}
+          performances={problemPerformances}
+          contests={contests}
         />
       </div>
     );
