@@ -2,76 +2,60 @@ import React from "react";
 
 import { isAccepted } from "../../utils";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import Contest from "../../interfaces/Contest";
 import * as Url from "../../utils/Url";
+import Submission from "../../interfaces/Submission";
+import Problem from "../../interfaces/Problem";
+import { List, Map } from "immutable";
+import Contest from "../../interfaces/Contest";
 
 const TOP_PERFORMANCES = 50;
 const RECOMMEND_NUM = 10;
 
-const Recommendations = ({
-  submissions,
-  problems,
-  contests,
-  performances
-}: {
-  submissions: { result: string; problem_id: string; epoch_second: number }[];
-  problems: { id: string; title: string; contest_id: string }[];
-  contests: Contest[];
-  performances: { problem_id: string; minimum_performance: number }[];
-}) => {
-  if (submissions.length == 0) {
+interface Props {
+  readonly userSubmissions: List<Submission>;
+  readonly problems: List<Problem>;
+  readonly contests: Map<string, Contest>;
+  readonly performances: Map<string, number>;
+}
+
+const Recommendations = (props: Props) => {
+  const { userSubmissions, problems, performances, contests } = props;
+  if (userSubmissions.isEmpty()) {
     return null;
   }
-  const performance_map = performances.reduce(
-    (map, { problem_id, minimum_performance }) =>
-      map.set(problem_id, minimum_performance),
-    new Map<string, number>()
-  );
 
-  const contest_map = contests.reduce(
-    (map, contest) => map.set(contest.id, contest),
-    new Map<string, Contest>()
-  );
+  const acProblemIdSet = userSubmissions
+    .filter(s => isAccepted(s.result))
+    .map(s => s.problem_id)
+    .toSet();
 
-  const accepted_problem_ids = submissions
-    .filter(({ result }) => isAccepted(result))
-    .sort((a, b) => b.epoch_second - a.epoch_second)
-    .map(s => s.problem_id);
-  const accepted_problem_id_set = new Set(accepted_problem_ids);
-  const accepted_problem_performances = Array.from(accepted_problem_id_set)
-    .map(id => performance_map.get(id))
-    .filter(p => p !== undefined) as number[];
-  accepted_problem_performances.sort((a, b) => b - a);
-  const top_last_index =
-    Math.min(
-      Math.ceil(accepted_problem_performances.length / 5.0),
-      TOP_PERFORMANCES
-    ) - 1;
-  const predicted_performance = accepted_problem_performances[top_last_index];
+  const acProblemPerf = acProblemIdSet
+    .valueSeq()
+    .map(id => performances.get(id))
+    .filter((perf: number | undefined): perf is number => perf !== undefined)
+    .sort((a, b) => b - a)
+    .toList();
 
-  console.log(accepted_problem_performances);
-  console.log(predicted_performance);
+  const topLastIndex =
+    Math.min(Math.ceil(acProblemPerf.size / 5.0), TOP_PERFORMANCES) - 1;
+  const predictedPerf = acProblemPerf.get(topLastIndex, 0);
 
-  const recommended_problems = problems
-    .filter(({ id }) => !accepted_problem_id_set.has(id))
-    .filter(({ id }) => performance_map.has(id))
+  const recommendedProblems = problems
+    .filter(p => !acProblemIdSet.has(p.id))
+    .filter(p => performances.has(p.id))
+    .map(p => ({ ...p, difficulty: performances.get(p.id, 0) }))
     .sort((a, b) => {
-      const pa = performance_map.get(a.id) as number;
-      const pb = performance_map.get(b.id) as number;
-      const da = Math.abs(pa - predicted_performance);
-      const db = Math.abs(pb - predicted_performance);
+      const da = Math.abs(a.difficulty - predictedPerf);
+      const db = Math.abs(b.difficulty - predictedPerf);
       return da - db;
     })
     .slice(0, RECOMMEND_NUM)
-    .map(p => Object.assign({
-      difficulty: performance_map.get(p.id) as number,
-      contest: contest_map.get(p.contest_id) as Contest
-    }, p))
-    .sort((a, b) => b.difficulty - a.difficulty);
+    .sort((a, b) => b.difficulty - a.difficulty)
+    .toArray();
 
   return (
     <BootstrapTable
-      data={recommended_problems}
+      data={recommendedProblems}
       keyField="id"
       height="auto"
       hover
@@ -91,22 +75,19 @@ const Recommendations = ({
         Problem
       </TableHeaderColumn>
       <TableHeaderColumn
-        dataField="contest"
-        dataFormat={(
-          {id, title}: {id: string, title: string}
-        ) => (
-          <a href={Url.formatContestUrl(id)} target="_blank">
-            {title}
-          </a>
-        )}
+        dataField="contest_id"
+        dataFormat={(contest_id: string, problem: Problem) => {
+          const contest = contests.get(contest_id);
+          return (
+            <a href={Url.formatContestUrl(problem.contest_id)} target="_blank">
+              {contest ? contest.title : contest_id}
+            </a>
+          );
+        }}
       >
         Contest
       </TableHeaderColumn>
-      <TableHeaderColumn
-        dataField="difficulty"
-      >
-        Difficulty
-      </TableHeaderColumn>
+      <TableHeaderColumn dataField="difficulty">Difficulty</TableHeaderColumn>
     </BootstrapTable>
   );
 };

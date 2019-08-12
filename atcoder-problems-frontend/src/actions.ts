@@ -88,7 +88,7 @@ export const requestPerf = () => ({
 });
 
 export const receivePerf = (
-  perf: { problem_id: string; minimum_performances: number }[]
+  perf: { problem_id: string; minimum_performance: number }[]
 ) => ({
   type: RECEIVE_PERF as typeof RECEIVE_PERF,
   perf
