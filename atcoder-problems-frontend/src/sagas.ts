@@ -34,7 +34,7 @@ function* requestAndReceiveSubmissions(action: Action) {
         .push(userId)
         .toArray()
         .map(userId =>
-          call(function*() {
+          call(function* () {
             const submissions = yield call(fetchSubmissions, userId);
             yield put(receiveSubmissions(submissions));
           })
@@ -85,11 +85,11 @@ function* rootSaga() {
   yield all([
     takeLatest(UPDATE_USER_IDS, requestAndReceiveSubmissions),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveUserInfo),
-    fetchContestProblemPairOnce,
-    fetchContestsOnce,
-    fetchProblemsOnce,
-    fetchMergedProblemsOnce,
-    fetchPerformancesOnce
+    call(fetchContestProblemPairOnce),
+    call(fetchContestsOnce),
+    call(fetchProblemsOnce),
+    call(fetchMergedProblemsOnce),
+    call(fetchPerformancesOnce)
   ]);
 }
 
