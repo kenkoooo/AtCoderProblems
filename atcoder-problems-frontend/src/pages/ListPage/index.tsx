@@ -78,7 +78,7 @@ class ListPage extends React.Component<Props, State> {
         (map, contest) => map.set(contest.id, contest),
         new Map<string, Contest>()
       );
-      const performansMap = performances.reduce(
+      const performancesMap = performances.reduce(
         (map, p) => map.set(p.problem_id, p.minimum_performance),
         new Map<string, number>()
       );
@@ -95,7 +95,7 @@ class ListPage extends React.Component<Props, State> {
             throw `${problem.id} is not belonged to any contest.`;
           }
         })();
-        const performance = performansMap.get(problem.id);
+        const performance = performancesMap.get(problem.id);
         const showing_performance = performance ? performance : INF_POINT;
 
         const date = formatDate(contest.start_epoch_second);

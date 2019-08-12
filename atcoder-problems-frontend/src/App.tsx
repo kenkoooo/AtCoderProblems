@@ -41,9 +41,7 @@ const App = () => (
           <Route exact path="/monitor" component={Monitor} />
           <Route
             path="/user/:user_id([a-zA-Z0-9_]*)*"
-            component={(props: MatchUserId) => (
-              <UserPage user_ids={extractUserId(props)} />
-            )}
+            component={(props: MatchUserId) => <UserPage />}
           />
           <Route path="/table/:user_id([a-zA-Z0-9_]*)*" component={TablePage} />
           <Route
