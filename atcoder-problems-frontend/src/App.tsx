@@ -20,11 +20,6 @@ import Monitor from "./pages/Monitor";
 
 import NavigationBar from "./components/NavigationBar";
 type MatchUserId = { match: { params: { user_id?: string } } };
-const extractUserId = ({
-  match: {
-    params: { user_id }
-  }
-}: MatchUserId) => (user_id ? user_id.split("/") : []);
 
 const App = () => (
   <Router>
@@ -46,9 +41,7 @@ const App = () => (
           <Route path="/table/:user_id([a-zA-Z0-9_]*)*" component={TablePage} />
           <Route
             path="/list/:user_id([a-zA-Z0-9_]*)*"
-            component={(props: MatchUserId) => (
-              <ListPage user_ids={extractUserId(props)} />
-            )}
+            component={(props: MatchUserId) => <ListPage />}
           />
           <Redirect path="/" to="/table/" />
         </Switch>

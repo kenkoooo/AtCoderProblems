@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement, ReactFragment } from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import {
   Badge,
@@ -18,220 +18,179 @@ import Contest from "../../interfaces/Contest";
 import Submission from "../../interfaces/Submission";
 import SmallTable from "./SmallTable";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
+import State from "../../interfaces/State";
+import { Set, List, Map } from "immutable";
+import {
+  requestContests,
+  requestMergedProblems,
+  requestPerf
+} from "../../actions";
 
 const INF_POINT = 1e18;
 
-enum StatusFilterState {
-  All = "All",
-  Trying = "Only Trying",
-  Accepted = "Only AC"
+const ACCEPTED = "ACCEPTED";
+const FAILED = "FAILED";
+const TRYING = "TRYING";
+const NONE = "NONE";
+
+const getProblemStatus = (
+  problemSubmissions: List<Submission>,
+  userId: string,
+  rivals: List<string>
+) => {
+  const userSubmissions = problemSubmissions
+    .filter(s => s.user_id === userId)
+    .sort((a, b) => a.epoch_second - b.epoch_second);
+  const rivalsSubmissions = problemSubmissions
+    .filter(s => rivals.contains(s.user_id))
+    .filter(s => isAccepted(s.result));
+  if (userSubmissions.find(s => isAccepted(s.result))) {
+    return { status: ACCEPTED as typeof ACCEPTED };
+  } else if (!rivalsSubmissions.isEmpty()) {
+    return {
+      status: FAILED as typeof FAILED,
+      rivals: rivals
+        .filter(r => rivalsSubmissions.find(s => s.user_id === r))
+        .toList()
+    };
+  } else {
+    const tail = userSubmissions.last(undefined);
+    return tail
+      ? { status: TRYING as typeof TRYING, result: tail.result }
+      : { status: NONE as typeof NONE };
+  }
+};
+
+interface ProblemRowData {
+  readonly title: string;
+  readonly contestDate: string;
+  readonly contestTitle: string;
+  readonly lastAcceptedDate: string;
+  readonly solverCount: number;
+  readonly point: number;
+  readonly difficulty: number;
+  readonly firstUserId: string;
+  readonly executionTime: number;
+  readonly codeLength: number;
+  readonly mergedProblem: MergedProblem;
+  readonly shortestUserId: string;
+  readonly fastestUserId: string;
+  readonly status: ReturnType<typeof getProblemStatus>;
 }
 
-enum RatedFilterState {
-  All = "All",
-  Rated = "Only Rated",
-  Unrated = "Only Unrated"
-}
-
-interface Problem extends MergedProblem {
-  showing_point: number;
-  date: string;
-  contest: Contest;
-  status: string;
-  rivals: string[];
-  last_ac_date: string;
-  showing_performance: number | undefined;
-}
-
-interface Props {
-  user_ids: string[];
-}
-
-interface State {
-  problems: Problem[];
-
+interface ListPageState {
   fromPoint: number;
   toPoint: number;
-  statusFilterState: StatusFilterState;
-  ratedFilterState: RatedFilterState;
+  statusFilterState: "All" | "Only Trying" | "Only AC";
+  ratedFilterState: "All" | "Only Rated" | "Only Unrated";
 }
 
-class ListPage extends React.Component<Props, State> {
+class ListPage extends React.Component<Props, ListPageState> {
   constructor(props: any) {
     super(props);
     this.state = {
-      problems: [],
       fromPoint: 0,
       toPoint: INF_POINT,
-      statusFilterState: StatusFilterState.All,
-      ratedFilterState: RatedFilterState.All
+      statusFilterState: "All",
+      ratedFilterState: "All"
     };
   }
 
-  componentDidMount() {
-    Promise.all([
-      Api.fetchMergedProblems(),
-      Api.fetchContests(),
-      Api.fetchProblemPerformances()
-    ]).then(([merged_problems, contests, performances]) => {
-      const contestMap = contests.reduce(
-        (map, contest) => map.set(contest.id, contest),
-        new Map<string, Contest>()
-      );
-      const performancesMap = performances.reduce(
-        (map, p) => map.set(p.problem_id, p.minimum_performance),
-        new Map<string, number>()
-      );
-
-      const problems: Problem[] = merged_problems.map(problem => {
-        const { point, predict } = problem;
-        const showing_point = point ? point : predict ? predict : INF_POINT;
-
-        const contest = (() => {
-          const contest = contestMap.get(problem.contest_id);
-          if (contest) {
-            return contest;
-          } else {
-            throw `${problem.id} is not belonged to any contest.`;
-          }
-        })();
-        const performance = performancesMap.get(problem.id);
-        const showing_performance = performance ? performance : INF_POINT;
-
-        const date = formatDate(contest.start_epoch_second);
-
-        const status = "";
-        const rivals: string[] = [];
-        const last_ac_date = "";
-
-        return {
-          status,
-          showing_point,
-          contest,
-          date,
-          rivals,
-          last_ac_date,
-          showing_performance,
-          ...problem
-        };
-      });
-
-      problems.sort((a, b) => {
-        if (a.contest.start_epoch_second == b.contest.start_epoch_second) {
-          return b.title.localeCompare(a.title);
-        } else {
-          return b.contest.start_epoch_second - a.contest.start_epoch_second;
-        }
-      });
-
-      this.setState({ problems }, () =>
-        this.updateProblems(this.props.user_ids)
-      );
-    });
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    if (prevProps.user_ids !== this.props.user_ids) {
-      this.updateProblems(this.props.user_ids);
-    }
-  }
-
-  updateProblems(user_ids: string[]) {
-    return Promise.all(user_ids.map(Api.fetchSubmissions))
-      .then(r => r.flat())
-      .then(submissions => {
-        const submission_map = submissions
-          .sort((a, b) => a.epoch_second - b.epoch_second)
-          .reduce((map, submission) => {
-            const arr = map.get(submission.problem_id);
-            if (arr) {
-              arr.push(submission);
-            } else {
-              map.set(submission.problem_id, [submission]);
-            }
-            return map;
-          }, new Map<string, Submission[]>());
-
-        const user = user_ids.length > 0 ? user_ids[0] : "";
-        const rivals = this.props.user_ids.slice(1);
-
-        const problems = this.state.problems.map(problem => {
-          const submissions = (() => {
-            const s = submission_map.get(problem.id);
-            return s ? s : [];
-          })();
-
-          const new_status = (() => {
-            const mine = submissions.filter(s => s.user_id === user);
-            if (mine.some(s => isAccepted(s.result))) {
-              return "AC";
-            } else if (mine.length > 0) {
-              return mine[mine.length - 1].result;
-            } else {
-              return "";
-            }
-          })();
-
-          const new_rivals_set = (() =>
-            submissions
-              .filter(s => rivals.includes(s.user_id))
-              .filter(s => isAccepted(s.result))
-              .reduce(
-                (set, submission) => set.add(submission.user_id),
-                new Set<string>()
-              ))();
-          const new_rivals = Array.from(new_rivals_set).sort();
-          const new_ac_date = (() => {
-            let s = submissions
-              .filter(s => s.user_id === user)
-              .filter(s => isAccepted(s.result))
-              .reverse();
-            if (s.length > 0) {
-              return formatDate(s[0].epoch_second);
-            } else {
-              return "";
-            }
-          })();
-          if (
-            new_status !== problem.status ||
-            new_rivals !== problem.rivals ||
-            new_ac_date !== problem.last_ac_date
-          ) {
-            const new_problem = Object.assign({}, problem);
-            new_problem.rivals = new_rivals;
-            new_problem.status = new_status;
-            new_problem.last_ac_date = new_ac_date;
-            return new_problem;
-          } else {
-            return problem;
-          }
-        });
-
-        this.setState({ problems });
-      });
+  componentDidMount(): void {
+    this.props.requestData();
   }
 
   render() {
+    const {
+      mergedProblems,
+      problemPerformances,
+      submissions,
+      userId,
+      rivals,
+      contests
+    } = this.props;
+    const {
+      fromPoint,
+      toPoint,
+      ratedFilterState,
+      statusFilterState
+    } = this.state;
+    const rowData = mergedProblems
+      .valueSeq()
+      .map(
+        (p): ProblemRowData => {
+          const contest = contests.get(p.contest_id);
+          const contestDate = contest
+            ? formatDate(contest.start_epoch_second)
+            : "";
+          const contestTitle = contest ? contest.title : "";
+
+          const lastSubmission = submissions
+            .get(p.id, List<Submission>())
+            .filter(s => s.user_id === userId)
+            .filter(s => isAccepted(s.result))
+            .maxBy(s => s.epoch_second);
+          const lastAcceptedDate = lastSubmission
+            ? formatDate(lastSubmission.epoch_second)
+            : "";
+          const point = p.point ? p.point : p.predict ? p.predict : INF_POINT;
+          const firstUserId = p.first_user_id ? p.first_user_id : "";
+          const executionTime = p.execution_time ? p.execution_time : INF_POINT;
+          const codeLength = p.source_code_length
+            ? p.source_code_length
+            : INF_POINT;
+          const shortestUserId = p.shortest_user_id ? p.shortest_user_id : "";
+          const fastestUserId = p.fastest_user_id ? p.fastest_user_id : "";
+
+          return {
+            title: p.title,
+            contestDate,
+            contestTitle,
+            lastAcceptedDate,
+            solverCount: p.solver_count ? p.solver_count : 0,
+            point,
+            difficulty: problemPerformances.get(p.id, INF_POINT),
+            firstUserId,
+            executionTime,
+            codeLength,
+            mergedProblem: p,
+            shortestUserId,
+            fastestUserId,
+            status: getProblemStatus(
+              submissions.get(p.id, List<Submission>()),
+              userId,
+              rivals
+            )
+          };
+        }
+      )
+      .toList();
+
     const columns: {
       header: string;
       dataField: string;
       dataSort?: boolean;
       dataAlign?: "center";
-      dataFormat?: (cell: any, row: Problem) => JSX.Element;
+      dataFormat?: (cell: any, row: ProblemRowData) => ReactElement | string;
       hidden?: boolean;
     }[] = [
       {
         header: "Date",
-        dataField: "date",
+        dataField: "contestDate",
         dataSort: true
       },
       {
         header: "Problem",
         dataField: "title",
         dataSort: true,
-        dataFormat: (_: string, row: Problem) => (
+        dataFormat: (_, row) => (
           <a
-            href={Url.formatProblemUrl(row.id, row.contest_id)}
+            href={Url.formatProblemUrl(
+              row.mergedProblem.id,
+              row.mergedProblem.contest_id
+            )}
             target="_blank"
           >
             {row.title}
@@ -240,99 +199,107 @@ class ListPage extends React.Component<Props, State> {
       },
       {
         header: "Contest",
-        dataField: "contest_id",
+        dataField: "contestTitle",
         dataSort: true,
-        dataFormat: (contest_id: string, problem: Problem) => (
-          <a href={Url.formatContestUrl(contest_id)} target="_blank">
-            {problem.contest.title}
+        dataFormat: (contestTitle, row) => (
+          <a
+            href={Url.formatContestUrl(row.mergedProblem.contest_id)}
+            target="_blank"
+          >
+            {contestTitle}
           </a>
         )
       },
       {
         header: "Result",
-        dataField: "id",
+        dataField: "title",
         dataAlign: "center",
-        dataFormat: (id: string, problem: Problem) => {
-          if (isAccepted(problem.status)) {
-            return <Badge color="success">AC</Badge>;
-          } else if (problem.rivals.length > 0) {
-            return (
-              <div>
-                {problem.rivals.map(r => (
-                  <Badge key={r} color="danger">
-                    {r}
-                  </Badge>
-                ))}
-              </div>
-            );
-          } else {
-            return <Badge color="warning">{problem.status}</Badge>;
+        dataFormat: (_: string, row) => {
+          const { status } = row;
+          switch (status.status) {
+            case ACCEPTED: {
+              return <Badge color="success">AC</Badge>;
+            }
+            case FAILED: {
+              return (
+                <div>
+                  {status.rivals.map(rivalId => (
+                    <Badge key={rivalId} color="danger">
+                      {rivalId}
+                    </Badge>
+                  ))}
+                </div>
+              );
+            }
+            case TRYING: {
+              return <Badge color="warning">{status.result}</Badge>;
+            }
+            case NONE: {
+              return "";
+            }
           }
         }
       },
       {
         header: "Last AC Date",
-        dataField: "last_ac_date",
+        dataField: "lastAcceptedDate",
         dataSort: true
       },
       {
         header: "Solvers",
-        dataField: "solver_count",
+        dataField: "solverCount",
         dataSort: true,
-        dataFormat: (cell: number | null, row: Problem) => (
+        dataFormat: (solverCount: number, row) => (
           <a
-            href={Url.formatSolversUrl(row.contest_id, row.id)}
+            href={Url.formatSolversUrl(
+              row.mergedProblem.contest_id,
+              row.mergedProblem.id
+            )}
             target="_blank"
           >
-            {cell}
+            {solverCount}
           </a>
         )
       },
       {
         header: "Point",
-        dataField: "showing_point",
+        dataField: "point",
         dataSort: true,
-        dataFormat: (cell: number) => {
-          if (cell >= INF_POINT) {
+        dataFormat: (point: number) => {
+          if (point >= INF_POINT) {
             return <p>-</p>;
           } else {
-            if (cell % 100 == 0) {
-              return <p>{cell}</p>;
+            if (point % 100 == 0) {
+              return <p>{point}</p>;
             } else {
-              return <p>{cell.toFixed(2)}</p>;
+              return <p>{point.toFixed(2)}</p>;
             }
           }
         }
       },
       {
         header: "Difficulty",
-        dataField: "showing_performance",
+        dataField: "difficulty",
         dataSort: true,
-        dataFormat: (cell: number) => {
-          if (cell >= INF_POINT) {
+        dataFormat: (difficulty: number) => {
+          if (difficulty >= INF_POINT) {
             return <p>-</p>;
           } else {
-            return <p>{cell}</p>;
+            return <p>{difficulty}</p>;
           }
         }
       },
       {
         header: "Fastest",
-        dataField: "execution_time",
+        dataField: "executionTime",
         dataSort: true,
-        dataFormat: (_: number, row: Problem) => {
+        dataFormat: (executionTime: number, row) => {
           const {
             fastest_submission_id,
             fastest_contest_id,
-            fastest_user_id,
-            execution_time
-          } = row;
-          if (
-            fastest_submission_id != null &&
-            fastest_contest_id != null &&
-            fastest_user_id != null &&
-            execution_time != null
-          ) {
+            fastest_user_id
+          } = row.mergedProblem;
+          if (fastest_submission_id && fastest_contest_id && fastest_user_id) {
             return (
               <a
                 href={Url.formatSubmissionUrl(
@@ -341,7 +308,7 @@ class ListPage extends React.Component<Props, State> {
                 )}
                 target="_blank"
               >
-                {fastest_user_id} ({execution_time} ms)
+                {fastest_user_id} ({executionTime} ms)
               </a>
             );
           } else {
@@ -351,20 +318,18 @@ class ListPage extends React.Component<Props, State> {
       },
       {
         header: "Shortest",
-        dataField: "source_code_length",
+        dataField: "codeLength",
         dataSort: true,
-        dataFormat: (_: number, row: Problem) => {
+        dataFormat: (codeLength: number, row) => {
           const {
             shortest_submission_id,
             shortest_contest_id,
-            shortest_user_id,
-            source_code_length
-          } = row;
+            shortest_user_id
+          } = row.mergedProblem;
           if (
-            shortest_contest_id != null &&
-            shortest_submission_id != null &&
-            shortest_user_id != null &&
-            source_code_length != null
+            shortest_contest_id &&
+            shortest_submission_id &&
+            shortest_user_id
           ) {
             return (
               <a
@@ -374,7 +339,7 @@ class ListPage extends React.Component<Props, State> {
                 )}
                 target="_blank"
               >
-                {shortest_user_id} ({source_code_length} Bytes)
+                {shortest_user_id} ({codeLength} Bytes)
               </a>
             );
           } else {
@@ -384,15 +349,15 @@ class ListPage extends React.Component<Props, State> {
       },
       {
         header: "First",
-        dataField: "first_user_id",
+        dataField: "firstUserId",
         dataSort: true,
-        dataFormat: (_: string, row: Problem) => {
-          const { first_submission_id, first_contest_id, first_user_id } = row;
-          if (
-            first_submission_id != null &&
-            first_contest_id != null &&
-            first_user_id != null
-          ) {
+        dataFormat: (_: string, row) => {
+          const {
+            first_submission_id,
+            first_contest_id,
+            first_user_id
+          } = row.mergedProblem;
+          if (first_submission_id && first_contest_id && first_user_id) {
             return (
               <a
                 href={Url.formatSubmissionUrl(
@@ -411,24 +376,22 @@ class ListPage extends React.Component<Props, State> {
       },
       {
         header: "Shortest User for Search",
-        dataField: "shortest_user_id",
+        dataField: "shortestUserId",
         hidden: true
       },
       {
         header: "Fastest User for Search",
-        dataField: "fastest_user_id",
+        dataField: "fastestUserId",
         hidden: true
       }
     ];
 
-    const point_set = this.state.problems.reduce((set, p) => {
-      if (p.point) {
-        return set.add(p.point);
-      } else {
-        return set;
-      }
-    }, new Set<number>());
-    const points = Array.from(point_set).sort((a, b) => a - b);
+    const points = mergedProblems
+      .valueSeq()
+      .map(p => p.point)
+      .reduce((set, point) => (point ? set.add(point) : set), Set<number>())
+      .toList()
+      .sort();
     return (
       <div>
         <Row className="my-2 border-bottom">
@@ -436,8 +399,9 @@ class ListPage extends React.Component<Props, State> {
         </Row>
         <Row>
           <SmallTable
-            problems={this.state.problems}
-            user_id={this.props.user_ids[0]}
+            mergedProblems={mergedProblems.valueSeq().toList()}
+            submissions={submissions}
+            userIds={rivals.insert(0, userId)}
           />
         </Row>
 
@@ -484,29 +448,27 @@ class ListPage extends React.Component<Props, State> {
               </DropdownToggle>
               <DropdownMenu>
                 <DropdownItem
-                  onClick={() =>
-                    this.setState({ statusFilterState: StatusFilterState.All })
-                  }
+                  onClick={() => this.setState({ statusFilterState: "All" })}
                 >
-                  {StatusFilterState.All}
+                  All
                 </DropdownItem>
                 <DropdownItem
                   onClick={() =>
                     this.setState({
-                      statusFilterState: StatusFilterState.Trying
+                      statusFilterState: "Only Trying"
                     })
                   }
                 >
-                  {StatusFilterState.Trying}
+                  Only Trying
                 </DropdownItem>
                 <DropdownItem
                   onClick={() =>
                     this.setState({
-                      statusFilterState: StatusFilterState.Accepted
+                      statusFilterState: "Only AC"
                     })
                   }
                 >
-                  {StatusFilterState.Accepted}
+                  Only AC
                 </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
@@ -518,27 +480,25 @@ class ListPage extends React.Component<Props, State> {
               </DropdownToggle>
               <DropdownMenu>
                 <DropdownItem
-                  onClick={() =>
-                    this.setState({ ratedFilterState: RatedFilterState.All })
-                  }
+                  onClick={() => this.setState({ ratedFilterState: "All" })}
                 >
-                  {RatedFilterState.All}
+                  All
                 </DropdownItem>
                 <DropdownItem
                   onClick={() =>
-                    this.setState({ ratedFilterState: RatedFilterState.Rated })
+                    this.setState({ ratedFilterState: "Only Rated" })
                   }
                 >
-                  {RatedFilterState.Rated}
+                  Only Rated
                 </DropdownItem>
                 <DropdownItem
                   onClick={() =>
                     this.setState({
-                      ratedFilterState: RatedFilterState.Unrated
+                      ratedFilterState: "Only Unrated"
                     })
                   }
                 >
-                  {RatedFilterState.Unrated}
+                  Only Unrated
                 </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
@@ -552,52 +512,48 @@ class ListPage extends React.Component<Props, State> {
             hover
             striped
             search
-            trClassName={(problem: Problem) => {
-              if (isAccepted(problem.status)) {
-                return "table-success";
-              } else if (problem.rivals.length > 0) {
-                return "table-danger";
-              } else if (problem.status.length > 0) {
-                return "table-warning";
-              } else {
-                return "";
+            trClassName={(row: ProblemRowData) => {
+              const { status } = row;
+              switch (status.status) {
+                case ACCEPTED: {
+                  return "table-success";
+                }
+                case FAILED: {
+                  return "table-danger";
+                }
+                case TRYING: {
+                  return "table-warning";
+                }
+                case NONE: {
+                  return "";
+                }
               }
             }}
-            data={this.state.problems
-              .filter(({ point, predict }) => {
-                if (point) {
-                  return (
-                    this.state.fromPoint <= point && point <= this.state.toPoint
-                  );
-                } else if (predict) {
-                  return (
-                    this.state.fromPoint <= predict &&
-                    predict <= this.state.toPoint
-                  );
-                } else {
-                  return this.state.toPoint == INF_POINT;
+            data={rowData
+              .filter(({ point }) => fromPoint <= point && point <= toPoint)
+              .filter(row => {
+                const { status } = row;
+                switch (statusFilterState) {
+                  case "All":
+                    return true;
+                  case "Only AC":
+                    return status.status === ACCEPTED;
+                  case "Only Trying":
+                    return status.status !== ACCEPTED;
                 }
               })
-              .filter(({ status }) => {
-                switch (this.state.statusFilterState) {
-                  case StatusFilterState.All:
+              .filter(row => {
+                const isRated = !!row.mergedProblem.point;
+                switch (ratedFilterState) {
+                  case "All":
                     return true;
-                  case StatusFilterState.Trying:
-                    return !isAccepted(status);
-                  case StatusFilterState.Accepted:
-                    return isAccepted(status);
+                  case "Only Rated":
+                    return isRated;
+                  case "Only Unrated":
+                    return isRated;
                 }
               })
-              .filter(({ point }) => {
-                switch (this.state.ratedFilterState) {
-                  case RatedFilterState.All:
-                    return true;
-                  case RatedFilterState.Rated:
-                    return point && point != null;
-                  case RatedFilterState.Unrated:
-                    return !point;
-                }
-              })}
+              .toArray()}
             options={{
               paginationPosition: "top",
               sizePerPage: 20,
@@ -620,7 +576,7 @@ class ListPage extends React.Component<Props, State> {
                 },
                 {
                   text: "All",
-                  value: this.state.problems.length
+                  value: rowData.size
                 }
               ]
             }}
@@ -637,4 +593,35 @@ class ListPage extends React.Component<Props, State> {
   }
 }
 
-export default ListPage;
+interface Props {
+  readonly userId: string;
+  readonly rivals: List<string>;
+  readonly submissions: Map<string, List<Submission>>;
+  readonly mergedProblems: Map<string, MergedProblem>;
+  readonly problemPerformances: Map<string, number>;
+  readonly contests: Map<string, Contest>;
+
+  readonly requestData: () => void;
+}
+
+const stateToProps = (state: State) => ({
+  userId: state.users.userId,
+  rivals: state.users.rivals,
+  submissions: state.submissions,
+  mergedProblems: state.mergedProblems,
+  contests: state.contests,
+  problemPerformances: state.problemPerformances
+});
+
+const dispatchToProps = (dispatch: Dispatch) => ({
+  requestData: () => {
+    dispatch(requestMergedProblems());
+    dispatch(requestPerf());
+    dispatch(requestContests());
+  }
+});
+
+export default connect(
+  stateToProps,
+  dispatchToProps
+)(ListPage);
