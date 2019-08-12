@@ -21,6 +21,11 @@ import {
   ATCODER_RIVALS_REGEXP,
   extractRivalsParam
 } from "../utils";
+import { connect } from "react-redux";
+import State from "../interfaces/State";
+import { Dispatch } from "redux";
+import { List } from "immutable";
+import { updateUserIds } from "../actions";
 
 enum PageKind {
   TABLE = "table",
@@ -28,18 +33,19 @@ enum PageKind {
   USER = "user"
 }
 
-interface State {
+interface Props extends RouteComponentProps {
+  updateUserIds: (userId: string, rivals: List<string>) => void;
+}
+
+interface LocalState {
   isOpen: boolean;
   user_id: string;
   rival_id: string;
   kind: PageKind;
 }
 
-class PrimitiveNavigationBar extends React.Component<
-  RouteComponentProps,
-  State
-  > {
-  constructor(props: any) {
+class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
+  constructor(props: Props) {
     super(props);
     this.toggle = this.toggle.bind(this);
     this.state = {
@@ -49,7 +55,7 @@ class PrimitiveNavigationBar extends React.Component<
       kind: PageKind.TABLE
     };
   }
-  
+
   toggle() {
     this.setState({
       isOpen: !this.state.isOpen
@@ -82,12 +88,14 @@ class PrimitiveNavigationBar extends React.Component<
   componentDidMount() {
     const { kind, user_id, rival_id } = this.mapPropsToState();
     this.setState({ kind, user_id, rival_id });
+    this.props.updateUserIds(user_id, List(extractRivalsParam(rival_id)));
   }
 
   componentDidUpdate(prevProps: RouteComponentProps) {
     if (this.props.location.pathname !== prevProps.location.pathname) {
       const { kind, user_id, rival_id } = this.mapPropsToState();
       this.setState({ kind, user_id, rival_id });
+      this.props.updateUserIds(user_id, List(extractRivalsParam(rival_id)));
     }
   }
 
@@ -234,7 +242,11 @@ class PrimitiveNavigationBar extends React.Component<
                 Links
               </DropdownToggle>
               <DropdownMenu right>
-                <DropdownItem tag="a" href="https://atcoder.jp/" target="_blank">
+                <DropdownItem
+                  tag="a"
+                  href="https://atcoder.jp/"
+                  target="_blank"
+                >
                   AtCoder
                 </DropdownItem>
                 <DropdownItem
@@ -269,4 +281,13 @@ class PrimitiveNavigationBar extends React.Component<
 
 const NavigationBar = withRouter(PrimitiveNavigationBar);
 
-export default NavigationBar;
+const stateToProps = (state: State) => ({});
+const dispatchToProps = (dispatch: Dispatch) => ({
+  updateUserIds: (userId: string, rivals: List<string>) =>
+    dispatch(updateUserIds(userId, rivals))
+});
+
+export default connect(
+  stateToProps,
+  dispatchToProps
+)(NavigationBar);

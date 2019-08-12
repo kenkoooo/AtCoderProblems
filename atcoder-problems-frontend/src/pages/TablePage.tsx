@@ -17,12 +17,13 @@ import {
 } from "../actions";
 import Submission from "../interfaces/Submission";
 
+type StatusLabel = "success" | "danger" | "warning" | "";
 const getProblemStatusString = (
   userId: string,
   rivals: List<string>,
   problem: Problem,
   submissions: Map<string, List<Submission>>
-) => {
+): StatusLabel => {
   const list = submissions.get(problem.id, List<Submission>());
   if (list.find(s => isAccepted(s.result) && s.user_id === userId)) {
     return "success";
@@ -41,10 +42,9 @@ interface Props {
   submissions: Map<string, List<Submission>>;
   contests: Map<string, Contest>;
   contestToProblems: Map<string, List<Problem>>;
+  problemLabels: Map<string, StatusLabel>;
 
-  requestProblems: () => void;
-  requestContest: () => void;
-  requestContestProblemPairs: () => void;
+  requestData: () => void;
 }
 
 interface TablePageState {
@@ -60,9 +60,7 @@ class TablePage extends React.Component<Props, TablePageState> {
   }
 
   componentDidMount() {
-    this.props.requestProblems();
-    this.props.requestContest();
-    this.props.requestContestProblemPairs();
+    this.props.requestData();
   }
 
   render() {
@@ -72,7 +70,8 @@ class TablePage extends React.Component<Props, TablePageState> {
       rivals,
       contests,
       contestToProblems,
-      submissions
+      submissions,
+      problemLabels
     } = this.props;
 
     const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
@@ -99,27 +98,21 @@ class TablePage extends React.Component<Props, TablePageState> {
           contests={abc}
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
-          getColor={problem =>
-            getProblemStatusString(userId, rivals, problem, submissions)
-          }
+          problemLabels={problemLabels}
         />
         <AtCoderRegularTable
           showSolved={showSolved}
           contests={arc}
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
-          getColor={problem =>
-            getProblemStatusString(userId, rivals, problem, submissions)
-          }
+          problemLabels={problemLabels}
         />
         <AtCoderRegularTable
           showSolved={showSolved}
           contests={agc}
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
-          getColor={problem =>
-            getProblemStatusString(userId, rivals, problem, submissions)
-          }
+          problemLabels={problemLabels}
         />
         <Row className="my-4">
           <h2>Other Contests</h2>
@@ -128,9 +121,10 @@ class TablePage extends React.Component<Props, TablePageState> {
           contests={others}
           contestToProblems={contestToProblems}
           showSolved={showSolved}
-          getColor={problem =>
-            getProblemStatusString(userId, rivals, problem, submissions)
-          }
+          submissions={submissions}
+          userId={userId}
+          rivals={rivals}
+          problemLabels={problemLabels}
         />
       </div>
     );
@@ -141,10 +135,14 @@ const ContestTable = (props: {
   contests: Map<string, Contest>;
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
-  getColor: (problem: Problem) => string;
+  submissions: Map<string, List<Submission>>;
+  userId: string;
+  rivals: List<string>;
+  problemLabels: Map<string, StatusLabel>;
 }) => (
   <div>
     {props.contests
+      .valueSeq()
       .sort((a, b) => b.start_epoch_second - a.start_epoch_second)
       .map(contest => ({
         contest,
@@ -154,9 +152,9 @@ const ContestTable = (props: {
       }))
       .filter(
         ({ contest, problems }) =>
-          !props.showSolved ||
+          props.showSolved ||
           !problems
-            .map(p => props.getColor(p))
+            .map(p => props.problemLabels.get(p.id, ""))
             .every(color => color === "success")
       )
       .map(({ contest, problems }) => {
@@ -171,7 +169,10 @@ const ContestTable = (props: {
               <tbody>
                 <tr>
                   {problems.map(p => (
-                    <td key={p.id} className={props.getColor(p)}>
+                    <td
+                      key={p.id}
+                      className={props.problemLabels.get(p.id, "")}
+                    >
                       <a
                         target="_blank"
                         href={Url.formatProblemUrl(p.id, p.contest_id)}
@@ -185,22 +186,23 @@ const ContestTable = (props: {
             </Table>
           </div>
         );
-      })}
+      })
+      .toArray()}
   </div>
 );
 
 const AtCoderRegularTable = (props: {
   contests: Map<string, Contest>;
   contestToProblems: Map<string, List<Problem>>;
-  getColor: (problem: Problem) => string;
   showSolved: boolean;
   title: string;
+  problemLabels: Map<string, StatusLabel>;
 }) => {
-  const { contestToProblems, showSolved } = props;
+  const { contestToProblems, showSolved, problemLabels } = props;
   const solvedAll = (contest: Contest) => {
     return contestToProblems
       .get(contest.id, List<Problem>())
-      .every(problem => props.getColor(problem) === "success");
+      .every(p => problemLabels.get(p.id, "") === "success");
   };
   const ithProblem = (contest: Contest, i: number) =>
     contestToProblems
@@ -209,7 +211,7 @@ const AtCoderRegularTable = (props: {
       .get(i);
   const contests = props.contests
     .valueSeq()
-    .filter(contest => !showSolved || !solvedAll(contest))
+    .filter(contest => showSolved || !solvedAll(contest))
     .sort((a, b) => b.start_epoch_second - a.start_epoch_second)
     .toArray();
   const maxProblemCount = contests.reduce(
@@ -231,8 +233,8 @@ const AtCoderRegularTable = (props: {
           columnClassName={(_: any, contest: Contest) =>
             contestToProblems
               .get(contest.id, List<Problem>())
-              .every(problem => props.getColor(problem) === "success")
-              ? "success"
+              .every(p => problemLabels.get(p.id) === "success")
+              ? "table-success"
               : ""
           }
           dataFormat={(_: any, contest: Contest) => (
@@ -249,7 +251,9 @@ const AtCoderRegularTable = (props: {
             key={c}
             columnClassName={(_: any, contest: Contest) => {
               const problem = ithProblem(contest, i);
-              return problem ? props.getColor(problem) : "";
+              return problem
+                ? "table-" + problemLabels.get(problem.id, "")
+                : "";
             }}
             dataFormat={(_: any, contest: Contest) => {
               const problem = ithProblem(contest, i);
@@ -279,18 +283,28 @@ const stateToProps = (state: State) => ({
   contestToProblems: state.contestToProblems.map(list =>
     list
       .map(id => state.problems.get(id))
-      .reduce(
-        (list, problem) => (problem ? list.push(problem) : list),
-        List<Problem>()
+      .filter(
+        (problem: Problem | undefined): problem is Problem =>
+          problem !== undefined
       )
   ),
   contests: state.contests,
-  submissions: state.submissions
+  submissions: state.submissions,
+  problemLabels: state.problems.map(p =>
+    getProblemStatusString(
+      state.users.userId,
+      state.users.rivals,
+      p,
+      state.submissions
+    )
+  )
 });
 const dispatchToProps = (dispatch: Dispatch) => ({
-  requestContest: () => dispatch(requestContests()),
-  requestProblems: () => dispatch(requestProblems()),
-  requestContestProblemPairs: () => dispatch(requestContestProblemPair())
+  requestData: () => {
+    dispatch(requestContests());
+    dispatch(requestProblems());
+    dispatch(requestContestProblemPair());
+  }
 });
 
 export default connect(

@@ -19,7 +19,6 @@ import TablePage from "./pages/TablePage";
 import Monitor from "./pages/Monitor";
 
 import NavigationBar from "./components/NavigationBar";
-type MatchUserId = { match: { params: { user_id?: string } } };
 
 const App = () => (
   <Router>
@@ -34,15 +33,12 @@ const App = () => (
           <Route exact path="/sum" component={SumRanking} />
           <Route exact path="/lang" component={LanguageOwners} />
           <Route exact path="/monitor" component={Monitor} />
+          <Route path="/user/([a-zA-Z0-9_]*)*" component={() => <UserPage />} />
           <Route
-            path="/user/:user_id([a-zA-Z0-9_]*)*"
-            component={(props: MatchUserId) => <UserPage />}
+            path="/table/([a-zA-Z0-9_]*)*"
+            component={() => <TablePage />}
           />
-          <Route path="/table/:user_id([a-zA-Z0-9_]*)*" component={TablePage} />
-          <Route
-            path="/list/:user_id([a-zA-Z0-9_]*)*"
-            component={(props: MatchUserId) => <ListPage />}
-          />
+          <Route path="/list/([a-zA-Z0-9_]*)*" component={() => <ListPage />} />
           <Redirect path="/" to="/table/" />
         </Switch>
       </Container>
