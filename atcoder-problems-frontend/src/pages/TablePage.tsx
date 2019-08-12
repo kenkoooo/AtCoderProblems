@@ -10,11 +10,6 @@ import Problem from "../interfaces/Problem";
 import State from "../interfaces/State";
 import { Dispatch } from "redux";
 import { List, Map } from "immutable";
-import {
-  requestContestProblemPair,
-  requestContests,
-  requestProblems
-} from "../actions";
 import Submission from "../interfaces/Submission";
 
 type StatusLabel = "success" | "danger" | "warning" | "";
@@ -27,7 +22,9 @@ const getProblemStatusString = (
   const list = submissions.get(problem.id, List<Submission>());
   if (list.find(s => isAccepted(s.result) && s.user_id === userId)) {
     return "success";
-  } else if (list.find(s => !isAccepted(s.result) && s.user_id in rivals)) {
+  } else if (
+    list.find(s => isAccepted(s.result) && rivals.contains(s.user_id))
+  ) {
     return "danger";
   } else if (list.find(s => !isAccepted(s.result) && s.user_id === userId)) {
     return "warning";
@@ -43,8 +40,6 @@ interface Props {
   contests: Map<string, Contest>;
   contestToProblems: Map<string, List<Problem>>;
   problemLabels: Map<string, StatusLabel>;
-
-  requestData: () => void;
 }
 
 interface TablePageState {
@@ -57,10 +52,6 @@ class TablePage extends React.Component<Props, TablePageState> {
     this.state = {
       showSolved: true
     };
-  }
-
-  componentDidMount() {
-    this.props.requestData();
   }
 
   render() {
@@ -171,7 +162,7 @@ const ContestTable = (props: {
                   {problems.map(p => (
                     <td
                       key={p.id}
-                      className={props.problemLabels.get(p.id, "")}
+                      className={"table-" + props.problemLabels.get(p.id, "")}
                     >
                       <a
                         target="_blank"
@@ -299,13 +290,7 @@ const stateToProps = (state: State) => ({
     )
   )
 });
-const dispatchToProps = (dispatch: Dispatch) => ({
-  requestData: () => {
-    dispatch(requestContests());
-    dispatch(requestProblems());
-    dispatch(requestContestProblemPair());
-  }
-});
+const dispatchToProps = (dispatch: Dispatch) => ({});
 
 export default connect(
   stateToProps,

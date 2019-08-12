@@ -1,18 +1,13 @@
 import { all, call, put, takeLatest, take } from "redux-saga/effects";
 import Action, {
   clearSubmissions,
-  receiveContestProblemPair,
-  receiveContests,
+  receiveInitialData,
   receiveMergedProblems,
   receivePerf,
-  receiveProblems,
   receiveSubmissions,
   receiveUserInfo,
-  REQUEST_CONTEST_PROBLEM_PAIR,
-  REQUEST_CONTESTS,
   REQUEST_MERGED_PROBLEMS,
   REQUEST_PERF,
-  REQUEST_PROBLEMS,
   UPDATE_USER_IDS
 } from "./actions";
 import {
@@ -33,9 +28,9 @@ function* requestAndReceiveSubmissions(action: Action) {
       rivals
         .push(userId)
         .toArray()
-        .map(userId =>
-          call(function* () {
-            const submissions = yield call(fetchSubmissions, userId);
+        .map(id =>
+          call(function*() {
+            const submissions = yield call(fetchSubmissions, id);
             yield put(receiveSubmissions(submissions));
           })
         )
@@ -43,22 +38,13 @@ function* requestAndReceiveSubmissions(action: Action) {
   }
 }
 
-function* fetchContestProblemPairOnce() {
-  yield take(REQUEST_CONTEST_PROBLEM_PAIR);
-  const pairs = yield call(fetchContestProblemPairs);
-  yield put(receiveContestProblemPair(pairs));
-}
-
-function* fetchContestsOnce() {
-  yield take(REQUEST_CONTESTS);
-  const contests = yield call(fetchContests);
-  yield put(receiveContests(contests));
-}
-
-function* fetchProblemsOnce() {
-  yield take(REQUEST_PROBLEMS);
-  const problems = yield call(fetchProblems);
-  yield put(receiveProblems(problems));
+function* initialFetchData() {
+  const { pairs, contests, problems } = yield all({
+    pairs: call(fetchContestProblemPairs),
+    contests: call(fetchContests),
+    problems: call(fetchProblems)
+  });
+  yield put(receiveInitialData(contests, problems, pairs));
 }
 
 function* fetchMergedProblemsOnce() {
@@ -83,11 +69,9 @@ function* requestAndReceiveUserInfo(action: Action) {
 
 function* rootSaga() {
   yield all([
+    call(initialFetchData),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveSubmissions),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveUserInfo),
-    call(fetchContestProblemPairOnce),
-    call(fetchContestsOnce),
-    call(fetchProblemsOnce),
     call(fetchMergedProblemsOnce),
     call(fetchPerformancesOnce)
   ]);
