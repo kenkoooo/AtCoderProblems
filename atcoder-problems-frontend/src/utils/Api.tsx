@@ -1,9 +1,14 @@
-import Contest from "../interfaces/Contest";
-import Problem from "../interfaces/Problem";
+import { isContest } from "../interfaces/Contest";
+import { isProblem } from "../interfaces/Problem";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
-import UserInfo from "../interfaces/UserInfo";
-import Submission from "../interfaces/Submission";
+import { isSumbission } from "../interfaces/Submission";
 import { List, Map } from "immutable";
+import {
+  isLangRankingEntry,
+  isRankingEntry,
+  isSumRankingEntry
+} from "../interfaces/RankingEntry";
+import { isUserInfo } from "../interfaces/UserInfo";
 
 const BASE_URL = "https://kenkoooo.com/atcoder";
 const STATIC_API_BASE_URL = BASE_URL + "/resources";
@@ -13,24 +18,19 @@ const AC_COUNT_URL = STATIC_API_BASE_URL + "/ac.json";
 const SUM_URL = STATIC_API_BASE_URL + "/sums.json";
 const LANG_URL = STATIC_API_BASE_URL + "/lang.json";
 
-interface RankingEntry {
-  problem_count: number;
-  user_id: string;
-}
-
 const generateRanking = (
   problems: List<MergedProblem>,
   property: "fastest_user_id" | "shortest_user_id" | "first_user_id"
-) => {
-  const map = problems.reduce((map, problem) => {
-    const user_id = problem[property];
-    return user_id ? map.set(user_id, map.get(user_id, 0) + 1) : map;
-  }, Map<string, number>());
-  return Array.from(map).map(([user_id, problem_count]) => ({
-    user_id,
-    problem_count
-  }));
-};
+) =>
+  problems
+    .map(problem => problem[property])
+    .reduce(
+      (map, userId) => (userId ? map.update(userId, 0, c => c + 1) : map),
+      Map<string, number>()
+    )
+    .entrySeq()
+    .map(([userId, count]) => ({ userId, count }))
+    .toList();
 
 export const getShortRanking = (problems: List<MergedProblem>) =>
   generateRanking(problems, "shortest_user_id");
@@ -39,63 +39,68 @@ export const getFastRanking = (problems: List<MergedProblem>) =>
 export const getFirstRanking = (problems: List<MergedProblem>) =>
   generateRanking(problems, "first_user_id");
 
-export const fetchACRanking = () => fetchJson<RankingEntry[]>(AC_COUNT_URL);
+export function fetchTypedList<T>(
+  url: string,
+  typeGuardFn: (obj: any) => obj is T
+) {
+  return fetch(url)
+    .then(r => r.json())
+    .then((array: any[]) => array.filter(typeGuardFn))
+    .then(array => List(array));
+}
 
-export const fetchSumRanking = () =>
-  fetchJson<
-    {
-      user_id: string;
-      point_sum: number;
-    }[]
-  >(SUM_URL);
+export const fetchACRanking = () =>
+  fetchTypedList(AC_COUNT_URL, isRankingEntry);
+
+export const fetchSumRanking = () => fetchTypedList(SUM_URL, isSumRankingEntry);
 
 export const fetchLangRanking = () =>
-  fetchJson<
-    {
-      user_id: string;
-      count: number;
-      language: string;
-    }[]
-  >(LANG_URL);
+  fetchTypedList(LANG_URL, isLangRankingEntry);
+
 export const fetchContestProblemPairs = () =>
-  fetchJson<{ contest_id: string; problem_id: string }[]>(
-    STATIC_API_BASE_URL + "/contest-problem.json"
-  ).then(pairs => List(pairs));
+  fetchTypedList(
+    STATIC_API_BASE_URL + "/contest-problem.json",
+    (obj: any): obj is { contest_id: string; problem_id: string } =>
+      typeof obj.contest_id === "string" && typeof obj.problem_id === "string"
+  );
+
 export const fetchContests = () =>
-  fetchJson<Contest[]>(STATIC_API_BASE_URL + "/contests.json").then(contests =>
-    List(contests)
-  );
+  fetchTypedList(STATIC_API_BASE_URL + "/contests.json", isContest);
+
 export const fetchProblems = () =>
-  fetchJson<Problem[]>(STATIC_API_BASE_URL + "/problems.json").then(problems =>
-    List(problems)
-  );
+  fetchTypedList(STATIC_API_BASE_URL + "/problems.json", isProblem);
 
 export const fetchMergedProblems = () =>
-  fetch(STATIC_API_BASE_URL + "/merged-problems.json")
-    .then(response => response.json())
-    .then((response: any[]) => response.filter(isMergedProblem))
-    .then((problems: MergedProblem[]) => List(problems));
+  fetchTypedList(
+    STATIC_API_BASE_URL + "/merged-problems.json",
+    isMergedProblem
+  );
 
 export const fetchProblemPerformances = () =>
-  fetchJson<
-    {
+  fetchTypedList(
+    STATIC_API_BASE_URL + "/problem-performances.json",
+    (
+      obj: any
+    ): obj is {
       problem_id: string;
       minimum_performance: number;
-    }[]
-  >(STATIC_API_BASE_URL + "/problem-performances.json");
+    } =>
+      typeof obj.problem_id === "string" &&
+      typeof obj.minimum_performance === "number"
+  );
+
 export const fetchUserInfo = (user: string) =>
   user.length > 0
-    ? fetchJson<UserInfo | undefined>(
-        `${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`
+    ? fetchTypedList(
+        `${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`,
+        isUserInfo
       )
     : Promise.resolve(undefined);
+
 export const fetchSubmissions = (user: string) =>
   user.length > 0
-    ? fetchJson<Submission[]>(`${DYNAMIC_API_BASE_URL}/results?user=${user}`)
+    ? fetchTypedList(
+        `${DYNAMIC_API_BASE_URL}/results?user=${user}`,
+        isSumbission
+      )
     : Promise.resolve([]);
-
-async function fetchJson<T>(url: string): Promise<T> {
-  const r = await fetch(url);
-  const json = await r.json();
-  return json as T;
-}
