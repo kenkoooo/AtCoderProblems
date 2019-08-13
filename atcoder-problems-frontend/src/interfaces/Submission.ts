@@ -11,7 +11,7 @@ export default interface Submission {
   readonly length: number;
 }
 
-export const isSumbission = (obj: any): obj is Submission =>
+export const isSubmission = (obj: any): obj is Submission =>
   (typeof obj.execution_time === "number" || obj.execution_time === null) &&
   typeof obj.point === "number" &&
   typeof obj.result === "string" &&
