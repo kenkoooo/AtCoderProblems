@@ -27,7 +27,7 @@ const refineRanking = (ranking: List<RankingEntry>) =>
             count: entry.problem_count
           })
         : list.push({
-            rank: index,
+            rank: index + 1,
             id: entry.user_id,
             count: entry.problem_count
           });
