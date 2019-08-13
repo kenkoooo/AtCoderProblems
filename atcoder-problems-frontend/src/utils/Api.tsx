@@ -6,7 +6,8 @@ import { List, Map } from "immutable";
 import {
   isLangRankingEntry,
   isRankingEntry,
-  isSumRankingEntry
+  isSumRankingEntry,
+  RankingEntry
 } from "../interfaces/RankingEntry";
 import { isUserInfo } from "../interfaces/UserInfo";
 
@@ -29,7 +30,7 @@ const generateRanking = (
       Map<string, number>()
     )
     .entrySeq()
-    .map(([userId, count]) => ({ userId, count }))
+    .map(([user_id, problem_count]): RankingEntry => ({ user_id, problem_count }))
     .toList();
 
 export const getShortRanking = (problems: List<MergedProblem>) =>

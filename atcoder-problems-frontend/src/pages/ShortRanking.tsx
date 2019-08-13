@@ -1,12 +1,37 @@
 import React from "react";
-import * as ApiUrl from "../utils/Api";
 import Ranking from "../components/Ranking";
+import State from "../interfaces/State";
+import { getShortRanking } from "../utils/Api";
+import { List } from "immutable";
+import { RankingEntry } from "../interfaces/RankingEntry";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { requestMergedProblems } from "../actions";
 
-const ShortRanking = () => (
-  <Ranking
-    title="Top Golfers"
-    fetch={() => ApiUrl.fetchMergedProblems().then(problems => ApiUrl.getShortRanking(problems).map(({ problem_count, user_id }) => ({ count: problem_count, id: user_id })))}
-  />
-);
+interface Props {
+  ranking: List<RankingEntry>;
+  requestData: () => void;
+}
 
-export default ShortRanking;
+class ShortRanking extends React.Component<Props> {
+  componentDidMount(): void {
+    this.props.requestData();
+  }
+
+  render() {
+    return <Ranking title={"Top Golfers"} ranking={this.props.ranking} />;
+  }
+}
+
+const stateToProps = (state: State) => ({
+  ranking: getShortRanking(state.mergedProblems.toList())
+});
+
+const dispatchToProps = (dispatch: Dispatch) => ({
+  requestData: () => dispatch(requestMergedProblems())
+});
+
+export default connect(
+  stateToProps,
+  dispatchToProps
+)(ShortRanking);

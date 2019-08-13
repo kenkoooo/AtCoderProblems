@@ -1,94 +1,81 @@
-import React from 'react';
-import { Row } from 'reactstrap';
-import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
+import React from "react";
+import { Row } from "reactstrap";
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import { RankingEntry } from "../interfaces/RankingEntry";
+import { List } from "immutable";
 
 interface Props {
-	title: string;
-	fetch: (() => Promise<{ count: number; id: string }[]>);
+  title: string;
+  ranking: List<RankingEntry>;
 }
 
-interface User {
-	count: number;
-	id: string;
-	rank: number;
+interface InternalRankEntry {
+  readonly rank: number;
+  readonly id: string;
+  readonly count: number;
 }
 
-interface State {
-	data: User[];
-}
+const refineRanking = (ranking: List<RankingEntry>) =>
+  ranking
+    .sort((a, b) => b.problem_count - a.problem_count)
+    .reduce((list, entry, index) => {
+      const last = list.last(undefined);
+      return last && last.count == entry.problem_count
+        ? list.push({
+            rank: last.rank,
+            id: entry.user_id,
+            count: entry.problem_count
+          })
+        : list.push({
+            rank: index,
+            id: entry.user_id,
+            count: entry.problem_count
+          });
+    }, List<InternalRankEntry>());
 
-class Ranking extends React.Component<Props, State> {
-	constructor(props: Props) {
-		super(props);
-		this.state = { data: [] };
-	}
-
-	componentDidMount() {
-		this.props.fetch().then((users) => {
-			users.sort((a, b) => b.count - a.count);
-			const rank: number[] = [];
-			let cur = 1;
-			users.forEach((_, i) => {
-				if (i > 0 && users[i].count < users[i - 1].count) {
-					cur = i + 1;
-				}
-				rank.push(cur);
-			});
-			const data = users.map((u, i) => ({
-				count: u.count,
-				id: u.id,
-				rank: rank[i]
-			}));
-			this.setState({ data });
-		});
-	}
-
-	render() {
-		return (
-			<Row>
-				<h2>{this.props.title}</h2>
-				<BootstrapTable
-					height="auto"
-					data={this.state.data}
-					pagination
-					striped
-					hover
-					options={{
-						paginationPosition: 'top',
-						sizePerPage: 20,
-						sizePerPageList: [
-							{
-								text: '20',
-								value: 20
-							},
-							{
-								text: '50',
-								value: 50
-							},
-							{
-								text: '100',
-								value: 100
-							},
-							{
-								text: '200',
-								value: 200
-							},
-							{
-								text: 'All',
-								value: this.state.data.length
-							}
-						]
-					}}
-				>
-					<TableHeaderColumn dataField="rank">#</TableHeaderColumn>
-					<TableHeaderColumn dataField="id" isKey>
-						User
-					</TableHeaderColumn>
-					<TableHeaderColumn dataField="count">Count</TableHeaderColumn>
-				</BootstrapTable>
-			</Row>
-		);
-	}
-}
+const Ranking = (props: Props) => (
+  <Row>
+    <h2>{props.title}</h2>
+    <BootstrapTable
+      height="auto"
+      data={refineRanking(props.ranking).toArray()}
+      pagination
+      striped
+      hover
+      options={{
+        paginationPosition: "top",
+        sizePerPage: 20,
+        sizePerPageList: [
+          {
+            text: "20",
+            value: 20
+          },
+          {
+            text: "50",
+            value: 50
+          },
+          {
+            text: "100",
+            value: 100
+          },
+          {
+            text: "200",
+            value: 200
+          },
+          {
+            text: "All",
+            value: props.ranking.size
+          }
+        ]
+      }}
+    >
+      <TableHeaderColumn dataField="rank">#</TableHeaderColumn>
+      <TableHeaderColumn dataField="id" isKey>
+        User
+      </TableHeaderColumn>
+      <TableHeaderColumn dataField="count">Count</TableHeaderColumn>
+    </BootstrapTable>
+  </Row>
+);
 
 export default Ranking;

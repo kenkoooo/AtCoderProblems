@@ -1,22 +1,28 @@
 import { all, call, put, takeLatest, take } from "redux-saga/effects";
 import Action, {
   clearSubmissions,
+  receiveAcRanking,
   receiveInitialData,
   receiveMergedProblems,
   receivePerf,
   receiveSubmissions,
+  receiveSumRanking,
   receiveUserInfo,
+  REQUEST_AC_RANKING,
   REQUEST_MERGED_PROBLEMS,
   REQUEST_PERF,
+  REQUEST_SUM_RANKING,
   UPDATE_USER_IDS
 } from "./actions";
 import {
+  fetchACRanking,
   fetchContestProblemPairs,
   fetchContests,
   fetchMergedProblems,
   fetchProblemPerformances,
   fetchProblems,
   fetchSubmissions,
+  fetchSumRanking,
   fetchUserInfo
 } from "./utils/Api";
 
@@ -59,6 +65,18 @@ function* fetchPerformancesOnce() {
   yield put(receivePerf(perf));
 }
 
+function* fetchAcRankingOnce() {
+  yield take(REQUEST_AC_RANKING);
+  const ranking = yield call(fetchACRanking);
+  yield put(receiveAcRanking(ranking));
+}
+
+function* fetchSumRankingOnce() {
+  yield take(REQUEST_SUM_RANKING);
+  const ranking = yield call(fetchSumRanking);
+  yield put(receiveSumRanking(ranking));
+}
+
 function* requestAndReceiveUserInfo(action: Action) {
   if (action.type === UPDATE_USER_IDS) {
     const { userId } = action;
@@ -73,7 +91,9 @@ function* rootSaga() {
     takeLatest(UPDATE_USER_IDS, requestAndReceiveSubmissions),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveUserInfo),
     call(fetchMergedProblemsOnce),
-    call(fetchPerformancesOnce)
+    call(fetchPerformancesOnce),
+    call(fetchAcRankingOnce),
+    call(fetchSumRankingOnce)
   ]);
 }
 

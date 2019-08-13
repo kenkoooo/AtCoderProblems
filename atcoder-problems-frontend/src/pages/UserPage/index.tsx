@@ -25,6 +25,7 @@ import {
   getFirstRanking,
   getShortRanking
 } from "../../utils/Api";
+import { RankingEntry } from "../../interfaces/RankingEntry";
 
 const ONE_DAY_MILLI_SECONDS = 24 * 3600 * 1000;
 
@@ -117,19 +118,16 @@ const solvedCountForPieChart = (
     .filter(x => x.total > 0);
 };
 
-const findFromRanking = (
-  ranking: { user_id: string; problem_count: number }[],
-  userId: string
-) => {
+const findFromRanking = (ranking: List<RankingEntry>, userId: string) => {
   const entry = ranking
     .sort((a, b) => b.problem_count - a.problem_count)
     .find(r => r.user_id === userId);
   if (entry) {
     const count = entry.problem_count;
-    const rank = ranking.filter(e => e.problem_count > count).length;
+    const rank = ranking.filter(e => e.problem_count > count).size;
     return { rank, count };
   } else {
-    return { rank: ranking.length, count: 0 };
+    return { rank: ranking.size, count: 0 };
   }
 };
 
