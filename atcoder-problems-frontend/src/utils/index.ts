@@ -4,8 +4,9 @@ export const ATCODER_RIVALS_REGEXP = new RegExp(
   `^\\s*(${userIdRegex.source})\\s*(,\\s*(${userIdRegex.source})\\s*)*$`
 );
 
-export const extractRivalsParam = (rivalsParam: string) : string[] => {
-  return rivalsParam.split(",")
+export const extractRivalsParam = (rivalsParam: string): string[] => {
+  return rivalsParam
+    .split(",")
     .map(rival => rival.trim())
     .filter(rival => rival.length > 0);
 };
