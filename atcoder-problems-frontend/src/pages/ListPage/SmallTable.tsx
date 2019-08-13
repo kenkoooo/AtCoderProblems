@@ -2,7 +2,7 @@ import React from "react";
 import { isAccepted } from "../../utils";
 import Table from "reactstrap/lib/Table";
 import Submission from "../../interfaces/Submission";
-import { List, Map, Set } from "immutable";
+import { List, Map } from "immutable";
 import MergedProblem from "../../interfaces/MergedProblem";
 
 interface Props {
