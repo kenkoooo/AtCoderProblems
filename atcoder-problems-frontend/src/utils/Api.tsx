@@ -1,7 +1,7 @@
 import { isContest } from "../interfaces/Contest";
 import { isProblem } from "../interfaces/Problem";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
-import { isSumbission } from "../interfaces/Submission";
+import { isSubmission } from "../interfaces/Submission";
 import { List, Map } from "immutable";
 import {
   isLangRankingEntry,
@@ -30,7 +30,9 @@ const generateRanking = (
       Map<string, number>()
     )
     .entrySeq()
-    .map(([user_id, problem_count]): RankingEntry => ({ user_id, problem_count }))
+    .map(
+      ([user_id, problem_count]): RankingEntry => ({ user_id, problem_count })
+    )
     .toList();
 
 export const getShortRanking = (problems: List<MergedProblem>) =>
@@ -92,16 +94,21 @@ export const fetchProblemPerformances = () =>
 
 export const fetchUserInfo = (user: string) =>
   user.length > 0
-    ? fetchTypedList(
-        `${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`,
-        isUserInfo
-      )
+    ? fetch(`${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`)
+        .then(r => r.json())
+        .then(r => {
+          if (isUserInfo(r)) {
+            return r;
+          } else {
+            console.error("Invalid UserInfo: ", r);
+          }
+        })
     : Promise.resolve(undefined);
 
 export const fetchSubmissions = (user: string) =>
   user.length > 0
     ? fetchTypedList(
         `${DYNAMIC_API_BASE_URL}/results?user=${user}`,
-        isSumbission
+        isSubmission
       )
     : Promise.resolve([]);
