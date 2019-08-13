@@ -2,30 +2,28 @@ import React from "react";
 import { Row, Col } from "reactstrap";
 
 import * as Api from "../utils/Api";
+import { LangRankingEntry } from "../interfaces/RankingEntry";
+import { List, Map } from "immutable";
+import State from "../interfaces/State";
+import { Dispatch } from "redux";
+import { requestLangRanking } from "../actions";
+import { connect } from "react-redux";
 
 const ordinalNumbers = ["1st", "2nd", "3rd"];
 
-interface Ranking {
+const OneOwner = (props: {
   language: string;
-  ranking: { name: string; count: number }[];
-}
-
-const OneOwner = ({
-  language,
-  ranking
-}: {
-  language: string;
-  ranking: { name: string; count: number }[];
+  ranking: List<LangRankingEntry>;
 }) => (
   <div>
     <Row className="justify-content-center my-2 border-bottom">
-      <h1>{language}</h1>
+      <h1>{props.language}</h1>
     </Row>
     <Row>
-      {ranking.slice(0, 3).map(({ name, count }, i) => (
-        <Col key={name} className="text-center">
+      {props.ranking.slice(0, 3).map(({ user_id, count }, i) => (
+        <Col key={user_id} className="text-center">
           <h5>{ordinalNumbers[i]}</h5>
-          <h3>{name}</h3>
+          <h3>{user_id}</h3>
           <h5 className="text-muted">{count} AC</h5>
         </Col>
       ))}
@@ -33,55 +31,47 @@ const OneOwner = ({
   </div>
 );
 
-interface State {
-  rankings: Ranking[];
+interface Props {
+  ranking: Map<string, List<LangRankingEntry>>;
+  requestData: () => void;
 }
 
-class LanguageOwners extends React.Component<{}, State> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      rankings: []
-    };
-  }
-
+class LanguageOwners extends React.Component<Props> {
   componentDidMount() {
-    Api.fetchLangRanking().then(entries => {
-      const map: Map<string, { name: string; count: number }[]> = new Map();
-      entries.forEach(entry => {
-        const e = {
-          name: entry.user_id,
-          count: entry.count
-        };
-        const arr = map.get(entry.language);
-        if (arr) {
-          arr.push(e);
-        } else {
-          map.set(entry.language, [e]);
-        }
-      });
-
-      const rankings = Array.from(map).map(([language, ranking]) => ({
-        language,
-        ranking: ranking.sort((a, b) => b.count - a.count)
-      }));
-      this.setState({ rankings });
-    });
+    this.props.requestData();
   }
 
   render() {
     return (
       <div>
-        {this.state.rankings.map(entry => (
-          <OneOwner
-            key={entry.language}
-            language={entry.language}
-            ranking={entry.ranking}
-          />
-        ))}
+        {this.props.ranking
+          .sortBy((value, key) => key)
+          .map((list, language) => (
+            <OneOwner key={language} language={language} ranking={list} />
+          ))
+          .valueSeq()
+          .toArray()}
       </div>
     );
   }
 }
 
-export default LanguageOwners;
+const stateToProps = (state: State) => ({
+  ranking: state.langRanking
+    .reduce(
+      (map, entry) =>
+        map.update(entry.language, List<LangRankingEntry>(), list =>
+          list.push(entry)
+        ),
+      Map<string, List<LangRankingEntry>>()
+    )
+    .map(list => list.sort((a, b) => b.count - a.count))
+});
+const dispatchToProps = (dispatch: Dispatch) => ({
+  requestData: () => dispatch(requestLangRanking())
+});
+
+export default connect(
+  stateToProps,
+  dispatchToProps
+)(LanguageOwners);
