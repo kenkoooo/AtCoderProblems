@@ -4,10 +4,12 @@ import Submission from "./interfaces/Submission";
 
 import Action, {
   CLEAR_SUBMISSIONS,
+  RECEIVE_AC_RANKING,
   RECEIVE_INITIAL_DATA,
   RECEIVE_MERGED_PROBLEMS,
   RECEIVE_PERF,
   RECEIVE_SUBMISSIONS,
+  RECEIVE_SUM_RANKING,
   RECEIVE_USER_INFO,
   UPDATE_USER_IDS
 } from "./actions";
@@ -15,6 +17,7 @@ import MergedProblem from "./interfaces/MergedProblem";
 import Problem from "./interfaces/Problem";
 import UserInfo from "./interfaces/UserInfo";
 import Contest from "./interfaces/Contest";
+import { RankingEntry, SumRankingEntry } from "./interfaces/RankingEntry";
 
 const initialState: State = {
   users: {
@@ -27,7 +30,9 @@ const initialState: State = {
   submissions: Map(),
   contestToProblems: Map(),
   userInfo: undefined,
-  problemPerformances: Map()
+  problemPerformances: Map(),
+  acRanking: List(),
+  sumRanking: List()
 };
 
 const mergedProblemReducer = (
@@ -150,6 +155,25 @@ const performanceReducer = (
   }
 };
 
+const acRankingReducer = (acRanking: List<RankingEntry>, action: Action) => {
+  if (action.type === RECEIVE_AC_RANKING) {
+    return action.ranking;
+  } else {
+    return acRanking;
+  }
+};
+
+const sumRankingReducer = (
+  sumRanking: List<SumRankingEntry>,
+  action: Action
+) => {
+  if (action.type === RECEIVE_SUM_RANKING) {
+    return action.ranking;
+  } else {
+    return sumRanking;
+  }
+};
+
 const rootReducer = (state: State = initialState, action: Action): State => {
   const { contests, problems, contestToProblems } = dataReducer(
     state.problems,
@@ -165,7 +189,9 @@ const rootReducer = (state: State = initialState, action: Action): State => {
     mergedProblems: mergedProblemReducer(state.mergedProblems, action),
     userInfo: userInfoReducer(state.userInfo, action),
     problemPerformances: performanceReducer(state.problemPerformances, action),
-    contests
+    contests,
+    sumRanking: sumRankingReducer(state.sumRanking, action),
+    acRanking: acRankingReducer(state.acRanking, action)
   };
 };
 

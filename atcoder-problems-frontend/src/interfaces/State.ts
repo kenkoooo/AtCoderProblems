@@ -4,6 +4,7 @@ import Problem from "./Problem";
 import MergedProblem from "./MergedProblem";
 import UserInfo from "./UserInfo";
 import Contest from "./Contest";
+import { RankingEntry, SumRankingEntry } from "./RankingEntry";
 
 type ContestId = string;
 type ProblemId = string;
@@ -20,4 +21,6 @@ export default interface State {
   readonly contestToProblems: Map<ContestId, List<ProblemId>>;
   readonly userInfo: UserInfo | undefined;
   readonly problemPerformances: Map<ProblemId, number>;
+  readonly acRanking: List<RankingEntry>;
+  readonly sumRanking: List<SumRankingEntry>;
 }

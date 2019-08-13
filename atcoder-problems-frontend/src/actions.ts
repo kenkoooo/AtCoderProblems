@@ -4,6 +4,7 @@ import Problem from "./interfaces/Problem";
 import Contest from "./interfaces/Contest";
 import MergedProblem from "./interfaces/MergedProblem";
 import UserInfo from "./interfaces/UserInfo";
+import { RankingEntry, SumRankingEntry } from "./interfaces/RankingEntry";
 
 export const RECEIVE_INITIAL_DATA = "RECEIVE_INITIAL_DATA";
 
@@ -17,6 +18,12 @@ export const RECEIVE_MERGED_PROBLEMS = "RECEIVE_MERGED_PROBLEMS";
 
 export const REQUEST_PERF = "REQUEST_PERF";
 export const RECEIVE_PERF = "RECEIVE_PERF";
+
+export const REQUEST_AC_RANKING = "REQUEST_AC_RANKING";
+export const RECEIVE_AC_RANKING = "RECEIVE_AC_RANKING";
+
+export const REQUEST_SUM_RANKING = "REQUEST_SUM_RANKING";
+export const RECEIVE_SUM_RANKING = "RECEIVE_SUM_RANKING";
 
 export const receiveInitialData = (
   contests: List<Contest>,
@@ -69,6 +76,24 @@ export const receivePerf = (
   perf
 });
 
+export const requestAcRanking = () => ({
+  type: REQUEST_AC_RANKING as typeof REQUEST_AC_RANKING
+});
+
+export const receiveAcRanking = (ranking: List<RankingEntry>) => ({
+  type: RECEIVE_AC_RANKING as typeof RECEIVE_AC_RANKING,
+  ranking
+});
+
+export const requestSumRanking = () => ({
+  type: REQUEST_SUM_RANKING as typeof REQUEST_SUM_RANKING
+});
+
+export const receiveSumRanking = (ranking: List<SumRankingEntry>) => ({
+  type: RECEIVE_SUM_RANKING as typeof RECEIVE_SUM_RANKING,
+  ranking
+});
+
 type Action =
   | ReturnType<typeof receiveInitialData>
   | ReturnType<typeof updateUserIds>
@@ -78,6 +103,10 @@ type Action =
   | ReturnType<typeof requestMergedProblems>
   | ReturnType<typeof receiveMergedProblems>
   | ReturnType<typeof requestPerf>
-  | ReturnType<typeof receivePerf>;
+  | ReturnType<typeof receivePerf>
+  | ReturnType<typeof requestAcRanking>
+  | ReturnType<typeof receiveAcRanking>
+  | ReturnType<typeof requestSumRanking>
+  | ReturnType<typeof receiveSumRanking>;
 
 export default Action;
