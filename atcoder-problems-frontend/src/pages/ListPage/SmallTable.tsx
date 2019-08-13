@@ -12,26 +12,28 @@ interface Props {
 }
 
 const SmallTable = ({ submissions, userIds, mergedProblems }: Props) => {
-  const userPointCount = userIds.map(userId => ({
-    userId,
-    points: submissions
-      .map(list =>
-        list
-          .filter(s => s.user_id === userId)
-          .filter(s => isAccepted(s.result))
-          .map(s => mergedProblems.get(s.problem_id))
-          .filter(p => p && p.point)
-          .first(undefined)
-      )
-      .valueSeq()
-      .reduce(
-        (map, problem) =>
-          problem && problem.point
-            ? map.update(problem.point, 0, count => count + 1)
-            : map,
-        Map<number, number>()
-      )
-  }));
+  const userPointCount = userIds
+    .filter(userId => userId.length > 0)
+    .map(userId => ({
+      userId,
+      points: submissions
+        .map(list =>
+          list
+            .filter(s => s.user_id === userId)
+            .filter(s => isAccepted(s.result))
+            .map(s => mergedProblems.get(s.problem_id))
+            .filter(p => p && p.point)
+            .first(undefined)
+        )
+        .valueSeq()
+        .reduce(
+          (map, problem) =>
+            problem && problem.point
+              ? map.update(problem.point, 0, count => count + 1)
+              : map,
+          Map<number, number>()
+        )
+    }));
   const totalCount = mergedProblems
     .reduce(
       (map, p) => (p.point ? map.update(p.point, 0, count => count + 1) : map),

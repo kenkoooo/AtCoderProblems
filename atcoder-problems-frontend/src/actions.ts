@@ -4,12 +4,15 @@ import Problem from "./interfaces/Problem";
 import Contest from "./interfaces/Contest";
 import MergedProblem from "./interfaces/MergedProblem";
 import UserInfo from "./interfaces/UserInfo";
-import { RankingEntry, SumRankingEntry } from "./interfaces/RankingEntry";
+import {
+  LangRankingEntry,
+  RankingEntry,
+  SumRankingEntry
+} from "./interfaces/RankingEntry";
 
 export const RECEIVE_INITIAL_DATA = "RECEIVE_INITIAL_DATA";
 
 export const UPDATE_USER_IDS = "UPDATE_USER_IDS";
-export const CLEAR_SUBMISSIONS = "CLEAR_SUBMISSIONS";
 export const RECEIVE_SUBMISSIONS = "RECEIVE_SUBMISSIONS";
 export const RECEIVE_USER_INFO = "RECEIVE_USER_INFO";
 
@@ -24,6 +27,9 @@ export const RECEIVE_AC_RANKING = "RECEIVE_AC_RANKING";
 
 export const REQUEST_SUM_RANKING = "REQUEST_SUM_RANKING";
 export const RECEIVE_SUM_RANKING = "RECEIVE_SUM_RANKING";
+
+export const REQUEST_LANG_RANKING = "REQUEST_LANG_RANKING";
+export const RECEIVE_LANG_RANKING = "RECEIVE_LANG_RANKING";
 
 export const receiveInitialData = (
   contests: List<Contest>,
@@ -40,10 +46,6 @@ export const updateUserIds = (userId: string, rivals: List<string>) => ({
   type: UPDATE_USER_IDS as typeof UPDATE_USER_IDS,
   userId,
   rivals
-});
-
-export const clearSubmissions = () => ({
-  type: CLEAR_SUBMISSIONS as typeof CLEAR_SUBMISSIONS
 });
 
 export const receiveSubmissions = (submissions: List<Submission>) => ({
@@ -94,10 +96,18 @@ export const receiveSumRanking = (ranking: List<SumRankingEntry>) => ({
   ranking
 });
 
+export const requestLangRanking = () => ({
+  type: REQUEST_LANG_RANKING as typeof REQUEST_LANG_RANKING
+});
+
+export const receiveLangRanking = (ranking: List<LangRankingEntry>) => ({
+  type: RECEIVE_LANG_RANKING as typeof RECEIVE_LANG_RANKING,
+  ranking
+});
+
 type Action =
   | ReturnType<typeof receiveInitialData>
   | ReturnType<typeof updateUserIds>
-  | ReturnType<typeof clearSubmissions>
   | ReturnType<typeof receiveSubmissions>
   | ReturnType<typeof receiveUserInfo>
   | ReturnType<typeof requestMergedProblems>
@@ -107,6 +117,8 @@ type Action =
   | ReturnType<typeof requestAcRanking>
   | ReturnType<typeof receiveAcRanking>
   | ReturnType<typeof requestSumRanking>
-  | ReturnType<typeof receiveSumRanking>;
+  | ReturnType<typeof receiveSumRanking>
+  | ReturnType<typeof requestLangRanking>
+  | ReturnType<typeof receiveLangRanking>;
 
 export default Action;

@@ -26,12 +26,12 @@ const App = () => (
       <NavigationBar />
       <Container style={{ width: "100%", maxWidth: "90%" }}>
         <Switch>
-          <Route exact path="/ac" component={ACRanking} />
-          <Route exact path="/fast" component={FastestRanking} />
-          <Route exact path="/short" component={ShortRanking} />
-          <Route exact path="/first" component={FirstRanking} />
-          <Route exact path="/sum" component={SumRanking} />
-          <Route exact path="/lang" component={LanguageOwners} />
+          <Route exact path="/ac" component={() => <ACRanking />} />
+          <Route exact path="/fast" component={() => <FastestRanking />} />
+          <Route exact path="/short" component={() => <ShortRanking />} />
+          <Route exact path="/first" component={() => <FirstRanking />} />
+          <Route exact path="/sum" component={() => <SumRanking />} />
+          <Route exact path="/lang" component={() => <LanguageOwners />} />
           <Route exact path="/monitor" component={Monitor} />
           <Route path="/user/([a-zA-Z0-9_]*)*" component={() => <UserPage />} />
           <Route
