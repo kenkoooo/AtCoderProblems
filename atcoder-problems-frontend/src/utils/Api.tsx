@@ -1,6 +1,6 @@
 import Contest from "../interfaces/Contest";
 import Problem from "../interfaces/Problem";
-import MergedProblem from "../interfaces/MergedProblem";
+import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import UserInfo from "../interfaces/UserInfo";
 import Submission from "../interfaces/Submission";
 import { List, Map } from "immutable";
@@ -69,10 +69,13 @@ export const fetchProblems = () =>
   fetchJson<Problem[]>(STATIC_API_BASE_URL + "/problems.json").then(problems =>
     List(problems)
   );
+
 export const fetchMergedProblems = () =>
-  fetchJson<MergedProblem[]>(
-    STATIC_API_BASE_URL + "/merged-problems.json"
-  ).then(problems => List(problems));
+  fetch(STATIC_API_BASE_URL + "/merged-problems.json")
+    .then(response => response.json())
+    .then((response: any[]) => response.filter(isMergedProblem))
+    .then((problems: MergedProblem[]) => List(problems));
+
 export const fetchProblemPerformances = () =>
   fetchJson<
     {
