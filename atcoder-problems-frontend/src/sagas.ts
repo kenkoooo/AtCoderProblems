@@ -1,14 +1,15 @@
 import { all, call, put, takeLatest, take } from "redux-saga/effects";
 import Action, {
-  clearSubmissions,
   receiveAcRanking,
   receiveInitialData,
+  receiveLangRanking,
   receiveMergedProblems,
   receivePerf,
   receiveSubmissions,
   receiveSumRanking,
   receiveUserInfo,
   REQUEST_AC_RANKING,
+  REQUEST_LANG_RANKING,
   REQUEST_MERGED_PROBLEMS,
   REQUEST_PERF,
   REQUEST_SUM_RANKING,
@@ -18,6 +19,7 @@ import {
   fetchACRanking,
   fetchContestProblemPairs,
   fetchContests,
+  fetchLangRanking,
   fetchMergedProblems,
   fetchProblemPerformances,
   fetchProblems,
@@ -25,22 +27,23 @@ import {
   fetchSumRanking,
   fetchUserInfo
 } from "./utils/Api";
+import Submission from "./interfaces/Submission";
+import { List } from "immutable";
 
 function* requestAndReceiveSubmissions(action: Action) {
   if (action.type === UPDATE_USER_IDS) {
-    yield put(clearSubmissions());
     const { userId, rivals } = action;
-    yield all(
+    const submissionLists: List<Submission>[] = yield all(
       rivals
         .push(userId)
         .toArray()
-        .map(id =>
-          call(function*() {
-            const submissions = yield call(fetchSubmissions, id);
-            yield put(receiveSubmissions(submissions));
-          })
-        )
+        .map(id => call(fetchSubmissions, id))
     );
+    const submissions = submissionLists.reduce(
+      (submissions, list) => submissions.concat(list),
+      List<Submission>()
+    );
+    yield put(receiveSubmissions(submissions));
   }
 }
 
@@ -77,6 +80,12 @@ function* fetchSumRankingOnce() {
   yield put(receiveSumRanking(ranking));
 }
 
+function* fetchLangRankingOnce() {
+  yield take(REQUEST_LANG_RANKING);
+  const ranking = yield call(fetchLangRanking);
+  yield put(receiveLangRanking(ranking));
+}
+
 function* requestAndReceiveUserInfo(action: Action) {
   if (action.type === UPDATE_USER_IDS) {
     const { userId } = action;
@@ -93,7 +102,8 @@ function* rootSaga() {
     call(fetchMergedProblemsOnce),
     call(fetchPerformancesOnce),
     call(fetchAcRankingOnce),
-    call(fetchSumRankingOnce)
+    call(fetchSumRankingOnce),
+    call(fetchLangRankingOnce)
   ]);
 }
 

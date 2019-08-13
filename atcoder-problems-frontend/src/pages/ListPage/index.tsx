@@ -2,11 +2,11 @@ import React, { ReactElement } from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import {
   Badge,
-  Row,
-  UncontrolledDropdown,
-  DropdownToggle,
+  DropdownItem,
   DropdownMenu,
-  DropdownItem
+  DropdownToggle,
+  Row,
+  UncontrolledDropdown
 } from "reactstrap";
 
 import { isAccepted } from "../../utils";
@@ -19,44 +19,16 @@ import SmallTable from "./SmallTable";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import State from "../../interfaces/State";
-import { Set, List, Map } from "immutable";
+import State, {
+  noneStatus,
+  ProblemId,
+  ProblemStatus,
+  StatusLabel
+} from "../../interfaces/State";
+import { List, Map, Set } from "immutable";
 import { requestMergedProblems, requestPerf } from "../../actions";
 
 const INF_POINT = 1e18;
-
-const ACCEPTED = "ACCEPTED";
-const FAILED = "FAILED";
-const TRYING = "TRYING";
-const NONE = "NONE";
-
-const getProblemStatus = (
-  problemSubmissions: List<Submission>,
-  userId: string,
-  rivals: List<string>
-) => {
-  const userSubmissions = problemSubmissions
-    .filter(s => s.user_id === userId)
-    .sort((a, b) => a.epoch_second - b.epoch_second);
-  const rivalsSubmissions = problemSubmissions
-    .filter(s => rivals.contains(s.user_id))
-    .filter(s => isAccepted(s.result));
-  if (userSubmissions.find(s => isAccepted(s.result))) {
-    return { status: ACCEPTED as typeof ACCEPTED };
-  } else if (!rivalsSubmissions.isEmpty()) {
-    return {
-      status: FAILED as typeof FAILED,
-      rivals: rivals
-        .filter(r => rivalsSubmissions.find(s => s.user_id === r))
-        .toList()
-    };
-  } else {
-    const tail = userSubmissions.last(undefined);
-    return tail
-      ? { status: TRYING as typeof TRYING, result: tail.result }
-      : { status: NONE as typeof NONE };
-  }
-};
 
 interface ProblemRowData {
   readonly id: string;
@@ -73,7 +45,7 @@ interface ProblemRowData {
   readonly mergedProblem: MergedProblem;
   readonly shortestUserId: string;
   readonly fastestUserId: string;
-  readonly status: ReturnType<typeof getProblemStatus>;
+  readonly status: ProblemStatus;
 }
 
 interface ListPageState {
@@ -105,7 +77,8 @@ class ListPage extends React.Component<Props, ListPageState> {
       submissions,
       userId,
       rivals,
-      contests
+      contests,
+      statusLabelMap
     } = this.props;
     const {
       fromPoint,
@@ -155,11 +128,7 @@ class ListPage extends React.Component<Props, ListPageState> {
             mergedProblem: p,
             shortestUserId,
             fastestUserId,
-            status: getProblemStatus(
-              submissions.get(p.id, List<Submission>()),
-              userId,
-              rivals
-            )
+            status: statusLabelMap.get(p.id, noneStatus())
           };
         }
       )
@@ -214,14 +183,14 @@ class ListPage extends React.Component<Props, ListPageState> {
         dataAlign: "center",
         dataFormat: (_: string, row) => {
           const { status } = row;
-          switch (status.status) {
-            case ACCEPTED: {
+          switch (status.label) {
+            case StatusLabel.Success: {
               return <Badge color="success">AC</Badge>;
             }
-            case FAILED: {
+            case StatusLabel.Failed: {
               return (
                 <div>
-                  {status.rivals.map(rivalId => (
+                  {status.solvedRivals.map(rivalId => (
                     <Badge key={rivalId} color="danger">
                       {rivalId}
                     </Badge>
@@ -229,10 +198,10 @@ class ListPage extends React.Component<Props, ListPageState> {
                 </div>
               );
             }
-            case TRYING: {
+            case StatusLabel.Warning: {
               return <Badge color="warning">{status.result}</Badge>;
             }
-            case NONE: {
+            case StatusLabel.None: {
               return "";
             }
           }
@@ -512,17 +481,17 @@ class ListPage extends React.Component<Props, ListPageState> {
             search
             trClassName={(row: ProblemRowData) => {
               const { status } = row;
-              switch (status.status) {
-                case ACCEPTED: {
+              switch (status.label) {
+                case StatusLabel.Success: {
                   return "table-success";
                 }
-                case FAILED: {
+                case StatusLabel.Failed: {
                   return "table-danger";
                 }
-                case TRYING: {
+                case StatusLabel.Warning: {
                   return "table-warning";
                 }
-                case NONE: {
+                case StatusLabel.None: {
                   return "";
                 }
               }
@@ -535,9 +504,9 @@ class ListPage extends React.Component<Props, ListPageState> {
                   case "All":
                     return true;
                   case "Only AC":
-                    return status.status === ACCEPTED;
+                    return status.label === StatusLabel.Success;
                   case "Only Trying":
-                    return status.status !== ACCEPTED;
+                    return status.label !== StatusLabel.Success;
                 }
               })
               .filter(row => {
@@ -598,6 +567,7 @@ interface Props {
   readonly mergedProblems: Map<string, MergedProblem>;
   readonly problemPerformances: Map<string, number>;
   readonly contests: Map<string, Contest>;
+  readonly statusLabelMap: Map<ProblemId, ProblemStatus>;
 
   readonly requestData: () => void;
 }
@@ -608,7 +578,8 @@ const stateToProps = (state: State) => ({
   submissions: state.submissions,
   mergedProblems: state.mergedProblems,
   contests: state.contests,
-  problemPerformances: state.problemPerformances
+  problemPerformances: state.problemPerformances,
+  statusLabelMap: state.cache.statusLabelMap
 });
 
 const dispatchToProps = (dispatch: Dispatch) => ({

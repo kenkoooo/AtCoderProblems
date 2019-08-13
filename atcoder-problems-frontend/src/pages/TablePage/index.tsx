@@ -1,44 +1,41 @@
 import React from "react";
 import { FormGroup, Input, Label, Row } from "reactstrap";
-import { isAccepted } from "../../utils";
 import { connect } from "react-redux";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
-import State from "../../interfaces/State";
+import State, {
+  ContestId,
+  ProblemId,
+  ProblemStatus,
+  StatusLabel
+} from "../../interfaces/State";
 import { List, Map } from "immutable";
 import Submission from "../../interfaces/Submission";
 import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
 
-export type StatusLabel = "success" | "danger" | "warning" | "";
-
-const getProblemStatusString = (
-  userId: string,
-  rivals: List<string>,
-  problem: Problem,
-  submissions: Map<string, List<Submission>>
-): StatusLabel => {
-  const list = submissions.get(problem.id, List<Submission>());
-  if (list.find(s => isAccepted(s.result) && s.user_id === userId)) {
-    return "success";
-  } else if (
-    list.find(s => isAccepted(s.result) && rivals.contains(s.user_id))
-  ) {
-    return "danger";
-  } else if (list.find(s => !isAccepted(s.result) && s.user_id === userId)) {
-    return "warning";
-  } else {
-    return "";
+export const statusLabelToTableColor = (label: StatusLabel) => {
+  switch (label) {
+    case StatusLabel.Success:
+      return "table-success";
+    case StatusLabel.Failed:
+      return "table-danger";
+    case StatusLabel.Warning:
+      return "table-warning";
+    case StatusLabel.None:
+      return "";
+    default:
+      return "";
   }
 };
 
 interface Props {
   userId: string;
   rivals: List<string>;
-  submissions: Map<string, List<Submission>>;
-  contests: Map<string, Contest>;
-  contestToProblems: Map<string, List<Problem>>;
-  problemLabels: Map<string, StatusLabel>;
+  submissions: Map<ProblemId, List<Submission>>;
+  contests: Map<ContestId, Contest>;
+  contestToProblems: Map<ContestId, List<Problem>>;
+  statusLabelMap: Map<ProblemId, ProblemStatus>;
 }
 
 interface LocalState {
@@ -61,7 +58,7 @@ class TablePage extends React.Component<Props, LocalState> {
       contests,
       contestToProblems,
       submissions,
-      problemLabels
+      statusLabelMap
     } = this.props;
 
     const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
@@ -88,21 +85,21 @@ class TablePage extends React.Component<Props, LocalState> {
           contests={abc}
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
-          problemLabels={problemLabels}
+          statusLabelMap={statusLabelMap}
         />
         <AtCoderRegularTable
           showSolved={showSolved}
           contests={arc}
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
-          problemLabels={problemLabels}
+          statusLabelMap={statusLabelMap}
         />
         <AtCoderRegularTable
           showSolved={showSolved}
           contests={agc}
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
-          problemLabels={problemLabels}
+          statusLabelMap={statusLabelMap}
         />
         <Row className="my-4">
           <h2>Other Contests</h2>
@@ -114,7 +111,7 @@ class TablePage extends React.Component<Props, LocalState> {
           submissions={submissions}
           userId={userId}
           rivals={rivals}
-          problemLabels={problemLabels}
+          statusLabelMap={statusLabelMap}
         />
       </div>
     );
@@ -134,14 +131,7 @@ const stateToProps = (state: State) => ({
   ),
   contests: state.contests,
   submissions: state.submissions,
-  problemLabels: state.problems.map(p =>
-    getProblemStatusString(
-      state.users.userId,
-      state.users.rivals,
-      p,
-      state.submissions
-    )
-  )
+  statusLabelMap: state.cache.statusLabelMap
 });
 
 export default connect(stateToProps)(TablePage);

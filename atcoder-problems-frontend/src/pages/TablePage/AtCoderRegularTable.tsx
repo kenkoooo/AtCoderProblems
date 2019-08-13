@@ -5,27 +5,36 @@ import { Row } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import * as Url from "../../utils/Url";
 import React from "react";
-import { StatusLabel } from "./index";
+import {
+  noneStatus,
+  ProblemId,
+  ProblemStatus,
+  StatusLabel
+} from "../../interfaces/State";
+import { statusLabelToTableColor } from "./index";
 
 interface Props {
   contests: Map<string, Contest>;
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   title: string;
-  problemLabels: Map<string, StatusLabel>;
+  statusLabelMap: Map<ProblemId, ProblemStatus>;
 }
 
-export const AtCoderRegularTable = (props: Props) => {
-  const { contestToProblems, showSolved, problemLabels } = props;
+export const AtCoderRegularTable: React.FC<Props> = props => {
+  const { contestToProblems, showSolved, statusLabelMap } = props;
   const solvedAll = (contest: Contest) => {
     return contestToProblems
       .get(contest.id, List<Problem>())
-      .every(p => problemLabels.get(p.id, "") === "success");
+      .every(
+        p =>
+          statusLabelMap.get(p.id, noneStatus()).label === StatusLabel.Success
+      );
   };
   const ithProblem = (contest: Contest, i: number) =>
     contestToProblems
       .get(contest.id, List<Problem>())
-      .sort((a, b) => a.title.localeCompare(b.title))
+      .sort((a, b) => a.id.localeCompare(b.id))
       .get(i);
   const contests = props.contests
     .valueSeq()
@@ -49,11 +58,7 @@ export const AtCoderRegularTable = (props: Props) => {
           isKey
           dataField="id"
           columnClassName={(_: any, contest: Contest) =>
-            contestToProblems
-              .get(contest.id, List<Problem>())
-              .every(p => problemLabels.get(p.id) === "success")
-              ? "table-success"
-              : ""
+            solvedAll(contest) ? "table-success" : ""
           }
           dataFormat={(_: any, contest: Contest) => (
             <a href={Url.formatContestUrl(contest.id)} target="_blank">
@@ -69,9 +74,12 @@ export const AtCoderRegularTable = (props: Props) => {
             key={c}
             columnClassName={(_: any, contest: Contest) => {
               const problem = ithProblem(contest, i);
-              return problem
-                ? "table-" + problemLabels.get(problem.id, "")
-                : "";
+              if (problem) {
+                const status = statusLabelMap.get(problem.id, noneStatus());
+                return statusLabelToTableColor(status.label);
+              } else {
+                return "";
+              }
             }}
             dataFormat={(_: any, contest: Contest) => {
               const problem = ithProblem(contest, i);

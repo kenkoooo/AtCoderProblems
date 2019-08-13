@@ -5,7 +5,8 @@ import Submission from "../../interfaces/Submission";
 import * as Url from "../../utils/Url";
 import { Table } from "reactstrap";
 import React from "react";
-import { StatusLabel } from "./index";
+import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/State";
+import { statusLabelToTableColor } from "./index";
 
 interface Props {
   contests: Map<string, Contest>;
@@ -14,7 +15,7 @@ interface Props {
   submissions: Map<string, List<Submission>>;
   userId: string;
   rivals: List<string>;
-  problemLabels: Map<string, StatusLabel>;
+  statusLabelMap: Map<ProblemId, ProblemStatus>;
 }
 
 const ContestTable = (props: Props) => (
@@ -32,8 +33,8 @@ const ContestTable = (props: Props) => (
         ({ contest, problems }) =>
           props.showSolved ||
           !problems
-            .map(p => props.problemLabels.get(p.id, ""))
-            .every(color => color === "success")
+            .map(p => props.statusLabelMap.get(p.id))
+            .every(status => !!status && status.label === StatusLabel.Success)
       )
       .map(({ contest, problems }) => {
         return (
@@ -46,19 +47,22 @@ const ContestTable = (props: Props) => (
             <Table striped bordered hover responsive>
               <tbody>
                 <tr>
-                  {problems.map(p => (
-                    <td
-                      key={p.id}
-                      className={"table-" + props.problemLabels.get(p.id, "")}
-                    >
-                      <a
-                        target="_blank"
-                        href={Url.formatProblemUrl(p.id, p.contest_id)}
-                      >
-                        {p.title}
-                      </a>
-                    </td>
-                  ))}
+                  {problems.map(p => {
+                    const status = props.statusLabelMap.get(p.id);
+                    const color = status
+                      ? statusLabelToTableColor(status.label)
+                      : "";
+                    return (
+                      <td key={p.id} className={color}>
+                        <a
+                          target="_blank"
+                          href={Url.formatProblemUrl(p.id, p.contest_id)}
+                        >
+                          {p.title}
+                        </a>
+                      </td>
+                    );
+                  })}
                 </tr>
               </tbody>
             </Table>
