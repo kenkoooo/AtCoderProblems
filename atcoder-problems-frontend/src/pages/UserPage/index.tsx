@@ -6,7 +6,7 @@ import UserInfo from "../../interfaces/UserInfo";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import { ordinalSuffixOf, isAccepted } from "../../utils";
-import { formatDate } from "../../utils/DateFormat";
+import { formatDateSecond } from "../../utils/DateFormat";
 
 import ClimbingLineChart from "./ClimbingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
@@ -176,7 +176,7 @@ class UserPage extends React.Component<Props> {
       .filter((s: Submission | undefined): s is Submission => s !== undefined);
 
     const dailyCount = minAcceptedTimes
-      .map(s => formatDate(s.epoch_second))
+      .map(s => formatDateSecond(s.epoch_second))
       .reduce(
         (map, date) => map.update(date, 0, count => count + 1),
         Map<string, number>()
@@ -214,10 +214,10 @@ class UserPage extends React.Component<Props> {
       );
 
     const isIncreasing =
-      formatDate((new Date().getTime() - ONE_DAY_MILLI_SECONDS) / 1000) ===
-        formatDate(prevMilliSecond / 1000) ||
-      formatDate(new Date().getTime() / 1000) ===
-        formatDate(prevMilliSecond / 1000);
+      formatDateSecond((new Date().getTime() - ONE_DAY_MILLI_SECONDS) / 1000) ===
+        formatDateSecond(prevMilliSecond / 1000) ||
+      formatDateSecond(new Date().getTime() / 1000) ===
+        formatDateSecond(prevMilliSecond / 1000);
 
     const abcSolved = solvedCountForPieChart(
       contestToProblems.filter((value, key) => key.substring(0, 3) === "abc"),
@@ -287,7 +287,7 @@ class UserPage extends React.Component<Props> {
           <Col key="Current Streak" className="text-center" xs="6" md="3">
             <h6>Current Streak</h6>
             <h3>{isIncreasing ? currentStreak : 0} days</h3>
-            <h6 className="text-muted">{`Last AC: ${formatDate(
+            <h6 className="text-muted">{`Last AC: ${formatDateSecond(
               prevMilliSecond / 1000
             )}`}</h6>
           </Col>

@@ -1,5 +1,9 @@
-export const formatDate = (epoch_second: number) => {
-  const date = new Date(epoch_second * 1000);
+export const formatDateSecond = (epochSecond: number) => {
+  const date = new Date(epochSecond * 1000);
+  return formatDate(date);
+};
+
+export const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
