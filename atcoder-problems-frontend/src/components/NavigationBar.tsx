@@ -22,16 +22,31 @@ import {
   extractRivalsParam
 } from "../utils";
 import { connect } from "react-redux";
-import State from "../interfaces/State";
 import { Dispatch } from "redux";
 import { List } from "immutable";
 import { updateUserIds } from "../actions";
 
-enum PageKind {
-  TABLE = "table",
-  LIST = "list",
-  USER = "user"
-}
+type PageKind = "table" | "list" | "user";
+
+const extractPageKind = (pathname: string): PageKind => {
+  if (pathname.match(/^\/user/)) {
+    return "user";
+  } else if (pathname.match(/^\/list/)) {
+    return "list";
+  } else {
+    return "table";
+  }
+};
+
+const extractUserIds = (pathname: string) => {
+  const params = pathname.split("/");
+  const userId = params.length >= 3 ? params[2] : "";
+  const rivalIdString = params
+    .slice(3)
+    .filter(x => x.length > 0)
+    .join(",");
+  return { userId, rivalIdString };
+};
 
 interface Props extends RouteComponentProps {
   updateUserIds: (userId: string, rivals: List<string>) => void;
@@ -39,105 +54,60 @@ interface Props extends RouteComponentProps {
 
 interface LocalState {
   isOpen: boolean;
-  user_id: string;
-  rival_id: string;
-  kind: PageKind;
+  userId: string;
+  rivalIdString: string;
+  pageKind: PageKind;
 }
 
 class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
   constructor(props: Props) {
     super(props);
-    this.toggle = this.toggle.bind(this);
     this.state = {
       isOpen: false,
-      user_id: "",
-      rival_id: "",
-      kind: PageKind.TABLE
+      userId: "",
+      rivalIdString: "",
+      pageKind: "table"
     };
   }
 
-  toggle() {
-    this.setState({
-      isOpen: !this.state.isOpen
-    });
-  }
-
   submit(nextKind: PageKind) {
-    this.setState({ kind: nextKind });
-    const { user_id, rival_id } = this.state;
+    const { userId, rivalIdString, pageKind } = this.state;
 
     const users: string[] = [];
-    if (user_id.match(ATCODER_USER_REGEXP)) {
-      users.push(user_id);
+    if (userId.match(ATCODER_USER_REGEXP)) {
+      users.push(userId);
     } else {
       users.push("");
     }
-    if (rival_id.match(ATCODER_RIVALS_REGEXP)) {
-      const rivals = extractRivalsParam(rival_id);
+    if (rivalIdString.match(ATCODER_RIVALS_REGEXP)) {
+      const rivals = extractRivalsParam(rivalIdString);
       users.push(...rivals);
     }
 
-    const current_pathname = this.props.location.pathname;
-
-    const next_pathname = "/" + nextKind + "/" + users.join("/");
-    if (current_pathname !== next_pathname) {
-      this.props.history.push(next_pathname);
+    const currentPathname = this.props.location.pathname;
+    const nextPathname = "/" + nextKind + "/" + users.join("/");
+    if (currentPathname !== nextPathname || pageKind !== nextKind) {
+      this.props.history.push(nextPathname);
+      this.props.updateUserIds(userId, List(extractRivalsParam(rivalIdString)));
+      this.setState({ pageKind: nextKind });
     }
   }
 
   componentDidMount() {
-    const { kind, user_id, rival_id } = this.mapPropsToState();
-    this.setState({ kind, user_id, rival_id });
-    this.props.updateUserIds(user_id, List(extractRivalsParam(rival_id)));
-  }
-
-  componentDidUpdate(prevProps: RouteComponentProps) {
-    if (this.props.location.pathname !== prevProps.location.pathname) {
-      const { kind, user_id, rival_id } = this.mapPropsToState();
-      this.setState({ kind, user_id, rival_id });
-      this.props.updateUserIds(user_id, List(extractRivalsParam(rival_id)));
-    }
-  }
-
-  mapPropsToState() {
-    let kind = PageKind.TABLE;
     const { pathname } = this.props.location;
-    if (pathname.match(/^\/user/)) {
-      kind = PageKind.USER;
-    } else if (pathname.match(/^\/list/)) {
-      kind = PageKind.LIST;
-    }
-
-    const params = pathname.split("/");
-    const user_id = params.length >= 3 ? params[2] : "";
-    const rival_id = params
-      .slice(3)
-      .filter(x => x.length > 0)
-      .join(",");
-    return { kind, user_id, rival_id };
+    const pageKind = extractPageKind(pathname);
+    const { userId, rivalIdString } = extractUserIds(pathname);
+    this.setState({ userId, rivalIdString, pageKind });
+    this.props.updateUserIds(userId, List(extractRivalsParam(rivalIdString)));
   }
 
   render() {
-    let root_url = "/";
-    if (this.state.user_id.length > 0 || this.state.rival_id.length > 0) {
-      root_url += "table/";
-    }
-    if (this.state.user_id.length > 0) {
-      root_url += this.state.user_id + "/";
-    }
-    if (this.state.rival_id.length > 0) {
-      root_url += this.state.rival_id
-        .split(",")
-        .filter(s => s.match(ATCODER_USER_REGEXP))
-        .join("/");
-    }
+    const { userId, rivalIdString, isOpen, pageKind } = this.state;
     return (
       <Navbar color="light" light expand="lg" fixed="top">
-        <NavbarBrand tag={RouterLink} to={root_url}>
-          AtCoder Problems
-        </NavbarBrand>
-        <NavbarToggler onClick={this.toggle} />
-        <Collapse isOpen={this.state.isOpen} navbar>
+        <NavbarBrand>AtCoder Problems</NavbarBrand>
+        <NavbarToggler onClick={() => this.setState({ isOpen: !isOpen })} />
+        <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
             <Form inline>
               <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
@@ -145,15 +115,15 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
                   style={{ width: "150px" }}
                   onKeyPress={e => {
                     if (e.key == "Enter") {
-                      this.submit(this.state.kind);
+                      this.submit(pageKind);
                     }
                   }}
-                  value={this.state.user_id}
+                  value={userId}
                   type="text"
                   name="user_id"
                   id="user_id"
                   placeholder="User ID"
-                  onChange={e => this.setState({ user_id: e.target.value })}
+                  onChange={e => this.setState({ userId: e.target.value })}
                 />
               </FormGroup>
               <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
@@ -161,21 +131,23 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
                   style={{ width: "150px" }}
                   onKeyPress={e => {
                     if (e.key == "Enter") {
-                      this.submit(this.state.kind);
+                      this.submit(pageKind);
                     }
                   }}
-                  value={this.state.rival_id}
+                  value={rivalIdString}
                   type="text"
                   name="rival_id"
                   id="rival_id"
                   placeholder="Rival ID, ..."
-                  onChange={e => this.setState({ rival_id: e.target.value })}
+                  onChange={e =>
+                    this.setState({ rivalIdString: e.target.value })
+                  }
                 />
               </FormGroup>
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
                 onClick={() => {
-                  this.submit(PageKind.TABLE);
+                  this.submit("table");
                 }}
               >
                 Table
@@ -183,16 +155,16 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
                 onClick={() => {
-                  this.submit(PageKind.LIST);
+                  this.submit("list");
                 }}
               >
                 List
               </Button>
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
-                disabled={this.state.user_id.length === 0}
+                disabled={userId.length === 0}
                 onClick={() => {
-                  this.submit(PageKind.USER);
+                  this.submit("user");
                 }}
               >
                 User Page
@@ -281,7 +253,7 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
 
 const NavigationBar = withRouter(PrimitiveNavigationBar);
 
-const stateToProps = (state: State) => ({});
+const stateToProps = () => ({});
 const dispatchToProps = (dispatch: Dispatch) => ({
   updateUserIds: (userId: string, rivals: List<string>) =>
     dispatch(updateUserIds(userId, rivals))
