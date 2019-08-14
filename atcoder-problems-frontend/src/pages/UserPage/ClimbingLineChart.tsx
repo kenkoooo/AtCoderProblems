@@ -10,7 +10,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-import { formatDate } from "../../utils/DateFormat";
+import { formatDateSecond } from "../../utils/DateFormat";
 
 const ClimbingLineChart = ({
   climbing_data
@@ -33,10 +33,10 @@ const ClimbingLineChart = ({
           dataKey="date"
           type="number"
           domain={["dataMin", "dataMax"]}
-          tickFormatter={(ms: number) => formatDate(ms / 1000)}
+          tickFormatter={(ms: number) => formatDateSecond(ms / 1000)}
         />
         <YAxis />
-        <Tooltip labelFormatter={(v: any) => formatDate(v / 1000)} />
+        <Tooltip labelFormatter={(v: any) => formatDateSecond(v / 1000)} />
         <Line dataKey="count" stroke="#8884d8" />
       </LineChart>
     </ResponsiveContainer>
