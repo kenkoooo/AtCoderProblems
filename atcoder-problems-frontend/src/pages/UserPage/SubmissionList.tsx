@@ -2,11 +2,7 @@ import React from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 
 import Submission from "../../interfaces/Submission";
-import {
-  formatDateSecond,
-  formatMoment,
-  parseSecond
-} from "../../utils/DateUtil";
+import { formatMoment, parseSecond } from "../../utils/DateUtil";
 import * as Url from "../../utils/Url";
 import { isAccepted } from "../../utils";
 import { Badge } from "reactstrap";

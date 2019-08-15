@@ -10,12 +10,7 @@ import {
 } from "reactstrap";
 
 import { isAccepted } from "../../utils";
-import {
-  formatDateSecond,
-  formatMoment,
-  parseDateLabel,
-  parseSecond
-} from "../../utils/DateUtil";
+import { formatMoment, parseSecond } from "../../utils/DateUtil";
 import * as Url from "../../utils/Url";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";

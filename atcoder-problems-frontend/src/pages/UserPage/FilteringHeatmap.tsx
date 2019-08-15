@@ -4,11 +4,7 @@ import { ButtonGroup, Button, Row } from "reactstrap";
 import CalendarHeatmap from "../../components/CalendarHeatmap";
 import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
-import {
-  formatDateSecond,
-  formatMoment,
-  parseSecond
-} from "../../utils/DateUtil";
+import { formatMoment, parseSecond } from "../../utils/DateUtil";
 import { Map } from "immutable";
 import { ProblemId } from "../../interfaces/State";
 

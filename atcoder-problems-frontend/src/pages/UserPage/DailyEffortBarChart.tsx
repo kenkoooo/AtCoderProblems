@@ -9,22 +9,17 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts";
+import { formatMoment, parseSecond } from "../../utils/DateUtil";
 
 interface Props {
-  daily_data: { date: number; count: number }[];
+  dailyData: { dateSecond: number; count: number }[];
 }
-
-import {
-  formatDateSecond,
-  formatMoment,
-  parseSecond
-} from "../../utils/DateUtil";
 
 const DailyEffortBarChart = (props: Props) => (
   <Row className="my-3">
     <ResponsiveContainer width="100%" height={300}>
       <BarChart
-        data={props.daily_data}
+        data={props.dailyData}
         margin={{
           top: 5,
           right: 30,
@@ -34,14 +29,18 @@ const DailyEffortBarChart = (props: Props) => (
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
-          dataKey="date"
+          dataKey="dateSecond"
           type="number"
           domain={["dataMin", "dataMax"]}
-          tickFormatter={(ms: number) => formatMoment(parseSecond(ms / 1000))}
+          tickFormatter={(dateSecond: number) =>
+            formatMoment(parseSecond(dateSecond))
+          }
         />
         <YAxis />
         <Tooltip
-          labelFormatter={(v: any) => formatMoment(parseSecond(v / 1000))}
+          labelFormatter={(dateSecond: any) =>
+            formatMoment(parseSecond(dateSecond))
+          }
         />
         <Bar dataKey="count" fill="#8884d8" />
       </BarChart>
