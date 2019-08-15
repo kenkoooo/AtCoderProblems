@@ -170,25 +170,23 @@ class UserPage extends React.Component<Props> {
       .flatMap(list => list)
       .filter(s => s.user_id === userId);
 
-    const minAcceptedTimes = submissions
-      .map(list =>
-        list
+    const dailyCount = submissions
+      .map(submissionList =>
+        submissionList
           .filter(s => s.user_id === userId && isAccepted(s.result))
-          .minBy(s => s.epoch_second)
+          .map(s => s.epoch_second)
+          .min()
       )
-      .filter((s: Submission | undefined): s is Submission => s !== undefined);
-
-    const dailyCount = minAcceptedTimes
-      .map(s => formatMoment(parseSecond(s.epoch_second)))
+      .filter(
+        (second: number | undefined): second is number => second !== undefined
+      )
+      .map(second => formatMoment(parseSecond(second)))
       .reduce(
         (map, date) => map.update(date, 0, count => count + 1),
         Map<string, number>()
       )
       .entrySeq()
-      .map(([dateLabel, count]) => ({
-        dateLabel,
-        count
-      }))
+      .map(([dateLabel, count]) => ({ dateLabel, count }))
       .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
 
     const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
