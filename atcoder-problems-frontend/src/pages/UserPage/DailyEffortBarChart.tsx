@@ -14,7 +14,11 @@ interface Props {
   daily_data: { date: number; count: number }[];
 }
 
-import { formatDateSecond } from "../../utils/DateFormat";
+import {
+  formatDateSecond,
+  formatMoment,
+  parseSecond
+} from "../../utils/DateUtil";
 
 const DailyEffortBarChart = (props: Props) => (
   <Row className="my-3">
@@ -33,10 +37,12 @@ const DailyEffortBarChart = (props: Props) => (
           dataKey="date"
           type="number"
           domain={["dataMin", "dataMax"]}
-          tickFormatter={(ms: number) => formatDateSecond(ms / 1000)}
+          tickFormatter={(ms: number) => formatMoment(parseSecond(ms / 1000))}
         />
         <YAxis />
-        <Tooltip labelFormatter={(v: any) => formatDateSecond(v / 1000)} />
+        <Tooltip
+          labelFormatter={(v: any) => formatMoment(parseSecond(v / 1000))}
+        />
         <Bar dataKey="count" fill="#8884d8" />
       </BarChart>
     </ResponsiveContainer>

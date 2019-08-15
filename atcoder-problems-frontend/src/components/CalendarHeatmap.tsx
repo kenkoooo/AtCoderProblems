@@ -1,7 +1,8 @@
 import React from "react";
 import { UncontrolledTooltip } from "reactstrap";
-import { formatDate } from "../utils/DateFormat";
+import { formatMoment, getThisSunday, getToday } from "../utils/DateUtil";
 import { Range, Map } from "immutable";
+import moment from "moment";
 
 const WEEKDAY = 7;
 const WEEKS = 53;
@@ -13,27 +14,24 @@ interface Props {
 }
 
 const CalendarHeatmap = (props: Props) => {
-  const nextSunday = new Date();
-  nextSunday.setDate(nextSunday.getDate() + (WEEKDAY - nextSunday.getDay()));
+  const { dateLabels } = props;
 
-  const startDate = new Date(nextSunday);
-  startDate.setDate(startDate.getDate() - WEEKS * WEEKDAY);
+  const today = getToday();
+  const nextSunday = getThisSunday(today);
 
-  const startDateLabel = formatDate(startDate);
+  const startDate = nextSunday.date(nextSunday.date() - WEEKS * WEEKDAY);
+  const startLabel = formatMoment(startDate);
+
   const countMap = Range(0, WEEKS * WEEKDAY)
-    .map(i => {
-      const date = new Date(startDate.getTime());
-      date.setDate(startDate.getDate() + i);
-      return formatDate(date);
-    })
-    .map(label => ({ label, count: 0 }))
-    .concat(props.dateLabels.map(label => ({ label, count: 1 })))
-    .filter(({ label }) => startDateLabel <= label)
+    .map(i => moment(startDate).add(i, "day"))
+    .map(date => ({ label: formatMoment(date), count: 0 }))
+
+    .concat(dateLabels.map(label => ({ label, count: 1 })))
+    .filter(({ label }) => label >= startLabel)
     .reduce(
       (map, { label, count }) => map.set(label, map.get(label, 0) + count),
       Map<string, number>()
     );
-
   const tableData = countMap
     .entrySeq()
     .map(([date, count]) => ({ count, date }))

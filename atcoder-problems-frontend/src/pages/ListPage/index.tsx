@@ -10,7 +10,12 @@ import {
 } from "reactstrap";
 
 import { isAccepted } from "../../utils";
-import { formatDateSecond } from "../../utils/DateFormat";
+import {
+  formatDateSecond,
+  formatMoment,
+  parseDateLabel,
+  parseSecond
+} from "../../utils/DateUtil";
 import * as Url from "../../utils/Url";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
@@ -92,7 +97,7 @@ class ListPage extends React.Component<Props, ListPageState> {
         (p): ProblemRowData => {
           const contest = contests.get(p.contest_id);
           const contestDate = contest
-            ? formatDateSecond(contest.start_epoch_second)
+            ? formatMoment(parseSecond(contest.start_epoch_second))
             : "";
           const contestTitle = contest ? contest.title : "";
 
@@ -102,7 +107,7 @@ class ListPage extends React.Component<Props, ListPageState> {
             .filter(s => isAccepted(s.result))
             .maxBy(s => s.epoch_second);
           const lastAcceptedDate = lastSubmission
-            ? formatDateSecond(lastSubmission.epoch_second)
+            ? formatMoment(parseSecond(lastSubmission.epoch_second))
             : "";
           const point = p.point ? p.point : p.predict ? p.predict : INF_POINT;
           const firstUserId = p.first_user_id ? p.first_user_id : "";
