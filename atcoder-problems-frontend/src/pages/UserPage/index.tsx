@@ -6,7 +6,7 @@ import UserInfo from "../../interfaces/UserInfo";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import { ordinalSuffixOf, isAccepted } from "../../utils";
-import { formatDateSecond } from "../../utils/DateFormat";
+import { formatDateSecond } from "../../utils/DateUtil";
 
 import ClimbingLineChart from "./ClimbingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
