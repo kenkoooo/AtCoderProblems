@@ -2,7 +2,7 @@ import React from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 
 import Submission from "../../interfaces/Submission";
-import { formatDate } from "../../utils/DateFormat";
+import { formatMoment, parseSecond } from "../../utils/DateUtil";
 import * as Url from "../../utils/Url";
 import { isAccepted } from "../../utils";
 import { Badge } from "reactstrap";
@@ -66,7 +66,7 @@ const SubmissionList = ({
       <TableHeaderColumn
         dataSort
         dataField="epoch_second"
-        dataFormat={(second: number) => formatDate(second)}
+        dataFormat={(second: number) => formatMoment(parseSecond(second))}
       >
         Date
       </TableHeaderColumn>
