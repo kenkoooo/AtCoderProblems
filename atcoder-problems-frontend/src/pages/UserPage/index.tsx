@@ -6,7 +6,12 @@ import UserInfo from "../../interfaces/UserInfo";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import { ordinalSuffixOf, isAccepted } from "../../utils";
-import { formatDate } from "../../utils/DateFormat";
+import {
+  formatMoment,
+  getToday,
+  parseDateLabel,
+  parseSecond
+} from "../../utils/DateUtil";
 
 import ClimbingLineChart from "./ClimbingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
@@ -26,8 +31,6 @@ import {
   getShortRanking
 } from "../../utils/Api";
 import { RankingEntry } from "../../interfaces/RankingEntry";
-
-const ONE_DAY_MILLI_SECONDS = 24 * 3600 * 1000;
 
 interface Props {
   userId: string;
@@ -167,57 +170,54 @@ class UserPage extends React.Component<Props> {
       .flatMap(list => list)
       .filter(s => s.user_id === userId);
 
-    const minAcceptedTimes = submissions
-      .map(list =>
-        list
+    const dailyCount = submissions
+      .map(submissionList =>
+        submissionList
           .filter(s => s.user_id === userId && isAccepted(s.result))
-          .minBy(s => s.epoch_second)
+          .map(s => s.epoch_second)
+          .min()
       )
-      .filter((s: Submission | undefined): s is Submission => s !== undefined);
-
-    const dailyCount = minAcceptedTimes
-      .map(s => formatDate(s.epoch_second))
+      .filter(
+        (second: number | undefined): second is number => second !== undefined
+      )
+      .map(second => formatMoment(parseSecond(second)))
       .reduce(
         (map, date) => map.update(date, 0, count => count + 1),
         Map<string, number>()
       )
       .entrySeq()
-      .map(([date, count]) => ({
-        date: new Date(date).getTime(),
-        count
-      }))
-      .sort((a, b) => a.date - b.date);
+      .map(([dateLabel, count]) => ({ dateLabel, count }))
+      .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
 
-    const climbing = dailyCount.reduce((list, e) => {
+    const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
+      const dateSecond = parseDateLabel(dateLabel).unix();
       const last = list.last(undefined);
       return last
-        ? list.push({ ...e, count: last.count + e.count })
-        : list.push(e);
-    }, List<{ date: number; count: number }>());
+        ? list.push({ dateSecond, count: last.count + count })
+        : list.push({ dateSecond, count });
+    }, List<{ dateSecond: number; count: number }>());
 
-    const { longestStreak, currentStreak, prevMilliSecond } = dailyCount
-      .map(e => e.date)
+    const { longestStreak, currentStreak, prevDateLabel } = dailyCount
+      .map(e => e.dateLabel)
       .reduce(
-        (state, milliSecond) => {
+        (state, dateLabel) => {
+          const nextDateLabel = formatMoment(
+            parseDateLabel(state.prevDateLabel).add(1, "day")
+          );
           const currentStreak =
-            milliSecond === state.prevMilliSecond + ONE_DAY_MILLI_SECONDS
-              ? state.currentStreak + 1
-              : 1;
+            dateLabel === nextDateLabel ? state.currentStreak + 1 : 1;
           const longestStreak = Math.max(state.longestStreak, currentStreak);
-          return { longestStreak, currentStreak, prevMilliSecond: milliSecond };
+          return { longestStreak, currentStreak, prevDateLabel: dateLabel };
         },
         {
           longestStreak: 0,
           currentStreak: 0,
-          prevMilliSecond: 0
+          prevDateLabel: ""
         }
       );
 
-    const isIncreasing =
-      formatDate((new Date().getTime() - ONE_DAY_MILLI_SECONDS) / 1000) ===
-        formatDate(prevMilliSecond / 1000) ||
-      formatDate(new Date().getTime() / 1000) ===
-        formatDate(prevMilliSecond / 1000);
+    const yesterDayLabel = formatMoment(getToday().add(-1, "day"));
+    const isIncreasing = prevDateLabel >= yesterDayLabel;
 
     const abcSolved = solvedCountForPieChart(
       contestToProblems.filter((value, key) => key.substring(0, 3) === "abc"),
@@ -287,9 +287,7 @@ class UserPage extends React.Component<Props> {
           <Col key="Current Streak" className="text-center" xs="6" md="3">
             <h6>Current Streak</h6>
             <h3>{isIncreasing ? currentStreak : 0} days</h3>
-            <h6 className="text-muted">{`Last AC: ${formatDate(
-              prevMilliSecond / 1000
-            )}`}</h6>
+            <h6 className="text-muted">{`Last AC: ${prevDateLabel}`}</h6>
           </Col>
           <Col />
         </Row>
@@ -310,12 +308,19 @@ class UserPage extends React.Component<Props> {
         <Row className="my-2 border-bottom">
           <h1>Daily Effort</h1>
         </Row>
-        <DailyEffortBarChart daily_data={dailyCount.toArray()} />
+        <DailyEffortBarChart
+          dailyData={dailyCount
+            .map(({ dateLabel, count }) => ({
+              dateSecond: parseDateLabel(dateLabel).unix(),
+              count
+            }))
+            .toArray()}
+        />
 
         <Row className="my-2 border-bottom">
           <h1>Climbing</h1>
         </Row>
-        <ClimbingLineChart climbing_data={climbing.toArray()} />
+        <ClimbingLineChart climbingData={climbing.toArray()} />
 
         <Row className="my-2 border-bottom">
           <h1>Heatmap</h1>

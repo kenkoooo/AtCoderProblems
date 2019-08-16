@@ -9,18 +9,15 @@ import {
   Line,
   ResponsiveContainer
 } from "recharts";
+import { formatMoment, parseSecond } from "../../utils/DateUtil";
 
-import { formatDate } from "../../utils/DateFormat";
-
-const ClimbingLineChart = ({
-  climbing_data
-}: {
-  climbing_data: { date: number; count: number }[];
+const ClimbingLineChart = (props: {
+  climbingData: { dateSecond: number; count: number }[];
 }) => (
   <Row className="my-3">
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
-        data={climbing_data}
+        data={props.climbingData}
         margin={{
           top: 5,
           right: 30,
@@ -30,13 +27,19 @@ const ClimbingLineChart = ({
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
-          dataKey="date"
+          dataKey="dateSecond"
           type="number"
           domain={["dataMin", "dataMax"]}
-          tickFormatter={(ms: number) => formatDate(ms / 1000)}
+          tickFormatter={(dateSecond: number) =>
+            formatMoment(parseSecond(dateSecond))
+          }
         />
         <YAxis />
-        <Tooltip labelFormatter={(v: any) => formatDate(v / 1000)} />
+        <Tooltip
+          labelFormatter={(dateSecond: any) =>
+            formatMoment(parseSecond(dateSecond))
+          }
+        />
         <Line dataKey="count" stroke="#8884d8" />
       </LineChart>
     </ResponsiveContainer>

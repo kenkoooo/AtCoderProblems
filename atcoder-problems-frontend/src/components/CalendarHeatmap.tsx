@@ -1,42 +1,42 @@
-import React from 'react';
-import { UncontrolledTooltip } from 'reactstrap';
+import React from "react";
+import { UncontrolledTooltip } from "reactstrap";
+import { formatMoment, getThisSunday, getToday } from "../utils/DateUtil";
+import { Range, Map } from "immutable";
+import moment from "moment";
 
 const WEEKDAY = 7;
 const WEEKS = 53;
-const COLORS = ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'];
+const COLORS = ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"];
 
-const formatDate = (date: Date) => {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const month_str = month < 10 ? '0' + month : month;
-  const day_str = day < 10 ? '0' + day : day;
-  return year + '-' + month_str + '-' + day_str;
-};
+interface Props {
+  dateLabels: string[];
+  formatTooltip?: (date: string, count: number) => string;
+}
 
-const CalendarHeatmap = (props: { data: Date[]; formatTooltip?: (date: string, count: number) => string }) => {
-  const next_sunday = new Date();
-  next_sunday.setDate(next_sunday.getDate() + (WEEKDAY - next_sunday.getDay()));
+const CalendarHeatmap = (props: Props) => {
+  const { dateLabels } = props;
 
-  const current_date = new Date(next_sunday);
-  current_date.setDate(current_date.getDate() - WEEKS * WEEKDAY);
+  const today = getToday();
+  const nextSunday = getThisSunday(today);
 
-  const count_map = new Map<string, number>();
-  while (formatDate(current_date) !== formatDate(next_sunday)) {
-    count_map.set(formatDate(current_date), 0);
-    current_date.setDate(current_date.getDate() + 1);
-  }
+  const startDate = nextSunday.date(nextSunday.date() - WEEKS * WEEKDAY);
+  const startLabel = formatMoment(startDate);
 
-  props.data.forEach((date) => {
-    const count = count_map.get(formatDate(date));
-    if (count !== undefined) {
-      count_map.set(formatDate(date), count + 1);
-    }
-  });
+  const countMap = Range(0, WEEKS * WEEKDAY)
+    .map(i => moment(startDate).add(i, "day"))
+    .map(date => ({ label: formatMoment(date), count: 0 }))
 
-  const table_data = Array.from(count_map)
+    .concat(dateLabels.map(label => ({ label, count: 1 })))
+    .filter(({ label }) => label >= startLabel)
+    .reduce(
+      (map, { label, count }) => map.set(label, map.get(label, 0) + count),
+      Map<string, number>()
+    );
+  const tableData = countMap
+    .entrySeq()
     .map(([date, count]) => ({ count, date }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .toArray();
 
   const block_width = 10;
   const width = block_width * WEEKS;
@@ -44,7 +44,7 @@ const CalendarHeatmap = (props: { data: Date[]; formatTooltip?: (date: string, c
   return (
     <div style={{ width: "100%" }}>
       <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%" }}>
-        {table_data.map(({ date, count }, i) => {
+        {tableData.map(({ date, count }, i) => {
           const color = COLORS[Math.min(count, COLORS.length - 1)];
           const week = Math.floor(i / WEEKDAY);
           const day = i % WEEKDAY;
@@ -62,9 +62,16 @@ const CalendarHeatmap = (props: { data: Date[]; formatTooltip?: (date: string, c
         })}
       </svg>
 
-      {table_data.map(({ date, count }) => (
-        <UncontrolledTooltip delay={{ show: 0, hide: 0 }} key={date} placement="right" target={`rect-${date}`}>
-          {props.formatTooltip ? props.formatTooltip(date, count) : `${date}: ${count}`}
+      {tableData.map(({ date, count }) => (
+        <UncontrolledTooltip
+          delay={{ show: 0, hide: 0 }}
+          key={date}
+          placement="right"
+          target={`rect-${date}`}
+        >
+          {props.formatTooltip
+            ? props.formatTooltip(date, count)
+            : `${date}: ${count}`}
         </UncontrolledTooltip>
       ))}
     </div>

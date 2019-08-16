@@ -26,11 +26,10 @@ const SmallTable = ({ submissions, userIds, mergedProblems }: Props) => {
             .first(undefined)
         )
         .valueSeq()
+        .map(p => (p && p.point ? p.point : undefined))
+        .filter((p: number | undefined): p is number => p !== undefined)
         .reduce(
-          (map, problem) =>
-            problem && problem.point
-              ? map.update(problem.point, 0, count => count + 1)
-              : map,
+          (map, point) => map.update(point, 0, count => count + 1),
           Map<number, number>()
         )
     }));
