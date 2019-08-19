@@ -24,4 +24,4 @@ serde_json = "1.0"
 simple_logger = "1.2"
 md-5 = "0.8"
 hex = "0.3"
-
+algorithm-problem-client = "0.4"
