@@ -11,9 +11,7 @@ use std::error::Error;
 fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Info).unwrap();
     info!("Started");
-
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
-
     let args: Vec<_> = env::args().collect();
     let scraper = scraper::Scraper;
     let client = AtCoderClient::default();
