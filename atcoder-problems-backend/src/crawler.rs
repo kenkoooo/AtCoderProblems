@@ -9,7 +9,7 @@ use log::{error, info};
 use std::collections::BTreeSet;
 use std::{thread, time};
 
-const NEW_CONTEST_THRESHOLD_DAYS: i64 = 2;
+const NEW_CONTEST_THRESHOLD_DAYS: i64 = 30;
 const NEW_PAGE_THRESHOLD: usize = 5;
 
 pub fn crawl_from_new_contests<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
@@ -22,7 +22,9 @@ where
 
     contests.sort_by_key(|contest| -contest.start_epoch_second);
     for (_, contest) in contests.into_iter().enumerate().filter(|(i, contest)| {
-        *i == 0 || now - contest.start_epoch_second < Duration::days(3).num_seconds()
+        *i == 0
+            || now - contest.start_epoch_second
+                <= Duration::days(NEW_CONTEST_THRESHOLD_DAYS).num_seconds()
     }) {
         info!("Starting for {}", contest.id);
         match client.fetch_atcoder_submission_list(&contest.id, None) {
