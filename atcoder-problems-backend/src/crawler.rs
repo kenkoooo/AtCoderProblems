@@ -16,95 +16,91 @@ pub fn crawl_from_new_contests<C>(conn: &C, client: &AtCoderClient) -> QueryResu
 where
     C: SimpleClient + SubmissionClient,
 {
-    loop {
-        info!("Starting new loop...");
-        let mut contests = conn.load_contests()?;
-        let now = Utc::now().timestamp();
+    info!("Starting new loop...");
+    let mut contests = conn.load_contests()?;
+    let now = Utc::now().timestamp();
 
-        contests.sort_by_key(|contest| -contest.start_epoch_second);
-        for (_, contest) in contests.into_iter().enumerate().filter(|(i, contest)| {
-            *i == 0 || now - contest.start_epoch_second < Duration::days(3).num_seconds()
-        }) {
-            info!("Starting for {}", contest.id);
-            match client.fetch_atcoder_submission_list(&contest.id, None) {
-                Ok(response) => {
-                    info!("There are {} pages on {}", response.max_page, contest.id);
-                    for page in (1..=response.max_page).rev() {
-                        info!("Crawling {} {}", contest.id, page);
-                        let new_submissions = client.fetch_submissions(&contest.id, page);
-                        info!("Inserting {} submissions...", new_submissions.len());
-                        conn.update_submissions(&new_submissions)?;
-                        thread::sleep(time::Duration::from_millis(200));
-                    }
+    contests.sort_by_key(|contest| -contest.start_epoch_second);
+    for (_, contest) in contests.into_iter().enumerate().filter(|(i, contest)| {
+        *i == 0 || now - contest.start_epoch_second < Duration::days(3).num_seconds()
+    }) {
+        info!("Starting for {}", contest.id);
+        match client.fetch_atcoder_submission_list(&contest.id, None) {
+            Ok(response) => {
+                info!("There are {} pages on {}", response.max_page, contest.id);
+                for page in (1..=response.max_page).rev() {
+                    info!("Crawling {} {}", contest.id, page);
+                    let new_submissions = client.fetch_submissions(&contest.id, page);
+                    info!("Inserting {} submissions...", new_submissions.len());
+                    conn.update_submissions(&new_submissions)?;
+                    thread::sleep(time::Duration::from_millis(200));
                 }
-                _ => {
-                    error!("Error to load!");
-                }
+            }
+            _ => {
+                error!("Error to load!");
             }
         }
     }
+    Ok(())
 }
 
 pub fn crawl_all_submissions<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
 where
     C: SimpleClient + SubmissionClient,
 {
-    loop {
-        info!("Starting new loop...");
-        let contests = conn.load_contests()?;
-        for contest in contests.into_iter() {
-            info!("Starting for {}", contest.id);
-            match client.fetch_atcoder_submission_list(&contest.id, None) {
-                Ok(response) => {
-                    info!("There are {} pages on {}", response.max_page, contest.id);
-                    for page in (1..=response.max_page).rev() {
-                        info!("Crawling {} {}", contest.id, page);
-                        let new_submissions = client.fetch_submissions(&contest.id, page);
-                        info!("Inserting {} submissions", new_submissions.len());
-                        conn.update_submissions(&new_submissions)?;
-                        thread::sleep(time::Duration::from_millis(200));
-                    }
+    info!("Starting new loop...");
+    let contests = conn.load_contests()?;
+    for contest in contests.into_iter() {
+        info!("Starting for {}", contest.id);
+        match client.fetch_atcoder_submission_list(&contest.id, None) {
+            Ok(response) => {
+                info!("There are {} pages on {}", response.max_page, contest.id);
+                for page in (1..=response.max_page).rev() {
+                    info!("Crawling {} {}", contest.id, page);
+                    let new_submissions = client.fetch_submissions(&contest.id, page);
+                    info!("Inserting {} submissions", new_submissions.len());
+                    conn.update_submissions(&new_submissions)?;
+                    thread::sleep(time::Duration::from_millis(200));
                 }
-                _ => {
-                    error!("Error!");
-                }
+            }
+            _ => {
+                error!("Error!");
             }
         }
     }
+    Ok(())
 }
 
 pub fn crawl_new_submissions<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
 where
     C: SimpleClient + SubmissionClient,
 {
-    loop {
-        info!("Starting new loop...");
-        let contests = conn.load_contests()?;
-        let now = Utc::now().timestamp();
-        for contest in contests.into_iter().filter(|contest| {
-            now - contest.start_epoch_second
-                > Duration::days(NEW_CONTEST_THRESHOLD_DAYS).num_seconds()
-        }) {
-            for page in 1..=NEW_PAGE_THRESHOLD {
-                info!("Crawling {} {}", contest.id, page);
-                let new_submissions = client.fetch_submissions(&contest.id, page as u32);
-                if new_submissions.is_empty() {
-                    info!("There is no submission on {}-{}", contest.id, page);
-                    break;
-                }
+    info!("Starting new loop...");
+    let contests = conn.load_contests()?;
+    let now = Utc::now().timestamp();
+    for contest in contests.into_iter().filter(|contest| {
+        now - contest.start_epoch_second > Duration::days(NEW_CONTEST_THRESHOLD_DAYS).num_seconds()
+    }) {
+        for page in 1..=NEW_PAGE_THRESHOLD {
+            info!("Crawling {} {}", contest.id, page);
+            let new_submissions = client.fetch_submissions(&contest.id, page as u32);
+            if new_submissions.is_empty() {
+                info!("There is no submission on {}-{}", contest.id, page);
+                break;
+            }
 
-                info!("Inserting {} submissions...", new_submissions.len());
-                let min_id = new_submissions.iter().map(|s| s.id).min().unwrap_or(0);
-                let exists = conn.get_submission_by_id(min_id)?.is_some();
-                conn.update_submissions(&new_submissions)?;
-                thread::sleep(time::Duration::from_millis(200));
+            info!("Inserting {} submissions...", new_submissions.len());
+            let min_id = new_submissions.iter().map(|s| s.id).min().unwrap_or(0);
+            let exists = conn.get_submission_by_id(min_id)?.is_some();
+            conn.update_submissions(&new_submissions)?;
+            thread::sleep(time::Duration::from_millis(200));
 
-                if exists {
-                    break;
-                }
+            if exists {
+                break;
             }
         }
     }
+    Ok(())
 }
 
 pub fn crawl_contest_and_problems<C, S>(

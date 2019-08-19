@@ -11,24 +11,25 @@ use std::error::Error;
 fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Info).unwrap();
     info!("Started");
-
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
-    let conn = PgConnection::establish(&url).expect("Failed to connect PostgreSQL.");
-
     let args: Vec<_> = env::args().collect();
     let scraper = scraper::Scraper;
     let client = AtCoderClient::default();
     match args[1].as_str() {
-        "naive" => {
+        "naive" => loop {
+            let conn = PgConnection::establish(&url).expect("Failed to connect PostgreSQL.");
             crawler::crawl_from_new_contests(&conn, &client)?;
-        }
-        "new" => {
+        },
+        "new" => loop {
+            let conn = PgConnection::establish(&url).expect("Failed to connect PostgreSQL.");
             crawler::crawl_new_submissions(&conn, &client)?;
-        }
-        "all" => {
+        },
+        "all" => loop {
+            let conn = PgConnection::establish(&url).expect("Failed to connect PostgreSQL.");
             crawler::crawl_all_submissions(&conn, &client)?;
-        }
+        },
         "contest" => {
+            let conn = PgConnection::establish(&url).expect("Failed to connect PostgreSQL.");
             crawler::crawl_contest_and_problems(&conn, &scraper, &client)?;
         }
         _ => {
