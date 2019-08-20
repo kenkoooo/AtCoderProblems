@@ -114,6 +114,13 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
 
 ## Submission API
 - https://kenkoooo.com/atcoder/atcoder-api/results?user=wata
+
+## Time-based Submission API
+### Interface
+```
+https://kenkoooo.com/atcoder/atcoder-api/v3/from/{unix_time_second}
+```
+### Example
 - https://kenkoooo.com/atcoder/atcoder-api/v3/from/1505342145
 
 # Dataset
