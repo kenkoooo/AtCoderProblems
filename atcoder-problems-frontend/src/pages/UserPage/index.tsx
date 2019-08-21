@@ -1,17 +1,12 @@
 import React from "react";
-import { Row, Col } from "reactstrap";
+import {Col, Row} from "reactstrap";
 
 import Submission from "../../interfaces/Submission";
 import UserInfo from "../../interfaces/UserInfo";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
-import { ordinalSuffixOf, isAccepted } from "../../utils";
-import {
-  formatMoment,
-  getToday,
-  parseDateLabel,
-  parseSecond
-} from "../../utils/DateUtil";
+import {isAccepted, ordinalSuffixOf} from "../../utils";
+import {formatMoment, getToday, parseDateLabel, parseSecond} from "../../utils/DateUtil";
 
 import ClimbingLineChart from "./ClimbingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
@@ -21,25 +16,25 @@ import SubmissionList from "./SubmissionList";
 import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
 import State from "../../interfaces/State";
-import { Dispatch } from "redux";
-import { requestMergedProblems, requestPerf } from "../../actions";
-import { List, Map } from "immutable";
-import { connect } from "react-redux";
-import {
-  getFastRanking,
-  getFirstRanking,
-  getShortRanking
-} from "../../utils/Api";
-import { RankingEntry } from "../../interfaces/RankingEntry";
+import {Dispatch} from "redux";
+import {requestMergedProblems, requestPerf, requestSolveTimeModels} from "../../actions";
+import {List, Map} from "immutable";
+import {connect} from "react-redux";
+import {getFastRanking, getFirstRanking, getShortRanking} from "../../utils/Api";
+import {RankingEntry} from "../../interfaces/RankingEntry";
+import SolveTimeModel from "../../interfaces/SolveTimeModel";
+import {RatingInfo, ratingInfoOf} from "../../utils/RatingInfo";
 
 interface Props {
   userId: string;
   userInfo: UserInfo | undefined;
+  userRatingInfo: RatingInfo;
   contests: Map<string, Contest>;
   mergedProblems: Map<string, MergedProblem>;
   contestToProblems: Map<string, List<string>>;
   submissions: Map<string, List<Submission>>;
   problemPerformances: Map<string, number>;
+  solveTimeModels: Map<string, SolveTimeModel>;
 
   requestData: () => void;
 }
@@ -143,11 +138,13 @@ class UserPage extends React.Component<Props> {
     const {
       userId,
       userInfo,
+      userRatingInfo,
       submissions,
       mergedProblems,
       contestToProblems,
       contests,
-      problemPerformances
+      problemPerformances,
+      solveTimeModels
     } = this.props;
     if (
       userId.length === 0 ||
@@ -348,6 +345,8 @@ class UserPage extends React.Component<Props> {
           problems={mergedProblems.valueSeq().toList()}
           performances={problemPerformances}
           contests={contests}
+          timeModels={solveTimeModels}
+          userRatingInfo={userRatingInfo}
         />
       </div>
     );
@@ -394,13 +393,16 @@ const stateToProps = (state: State) => ({
   contestToProblems: state.contestToProblems,
   submissions: state.submissions,
   problemPerformances: state.problemPerformances,
-  userInfo: state.userInfo
+  userInfo: state.userInfo,
+  userRatingInfo: ratingInfoOf(state.contestHistory),
+  solveTimeModels: state.solveTimeModels
 });
 
 const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => {
     dispatch(requestMergedProblems());
     dispatch(requestPerf());
+    dispatch(requestSolveTimeModels());
   }
 });
 

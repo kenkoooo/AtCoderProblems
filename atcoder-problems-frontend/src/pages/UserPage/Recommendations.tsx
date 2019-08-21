@@ -1,12 +1,15 @@
 import React from "react";
 
-import { isAccepted } from "../../utils";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import {isAccepted} from "../../utils";
+import {BootstrapTable, TableHeaderColumn} from "react-bootstrap-table";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
 import Problem from "../../interfaces/Problem";
-import { List, Map } from "immutable";
+import {List, Map} from "immutable";
 import Contest from "../../interfaces/Contest";
+import SolveTimeModel from "../../interfaces/SolveTimeModel";
+import {RatingInfo} from "../../utils/RatingInfo";
+import {predictSolveTime} from "../../utils/TimeModelUtil";
 
 const TOP_PERFORMANCES = 50;
 const RECOMMEND_NUM = 10;
@@ -16,10 +19,12 @@ interface Props {
   readonly problems: List<Problem>;
   readonly contests: Map<string, Contest>;
   readonly performances: Map<string, number>;
+  readonly timeModels: Map<string, SolveTimeModel>;
+  readonly userRatingInfo: RatingInfo;
 }
 
 const Recommendations = (props: Props) => {
-  const { userSubmissions, problems, performances, contests } = props;
+  const { userSubmissions, problems, performances, contests, timeModels, userRatingInfo } = props;
   if (userSubmissions.isEmpty()) {
     return null;
   }
@@ -44,6 +49,16 @@ const Recommendations = (props: Props) => {
     .filter(p => !acProblemIdSet.has(p.id))
     .filter(p => performances.has(p.id))
     .map(p => ({ ...p, difficulty: performances.get(p.id, 0) }))
+    .map(p => {
+      let predictedSolveTime: number | null;
+      if (userRatingInfo.internalRating === null || !timeModels.has(p.id)) {
+        predictedSolveTime = null;
+      } else {
+        // @ts-ignore: we know `p.id` exists in `timeModels`
+        predictedSolveTime = predictSolveTime(timeModels.get(p.id), userRatingInfo.internalRating);
+      }
+      return {...p, predictedSolveTime: predictedSolveTime};
+    })
     .sort((a, b) => {
       const da = Math.abs(a.difficulty - predictedPerf);
       const db = Math.abs(b.difficulty - predictedPerf);
@@ -65,7 +80,7 @@ const Recommendations = (props: Props) => {
         dataField="title"
         dataFormat={(
           title: string,
-          { id, contest_id }: { id: string; contest_id: string }
+          { id, contest_id }: { id: string; contest_id: string; }
         ) => (
           <a target="_blank" href={Url.formatProblemUrl(id, contest_id)}>
             {title}
@@ -88,6 +103,19 @@ const Recommendations = (props: Props) => {
         Contest
       </TableHeaderColumn>
       <TableHeaderColumn dataField="difficulty">Difficulty</TableHeaderColumn>
+      <TableHeaderColumn
+        dataField="predictedSolveTime"
+        dataFormat={(predictedSolveTime: number | null) => {
+          if (predictedSolveTime === null) {
+            return "-";
+          } else if (predictedSolveTime < 30) {
+            return "<1 min";
+          } else {
+            const minutes = Math.round(predictedSolveTime / 60);
+            return `${minutes} mins`;
+          }
+        }}
+      >Median Solve Time</TableHeaderColumn>
     </BootstrapTable>
   );
 };
