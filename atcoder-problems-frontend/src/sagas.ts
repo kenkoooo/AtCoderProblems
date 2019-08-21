@@ -5,24 +5,29 @@ import Action, {
   receiveLangRanking,
   receiveMergedProblems,
   receivePerf,
+  receiveSolveTimeModels,
   receiveSubmissions,
   receiveSumRanking,
+  receiveUserContestHistory,
   receiveUserInfo,
   REQUEST_AC_RANKING,
   REQUEST_LANG_RANKING,
   REQUEST_MERGED_PROBLEMS,
   REQUEST_PERF,
+  REQUEST_SOLVE_TIME_MODELS,
   REQUEST_SUM_RANKING,
   UPDATE_USER_IDS
 } from "./actions";
 import {
   fetchACRanking,
+  fetchContestHistory,
   fetchContestProblemPairs,
   fetchContests,
   fetchLangRanking,
   fetchMergedProblems,
   fetchProblemPerformances,
   fetchProblems,
+  fetchSolveTimeModels,
   fetchSubmissions,
   fetchSumRanking,
   fetchUserInfo
@@ -86,6 +91,12 @@ function* fetchLangRankingOnce() {
   yield put(receiveLangRanking(ranking));
 }
 
+function* fetchSolveTimeModelOnce() {
+  yield take(REQUEST_SOLVE_TIME_MODELS);
+  const solveTimeModels = yield call(fetchSolveTimeModels);
+  yield put(receiveSolveTimeModels(solveTimeModels));
+}
+
 function* requestAndReceiveUserInfo(action: Action) {
   if (action.type === UPDATE_USER_IDS) {
     const { userId } = action;
@@ -94,16 +105,27 @@ function* requestAndReceiveUserInfo(action: Action) {
   }
 }
 
+function* requestAndReceiveUserContestHistory(action: Action) {
+  if (action.type === UPDATE_USER_IDS) {
+    const { userId } = action;
+    const contestHistory = yield call(fetchContestHistory, userId);
+    yield put(receiveUserContestHistory(contestHistory));
+  }
+}
+
+
 function* rootSaga() {
   yield all([
     call(initialFetchData),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveSubmissions),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveUserInfo),
+    takeLatest(UPDATE_USER_IDS, requestAndReceiveUserContestHistory),
     call(fetchMergedProblemsOnce),
     call(fetchPerformancesOnce),
     call(fetchAcRankingOnce),
     call(fetchSumRankingOnce),
-    call(fetchLangRankingOnce)
+    call(fetchLangRankingOnce),
+    call(fetchSolveTimeModelOnce)
   ]);
 }
 
