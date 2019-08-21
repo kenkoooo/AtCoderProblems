@@ -63,7 +63,7 @@ export function fetchTypedMap<V>(
   return fetch(url)
     .then(r => r.json())
     .then((obj: {[p: string]: any}) => Map(obj))
-    .then(m => m.map(typeGuardFn));
+    .then(m => m.filter(typeGuardFn));
 }
 
 export const fetchACRanking = () =>
@@ -108,7 +108,7 @@ export const fetchProblemPerformances = () =>
 
 export const fetchSolveTimeModels = () =>
   fetchTypedMap(
-    STATIC_API_BASE_URL + "/solve-time-models.json",
+    STATIC_API_BASE_URL + "/solve_time_models.json",
     isSolveTimeModel
   );
 
@@ -123,6 +123,7 @@ export const fetchUserInfo = (user: string) =>
             console.error("Invalid UserInfo: ", r);
           }
         })
+        .catch(() => undefined)
     : Promise.resolve(undefined);
 
 export const fetchSubmissions = (user: string) =>
@@ -138,5 +139,5 @@ export const fetchContestHistory = (user: string) =>
   ? fetchTypedList(
       `${OFFICIAL_PROXY_BASE_URL}/users/${user}/history/json`,
       isContestParticipation
-    )
-  : Promise.resolve([]);
+    ).catch(() => List())
+  : Promise.resolve(List());
