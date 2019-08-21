@@ -4,8 +4,7 @@ import Action, {
   receiveInitialData,
   receiveLangRanking,
   receiveMergedProblems,
-  receivePerf,
-  receiveSolveTimeModels,
+  receiveProblemModels,
   receiveSubmissions,
   receiveSumRanking,
   receiveUserContestHistory,
@@ -13,8 +12,7 @@ import Action, {
   REQUEST_AC_RANKING,
   REQUEST_LANG_RANKING,
   REQUEST_MERGED_PROBLEMS,
-  REQUEST_PERF,
-  REQUEST_SOLVE_TIME_MODELS,
+  REQUEST_PROBLEM_MODELS,
   REQUEST_SUM_RANKING,
   UPDATE_USER_IDS
 } from "./actions";
@@ -25,9 +23,8 @@ import {
   fetchContests,
   fetchLangRanking,
   fetchMergedProblems,
-  fetchProblemPerformances,
   fetchProblems,
-  fetchSolveTimeModels,
+  fetchProblemModels,
   fetchSubmissions,
   fetchSumRanking,
   fetchUserInfo
@@ -67,12 +64,6 @@ function* fetchMergedProblemsOnce() {
   yield put(receiveMergedProblems(problems));
 }
 
-function* fetchPerformancesOnce() {
-  yield take(REQUEST_PERF);
-  const perf = yield call(fetchProblemPerformances);
-  yield put(receivePerf(perf));
-}
-
 function* fetchAcRankingOnce() {
   yield take(REQUEST_AC_RANKING);
   const ranking = yield call(fetchACRanking);
@@ -91,10 +82,10 @@ function* fetchLangRankingOnce() {
   yield put(receiveLangRanking(ranking));
 }
 
-function* fetchSolveTimeModelOnce() {
-  yield take(REQUEST_SOLVE_TIME_MODELS);
-  const solveTimeModels = yield call(fetchSolveTimeModels);
-  yield put(receiveSolveTimeModels(solveTimeModels));
+function* fetchProblemModelOnce() {
+  yield take(REQUEST_PROBLEM_MODELS);
+  const problemModels = yield call(fetchProblemModels);
+  yield put(receiveProblemModels(problemModels));
 }
 
 function* requestAndReceiveUserInfo(action: Action) {
@@ -121,11 +112,10 @@ function* rootSaga() {
     takeLatest(UPDATE_USER_IDS, requestAndReceiveUserInfo),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveUserContestHistory),
     call(fetchMergedProblemsOnce),
-    call(fetchPerformancesOnce),
     call(fetchAcRankingOnce),
     call(fetchSumRankingOnce),
     call(fetchLangRankingOnce),
-    call(fetchSolveTimeModelOnce)
+    call(fetchProblemModelOnce)
   ]);
 }
 

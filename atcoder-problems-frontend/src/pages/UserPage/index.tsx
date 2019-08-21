@@ -17,12 +17,12 @@ import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
 import State from "../../interfaces/State";
 import {Dispatch} from "redux";
-import {requestMergedProblems, requestPerf, requestSolveTimeModels} from "../../actions";
+import {requestMergedProblems, requestProblemModels} from "../../actions";
 import {List, Map} from "immutable";
 import {connect} from "react-redux";
 import {getFastRanking, getFirstRanking, getShortRanking} from "../../utils/Api";
 import {RankingEntry} from "../../interfaces/RankingEntry";
-import SolveTimeModel from "../../interfaces/SolveTimeModel";
+import ProblemModel from "../../interfaces/ProblemModel";
 import {RatingInfo, ratingInfoOf} from "../../utils/RatingInfo";
 
 interface Props {
@@ -33,8 +33,7 @@ interface Props {
   mergedProblems: Map<string, MergedProblem>;
   contestToProblems: Map<string, List<string>>;
   submissions: Map<string, List<Submission>>;
-  problemPerformances: Map<string, number>;
-  solveTimeModels: Map<string, SolveTimeModel>;
+  problemModels: Map<string, ProblemModel>;
 
   requestData: () => void;
 }
@@ -143,8 +142,7 @@ class UserPage extends React.Component<Props> {
       mergedProblems,
       contestToProblems,
       contests,
-      problemPerformances,
-      solveTimeModels
+      problemModels
     } = this.props;
     if (
       userId.length === 0 ||
@@ -343,9 +341,8 @@ class UserPage extends React.Component<Props> {
         <Recommendations
           userSubmissions={userSubmissions.toList()}
           problems={mergedProblems.valueSeq().toList()}
-          performances={problemPerformances}
           contests={contests}
-          timeModels={solveTimeModels}
+          problemModels={problemModels}
           userRatingInfo={userRatingInfo}
         />
       </div>
@@ -392,17 +389,15 @@ const stateToProps = (state: State) => ({
   mergedProblems: state.mergedProblems,
   contestToProblems: state.contestToProblems,
   submissions: state.submissions,
-  problemPerformances: state.problemPerformances,
   userInfo: state.userInfo,
   userRatingInfo: ratingInfoOf(state.contestHistory),
-  solveTimeModels: state.solveTimeModels
+  problemModels: state.problemModels
 });
 
 const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => {
     dispatch(requestMergedProblems());
-    dispatch(requestPerf());
-    dispatch(requestSolveTimeModels());
+    dispatch(requestProblemModels());
   }
 });
 
