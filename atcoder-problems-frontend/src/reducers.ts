@@ -15,8 +15,10 @@ import Action, {
   RECEIVE_LANG_RANKING,
   RECEIVE_MERGED_PROBLEMS,
   RECEIVE_PERF,
+  RECEIVE_SOLVE_TIME_MODELS,
   RECEIVE_SUBMISSIONS,
   RECEIVE_SUM_RANKING,
+  RECEIVE_USER_CONTEST_HISTORY,
   RECEIVE_USER_INFO,
   UPDATE_USER_IDS
 } from "./actions";
@@ -30,6 +32,8 @@ import {
   SumRankingEntry
 } from "./interfaces/RankingEntry";
 import { isAccepted } from "./utils";
+import SolveTimeModel from "./interfaces/SolveTimeModel";
+import ContestParticipation from "./interfaces/ContestParticipation";
 
 const initialState: State = {
   users: {
@@ -46,6 +50,8 @@ const initialState: State = {
   acRanking: List(),
   sumRanking: List(),
   langRanking: List(),
+  contestHistory: List(),
+  solveTimeModels: Map(),
   cache: {
     statusLabelMap: Map()
   }
@@ -148,6 +154,17 @@ const userInfoReducer = (userInfo: UserInfo | undefined, action: Action) => {
   }
 };
 
+const userContestHistoryReducer = (
+  userContestHistory: List<ContestParticipation>,
+  action: Action
+) => {
+  if (action.type === RECEIVE_USER_CONTEST_HISTORY) {
+    return action.contestHistory;
+  } else {
+    return userContestHistory;
+  }
+};
+
 const performanceReducer = (
   problemPerformances: Map<string, number>,
   action: Action
@@ -192,6 +209,17 @@ const langRankingReducer = (
     return action.ranking;
   } else {
     return langRanking;
+  }
+};
+
+const solveTimeModelReducer = (
+  solveTimeModels: Map<string, SolveTimeModel>,
+  action: Action
+): Map<string, SolveTimeModel> => {
+  if (action.type === RECEIVE_SOLVE_TIME_MODELS) {
+    return action.solveTimeModels;
+  } else {
+    return solveTimeModels;
   }
 };
 
@@ -246,6 +274,8 @@ const rootReducer = (state: State = initialState, action: Action): State => {
   const sumRanking = sumRankingReducer(state.sumRanking, action);
   const acRanking = acRankingReducer(state.acRanking, action);
   const langRanking = langRankingReducer(state.langRanking, action);
+  const solveTimeModels = solveTimeModelReducer(state.solveTimeModels, action);
+  const contestHistory = userContestHistoryReducer(state.contestHistory, action);
 
   const statusLabelMap = statusLabelMapReducer(
     state.cache.statusLabelMap,
@@ -269,6 +299,8 @@ const rootReducer = (state: State = initialState, action: Action): State => {
     sumRanking,
     acRanking,
     langRanking,
+    contestHistory,
+    solveTimeModels,
     cache: {
       statusLabelMap
     }

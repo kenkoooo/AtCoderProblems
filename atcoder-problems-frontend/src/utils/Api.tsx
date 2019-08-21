@@ -10,10 +10,14 @@ import {
   RankingEntry
 } from "../interfaces/RankingEntry";
 import { isUserInfo } from "../interfaces/UserInfo";
+import {isContestParticipation} from "../interfaces/ContestParticipation";
+import {isSolveTimeModel} from "../interfaces/SolveTimeModel";
 
 const BASE_URL = "https://kenkoooo.com/atcoder";
 const STATIC_API_BASE_URL = BASE_URL + "/resources";
 const DYNAMIC_API_BASE_URL = BASE_URL + "/atcoder-api";
+
+const OFFICIAL_PROXY_BASE_URL = BASE_URL + "/proxy";
 
 const AC_COUNT_URL = STATIC_API_BASE_URL + "/ac.json";
 const SUM_URL = STATIC_API_BASE_URL + "/sums.json";
@@ -50,6 +54,16 @@ export function fetchTypedList<T>(
     .then(r => r.json())
     .then((array: any[]) => array.filter(typeGuardFn))
     .then(array => List(array));
+}
+
+export function fetchTypedMap<V>(
+  url: string,
+  typeGuardFn: (obj: any) => obj is V
+) {
+  return fetch(url)
+    .then(r => r.json())
+    .then((obj: {[p: string]: any}) => Map(obj))
+    .then(m => m.map(typeGuardFn));
 }
 
 export const fetchACRanking = () =>
@@ -92,6 +106,12 @@ export const fetchProblemPerformances = () =>
       typeof obj.minimum_performance === "number"
   );
 
+export const fetchSolveTimeModels = () =>
+  fetchTypedMap(
+    STATIC_API_BASE_URL + "/solve-time-models.json",
+    isSolveTimeModel
+  );
+
 export const fetchUserInfo = (user: string) =>
   user.length > 0
     ? fetch(`${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`)
@@ -112,3 +132,11 @@ export const fetchSubmissions = (user: string) =>
         isSubmission
       )
     : Promise.resolve([]);
+
+export const fetchContestHistory = (user: string) =>
+  user.length > 0
+  ? fetchTypedList(
+      `${OFFICIAL_PROXY_BASE_URL}/users/${user}/history/json`,
+      isContestParticipation
+    )
+  : Promise.resolve([]);

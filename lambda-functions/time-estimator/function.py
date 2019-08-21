@@ -109,7 +109,7 @@ def all_contests():
 def handler(event, context):
     target = event.get("target") or all_contests()
     bucket = event.get("bucket", "kenkoooo.com")
-    object_key = event.get("object_key", "solve_time_models.json")
+    object_key = event.get("object_key", "resources/solve_time_models.json")
 
     print(f"Estimating time models of {len(target)} contests.")
     results = {}
