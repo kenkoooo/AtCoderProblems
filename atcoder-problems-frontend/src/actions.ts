@@ -1,4 +1,4 @@
-import { List } from "immutable";
+import { List, Map } from "immutable";
 import Submission from "./interfaces/Submission";
 import Problem from "./interfaces/Problem";
 import Contest from "./interfaces/Contest";
@@ -9,12 +9,15 @@ import {
   RankingEntry,
   SumRankingEntry
 } from "./interfaces/RankingEntry";
+import SolveTimeModel from "./interfaces/SolveTimeModel";
+import ContestParticipation from "./interfaces/ContestParticipation";
 
 export const RECEIVE_INITIAL_DATA = "RECEIVE_INITIAL_DATA";
 
 export const UPDATE_USER_IDS = "UPDATE_USER_IDS";
 export const RECEIVE_SUBMISSIONS = "RECEIVE_SUBMISSIONS";
 export const RECEIVE_USER_INFO = "RECEIVE_USER_INFO";
+export const RECEIVE_USER_CONTEST_HISTORY = "RECEIVE_USER_CONTEST_HISTORY";
 
 export const REQUEST_MERGED_PROBLEMS = "REQUEST_MERGED_PROBLEMS";
 export const RECEIVE_MERGED_PROBLEMS = "RECEIVE_MERGED_PROBLEMS";
@@ -30,6 +33,9 @@ export const RECEIVE_SUM_RANKING = "RECEIVE_SUM_RANKING";
 
 export const REQUEST_LANG_RANKING = "REQUEST_LANG_RANKING";
 export const RECEIVE_LANG_RANKING = "RECEIVE_LANG_RANKING";
+
+export const REQUEST_SOLVE_TIME_MODELS = "REQUEST_SOLVE_TIME_MODELS";
+export const RECEIVE_SOLVE_TIME_MODELS = "RECEIVE_SOLVE_TIME_MODELS";
 
 export const receiveInitialData = (
   contests: List<Contest>,
@@ -56,6 +62,11 @@ export const receiveSubmissions = (submissions: List<Submission>) => ({
 export const receiveUserInfo = (userInfo: UserInfo) => ({
   type: RECEIVE_USER_INFO as typeof RECEIVE_USER_INFO,
   userInfo
+});
+
+export const receiveUserContestHistory = (contestHistory: List<ContestParticipation>) => ({
+  type: RECEIVE_USER_CONTEST_HISTORY as typeof RECEIVE_USER_CONTEST_HISTORY,
+  contestHistory
 });
 
 export const requestMergedProblems = () => ({
@@ -105,11 +116,21 @@ export const receiveLangRanking = (ranking: List<LangRankingEntry>) => ({
   ranking
 });
 
+export const requestSolveTimeModels = () => ({
+  type: REQUEST_SOLVE_TIME_MODELS as typeof REQUEST_SOLVE_TIME_MODELS
+});
+
+export const receiveSolveTimeModels = (solveTimeModels: Map<string, SolveTimeModel>) => ({
+  type: RECEIVE_SOLVE_TIME_MODELS as typeof RECEIVE_SOLVE_TIME_MODELS,
+  solveTimeModels
+});
+
 type Action =
   | ReturnType<typeof receiveInitialData>
   | ReturnType<typeof updateUserIds>
   | ReturnType<typeof receiveSubmissions>
   | ReturnType<typeof receiveUserInfo>
+  | ReturnType<typeof receiveUserContestHistory>
   | ReturnType<typeof requestMergedProblems>
   | ReturnType<typeof receiveMergedProblems>
   | ReturnType<typeof requestPerf>
@@ -119,6 +140,8 @@ type Action =
   | ReturnType<typeof requestSumRanking>
   | ReturnType<typeof receiveSumRanking>
   | ReturnType<typeof requestLangRanking>
-  | ReturnType<typeof receiveLangRanking>;
+  | ReturnType<typeof receiveLangRanking>
+  | ReturnType<typeof requestSolveTimeModels>
+  | ReturnType<typeof receiveSolveTimeModels>;
 
 export default Action;
