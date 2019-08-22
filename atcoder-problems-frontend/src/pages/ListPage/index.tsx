@@ -26,7 +26,8 @@ import State, {
   StatusLabel
 } from "../../interfaces/State";
 import { List, Map, Set } from "immutable";
-import { requestMergedProblems, requestPerf } from "../../actions";
+import {requestMergedProblems, requestProblemModels} from "../../actions";
+import ProblemModel from "../../interfaces/ProblemModel";
 
 const INF_POINT = 1e18;
 
@@ -73,7 +74,7 @@ class ListPage extends React.Component<Props, ListPageState> {
   render() {
     const {
       mergedProblems,
-      problemPerformances,
+      problemModels,
       submissions,
       userId,
       rivals,
@@ -121,7 +122,7 @@ class ListPage extends React.Component<Props, ListPageState> {
             lastAcceptedDate,
             solverCount: p.solver_count ? p.solver_count : 0,
             point,
-            difficulty: problemPerformances.get(p.id, INF_POINT),
+            difficulty: Math.round(problemModels.getIn([p.id, "difficulty"], INF_POINT)),
             firstUserId,
             executionTime,
             codeLength,
@@ -565,7 +566,7 @@ interface Props {
   readonly rivals: List<string>;
   readonly submissions: Map<string, List<Submission>>;
   readonly mergedProblems: Map<string, MergedProblem>;
-  readonly problemPerformances: Map<string, number>;
+  readonly problemModels: Map<string, ProblemModel>;
   readonly contests: Map<string, Contest>;
   readonly statusLabelMap: Map<ProblemId, ProblemStatus>;
 
@@ -578,14 +579,14 @@ const stateToProps = (state: State) => ({
   submissions: state.submissions,
   mergedProblems: state.mergedProblems,
   contests: state.contests,
-  problemPerformances: state.problemPerformances,
-  statusLabelMap: state.cache.statusLabelMap
+  statusLabelMap: state.cache.statusLabelMap,
+  problemModels: state.problemModels
 });
 
 const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => {
     dispatch(requestMergedProblems());
-    dispatch(requestPerf());
+    dispatch(requestProblemModels());
   }
 });
 

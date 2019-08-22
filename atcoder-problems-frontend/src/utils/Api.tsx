@@ -11,7 +11,7 @@ import {
 } from "../interfaces/RankingEntry";
 import { isUserInfo } from "../interfaces/UserInfo";
 import {isContestParticipation} from "../interfaces/ContestParticipation";
-import {isSolveTimeModel} from "../interfaces/SolveTimeModel";
+import {isProblemModel} from "../interfaces/ProblemModel";
 
 const BASE_URL = "https://kenkoooo.com/atcoder";
 const STATIC_API_BASE_URL = BASE_URL + "/resources";
@@ -93,23 +93,10 @@ export const fetchMergedProblems = () =>
     isMergedProblem
   );
 
-export const fetchProblemPerformances = () =>
-  fetchTypedList(
-    STATIC_API_BASE_URL + "/problem-performances.json",
-    (
-      obj: any
-    ): obj is {
-      problem_id: string;
-      minimum_performance: number;
-    } =>
-      typeof obj.problem_id === "string" &&
-      typeof obj.minimum_performance === "number"
-  );
-
-export const fetchSolveTimeModels = () =>
+export const fetchProblemModels = () =>
   fetchTypedMap(
-    STATIC_API_BASE_URL + "/solve_time_models.json",
-    isSolveTimeModel
+    STATIC_API_BASE_URL + "/problem-models.json",
+    isProblemModel
   );
 
 export const fetchUserInfo = (user: string) =>

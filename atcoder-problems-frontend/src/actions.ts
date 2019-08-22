@@ -9,7 +9,7 @@ import {
   RankingEntry,
   SumRankingEntry
 } from "./interfaces/RankingEntry";
-import SolveTimeModel from "./interfaces/SolveTimeModel";
+import ProblemModel from "./interfaces/ProblemModel";
 import ContestParticipation from "./interfaces/ContestParticipation";
 
 export const RECEIVE_INITIAL_DATA = "RECEIVE_INITIAL_DATA";
@@ -34,8 +34,8 @@ export const RECEIVE_SUM_RANKING = "RECEIVE_SUM_RANKING";
 export const REQUEST_LANG_RANKING = "REQUEST_LANG_RANKING";
 export const RECEIVE_LANG_RANKING = "RECEIVE_LANG_RANKING";
 
-export const REQUEST_SOLVE_TIME_MODELS = "REQUEST_SOLVE_TIME_MODELS";
-export const RECEIVE_SOLVE_TIME_MODELS = "RECEIVE_SOLVE_TIME_MODELS";
+export const REQUEST_PROBLEM_MODELS = "REQUEST_PROBLEM_MODELS";
+export const RECEIVE_PROBLEM_MODELS = "RECEIVE_PROBLEM_MODELS";
 
 export const receiveInitialData = (
   contests: List<Contest>,
@@ -78,17 +78,6 @@ export const receiveMergedProblems = (mergedProblems: List<MergedProblem>) => ({
   mergedProblems
 });
 
-export const requestPerf = () => ({
-  type: REQUEST_PERF as typeof REQUEST_PERF
-});
-
-export const receivePerf = (
-  perf: { problem_id: string; minimum_performance: number }[]
-) => ({
-  type: RECEIVE_PERF as typeof RECEIVE_PERF,
-  perf
-});
-
 export const requestAcRanking = () => ({
   type: REQUEST_AC_RANKING as typeof REQUEST_AC_RANKING
 });
@@ -116,13 +105,13 @@ export const receiveLangRanking = (ranking: List<LangRankingEntry>) => ({
   ranking
 });
 
-export const requestSolveTimeModels = () => ({
-  type: REQUEST_SOLVE_TIME_MODELS as typeof REQUEST_SOLVE_TIME_MODELS
+export const requestProblemModels = () => ({
+  type: REQUEST_PROBLEM_MODELS as typeof REQUEST_PROBLEM_MODELS
 });
 
-export const receiveSolveTimeModels = (solveTimeModels: Map<string, SolveTimeModel>) => ({
-  type: RECEIVE_SOLVE_TIME_MODELS as typeof RECEIVE_SOLVE_TIME_MODELS,
-  solveTimeModels
+export const receiveProblemModels = (problemModels: Map<string, ProblemModel>) => ({
+  type: RECEIVE_PROBLEM_MODELS as typeof RECEIVE_PROBLEM_MODELS,
+  problemModels: problemModels
 });
 
 type Action =
@@ -133,15 +122,13 @@ type Action =
   | ReturnType<typeof receiveUserContestHistory>
   | ReturnType<typeof requestMergedProblems>
   | ReturnType<typeof receiveMergedProblems>
-  | ReturnType<typeof requestPerf>
-  | ReturnType<typeof receivePerf>
   | ReturnType<typeof requestAcRanking>
   | ReturnType<typeof receiveAcRanking>
   | ReturnType<typeof requestSumRanking>
   | ReturnType<typeof receiveSumRanking>
   | ReturnType<typeof requestLangRanking>
   | ReturnType<typeof receiveLangRanking>
-  | ReturnType<typeof requestSolveTimeModels>
-  | ReturnType<typeof receiveSolveTimeModels>;
+  | ReturnType<typeof requestProblemModels>
+  | ReturnType<typeof receiveProblemModels>;
 
 export default Action;
