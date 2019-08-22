@@ -15,7 +15,7 @@ import Action, {
   RECEIVE_LANG_RANKING,
   RECEIVE_MERGED_PROBLEMS,
   RECEIVE_PERF,
-  RECEIVE_SOLVE_TIME_MODELS,
+  RECEIVE_PROBLEM_MODELS,
   RECEIVE_SUBMISSIONS,
   RECEIVE_SUM_RANKING,
   RECEIVE_USER_CONTEST_HISTORY,
@@ -32,7 +32,7 @@ import {
   SumRankingEntry
 } from "./interfaces/RankingEntry";
 import { isAccepted } from "./utils";
-import SolveTimeModel from "./interfaces/SolveTimeModel";
+import ProblemModel from "./interfaces/ProblemModel";
 import ContestParticipation from "./interfaces/ContestParticipation";
 
 const initialState: State = {
@@ -46,12 +46,11 @@ const initialState: State = {
   submissions: Map(),
   contestToProblems: Map(),
   userInfo: undefined,
-  problemPerformances: Map(),
   acRanking: List(),
   sumRanking: List(),
   langRanking: List(),
   contestHistory: List(),
-  solveTimeModels: Map(),
+  problemModels: Map(),
   cache: {
     statusLabelMap: Map()
   }
@@ -165,23 +164,6 @@ const userContestHistoryReducer = (
   }
 };
 
-const performanceReducer = (
-  problemPerformances: Map<string, number>,
-  action: Action
-) => {
-  switch (action.type) {
-    case RECEIVE_PERF: {
-      return action.perf.reduce(
-        (map, p) => map.set(p.problem_id, p.minimum_performance),
-        Map<string, number>()
-      );
-    }
-    default: {
-      return problemPerformances;
-    }
-  }
-};
-
 const acRankingReducer = (acRanking: List<RankingEntry>, action: Action) => {
   if (action.type === RECEIVE_AC_RANKING) {
     return action.ranking;
@@ -212,14 +194,14 @@ const langRankingReducer = (
   }
 };
 
-const solveTimeModelReducer = (
-  solveTimeModels: Map<string, SolveTimeModel>,
+const problemModelReducer = (
+  problemModels: Map<string, ProblemModel>,
   action: Action
-): Map<string, SolveTimeModel> => {
-  if (action.type === RECEIVE_SOLVE_TIME_MODELS) {
-    return action.solveTimeModels;
+): Map<string, ProblemModel> => {
+  if (action.type === RECEIVE_PROBLEM_MODELS) {
+    return action.problemModels;
   } else {
-    return solveTimeModels;
+    return problemModels;
   }
 };
 
@@ -267,14 +249,10 @@ const rootReducer = (state: State = initialState, action: Action): State => {
   const users = usersReducer(state.users, action);
   const mergedProblems = mergedProblemReducer(state.mergedProblems, action);
   const userInfo = userInfoReducer(state.userInfo, action);
-  const problemPerformances = performanceReducer(
-    state.problemPerformances,
-    action
-  );
   const sumRanking = sumRankingReducer(state.sumRanking, action);
   const acRanking = acRankingReducer(state.acRanking, action);
   const langRanking = langRankingReducer(state.langRanking, action);
-  const solveTimeModels = solveTimeModelReducer(state.solveTimeModels, action);
+  const problemModels = problemModelReducer(state.problemModels, action);
   const contestHistory = userContestHistoryReducer(state.contestHistory, action);
 
   const statusLabelMap = statusLabelMapReducer(
@@ -294,13 +272,12 @@ const rootReducer = (state: State = initialState, action: Action): State => {
     problems,
     mergedProblems,
     userInfo,
-    problemPerformances,
     contests,
     sumRanking,
     acRanking,
     langRanking,
     contestHistory,
-    solveTimeModels,
+    problemModels,
     cache: {
       statusLabelMap
     }

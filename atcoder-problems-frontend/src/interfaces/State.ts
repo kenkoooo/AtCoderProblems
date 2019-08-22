@@ -10,7 +10,7 @@ import {
   SumRankingEntry
 } from "./RankingEntry";
 import ContestParticipation from "./ContestParticipation";
-import SolveTimeModel from "./SolveTimeModel";
+import ProblemModel from "./ProblemModel";
 
 export type ContestId = string;
 export type ProblemId = string;
@@ -26,12 +26,11 @@ export default interface State {
   readonly submissions: Map<ProblemId, List<Submission>>;
   readonly contestToProblems: Map<ContestId, List<ProblemId>>;
   readonly userInfo: UserInfo | undefined;
-  readonly problemPerformances: Map<ProblemId, number>;
   readonly acRanking: List<RankingEntry>;
   readonly sumRanking: List<SumRankingEntry>;
   readonly langRanking: List<LangRankingEntry>;
   readonly contestHistory: List<ContestParticipation>;
-  readonly solveTimeModels: Map<ProblemId, SolveTimeModel>;
+  readonly problemModels: Map<ProblemId, ProblemModel>;
 
   readonly cache: {
     readonly statusLabelMap: Map<ProblemId, ProblemStatus>;
