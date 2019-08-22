@@ -68,7 +68,7 @@ def inverse_adjust_rating(rating, prev_contests):
     return rating + adjustment
 
 
-def estimate_for_contest(contest_name):
+def estimate_for_contest(contest_name, existing_problem):
     try:
         results = requests.get("https://atcoder.jp/contests/{}/standings/json".format(contest_name)).json()
     except json.JSONDecodeError as e:
@@ -119,7 +119,10 @@ def estimate_for_contest(contest_name):
         return {}
 
     params = {}
-    for task_screen_name, task_name in task_names.items():
+    for task_screen_name in task_names.keys():
+        if task_screen_name in existing_problem:
+            print(f"The problem model for {task_screen_name} already exists. skipping.")
+            continue
         elapsed = [task_result[task_screen_name + ".elapsed"] for task_result in user_results]
         first_ac = min(elapsed)
         valid_users = [task_result for task_result in user_results
@@ -157,6 +160,14 @@ def estimate_for_contest(contest_name):
     return params
 
 
+def get_current_models():
+    try:
+        return requests.get("https://kenkoooo.com/atcoder/resources/problem-models.json").json()
+    except Exception as e:
+        print(f"Failed to fetch existing models.\n{e}")
+        return {}
+
+
 def all_contests():
     # Gets all contests after the rating system is introduced.
     # The first rated contest, AGC001 at 2016-07-16, is ignored because nobody has rating before the contest.
@@ -167,13 +178,17 @@ def all_contests():
 
 def handler(event, context):
     target = event.get("target") or all_contests()
+    overwrite = event.get("overwrite", False)
     bucket = event.get("bucket", "kenkoooo.com")
     object_key = event.get("object_key", "resources/problem-models.json")
 
+    current_models = get_current_models()
+    existing_problems = current_models.keys() if not overwrite else set()
+
     print(f"Estimating time models of {len(target)} contests.")
-    results = {}
+    results = current_models
     for contest in target:
-        results.update(estimate_for_contest(contest))
+        results.update(estimate_for_contest(contest, existing_problems))
     print("Estimation completed. Saving results in S3")
     s3 = boto3.resource('s3')
     s3.Object(bucket, object_key).put(Body=json.dumps(results))
@@ -181,6 +196,7 @@ def handler(event, context):
 
 if __name__ == '__main__':
     event = {
-        "bucket": "amylase-kyotei"
+        "target": [],
+        "overwrite": False
     }
     handler(event, None)
