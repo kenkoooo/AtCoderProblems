@@ -64,17 +64,20 @@ def inverse_adjust_rating(rating, prev_contests):
         return float("nan")
     if rating <= 400:
         rating = 400 * (1 - math.log(400 / rating))
-    adjustment = (math.sqrt(1 - (0.9 ** (2 * prev_contests))) / (1 - 0.9 ** prev_contests) - 1) / (math.sqrt(19) - 1) * 1200
+    adjustment = (math.sqrt(1 - (0.9 ** (2 * prev_contests))) /
+                  (1 - 0.9 ** prev_contests) - 1) / (math.sqrt(19) - 1) * 1200
     return rating + adjustment
 
 
 def estimate_for_contest(contest_name):
     try:
-        results = requests.get("https://atcoder.jp/contests/{}/standings/json".format(contest_name)).json()
+        results = requests.get(
+            "https://atcoder.jp/contests/{}/standings/json".format(contest_name)).json()
     except json.JSONDecodeError as e:
         print(f"{e}")
         return {}
-    task_names = {task["TaskScreenName"]: task["TaskName"] for task in results["TaskInfo"]}
+    task_names = {task["TaskScreenName"]: task["TaskName"]
+                  for task in results["TaskInfo"]}
 
     user_results = []
     for result_row in results["StandingsData"]:
@@ -94,7 +97,7 @@ def estimate_for_contest(contest_name):
         user_row = {
             "is_rated": is_rated,
             "rating": rating,
-            "prev_contests" : prev_contests,
+            "prev_contests": prev_contests,
             "raw_rating": inverse_adjust_rating(rating, prev_contests),
             "user_name": user_name
         }
@@ -103,7 +106,8 @@ def estimate_for_contest(contest_name):
             user_row[task_name + ".time"] = -1.
             user_row[task_name + ".elapsed"] = 10 ** 200
 
-        prev_accepted_times = [0] + [task_result["Elapsed"] for task_result in result_row["TaskResults"].values() if task_result["Score"] > 0]
+        prev_accepted_times = [0] + [task_result["Elapsed"]
+                                     for task_result in result_row["TaskResults"].values() if task_result["Score"] > 0]
         user_row["last_ac"] = max(prev_accepted_times)
         for task_screen_name, task_result in result_row["TaskResults"].items():
             if task_result["Score"] > 0:
@@ -111,42 +115,55 @@ def estimate_for_contest(contest_name):
                 elapsed = task_result["Elapsed"]
                 penalty = task_result["Penalty"] * 5 * 60 * (10 ** 9)
                 user_row[task_screen_name + ".elapsed"] = elapsed
-                user_row[task_screen_name + ".time"] = penalty + elapsed - max(t for t in prev_accepted_times if t < elapsed)
+                user_row[task_screen_name + ".time"] = penalty + elapsed - \
+                    max(t for t in prev_accepted_times if t < elapsed)
         user_results.append(user_row)
 
     if len(user_results) == 0:
-        print(f"There are no participants/submissions for contest {contest_name}. Ignoring.")
+        print(
+            f"There are no participants/submissions for contest {contest_name}. Ignoring.")
         return {}
 
     params = {}
     for task_screen_name, task_name in task_names.items():
-        elapsed = [task_result[task_screen_name + ".elapsed"] for task_result in user_results]
+        elapsed = [task_result[task_screen_name + ".elapsed"]
+                   for task_result in user_results]
         first_ac = min(elapsed)
         valid_users = [task_result for task_result in user_results
                        if task_result[task_screen_name + ".time"] > first_ac / 2 and task_result[task_screen_name + ".ac"] == 1.]
         model = {}
         if len(valid_users) < 10:
-            print(f"{task_screen_name}: insufficient data ({len(valid_users)} users). skip estimating time model.")
+            print(
+                f"{task_screen_name}: insufficient data ({len(valid_users)} users). skip estimating time model.")
         else:
-            raw_ratings = [task_result["raw_rating"] for task_result in valid_users]
-            time_secs = [task_result[task_screen_name + ".time"] / (10 ** 9) for task_result in valid_users]
+            raw_ratings = [task_result["raw_rating"]
+                           for task_result in valid_users]
+            time_secs = [task_result[task_screen_name + ".time"] /
+                         (10 ** 9) for task_result in valid_users]
             time_logs = [math.log(t) for t in time_secs]
             slope, intercept = single_regression(raw_ratings, time_logs)
-            print(f"{task_screen_name}: time [sec] = exp({slope} * raw_rating + {intercept})")
+            print(
+                f"{task_screen_name}: time [sec] = exp({slope} * raw_rating + {intercept})")
             if slope > 0:
                 print("slope is positive. ignoring unreliable estimation.")
             else:
                 model["slope"] = slope
                 model["intercept"] = intercept
 
-        rated_results = [task_result for task_result in user_results if task_result["is_rated"]]
+        rated_results = [
+            task_result for task_result in user_results if task_result["is_rated"]]
         if len(rated_results) < 10:
-            print(f"{task_screen_name}: insufficient data ({len(rated_results)} users). skip estimating difficulty model.")
+            print(
+                f"{task_screen_name}: insufficient data ({len(rated_results)} users). skip estimating difficulty model.")
         else:
-            d_raw_ratings = [task_result["raw_rating"] for task_result in rated_results]
-            d_accepteds = [task_result[task_screen_name + ".ac"] for task_result in rated_results]
-            difficulty, discrimination = fit_2plm_irt(d_raw_ratings, d_accepteds)
-            print(f"difficulty: {difficulty}, discrimination: {discrimination}")
+            d_raw_ratings = [task_result["raw_rating"]
+                             for task_result in rated_results]
+            d_accepteds = [task_result[task_screen_name + ".ac"]
+                           for task_result in rated_results]
+            difficulty, discrimination = fit_2plm_irt(
+                d_raw_ratings, d_accepteds)
+            print(
+                f"difficulty: {difficulty}, discrimination: {discrimination}")
             if discrimination < 0:
                 print("discrimination is negative. ignoring unreliable estimation.")
             else:
@@ -160,7 +177,8 @@ def estimate_for_contest(contest_name):
 def all_contests():
     # Gets all contests after the rating system is introduced.
     # The first rated contest, AGC001 at 2016-07-16, is ignored because nobody has rating before the contest.
-    contests = requests.get("https://kenkoooo.com/atcoder/resources/contests.json").json()
+    contests = requests.get(
+        "https://kenkoooo.com/atcoder/resources/contests.json").json()
     valid_epoch_second = datetime(2016, 7, 17).timestamp()
     return [contest["id"] for contest in contests if contest["start_epoch_second"] > valid_epoch_second]
 
@@ -176,11 +194,5 @@ def handler(event, context):
         results.update(estimate_for_contest(contest))
     print("Estimation completed. Saving results in S3")
     s3 = boto3.resource('s3')
-    s3.Object(bucket, object_key).put(Body=json.dumps(results))
-
-
-if __name__ == '__main__':
-    event = {
-        "bucket": "amylase-kyotei"
-    }
-    handler(event, None)
+    s3.Object(bucket, object_key).put(Body=json.dumps(
+        results), ContentType="application/json")
