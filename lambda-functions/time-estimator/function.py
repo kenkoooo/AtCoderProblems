@@ -102,7 +102,7 @@ def estimate_for_contest(contest_name, existing_problem):
             "user_name": user_name
         }
         for task_name in task_names:
-            user_row[task_name + ".ac"] = 0.
+            user_row[task_name + ".score"] = 0.
             user_row[task_name + ".time"] = -1.
             user_row[task_name + ".elapsed"] = 10 ** 200
 
@@ -110,8 +110,8 @@ def estimate_for_contest(contest_name, existing_problem):
                                      for task_result in result_row["TaskResults"].values() if task_result["Score"] > 0]
         user_row["last_ac"] = max(prev_accepted_times)
         for task_screen_name, task_result in result_row["TaskResults"].items():
+            user_row[task_screen_name + ".score"] = task_result["Score"]
             if task_result["Score"] > 0:
-                user_row[task_screen_name + ".ac"] = 1.
                 elapsed = task_result["Elapsed"]
                 penalty = task_result["Penalty"] * 5 * 60 * (10 ** 9)
                 user_row[task_screen_name + ".elapsed"] = elapsed
@@ -129,6 +129,12 @@ def estimate_for_contest(contest_name, existing_problem):
         if task_screen_name in existing_problem:
             print(f"The problem model for {task_screen_name} already exists. skipping.")
             continue
+        max_score = max(task_result[task_screen_name + ".score"] for task_result in user_results)
+        if max_score == 0.:
+            print(f"The problem {task_screen_name} is not solved by any competitors. skipping.")
+            continue
+        for task_result in user_results:
+            task_result[task_screen_name + ".ac"] = float(task_result[task_screen_name + ".score"] == max_score)
         elapsed = [task_result[task_screen_name + ".elapsed"]
                    for task_result in user_results]
         first_ac = min(elapsed)
