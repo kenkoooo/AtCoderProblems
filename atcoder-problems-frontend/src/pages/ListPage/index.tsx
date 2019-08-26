@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownToggle,
   Row,
+  UncontrolledButtonDropdown,
   UncontrolledDropdown
 } from "reactstrap";
 
@@ -378,7 +379,7 @@ class ListPage extends React.Component<Props, ListPageState> {
         </Row>
         <Row>
           <ButtonGroup className="mr-4">
-            <UncontrolledDropdown>
+            <UncontrolledButtonDropdown>
               <DropdownToggle caret>
                 {this.state.fromPoint == 0 ? "From" : this.state.fromPoint}
               </DropdownToggle>
@@ -392,8 +393,8 @@ class ListPage extends React.Component<Props, ListPageState> {
                   </DropdownItem>
                 ))}
               </DropdownMenu>
-            </UncontrolledDropdown>
-            <UncontrolledDropdown>
+            </UncontrolledButtonDropdown>
+            <UncontrolledButtonDropdown>
               <DropdownToggle caret>
                 {this.state.toPoint == INF_POINT ? "To" : this.state.toPoint}
               </DropdownToggle>
@@ -407,7 +408,7 @@ class ListPage extends React.Component<Props, ListPageState> {
                   </DropdownItem>
                 ))}
               </DropdownMenu>
-            </UncontrolledDropdown>
+            </UncontrolledButtonDropdown>
           </ButtonGroup>
           <ButtonGroup className="mr-4">
             <UncontrolledDropdown>
