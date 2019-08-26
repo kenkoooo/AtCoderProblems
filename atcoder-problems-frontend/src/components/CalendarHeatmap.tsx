@@ -1,6 +1,6 @@
 import React from "react";
 import { UncontrolledTooltip } from "reactstrap";
-import { formatMoment, getThisSunday, getToday } from "../utils/DateUtil";
+import { formatMoment, getNextSunday, getToday } from "../utils/DateUtil";
 import { Range, Map } from "immutable";
 import moment from "moment";
 
@@ -17,7 +17,7 @@ const CalendarHeatmap = (props: Props) => {
   const { dateLabels } = props;
 
   const today = getToday();
-  const nextSunday = getThisSunday(today);
+  const nextSunday = getNextSunday(today);
 
   const startDate = nextSunday.date(nextSunday.date() - WEEKS * WEEKDAY);
   const startLabel = formatMoment(startDate);
