@@ -27,7 +27,7 @@ import State, {
   StatusLabel
 } from "../../interfaces/State";
 import { List, Map, Set } from "immutable";
-import {requestMergedProblems, requestProblemModels} from "../../actions";
+import { requestMergedProblems, requestProblemModels } from "../../actions";
 import ProblemModel from "../../interfaces/ProblemModel";
 
 const INF_POINT = 1e18;
@@ -108,7 +108,8 @@ class ListPage extends React.Component<Props, ListPageState> {
             : "";
           const point = p.point ? p.point : p.predict ? p.predict : INF_POINT;
           const firstUserId = p.first_user_id ? p.first_user_id : "";
-          const executionTime = p.execution_time ? p.execution_time : INF_POINT;
+          const executionTime =
+            p.execution_time != null ? p.execution_time : INF_POINT;
           const codeLength = p.source_code_length
             ? p.source_code_length
             : INF_POINT;
@@ -123,7 +124,9 @@ class ListPage extends React.Component<Props, ListPageState> {
             lastAcceptedDate,
             solverCount: p.solver_count ? p.solver_count : 0,
             point,
-            difficulty: Math.round(problemModels.getIn([p.id, "difficulty"], INF_POINT)),
+            difficulty: Math.round(
+              problemModels.getIn([p.id, "difficulty"], INF_POINT)
+            ),
             firstUserId,
             executionTime,
             codeLength,
