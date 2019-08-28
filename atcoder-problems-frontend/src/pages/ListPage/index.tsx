@@ -522,7 +522,7 @@ class ListPage extends React.Component<Props, ListPageState> {
                   case "Only Rated":
                     return isRated;
                   case "Only Unrated":
-                    return isRated;
+                    return !isRated;
                 }
               })
               .toArray()}
