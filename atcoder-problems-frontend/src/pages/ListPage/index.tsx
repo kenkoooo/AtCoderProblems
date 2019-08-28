@@ -27,7 +27,7 @@ import State, {
   StatusLabel
 } from "../../interfaces/State";
 import { List, Map, Set } from "immutable";
-import {requestMergedProblems, requestProblemModels} from "../../actions";
+import { requestMergedProblems, requestProblemModels } from "../../actions";
 import ProblemModel from "../../interfaces/ProblemModel";
 
 const INF_POINT = 1e18;
@@ -123,7 +123,9 @@ class ListPage extends React.Component<Props, ListPageState> {
             lastAcceptedDate,
             solverCount: p.solver_count ? p.solver_count : 0,
             point,
-            difficulty: Math.round(problemModels.getIn([p.id, "difficulty"], INF_POINT)),
+            difficulty: Math.round(
+              problemModels.getIn([p.id, "difficulty"], INF_POINT)
+            ),
             firstUserId,
             executionTime,
             codeLength,
@@ -519,7 +521,7 @@ class ListPage extends React.Component<Props, ListPageState> {
                   case "Only Rated":
                     return isRated;
                   case "Only Unrated":
-                    return isRated;
+                    return !isRated;
                 }
               })
               .toArray()}
