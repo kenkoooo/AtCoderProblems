@@ -156,7 +156,7 @@ where
                     .map(|p| Problem {
                         id: p.id,
                         contest_id: p.contest_id,
-                        title: p.title,
+                        title: p.position + ". " + p.title.as_str(),
                     })
                     .collect::<Vec<Problem>>();
                 conn.insert_problems(&problems)?;
