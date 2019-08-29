@@ -2,7 +2,7 @@ use crate::scraper::ScraperTrait;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
 use crate::sql::{ContestProblemClient, SimpleClient, SubmissionClient};
 use crate::utils;
-use algorithm_problem_client::AtCoderClient;
+use algorithm_problem_client::{AtCoderClient, AtCoderProblem};
 use chrono::{Duration, Utc};
 use diesel::QueryResult;
 use log::{error, info};
@@ -20,11 +20,20 @@ where
     let mut contests = conn.load_contests()?;
     let now = Utc::now().timestamp();
 
+    let newest_contest_epoch_second = contests
+        .iter()
+        .map(|contest| contest.start_epoch_second)
+        .max();
+    if newest_contest_epoch_second.is_none() {
+        info!("There is no contests in DB");
+        return Ok(());
+    }
+    let newest_contest_epoch_second = newest_contest_epoch_second.unwrap();
+
     contests.sort_by_key(|contest| -contest.start_epoch_second);
-    for (_, contest) in contests.into_iter().enumerate().filter(|(i, contest)| {
-        *i == 0
-            || now - contest.start_epoch_second
-                <= Duration::days(NEW_CONTEST_THRESHOLD_DAYS).num_seconds()
+    for contest in contests.into_iter().filter(|contest| {
+        is_new_contest(now, contest.start_epoch_second)
+            || contest.start_epoch_second == newest_contest_epoch_second
     }) {
         info!("Starting for {}", contest.id);
         match client.fetch_atcoder_submission_list(&contest.id, None) {
@@ -80,9 +89,10 @@ where
     info!("Starting new loop...");
     let contests = conn.load_contests()?;
     let now = Utc::now().timestamp();
-    for contest in contests.into_iter().filter(|contest| {
-        now - contest.start_epoch_second > Duration::days(NEW_CONTEST_THRESHOLD_DAYS).num_seconds()
-    }) {
+    for contest in contests
+        .into_iter()
+        .filter(|contest| !is_new_contest(now, contest.start_epoch_second))
+    {
         for page in 1..=NEW_PAGE_THRESHOLD {
             info!("Crawling {} {}", contest.id, page);
             let new_submissions = client.fetch_submissions(&contest.id, page as u32);
@@ -153,18 +163,14 @@ where
                 info!("Inserting {} problems...", problems.len());
                 let problems = problems
                     .into_iter()
-                    .map(|p| Problem {
-                        id: p.id,
-                        contest_id: p.contest_id,
-                        title: p.position + ". " + p.title.as_str(),
-                    })
+                    .map(convert_problem)
                     .collect::<Vec<Problem>>();
                 conn.insert_problems(&problems)?;
                 let contest_problem = problems
-                    .iter()
+                    .into_iter()
                     .map(|problem| ContestProblem {
-                        problem_id: problem.id.clone(),
-                        contest_id: problem.contest_id.clone(),
+                        problem_id: problem.id,
+                        contest_id: problem.contest_id,
                     })
                     .collect::<Vec<_>>();
                 conn.insert_contest_problem(&contest_problem)?;
@@ -232,5 +238,37 @@ impl SubmissionFetcher for AtCoderClient {
                 execution_time: s.execution_time.map(|t| t as i32),
             })
             .collect()
+    }
+}
+
+fn is_new_contest(current_time_second: i64, contest_start_second: i64) -> bool {
+    current_time_second - contest_start_second
+        <= Duration::days(NEW_CONTEST_THRESHOLD_DAYS).num_seconds()
+}
+
+fn convert_problem(p: AtCoderProblem) -> Problem {
+    Problem {
+        id: p.id,
+        contest_id: p.contest_id,
+        title: p.position + ". " + p.title.as_str(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_convert_problem() {
+        let p = AtCoderProblem {
+            id: "id".to_owned(),
+            contest_id: "contest_id".to_owned(),
+            title: "title".to_owned(),
+            position: "A".to_owned(),
+        };
+        let p = convert_problem(p);
+        assert_eq!(p.id, "id".to_owned());
+        assert_eq!(p.contest_id, "contest_id".to_owned());
+        assert_eq!(p.title, "A. title".to_owned());
     }
 }
