@@ -14,6 +14,7 @@ import ProblemModel, {
 import {RatingInfo} from "../../utils/RatingInfo";
 import {predictSolveProbability, predictSolveTime} from "../../utils/ProblemModelUtil";
 import {Button, ButtonGroup, Row} from "reactstrap";
+import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 
 const RECOMMEND_NUM = 10;
 
@@ -106,21 +107,22 @@ class Recommendations extends React.Component<Props, LocalState> {
               onClick={() => this.setState({ recommendOption: "Easy" })}
               active={recommendOption === "Easy"}
             >
-              Easy (80%)
+              Easy
             </Button>
             <Button
               onClick={() => this.setState({ recommendOption: "Moderate" })}
               active={recommendOption === "Moderate"}
             >
-              Moderate (50%)
+              Moderate
             </Button>
             <Button
               onClick={() => this.setState({ recommendOption: "Difficult" })}
               active={recommendOption === "Difficult"}
             >
-              Difficult (20%)
+              Difficult
             </Button>
           </ButtonGroup>
+
         </Row>
         <Row className="my-3">
           <BootstrapTable
@@ -156,7 +158,36 @@ class Recommendations extends React.Component<Props, LocalState> {
             >
               Contest
             </TableHeaderColumn>
-            <TableHeaderColumn dataField="difficulty">Difficulty</TableHeaderColumn>
+            <TableHeaderColumn dataField="difficulty">
+              <span>
+                Difficulty
+              </span>
+              <HelpBadgeTooltip id="difficulty">
+                Internal rating to have 50% Solve Probability
+              </HelpBadgeTooltip>
+            </TableHeaderColumn>
+            <TableHeaderColumn
+              dataField="predictedSolveProbability"
+              dataFormat={(predictedSolveProbability: number | null) => {
+                if (predictedSolveProbability === null) {
+                  return "-";
+                } else if (predictedSolveProbability < 0.005) {
+                  return "<1%";
+                } else if (predictedSolveProbability > 0.995) {
+                  return ">99%"
+                } else {
+                  const percents = Math.round(predictedSolveProbability * 100);
+                  return `${percents}%`;
+                }
+              }}
+            >
+              <span>
+                Solve Probability
+              </span>
+              <HelpBadgeTooltip id="probability">
+                Estimated probability that you could solve this problem if you competed in the contest.
+              </HelpBadgeTooltip>
+            </TableHeaderColumn>
             <TableHeaderColumn
               dataField="predictedSolveTime"
               dataFormat={(predictedSolveTime: number | null) => {
@@ -169,7 +200,14 @@ class Recommendations extends React.Component<Props, LocalState> {
                   return `${minutes} mins`;
                 }
               }}
-            >Median Solve Time</TableHeaderColumn>
+            >
+              <span>
+                Median Solve Time
+              </span>
+              <HelpBadgeTooltip id="solvetime">
+                Estimated time required to solve this problem.
+              </HelpBadgeTooltip>
+            </TableHeaderColumn>
           </BootstrapTable>
         </Row>
       </>
