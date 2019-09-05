@@ -82,7 +82,7 @@ class TablePage extends React.Component<Props, LocalState> {
     return (
       <div>
         <Row className="my-4">
-          <FormGroup check>
+          <FormGroup check inline>
             <Label check>
               <Input
                 type="checkbox"
@@ -92,7 +92,7 @@ class TablePage extends React.Component<Props, LocalState> {
               Show Accepted
             </Label>
           </FormGroup>
-          <FormGroup check>
+          <FormGroup check inline>
             <Label check>
               <Input
                 type="checkbox"
