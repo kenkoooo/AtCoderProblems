@@ -257,7 +257,8 @@ class ListPage extends React.Component<Props, ListPageState> {
           if (difficulty >= INF_POINT) {
             return <p>-</p>;
           } else {
-            return <p>{difficulty}</p>;
+            const difficultyClipped = Math.round(difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400));
+            return <p>{difficultyClipped}</p>;
           }
         }
       },
