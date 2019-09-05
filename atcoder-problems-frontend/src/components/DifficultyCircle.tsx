@@ -15,7 +15,7 @@ function getColor (difficulty: number): string {
   else if(difficulty < 800) return '#804000'; // brown
   else if(difficulty < 1200) return '#008000'; // green
   else if(difficulty < 1600) return '#00C0C0'; // cyan
-  else if(difficulty < 2000) return '#7F7FFF'; // blue
+  else if(difficulty < 2000) return '#0000FF'; // blue
   else if(difficulty < 2400) return '#C0C000'; // yellow
   else if(difficulty < 2800) return '#FF8000'; // orange
   else return '#FF0000'; // red
