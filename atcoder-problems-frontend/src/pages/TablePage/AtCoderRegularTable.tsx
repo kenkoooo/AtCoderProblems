@@ -12,17 +12,21 @@ import {
   StatusLabel
 } from "../../interfaces/State";
 import { statusLabelToTableColor } from "./index";
+import ProblemModel from "../../interfaces/ProblemModel";
+import {DifficultyCircle} from "../../components/DifficultyCircle";
 
 interface Props {
   contests: Map<string, Contest>;
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
+  showDifficulty: boolean;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
+  problemModels: Map<string, ProblemModel>;
 }
 
 export const AtCoderRegularTable: React.FC<Props> = props => {
-  const { contestToProblems, showSolved, statusLabelMap } = props;
+  const { contestToProblems, showSolved, showDifficulty, statusLabelMap, problemModels } = props;
   const solvedAll = (contest: Contest) => {
     return contestToProblems
       .get(contest.id, List<Problem>())
@@ -84,12 +88,21 @@ export const AtCoderRegularTable: React.FC<Props> = props => {
             dataFormat={(_: any, contest: Contest) => {
               const problem = ithProblem(contest, i);
               return problem ? (
-                <a
-                  href={Url.formatProblemUrl(problem.id, contest.id)}
-                  target="_blank"
-                >
-                  {problem.title}
-                </a>
+                <>
+                  {showDifficulty ? (
+                    <DifficultyCircle
+                      difficulty={problemModels.getIn([problem.id, "difficulty"], null)}
+                      id={problem.id + '-' + contest.id}
+                    />) :
+                    null
+                  }
+                  <a
+                    href={Url.formatProblemUrl(problem.id, contest.id)}
+                    target="_blank"
+                  >
+                    {problem.title}
+                  </a>
+                </>
               ) : (
                 ""
               );

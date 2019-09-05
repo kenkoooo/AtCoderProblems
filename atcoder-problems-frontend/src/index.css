@@ -21,3 +21,13 @@ code {
     word-break: break-word;
   }
 }
+
+span.difficulty-circle {
+  display: inline-block;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 1px;
+  margin-right: 5px;
+  height: 12px;
+  width: 12px;
+}
