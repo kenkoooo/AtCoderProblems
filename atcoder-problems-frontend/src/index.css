@@ -31,3 +31,29 @@ span.difficulty-circle {
   height: 12px;
   width: 12px;
 }
+
+.difficulty-red {
+  color: #FF0000;
+}
+.difficulty-orange {
+  color: #FF8000;
+}
+.difficulty-yellow {
+  color: #C0C000;
+}
+.difficulty-blue {
+  color: #0000FF;
+}
+.difficulty-cyan {
+  color: #00C0C0;
+}
+.difficulty-green {
+  color: #008000;
+}
+.difficulty-brown {
+  color: #804000;
+}
+.difficulty-grey {
+  color: #808080;
+}
+
