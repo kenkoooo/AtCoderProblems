@@ -25,6 +25,18 @@ interface Props {
   problemModels: Map<string, ProblemModel>;
 }
 
+function getColorClass (difficulty: number | null): string {
+  if(difficulty === null) return "";
+  if(difficulty < 400) return 'difficulty-grey'; // grey
+  else if(difficulty < 800) return 'difficulty-brown'; // brown
+  else if(difficulty < 1200) return 'difficulty-green'; // green
+  else if(difficulty < 1600) return 'difficulty-cyan'; // cyan
+  else if(difficulty < 2000) return 'difficulty-blue'; // blue
+  else if(difficulty < 2400) return 'difficulty-yellow'; // yellow
+  else if(difficulty < 2800) return 'difficulty-orange'; // orange
+  else return 'difficulty-red'; // red
+}
+
 export const AtCoderRegularTable: React.FC<Props> = props => {
   const { contestToProblems, showSolved, showDifficulty, statusLabelMap, problemModels } = props;
   const solvedAll = (contest: Contest) => {
@@ -87,25 +99,35 @@ export const AtCoderRegularTable: React.FC<Props> = props => {
             }}
             dataFormat={(_: any, contest: Contest) => {
               const problem = ithProblem(contest, i);
-              return problem ? (
-                <>
-                  {showDifficulty ? (
+              if(problem){
+                if(showDifficulty){
+                  const difficulty = problemModels.getIn([problem.id, "difficulty"], null);
+                  return (<>
                     <DifficultyCircle
-                      difficulty={problemModels.getIn([problem.id, "difficulty"], null)}
+                      difficulty={difficulty}
                       id={problem.id + '-' + contest.id}
-                    />) :
-                    null
-                  }
-                  <a
-                    href={Url.formatProblemUrl(problem.id, contest.id)}
-                    target="_blank"
-                  >
-                    {problem.title}
-                  </a>
-                </>
-              ) : (
-                ""
-              );
+                    />
+                    <a
+                      href={Url.formatProblemUrl(problem.id, contest.id)}
+                      target="_blank"
+                      className={getColorClass(difficulty)}
+                    >
+                      {problem.title}
+                    </a>
+                  </>);
+                } else {
+                  return (
+                    <a
+                      href={Url.formatProblemUrl(problem.id, contest.id)}
+                      target="_blank"
+                    >
+                      {problem.title}
+                    </a>
+                  );
+                }
+              } else {
+                return "";
+              }
             }}
           >
             {c}
