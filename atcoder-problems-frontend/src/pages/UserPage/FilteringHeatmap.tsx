@@ -18,7 +18,7 @@ interface State {
   filterStatus: FilterStatus;
 }
 
-const filterSubmissions = (
+export const filterSubmissions = (
   submissions: Submission[],
   filterStatus: FilterStatus
 ) => {
