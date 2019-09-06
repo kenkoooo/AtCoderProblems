@@ -12,17 +12,33 @@ import {
   StatusLabel
 } from "../../interfaces/State";
 import { statusLabelToTableColor } from "./index";
+import ProblemModel from "../../interfaces/ProblemModel";
+import {DifficultyCircle} from "../../components/DifficultyCircle";
 
 interface Props {
   contests: Map<string, Contest>;
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
+  showDifficulty: boolean;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
+  problemModels: Map<string, ProblemModel>;
+}
+
+function getColorClass (difficulty: number | null): string {
+  if(difficulty === null) return "";
+  if(difficulty < 400) return 'difficulty-grey'; // grey
+  else if(difficulty < 800) return 'difficulty-brown'; // brown
+  else if(difficulty < 1200) return 'difficulty-green'; // green
+  else if(difficulty < 1600) return 'difficulty-cyan'; // cyan
+  else if(difficulty < 2000) return 'difficulty-blue'; // blue
+  else if(difficulty < 2400) return 'difficulty-yellow'; // yellow
+  else if(difficulty < 2800) return 'difficulty-orange'; // orange
+  else return 'difficulty-red'; // red
 }
 
 export const AtCoderRegularTable: React.FC<Props> = props => {
-  const { contestToProblems, showSolved, statusLabelMap } = props;
+  const { contestToProblems, showSolved, showDifficulty, statusLabelMap, problemModels } = props;
   const solvedAll = (contest: Contest) => {
     return contestToProblems
       .get(contest.id, List<Problem>())
@@ -83,16 +99,35 @@ export const AtCoderRegularTable: React.FC<Props> = props => {
             }}
             dataFormat={(_: any, contest: Contest) => {
               const problem = ithProblem(contest, i);
-              return problem ? (
-                <a
-                  href={Url.formatProblemUrl(problem.id, contest.id)}
-                  target="_blank"
-                >
-                  {problem.title}
-                </a>
-              ) : (
-                ""
-              );
+              if(problem){
+                if(showDifficulty){
+                  const difficulty = problemModels.getIn([problem.id, "difficulty"], null);
+                  return (<>
+                    <DifficultyCircle
+                      difficulty={difficulty}
+                      id={problem.id + '-' + contest.id}
+                    />
+                    <a
+                      href={Url.formatProblemUrl(problem.id, contest.id)}
+                      target="_blank"
+                      className={getColorClass(difficulty)}
+                    >
+                      {problem.title}
+                    </a>
+                  </>);
+                } else {
+                  return (
+                    <a
+                      href={Url.formatProblemUrl(problem.id, contest.id)}
+                      target="_blank"
+                    >
+                      {problem.title}
+                    </a>
+                  );
+                }
+              } else {
+                return "";
+              }
             }}
           >
             {c}

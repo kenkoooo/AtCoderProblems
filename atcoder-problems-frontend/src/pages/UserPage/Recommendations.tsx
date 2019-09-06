@@ -158,7 +158,14 @@ class Recommendations extends React.Component<Props, LocalState> {
             >
               Contest
             </TableHeaderColumn>
-            <TableHeaderColumn dataField="difficulty">
+            <TableHeaderColumn
+              dataField="difficulty"
+              dataFormat={(difficulty: number | null) => {
+                if(difficulty === null) return "-";
+                const difficultyClipped = Math.round(difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400));
+                return String(difficultyClipped);
+              }}
+            >
               <span>
                 Difficulty
               </span>
