@@ -1,6 +1,7 @@
 import React from "react";
 import { FormGroup, Input, Label, Row } from "reactstrap";
 import { connect } from "react-redux";
+import {Dispatch} from "redux";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import State, {
@@ -11,8 +12,10 @@ import State, {
 } from "../../interfaces/State";
 import { List, Map } from "immutable";
 import Submission from "../../interfaces/Submission";
+import ProblemModel from "../../interfaces/ProblemModel";
 import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
+import {requestProblemModels} from "../../actions";
 
 export const statusLabelToTableColor = (label: StatusLabel) => {
   switch (label) {
@@ -36,29 +39,39 @@ interface Props {
   contests: Map<ContestId, Contest>;
   contestToProblems: Map<ContestId, List<Problem>>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
+  problemModels: Map<string, ProblemModel>;
+
+  requestData: () => void;
 }
 
 interface LocalState {
   showSolved: boolean;
+  showDifficulty: boolean;
 }
 
 class TablePage extends React.Component<Props, LocalState> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      showSolved: true
+      showSolved: true,
+      showDifficulty: false
     };
   }
 
+  componentDidMount() {
+    this.props.requestData();
+  }
+
   render() {
-    const { showSolved } = this.state;
+    const { showSolved, showDifficulty } = this.state;
     const {
       userId,
       rivals,
       contests,
       contestToProblems,
       submissions,
-      statusLabelMap
+      statusLabelMap,
+      problemModels
     } = this.props;
 
     const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
@@ -69,7 +82,7 @@ class TablePage extends React.Component<Props, LocalState> {
     return (
       <div>
         <Row className="my-4">
-          <FormGroup check>
+          <FormGroup check inline>
             <Label check>
               <Input
                 type="checkbox"
@@ -79,27 +92,43 @@ class TablePage extends React.Component<Props, LocalState> {
               Show Accepted
             </Label>
           </FormGroup>
+          <FormGroup check inline>
+            <Label check>
+              <Input
+                type="checkbox"
+                checked={showDifficulty}
+                onChange={() => this.setState({ showDifficulty: !showDifficulty })}
+              />
+              Show Difficulty
+            </Label>
+          </FormGroup>
         </Row>
         <AtCoderRegularTable
           showSolved={showSolved}
+          showDifficulty={showDifficulty}
           contests={abc}
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          problemModels={problemModels}
         />
         <AtCoderRegularTable
           showSolved={showSolved}
+          showDifficulty={showDifficulty}
           contests={arc}
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          problemModels={problemModels}
         />
         <AtCoderRegularTable
           showSolved={showSolved}
+          showDifficulty={showDifficulty}
           contests={agc}
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          problemModels={problemModels}
         />
         <Row className="my-4">
           <h2>Other Contests</h2>
@@ -131,7 +160,17 @@ const stateToProps = (state: State) => ({
   ),
   contests: state.contests,
   submissions: state.submissions,
-  statusLabelMap: state.cache.statusLabelMap
+  statusLabelMap: state.cache.statusLabelMap,
+  problemModels: state.problemModels
 });
 
-export default connect(stateToProps)(TablePage);
+const dispatchToProps = (dispatch: Dispatch) => ({
+  requestData: () => {
+    dispatch(requestProblemModels());
+  }
+});
+
+export default connect(
+  stateToProps,
+  dispatchToProps
+)(TablePage);
