@@ -18,7 +18,7 @@ interface State {
   filterStatus: FilterStatus;
 }
 
-const filterSubmissions = (
+export const filterSubmissions = (
   submissions: Submission[],
   filterStatus: FilterStatus
 ) => {
@@ -29,6 +29,7 @@ const filterSubmissions = (
       return submissions.filter(s => isAccepted(s.result));
     case "Unique AC":
       return submissions
+        .filter(s => isAccepted(s.result))
         .sort((a, b) => a.epoch_second - b.epoch_second)
         .reduce(
           (map, s) => map.set(s.problem_id, map.get(s.problem_id, s)),
