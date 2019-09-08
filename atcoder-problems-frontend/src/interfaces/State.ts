@@ -31,6 +31,7 @@ export default interface State {
   readonly langRanking: List<LangRankingEntry>;
   readonly contestHistory: List<ContestParticipation>;
   readonly problemModels: Map<ProblemId, ProblemModel>;
+  readonly showDifficulty: boolean;
 
   readonly cache: {
     readonly statusLabelMap: Map<ProblemId, ProblemStatus>;

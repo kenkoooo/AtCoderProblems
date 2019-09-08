@@ -27,8 +27,9 @@ import State, {
   StatusLabel
 } from "../../interfaces/State";
 import { List, Map, Set } from "immutable";
-import { requestMergedProblems, requestProblemModels } from "../../actions";
+import { requestMergedProblems } from "../../actions";
 import ProblemModel from "../../interfaces/ProblemModel";
+import ProblemLink from "../../components/ProblemLink";
 
 const INF_POINT = 1e18;
 
@@ -158,15 +159,11 @@ class ListPage extends React.Component<Props, ListPageState> {
         dataField: "title",
         dataSort: true,
         dataFormat: (_, row) => (
-          <a
-            href={Url.formatProblemUrl(
-              row.mergedProblem.id,
-              row.mergedProblem.contest_id
-            )}
-            target="_blank"
-          >
-            {row.title}
-          </a>
+          <ProblemLink
+            problemId={row.mergedProblem.id}
+            problemTitle={row.title}
+            contestId={row.mergedProblem.contest_id}
+          />
         )
       },
       {
@@ -591,7 +588,6 @@ const stateToProps = (state: State) => ({
 const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => {
     dispatch(requestMergedProblems());
-    dispatch(requestProblemModels());
   }
 });
 

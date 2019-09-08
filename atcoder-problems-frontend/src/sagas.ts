@@ -4,7 +4,6 @@ import Action, {
   receiveInitialData,
   receiveLangRanking,
   receiveMergedProblems,
-  receiveProblemModels,
   receiveSubmissions,
   receiveSumRanking,
   receiveUserContestHistory,
@@ -12,7 +11,6 @@ import Action, {
   REQUEST_AC_RANKING,
   REQUEST_LANG_RANKING,
   REQUEST_MERGED_PROBLEMS,
-  REQUEST_PROBLEM_MODELS,
   REQUEST_SUM_RANKING,
   UPDATE_USER_IDS
 } from "./actions";
@@ -50,12 +48,13 @@ function* requestAndReceiveSubmissions(action: Action) {
 }
 
 function* initialFetchData() {
-  const { pairs, contests, problems } = yield all({
+  const { pairs, contests, problems, problemModels } = yield all({
     pairs: call(fetchContestProblemPairs),
     contests: call(fetchContests),
-    problems: call(fetchProblems)
+    problems: call(fetchProblems),
+    problemModels: call(fetchProblemModels)
   });
-  yield put(receiveInitialData(contests, problems, pairs));
+  yield put(receiveInitialData(contests, problems, pairs, problemModels));
 }
 
 function* fetchMergedProblemsOnce() {
@@ -80,12 +79,6 @@ function* fetchLangRankingOnce() {
   yield take(REQUEST_LANG_RANKING);
   const ranking = yield call(fetchLangRanking);
   yield put(receiveLangRanking(ranking));
-}
-
-function* fetchProblemModelOnce() {
-  yield take(REQUEST_PROBLEM_MODELS);
-  const problemModels = yield call(fetchProblemModels);
-  yield put(receiveProblemModels(problemModels));
 }
 
 function* requestAndReceiveUserInfo(action: Action) {
@@ -114,8 +107,7 @@ function* rootSaga() {
     call(fetchMergedProblemsOnce),
     call(fetchAcRankingOnce),
     call(fetchSumRankingOnce),
-    call(fetchLangRankingOnce),
-    call(fetchProblemModelOnce)
+    call(fetchLangRankingOnce)
   ]);
 }
 
