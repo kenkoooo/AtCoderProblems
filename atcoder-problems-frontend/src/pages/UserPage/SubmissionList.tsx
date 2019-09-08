@@ -6,6 +6,7 @@ import { formatMoment, parseSecond } from "../../utils/DateUtil";
 import * as Url from "../../utils/Url";
 import { isAccepted } from "../../utils";
 import { Badge } from "reactstrap";
+import ProblemLink from "../../components/ProblemLink";
 
 const SubmissionList = ({
   submissions,
@@ -75,12 +76,11 @@ const SubmissionList = ({
         dataSort
         dataField="problem_id"
         dataFormat={(_: string, { problem_id, contest_id }: Submission) => (
-          <a
-            target="_blank"
-            href={Url.formatProblemUrl(problem_id, contest_id)}
-          >
-            {title_map.get(problem_id)}
-          </a>
+          <ProblemLink
+            problemId={problem_id}
+            problemTitle={title_map.get(problem_id) || ""}
+            contestId={contest_id}
+          />
         )}
       >
         Problem
