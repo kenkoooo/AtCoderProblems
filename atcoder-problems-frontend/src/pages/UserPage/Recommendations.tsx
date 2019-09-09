@@ -15,6 +15,7 @@ import {RatingInfo} from "../../utils/RatingInfo";
 import {predictSolveProbability, predictSolveTime} from "../../utils/ProblemModelUtil";
 import {Button, ButtonGroup, Row} from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
+import ProblemLink from "../../components/ProblemLink";
 
 const RECOMMEND_NUM = 10;
 
@@ -138,9 +139,11 @@ class Recommendations extends React.Component<Props, LocalState> {
                 title: string,
                 {id, contest_id}: { id: string; contest_id: string; }
               ) => (
-                <a target="_blank" href={Url.formatProblemUrl(id, contest_id)}>
-                  {title}
-                </a>
+                <ProblemLink
+                  problemId={id}
+                  problemTitle={title}
+                  contestId={contest_id}
+                />
               )}
             >
               Problem

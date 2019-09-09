@@ -34,18 +34,19 @@ export const RECEIVE_SUM_RANKING = "RECEIVE_SUM_RANKING";
 export const REQUEST_LANG_RANKING = "REQUEST_LANG_RANKING";
 export const RECEIVE_LANG_RANKING = "RECEIVE_LANG_RANKING";
 
-export const REQUEST_PROBLEM_MODELS = "REQUEST_PROBLEM_MODELS";
-export const RECEIVE_PROBLEM_MODELS = "RECEIVE_PROBLEM_MODELS";
+export const UPDATE_SHOW_DIFFICULTY = "UPDATE_SHOW_DIFFICULTY";
 
 export const receiveInitialData = (
   contests: List<Contest>,
   problems: List<Problem>,
-  pairs: List<{ contest_id: string; problem_id: string }>
+  pairs: List<{ contest_id: string; problem_id: string }>,
+  problemModels: Map<string, ProblemModel>
 ) => ({
   type: RECEIVE_INITIAL_DATA as typeof RECEIVE_INITIAL_DATA,
   contests,
   problems,
-  pairs
+  pairs,
+  problemModels
 });
 
 export const updateUserIds = (userId: string, rivals: List<string>) => ({
@@ -105,13 +106,9 @@ export const receiveLangRanking = (ranking: List<LangRankingEntry>) => ({
   ranking
 });
 
-export const requestProblemModels = () => ({
-  type: REQUEST_PROBLEM_MODELS as typeof REQUEST_PROBLEM_MODELS
-});
-
-export const receiveProblemModels = (problemModels: Map<string, ProblemModel>) => ({
-  type: RECEIVE_PROBLEM_MODELS as typeof RECEIVE_PROBLEM_MODELS,
-  problemModels: problemModels
+export const updateShowDifficulty = (showDifficulty: boolean) => ({
+  type: UPDATE_SHOW_DIFFICULTY as typeof UPDATE_SHOW_DIFFICULTY,
+  showDifficulty
 });
 
 type Action =
@@ -128,7 +125,6 @@ type Action =
   | ReturnType<typeof receiveSumRanking>
   | ReturnType<typeof requestLangRanking>
   | ReturnType<typeof receiveLangRanking>
-  | ReturnType<typeof requestProblemModels>
-  | ReturnType<typeof receiveProblemModels>;
+  | ReturnType<typeof updateShowDifficulty>;
 
 export default Action;

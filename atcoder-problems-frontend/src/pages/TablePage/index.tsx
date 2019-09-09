@@ -1,7 +1,7 @@
 import React from "react";
-import { FormGroup, Input, Label, Row } from "reactstrap";
-import { connect } from "react-redux";
+import { FormGroup, Input, Label, Row, ButtonGroup, Button } from "reactstrap";
 import {Dispatch} from "redux";
+import { connect } from "react-redux";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import State, {
@@ -15,7 +15,9 @@ import Submission from "../../interfaces/Submission";
 import ProblemModel from "../../interfaces/ProblemModel";
 import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
-import {requestProblemModels} from "../../actions";
+import {updateShowDifficulty} from "../../actions";
+import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
+import {TableHeaderColumn} from "react-bootstrap-table";
 
 export const statusLabelToTableColor = (label: StatusLabel) => {
   switch (label) {
@@ -32,6 +34,39 @@ export const statusLabelToTableColor = (label: StatusLabel) => {
   }
 };
 
+interface CheckBoxShowDifficultyProps {
+  showDifficulty: boolean;
+  toggle: (showDifficulty: boolean)=>void;
+}
+
+const CheckBoxShowDifficulty: React.FC<CheckBoxShowDifficultyProps> = props => {
+  const {showDifficulty, toggle} = props;
+  return (
+    <FormGroup check inline>
+      <Label check>
+        <Input
+          type="checkbox"
+          checked={showDifficulty}
+          onChange={() => toggle(!showDifficulty)}
+        />
+        Show Difficulty
+        <HelpBadgeTooltip id="difficulty">
+          Internal rating to have 50% Solve Probability
+        </HelpBadgeTooltip>
+      </Label>
+    </FormGroup>
+  );
+};
+
+const CheckBoxShowDifficultyConnected = connect(
+  (state: State) => ({
+    showDifficulty: state.showDifficulty
+  }),
+  (dispatch: Dispatch) => ({
+    toggle: (showDifficulty: boolean) => dispatch(updateShowDifficulty(showDifficulty))
+  })
+)(CheckBoxShowDifficulty);
+
 interface Props {
   userId: string;
   rivals: List<string>;
@@ -39,14 +74,10 @@ interface Props {
   contests: Map<ContestId, Contest>;
   contestToProblems: Map<ContestId, List<Problem>>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
-  problemModels: Map<string, ProblemModel>;
-
-  requestData: () => void;
 }
 
 interface LocalState {
   showSolved: boolean;
-  showDifficulty: boolean;
 }
 
 class TablePage extends React.Component<Props, LocalState> {
@@ -54,16 +85,11 @@ class TablePage extends React.Component<Props, LocalState> {
     super(props);
     this.state = {
       showSolved: true,
-      showDifficulty: false
     };
   }
 
-  componentDidMount() {
-    this.props.requestData();
-  }
-
   render() {
-    const { showSolved, showDifficulty } = this.state;
+    const { showSolved } = this.state;
     const {
       userId,
       rivals,
@@ -71,13 +97,21 @@ class TablePage extends React.Component<Props, LocalState> {
       contestToProblems,
       submissions,
       statusLabelMap,
-      problemModels
     } = this.props;
 
     const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
     const arc = contests.filter((v, k) => k.match(/^arc\d{3}$/));
     const agc = contests.filter((v, k) => k.match(/^agc\d{3}$/));
-    const others = contests.filter((v, k) => k.match(/^(?!a[rgb]c\d{3}).*$/));
+    let ratedContests = new Set();
+    abc.forEach((v, k) => ratedContests.add(k));
+    arc.forEach((v, k) => ratedContests.add(k));
+    agc.forEach((v, k) => ratedContests.add(k));
+    const othersRated = contests
+      .filter((v,k) => !ratedContests.has(k) )
+      .filter((v,k) => v.rate_change !== "-" )
+      .filter((v,k) => v.start_epoch_second >= 1468670400); // agc001
+    othersRated.forEach((v, k) => ratedContests.add(k));
+    const others = contests.filter((v,k) => !ratedContests.has(k) );
 
     return (
       <div>
@@ -92,43 +126,84 @@ class TablePage extends React.Component<Props, LocalState> {
               Show Accepted
             </Label>
           </FormGroup>
-          <FormGroup check inline>
-            <Label check>
-              <Input
-                type="checkbox"
-                checked={showDifficulty}
-                onChange={() => this.setState({ showDifficulty: !showDifficulty })}
-              />
-              Show Difficulty
-            </Label>
-          </FormGroup>
+          <CheckBoxShowDifficultyConnected />
+        </Row>
+        <Row>
+          <ButtonGroup>
+            <Button color="secondary" onClick={
+              ()=> {
+                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "AtCoder Beginner Contest");
+                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
+              }
+            }>
+              ABC
+            </Button>
+            <Button color="secondary" onClick={
+              ()=> {
+                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "AtCoder Regular Contest");
+                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
+              }
+            }>
+              ARC
+            </Button>
+            <Button color="secondary" onClick={
+              ()=> {
+                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "AtCoder Grand Contest");
+                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
+              }
+            }>
+              AGC
+            </Button>
+            <Button color="secondary" onClick={
+              ()=> {
+                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "Other Rated Contests");
+                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
+              }
+            }>
+              Other Rated Contests
+            </Button>
+            <Button color="secondary" onClick={
+              ()=> {
+                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "Other Contests");
+                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
+              }
+            }>
+              Other Contests
+            </Button>
+          </ButtonGroup>
         </Row>
         <AtCoderRegularTable
           showSolved={showSolved}
-          showDifficulty={showDifficulty}
           contests={abc}
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
-          problemModels={problemModels}
         />
         <AtCoderRegularTable
           showSolved={showSolved}
-          showDifficulty={showDifficulty}
           contests={arc}
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
-          problemModels={problemModels}
         />
         <AtCoderRegularTable
           showSolved={showSolved}
-          showDifficulty={showDifficulty}
           contests={agc}
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
-          problemModels={problemModels}
+        />
+        <Row className="my-4">
+          <h2>Other Rated Contests</h2>
+        </Row>
+        <ContestTable
+          contests={othersRated}
+          contestToProblems={contestToProblems}
+          showSolved={showSolved}
+          submissions={submissions}
+          userId={userId}
+          rivals={rivals}
+          statusLabelMap={statusLabelMap}
         />
         <Row className="my-4">
           <h2>Other Contests</h2>
@@ -161,16 +236,8 @@ const stateToProps = (state: State) => ({
   contests: state.contests,
   submissions: state.submissions,
   statusLabelMap: state.cache.statusLabelMap,
-  problemModels: state.problemModels
-});
-
-const dispatchToProps = (dispatch: Dispatch) => ({
-  requestData: () => {
-    dispatch(requestProblemModels());
-  }
 });
 
 export default connect(
-  stateToProps,
-  dispatchToProps
+  stateToProps
 )(TablePage);
