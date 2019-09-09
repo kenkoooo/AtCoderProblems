@@ -7,6 +7,7 @@ import { Table } from "reactstrap";
 import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/State";
 import { statusLabelToTableColor } from "./index";
+import ProblemLink from "../../components/ProblemLink";
 
 interface Props {
   contests: Map<string, Contest>;
@@ -54,12 +55,11 @@ const ContestTable = (props: Props) => (
                       : "";
                     return (
                       <td key={p.id} className={color}>
-                        <a
-                          target="_blank"
-                          href={Url.formatProblemUrl(p.id, p.contest_id)}
-                        >
-                          {p.title}
-                        </a>
+                        <ProblemLink
+                          problemId={p.id}
+                          problemTitle={p.title}
+                          contestId={p.contest_id}
+                        />
                       </td>
                     );
                   })}

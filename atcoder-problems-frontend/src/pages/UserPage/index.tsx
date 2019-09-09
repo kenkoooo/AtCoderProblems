@@ -17,7 +17,7 @@ import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
 import State from "../../interfaces/State";
 import {Dispatch} from "redux";
-import {requestMergedProblems, requestProblemModels} from "../../actions";
+import {requestMergedProblems} from "../../actions";
 import {List, Map} from "immutable";
 import {connect} from "react-redux";
 import {getFastRanking, getFirstRanking, getShortRanking} from "../../utils/Api";
@@ -397,7 +397,6 @@ const stateToProps = (state: State) => ({
 const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => {
     dispatch(requestMergedProblems());
-    dispatch(requestProblemModels());
   }
 });
 

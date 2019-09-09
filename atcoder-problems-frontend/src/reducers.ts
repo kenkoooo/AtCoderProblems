@@ -15,12 +15,12 @@ import Action, {
   RECEIVE_LANG_RANKING,
   RECEIVE_MERGED_PROBLEMS,
   RECEIVE_PERF,
-  RECEIVE_PROBLEM_MODELS,
   RECEIVE_SUBMISSIONS,
   RECEIVE_SUM_RANKING,
   RECEIVE_USER_CONTEST_HISTORY,
   RECEIVE_USER_INFO,
-  UPDATE_USER_IDS
+  UPDATE_USER_IDS,
+  UPDATE_SHOW_DIFFICULTY
 } from "./actions";
 import MergedProblem from "./interfaces/MergedProblem";
 import Problem from "./interfaces/Problem";
@@ -51,6 +51,7 @@ const initialState: State = {
   langRanking: List(),
   contestHistory: List(),
   problemModels: Map(),
+  showDifficulty: true,
   cache: {
     statusLabelMap: Map()
   }
@@ -77,6 +78,7 @@ const dataReducer = (
   problems: Map<string, Problem>,
   contests: Map<string, Contest>,
   contestToProblems: Map<string, List<string>>,
+  problemModels: Map<string, ProblemModel>,
   action: Action
 ) => {
   switch (action.type) {
@@ -97,14 +99,16 @@ const dataReducer = (
       return {
         problems: newProblems,
         contests: newContests,
-        contestToProblems: newContestToProblems
+        contestToProblems: newContestToProblems,
+        problemModels: action.problemModels
       };
     }
     default: {
       return {
         problems,
         contests,
-        contestToProblems
+        contestToProblems,
+        problemModels
       };
     }
   }
@@ -183,6 +187,14 @@ const sumRankingReducer = (
   }
 };
 
+const showDifficultyReducer = (showDifficulty: boolean, action: Action) => {
+  if(action.type === UPDATE_SHOW_DIFFICULTY){
+    return action.showDifficulty;
+  }else{
+    return showDifficulty;
+  }
+}
+
 const langRankingReducer = (
   langRanking: List<LangRankingEntry>,
   action: Action
@@ -191,17 +203,6 @@ const langRankingReducer = (
     return action.ranking;
   } else {
     return langRanking;
-  }
-};
-
-const problemModelReducer = (
-  problemModels: Map<string, ProblemModel>,
-  action: Action
-): Map<string, ProblemModel> => {
-  if (action.type === RECEIVE_PROBLEM_MODELS) {
-    return action.problemModels;
-  } else {
-    return problemModels;
   }
 };
 
@@ -239,10 +240,11 @@ const statusLabelMapReducer = (
 
 const rootReducer = (state: State = initialState, action: Action): State => {
   performance.mark("reducer_start");
-  const { contests, problems, contestToProblems } = dataReducer(
+  const { contests, problems, contestToProblems, problemModels } = dataReducer(
     state.problems,
     state.contests,
     state.contestToProblems,
+    state.problemModels,
     action
   );
   const submissions = submissionReducer(state.submissions, action);
@@ -252,8 +254,8 @@ const rootReducer = (state: State = initialState, action: Action): State => {
   const sumRanking = sumRankingReducer(state.sumRanking, action);
   const acRanking = acRankingReducer(state.acRanking, action);
   const langRanking = langRankingReducer(state.langRanking, action);
-  const problemModels = problemModelReducer(state.problemModels, action);
   const contestHistory = userContestHistoryReducer(state.contestHistory, action);
+  const showDifficulty = showDifficultyReducer(state.showDifficulty, action);
 
   const statusLabelMap = statusLabelMapReducer(
     state.cache.statusLabelMap,
@@ -278,6 +280,7 @@ const rootReducer = (state: State = initialState, action: Action): State => {
     langRanking,
     contestHistory,
     problemModels,
+    showDifficulty,
     cache: {
       statusLabelMap
     }
