@@ -20,9 +20,15 @@ interface Props {
   showSolved: boolean;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
+  rendered: boolean;
 }
 
-export const AtCoderRegularTable: React.FC<Props> = props => {
+const AtCoderRegularTableSFC: React.SFC<Props> = props => {
+  if(props.rendered === false){
+    return null;
+  }
+  console.log(props.title);
+
   const { contestToProblems, showSolved, statusLabelMap } = props;
   const solvedAll = (contest: Contest) => {
     return contestToProblems
@@ -104,3 +110,5 @@ export const AtCoderRegularTable: React.FC<Props> = props => {
     </Row>
   );
 };
+
+export const AtCoderRegularTable = React.memo(AtCoderRegularTableSFC);
