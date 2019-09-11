@@ -25,7 +25,6 @@ const ContestTable: React.SFC<Props> = (props: Props) => {
   if(props.rendered === false){
     return null;
   }
-  console.log(props.title);
 
   return (
     <>

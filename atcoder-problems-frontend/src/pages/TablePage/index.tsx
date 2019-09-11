@@ -21,7 +21,6 @@ import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import {TableHeaderColumn} from "react-bootstrap-table";
 
 const ContestWrapper: React.FC<{display: boolean, children: any}> = props => {
-  console.log("contestwrapper");
   return (
     <div style={{display: props.display? "" : "none"}}>
       {props.children}
