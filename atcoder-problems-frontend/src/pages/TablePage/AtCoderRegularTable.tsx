@@ -27,7 +27,6 @@ const AtCoderRegularTableSFC: React.SFC<Props> = props => {
   if(props.rendered === false){
     return null;
   }
-  console.log(props.title);
 
   const { contestToProblems, showSolved, statusLabelMap } = props;
   const solvedAll = (contest: Contest) => {
