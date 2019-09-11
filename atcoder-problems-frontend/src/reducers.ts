@@ -20,7 +20,9 @@ import Action, {
   RECEIVE_USER_CONTEST_HISTORY,
   RECEIVE_USER_INFO,
   UPDATE_USER_IDS,
-  UPDATE_SHOW_DIFFICULTY
+  UPDATE_SHOW_DIFFICULTY,
+  UPDATE_SHOW_ACCEPTED,
+  UPDATE_ACTIVE_TABLE_TAB,
 } from "./actions";
 import MergedProblem from "./interfaces/MergedProblem";
 import Problem from "./interfaces/Problem";
@@ -34,6 +36,7 @@ import {
 import { isAccepted } from "./utils";
 import ProblemModel from "./interfaces/ProblemModel";
 import ContestParticipation from "./interfaces/ContestParticipation";
+import {TableTab} from "./pages/TablePage/TableTab"
 
 const initialState: State = {
   users: {
@@ -52,6 +55,8 @@ const initialState: State = {
   contestHistory: List(),
   problemModels: Map(),
   showDifficulty: true,
+  showAccepted: true,
+  activeTableTab: TableTab.ABC,
   cache: {
     statusLabelMap: Map()
   }
@@ -195,6 +200,22 @@ const showDifficultyReducer = (showDifficulty: boolean, action: Action) => {
   }
 }
 
+const showAcceptedReducer = (showAccepted: boolean, action: Action) => {
+  if(action.type === UPDATE_SHOW_ACCEPTED){
+    return action.showAccepted;
+  }else{
+    return showAccepted;
+  }
+}
+
+const activeTableTabReducer = (activeTableTab: TableTab, action: Action) => {
+  if(action.type === UPDATE_ACTIVE_TABLE_TAB){
+    return action.activeTableTab;
+  }else{
+    return activeTableTab;
+  }
+}
+
 const langRankingReducer = (
   langRanking: List<LangRankingEntry>,
   action: Action
@@ -256,6 +277,8 @@ const rootReducer = (state: State = initialState, action: Action): State => {
   const langRanking = langRankingReducer(state.langRanking, action);
   const contestHistory = userContestHistoryReducer(state.contestHistory, action);
   const showDifficulty = showDifficultyReducer(state.showDifficulty, action);
+  const showAccepted = showAcceptedReducer(state.showAccepted, action);
+  const activeTableTab = activeTableTabReducer(state.activeTableTab, action);
 
   const statusLabelMap = statusLabelMapReducer(
     state.cache.statusLabelMap,
@@ -281,6 +304,8 @@ const rootReducer = (state: State = initialState, action: Action): State => {
     contestHistory,
     problemModels,
     showDifficulty,
+    showAccepted,
+    activeTableTab,
     cache: {
       statusLabelMap
     }
