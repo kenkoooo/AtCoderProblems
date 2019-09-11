@@ -3,7 +3,7 @@ import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import Submission from "../../interfaces/Submission";
 import * as Url from "../../utils/Url";
-import { Table } from "reactstrap";
+import { Table, Row } from "reactstrap";
 import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/State";
 import { statusLabelToTableColor } from "./index";
@@ -17,9 +17,14 @@ interface Props {
   userId: string;
   rivals: List<string>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
+  title: string;
 }
 
 const ContestTable = (props: Props) => (
+  <>
+  <Row className="my-4">
+    <h2>{props.title}</h2>
+  </Row>
   <div>
     {props.contests
       .valueSeq()
@@ -71,6 +76,7 @@ const ContestTable = (props: Props) => (
       })
       .toArray()}
   </div>
+  </>
 );
 
 export default ContestTable;
