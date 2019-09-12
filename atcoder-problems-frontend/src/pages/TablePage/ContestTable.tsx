@@ -18,7 +18,6 @@ interface Props {
   rivals: List<string>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   title: string;
-  rendered: boolean;
 }
 
 const ContestTable: React.FC<Props> = (props: Props) => {

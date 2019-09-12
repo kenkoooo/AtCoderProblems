@@ -20,7 +20,6 @@ interface Props {
   showSolved: boolean;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
-  rendered: boolean;
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = props => {
