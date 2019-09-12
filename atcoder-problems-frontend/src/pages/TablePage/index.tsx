@@ -14,6 +14,7 @@ import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
 import Options from "./Options";
 import TableTabButtons, { TableTab } from "./TableTab";
+import ProblemModel from "../../interfaces/ProblemModel";
 
 const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
   return (
@@ -49,7 +50,7 @@ interface Props {
   agc: Map<ContestId, Contest>;
   othersRated: Map<ContestId, Contest>;
   others: Map<ContestId, Contest>;
-  showAccepted: boolean;
+  problemModels: Map<ProblemId, ProblemModel>;
 }
 
 const TablePage: React.FC<Props> = props => {
@@ -59,22 +60,31 @@ const TablePage: React.FC<Props> = props => {
     contestToProblems,
     submissions,
     statusLabelMap,
-    showAccepted,
     abc,
     arc,
     agc,
     others,
-    othersRated
+    othersRated,
+    problemModels
   } = props;
 
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
+  const [showAccepted, setShowAccepted] = useState(true);
+  const [showDifficulty, setShowDifficulties] = useState(true);
 
   return (
     <div>
-      <Options />
+      <Options
+        showAccepted={showAccepted}
+        toggleShowAccepted={() => setShowAccepted(!showAccepted)}
+        showDifficulties={showDifficulty}
+        toggleShowDifficulties={() => setShowDifficulties(!showDifficulty)}
+      />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
       <ContestWrapper display={activeTab === TableTab.ABC}>
         <AtCoderRegularTable
+          problemModels={problemModels}
+          showDifficulty={showDifficulty}
           showSolved={showAccepted}
           contests={abc}
           title="AtCoder Beginner Contest"
@@ -84,6 +94,8 @@ const TablePage: React.FC<Props> = props => {
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.ARC}>
         <AtCoderRegularTable
+          problemModels={problemModels}
+          showDifficulty={showDifficulty}
           showSolved={showAccepted}
           contests={arc}
           title="AtCoder Regular Contest"
@@ -93,6 +105,8 @@ const TablePage: React.FC<Props> = props => {
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.AGC}>
         <AtCoderRegularTable
+          problemModels={problemModels}
+          showDifficulty={showDifficulty}
           showSolved={showAccepted}
           contests={agc}
           title="AtCoder Grand Contest"
@@ -102,6 +116,8 @@ const TablePage: React.FC<Props> = props => {
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.OtherRatedContests}>
         <ContestTable
+          problemModels={problemModels}
+          showDifficulty={showDifficulty}
           contests={othersRated}
           title="Other Rated Contests"
           contestToProblems={contestToProblems}
@@ -114,6 +130,8 @@ const TablePage: React.FC<Props> = props => {
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.OtherContests}>
         <ContestTable
+          problemModels={problemModels}
+          showDifficulty={showDifficulty}
           contests={others}
           title="Other Contests"
           contestToProblems={contestToProblems}
@@ -136,7 +154,7 @@ const stateToProps = (state: State) => ({
   contests: state.contests,
   submissions: state.submissions,
   statusLabelMap: state.cache.statusLabelMap,
-  showAccepted: state.showAccepted,
+  problemModels: state.problemModels,
   abc: state.abc,
   arc: state.arc,
   agc: state.agc,

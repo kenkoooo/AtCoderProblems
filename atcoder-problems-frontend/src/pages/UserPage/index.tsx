@@ -336,6 +336,7 @@ class UserPage extends React.Component<Props> {
           <h1>Submissions</h1>
         </Row>
         <SubmissionList
+          problemModels={problemModels}
           problems={mergedProblems.valueSeq().toArray()}
           submissions={userSubmissions.toArray()}
         />

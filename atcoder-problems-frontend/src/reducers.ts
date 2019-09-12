@@ -19,9 +19,7 @@ import Action, {
   RECEIVE_SUM_RANKING,
   RECEIVE_USER_CONTEST_HISTORY,
   RECEIVE_USER_INFO,
-  UPDATE_USER_IDS,
-  UPDATE_SHOW_DIFFICULTY,
-  UPDATE_SHOW_ACCEPTED
+  UPDATE_USER_IDS
 } from "./actions";
 import MergedProblem from "./interfaces/MergedProblem";
 import Problem from "./interfaces/Problem";
@@ -52,8 +50,6 @@ const initialState: State = {
   langRanking: List(),
   contestHistory: List(),
   problemModels: Map(),
-  showDifficulty: true,
-  showAccepted: true,
   abc: Map(),
   arc: Map(),
   agc: Map(),
@@ -225,22 +221,6 @@ const sumRankingReducer = (
   }
 };
 
-const showDifficultyReducer = (showDifficulty: boolean, action: Action) => {
-  if (action.type === UPDATE_SHOW_DIFFICULTY) {
-    return action.showDifficulty;
-  } else {
-    return showDifficulty;
-  }
-};
-
-const showAcceptedReducer = (showAccepted: boolean, action: Action) => {
-  if (action.type === UPDATE_SHOW_ACCEPTED) {
-    return action.showAccepted;
-  } else {
-    return showAccepted;
-  }
-};
-
 const langRankingReducer = (
   langRanking: List<LangRankingEntry>,
   action: Action
@@ -321,8 +301,6 @@ const rootReducer = (state: State = initialState, action: Action): State => {
     state.contestHistory,
     action
   );
-  const showDifficulty = showDifficultyReducer(state.showDifficulty, action);
-  const showAccepted = showAcceptedReducer(state.showAccepted, action);
 
   const statusLabelMap = statusLabelMapReducer(
     state.cache.statusLabelMap,
@@ -347,8 +325,6 @@ const rootReducer = (state: State = initialState, action: Action): State => {
     langRanking,
     contestHistory,
     problemModels,
-    showDifficulty,
-    showAccepted,
     abc,
     arc,
     agc,

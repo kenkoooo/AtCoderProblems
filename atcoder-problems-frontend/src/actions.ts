@@ -31,9 +31,6 @@ export const RECEIVE_SUM_RANKING = "RECEIVE_SUM_RANKING";
 export const REQUEST_LANG_RANKING = "REQUEST_LANG_RANKING";
 export const RECEIVE_LANG_RANKING = "RECEIVE_LANG_RANKING";
 
-export const UPDATE_SHOW_DIFFICULTY = "UPDATE_SHOW_DIFFICULTY";
-export const UPDATE_SHOW_ACCEPTED = "UPDATE_SHOW_ACCEPTED";
-
 export const receiveInitialData = (
   contests: List<Contest>,
   problems: List<Problem>,
@@ -106,16 +103,6 @@ export const receiveLangRanking = (ranking: List<LangRankingEntry>) => ({
   ranking
 });
 
-export const updateShowDifficulty = (showDifficulty: boolean) => ({
-  type: UPDATE_SHOW_DIFFICULTY as typeof UPDATE_SHOW_DIFFICULTY,
-  showDifficulty
-});
-
-export const updateShowAccepted = (showAccepted: boolean) => ({
-  type: UPDATE_SHOW_ACCEPTED as typeof UPDATE_SHOW_ACCEPTED,
-  showAccepted
-});
-
 type Action =
   | ReturnType<typeof receiveInitialData>
   | ReturnType<typeof updateUserIds>
@@ -129,8 +116,5 @@ type Action =
   | ReturnType<typeof requestSumRanking>
   | ReturnType<typeof receiveSumRanking>
   | ReturnType<typeof requestLangRanking>
-  | ReturnType<typeof receiveLangRanking>
-  | ReturnType<typeof updateShowDifficulty>
-  | ReturnType<typeof updateShowAccepted>;
-
+  | ReturnType<typeof receiveLangRanking>;
 export default Action;
