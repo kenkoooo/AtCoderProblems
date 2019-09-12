@@ -15,9 +15,18 @@ import Submission from "../../interfaces/Submission";
 import ProblemModel from "../../interfaces/ProblemModel";
 import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
-import {updateShowDifficulty} from "../../actions";
+import Options from "./Options";
+import TableTabButtons, {TableTab} from "./TableTab";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import {TableHeaderColumn} from "react-bootstrap-table";
+
+const ContestWrapper: React.FC<{display: boolean, children: any}> = props => {
+  return (
+    <div style={{display: props.display? "" : "none"}}>
+      {props.children}
+    </div>
+  );
+};
 
 export const statusLabelToTableColor = (label: StatusLabel) => {
   switch (label) {
@@ -34,208 +43,141 @@ export const statusLabelToTableColor = (label: StatusLabel) => {
   }
 };
 
-interface CheckBoxShowDifficultyProps {
-  showDifficulty: boolean;
-  toggle: (showDifficulty: boolean)=>void;
-}
-
-const CheckBoxShowDifficulty: React.FC<CheckBoxShowDifficultyProps> = props => {
-  const {showDifficulty, toggle} = props;
-  return (
-    <FormGroup check inline>
-      <Label check>
-        <Input
-          type="checkbox"
-          checked={showDifficulty}
-          onChange={() => toggle(!showDifficulty)}
-        />
-        Show Difficulty
-        <HelpBadgeTooltip id="difficulty">
-          Internal rating to have 50% Solve Probability
-        </HelpBadgeTooltip>
-      </Label>
-    </FormGroup>
-  );
-};
-
-const CheckBoxShowDifficultyConnected = connect(
-  (state: State) => ({
-    showDifficulty: state.showDifficulty
-  }),
-  (dispatch: Dispatch) => ({
-    toggle: (showDifficulty: boolean) => dispatch(updateShowDifficulty(showDifficulty))
-  })
-)(CheckBoxShowDifficulty);
-
 interface Props {
   userId: string;
   rivals: List<string>;
   submissions: Map<ProblemId, List<Submission>>;
   contests: Map<ContestId, Contest>;
-  contestToProblems: Map<ContestId, List<Problem>>;
+  contestToProblemsId: Map<ContestId, List<ProblemId>>;
+  problems: Map<ProblemId, Problem>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
+  activeTab: TableTab;
+  showAccepted: boolean;
 }
 
-interface LocalState {
-  showSolved: boolean;
-}
+let abc: Map<ContestId, Contest> = Map<ContestId, Contest>();
+let arc: Map<ContestId, Contest> = Map<ContestId, Contest>();
+let agc: Map<ContestId, Contest> = Map<ContestId, Contest>();
+let othersRated: Map<ContestId, Contest> = Map<ContestId, Contest>();
+let others: Map<ContestId, Contest> = Map<ContestId, Contest>();
+let contestToProblems: Map<ContestId, List<Problem>> = Map<ContestId, List<Problem>>();
+let rendered: Set<TableTab> = new Set<TableTab>();
+let contestInitialized: boolean = false;
 
-class TablePage extends React.Component<Props, LocalState> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      showSolved: true,
-    };
-  }
+const TablePage: React.FC<Props> = props => {
+  const {
+    userId,
+    rivals,
+    contests,
+    contestToProblemsId,
+    problems,
+    submissions,
+    statusLabelMap,
+    activeTab,
+    showAccepted,
+  } = props;
 
-  render() {
-    const { showSolved } = this.state;
-    const {
-      userId,
-      rivals,
-      contests,
-      contestToProblems,
-      submissions,
-      statusLabelMap,
-    } = this.props;
+  rendered.add(activeTab);
 
-    const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
-    const arc = contests.filter((v, k) => k.match(/^arc\d{3}$/));
-    const agc = contests.filter((v, k) => k.match(/^agc\d{3}$/));
-    let ratedContests = new Set();
+  if(contestInitialized === false && contests && contests.size !== 0){
+    contestInitialized = true;
+    contestToProblems = contestToProblemsId.map(list =>
+      list
+        .map(id => problems.get(id))
+        .filter(
+          (problem: Problem | undefined): problem is Problem =>
+            problem !== undefined
+        )
+    );
+    abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
+    arc = contests.filter((v, k) => k.match(/^arc\d{3}$/));
+    agc = contests.filter((v, k) => k.match(/^agc\d{3}$/));
+    let ratedContests = new Set<string>();
     abc.forEach((v, k) => ratedContests.add(k));
     arc.forEach((v, k) => ratedContests.add(k));
     agc.forEach((v, k) => ratedContests.add(k));
-    const othersRated = contests
+    othersRated = contests
       .filter((v,k) => !ratedContests.has(k) )
       .filter((v,k) => v.rate_change !== "-" )
       .filter((v,k) => v.start_epoch_second >= 1468670400); // agc001
     othersRated.forEach((v, k) => ratedContests.add(k));
-    const others = contests.filter((v,k) => !ratedContests.has(k) );
+    others = contests.filter((v,k) => !ratedContests.has(k) );
+  }
 
-    return (
-      <div>
-        <Row className="my-4">
-          <FormGroup check inline>
-            <Label check>
-              <Input
-                type="checkbox"
-                checked={showSolved}
-                onChange={() => this.setState({ showSolved: !showSolved })}
-              />
-              Show Accepted
-            </Label>
-          </FormGroup>
-          <CheckBoxShowDifficultyConnected />
-        </Row>
-        <Row>
-          <ButtonGroup>
-            <Button color="secondary" onClick={
-              ()=> {
-                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "AtCoder Beginner Contest");
-                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
-              }
-            }>
-              ABC
-            </Button>
-            <Button color="secondary" onClick={
-              ()=> {
-                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "AtCoder Regular Contest");
-                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
-              }
-            }>
-              ARC
-            </Button>
-            <Button color="secondary" onClick={
-              ()=> {
-                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "AtCoder Grand Contest");
-                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
-              }
-            }>
-              AGC
-            </Button>
-            <Button color="secondary" onClick={
-              ()=> {
-                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "Other Rated Contests");
-                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
-              }
-            }>
-              Other Rated Contests
-            </Button>
-            <Button color="secondary" onClick={
-              ()=> {
-                const e = Array.from(document.querySelectorAll('h2')).find(e => e.textContent === "Other Contests");
-                if(e) e.scrollIntoView({behavior: "smooth", block: "center"});
-              }
-            }>
-              Other Contests
-            </Button>
-          </ButtonGroup>
-        </Row>
+  return (
+    <div>
+      <Options />
+      <TableTabButtons />
+      <ContestWrapper display={activeTab === TableTab.ABC}>
         <AtCoderRegularTable
-          showSolved={showSolved}
+          showSolved={showAccepted}
           contests={abc}
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          rendered={rendered.has(TableTab.ABC)}
         />
+      </ContestWrapper>
+      <ContestWrapper display={activeTab === TableTab.ARC}>
         <AtCoderRegularTable
-          showSolved={showSolved}
+          showSolved={showAccepted}
           contests={arc}
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          rendered={rendered.has(TableTab.ARC)}
         />
+      </ContestWrapper>
+      <ContestWrapper display={activeTab === TableTab.AGC}>
         <AtCoderRegularTable
-          showSolved={showSolved}
+          showSolved={showAccepted}
           contests={agc}
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          rendered={rendered.has(TableTab.AGC)}
         />
-        <Row className="my-4">
-          <h2>Other Rated Contests</h2>
-        </Row>
+      </ContestWrapper>
+      <ContestWrapper display={activeTab === TableTab.OtherRatedContests}>
         <ContestTable
           contests={othersRated}
+          title="Other Rated Contests"
           contestToProblems={contestToProblems}
-          showSolved={showSolved}
+          showSolved={showAccepted}
           submissions={submissions}
           userId={userId}
           rivals={rivals}
           statusLabelMap={statusLabelMap}
+          rendered={rendered.has(TableTab.OtherRatedContests)}
         />
-        <Row className="my-4">
-          <h2>Other Contests</h2>
-        </Row>
+      </ContestWrapper>
+      <ContestWrapper display={activeTab === TableTab.OtherContests}>
         <ContestTable
           contests={others}
+          title="Other Contests"
           contestToProblems={contestToProblems}
-          showSolved={showSolved}
+          showSolved={showAccepted}
           submissions={submissions}
           userId={userId}
           rivals={rivals}
           statusLabelMap={statusLabelMap}
+          rendered={rendered.has(TableTab.OtherContests)}
         />
-      </div>
-    );
-  }
+      </ContestWrapper>
+    </div>
+  );
 }
 
 const stateToProps = (state: State) => ({
   userId: state.users.userId,
   rivals: state.users.rivals,
-  contestToProblems: state.contestToProblems.map(list =>
-    list
-      .map(id => state.problems.get(id))
-      .filter(
-        (problem: Problem | undefined): problem is Problem =>
-          problem !== undefined
-      )
-  ),
+  contestToProblemsId: state.contestToProblems,
+  problems: state.problems,
   contests: state.contests,
   submissions: state.submissions,
   statusLabelMap: state.cache.statusLabelMap,
+  showAccepted: state.showAccepted,
+  activeTab: state.activeTableTab,
 });
 
 export default connect(

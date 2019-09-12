@@ -11,6 +11,7 @@ import {
 } from "./interfaces/RankingEntry";
 import ProblemModel from "./interfaces/ProblemModel";
 import ContestParticipation from "./interfaces/ContestParticipation";
+import {TableTab} from "./pages/TablePage/TableTab";
 
 export const RECEIVE_INITIAL_DATA = "RECEIVE_INITIAL_DATA";
 
@@ -35,6 +36,8 @@ export const REQUEST_LANG_RANKING = "REQUEST_LANG_RANKING";
 export const RECEIVE_LANG_RANKING = "RECEIVE_LANG_RANKING";
 
 export const UPDATE_SHOW_DIFFICULTY = "UPDATE_SHOW_DIFFICULTY";
+export const UPDATE_SHOW_ACCEPTED = "UPDATE_SHOW_ACCEPTED";
+export const UPDATE_ACTIVE_TABLE_TAB = "UPDATE_ACTIVE_TABLE_TAB";
 
 export const receiveInitialData = (
   contests: List<Contest>,
@@ -111,6 +114,17 @@ export const updateShowDifficulty = (showDifficulty: boolean) => ({
   showDifficulty
 });
 
+export const updateShowAccepted = (showAccepted: boolean) => ({
+  type: UPDATE_SHOW_ACCEPTED as typeof UPDATE_SHOW_ACCEPTED,
+  showAccepted
+});
+
+export const updateActiveTableTab = (activeTableTab: TableTab) => ({
+  type: UPDATE_ACTIVE_TABLE_TAB as typeof UPDATE_ACTIVE_TABLE_TAB,
+  activeTableTab
+});
+
+
 type Action =
   | ReturnType<typeof receiveInitialData>
   | ReturnType<typeof updateUserIds>
@@ -125,6 +139,8 @@ type Action =
   | ReturnType<typeof receiveSumRanking>
   | ReturnType<typeof requestLangRanking>
   | ReturnType<typeof receiveLangRanking>
-  | ReturnType<typeof updateShowDifficulty>;
+  | ReturnType<typeof updateShowDifficulty>
+  | ReturnType<typeof updateShowAccepted>
+  | ReturnType<typeof updateActiveTableTab>;
 
 export default Action;
