@@ -1,9 +1,5 @@
 import React from "react";
 import { Row, ButtonGroup, Button } from "reactstrap";
-import {Dispatch} from "redux";
-import { connect } from "react-redux";
-import State from "../../interfaces/State";
-import {updateActiveTableTab} from "../../actions";
 
 export enum TableTab {
   ABC,
@@ -13,45 +9,64 @@ export enum TableTab {
   OtherContests
 }
 
-interface TableTabProps {
-  active: TableTab,
-  onClick: (nextActive: TableTab)=>void,
+interface Props {
+  active: TableTab;
+  setActive: (next: TableTab) => void;
 }
 
-const TableTabButtons: React.FC<TableTabProps> = props => {
-  const {active, onClick} = props;
+const TableTabButtons: React.FC<Props> = props => {
+  const { active, setActive } = props;
   return (
     <Row>
       <ButtonGroup>
-        <Button color="secondary" onClick={()=>{onClick(TableTab.ABC)}} active={active===TableTab.ABC}>
+        <Button
+          color="secondary"
+          onClick={() => {
+            setActive(TableTab.ABC);
+          }}
+          active={active === TableTab.ABC}
+        >
           ABC
         </Button>
-        <Button color="secondary" onClick={()=>{onClick(TableTab.ARC)}} active={active===TableTab.ARC}>
+        <Button
+          color="secondary"
+          onClick={() => {
+            setActive(TableTab.ARC);
+          }}
+          active={active === TableTab.ARC}
+        >
           ARC
         </Button>
-        <Button color="secondary" onClick={()=>{onClick(TableTab.AGC)}} active={active===TableTab.AGC}>
+        <Button
+          color="secondary"
+          onClick={() => {
+            setActive(TableTab.AGC);
+          }}
+          active={active === TableTab.AGC}
+        >
           AGC
         </Button>
-        <Button color="secondary" onClick={()=>{onClick(TableTab.OtherRatedContests)}} active={active===TableTab.OtherRatedContests}>
+        <Button
+          color="secondary"
+          onClick={() => {
+            setActive(TableTab.OtherRatedContests);
+          }}
+          active={active === TableTab.OtherRatedContests}
+        >
           Other Rated Contests
         </Button>
-        <Button color="secondary" onClick={()=>{onClick(TableTab.OtherContests)}} active={active===TableTab.OtherContests}>
+        <Button
+          color="secondary"
+          onClick={() => {
+            setActive(TableTab.OtherContests);
+          }}
+          active={active === TableTab.OtherContests}
+        >
           Other Contests
         </Button>
       </ButtonGroup>
     </Row>
   );
-}
+};
 
-const mapStateToProps = (state: State) => ({
-  active: state.activeTableTab,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  onClick: (active: TableTab) => dispatch(updateActiveTableTab(active))
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(TableTabButtons);
+export default TableTabButtons;

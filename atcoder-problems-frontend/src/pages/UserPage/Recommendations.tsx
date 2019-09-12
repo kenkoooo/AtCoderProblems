@@ -1,19 +1,22 @@
 import React from "react";
 
-import {isAccepted} from "../../utils";
-import {BootstrapTable, TableHeaderColumn} from "react-bootstrap-table";
+import { isAccepted } from "../../utils";
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
 import Problem from "../../interfaces/Problem";
-import {List, Map} from "immutable";
+import { List, Map } from "immutable";
 import Contest from "../../interfaces/Contest";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel
 } from "../../interfaces/ProblemModel";
-import {RatingInfo} from "../../utils/RatingInfo";
-import {predictSolveProbability, predictSolveTime} from "../../utils/ProblemModelUtil";
-import {Button, ButtonGroup, Row} from "reactstrap";
+import { RatingInfo } from "../../utils/RatingInfo";
+import {
+  predictSolveProbability,
+  predictSolveTime
+} from "../../utils/ProblemModelUtil";
+import { Button, ButtonGroup, Row } from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import ProblemLink from "../../components/ProblemLink";
 
@@ -26,7 +29,8 @@ function getRecommendProbability(option: RecommendOption): number {
     return 0.8;
   } else if (option === "Moderate") {
     return 0.5;
-  } else { // Difficult
+  } else {
+    // Difficult
     return 0.2;
   }
 }
@@ -52,8 +56,14 @@ class Recommendations extends React.Component<Props, LocalState> {
   }
 
   render(): React.ReactNode {
-    const {userSubmissions, problems, contests, problemModels, userRatingInfo} = this.props;
-    const {recommendOption} = this.state;
+    const {
+      userSubmissions,
+      problems,
+      contests,
+      problemModels,
+      userRatingInfo
+    } = this.props;
+    const { recommendOption } = this.state;
 
     if (userSubmissions.isEmpty()) {
       return null;
@@ -68,7 +78,10 @@ class Recommendations extends React.Component<Props, LocalState> {
     const recommendedProblems = problems
       .filter(p => !acProblemIdSet.has(p.id))
       .filter(p => problemModels.has(p.id))
-      .map(p => ({...p, difficulty: Math.round(problemModels.getIn([p.id, "difficulty"], 0))}))
+      .map(p => ({
+        ...p,
+        difficulty: Math.round(problemModels.getIn([p.id, "difficulty"], 0))
+      }))
       .map(p => {
         const internalRating = userRatingInfo.internalRating;
         let predictedSolveTime: number | null;
@@ -85,23 +98,31 @@ class Recommendations extends React.Component<Props, LocalState> {
             predictedSolveTime = null;
           }
           if (isProblemModelWithDifficultyModel(problemModel)) {
-            predictedSolveProbability = predictSolveProbability(problemModel, internalRating);
+            predictedSolveProbability = predictSolveProbability(
+              problemModel,
+              internalRating
+            );
           } else {
             predictedSolveProbability = -1;
           }
         }
-        return {...p, predictedSolveTime, predictedSolveProbability};
+        return { ...p, predictedSolveTime, predictedSolveProbability };
       })
       .sort((a, b) => {
-        const da = Math.abs(a.predictedSolveProbability - recommendingProbability);
-        const db = Math.abs(b.predictedSolveProbability - recommendingProbability);
+        const da = Math.abs(
+          a.predictedSolveProbability - recommendingProbability
+        );
+        const db = Math.abs(
+          b.predictedSolveProbability - recommendingProbability
+        );
         return da - db;
       })
       .slice(0, RECOMMEND_NUM)
       .sort((a, b) => b.difficulty - a.difficulty)
       .toArray();
 
-    return (<>
+    return (
+      <>
         <Row className="my-3">
           <ButtonGroup>
             <Button
@@ -123,7 +144,6 @@ class Recommendations extends React.Component<Props, LocalState> {
               Difficult
             </Button>
           </ButtonGroup>
-
         </Row>
         <Row className="my-3">
           <BootstrapTable
@@ -137,9 +157,11 @@ class Recommendations extends React.Component<Props, LocalState> {
               dataField="title"
               dataFormat={(
                 title: string,
-                {id, contest_id}: { id: string; contest_id: string; }
+                { id, contest_id }: { id: string; contest_id: string }
               ) => (
                 <ProblemLink
+                  difficulty={problemModels.getIn([id, "difficulty"], null)}
+                  showDifficulty={true}
                   problemId={id}
                   problemTitle={title}
                   contestId={contest_id}
@@ -153,7 +175,10 @@ class Recommendations extends React.Component<Props, LocalState> {
               dataFormat={(contest_id: string, problem: Problem) => {
                 const contest = contests.get(contest_id);
                 return (
-                  <a href={Url.formatContestUrl(problem.contest_id)} target="_blank">
+                  <a
+                    href={Url.formatContestUrl(problem.contest_id)}
+                    target="_blank"
+                  >
                     {contest ? contest.title : contest_id}
                   </a>
                 );
@@ -164,14 +189,16 @@ class Recommendations extends React.Component<Props, LocalState> {
             <TableHeaderColumn
               dataField="difficulty"
               dataFormat={(difficulty: number | null) => {
-                if(difficulty === null) return "-";
-                const difficultyClipped = Math.round(difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400));
+                if (difficulty === null) return "-";
+                const difficultyClipped = Math.round(
+                  difficulty >= 400
+                    ? difficulty
+                    : 400 / Math.exp(1.0 - difficulty / 400)
+                );
                 return String(difficultyClipped);
               }}
             >
-              <span>
-                Difficulty
-              </span>
+              <span>Difficulty</span>
               <HelpBadgeTooltip id="difficulty">
                 Internal rating to have 50% Solve Probability
               </HelpBadgeTooltip>
@@ -184,18 +211,17 @@ class Recommendations extends React.Component<Props, LocalState> {
                 } else if (predictedSolveProbability < 0.005) {
                   return "<1%";
                 } else if (predictedSolveProbability > 0.995) {
-                  return ">99%"
+                  return ">99%";
                 } else {
                   const percents = Math.round(predictedSolveProbability * 100);
                   return `${percents}%`;
                 }
               }}
             >
-              <span>
-                Solve Probability
-              </span>
+              <span>Solve Probability</span>
               <HelpBadgeTooltip id="probability">
-                Estimated probability that you could solve this problem if you competed in the contest.
+                Estimated probability that you could solve this problem if you
+                competed in the contest.
               </HelpBadgeTooltip>
             </TableHeaderColumn>
             <TableHeaderColumn
@@ -211,9 +237,7 @@ class Recommendations extends React.Component<Props, LocalState> {
                 }
               }}
             >
-              <span>
-                Median Solve Time
-              </span>
+              <span>Median Solve Time</span>
               <HelpBadgeTooltip id="solvetime">
                 Estimated time required to solve this problem.
               </HelpBadgeTooltip>
