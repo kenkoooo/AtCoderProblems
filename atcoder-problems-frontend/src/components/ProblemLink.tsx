@@ -13,20 +13,13 @@ interface Props {
 function getColorClass(difficulty: number | null): string {
   if (difficulty === null) return "";
   if (difficulty < 400) return "difficulty-grey";
-  // grey
   else if (difficulty < 800) return "difficulty-brown";
-  // brown
   else if (difficulty < 1200) return "difficulty-green";
-  // green
   else if (difficulty < 1600) return "difficulty-cyan";
-  // cyan
   else if (difficulty < 2000) return "difficulty-blue";
-  // blue
   else if (difficulty < 2400) return "difficulty-yellow";
-  // yellow
   else if (difficulty < 2800) return "difficulty-orange";
-  // orange
-  else return "difficulty-red"; // red
+  else return "difficulty-red";
 }
 
 const ProblemLink: React.FC<Props> = props => {
