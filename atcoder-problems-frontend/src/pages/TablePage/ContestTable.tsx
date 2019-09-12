@@ -21,7 +21,7 @@ interface Props {
   rendered: boolean;
 }
 
-const ContestTable: React.SFC<Props> = (props: Props) => {
+const ContestTable: React.FC<Props> = (props: Props) => {
   if(props.rendered === false){
     return null;
   }
