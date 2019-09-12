@@ -11,7 +11,6 @@ import {
 } from "./interfaces/RankingEntry";
 import ProblemModel from "./interfaces/ProblemModel";
 import ContestParticipation from "./interfaces/ContestParticipation";
-import {TableTab} from "./pages/TablePage/TableTab";
 
 export const RECEIVE_INITIAL_DATA = "RECEIVE_INITIAL_DATA";
 
@@ -22,9 +21,6 @@ export const RECEIVE_USER_CONTEST_HISTORY = "RECEIVE_USER_CONTEST_HISTORY";
 
 export const REQUEST_MERGED_PROBLEMS = "REQUEST_MERGED_PROBLEMS";
 export const RECEIVE_MERGED_PROBLEMS = "RECEIVE_MERGED_PROBLEMS";
-
-export const REQUEST_PERF = "REQUEST_PERF";
-export const RECEIVE_PERF = "RECEIVE_PERF";
 
 export const REQUEST_AC_RANKING = "REQUEST_AC_RANKING";
 export const RECEIVE_AC_RANKING = "RECEIVE_AC_RANKING";
@@ -37,7 +33,6 @@ export const RECEIVE_LANG_RANKING = "RECEIVE_LANG_RANKING";
 
 export const UPDATE_SHOW_DIFFICULTY = "UPDATE_SHOW_DIFFICULTY";
 export const UPDATE_SHOW_ACCEPTED = "UPDATE_SHOW_ACCEPTED";
-export const UPDATE_ACTIVE_TABLE_TAB = "UPDATE_ACTIVE_TABLE_TAB";
 
 export const receiveInitialData = (
   contests: List<Contest>,
@@ -68,7 +63,9 @@ export const receiveUserInfo = (userInfo: UserInfo) => ({
   userInfo
 });
 
-export const receiveUserContestHistory = (contestHistory: List<ContestParticipation>) => ({
+export const receiveUserContestHistory = (
+  contestHistory: List<ContestParticipation>
+) => ({
   type: RECEIVE_USER_CONTEST_HISTORY as typeof RECEIVE_USER_CONTEST_HISTORY,
   contestHistory
 });
@@ -119,12 +116,6 @@ export const updateShowAccepted = (showAccepted: boolean) => ({
   showAccepted
 });
 
-export const updateActiveTableTab = (activeTableTab: TableTab) => ({
-  type: UPDATE_ACTIVE_TABLE_TAB as typeof UPDATE_ACTIVE_TABLE_TAB,
-  activeTableTab
-});
-
-
 type Action =
   | ReturnType<typeof receiveInitialData>
   | ReturnType<typeof updateUserIds>
@@ -140,7 +131,6 @@ type Action =
   | ReturnType<typeof requestLangRanking>
   | ReturnType<typeof receiveLangRanking>
   | ReturnType<typeof updateShowDifficulty>
-  | ReturnType<typeof updateShowAccepted>
-  | ReturnType<typeof updateActiveTableTab>;
+  | ReturnType<typeof updateShowAccepted>;
 
 export default Action;

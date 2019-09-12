@@ -22,9 +22,6 @@ interface Props {
 }
 
 const ContestTable: React.FC<Props> = (props: Props) => {
-  if(props.rendered === false){
-    return null;
-  }
 
   return (
     <>

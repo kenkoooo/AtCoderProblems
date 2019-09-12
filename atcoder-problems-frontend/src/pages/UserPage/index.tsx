@@ -1,12 +1,17 @@
 import React from "react";
-import {Col, Row} from "reactstrap";
+import { Col, Row } from "reactstrap";
 
 import Submission from "../../interfaces/Submission";
 import UserInfo from "../../interfaces/UserInfo";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
-import {isAccepted, ordinalSuffixOf} from "../../utils";
-import {formatMoment, getToday, parseDateLabel, parseSecond} from "../../utils/DateUtil";
+import { isAccepted, ordinalSuffixOf } from "../../utils";
+import {
+  formatMoment,
+  getToday,
+  parseDateLabel,
+  parseSecond
+} from "../../utils/DateUtil";
 
 import ClimbingLineChart from "./ClimbingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
@@ -15,15 +20,20 @@ import FilteringHeatmap from "./FilteringHeatmap";
 import SubmissionList from "./SubmissionList";
 import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
-import State from "../../interfaces/State";
-import {Dispatch} from "redux";
-import {requestMergedProblems} from "../../actions";
-import {List, Map} from "immutable";
-import {connect} from "react-redux";
-import {getFastRanking, getFirstRanking, getShortRanking} from "../../utils/Api";
-import {RankingEntry} from "../../interfaces/RankingEntry";
+import State, { ContestId } from "../../interfaces/State";
+import { Dispatch } from "redux";
+import { requestMergedProblems } from "../../actions";
+import { List, Map } from "immutable";
+import { connect } from "react-redux";
+import {
+  getFastRanking,
+  getFirstRanking,
+  getShortRanking
+} from "../../utils/Api";
+import { RankingEntry } from "../../interfaces/RankingEntry";
 import ProblemModel from "../../interfaces/ProblemModel";
-import {RatingInfo, ratingInfoOf} from "../../utils/RatingInfo";
+import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
+import Problem from "../../interfaces/Problem";
 
 interface Props {
   userId: string;
@@ -31,7 +41,7 @@ interface Props {
   userRatingInfo: RatingInfo;
   contests: Map<string, Contest>;
   mergedProblems: Map<string, MergedProblem>;
-  contestToProblems: Map<string, List<string>>;
+  contestToProblems: Map<ContestId, List<Problem>>;
   submissions: Map<string, List<Submission>>;
   problemModels: Map<string, ProblemModel>;
 
@@ -39,7 +49,7 @@ interface Props {
 }
 
 const solvedCountForPieChart = (
-  contestToProblems: Map<string, List<string>>,
+  contestToProblems: Map<string, List<Problem>>,
   submissions: Map<string, List<Submission>>,
   userId: string
 ) => {
@@ -78,18 +88,18 @@ const solvedCountForPieChart = (
   };
 
   const userCount = contestToProblems
-    .map(problemIds =>
-      problemIds.filter(
-        problemId =>
+    .map(problems =>
+      problems.filter(
+        problem =>
           submissions
-            .get(problemId, List<Submission>())
+            .get(problem.id, List<Submission>())
             .filter(s => s.user_id === userId)
             .filter(s => isAccepted(s.result))
             .count() > 0
       )
     )
     .map((problemIds, contestId) =>
-      problemIds.map(problemId => mapProblemPosition(contestId, problemId))
+      problemIds.map(problem => mapProblemPosition(contestId, problem.id))
     )
     .valueSeq()
     .flatMap(list => list)
@@ -99,7 +109,7 @@ const solvedCountForPieChart = (
     );
   const totalCount = contestToProblems
     .map((problemIds, contestId) =>
-      problemIds.map(problemId => mapProblemPosition(contestId, problemId))
+      problemIds.map(problem => mapProblemPosition(contestId, problem.id))
     )
     .valueSeq()
     .flatMap(list => list)

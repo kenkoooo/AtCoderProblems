@@ -24,10 +24,6 @@ interface Props {
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = props => {
-  if(props.rendered === false){
-    return null;
-  }
-
   const { contestToProblems, showSolved, statusLabelMap } = props;
   const solvedAll = (contest: Contest) => {
     return contestToProblems
