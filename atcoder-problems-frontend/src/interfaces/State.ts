@@ -31,8 +31,6 @@ export default interface State {
   readonly langRanking: List<LangRankingEntry>;
   readonly contestHistory: List<ContestParticipation>;
   readonly problemModels: Map<ProblemId, ProblemModel>;
-  readonly showDifficulty: boolean;
-  readonly showAccepted: boolean;
 
   readonly abc: Map<ContestId, Contest>;
   readonly arc: Map<ContestId, Contest>;
