@@ -52,8 +52,6 @@ interface Props {
   showAccepted: boolean;
 }
 
-let rendered: Set<TableTab> = new Set<TableTab>();
-
 const TablePage: React.FC<Props> = props => {
   const {
     userId,
@@ -71,8 +69,6 @@ const TablePage: React.FC<Props> = props => {
 
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
 
-  rendered.add(activeTab);
-
   return (
     <div>
       <Options />
@@ -84,7 +80,6 @@ const TablePage: React.FC<Props> = props => {
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
-          rendered={rendered.has(TableTab.ABC)}
         />
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.ARC}>
@@ -94,7 +89,6 @@ const TablePage: React.FC<Props> = props => {
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
-          rendered={rendered.has(TableTab.ARC)}
         />
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.AGC}>
@@ -104,7 +98,6 @@ const TablePage: React.FC<Props> = props => {
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
-          rendered={rendered.has(TableTab.AGC)}
         />
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.OtherRatedContests}>
@@ -117,7 +110,6 @@ const TablePage: React.FC<Props> = props => {
           userId={userId}
           rivals={rivals}
           statusLabelMap={statusLabelMap}
-          rendered={rendered.has(TableTab.OtherRatedContests)}
         />
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.OtherContests}>
@@ -130,7 +122,6 @@ const TablePage: React.FC<Props> = props => {
           userId={userId}
           rivals={rivals}
           statusLabelMap={statusLabelMap}
-          rendered={rendered.has(TableTab.OtherContests)}
         />
       </ContestWrapper>
     </div>
