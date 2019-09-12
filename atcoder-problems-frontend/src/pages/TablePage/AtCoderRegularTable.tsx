@@ -23,7 +23,7 @@ interface Props {
   rendered: boolean;
 }
 
-const AtCoderRegularTableSFC: React.SFC<Props> = props => {
+const AtCoderRegularTableSFC: React.FC<Props> = props => {
   if(props.rendered === false){
     return null;
   }
