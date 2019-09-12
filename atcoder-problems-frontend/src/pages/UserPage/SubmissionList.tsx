@@ -7,17 +7,21 @@ import * as Url from "../../utils/Url";
 import { isAccepted } from "../../utils";
 import { Badge } from "reactstrap";
 import ProblemLink from "../../components/ProblemLink";
+import { Map } from "immutable";
+import { ProblemId } from "../../interfaces/State";
+import ProblemModel from "../../interfaces/ProblemModel";
 
-const SubmissionList = ({
-  submissions,
-  problems
-}: {
+interface Props {
   submissions: Submission[];
   problems: { id: string; title: string }[];
-}) => {
+  problemModels: Map<ProblemId, ProblemModel>;
+}
+
+const SubmissionList = (props: Props) => {
+  const { submissions, problems, problemModels } = props;
   const title_map = problems.reduce(
     (map, p) => map.set(p.id, p.title),
-    new Map<string, string>()
+    Map<string, string>()
   );
 
   let verdictOptions: any = {};
@@ -77,6 +81,8 @@ const SubmissionList = ({
         dataField="problem_id"
         dataFormat={(_: string, { problem_id, contest_id }: Submission) => (
           <ProblemLink
+            difficulty={problemModels.getIn([problem_id, "difficulty"], null)}
+            showDifficulty={true}
             problemId={problem_id}
             problemTitle={title_map.get(problem_id) || ""}
             contestId={contest_id}

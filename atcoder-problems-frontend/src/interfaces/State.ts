@@ -11,7 +11,6 @@ import {
 } from "./RankingEntry";
 import ContestParticipation from "./ContestParticipation";
 import ProblemModel from "./ProblemModel";
-import {TableTab} from "../pages/TablePage/TableTab";
 
 export type ContestId = string;
 export type ProblemId = string;
@@ -25,16 +24,19 @@ export default interface State {
   readonly problems: Map<ProblemId, Problem>;
   readonly mergedProblems: Map<ProblemId, MergedProblem>;
   readonly submissions: Map<ProblemId, List<Submission>>;
-  readonly contestToProblems: Map<ContestId, List<ProblemId>>;
+  readonly contestToProblems: Map<ContestId, List<Problem>>;
   readonly userInfo: UserInfo | undefined;
   readonly acRanking: List<RankingEntry>;
   readonly sumRanking: List<SumRankingEntry>;
   readonly langRanking: List<LangRankingEntry>;
   readonly contestHistory: List<ContestParticipation>;
   readonly problemModels: Map<ProblemId, ProblemModel>;
-  readonly showDifficulty: boolean;
-  readonly showAccepted: boolean;
-  readonly activeTableTab: TableTab;
+
+  readonly abc: Map<ContestId, Contest>;
+  readonly arc: Map<ContestId, Contest>;
+  readonly agc: Map<ContestId, Contest>;
+  readonly othersRated: Map<ContestId, Contest>;
+  readonly others: Map<ContestId, Contest>;
 
   readonly cache: {
     readonly statusLabelMap: Map<ProblemId, ProblemStatus>;

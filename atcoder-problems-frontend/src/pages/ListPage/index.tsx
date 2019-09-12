@@ -26,11 +26,11 @@ import State, {
   ProblemStatus,
   StatusLabel
 } from "../../interfaces/State";
-import { List, Map, Set } from "immutable";
+import { List, Map, Range, Set } from "immutable";
 import { requestMergedProblems } from "../../actions";
 import ProblemModel from "../../interfaces/ProblemModel";
 import ProblemLink from "../../components/ProblemLink";
-import {DifficultyCircle} from "../../components/DifficultyCircle";
+import { DifficultyCircle } from "../../components/DifficultyCircle";
 
 const INF_POINT = 1e18;
 
@@ -69,8 +69,8 @@ class ListPage extends React.Component<Props, ListPageState> {
       toPoint: INF_POINT,
       statusFilterState: "All",
       ratedFilterState: "All",
-      fromDifficulty: 0,
-      toDifficulty: 11,
+      fromDifficulty: -1,
+      toDifficulty: INF_POINT
     };
   }
 
@@ -94,7 +94,7 @@ class ListPage extends React.Component<Props, ListPageState> {
       ratedFilterState,
       statusFilterState,
       fromDifficulty,
-      toDifficulty,
+      toDifficulty
     } = this.state;
     const rowData = mergedProblems
       .valueSeq()
@@ -123,8 +123,14 @@ class ListPage extends React.Component<Props, ListPageState> {
             : INF_POINT;
           const shortestUserId = p.shortest_user_id ? p.shortest_user_id : "";
           const fastestUserId = p.fastest_user_id ? p.fastest_user_id : "";
-          const difficulty =  Math.round(problemModels.getIn([p.id, "difficulty"], INF_POINT));
-          const difficultyClipped = Math.round(difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400));
+          const difficulty = Math.round(
+            problemModels.getIn([p.id, "difficulty"], INF_POINT)
+          );
+          const difficultyClipped = Math.round(
+            difficulty >= 400
+              ? difficulty
+              : 400 / Math.exp(1.0 - difficulty / 400)
+          );
 
           return {
             id: p.id,
@@ -167,6 +173,8 @@ class ListPage extends React.Component<Props, ListPageState> {
         dataSort: true,
         dataFormat: (_, row) => (
           <ProblemLink
+            showDifficulty={true}
+            difficulty={row.difficulty !== INF_POINT ? row.difficulty : null}
             problemId={row.mergedProblem.id}
             problemTitle={row.title}
             contestId={row.mergedProblem.contest_id}
@@ -368,13 +376,13 @@ class ListPage extends React.Component<Props, ListPageState> {
       .reduce((set, point) => (point ? set.add(point) : set), Set<number>())
       .toList()
       .sort();
-    const difficultyLevel = new Array(12).fill(0) // (4000 + 399) / 400 + 1
-      .map((_, idx) => idx < 10 ?
-        {title: `${idx*400} - ${idx*400+399}`, lo: idx*400, hi: idx*400+399, idx: idx} :
-        idx === 10 ? 
-        {title: `${idx*400} - `, lo: idx*400, hi: 100000, idx: idx} :
-        {title: `undefined`, lo: INF_POINT, hi: INF_POINT, idx: idx});
-    console.log(difficultyLevel);
+    const difficulties = Range(0, 4400, 400)
+      .map(from => ({
+        from,
+        to: from === 4000 ? INF_POINT : from + 399
+      }))
+      .toList();
+
     return (
       <div>
         <Row className="my-2 border-bottom">
@@ -395,7 +403,9 @@ class ListPage extends React.Component<Props, ListPageState> {
           <ButtonGroup className="mr-4">
             <UncontrolledButtonDropdown>
               <DropdownToggle caret>
-                {this.state.fromPoint == 0 ? "Point From" : this.state.fromPoint}
+                {this.state.fromPoint == 0
+                  ? "Point From"
+                  : this.state.fromPoint}
               </DropdownToggle>
               <DropdownMenu>
                 {points.map(p => (
@@ -410,7 +420,9 @@ class ListPage extends React.Component<Props, ListPageState> {
             </UncontrolledButtonDropdown>
             <UncontrolledButtonDropdown>
               <DropdownToggle caret>
-                {this.state.toPoint == INF_POINT ? "Point To" : this.state.toPoint}
+                {this.state.toPoint == INF_POINT
+                  ? "Point To"
+                  : this.state.toPoint}
               </DropdownToggle>
               <DropdownMenu>
                 {points.map(p => (
@@ -490,36 +502,42 @@ class ListPage extends React.Component<Props, ListPageState> {
           <ButtonGroup className="mr-4">
             <UncontrolledButtonDropdown>
               <DropdownToggle caret>
-                {fromDifficulty === 0 ? "Difficulty From" : `${difficultyLevel[fromDifficulty].lo} - `}
+                {fromDifficulty === -1
+                  ? "Difficulty From"
+                  : `${fromDifficulty} - `}
               </DropdownToggle>
               <DropdownMenu>
-                {difficultyLevel.map(p => (
+                {difficulties.map(({ from, to }) => (
                   <DropdownItem
-                    key={p.idx}
-                    onClick={() => this.setState({ fromDifficulty: p.idx })}
+                    key={from}
+                    onClick={() => this.setState({ fromDifficulty: from })}
                   >
-                    {p.idx < 11 ? 
-                      <DifficultyCircle difficulty={p.hi} id={`from-difficulty-dropdown-${p.idx}`} />
-                      : null}
-                    {p.title}
+                    <DifficultyCircle
+                      difficulty={to}
+                      id={`from-difficulty-dropdown-${to}`}
+                    />
+                    {from} -
                   </DropdownItem>
                 ))}
               </DropdownMenu>
             </UncontrolledButtonDropdown>
             <UncontrolledButtonDropdown>
               <DropdownToggle caret>
-                {toDifficulty == 11 ? "Difficulty To" : ` - ${difficultyLevel[toDifficulty].hi}`}
+                {toDifficulty === INF_POINT
+                  ? "Difficulty To"
+                  : ` - ${toDifficulty}`}
               </DropdownToggle>
               <DropdownMenu>
-                {difficultyLevel.map(p => (
+                {difficulties.map(({ to }) => (
                   <DropdownItem
-                    key={p.idx}
-                    onClick={() => this.setState({ toDifficulty: p.idx })}
+                    key={to}
+                    onClick={() => this.setState({ toDifficulty: to })}
                   >
-                    {p.idx < 11 ? 
-                      <DifficultyCircle difficulty={p.hi} id={`to-difficulty-dropdown-${p.idx}`} />
-                      : null}
-                    {p.title}
+                    <DifficultyCircle
+                      difficulty={to}
+                      id={`from-difficulty-dropdown-${to}`}
+                    />
+                    - {to < INF_POINT ? to : "inf"}
                   </DropdownItem>
                 ))}
               </DropdownMenu>
@@ -575,9 +593,10 @@ class ListPage extends React.Component<Props, ListPageState> {
                     return !isRated;
                 }
               })
-              .filter(({difficulty}) =>
-                difficultyLevel[fromDifficulty].lo <= difficulty &&
-                difficulty <= difficultyLevel[toDifficulty].hi)
+              .filter(
+                ({ difficulty }) =>
+                  fromDifficulty <= difficulty && difficulty <= toDifficulty
+              )
               .toArray()}
             options={{
               paginationPosition: "top",

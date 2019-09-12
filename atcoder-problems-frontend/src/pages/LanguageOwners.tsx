@@ -1,7 +1,6 @@
 import React from "react";
 import { Row, Col } from "reactstrap";
 
-import * as Api from "../utils/Api";
 import { LangRankingEntry } from "../interfaces/RankingEntry";
 import { List, Map } from "immutable";
 import State from "../interfaces/State";

@@ -13,22 +13,26 @@ import {
 } from "../../interfaces/State";
 import { statusLabelToTableColor } from "./index";
 import ProblemLink from "../../components/ProblemLink";
+import ProblemModel from "../../interfaces/ProblemModel";
 
 interface Props {
   contests: Map<string, Contest>;
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
+  showDifficulty: boolean;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
-  rendered: boolean;
+  problemModels: Map<ProblemId, ProblemModel>;
 }
 
-const AtCoderRegularTableSFC: React.SFC<Props> = props => {
-  if(props.rendered === false){
-    return null;
-  }
-
-  const { contestToProblems, showSolved, statusLabelMap } = props;
+const AtCoderRegularTableSFC: React.FC<Props> = props => {
+  const {
+    contestToProblems,
+    showSolved,
+    statusLabelMap,
+    showDifficulty,
+    problemModels
+  } = props;
   const solvedAll = (contest: Contest) => {
     return contestToProblems
       .get(contest.id, List<Problem>())
@@ -89,9 +93,14 @@ const AtCoderRegularTableSFC: React.SFC<Props> = props => {
             }}
             dataFormat={(_: any, contest: Contest) => {
               const problem = ithProblem(contest, i);
-              if(problem){
+              if (problem) {
                 return (
                   <ProblemLink
+                    difficulty={problemModels.getIn(
+                      [problem.id, "difficulty"],
+                      null
+                    )}
+                    showDifficulty={showDifficulty}
                     contestId={contest.id}
                     problemId={problem.id}
                     problemTitle={problem.title}

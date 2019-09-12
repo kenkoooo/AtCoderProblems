@@ -1,4 +1,5 @@
 import State, {
+  ContestId,
   failedStatus,
   noneStatus,
   ProblemId,
@@ -6,7 +7,7 @@ import State, {
   successStatus,
   warningStatus
 } from "./interfaces/State";
-import { Map, List } from "immutable";
+import { Map, List, Set } from "immutable";
 import Submission from "./interfaces/Submission";
 
 import Action, {
@@ -14,15 +15,11 @@ import Action, {
   RECEIVE_INITIAL_DATA,
   RECEIVE_LANG_RANKING,
   RECEIVE_MERGED_PROBLEMS,
-  RECEIVE_PERF,
   RECEIVE_SUBMISSIONS,
   RECEIVE_SUM_RANKING,
   RECEIVE_USER_CONTEST_HISTORY,
   RECEIVE_USER_INFO,
-  UPDATE_USER_IDS,
-  UPDATE_SHOW_DIFFICULTY,
-  UPDATE_SHOW_ACCEPTED,
-  UPDATE_ACTIVE_TABLE_TAB,
+  UPDATE_USER_IDS
 } from "./actions";
 import MergedProblem from "./interfaces/MergedProblem";
 import Problem from "./interfaces/Problem";
@@ -36,7 +33,6 @@ import {
 import { isAccepted } from "./utils";
 import ProblemModel from "./interfaces/ProblemModel";
 import ContestParticipation from "./interfaces/ContestParticipation";
-import {TableTab} from "./pages/TablePage/TableTab"
 
 const initialState: State = {
   users: {
@@ -54,9 +50,11 @@ const initialState: State = {
   langRanking: List(),
   contestHistory: List(),
   problemModels: Map(),
-  showDifficulty: true,
-  showAccepted: true,
-  activeTableTab: TableTab.ABC,
+  abc: Map(),
+  arc: Map(),
+  agc: Map(),
+  othersRated: Map(),
+  others: Map(),
   cache: {
     statusLabelMap: Map()
   }
@@ -80,41 +78,72 @@ const mergedProblemReducer = (
 };
 
 const dataReducer = (
-  problems: Map<string, Problem>,
-  contests: Map<string, Contest>,
-  contestToProblems: Map<string, List<string>>,
-  problemModels: Map<string, ProblemModel>,
+  state: {
+    problems: Map<string, Problem>;
+    contests: Map<string, Contest>;
+    contestToProblems: Map<ContestId, List<Problem>>;
+    problemModels: Map<string, ProblemModel>;
+    abc: Map<ContestId, Contest>;
+    arc: Map<ContestId, Contest>;
+    agc: Map<ContestId, Contest>;
+    othersRated: Map<ContestId, Contest>;
+    others: Map<ContestId, Contest>;
+  },
+
   action: Action
 ) => {
   switch (action.type) {
     case RECEIVE_INITIAL_DATA: {
-      const newProblems = action.problems.reduce(
+      const problems = action.problems.reduce(
         (map, problem) => map.set(problem.id, problem),
         Map<string, Problem>()
       );
-      const newContests = action.contests.reduce(
+      const contests = action.contests.reduce(
         (map, contest) => map.set(contest.id, contest),
         Map<string, Contest>()
       );
-      const newContestToProblems = action.pairs.reduce(
-        (map, { contest_id, problem_id }) =>
-          map.update(contest_id, List<string>(), list => list.push(problem_id)),
-        Map<string, List<string>>()
-      );
-      return {
-        problems: newProblems,
-        contests: newContests,
-        contestToProblems: newContestToProblems,
-        problemModels: action.problemModels
-      };
-    }
-    default: {
+      const contestToProblems = action.pairs
+        .map(({ contest_id, problem_id }) => ({
+          contest_id,
+          problem: problems.get(problem_id)
+        }))
+        .reduce((map, { contest_id, problem }) => {
+          if (problem === undefined) {
+            return map;
+          } else {
+            return map.update(contest_id, List<Problem>(), list =>
+              list.push(problem)
+            );
+          }
+        }, Map<ContestId, List<Problem>>());
+      const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
+      const arc = contests.filter((v, k) => k.match(/^arc\d{3}$/));
+      const agc = contests.filter((v, k) => k.match(/^agc\d{3}$/));
+      const atcoderContestIds = [abc, arc, agc]
+        .map(s => s.keySeq())
+        .reduce((set, keys) => set.concat(keys), Set<ContestId>());
+
+      const othersRated = contests
+        .filter(contest => !atcoderContestIds.has(contest.id))
+        .filter(contest => contest.rate_change !== "-")
+        .filter(contest => contest.start_epoch_second >= 1468670400); // agc001
+      const ratedContestIds = atcoderContestIds.concat(othersRated.keySeq());
+      const others = contests.filter(c => !ratedContestIds.has(c.id));
+
       return {
         problems,
         contests,
         contestToProblems,
-        problemModels
+        problemModels: action.problemModels,
+        abc,
+        arc,
+        agc,
+        others,
+        othersRated
       };
+    }
+    default: {
+      return state;
     }
   }
 };
@@ -192,30 +221,6 @@ const sumRankingReducer = (
   }
 };
 
-const showDifficultyReducer = (showDifficulty: boolean, action: Action) => {
-  if(action.type === UPDATE_SHOW_DIFFICULTY){
-    return action.showDifficulty;
-  }else{
-    return showDifficulty;
-  }
-}
-
-const showAcceptedReducer = (showAccepted: boolean, action: Action) => {
-  if(action.type === UPDATE_SHOW_ACCEPTED){
-    return action.showAccepted;
-  }else{
-    return showAccepted;
-  }
-}
-
-const activeTableTabReducer = (activeTableTab: TableTab, action: Action) => {
-  if(action.type === UPDATE_ACTIVE_TABLE_TAB){
-    return action.activeTableTab;
-  }else{
-    return activeTableTab;
-  }
-}
-
 const langRankingReducer = (
   langRanking: List<LangRankingEntry>,
   action: Action
@@ -261,11 +266,28 @@ const statusLabelMapReducer = (
 
 const rootReducer = (state: State = initialState, action: Action): State => {
   performance.mark("reducer_start");
-  const { contests, problems, contestToProblems, problemModels } = dataReducer(
-    state.problems,
-    state.contests,
-    state.contestToProblems,
-    state.problemModels,
+  const {
+    contests,
+    problems,
+    contestToProblems,
+    problemModels,
+    abc,
+    arc,
+    agc,
+    others,
+    othersRated
+  } = dataReducer(
+    {
+      problems: state.problems,
+      contests: state.contests,
+      contestToProblems: state.contestToProblems,
+      problemModels: state.problemModels,
+      abc: state.abc,
+      arc: state.arc,
+      agc: state.agc,
+      others: state.others,
+      othersRated: state.othersRated
+    },
     action
   );
   const submissions = submissionReducer(state.submissions, action);
@@ -275,10 +297,10 @@ const rootReducer = (state: State = initialState, action: Action): State => {
   const sumRanking = sumRankingReducer(state.sumRanking, action);
   const acRanking = acRankingReducer(state.acRanking, action);
   const langRanking = langRankingReducer(state.langRanking, action);
-  const contestHistory = userContestHistoryReducer(state.contestHistory, action);
-  const showDifficulty = showDifficultyReducer(state.showDifficulty, action);
-  const showAccepted = showAcceptedReducer(state.showAccepted, action);
-  const activeTableTab = activeTableTabReducer(state.activeTableTab, action);
+  const contestHistory = userContestHistoryReducer(
+    state.contestHistory,
+    action
+  );
 
   const statusLabelMap = statusLabelMapReducer(
     state.cache.statusLabelMap,
@@ -303,9 +325,11 @@ const rootReducer = (state: State = initialState, action: Action): State => {
     langRanking,
     contestHistory,
     problemModels,
-    showDifficulty,
-    showAccepted,
-    activeTableTab,
+    abc,
+    arc,
+    agc,
+    others,
+    othersRated,
     cache: {
       statusLabelMap
     }
