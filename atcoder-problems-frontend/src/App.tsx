@@ -17,8 +17,8 @@ import ListPage from "./pages/ListPage";
 import UserPage from "./pages/UserPage";
 import TablePage from "./pages/TablePage";
 import Monitor from "./pages/Monitor";
-
 import NavigationBar from "./components/NavigationBar";
+import ReviewPage from "./pages/ReviewPage";
 
 const App = () => (
   <Router>
@@ -33,6 +33,7 @@ const App = () => (
           <Route exact path="/sum" component={() => <SumRanking />} />
           <Route exact path="/lang" component={() => <LanguageOwners />} />
           <Route exact path="/monitor" component={Monitor} />
+          <Route exact path="/review/([a-zA-Z0-9_]*)*" component={ReviewPage} />
           <Route path="/user/([a-zA-Z0-9_]*)*" component={() => <UserPage />} />
           <Route
             path="/table/([a-zA-Z0-9_]*)*"
