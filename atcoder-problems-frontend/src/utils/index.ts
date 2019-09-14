@@ -5,10 +5,14 @@ export const ATCODER_RIVALS_REGEXP = new RegExp(
 );
 
 export const extractRivalsParam = (rivalsParam: string): string[] => {
-  return rivalsParam
-    .split(",")
-    .map(rival => rival.trim())
-    .filter(rival => rival.length > 0);
+  if (rivalsParam.match(ATCODER_RIVALS_REGEXP)) {
+    return rivalsParam
+      .split(",")
+      .map(rival => rival.trim())
+      .filter(rival => rival.length > 0);
+  } else {
+    return [];
+  }
 };
 
 export const isAccepted = (result: string) => result === "AC";
