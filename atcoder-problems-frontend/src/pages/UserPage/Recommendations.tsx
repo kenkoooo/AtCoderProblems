@@ -13,6 +13,8 @@ import ProblemModel, {
 } from "../../interfaces/ProblemModel";
 import { RatingInfo } from "../../utils/RatingInfo";
 import {
+  formatPredictedSolveProbability,
+  formatPredictedSolveTime,
   predictSolveProbability,
   predictSolveTime
 } from "../../utils/ProblemModelUtil";
@@ -207,18 +209,7 @@ class Recommendations extends React.Component<Props, LocalState> {
             </TableHeaderColumn>
             <TableHeaderColumn
               dataField="predictedSolveProbability"
-              dataFormat={(predictedSolveProbability: number | null) => {
-                if (predictedSolveProbability === null) {
-                  return "-";
-                } else if (predictedSolveProbability < 0.005) {
-                  return "<1%";
-                } else if (predictedSolveProbability > 0.995) {
-                  return ">99%";
-                } else {
-                  const percents = Math.round(predictedSolveProbability * 100);
-                  return `${percents}%`;
-                }
-              }}
+              dataFormat={formatPredictedSolveProbability}
             >
               <span>Solve Probability</span>
               <HelpBadgeTooltip id="probability">
@@ -228,16 +219,7 @@ class Recommendations extends React.Component<Props, LocalState> {
             </TableHeaderColumn>
             <TableHeaderColumn
               dataField="predictedSolveTime"
-              dataFormat={(predictedSolveTime: number | null) => {
-                if (predictedSolveTime === null) {
-                  return "-";
-                } else if (predictedSolveTime < 30) {
-                  return "<1 min";
-                } else {
-                  const minutes = Math.round(predictedSolveTime / 60);
-                  return `${minutes} mins`;
-                }
-              }}
+              dataFormat={formatPredictedSolveTime}
             >
               <span>Median Solve Time</span>
               <HelpBadgeTooltip id="solvetime">
