@@ -22,13 +22,15 @@ import { Dispatch } from "redux";
 import { List } from "immutable";
 import { updateUserIds } from "../actions";
 
-type PageKind = "table" | "list" | "user";
+type PageKind = "table" | "list" | "user" | "review";
 
 const extractPageKind = (pathname: string): PageKind => {
   if (pathname.match(/^\/user/)) {
     return "user";
   } else if (pathname.match(/^\/list/)) {
     return "list";
+  } else if (pathname.match(/^\/review/)) {
+    return "review";
   } else {
     return "table";
   }
@@ -202,7 +204,13 @@ class NavigationBar extends React.Component<Props, LocalState> {
                 Other
               </DropdownToggle>
               <DropdownMenu right>
-                <DropdownItem tag={RouterLink} to="/review">
+                <DropdownItem
+                  tag={RouterLink}
+                  to={generatePath("review", userId, rivalIdString)}
+                  onClick={() => {
+                    this.submit("review");
+                  }}
+                >
                   Review
                 </DropdownItem>
                 <DropdownItem tag={RouterLink} to="/monitor">
