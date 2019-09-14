@@ -24,16 +24,18 @@ const RECOMMEND_NUM = 10;
 
 type RecommendOption = "Easy" | "Moderate" | "Difficult";
 
-function getRecommendProbability(option: RecommendOption): number {
-  if (option === "Easy") {
-    return 0.8;
-  } else if (option === "Moderate") {
-    return 0.5;
-  } else {
-    // Difficult
-    return 0.2;
+const getRecommendProbability = (option: RecommendOption): number => {
+  switch (option) {
+    case "Easy":
+      return 0.8;
+    case "Moderate":
+      return 0.5;
+    case "Difficult":
+      return 0.2;
+    default:
+      return 0.0;
   }
-}
+};
 
 interface Props {
   readonly userSubmissions: List<Submission>;
@@ -90,8 +92,12 @@ class Recommendations extends React.Component<Props, LocalState> {
           predictedSolveTime = null;
           predictedSolveProbability = -1;
         } else {
-          // @ts-ignore
-          const problemModel: ProblemModel = problemModels.get(p.id);
+          const problemModel: ProblemModel = problemModels.get(p.id, {
+            slope: undefined,
+            difficulty: undefined,
+            intercept: undefined,
+            discrimination: undefined
+          });
           if (isProblemModelWithTimeModel(problemModel)) {
             predictedSolveTime = predictSolveTime(problemModel, internalRating);
           } else {
