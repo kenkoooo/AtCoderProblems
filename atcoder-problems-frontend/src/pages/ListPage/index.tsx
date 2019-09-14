@@ -10,7 +10,7 @@ import {
   UncontrolledDropdown
 } from "reactstrap";
 
-import { isAccepted } from "../../utils";
+import { clipDifficulty, isAccepted } from "../../utils";
 import { formatMoment, parseSecond } from "../../utils/DateUtil";
 import * as Url from "../../utils/Url";
 import MergedProblem from "../../interfaces/MergedProblem";
@@ -126,11 +126,7 @@ class ListPage extends React.Component<Props, ListPageState> {
           const difficulty = Math.round(
             problemModels.getIn([p.id, "difficulty"], INF_POINT)
           );
-          const difficultyClipped = Math.round(
-            difficulty >= 400
-              ? difficulty
-              : 400 / Math.exp(1.0 - difficulty / 400)
-          );
+          const difficultyClipped = clipDifficulty(difficulty);
 
           return {
             id: p.id,

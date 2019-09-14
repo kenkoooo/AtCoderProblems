@@ -1,5 +1,6 @@
 import React from "react";
 import { Tooltip } from "reactstrap";
+import { clipDifficulty } from "../utils";
 
 interface Props {
   id: string;
@@ -47,9 +48,7 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
     if (difficulty === null) {
       return null;
     }
-    const difficultyClipped = Math.round(
-      difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400)
-    );
+    const difficultyClipped = clipDifficulty(difficulty);
     const { tooltipOpen } = this.state;
     const fillRatio: number =
       difficultyClipped >= 3200 ? 1.0 : (difficultyClipped % 400) / 400;

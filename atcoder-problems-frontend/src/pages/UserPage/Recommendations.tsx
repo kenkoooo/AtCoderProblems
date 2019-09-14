@@ -1,6 +1,6 @@
 import React from "react";
 
-import { isAccepted } from "../../utils";
+import { clipDifficulty, isAccepted } from "../../utils";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
@@ -196,11 +196,7 @@ class Recommendations extends React.Component<Props, LocalState> {
               dataField="difficulty"
               dataFormat={(difficulty: number | null) => {
                 if (difficulty === null) return "-";
-                const difficultyClipped = Math.round(
-                  difficulty >= 400
-                    ? difficulty
-                    : 400 / Math.exp(1.0 - difficulty / 400)
-                );
+                const difficultyClipped = clipDifficulty(difficulty);
                 return String(difficultyClipped);
               }}
             >
