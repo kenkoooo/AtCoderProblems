@@ -213,9 +213,6 @@ class NavigationBar extends React.Component<Props, LocalState> {
                 >
                   Review
                 </DropdownItem>
-                <DropdownItem tag={RouterLink} to="/monitor">
-                  Monitoring
-                </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
 

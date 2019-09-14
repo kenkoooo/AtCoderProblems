@@ -17,7 +17,6 @@ import {
   DropdownToggle,
   UncontrolledButtonDropdown
 } from "reactstrap";
-import ButtonGroup from "reactstrap/lib/ButtonGroup";
 
 type ReviewEntry = {
   id: number;
@@ -83,7 +82,7 @@ const ReviewPage: React.FC<Props> = props => {
     <>
       <UncontrolledButtonDropdown>
         <DropdownToggle caret>
-          {lowestDifficulty === -1 ? "Lowest Difficulty" : lowestDifficulty}
+          {lowestDifficulty === -1 ? "Difficulty from" : lowestDifficulty}
         </DropdownToggle>
         <DropdownMenu>
           {Range(0, 3000, 400).map(d => (
