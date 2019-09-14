@@ -30,3 +30,8 @@ export const ordinalSuffixOf = (i: number) => {
   }
   return "th";
 };
+
+export const clipDifficulty = (difficulty: number) =>
+  Math.round(
+    difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400)
+  );
