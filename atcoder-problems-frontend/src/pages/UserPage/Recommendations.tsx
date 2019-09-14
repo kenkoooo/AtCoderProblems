@@ -1,6 +1,6 @@
 import React from "react";
 
-import { isAccepted } from "../../utils";
+import { clipDifficulty, isAccepted } from "../../utils";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
@@ -13,6 +13,8 @@ import ProblemModel, {
 } from "../../interfaces/ProblemModel";
 import { RatingInfo } from "../../utils/RatingInfo";
 import {
+  formatPredictedSolveProbability,
+  formatPredictedSolveTime,
   predictSolveProbability,
   predictSolveTime
 } from "../../utils/ProblemModelUtil";
@@ -24,16 +26,18 @@ const RECOMMEND_NUM = 10;
 
 type RecommendOption = "Easy" | "Moderate" | "Difficult";
 
-function getRecommendProbability(option: RecommendOption): number {
-  if (option === "Easy") {
-    return 0.8;
-  } else if (option === "Moderate") {
-    return 0.5;
-  } else {
-    // Difficult
-    return 0.2;
+const getRecommendProbability = (option: RecommendOption): number => {
+  switch (option) {
+    case "Easy":
+      return 0.8;
+    case "Moderate":
+      return 0.5;
+    case "Difficult":
+      return 0.2;
+    default:
+      return 0.0;
   }
-}
+};
 
 interface Props {
   readonly userSubmissions: List<Submission>;
@@ -90,8 +94,12 @@ class Recommendations extends React.Component<Props, LocalState> {
           predictedSolveTime = null;
           predictedSolveProbability = -1;
         } else {
-          // @ts-ignore
-          const problemModel: ProblemModel = problemModels.get(p.id);
+          const problemModel: ProblemModel = problemModels.get(p.id, {
+            slope: undefined,
+            difficulty: undefined,
+            intercept: undefined,
+            discrimination: undefined
+          });
           if (isProblemModelWithTimeModel(problemModel)) {
             predictedSolveTime = predictSolveTime(problemModel, internalRating);
           } else {
@@ -190,11 +198,7 @@ class Recommendations extends React.Component<Props, LocalState> {
               dataField="difficulty"
               dataFormat={(difficulty: number | null) => {
                 if (difficulty === null) return "-";
-                const difficultyClipped = Math.round(
-                  difficulty >= 400
-                    ? difficulty
-                    : 400 / Math.exp(1.0 - difficulty / 400)
-                );
+                const difficultyClipped = clipDifficulty(difficulty);
                 return String(difficultyClipped);
               }}
             >
@@ -205,18 +209,7 @@ class Recommendations extends React.Component<Props, LocalState> {
             </TableHeaderColumn>
             <TableHeaderColumn
               dataField="predictedSolveProbability"
-              dataFormat={(predictedSolveProbability: number | null) => {
-                if (predictedSolveProbability === null) {
-                  return "-";
-                } else if (predictedSolveProbability < 0.005) {
-                  return "<1%";
-                } else if (predictedSolveProbability > 0.995) {
-                  return ">99%";
-                } else {
-                  const percents = Math.round(predictedSolveProbability * 100);
-                  return `${percents}%`;
-                }
-              }}
+              dataFormat={formatPredictedSolveProbability}
             >
               <span>Solve Probability</span>
               <HelpBadgeTooltip id="probability">
@@ -226,16 +219,7 @@ class Recommendations extends React.Component<Props, LocalState> {
             </TableHeaderColumn>
             <TableHeaderColumn
               dataField="predictedSolveTime"
-              dataFormat={(predictedSolveTime: number | null) => {
-                if (predictedSolveTime === null) {
-                  return "-";
-                } else if (predictedSolveTime < 30) {
-                  return "<1 min";
-                } else {
-                  const minutes = Math.round(predictedSolveTime / 60);
-                  return `${minutes} mins`;
-                }
-              }}
+              dataFormat={formatPredictedSolveTime}
             >
               <span>Median Solve Time</span>
               <HelpBadgeTooltip id="solvetime">

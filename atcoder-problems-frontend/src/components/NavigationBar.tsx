@@ -16,23 +16,21 @@ import {
   Button,
   FormGroup
 } from "reactstrap";
-import {
-  ATCODER_USER_REGEXP,
-  ATCODER_RIVALS_REGEXP,
-  extractRivalsParam
-} from "../utils";
+import { ATCODER_USER_REGEXP, extractRivalsParam } from "../utils";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { List } from "immutable";
 import { updateUserIds } from "../actions";
 
-type PageKind = "table" | "list" | "user";
+type PageKind = "table" | "list" | "user" | "review";
 
 const extractPageKind = (pathname: string): PageKind => {
   if (pathname.match(/^\/user/)) {
     return "user";
   } else if (pathname.match(/^\/list/)) {
     return "list";
+  } else if (pathname.match(/^\/review/)) {
+    return "review";
   } else {
     return "table";
   }
@@ -59,7 +57,19 @@ interface LocalState {
   pageKind: PageKind;
 }
 
-class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
+const generatePath = (
+  kind: PageKind,
+  userId: string,
+  rivalIdString: string
+) => {
+  const users = [checkUserId(userId), ...extractRivalsParam(rivalIdString)];
+  return "/" + kind + "/" + users.join("/");
+};
+
+const checkUserId = (inputUserId: string): string =>
+  inputUserId.match(ATCODER_USER_REGEXP) ? inputUserId : "";
+
+class NavigationBar extends React.Component<Props, LocalState> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -71,26 +81,11 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
   }
 
   submit(nextKind: PageKind) {
-    const { userId, rivalIdString, pageKind } = this.state;
-
-    const users: string[] = [];
-    if (userId.match(ATCODER_USER_REGEXP)) {
-      users.push(userId);
-    } else {
-      users.push("");
-    }
-    if (rivalIdString.match(ATCODER_RIVALS_REGEXP)) {
-      const rivals = extractRivalsParam(rivalIdString);
-      users.push(...rivals);
-    }
-
-    const currentPathname = this.props.location.pathname;
-    const nextPathname = "/" + nextKind + "/" + users.join("/");
-    if (currentPathname !== nextPathname || pageKind !== nextKind) {
-      this.props.history.push(nextPathname);
-      this.props.updateUserIds(userId, List(extractRivalsParam(rivalIdString)));
-      this.setState({ pageKind: nextKind });
-    }
+    const { userId, rivalIdString } = this.state;
+    const path = generatePath(nextKind, userId, rivalIdString);
+    this.props.updateUserIds(userId, List(extractRivalsParam(rivalIdString)));
+    this.props.history.push({ pathname: path });
+    this.setState({ pageKind: nextKind });
   }
 
   componentDidMount() {
@@ -112,7 +107,7 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
             <Form inline>
               <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
                 <Input
-                  style={{ width: "150px" }}
+                  style={{ width: "120px" }}
                   onKeyPress={e => {
                     if (e.key == "Enter") {
                       this.submit(pageKind);
@@ -128,7 +123,7 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
               </FormGroup>
               <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
                 <Input
-                  style={{ width: "150px" }}
+                  style={{ width: "120px" }}
                   onKeyPress={e => {
                     if (e.key == "Enter") {
                       this.submit(pageKind);
@@ -146,6 +141,8 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
               </FormGroup>
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
+                tag={RouterLink}
+                to={generatePath("table", userId, rivalIdString)}
                 onClick={() => {
                   this.submit("table");
                 }}
@@ -154,6 +151,8 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
               </Button>
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
+                tag={RouterLink}
+                to={generatePath("list", userId, rivalIdString)}
                 onClick={() => {
                   this.submit("list");
                 }}
@@ -163,6 +162,8 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
                 disabled={userId.length === 0}
+                tag={RouterLink}
+                to={generatePath("user", userId, rivalIdString)}
                 onClick={() => {
                   this.submit("user");
                 }}
@@ -203,8 +204,14 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
                 Other
               </DropdownToggle>
               <DropdownMenu right>
-                <DropdownItem tag={RouterLink} to="/monitor">
-                  Monitoring
+                <DropdownItem
+                  tag={RouterLink}
+                  to={generatePath("review", userId, rivalIdString)}
+                  onClick={() => {
+                    this.submit("review");
+                  }}
+                >
+                  Review
                 </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
@@ -251,8 +258,6 @@ class PrimitiveNavigationBar extends React.Component<Props, LocalState> {
   }
 }
 
-const NavigationBar = withRouter(PrimitiveNavigationBar);
-
 const stateToProps = () => ({});
 const dispatchToProps = (dispatch: Dispatch) => ({
   updateUserIds: (userId: string, rivals: List<string>) =>
@@ -262,4 +267,4 @@ const dispatchToProps = (dispatch: Dispatch) => ({
 export default connect(
   stateToProps,
   dispatchToProps
-)(NavigationBar);
+)(withRouter(NavigationBar));

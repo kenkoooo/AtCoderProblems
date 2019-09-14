@@ -5,10 +5,14 @@ export const ATCODER_RIVALS_REGEXP = new RegExp(
 );
 
 export const extractRivalsParam = (rivalsParam: string): string[] => {
-  return rivalsParam
-    .split(",")
-    .map(rival => rival.trim())
-    .filter(rival => rival.length > 0);
+  if (rivalsParam.match(ATCODER_RIVALS_REGEXP)) {
+    return rivalsParam
+      .split(",")
+      .map(rival => rival.trim())
+      .filter(rival => rival.length > 0);
+  } else {
+    return [];
+  }
 };
 
 export const isAccepted = (result: string) => result === "AC";
@@ -26,3 +30,8 @@ export const ordinalSuffixOf = (i: number) => {
   }
   return "th";
 };
+
+export const clipDifficulty = (difficulty: number) =>
+  Math.round(
+    difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400)
+  );
