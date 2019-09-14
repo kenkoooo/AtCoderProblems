@@ -5,7 +5,10 @@ import { List, Map, Range } from "immutable";
 import Submission from "../interfaces/Submission";
 import { clipDifficulty, isAccepted } from "../utils";
 import { RatingInfo, ratingInfoOf } from "../utils/RatingInfo";
-import ProblemModel from "../interfaces/ProblemModel";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel,
+  isProblemModelWithTimeModel
+} from "../interfaces/ProblemModel";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import Problem from "../interfaces/Problem";
 import ProblemLink from "../components/ProblemLink";
@@ -17,15 +20,24 @@ import {
   DropdownToggle,
   UncontrolledButtonDropdown
 } from "reactstrap";
+import {
+  formatPredictedSolveProbability,
+  formatPredictedSolveTime,
+  predictSolveProbability,
+  predictSolveTime
+} from "../utils/ProblemModelUtil";
 
 type ReviewEntry = {
-  id: number;
-  problem_id: string;
-  contest_id: string;
-  difficulty: number;
-  epoch_second: number;
-  title: string;
-  point: number;
+  readonly id: number;
+  readonly problem_id: string;
+  readonly contest_id: string;
+  readonly epoch_second: number;
+  readonly title: string;
+  readonly point: number;
+
+  readonly difficulty: number | null;
+  readonly predictedSolveTime: number | null;
+  readonly predictedSolveProbability: number | null;
 };
 
 const ReviewPage: React.FC<Props> = props => {
@@ -38,9 +50,6 @@ const ReviewPage: React.FC<Props> = props => {
   } = props;
   const [lowestDifficulty, setLowestDifficulty] = useState(-1);
   const { internalRating } = userRatingInfo;
-  if (internalRating === null) {
-    return <></>;
-  }
   const reviewEntries = submissions
     .valueSeq()
     .map(v =>
@@ -58,21 +67,30 @@ const ReviewPage: React.FC<Props> = props => {
       }
       const { title } = problem;
       const problemModel = problemModels.get(problem_id);
-      if (problemModel === undefined) {
-        return null;
-      }
-      const { difficulty } = problemModel;
-      if (difficulty === undefined) {
-        return null;
-      }
+      const difficulty = problemModel ? problemModel.difficulty : null;
+      const predictedSolveTime =
+        problemModel &&
+        internalRating &&
+        isProblemModelWithTimeModel(problemModel)
+          ? predictSolveTime(problemModel, internalRating)
+          : null;
+      const predictedSolveProbability =
+        problemModel &&
+        isProblemModelWithDifficultyModel(problemModel) &&
+        internalRating
+          ? predictSolveProbability(problemModel, internalRating)
+          : null;
+
       return {
-        difficulty: clipDifficulty(difficulty),
+        difficulty: difficulty ? clipDifficulty(difficulty) : null,
         id,
         problem_id,
         contest_id,
         epoch_second,
         title,
-        point
+        point,
+        predictedSolveProbability,
+        predictedSolveTime
       };
     })
     .filter((entry: ReviewEntry | null): entry is ReviewEntry => entry !== null)
@@ -87,7 +105,7 @@ const ReviewPage: React.FC<Props> = props => {
         <DropdownMenu>
           {Range(0, 3000, 400).map(d => (
             <DropdownItem key={d} onClick={() => setLowestDifficulty(d)}>
-              {d}
+              {d.toString()}
             </DropdownItem>
           ))}
         </DropdownMenu>
@@ -96,7 +114,11 @@ const ReviewPage: React.FC<Props> = props => {
       <BootstrapTable
         data={reviewEntries
           .toArray()
-          .filter(e => e.difficulty >= lowestDifficulty)}
+          .filter(
+            e =>
+              (e.difficulty && e.difficulty >= lowestDifficulty) ||
+              lowestDifficulty <= 0
+          )}
         keyField="id"
         height="auto"
         hover
@@ -148,6 +170,20 @@ const ReviewPage: React.FC<Props> = props => {
         </TableHeaderColumn>
         <TableHeaderColumn dataField="difficulty" dataSort>
           Difficulty
+        </TableHeaderColumn>
+        <TableHeaderColumn
+          dataField="predictedSolveProbability"
+          dataFormat={formatPredictedSolveProbability}
+          dataSort
+        >
+          Solve Probability
+        </TableHeaderColumn>
+        <TableHeaderColumn
+          dataField="predictedSolveTime"
+          dataFormat={formatPredictedSolveTime}
+          dataSort
+        >
+          Median Solve Time
         </TableHeaderColumn>
         <TableHeaderColumn
           dataSort

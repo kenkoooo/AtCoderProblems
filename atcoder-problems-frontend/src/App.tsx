@@ -31,7 +31,11 @@ const App = () => (
           <Route exact path="/first" component={() => <FirstRanking />} />
           <Route exact path="/sum" component={() => <SumRanking />} />
           <Route exact path="/lang" component={() => <LanguageOwners />} />
-          <Route exact path="/review/([a-zA-Z0-9_]*)*" component={ReviewPage} />
+          <Route
+            exact
+            path="/review/([a-zA-Z0-9_]*)*"
+            component={() => <ReviewPage />}
+          />
           <Route path="/user/([a-zA-Z0-9_]*)*" component={() => <UserPage />} />
           <Route
             path="/table/([a-zA-Z0-9_]*)*"
