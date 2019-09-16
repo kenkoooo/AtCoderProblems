@@ -1,5 +1,6 @@
 import json
 import math
+from collections import defaultdict
 from datetime import datetime
 import random
 
@@ -69,7 +70,61 @@ def inverse_adjust_rating(rating, prev_contests):
     return rating + adjustment
 
 
-def estimate_for_contest(contest_name, existing_problem):
+def fit_problem_model(user_results, task_screen_name):
+    max_score = max(task_result[task_screen_name + ".score"] for task_result in user_results)
+    if max_score == 0.:
+        print(f"The problem {task_screen_name} is not solved by any competitors. skipping.")
+        return {}
+    for task_result in user_results:
+        task_result[task_screen_name + ".ac"] = float(task_result[task_screen_name + ".score"] == max_score)
+    elapsed = [task_result[task_screen_name + ".elapsed"]
+               for task_result in user_results]
+    first_ac = min(elapsed)
+    valid_users = [task_result for task_result in user_results
+                   if task_result[task_screen_name + ".time"] > first_ac / 2 and task_result[
+                       task_screen_name + ".ac"] == 1.]
+    model = {}
+    if len(valid_users) < 10:
+        print(
+            f"{task_screen_name}: insufficient data ({len(valid_users)} users). skip estimating time model.")
+    else:
+        raw_ratings = [task_result["raw_rating"]
+                       for task_result in valid_users]
+        time_secs = [task_result[task_screen_name + ".time"] /
+                     (10 ** 9) for task_result in valid_users]
+        time_logs = [math.log(t) for t in time_secs]
+        slope, intercept = single_regression(raw_ratings, time_logs)
+        print(
+            f"{task_screen_name}: time [sec] = exp({slope} * raw_rating + {intercept})")
+        if slope > 0:
+            print("slope is positive. ignoring unreliable estimation.")
+        else:
+            model["slope"] = slope
+            model["intercept"] = intercept
+
+    rated_results = [
+        task_result for task_result in user_results if task_result["is_rated"]]
+    if len(rated_results) < 10:
+        print(
+            f"{task_screen_name}: insufficient data ({len(rated_results)} users). skip estimating difficulty model.")
+    else:
+        d_raw_ratings = [task_result["raw_rating"]
+                         for task_result in rated_results]
+        d_accepteds = [task_result[task_screen_name + ".ac"]
+                       for task_result in rated_results]
+        difficulty, discrimination = fit_2plm_irt(
+            d_raw_ratings, d_accepteds)
+        print(
+            f"difficulty: {difficulty}, discrimination: {discrimination}")
+        if discrimination < 0:
+            print("discrimination is negative. ignoring unreliable estimation.")
+        else:
+            model["difficulty"] = difficulty
+            model["discrimination"] = discrimination
+    return model
+
+
+def fetch_dataset_for_contest(contest_name, existing_problem):
     try:
         results = requests.get(
             "https://atcoder.jp/contests/{}/standings/json".format(contest_name)).json()
@@ -124,63 +179,13 @@ def estimate_for_contest(contest_name, existing_problem):
             f"There are no participants/submissions for contest {contest_name}. Ignoring.")
         return {}
 
-    params = {}
+    user_results_by_problem = defaultdict(list)
     for task_screen_name in task_names.keys():
         if task_screen_name in existing_problem:
             print(f"The problem model for {task_screen_name} already exists. skipping.")
             continue
-        max_score = max(task_result[task_screen_name + ".score"] for task_result in user_results)
-        if max_score == 0.:
-            print(f"The problem {task_screen_name} is not solved by any competitors. skipping.")
-            continue
-        for task_result in user_results:
-            task_result[task_screen_name + ".ac"] = float(task_result[task_screen_name + ".score"] == max_score)
-        elapsed = [task_result[task_screen_name + ".elapsed"]
-                   for task_result in user_results]
-        first_ac = min(elapsed)
-        valid_users = [task_result for task_result in user_results
-                       if task_result[task_screen_name + ".time"] > first_ac / 2 and task_result[task_screen_name + ".ac"] == 1.]
-        model = {}
-        if len(valid_users) < 10:
-            print(
-                f"{task_screen_name}: insufficient data ({len(valid_users)} users). skip estimating time model.")
-        else:
-            raw_ratings = [task_result["raw_rating"]
-                           for task_result in valid_users]
-            time_secs = [task_result[task_screen_name + ".time"] /
-                         (10 ** 9) for task_result in valid_users]
-            time_logs = [math.log(t) for t in time_secs]
-            slope, intercept = single_regression(raw_ratings, time_logs)
-            print(
-                f"{task_screen_name}: time [sec] = exp({slope} * raw_rating + {intercept})")
-            if slope > 0:
-                print("slope is positive. ignoring unreliable estimation.")
-            else:
-                model["slope"] = slope
-                model["intercept"] = intercept
-
-        rated_results = [
-            task_result for task_result in user_results if task_result["is_rated"]]
-        if len(rated_results) < 10:
-            print(
-                f"{task_screen_name}: insufficient data ({len(rated_results)} users). skip estimating difficulty model.")
-        else:
-            d_raw_ratings = [task_result["raw_rating"]
-                             for task_result in rated_results]
-            d_accepteds = [task_result[task_screen_name + ".ac"]
-                           for task_result in rated_results]
-            difficulty, discrimination = fit_2plm_irt(
-                d_raw_ratings, d_accepteds)
-            print(
-                f"difficulty: {difficulty}, discrimination: {discrimination}")
-            if discrimination < 0:
-                print("discrimination is negative. ignoring unreliable estimation.")
-            else:
-                model["difficulty"] = difficulty
-                model["discrimination"] = discrimination
-        if model:
-            params[task_screen_name] = model
-    return params
+        user_results_by_problem[task_screen_name] += user_results
+    return user_results_by_problem
 
 
 def get_current_models():
@@ -209,10 +214,17 @@ def handler(event, context):
     current_models = get_current_models()
     existing_problems = current_models.keys() if not overwrite else set()
 
+    print(f"Fetching dataset from {len(target)} contests.")
+    dataset_by_problem = defaultdict(list)
+    for contest in target:
+        for problem, data_points in fetch_dataset_for_contest(contest, existing_problems).items():
+            dataset_by_problem[problem] += data_points
     print(f"Estimating time models of {len(target)} contests.")
     results = current_models
-    for contest in target:
-        results.update(estimate_for_contest(contest, existing_problems))
+    for problem, data_points in dataset_by_problem.items():
+        model = fit_problem_model(data_points, problem)
+        if model:
+            results[problem] = model
     print("Estimation completed. Saving results in S3")
     s3 = boto3.resource('s3')
     s3.Object(bucket, object_key).put(Body=json.dumps(
