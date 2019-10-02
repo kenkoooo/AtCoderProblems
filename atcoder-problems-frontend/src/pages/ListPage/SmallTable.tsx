@@ -9,9 +9,10 @@ interface Props {
   mergedProblems: Map<string, MergedProblem>;
   submissions: Map<string, List<Submission>>;
   userIds: List<string>;
+  setFilterFunc: (point: number) => any;
 }
 
-const SmallTable = ({ submissions, userIds, mergedProblems }: Props) => {
+const SmallTable = ({ submissions, userIds, mergedProblems, setFilterFunc }: Props) => {
   const userPointCount = userIds
     .filter(userId => userId.length > 0)
     .map(userId => ({
@@ -48,7 +49,11 @@ const SmallTable = ({ submissions, userIds, mergedProblems }: Props) => {
         <tr>
           <th>Point</th>
           {totalCount.map(({ point }) => (
-            <th key={point}>{point}</th>
+            <th key={point}>
+              <a href={window.location.hash} onClick={()=>setFilterFunc(point)}>
+                {point}
+              </a>
+            </th>
           ))}
         </tr>
         <tr>
