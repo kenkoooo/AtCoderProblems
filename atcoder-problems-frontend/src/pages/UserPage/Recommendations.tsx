@@ -39,6 +39,31 @@ const getRecommendProbability = (option: RecommendOption): number => {
   }
 };
 
+const getRecommendProbabilityRange = (option: RecommendOption): {lowerBound: number, upperBound: number} => {
+  switch (option) {
+    case "Easy":
+      return {
+        lowerBound: 0.5,
+        upperBound: Number.POSITIVE_INFINITY,
+      };
+    case "Moderate":
+      return {
+        lowerBound: 0.2,
+        upperBound: 0.8,
+      };
+    case "Difficult":
+      return {
+        lowerBound: Number.NEGATIVE_INFINITY,
+        upperBound: 0.5,
+      };
+    default:
+      return {
+        lowerBound: Number.NEGATIVE_INFINITY,
+        upperBound: Number.POSITIVE_INFINITY,
+      };
+  }
+};
+
 interface Props {
   readonly userSubmissions: List<Submission>;
   readonly problems: List<Problem>;
@@ -78,6 +103,7 @@ class Recommendations extends React.Component<Props, LocalState> {
       .map(s => s.problem_id)
       .toSet();
     const recommendingProbability = getRecommendProbability(recommendOption);
+    const recommendingRange = getRecommendProbabilityRange(recommendOption);
 
     const recommendedProblems = problems
       .filter(p => !acProblemIdSet.has(p.id))
@@ -125,6 +151,7 @@ class Recommendations extends React.Component<Props, LocalState> {
         );
         return da - db;
       })
+      .filter(p => recommendingRange.lowerBound <= p.predictedSolveProbability && p.predictedSolveProbability < recommendingRange.upperBound)
       .slice(0, RECOMMEND_NUM)
       .sort((a, b) => b.difficulty - a.difficulty)
       .toArray();
