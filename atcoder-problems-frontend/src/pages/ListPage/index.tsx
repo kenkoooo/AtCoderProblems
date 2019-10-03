@@ -7,7 +7,8 @@ import {
   DropdownToggle,
   Row,
   UncontrolledButtonDropdown,
-  UncontrolledDropdown
+  UncontrolledDropdown,
+  Button
 } from "reactstrap";
 
 import { clipDifficulty, isAccepted } from "../../utils";
@@ -17,6 +18,7 @@ import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import Submission from "../../interfaces/Submission";
 import SmallTable from "./SmallTable";
+import DifficultyTable from "./DifficultyTable";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -126,7 +128,6 @@ class ListPage extends React.Component<Props, ListPageState> {
           const difficulty = Math.round(
             problemModels.getIn([p.id, "difficulty"], INF_POINT)
           );
-          const difficultyClipped = clipDifficulty(difficulty);
 
           return {
             id: p.id,
@@ -136,7 +137,7 @@ class ListPage extends React.Component<Props, ListPageState> {
             lastAcceptedDate,
             solverCount: p.solver_count ? p.solver_count : 0,
             point,
-            difficulty: difficultyClipped,
+            difficulty: difficulty !== INF_POINT ? clipDifficulty(difficulty) : -1,
             firstUserId,
             executionTime,
             codeLength,
@@ -262,7 +263,7 @@ class ListPage extends React.Component<Props, ListPageState> {
         dataField: "difficulty",
         dataSort: true,
         dataFormat: (difficulty: number) => {
-          if (difficulty >= INF_POINT) {
+          if (difficulty === -1) {
             return <p>-</p>;
           } else {
             return <p>{difficulty}</p>;
@@ -389,6 +390,20 @@ class ListPage extends React.Component<Props, ListPageState> {
             mergedProblems={mergedProblems}
             submissions={submissions}
             userIds={rivals.insert(0, userId)}
+            setFilterFunc={(point: number)=>this.setState({ fromPoint: point, toPoint: point })}
+          />
+        </Row>
+
+        <Row className="my-2 border-bottom">
+          <h1>Difficulty Status</h1>
+        </Row>
+        <Row>
+          <DifficultyTable
+            mergedProblems={mergedProblems}
+            submissions={submissions}
+            userIds={rivals.insert(0, userId)}
+            problemModels={problemModels}
+            setFilterFunc={(from: number, to: number)=>this.setState({ fromDifficulty: from, toDifficulty: to })}
           />
         </Row>
 
@@ -527,7 +542,7 @@ class ListPage extends React.Component<Props, ListPageState> {
                 {difficulties.map(({ to }) => (
                   <DropdownItem
                     key={to}
-                    onClick={() => this.setState({ toDifficulty: to })}
+                    onClick={() => this.setState({ fromDifficulty: fromDifficulty !== -1 ? fromDifficulty : 0, toDifficulty: to })}
                   >
                     <DifficultyCircle
                       difficulty={to}
@@ -539,6 +554,17 @@ class ListPage extends React.Component<Props, ListPageState> {
               </DropdownMenu>
             </UncontrolledButtonDropdown>
           </ButtonGroup>
+
+          <Button outline color="danger" onClick={()=>this.setState({
+            fromPoint: 0,
+            toPoint: INF_POINT,
+            statusFilterState: "All",
+            ratedFilterState: "All",
+            fromDifficulty: -1,
+            toDifficulty: INF_POINT
+          })}>
+            Reset
+          </Button>
         </Row>
         <Row>
           <BootstrapTable
