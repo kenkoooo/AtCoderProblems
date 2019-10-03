@@ -171,7 +171,7 @@ class ListPage extends React.Component<Props, ListPageState> {
         dataFormat: (_, row) => (
           <ProblemLink
             showDifficulty={true}
-            difficulty={row.difficulty !== INF_POINT ? row.difficulty : null}
+            difficulty={row.difficulty !== INF_POINT && row.difficulty !== -1 ? row.difficulty : null}
             problemId={row.mergedProblem.id}
             problemTitle={row.title}
             contestId={row.mergedProblem.contest_id}
