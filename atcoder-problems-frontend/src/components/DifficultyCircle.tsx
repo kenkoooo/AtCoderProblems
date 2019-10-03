@@ -1,6 +1,5 @@
 import React from "react";
 import { Tooltip } from "reactstrap";
-import { clipDifficulty } from "../utils";
 
 interface Props {
   id: string;
@@ -48,18 +47,17 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
     if (difficulty === null) {
       return null;
     }
-    const difficultyClipped = clipDifficulty(difficulty);
     const { tooltipOpen } = this.state;
     const fillRatio: number =
-      difficultyClipped >= 3200 ? 1.0 : (difficultyClipped % 400) / 400;
-    const color: string = getColor(difficultyClipped);
+      difficulty >= 3200 ? 1.0 : (difficulty % 400) / 400;
+    const color: string = getColor(difficulty);
     const r: number = parseInt(color.slice(1, 3), 16);
     const g: number = parseInt(color.slice(3, 5), 16);
     const b: number = parseInt(color.slice(5, 7), 16);
     const styleOptions = Object({
       borderColor: color,
       background:
-        difficultyClipped < 3200
+        difficulty < 3200
           ? `linear-gradient(to top, rgba(${r}, ${g}, ${b}, ${1.0}) 0%, rgba(${r}, ${g}, ${b}, ${1.0}) ${fillRatio *
               100}%, rgba(${r}, ${g}, ${b}, ${0.0}) ${fillRatio *
               100}%, rgba(${r}, ${g}, ${b}, ${0.0}) 100%)`
@@ -67,7 +65,7 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
           ? `linear-gradient(to right, ${color}, #ffd10c, ${color})`
           : `linear-gradient(to right, ${color}, white, ${color})`
     });
-    const title: string = `Difficulty: ${Math.round(difficultyClipped)}`;
+    const title: string = `Difficulty: ${difficulty}`;
     const circleId = "DifficultyCircle-" + id;
     return (
       <>

@@ -3,7 +3,7 @@ import State, { ProblemId } from "../interfaces/State";
 import { connect } from "react-redux";
 import { List, Map, Range } from "immutable";
 import Submission from "../interfaces/Submission";
-import { clipDifficulty, isAccepted } from "../utils";
+import { isAccepted } from "../utils";
 import { RatingInfo, ratingInfoOf } from "../utils/RatingInfo";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
@@ -67,7 +67,7 @@ const ReviewPage: React.FC<Props> = props => {
       }
       const { title } = problem;
       const problemModel = problemModels.get(problem_id);
-      const difficulty = problemModel ? problemModel.difficulty : null;
+      const difficulty = problemModel && problemModel.difficulty !== undefined ? problemModel.difficulty : null;
       const predictedSolveTime =
         problemModel &&
         internalRating &&
@@ -82,7 +82,7 @@ const ReviewPage: React.FC<Props> = props => {
           : null;
 
       return {
-        difficulty: difficulty ? clipDifficulty(difficulty) : null,
+        difficulty,
         id,
         problem_id,
         contest_id,

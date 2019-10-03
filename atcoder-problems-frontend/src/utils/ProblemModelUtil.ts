@@ -12,7 +12,7 @@ export const predictSolveProbability = (
     (1 +
       Math.exp(
         -problemModel.discrimination *
-          (internalRating - problemModel.difficulty)
+          (internalRating - problemModel.rawDifficulty)
       ))
   );
 };

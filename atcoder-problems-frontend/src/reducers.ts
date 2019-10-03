@@ -30,7 +30,7 @@ import {
   RankingEntry,
   SumRankingEntry
 } from "./interfaces/RankingEntry";
-import { isAccepted } from "./utils";
+import { isAccepted, clipDifficulty } from "./utils";
 import ProblemModel from "./interfaces/ProblemModel";
 import ContestParticipation from "./interfaces/ContestParticipation";
 
@@ -130,11 +130,20 @@ const dataReducer = (
       const ratedContestIds = atcoderContestIds.concat(othersRated.keySeq());
       const others = contests.filter(c => !ratedContestIds.has(c.id));
 
+      const problemModels = action.problemModels.map((model : ProblemModel) : ProblemModel => {
+        if(model.difficulty === undefined) return model;
+        return {
+          ...model,
+          difficulty: clipDifficulty(model.difficulty),
+          rawDifficulty: model.difficulty
+        };
+      });
+
       return {
         problems,
         contests,
         contestToProblems,
-        problemModels: action.problemModels,
+        problemModels,
         abc,
         arc,
         agc,
