@@ -8,6 +8,7 @@ mod problem_info;
 mod problems_submissions;
 mod rated_point_sum;
 mod simple_client;
+mod streak;
 mod submission_client;
 
 const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
@@ -21,4 +22,5 @@ pub use problem_info::ProblemInfoUpdater;
 pub use problems_submissions::ProblemsSubmissionUpdater;
 pub use rated_point_sum::RatedPointSumClient;
 pub use simple_client::SimpleClient;
+pub use streak::StreakUpdater;
 pub use submission_client::{SubmissionClient, SubmissionRequest};
