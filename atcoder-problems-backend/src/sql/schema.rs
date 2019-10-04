@@ -121,6 +121,13 @@ table! {
     }
 }
 
+table! {
+    max_streaks (user_id) {
+        user_id -> Varchar,
+        streak -> Int8,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     accepted_count,
     contests,
@@ -128,6 +135,7 @@ allow_tables_to_appear_in_same_query!(
     fastest,
     first,
     language_count,
+    max_streaks,
     points,
     predicted_rating,
     problems,
