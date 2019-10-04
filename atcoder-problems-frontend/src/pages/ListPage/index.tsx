@@ -146,7 +146,10 @@ class ListPage extends React.Component<Props, ListPageState> {
           };
         }
       )
-      .sort((a, b) => b.contestDate.localeCompare(a.contestDate))
+      .sort((a, b) => {
+        const dateOrder = b.contestDate.localeCompare(a.contestDate);
+        return dateOrder === 0 ? a.title.localeCompare(b.title) : dateOrder;
+      })
       .toList();
 
     const columns: {
