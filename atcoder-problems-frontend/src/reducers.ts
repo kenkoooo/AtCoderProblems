@@ -15,6 +15,7 @@ import Action, {
   RECEIVE_INITIAL_DATA,
   RECEIVE_LANG_RANKING,
   RECEIVE_MERGED_PROBLEMS,
+  RECEIVE_STREAK_RANKING,
   RECEIVE_SUBMISSIONS,
   RECEIVE_SUM_RANKING,
   RECEIVE_USER_CONTEST_HISTORY,
@@ -28,6 +29,7 @@ import Contest from "./interfaces/Contest";
 import {
   LangRankingEntry,
   RankingEntry,
+  StreakRankingEntry,
   SumRankingEntry
 } from "./interfaces/RankingEntry";
 import { isAccepted, clipDifficulty } from "./utils";
@@ -48,6 +50,7 @@ const initialState: State = {
   acRanking: List(),
   sumRanking: List(),
   langRanking: List(),
+  streakRanking: List(),
   contestHistory: List(),
   problemModels: Map(),
   abc: Map(),
@@ -130,14 +133,16 @@ const dataReducer = (
       const ratedContestIds = atcoderContestIds.concat(othersRated.keySeq());
       const others = contests.filter(c => !ratedContestIds.has(c.id));
 
-      const problemModels = action.problemModels.map((model : ProblemModel) : ProblemModel => {
-        if(model.difficulty === undefined) return model;
-        return {
-          ...model,
-          difficulty: clipDifficulty(model.difficulty),
-          rawDifficulty: model.difficulty
-        };
-      });
+      const problemModels = action.problemModels.map(
+        (model: ProblemModel): ProblemModel => {
+          if (model.difficulty === undefined) return model;
+          return {
+            ...model,
+            difficulty: clipDifficulty(model.difficulty),
+            rawDifficulty: model.difficulty
+          };
+        }
+      );
 
       return {
         problems,
@@ -241,6 +246,17 @@ const langRankingReducer = (
   }
 };
 
+const streakRankingReducer = (
+  streakRanking: List<StreakRankingEntry>,
+  action: Action
+) => {
+  if (action.type === RECEIVE_STREAK_RANKING) {
+    return action.ranking;
+  } else {
+    return streakRanking;
+  }
+};
+
 const statusLabelMapReducer = (
   statusLabelMap: Map<ProblemId, ProblemStatus>,
   submissions: Map<ProblemId, List<Submission>>,
@@ -306,6 +322,7 @@ const rootReducer = (state: State = initialState, action: Action): State => {
   const sumRanking = sumRankingReducer(state.sumRanking, action);
   const acRanking = acRankingReducer(state.acRanking, action);
   const langRanking = langRankingReducer(state.langRanking, action);
+  const streakRanking = streakRankingReducer(state.streakRanking, action);
   const contestHistory = userContestHistoryReducer(
     state.contestHistory,
     action
@@ -332,6 +349,7 @@ const rootReducer = (state: State = initialState, action: Action): State => {
     sumRanking,
     acRanking,
     langRanking,
+    streakRanking,
     contestHistory,
     problemModels,
     abc,

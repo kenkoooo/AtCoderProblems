@@ -6,12 +6,13 @@ import { List, Map } from "immutable";
 import {
   isLangRankingEntry,
   isRankingEntry,
+  isStreakRankingEntry,
   isSumRankingEntry,
   RankingEntry
 } from "../interfaces/RankingEntry";
 import { isUserInfo } from "../interfaces/UserInfo";
-import {isContestParticipation} from "../interfaces/ContestParticipation";
-import {isProblemModel} from "../interfaces/ProblemModel";
+import { isContestParticipation } from "../interfaces/ContestParticipation";
+import { isProblemModel } from "../interfaces/ProblemModel";
 
 const BASE_URL = "https://kenkoooo.com/atcoder";
 const STATIC_API_BASE_URL = BASE_URL + "/resources";
@@ -22,6 +23,7 @@ const OFFICIAL_PROXY_BASE_URL = BASE_URL + "/proxy";
 const AC_COUNT_URL = STATIC_API_BASE_URL + "/ac.json";
 const SUM_URL = STATIC_API_BASE_URL + "/sums.json";
 const LANG_URL = STATIC_API_BASE_URL + "/lang.json";
+const STREAKS_URL = STATIC_API_BASE_URL + "/streaks.json";
 
 const generateRanking = (
   problems: List<MergedProblem>,
@@ -62,7 +64,7 @@ export function fetchTypedMap<V>(
 ) {
   return fetch(url)
     .then(r => r.json())
-    .then((obj: {[p: string]: any}) => Map(obj))
+    .then((obj: { [p: string]: any }) => Map(obj))
     .then(m => m.filter(typeGuardFn));
 }
 
@@ -94,10 +96,7 @@ export const fetchMergedProblems = () =>
   );
 
 export const fetchProblemModels = () =>
-  fetchTypedMap(
-    STATIC_API_BASE_URL + "/problem-models.json",
-    isProblemModel
-  );
+  fetchTypedMap(STATIC_API_BASE_URL + "/problem-models.json", isProblemModel);
 
 export const fetchUserInfo = (user: string) =>
   user.length > 0
@@ -123,8 +122,11 @@ export const fetchSubmissions = (user: string) =>
 
 export const fetchContestHistory = (user: string) =>
   user.length > 0
-  ? fetchTypedList(
-      `${OFFICIAL_PROXY_BASE_URL}/users/${user}/history/json`,
-      isContestParticipation
-    ).catch(() => List())
-  : Promise.resolve(List());
+    ? fetchTypedList(
+        `${OFFICIAL_PROXY_BASE_URL}/users/${user}/history/json`,
+        isContestParticipation
+      ).catch(() => List())
+    : Promise.resolve(List());
+
+export const fetchStreaks = () =>
+  fetchTypedList(STREAKS_URL, isStreakRankingEntry);

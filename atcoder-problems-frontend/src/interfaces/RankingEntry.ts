@@ -24,3 +24,11 @@ export const isLangRankingEntry = (obj: any): obj is LangRankingEntry =>
   typeof obj.user_id === "string" &&
   typeof obj.count === "number" &&
   typeof obj.language === "string";
+
+export interface StreakRankingEntry {
+  readonly user_id: string;
+  readonly streak: number;
+}
+
+export const isStreakRankingEntry = (obj: any): obj is StreakRankingEntry =>
+  typeof obj.user_id === "string" && typeof obj.streak === "number";

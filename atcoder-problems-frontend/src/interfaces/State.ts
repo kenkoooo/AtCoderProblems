@@ -7,6 +7,7 @@ import Contest from "./Contest";
 import {
   LangRankingEntry,
   RankingEntry,
+  StreakRankingEntry,
   SumRankingEntry
 } from "./RankingEntry";
 import ContestParticipation from "./ContestParticipation";
@@ -29,6 +30,7 @@ export default interface State {
   readonly acRanking: List<RankingEntry>;
   readonly sumRanking: List<SumRankingEntry>;
   readonly langRanking: List<LangRankingEntry>;
+  readonly streakRanking: List<StreakRankingEntry>;
   readonly contestHistory: List<ContestParticipation>;
   readonly problemModels: Map<ProblemId, ProblemModel>;
 
