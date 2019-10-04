@@ -49,7 +49,7 @@ const RECOMMEND_NUM_OPTIONS = [
   },
   {
     text: 'All',
-    value: -1,
+    value: Number.POSITIVE_INFINITY,
   }
 ];
 
@@ -217,7 +217,7 @@ class Recommendations extends React.Component<Props, LocalState> {
             direction="left"
           >
               <DropdownToggle caret>
-                {recommendNum === -1
+                {recommendNum === Number.POSITIVE_INFINITY
                   ? "All"
                   : recommendNum}
               </DropdownToggle>
