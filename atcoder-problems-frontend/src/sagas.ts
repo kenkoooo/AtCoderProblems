@@ -4,6 +4,7 @@ import Action, {
   receiveInitialData,
   receiveLangRanking,
   receiveMergedProblems,
+  receiveStreakRanking,
   receiveSubmissions,
   receiveSumRanking,
   receiveUserContestHistory,
@@ -11,6 +12,7 @@ import Action, {
   REQUEST_AC_RANKING,
   REQUEST_LANG_RANKING,
   REQUEST_MERGED_PROBLEMS,
+  REQUEST_STREAK_RANKING,
   REQUEST_SUM_RANKING,
   UPDATE_USER_IDS
 } from "./actions";
@@ -25,7 +27,8 @@ import {
   fetchProblemModels,
   fetchSubmissions,
   fetchSumRanking,
-  fetchUserInfo
+  fetchUserInfo,
+  fetchStreaks
 } from "./utils/Api";
 import Submission from "./interfaces/Submission";
 import { List } from "immutable";
@@ -69,6 +72,12 @@ function* fetchAcRankingOnce() {
   yield put(receiveAcRanking(ranking));
 }
 
+function* fetchStreakRankingOnce() {
+  yield take(REQUEST_STREAK_RANKING);
+  const ranking = yield call(fetchStreaks);
+  yield put(receiveStreakRanking(ranking));
+}
+
 function* fetchSumRankingOnce() {
   yield take(REQUEST_SUM_RANKING);
   const ranking = yield call(fetchSumRanking);
@@ -97,7 +106,6 @@ function* requestAndReceiveUserContestHistory(action: Action) {
   }
 }
 
-
 function* rootSaga() {
   yield all([
     call(initialFetchData),
@@ -107,7 +115,8 @@ function* rootSaga() {
     call(fetchMergedProblemsOnce),
     call(fetchAcRankingOnce),
     call(fetchSumRankingOnce),
-    call(fetchLangRankingOnce)
+    call(fetchLangRankingOnce),
+    call(fetchStreakRankingOnce)
   ]);
 }
 
