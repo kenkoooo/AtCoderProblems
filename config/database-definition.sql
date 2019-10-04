@@ -124,3 +124,10 @@ CREATE TABLE minimum_performances (
   minimum_performance  BIGINT NOT NULL,
   PRIMARY KEY (problem_id)
 );
+
+DROP TABLE IF EXISTS max_streaks;
+CREATE TABLE max_streaks (
+  user_id               VARCHAR(255) NOT NULL,
+  streak                BIGINT NOT NULL,
+  PRIMARY KEY (user_id)
+);
