@@ -40,13 +40,6 @@ pub struct Submission {
     pub execution_time: Option<i32>,
 }
 
-#[derive(Default, Debug, Queryable, Insertable, Clone, Serialize)]
-pub struct Performance {
-    pub contest_id: String,
-    pub user_id: String,
-    pub inner_performance: i64,
-}
-
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
 pub struct UserLanguageCount {
     pub user_id: String,
@@ -112,12 +105,6 @@ pub struct MergedProblem {
     predict: Option<f64>,
     #[sql_type = "Nullable<Int4>"]
     solver_count: Option<i32>,
-}
-
-#[derive(Debug, Queryable, Serialize)]
-pub struct MinimumPerformance {
-    problem_id: String,
-    minimum_performance: i64,
 }
 
 #[derive(PartialEq, Debug, Queryable, Serialize, Insertable)]

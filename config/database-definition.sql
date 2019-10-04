@@ -110,21 +110,6 @@ CREATE TABLE contest_problem (
   PRIMARY KEY (contest_id, problem_id)
 );
 
-DROP TABLE IF EXISTS performances;
-CREATE TABLE performances (
-  contest_id            VARCHAR(255) NOT NULL,
-  user_id               VARCHAR(255) NOT NULL,
-  inner_performance     BIGINT NOT NULL,
-  PRIMARY KEY (contest_id, user_id)
-);
-
-DROP TABLE IF EXISTS minimum_performances;
-CREATE TABLE minimum_performances (
-  problem_id            VARCHAR(255) NOT NULL,
-  minimum_performance  BIGINT NOT NULL,
-  PRIMARY KEY (problem_id)
-);
-
 DROP TABLE IF EXISTS max_streaks;
 CREATE TABLE max_streaks (
   user_id               VARCHAR(255) NOT NULL,
