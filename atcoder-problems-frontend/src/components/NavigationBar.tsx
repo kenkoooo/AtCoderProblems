@@ -193,6 +193,9 @@ class NavigationBar extends React.Component<Props, LocalState> {
                 <DropdownItem tag={RouterLink} to="/sum">
                   Rated Point Ranking
                 </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/streak">
+                  Streak Ranking
+                </DropdownItem>
                 <DropdownItem tag={RouterLink} to="/lang">
                   Language Owners
                 </DropdownItem>
