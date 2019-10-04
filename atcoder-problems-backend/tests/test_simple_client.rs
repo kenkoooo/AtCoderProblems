@@ -1,4 +1,4 @@
-use atcoder_problems_backend::sql::models::{Contest, Performance, Problem};
+use atcoder_problems_backend::sql::models::{Contest, Problem};
 use atcoder_problems_backend::sql::SimpleClient;
 
 mod utils;
@@ -47,29 +47,6 @@ fn test_insert_problems() {
         id: "problem1".to_string(),
         contest_id: "".to_string(),
         title: "".to_string(),
-    }])
-    .unwrap();
-}
-
-#[test]
-fn test_insert_performances() {
-    let conn = utils::connect_to_test_sql();
-    assert!(conn.load_performances().unwrap().is_empty());
-    conn.insert_performances(&vec![Performance {
-        user_id: "user".to_string(),
-        contest_id: "contest".to_string(),
-        inner_performance: 0,
-    }])
-    .unwrap();
-
-    let performances = conn.load_performances().unwrap();
-    assert_eq!(performances[0].user_id.as_str(), "user");
-    assert_eq!(performances[0].contest_id.as_str(), "contest");
-
-    conn.insert_performances(&vec![Performance {
-        user_id: "user".to_string(),
-        contest_id: "contest".to_string(),
-        inner_performance: 0,
     }])
     .unwrap();
 }

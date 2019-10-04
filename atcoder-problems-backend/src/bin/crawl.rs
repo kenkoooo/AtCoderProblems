@@ -1,7 +1,7 @@
 extern crate openssl;
 
 use algorithm_problem_client::AtCoderClient;
-use atcoder_problems_backend::{crawler, scraper};
+use atcoder_problems_backend::crawler;
 use diesel::pg::PgConnection;
 use diesel::Connection;
 use log::info;
@@ -13,7 +13,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     info!("Started");
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
     let args: Vec<_> = env::args().collect();
-    let scraper = scraper::Scraper;
     let client = AtCoderClient::default();
     match args[1].as_str() {
         "naive" => loop {
@@ -30,7 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
         "contest" => {
             let conn = PgConnection::establish(&url).expect("Failed to connect PostgreSQL.");
-            crawler::crawl_contest_and_problems(&conn, &scraper, &client)?;
+            crawler::crawl_contest_and_problems(&conn, &client)?;
         }
         _ => {
             unimplemented!("Unsupported: {}", args[0]);

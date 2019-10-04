@@ -107,21 +107,6 @@ table! {
 }
 
 table! {
-    performances (contest_id, user_id) {
-        contest_id -> Varchar,
-        user_id -> Varchar,
-        inner_performance -> Int8,
-    }
-}
-
-table! {
-    minimum_performances (problem_id) {
-        problem_id -> Varchar,
-        minimum_performance -> Int8,
-    }
-}
-
-table! {
     max_streaks (user_id) {
         user_id -> Varchar,
         streak -> Int8,
@@ -139,7 +124,6 @@ allow_tables_to_appear_in_same_query!(
     points,
     predicted_rating,
     problems,
-    performances,
     rated_point_sum,
     shortest,
     solver,
