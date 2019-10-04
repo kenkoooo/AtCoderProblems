@@ -18,15 +18,6 @@ interface Props {
 }
 
 export const ListTable = (props: Props) => {
-  const {
-    fromPoint,
-    toPoint,
-    statusFilterState,
-    ratedFilterState,
-    fromDifficulty,
-    toDifficulty,
-    rowData
-  } = props;
   const columns: {
     header: string;
     dataField: string;
@@ -264,22 +255,23 @@ export const ListTable = (props: Props) => {
           }
         }
       }}
-      data={rowData
-        .filter(({ point }) => fromPoint <= point && point <= toPoint)
+      data={props.rowData
+        .filter(
+          row => props.fromPoint <= row.point && row.point <= props.toPoint
+        )
         .filter(row => {
-          const { status } = row;
-          switch (statusFilterState) {
+          switch (props.statusFilterState) {
             case "All":
               return true;
             case "Only AC":
-              return status.label === StatusLabel.Success;
+              return row.status.label === StatusLabel.Success;
             case "Only Trying":
-              return status.label !== StatusLabel.Success;
+              return row.status.label !== StatusLabel.Success;
           }
         })
         .filter(row => {
           const isRated = !!row.mergedProblem.point;
-          switch (ratedFilterState) {
+          switch (props.ratedFilterState) {
             case "All":
               return true;
             case "Only Rated":
@@ -289,8 +281,9 @@ export const ListTable = (props: Props) => {
           }
         })
         .filter(
-          ({ difficulty }) =>
-            fromDifficulty <= difficulty && difficulty <= toDifficulty
+          row =>
+            props.fromDifficulty <= row.difficulty &&
+            row.difficulty <= props.toDifficulty
         )
         .toArray()}
       options={{
@@ -315,7 +308,7 @@ export const ListTable = (props: Props) => {
           },
           {
             text: "All",
-            value: rowData.size
+            value: props.rowData.size
           }
         ]
       }}
