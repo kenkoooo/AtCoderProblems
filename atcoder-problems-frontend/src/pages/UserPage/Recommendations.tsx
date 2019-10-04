@@ -18,11 +18,40 @@ import {
   predictSolveProbability,
   predictSolveTime
 } from "../../utils/ProblemModelUtil";
-import { Button, ButtonGroup, Row } from "reactstrap";
+import { 
+  Button, 
+  ButtonGroup, 
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Row,
+  UncontrolledDropdown,
+} from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import ProblemLink from "../../components/ProblemLink";
 
-const RECOMMEND_NUM = 10;
+const RECOMMEND_NUM_OPTIONS = [
+  {
+    text: '10',
+    value: 10,
+  },
+  {
+    text: '20',
+    value: 20,
+  },
+  {
+    text: '50',
+    value: 50,
+  },
+  {
+    text: '100',
+    value: 100,
+  },
+  {
+    text: 'All',
+    value: Number.POSITIVE_INFINITY,
+  }
+];
 
 type RecommendOption = "Easy" | "Moderate" | "Difficult";
 
@@ -73,6 +102,7 @@ interface Props {
 }
 
 interface LocalState {
+  recommendNum: number;
   recommendOption: RecommendOption;
 }
 
@@ -80,7 +110,8 @@ class Recommendations extends React.Component<Props, LocalState> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      recommendOption: "Moderate"
+      recommendNum: 10,
+      recommendOption: "Moderate",
     };
   }
 
@@ -92,7 +123,10 @@ class Recommendations extends React.Component<Props, LocalState> {
       problemModels,
       userRatingInfo
     } = this.props;
-    const { recommendOption } = this.state;
+    const { 
+      recommendNum,
+      recommendOption,
+    } = this.state;
 
     if (userSubmissions.isEmpty()) {
       return null;
@@ -154,13 +188,13 @@ class Recommendations extends React.Component<Props, LocalState> {
         return da - db;
       })
       .filter(p => recommendingRange.lowerBound <= p.predictedSolveProbability && p.predictedSolveProbability < recommendingRange.upperBound)
-      .slice(0, RECOMMEND_NUM)
+      .slice(0, recommendNum)
       .sort((a, b) => b.difficulty - a.difficulty)
       .toArray();
 
     return (
       <>
-        <Row className="my-3">
+        <Row className="my-3 d-flex justify-content-between">
           <ButtonGroup>
             <Button
               onClick={() => this.setState({ recommendOption: "Easy" })}
@@ -181,6 +215,25 @@ class Recommendations extends React.Component<Props, LocalState> {
               Difficult
             </Button>
           </ButtonGroup>
+          <UncontrolledDropdown
+            direction="left"
+          >
+              <DropdownToggle caret>
+                {recommendNum === Number.POSITIVE_INFINITY
+                  ? "All"
+                  : recommendNum}
+              </DropdownToggle>
+              <DropdownMenu>
+                {RECOMMEND_NUM_OPTIONS.map(({text, value}) => (
+                  <DropdownItem
+                    key={value}
+                    onClick={() => this.setState({ recommendNum: value })}
+                  >
+                    {text}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </UncontrolledDropdown>
         </Row>
         <Row className="my-3">
           <BootstrapTable
