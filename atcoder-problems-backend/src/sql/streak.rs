@@ -12,7 +12,6 @@ use std::collections::BTreeMap;
 
 pub trait StreakUpdater {
     fn update_streak_count(&self, submissions: &[Submission]) -> QueryResult<()>;
-    fn load_streak(&self, user_id: &str) -> QueryResult<i64>;
 }
 
 impl StreakUpdater for PgConnection {
@@ -62,12 +61,6 @@ impl StreakUpdater for PgConnection {
                 .execute(self)?;
         }
         Ok(())
-    }
-    fn load_streak(&self, user_id: &str) -> QueryResult<i64> {
-        max_streaks::table
-            .filter(max_streaks::user_id.eq(user_id))
-            .select(max_streaks::streak)
-            .first::<i64>(self)
     }
 }
 

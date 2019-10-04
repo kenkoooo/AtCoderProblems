@@ -1,7 +1,8 @@
+extern crate openssl;
+
 use atcoder_problems_backend::error::MapHandlerError;
-use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::{
-    AcceptedCountClient, LanguageCountClient, RatedPointSumClient, SubmissionClient,
+    AcceptedCountClient, LanguageCountClient, RatedPointSumClient, StreakUpdater, SubmissionClient,
     SubmissionRequest,
 };
 use diesel::{Connection, PgConnection};
@@ -12,8 +13,6 @@ use simple_logger;
 use std::collections::BTreeSet;
 use std::env;
 use std::error::Error;
-
-const WINDOW_SECOND: i64 = 60 * 15;
 
 fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Info)?;
@@ -32,16 +31,6 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
 
     let request = SubmissionRequest::RecentAccepted { count: 1000 };
     let recent_submissions = conn.get_submissions(request).map_handler_error()?;
-    info!("There are latest {} submissions.", recent_submissions.len());
-    let latest_second = recent_submissions
-        .iter()
-        .map(|s| s.epoch_second)
-        .max()
-        .unwrap();
-    let recent_submissions: Vec<Submission> = recent_submissions
-        .into_iter()
-        .filter(|s| s.epoch_second > latest_second - WINDOW_SECOND)
-        .collect::<Vec<_>>();
     info!("There are {} submissions.", recent_submissions.len());
 
     let user_ids = recent_submissions
@@ -49,24 +38,33 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
         .map(|s| s.user_id)
         .collect::<BTreeSet<_>>();
     let user_ids = user_ids.iter().map(|s| s.as_str()).collect::<Vec<_>>();
+    info!("There are {} users to update", user_ids.len());
+
     let request = SubmissionRequest::UsersAccepted {
         user_ids: &user_ids,
     };
-    let user_submissions = conn.get_submissions(request).map_handler_error()?;
-
-    info!("There are {} submissions.", user_submissions.len());
+    let user_accepted_submissions = conn.get_submissions(request).map_handler_error()?;
+    info!(
+        "There are {} submissions to use.",
+        user_accepted_submissions.len()
+    );
 
     info!("Executing update_rated_point_sum...");
-    conn.update_rated_point_sum(&user_submissions)
+    conn.update_rated_point_sum(&user_accepted_submissions)
         .map_handler_error()?;
 
     info!("Executing update_accepted_count...");
-    conn.update_accepted_count(&user_submissions)
+    conn.update_accepted_count(&user_accepted_submissions)
         .map_handler_error()?;
 
     info!("Executing update_language_count...");
-    conn.update_language_count(&user_submissions)
+    conn.update_language_count(&user_accepted_submissions)
         .map_handler_error()?;
+
+    info!("Executing update_streak_count...");
+    conn.update_streak_count(&user_accepted_submissions)
+        .map_handler_error()?;
+
     info!("Finished");
 
     Ok("Finished".to_owned())

@@ -1,5 +1,8 @@
+use atcoder_problems_backend::sql::models::UserStreak;
+use atcoder_problems_backend::sql::schema::max_streaks;
 use atcoder_problems_backend::sql::{StreakUpdater, SubmissionClient, SubmissionRequest};
 use diesel::connection::SimpleConnection;
+use diesel::prelude::*;
 
 pub mod utils;
 
@@ -20,6 +23,8 @@ fn test_update_streak_ranking() {
         .get_submissions(SubmissionRequest::AllAccepted)
         .unwrap();
     conn.update_streak_count(&submissions).unwrap();
-    let streak = conn.load_streak("user1").unwrap();
-    assert_eq!(streak, 2);
+
+    let v = max_streaks::table.load::<UserStreak>(&conn).unwrap();
+    assert_eq!(v.len(), 1);
+    assert_eq!(v[0].streak, 2);
 }
