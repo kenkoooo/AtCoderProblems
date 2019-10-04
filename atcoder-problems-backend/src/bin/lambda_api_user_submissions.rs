@@ -1,3 +1,5 @@
+extern crate openssl;
+
 use atcoder_problems_backend::lambda::UserSubmissionsHandler;
 
 use lambda_runtime;
