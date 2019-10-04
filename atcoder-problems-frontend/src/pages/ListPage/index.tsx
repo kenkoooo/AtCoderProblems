@@ -11,7 +11,7 @@ import {
   Button
 } from "reactstrap";
 
-import { clipDifficulty, isAccepted } from "../../utils";
+import { isAccepted } from "../../utils";
 import { formatMoment, parseSecond } from "../../utils/DateUtil";
 import * as Url from "../../utils/Url";
 import MergedProblem from "../../interfaces/MergedProblem";
@@ -125,9 +125,7 @@ class ListPage extends React.Component<Props, ListPageState> {
             : INF_POINT;
           const shortestUserId = p.shortest_user_id ? p.shortest_user_id : "";
           const fastestUserId = p.fastest_user_id ? p.fastest_user_id : "";
-          const difficulty = Math.round(
-            problemModels.getIn([p.id, "difficulty"], INF_POINT)
-          );
+          const difficulty = problemModels.getIn([p.id, "difficulty"], -1);
 
           return {
             id: p.id,
@@ -137,7 +135,7 @@ class ListPage extends React.Component<Props, ListPageState> {
             lastAcceptedDate,
             solverCount: p.solver_count ? p.solver_count : 0,
             point,
-            difficulty: difficulty !== INF_POINT ? clipDifficulty(difficulty) : -1,
+            difficulty,
             firstUserId,
             executionTime,
             codeLength,
@@ -171,7 +169,7 @@ class ListPage extends React.Component<Props, ListPageState> {
         dataFormat: (_, row) => (
           <ProblemLink
             showDifficulty={true}
-            difficulty={row.difficulty !== INF_POINT ? row.difficulty : null}
+            difficulty={row.difficulty !== -1 ? row.difficulty : null}
             problemId={row.mergedProblem.id}
             problemTitle={row.title}
             contestId={row.mergedProblem.contest_id}

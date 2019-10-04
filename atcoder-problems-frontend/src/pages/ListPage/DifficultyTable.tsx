@@ -1,5 +1,5 @@
 import React from "react";
-import { isAccepted, clipDifficulty } from "../../utils";
+import { isAccepted } from "../../utils";
 import Table from "reactstrap/lib/Table";
 import Submission from "../../interfaces/Submission";
 import { List, Map, Range } from "immutable";
@@ -42,14 +42,14 @@ const DifficultyTable = ({ submissions, userIds, mergedProblems, problemModels, 
         .valueSeq()
         .filter((d: number | undefined): d is number => d !== undefined)
         .reduce(
-          (map, difficulty) => map.update(Math.floor(Math.min(4000, clipDifficulty(Math.round(difficulty))) / 400), 0, count => count + 1),
+          (map, difficulty) => map.update(Math.floor(Math.min(4000, difficulty) / 400), 0, count => count + 1),
           Map<number, number>()
         )
     }));
   const totalCount = mergedProblems
     .map(p => problemModels.getIn([p.id, "difficulty"], undefined))
     .filter((d): d is number => d !== undefined)
-    .map(d => Math.floor(Math.min(4000, clipDifficulty(Math.round(d))) / 400))
+    .map(d => Math.floor(Math.min(4000, d) / 400))
     .reduce(
       (map, d) => map.update(d, 0, count => count + 1),
       Map<number, number>()
