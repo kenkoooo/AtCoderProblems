@@ -1,4 +1,4 @@
-use super::schema::{contest_problem, contests, performances, problems, submissions};
+use super::schema::*;
 use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 use diesel::sql_types::*;
 use diesel::Queryable;
@@ -125,4 +125,11 @@ pub struct MinimumPerformance {
 pub struct ContestProblem {
     pub contest_id: String,
     pub problem_id: String,
+}
+
+#[derive(PartialEq, Debug, Queryable, Serialize, Insertable)]
+#[table_name = "max_streaks"]
+pub struct UserStreak {
+    pub user_id: String,
+    pub streak: i64,
 }

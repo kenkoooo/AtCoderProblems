@@ -103,13 +103,6 @@ fn handler(_: String, _: Context) -> Result<(), HandlerError> {
             "resources/lang.json",
         ),
         (
-            minimum_performances::table
-                .order_by(minimum_performances::problem_id)
-                .load::<MinimumPerformance>(&conn)
-                .serialize_to_bytes()?,
-            "resources/problem-performances.json",
-        ),
-        (
             contest_problem::table
                 .order_by(contest_problem::problem_id)
                 .load::<ContestProblem>(&conn)
@@ -117,11 +110,11 @@ fn handler(_: String, _: Context) -> Result<(), HandlerError> {
             "resources/contest-problem.json",
         ),
         (
-            contest_problem::table
-                .order_by(contest_problem::problem_id)
-                .load::<ContestProblem>(&conn)
+            max_streaks::table
+                .order_by(max_streaks::user_id)
+                .load::<UserStreak>(&conn)
                 .serialize_to_bytes()?,
-            "resources/contest-problem.json",
+            "resources/streaks.json",
         ),
     ];
 
@@ -129,8 +122,10 @@ fn handler(_: String, _: Context) -> Result<(), HandlerError> {
     for (data, path) in data_paths.into_iter() {
         info!("Uploading {}", path);
         client.update(data, path, s3::ContentType::Json)?;
+        info!("Uploaded");
     }
 
+    info!("Done.");
     Ok(())
 }
 
