@@ -1,7 +1,5 @@
-use crate::scraper::ScraperTrait;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
 use crate::sql::{ContestProblemClient, SimpleClient, SubmissionClient};
-use crate::utils;
 use algorithm_problem_client::{AtCoderClient, AtCoderProblem};
 use chrono::{Duration, Utc};
 use diesel::QueryResult;
@@ -115,14 +113,9 @@ where
     Ok(())
 }
 
-pub fn crawl_contest_and_problems<C, S>(
-    conn: &C,
-    scraper: &S,
-    client: &AtCoderClient,
-) -> QueryResult<()>
+pub fn crawl_contest_and_problems<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
 where
     C: SimpleClient + ContestProblemClient,
-    S: ScraperTrait,
 {
     info!("Starting...");
     let contests: Vec<_> = (1..)
@@ -181,20 +174,6 @@ where
         thread::sleep(time::Duration::from_millis(500));
     }
 
-    let performances = conn.load_performances()?;
-    let contests = utils::extract_non_performance_contests(&contests, &performances);
-    for contest in contests.into_iter() {
-        info!("Crawling results of {}", contest.id);
-        let performances = scraper
-            .scrape_performances(&contest.id)
-            .unwrap_or_else(Vec::new);
-
-        info!("Inserting results of {}", contest.id);
-        conn.insert_performances(&performances)?;
-
-        info!("Sleeping...");
-        thread::sleep(time::Duration::from_millis(500));
-    }
     Ok(())
 }
 

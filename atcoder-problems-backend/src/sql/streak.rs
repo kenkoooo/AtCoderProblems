@@ -31,7 +31,7 @@ impl StreakUpdater for PgConnection {
             BTreeMap::new(),
             |mut map, (epoch_second, user_id, problem_id)| {
                 map.entry(user_id)
-                    .or_insert(BTreeMap::new())
+                    .or_insert_with(BTreeMap::new)
                     .entry(problem_id)
                     .or_insert(epoch_second);
                 map
