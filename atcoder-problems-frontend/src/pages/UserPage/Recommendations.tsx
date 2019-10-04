@@ -1,6 +1,6 @@
 import React from "react";
 
-import { clipDifficulty, isAccepted } from "../../utils";
+import { isAccepted } from "../../utils";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
@@ -110,8 +110,9 @@ class Recommendations extends React.Component<Props, LocalState> {
       .filter(p => problemModels.has(p.id))
       .map(p => ({
         ...p,
-        difficulty: Math.round(problemModels.getIn([p.id, "difficulty"], 0))
+        difficulty: problemModels.getIn([p.id, "difficulty"], undefined)
       }))
+      .filter(p => p.difficulty !== undefined)
       .map(p => {
         const internalRating = userRatingInfo.internalRating;
         let predictedSolveTime: number | null;
@@ -123,6 +124,7 @@ class Recommendations extends React.Component<Props, LocalState> {
           const problemModel: ProblemModel = problemModels.get(p.id, {
             slope: undefined,
             difficulty: undefined,
+            rawDifficulty: undefined,
             intercept: undefined,
             discrimination: undefined
           });
@@ -225,8 +227,7 @@ class Recommendations extends React.Component<Props, LocalState> {
               dataField="difficulty"
               dataFormat={(difficulty: number | null) => {
                 if (difficulty === null) return "-";
-                const difficultyClipped = clipDifficulty(difficulty);
-                return String(difficultyClipped);
+                return String(difficulty);
               }}
             >
               <span>Difficulty</span>
