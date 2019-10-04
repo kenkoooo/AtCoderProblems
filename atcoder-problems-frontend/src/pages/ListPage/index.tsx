@@ -1,7 +1,5 @@
-import React, { ReactElement } from "react";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import React from "react";
 import {
-  Badge,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
@@ -13,7 +11,6 @@ import {
 
 import { isAccepted } from "../../utils";
 import { formatMoment, parseSecond } from "../../utils/DateUtil";
-import * as Url from "../../utils/Url";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import Submission from "../../interfaces/Submission";
@@ -25,18 +22,17 @@ import { connect } from "react-redux";
 import State, {
   noneStatus,
   ProblemId,
-  ProblemStatus,
-  StatusLabel
+  ProblemStatus
 } from "../../interfaces/State";
 import { List, Map, Range, Set } from "immutable";
 import { requestMergedProblems } from "../../actions";
 import ProblemModel from "../../interfaces/ProblemModel";
-import ProblemLink from "../../components/ProblemLink";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
+import { ListTable } from "./ListTable";
 
-const INF_POINT = 1e18;
+export const INF_POINT = 1e18;
 
-interface ProblemRowData {
+export interface ProblemRowData {
   readonly id: string;
   readonly title: string;
   readonly contestDate: string;
@@ -151,223 +147,6 @@ class ListPage extends React.Component<Props, ListPageState> {
         return dateOrder === 0 ? a.title.localeCompare(b.title) : dateOrder;
       })
       .toList();
-
-    const columns: {
-      header: string;
-      dataField: string;
-      dataSort?: boolean;
-      dataAlign?: "center";
-      dataFormat?: (cell: any, row: ProblemRowData) => ReactElement | string;
-      hidden?: boolean;
-    }[] = [
-      {
-        header: "Date",
-        dataField: "contestDate",
-        dataSort: true
-      },
-      {
-        header: "Problem",
-        dataField: "title",
-        dataSort: true,
-        dataFormat: (_, row) => (
-          <ProblemLink
-            showDifficulty={true}
-            difficulty={row.difficulty !== -1 ? row.difficulty : null}
-            problemId={row.mergedProblem.id}
-            problemTitle={row.title}
-            contestId={row.mergedProblem.contest_id}
-          />
-        )
-      },
-      {
-        header: "Contest",
-        dataField: "contestTitle",
-        dataSort: true,
-        dataFormat: (contestTitle, row) => (
-          <a
-            href={Url.formatContestUrl(row.mergedProblem.contest_id)}
-            target="_blank"
-          >
-            {contestTitle}
-          </a>
-        )
-      },
-      {
-        header: "Result",
-        dataField: "a",
-        dataAlign: "center",
-        dataFormat: (_: string, row) => {
-          const { status } = row;
-          switch (status.label) {
-            case StatusLabel.Success: {
-              return <Badge color="success">AC</Badge>;
-            }
-            case StatusLabel.Failed: {
-              return (
-                <div>
-                  {status.solvedRivals.map(rivalId => (
-                    <Badge key={rivalId} color="danger">
-                      {rivalId}
-                    </Badge>
-                  ))}
-                </div>
-              );
-            }
-            case StatusLabel.Warning: {
-              return <Badge color="warning">{status.result}</Badge>;
-            }
-            case StatusLabel.None: {
-              return "";
-            }
-          }
-        }
-      },
-      {
-        header: "Last AC Date",
-        dataField: "lastAcceptedDate",
-        dataSort: true
-      },
-      {
-        header: "Solvers",
-        dataField: "solverCount",
-        dataSort: true,
-        dataFormat: (solverCount: number, row) => (
-          <a
-            href={Url.formatSolversUrl(
-              row.mergedProblem.contest_id,
-              row.mergedProblem.id
-            )}
-            target="_blank"
-          >
-            {solverCount}
-          </a>
-        )
-      },
-      {
-        header: "Point",
-        dataField: "point",
-        dataSort: true,
-        dataFormat: (point: number) => {
-          if (point >= INF_POINT) {
-            return <p>-</p>;
-          } else {
-            if (point % 100 == 0) {
-              return <p>{point}</p>;
-            } else {
-              return <p>{point.toFixed(2)}</p>;
-            }
-          }
-        }
-      },
-      {
-        header: "Difficulty",
-        dataField: "difficulty",
-        dataSort: true,
-        dataFormat: (difficulty: number) => {
-          if (difficulty === -1) {
-            return <p>-</p>;
-          } else {
-            return <p>{difficulty}</p>;
-          }
-        }
-      },
-      {
-        header: "Fastest",
-        dataField: "executionTime",
-        dataSort: true,
-        dataFormat: (executionTime: number, row) => {
-          const {
-            fastest_submission_id,
-            fastest_contest_id,
-            fastest_user_id
-          } = row.mergedProblem;
-          if (fastest_submission_id && fastest_contest_id && fastest_user_id) {
-            return (
-              <a
-                href={Url.formatSubmissionUrl(
-                  fastest_submission_id,
-                  fastest_contest_id
-                )}
-                target="_blank"
-              >
-                {fastest_user_id} ({executionTime} ms)
-              </a>
-            );
-          } else {
-            return <p />;
-          }
-        }
-      },
-      {
-        header: "Shortest",
-        dataField: "codeLength",
-        dataSort: true,
-        dataFormat: (codeLength: number, row) => {
-          const {
-            shortest_submission_id,
-            shortest_contest_id,
-            shortest_user_id
-          } = row.mergedProblem;
-          if (
-            shortest_contest_id &&
-            shortest_submission_id &&
-            shortest_user_id
-          ) {
-            return (
-              <a
-                href={Url.formatSubmissionUrl(
-                  shortest_submission_id,
-                  shortest_contest_id
-                )}
-                target="_blank"
-              >
-                {shortest_user_id} ({codeLength} Bytes)
-              </a>
-            );
-          } else {
-            return <p />;
-          }
-        }
-      },
-      {
-        header: "First",
-        dataField: "firstUserId",
-        dataSort: true,
-        dataFormat: (_: string, row) => {
-          const {
-            first_submission_id,
-            first_contest_id,
-            first_user_id
-          } = row.mergedProblem;
-          if (first_submission_id && first_contest_id && first_user_id) {
-            return (
-              <a
-                href={Url.formatSubmissionUrl(
-                  first_submission_id,
-                  first_contest_id
-                )}
-                target="_blank"
-              >
-                {first_user_id}
-              </a>
-            );
-          } else {
-            return <p />;
-          }
-        }
-      },
-      {
-        header: "Shortest User for Search",
-        dataField: "shortestUserId",
-        hidden: true
-      },
-      {
-        header: "Fastest User for Search",
-        dataField: "fastestUserId",
-        hidden: true
-      }
-    ];
-
     const points = mergedProblems
       .valueSeq()
       .map(p => p.point)
@@ -391,7 +170,9 @@ class ListPage extends React.Component<Props, ListPageState> {
             mergedProblems={mergedProblems}
             submissions={submissions}
             userIds={rivals.insert(0, userId)}
-            setFilterFunc={(point: number)=>this.setState({ fromPoint: point, toPoint: point })}
+            setFilterFunc={(point: number) =>
+              this.setState({ fromPoint: point, toPoint: point })
+            }
           />
         </Row>
 
@@ -404,7 +185,9 @@ class ListPage extends React.Component<Props, ListPageState> {
             submissions={submissions}
             userIds={rivals.insert(0, userId)}
             problemModels={problemModels}
-            setFilterFunc={(from: number, to: number)=>this.setState({ fromDifficulty: from, toDifficulty: to })}
+            setFilterFunc={(from: number, to: number) =>
+              this.setState({ fromDifficulty: from, toDifficulty: to })
+            }
           />
         </Row>
 
@@ -543,7 +326,13 @@ class ListPage extends React.Component<Props, ListPageState> {
                 {difficulties.map(({ to }) => (
                   <DropdownItem
                     key={to}
-                    onClick={() => this.setState({ fromDifficulty: fromDifficulty !== -1 ? fromDifficulty : 0, toDifficulty: to })}
+                    onClick={() =>
+                      this.setState({
+                        fromDifficulty:
+                          fromDifficulty !== -1 ? fromDifficulty : 0,
+                        toDifficulty: to
+                      })
+                    }
                   >
                     <DifficultyCircle
                       difficulty={to}
@@ -556,104 +345,33 @@ class ListPage extends React.Component<Props, ListPageState> {
             </UncontrolledButtonDropdown>
           </ButtonGroup>
 
-          <Button outline color="danger" onClick={()=>this.setState({
-            fromPoint: 0,
-            toPoint: INF_POINT,
-            statusFilterState: "All",
-            ratedFilterState: "All",
-            fromDifficulty: -1,
-            toDifficulty: INF_POINT
-          })}>
+          <Button
+            outline
+            color="danger"
+            onClick={() =>
+              this.setState({
+                fromPoint: 0,
+                toPoint: INF_POINT,
+                statusFilterState: "All",
+                ratedFilterState: "All",
+                fromDifficulty: -1,
+                toDifficulty: INF_POINT
+              })
+            }
+          >
             Reset
           </Button>
         </Row>
         <Row>
-          <BootstrapTable
-            pagination
-            keyField="id"
-            height="auto"
-            hover
-            striped
-            search
-            trClassName={(row: ProblemRowData) => {
-              const { status } = row;
-              switch (status.label) {
-                case StatusLabel.Success: {
-                  return "table-success";
-                }
-                case StatusLabel.Failed: {
-                  return "table-danger";
-                }
-                case StatusLabel.Warning: {
-                  return "table-warning";
-                }
-                case StatusLabel.None: {
-                  return "";
-                }
-              }
-            }}
-            data={rowData
-              .filter(({ point }) => fromPoint <= point && point <= toPoint)
-              .filter(row => {
-                const { status } = row;
-                switch (statusFilterState) {
-                  case "All":
-                    return true;
-                  case "Only AC":
-                    return status.label === StatusLabel.Success;
-                  case "Only Trying":
-                    return status.label !== StatusLabel.Success;
-                }
-              })
-              .filter(row => {
-                const isRated = !!row.mergedProblem.point;
-                switch (ratedFilterState) {
-                  case "All":
-                    return true;
-                  case "Only Rated":
-                    return isRated;
-                  case "Only Unrated":
-                    return !isRated;
-                }
-              })
-              .filter(
-                ({ difficulty }) =>
-                  fromDifficulty <= difficulty && difficulty <= toDifficulty
-              )
-              .toArray()}
-            options={{
-              paginationPosition: "top",
-              sizePerPage: 20,
-              sizePerPageList: [
-                {
-                  text: "20",
-                  value: 20
-                },
-                {
-                  text: "50",
-                  value: 50
-                },
-                {
-                  text: "100",
-                  value: 100
-                },
-                {
-                  text: "200",
-                  value: 200
-                },
-                {
-                  text: "All",
-                  value: rowData.size
-                }
-              ]
-            }}
-          >
-            {columns.map(c => (
-              <TableHeaderColumn key={c.header} {...c}>
-                {c.header}
-              </TableHeaderColumn>
-            ))}
-          </BootstrapTable>
+          <ListTable
+            fromPoint={fromPoint}
+            toPoint={toPoint}
+            statusFilterState={statusFilterState}
+            ratedFilterState={ratedFilterState}
+            fromDifficulty={fromDifficulty}
+            toDifficulty={toDifficulty}
+            rowData={rowData}
+          />
         </Row>
       </div>
     );
