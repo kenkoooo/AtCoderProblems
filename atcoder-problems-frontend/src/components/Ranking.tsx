@@ -42,6 +42,7 @@ const Ranking = (props: Props) => (
       pagination
       striped
       hover
+      search
       options={{
         paginationPosition: "top",
         sizePerPage: 20,
