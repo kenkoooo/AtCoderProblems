@@ -1,3 +1,5 @@
+extern crate openssl;
+
 use atcoder_problems_backend::error::MapHandlerError;
 use atcoder_problems_backend::s3;
 use atcoder_problems_backend::sql::models::*;
