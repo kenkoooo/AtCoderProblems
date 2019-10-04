@@ -7,6 +7,7 @@ import UserInfo from "./interfaces/UserInfo";
 import {
   LangRankingEntry,
   RankingEntry,
+  StreakRankingEntry,
   SumRankingEntry
 } from "./interfaces/RankingEntry";
 import ProblemModel from "./interfaces/ProblemModel";
@@ -30,6 +31,9 @@ export const RECEIVE_SUM_RANKING = "RECEIVE_SUM_RANKING";
 
 export const REQUEST_LANG_RANKING = "REQUEST_LANG_RANKING";
 export const RECEIVE_LANG_RANKING = "RECEIVE_LANG_RANKING";
+
+export const REQUEST_STREAK_RANKING = "REQUEST_STREAK_RANKING";
+export const RECEIVE_STREAK_RANKING = "RECEIVE_STREAK_RANKING";
 
 export const receiveInitialData = (
   contests: List<Contest>,
@@ -103,6 +107,15 @@ export const receiveLangRanking = (ranking: List<LangRankingEntry>) => ({
   ranking
 });
 
+export const requestStreakRanking = () => ({
+  type: REQUEST_STREAK_RANKING as typeof REQUEST_STREAK_RANKING
+});
+
+export const receiveStreakRanking = (ranking: List<StreakRankingEntry>) => ({
+  type: RECEIVE_STREAK_RANKING as typeof RECEIVE_STREAK_RANKING,
+  ranking
+});
+
 type Action =
   | ReturnType<typeof receiveInitialData>
   | ReturnType<typeof updateUserIds>
@@ -116,5 +129,7 @@ type Action =
   | ReturnType<typeof requestSumRanking>
   | ReturnType<typeof receiveSumRanking>
   | ReturnType<typeof requestLangRanking>
-  | ReturnType<typeof receiveLangRanking>;
+  | ReturnType<typeof receiveLangRanking>
+  | ReturnType<typeof requestStreakRanking>
+  | ReturnType<typeof receiveStreakRanking>;
 export default Action;
