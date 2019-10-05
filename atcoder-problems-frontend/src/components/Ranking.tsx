@@ -3,6 +3,7 @@ import { Row } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import { List } from "immutable";
+import * as Url from "../utils/Url";
 
 interface Props {
   title: string;
@@ -71,10 +72,24 @@ const Ranking = (props: Props) => (
       }}
     >
       <TableHeaderColumn dataField="rank">#</TableHeaderColumn>
-      <TableHeaderColumn dataField="id" isKey>
+      <TableHeaderColumn dataField="id" isKey
+        dataFormat={(_: string, entry: InternalRankEntry) => (
+          <a target="_blank"
+            href={Url.formatUserUrl(entry.id)}>
+            {entry.id}
+          </a>)}
+      >
         User
       </TableHeaderColumn>
-      <TableHeaderColumn dataField="count">Count</TableHeaderColumn>
+      <TableHeaderColumn dataField="count"
+       dataFormat={(_: number, entry: InternalRankEntry) => (
+         <a target="_blank"
+           href={Url.formatAtCoderProblemsUserPageUrl(entry.id)}>
+           {entry.count}
+         </a>)}
+      >
+        Count
+      </TableHeaderColumn>
     </BootstrapTable>
   </Row>
 );

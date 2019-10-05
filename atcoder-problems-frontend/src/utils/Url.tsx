@@ -8,3 +8,7 @@ export const formatProblemUrl = (problem: string, contest: string) => `${formatC
 
 export const formatSolversUrl = (contest: string, problem: string) =>
 	`${formatContestUrl(contest)}/submissions?f.Task=${problem}&f.Status=AC`;
+
+export const formatUserUrl = (user: string) => `${BASE_URL}/users/${user}`;
+
+export const formatAtCoderProblemsUserPageUrl = (user: string) => `https://kenkoooo.com/atcoder/#/user/${user}`;
