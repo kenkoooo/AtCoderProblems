@@ -1,14 +1,22 @@
 import React from "react";
 import { Row, ButtonGroup, Button } from "reactstrap";
 
-export enum TableTab {
-  ABC,
-  ARC,
-  AGC,
-  OtherRatedContests,
-  OtherContests
-}
 
+export class TableTab {
+  ABC: boolean;
+  ARC: boolean;
+  AGC: boolean;
+  OtherRatedContests: boolean;
+  OtherContests: boolean;
+  constructor(abc: boolean, arc: boolean, agc: boolean,
+    otherratedcontests: boolean, othercontests: boolean){
+      this.ABC = abc;
+      this.ARC = arc;
+      this.AGC = agc;
+      this.OtherRatedContests = otherratedcontests;
+      this.OtherContests = othercontests;
+  }
+}
 interface Props {
   active: TableTab;
   setActive: (next: TableTab) => void;
@@ -22,45 +30,75 @@ const TableTabButtons: React.FC<Props> = props => {
         <Button
           color="secondary"
           onClick={() => {
-            setActive(TableTab.ABC);
+            setActive(new TableTab(
+              !active.ABC,
+              active.ARC,
+              active.AGC,
+              active.OtherRatedContests,
+              active.OtherContests
+            ));
           }}
-          active={active === TableTab.ABC}
+          active={active.ABC}
         >
           ABC
         </Button>
         <Button
           color="secondary"
           onClick={() => {
-            setActive(TableTab.ARC);
+            setActive(new TableTab(
+              active.ABC,
+              !active.ARC,
+              active.AGC,
+              active.OtherRatedContests,
+              active.OtherContests
+            ));
           }}
-          active={active === TableTab.ARC}
+          active={active.ARC}
         >
           ARC
         </Button>
         <Button
           color="secondary"
           onClick={() => {
-            setActive(TableTab.AGC);
+            setActive(new TableTab(
+              active.ABC,
+              active.ARC,
+              !active.AGC,
+              active.OtherRatedContests,
+              active.OtherContests
+            ));
           }}
-          active={active === TableTab.AGC}
+          active={active.AGC}
         >
           AGC
         </Button>
         <Button
           color="secondary"
           onClick={() => {
-            setActive(TableTab.OtherRatedContests);
+            setActive(new TableTab(
+              active.ABC,
+              active.ARC,
+              active.AGC,
+              !active.OtherRatedContests,
+              active.OtherContests
+            ));
           }}
-          active={active === TableTab.OtherRatedContests}
+          active={active.OtherRatedContests}
         >
           Other Rated Contests
         </Button>
         <Button
           color="secondary"
           onClick={() => {
-            setActive(TableTab.OtherContests);
+            setActive(new TableTab(
+              active.ABC,
+              active.ARC,
+              active.AGC,
+              active.OtherRatedContests,
+              !active.OtherContests
+            ));
           }}
-          active={active === TableTab.OtherContests}
+          active={active.OtherContests}
         >
           Other Contests
         </Button>

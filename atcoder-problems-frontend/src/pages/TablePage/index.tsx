@@ -68,7 +68,8 @@ const TablePage: React.FC<Props> = props => {
     problemModels
   } = props;
 
-  const [activeTab, setActiveTab] = useState(TableTab.ABC);
+  const [activeTab, setActiveTab] = useState(
+    new TableTab(true, false, false, false, false));
   const [showAccepted, setShowAccepted] = useState(true);
   const [showDifficulty, setShowDifficulties] = useState(true);
 
@@ -81,7 +82,7 @@ const TablePage: React.FC<Props> = props => {
         toggleShowDifficulties={() => setShowDifficulties(!showDifficulty)}
       />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
-      <ContestWrapper display={activeTab === TableTab.ABC}>
+      <ContestWrapper display={activeTab.ABC}>
         <AtCoderRegularTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
@@ -92,7 +93,7 @@ const TablePage: React.FC<Props> = props => {
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>
-      <ContestWrapper display={activeTab === TableTab.ARC}>
+      <ContestWrapper display={activeTab.ARC}>
         <AtCoderRegularTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
@@ -103,7 +104,7 @@ const TablePage: React.FC<Props> = props => {
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>
-      <ContestWrapper display={activeTab === TableTab.AGC}>
+      <ContestWrapper display={activeTab.AGC}>
         <AtCoderRegularTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
@@ -114,7 +115,7 @@ const TablePage: React.FC<Props> = props => {
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>
-      <ContestWrapper display={activeTab === TableTab.OtherRatedContests}>
+      <ContestWrapper display={activeTab.OtherRatedContests}>
         <ContestTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
@@ -128,7 +129,7 @@ const TablePage: React.FC<Props> = props => {
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>
-      <ContestWrapper display={activeTab === TableTab.OtherContests}>
+      <ContestWrapper display={activeTab.OtherContests}>
         <ContestTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
