@@ -70,6 +70,10 @@ def inverse_adjust_rating(rating, prev_contests):
     return rating + adjustment
 
 
+def is_very_easy_problem(task_screen_name):
+    return task_screen_name.startswith("abc") and task_screen_name[-1] in {"a", "b"}
+
+
 def fit_problem_model(user_results, task_screen_name):
     max_score = max(task_result[task_screen_name + ".score"] for task_result in user_results)
     if max_score == 0.:
@@ -102,16 +106,19 @@ def fit_problem_model(user_results, task_screen_name):
             model["slope"] = slope
             model["intercept"] = intercept
 
-    rated_results = [
-        task_result for task_result in user_results if task_result["is_rated"]]
-    if len(rated_results) < 10:
+    if is_very_easy_problem(task_screen_name):
+        # ad-hoc. excluding high-rating competitors from abc-a/abc-b dataset. They often skip these problems.
+        difficulty_dataset = [task_result for task_result in user_results if task_result["is_rated"]]
+    else:
+        difficulty_dataset = user_results
+    if len(difficulty_dataset) < 10:
         print(
-            f"{task_screen_name}: insufficient data ({len(rated_results)} users). skip estimating difficulty model.")
+            f"{task_screen_name}: insufficient data ({len(difficulty_dataset)} users). skip estimating difficulty model.")
     else:
         d_raw_ratings = [task_result["raw_rating"]
-                         for task_result in rated_results]
+                         for task_result in difficulty_dataset]
         d_accepteds = [task_result[task_screen_name + ".ac"]
-                       for task_result in rated_results]
+                       for task_result in difficulty_dataset]
         difficulty, discrimination = fit_2plm_irt(
             d_raw_ratings, d_accepteds)
         print(
@@ -197,20 +204,16 @@ def get_current_models():
 
 
 def all_contests():
-    # Gets all contests after the rating system is introduced.
+    # Gets all contests after the rating system is introduced and rated for at least one competitor.
+    # Rated contest criterion is introduced to exclude unofficial contests.
     # The first rated contest, AGC001 at 2016-07-16, is ignored because nobody has rating before the contest.
     contests = requests.get(
         "https://kenkoooo.com/atcoder/resources/contests.json").json()
     valid_epoch_second = datetime(2016, 7, 17).timestamp()
-    return [contest["id"] for contest in contests if contest["start_epoch_second"] > valid_epoch_second]
+    return [contest["id"] for contest in contests if contest["start_epoch_second"] > valid_epoch_second and contest["rate_change"] != "-"]
 
 
-def handler(event, context):
-    target = event.get("target") or all_contests()
-    overwrite = event.get("overwrite", False)
-    bucket = event.get("bucket", "kenkoooo.com")
-    object_key = event.get("object_key", "resources/problem-models.json")
-
+def run(target, overwrite):
     current_models = get_current_models()
     existing_problems = current_models.keys() if not overwrite else set()
 
@@ -225,6 +228,16 @@ def handler(event, context):
         model = fit_problem_model(data_points, problem)
         if model:
             results[problem] = model
+    return results
+
+
+def handler(event, context):
+    target = event.get("target") or all_contests()
+    overwrite = event.get("overwrite", False)
+    bucket = event.get("bucket", "kenkoooo.com")
+    object_key = event.get("object_key", "resources/problem-models.json")
+
+    results = run(target, overwrite)
     print("Estimation completed. Saving results in S3")
     s3 = boto3.resource('s3')
     s3.Object(bucket, object_key).put(Body=json.dumps(
