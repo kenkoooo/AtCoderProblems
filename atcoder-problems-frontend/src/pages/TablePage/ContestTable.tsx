@@ -8,6 +8,7 @@ import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/State";
 import { statusLabelToTableColor } from "./index";
 import ProblemLink from "../../components/ProblemLink";
+import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 
 interface Props {
@@ -52,9 +53,7 @@ const ContestTable: React.FC<Props> = (props: Props) => {
             return (
               <div key={contest.id}>
                 <strong>
-                  <a target="_blank" href={Url.formatContestUrl(contest.id)}>
-                    {contest.title}
-                  </a>
+                  <ContestLink contest={contest} />
                 </strong>
                 <Table striped bordered hover responsive>
                   <tbody>

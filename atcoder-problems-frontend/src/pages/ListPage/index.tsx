@@ -35,6 +35,7 @@ export const INF_POINT = 1e18;
 export interface ProblemRowData {
   readonly id: string;
   readonly title: string;
+  readonly contest?: Contest;
   readonly contestDate: string;
   readonly contestTitle: string;
   readonly lastAcceptedDate: string;
@@ -126,6 +127,7 @@ class ListPage extends React.Component<Props, ListPageState> {
           return {
             id: p.id,
             title: p.title,
+            contest,
             contestDate,
             contestTitle,
             lastAcceptedDate,

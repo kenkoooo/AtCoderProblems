@@ -3,6 +3,7 @@ import { StatusLabel } from "../../interfaces/State";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
 import ProblemLink from "../../components/ProblemLink";
+import ContestLink from "../../components/ContestLink";
 import * as Url from "../../utils/Url";
 import { INF_POINT, ProblemRowData } from "./index";
 import { List } from "immutable";
@@ -47,15 +48,18 @@ export const ListTable = (props: Props) => {
     },
     {
       header: "Contest",
-      dataField: "contestTitle",
+      dataField: "contest",
       dataSort: true,
-      dataFormat: (contestTitle, row) => (
-        <a
-          href={Url.formatContestUrl(row.mergedProblem.contest_id)}
-          target="_blank"
-        >
-          {contestTitle}
-        </a>
+      dataFormat: (contest, row) => (
+        contest ? 
+          <ContestLink contest={contest} />
+        :
+          <a
+            href={Url.formatContestUrl(row.mergedProblem.contest_id)}
+            target="_blank"
+          >
+            {row.contestTitle}
+          </a>
       )
     },
     {

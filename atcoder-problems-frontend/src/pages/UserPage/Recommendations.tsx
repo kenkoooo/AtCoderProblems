@@ -29,6 +29,7 @@ import {
 } from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import ProblemLink from "../../components/ProblemLink";
+import ContestLink from "../../components/ContestLink";
 
 const RECOMMEND_NUM_OPTIONS = [
   {
@@ -265,12 +266,15 @@ class Recommendations extends React.Component<Props, LocalState> {
               dataFormat={(contest_id: string, problem: Problem) => {
                 const contest = contests.get(contest_id);
                 return (
-                  <a
-                    href={Url.formatContestUrl(problem.contest_id)}
-                    target="_blank"
-                  >
-                    {contest ? contest.title : contest_id}
-                  </a>
+                  contest ? 
+                    <ContestLink contest={contest} />
+                  :
+                    <a
+                      href={Url.formatContestUrl(problem.contest_id)}
+                      target="_blank"
+                    >
+                      {contest_id}
+                    </a>
                 );
               }}
             >
