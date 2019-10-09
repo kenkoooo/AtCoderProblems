@@ -13,6 +13,7 @@ import {
 } from "../../interfaces/State";
 import { statusLabelToTableColor } from "./index";
 import ProblemLink from "../../components/ProblemLink";
+import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 
 interface Props {
@@ -71,9 +72,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
             solvedAll(contest) ? "table-success" : ""
           }
           dataFormat={(_: any, contest: Contest) => (
-            <a href={Url.formatContestUrl(contest.id)} target="_blank">
-              {contest.id.toUpperCase()}
-            </a>
+            <ContestLink contest={contest} title={contest.id.toUpperCase()} />
           )}
         >
           Contest
