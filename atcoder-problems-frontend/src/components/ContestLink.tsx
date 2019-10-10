@@ -57,6 +57,7 @@ const ContestLink: React.FC<Props> = props => {
   return (
     <>
       <span className={getColorClass(target)}>◉</span>
+      <> </>
       <a target="_blank" href={Url.formatContestUrl(contest.id)}>
         {title !== undefined ? title : contest.title}
       </a>
