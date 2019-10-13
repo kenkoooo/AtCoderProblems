@@ -28,9 +28,10 @@ cargo run --release --bin crawl [option]
 ```
 
 #### Options
-- `naive`
+- `new_contests`
 - `new`
 - `all`
+- `recent_submitted`
 - `contest`
 
 # atcoder-problems-frontend
