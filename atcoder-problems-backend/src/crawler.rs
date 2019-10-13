@@ -126,10 +126,10 @@ where
 
     for contest in contests.into_iter() {
         for page in 1..=NEW_PAGE_THRESHOLD {
-            info!("Crawling {} {}", contest.id, page);
-            let new_submissions = client.fetch_submissions(&contest.id, page as u32);
+            info!("Crawling {} {}", contest, page);
+            let new_submissions = client.fetch_submissions(&contest, page as u32);
             if new_submissions.is_empty() {
-                info!("There is no submission on {}-{}", contest.id, page);
+                info!("There is no submission on {}-{}", contest, page);
                 break;
             }
 
