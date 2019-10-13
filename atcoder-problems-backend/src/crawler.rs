@@ -1,5 +1,5 @@
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
-use crate::sql::{ContestProblemClient, SimpleClient, SubmissionClient};
+use crate::sql::{ContestProblemClient, SimpleClient, SubmissionClient, SubmissionRequest};
 use algorithm_problem_client::{AtCoderClient, AtCoderProblem};
 use chrono::{Duration, Utc};
 use diesel::QueryResult;
@@ -7,7 +7,7 @@ use log::{error, info};
 use std::collections::BTreeSet;
 use std::{thread, time};
 
-const NEW_CONTEST_THRESHOLD_DAYS: i64 = 30;
+const NEW_CONTEST_THRESHOLD_DAYS: i64 = 7;
 const NEW_PAGE_THRESHOLD: usize = 5;
 
 pub fn crawl_from_new_contests<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
@@ -91,6 +91,40 @@ where
         .into_iter()
         .filter(|contest| !is_new_contest(now, contest.start_epoch_second))
     {
+        for page in 1..=NEW_PAGE_THRESHOLD {
+            info!("Crawling {} {}", contest.id, page);
+            let new_submissions = client.fetch_submissions(&contest.id, page as u32);
+            if new_submissions.is_empty() {
+                info!("There is no submission on {}-{}", contest.id, page);
+                break;
+            }
+
+            info!("Inserting {} submissions...", new_submissions.len());
+            let min_id = new_submissions.iter().map(|s| s.id).min().unwrap_or(0);
+            let exists = conn.get_submission_by_id(min_id)?.is_some();
+            conn.update_submissions(&new_submissions)?;
+            thread::sleep(time::Duration::from_millis(200));
+
+            if exists {
+                break;
+            }
+        }
+    }
+    Ok(())
+}
+
+pub fn crawl_from_recent_submitted<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
+where
+    C: SimpleClient + SubmissionClient,
+{
+    info!("Starting new loop...");
+    let submissions = conn.get_submissions(SubmissionRequest::RecentAll { count: 2000 })?;
+    let contests = submissions
+        .into_iter()
+        .map(|s| s.contest_id)
+        .collect::<BTreeSet<_>>();
+
+    for contest in contests.into_iter() {
         for page in 1..=NEW_PAGE_THRESHOLD {
             info!("Crawling {} {}", contest.id, page);
             let new_submissions = client.fetch_submissions(&contest.id, page as u32);

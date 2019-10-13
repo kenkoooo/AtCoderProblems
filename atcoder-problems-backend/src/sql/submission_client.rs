@@ -12,6 +12,7 @@ pub enum SubmissionRequest<'a> {
     UsersAccepted { user_ids: &'a [&'a str] },
     FromTime { from_second: i64, count: i64 },
     RecentAccepted { count: i64 },
+    RecentAll { count: i64 },
     AllAccepted,
 }
 
@@ -35,6 +36,10 @@ impl SubmissionClient for PgConnection {
                 .load(self),
             SubmissionRequest::RecentAccepted { count } => submissions::table
                 .filter(submissions::result.eq("AC"))
+                .order(submissions::id.desc())
+                .limit(count)
+                .load(self),
+            SubmissionRequest::RecentAll { count } => submissions::table
                 .order(submissions::id.desc())
                 .limit(count)
                 .load(self),
