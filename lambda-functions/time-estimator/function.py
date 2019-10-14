@@ -84,18 +84,22 @@ def fit_problem_model(user_results, task_screen_name):
     elapsed = [task_result[task_screen_name + ".elapsed"]
                for task_result in user_results]
     first_ac = min(elapsed)
-    valid_users = [task_result for task_result in user_results
+
+    recurring_users = [task_result for task_result in user_results if task_result["prev_contests"] > 0 and task_result["rating"] > 0]
+    for task_result in recurring_users:
+        task_result["raw_rating"] = inverse_adjust_rating(task_result["rating"], task_result["prev_contests"])
+    time_model_sample_users = [task_result for task_result in recurring_users
                    if task_result[task_screen_name + ".time"] > first_ac / 2 and task_result[
                        task_screen_name + ".ac"] == 1.]
     model = {}
-    if len(valid_users) < 10:
+    if len(time_model_sample_users) < 10:
         print(
-            f"{task_screen_name}: insufficient data ({len(valid_users)} users). skip estimating time model.")
+            f"{task_screen_name}: insufficient data ({len(time_model_sample_users)} users). skip estimating time model.")
     else:
         raw_ratings = [task_result["raw_rating"]
-                       for task_result in valid_users]
+                       for task_result in time_model_sample_users]
         time_secs = [task_result[task_screen_name + ".time"] /
-                     (10 ** 9) for task_result in valid_users]
+                     (10 ** 9) for task_result in time_model_sample_users]
         time_logs = [math.log(t) for t in time_secs]
         slope, intercept = single_regression(raw_ratings, time_logs)
         print(
@@ -108,12 +112,16 @@ def fit_problem_model(user_results, task_screen_name):
 
     if is_very_easy_problem(task_screen_name):
         # ad-hoc. excluding high-rating competitors from abc-a/abc-b dataset. They often skip these problems.
-        difficulty_dataset = [task_result for task_result in user_results if task_result["is_rated"]]
+        difficulty_dataset = [task_result for task_result in recurring_users if task_result["is_rated"]]
     else:
-        difficulty_dataset = user_results
+        difficulty_dataset = recurring_users
     if len(difficulty_dataset) < 10:
         print(
             f"{task_screen_name}: insufficient data ({len(difficulty_dataset)} users). skip estimating difficulty model.")
+    elif all(task_result[task_screen_name + ".ac"] for task_result in difficulty_dataset):
+        print("all contestants got AC. skip estimating difficulty model.")
+    elif not any(task_result[task_screen_name + ".ac"] for task_result in difficulty_dataset):
+        print("no contestants got AC. skip estimating difficulty model.")
     else:
         d_raw_ratings = [task_result["raw_rating"]
                          for task_result in difficulty_dataset]
@@ -151,16 +159,11 @@ def fetch_dataset_for_contest(contest_name, existing_problem):
         rating = result_row["OldRating"]
         prev_contests = result_row["Competitions"]
         user_name = result_row["UserScreenName"]
-        if prev_contests <= 0:
-            continue
-        if rating <= 0:
-            continue
 
         user_row = {
             "is_rated": is_rated,
             "rating": rating,
             "prev_contests": prev_contests,
-            "raw_rating": inverse_adjust_rating(rating, prev_contests),
             "user_name": user_name
         }
         for task_name in task_names:
@@ -203,36 +206,47 @@ def get_current_models():
         return {}
 
 
-def all_contests():
-    # Gets all contests after the rating system is introduced and rated for at least one competitor.
+def all_rated_contests():
+    # Gets all contest IDs after the rating system is introduced and rated for at least one competitor.
+    # The result is ordered by the start time.
     # Rated contest criterion is introduced to exclude unofficial contests.
-    # The first rated contest, AGC001 at 2016-07-16, is ignored because nobody has rating before the contest.
     contests = requests.get(
         "https://kenkoooo.com/atcoder/resources/contests.json").json()
-    valid_epoch_second = datetime(2016, 7, 17).timestamp()
-    return [contest["id"] for contest in contests if contest["start_epoch_second"] > valid_epoch_second and contest["rate_change"] != "-"]
+    valid_epoch_second = datetime(2016, 7, 15).timestamp()
+    contests = [contest for contest in contests if contest["start_epoch_second"] > valid_epoch_second and contest["rate_change"] != "-"]
+    contests.sort(key=lambda contest: contest["start_epoch_second"])
+    return [contest["id"] for contest in contests]
 
 
 def run(target, overwrite):
+    recompute_history = target is None and overwrite
+    target = target or all_rated_contests()
     current_models = get_current_models()
     existing_problems = current_models.keys() if not overwrite else set()
 
     print(f"Fetching dataset from {len(target)} contests.")
     dataset_by_problem = defaultdict(list)
+    competition_history_by_id = defaultdict(set)
     for contest in target:
         for problem, data_points in fetch_dataset_for_contest(contest, existing_problems).items():
+            if recompute_history:
+                for data_point in data_points:
+                    competition_history_by_id[data_point["user_name"]].add(contest)
+                # overwrite competition history and raw_rating
+                for data_point in data_points:
+                    data_point["prev_contests"] = len(competition_history_by_id[data_point["user_name"]]) - 1
             dataset_by_problem[problem] += data_points
+
     print(f"Estimating time models of {len(target)} contests.")
     results = current_models
     for problem, data_points in dataset_by_problem.items():
         model = fit_problem_model(data_points, problem)
-        if model:
-            results[problem] = model
+        results[problem] = model
     return results
 
 
 def handler(event, context):
-    target = event.get("target") or all_contests()
+    target = event.get("target")
     overwrite = event.get("overwrite", False)
     bucket = event.get("bucket", "kenkoooo.com")
     object_key = event.get("object_key", "resources/problem-models.json")
