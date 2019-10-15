@@ -1,5 +1,9 @@
 # Change Log
 
+## 2019-10-15
+- [#300](https://github.com/kenkoooo/AtCoderProblems/pull/300) Removed corrupted difficulty.
+- [#299](https://github.com/kenkoooo/AtCoderProblems/pull/299) Updated `Docker.crawler` to reduce the image size.
+
 ## 2019-10-14
 - [#297](https://github.com/kenkoooo/AtCoderProblems/pull/297) Updated `Docker.crawler` to fix the compile errors in DockerHub.
 - [#296](https://github.com/kenkoooo/AtCoderProblems/pull/296) Updated `rusoto` to fix the compile errors.
