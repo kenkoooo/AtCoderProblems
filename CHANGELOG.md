@@ -1,6 +1,7 @@
 # Change Log
 
 ## 2019-10-18
+- [#304](https://github.com/kenkoooo/AtCoderProblems/pull/304) Fixed the margins.
 - [#303](https://github.com/kenkoooo/AtCoderProblems/pull/303) Installed ts-lint and Prettier.  
 
 ## 2019-10-15
