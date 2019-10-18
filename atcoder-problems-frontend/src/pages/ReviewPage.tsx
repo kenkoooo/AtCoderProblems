@@ -27,7 +27,7 @@ import {
   predictSolveTime
 } from "../utils/ProblemModelUtil";
 
-type ReviewEntry = {
+interface ReviewEntry {
   readonly id: number;
   readonly problem_id: string;
   readonly contest_id: string;
@@ -38,7 +38,7 @@ type ReviewEntry = {
   readonly difficulty: number | null;
   readonly predictedSolveTime: number | null;
   readonly predictedSolveProbability: number | null;
-};
+}
 
 const ReviewPage: React.FC<Props> = props => {
   const {

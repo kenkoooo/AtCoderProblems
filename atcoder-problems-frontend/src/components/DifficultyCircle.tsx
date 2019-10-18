@@ -11,27 +11,27 @@ interface LocalState {
 }
 
 function getColor(difficulty: number): string {
-  if (difficulty < 400) return "#808080";
+  if (difficulty < 400) { return "#808080"; }
   // grey
-  else if (difficulty < 800) return "#804000";
+  else if (difficulty < 800) { return "#804000"; }
   // brown
-  else if (difficulty < 1200) return "#008000";
+  else if (difficulty < 1200) { return "#008000"; }
   // green
-  else if (difficulty < 1600) return "#00C0C0";
+  else if (difficulty < 1600) { return "#00C0C0"; }
   // cyan
-  else if (difficulty < 2000) return "#0000FF";
+  else if (difficulty < 2000) { return "#0000FF"; }
   // blue
-  else if (difficulty < 2400) return "#C0C000";
+  else if (difficulty < 2400) { return "#C0C000"; }
   // yellow
-  else if (difficulty < 2800) return "#FF8000";
+  else if (difficulty < 2800) { return "#FF8000"; }
   // orange
-  else if (difficulty < 3200) return "#FF0000";
+  else if (difficulty < 3200) { return "#FF0000"; }
   // red
-  else if (difficulty < 3600) return "#725a36";
+  else if (difficulty < 3600) { return "#725a36"; }
   // bronze
-  else if (difficulty < 4000) return "#808080";
+  else if (difficulty < 4000) { return "#808080"; }
   // silver
-  else return "#ffd700"; // gold
+  else { return "#ffd700"; } // gold
 }
 
 export class DifficultyCircle extends React.Component<Props, LocalState> {
@@ -73,7 +73,7 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
           className="difficulty-circle"
           style={styleOptions}
           id={circleId}
-        ></span>
+        />
         <Tooltip
           placement="top"
           target={circleId}
