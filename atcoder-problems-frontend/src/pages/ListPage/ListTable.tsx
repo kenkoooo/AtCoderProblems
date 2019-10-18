@@ -50,17 +50,17 @@ export const ListTable = (props: Props) => {
       header: "Contest",
       dataField: "contest",
       dataSort: true,
-      dataFormat: (contest, row) => (
-        contest ?
+      dataFormat: (contest, row) =>
+        contest ? (
           <ContestLink contest={contest} />
-        :
+        ) : (
           <a
             href={Url.formatContestUrl(row.mergedProblem.contest_id)}
             target="_blank"
           >
             {row.contestTitle}
           </a>
-      )
+        )
     },
     {
       header: "Result",

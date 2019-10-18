@@ -17,8 +17,14 @@ interface Props {
 
 const INF_POINT = 1e18;
 
-const DifficultyTable = ({ submissions, userIds, mergedProblems, problemModels, setFilterFunc }: Props) => {
-  const difficulties: List<{from:number, to:number}> = Range(0, 4400, 400)
+const DifficultyTable = ({
+  submissions,
+  userIds,
+  mergedProblems,
+  problemModels,
+  setFilterFunc
+}: Props) => {
+  const difficulties: List<{ from: number; to: number }> = Range(0, 4400, 400)
     .map(from => ({
       from,
       to: from === 4000 ? INF_POINT : from + 399
@@ -42,7 +48,12 @@ const DifficultyTable = ({ submissions, userIds, mergedProblems, problemModels, 
         .valueSeq()
         .filter((d: number | undefined): d is number => d !== undefined)
         .reduce(
-          (map, difficulty) => map.update(Math.floor(Math.min(4000, difficulty) / 400), 0, count => count + 1),
+          (map, difficulty) =>
+            map.update(
+              Math.floor(Math.min(4000, difficulty) / 400),
+              0,
+              count => count + 1
+            ),
           Map<number, number>()
         )
     }));
@@ -64,16 +75,24 @@ const DifficultyTable = ({ submissions, userIds, mergedProblems, problemModels, 
         <tr>
           <th>Difficulty</th>
           {totalCount.map(({ difficultyLevel }) => (
-            <th key={difficultyLevel} style={{whiteSpace: "nowrap"}}>
+            <th key={difficultyLevel} style={{ whiteSpace: "nowrap" }}>
               <a
                 href={window.location.hash}
-                onClick={()=>setFilterFunc(
-                  difficulties.get(difficultyLevel, {from: 0}).from,
-                  difficulties.get(difficultyLevel, {to: INF_POINT}).to)}>
+                onClick={() =>
+                  setFilterFunc(
+                    difficulties.get(difficultyLevel, { from: 0 }).from,
+                    difficulties.get(difficultyLevel, { to: INF_POINT }).to
+                  )
+                }
+              >
                 <DifficultyCircle
-                  difficulty={difficulties.get(difficultyLevel, {from: INF_POINT}).from + 399}
+                  difficulty={
+                    difficulties.get(difficultyLevel, { from: INF_POINT })
+                      .from + 399
+                  }
                   id={`difficulty-table-level-${difficultyLevel}`}
-                />{difficulties.get(difficultyLevel, {from: 0}).from}-
+                />
+                {difficulties.get(difficultyLevel, { from: 0 }).from}-
               </a>
             </th>
           ))}
@@ -90,7 +109,9 @@ const DifficultyTable = ({ submissions, userIds, mergedProblems, problemModels, 
           <tr key={userId}>
             <td>{userId}</td>
             {totalCount.map(({ difficultyLevel }) => (
-              <td key={difficultyLevel}>{difficultyLevelCounts.get(difficultyLevel, 0)}</td>
+              <td key={difficultyLevel}>
+                {difficultyLevelCounts.get(difficultyLevel, 0)}
+              </td>
             ))}
           </tr>
         ))}
