@@ -38,9 +38,9 @@ const CalendarHeatmap = (props: Props) => {
     .sort((a, b) => a.date.localeCompare(b.date))
     .toArray();
 
-  const block_width = 10;
-  const width = block_width * WEEKS;
-  const height = block_width * WEEKDAY;
+  const blockWidth = 10;
+  const width = blockWidth * WEEKS;
+  const height = blockWidth * WEEKDAY;
   return (
     <div style={{ width: "100%" }}>
       <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%" }}>
@@ -52,10 +52,10 @@ const CalendarHeatmap = (props: Props) => {
             <rect
               key={date}
               id={`rect-${date}`}
-              x={week * block_width}
-              y={day * block_width}
-              width={block_width}
-              height={block_width}
+              x={week * blockWidth}
+              y={day * blockWidth}
+              width={blockWidth}
+              height={blockWidth}
               fill={color}
             />
           );

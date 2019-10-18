@@ -1,7 +1,7 @@
 import { filterSubmissions } from "./FilteringHeatmap";
 import Submission from "../../interfaces/Submission";
 
-const empty_submission: Submission = {
+const emptySubmission: Submission = {
   execution_time: null,
   point: 0.0,
   result: "",
@@ -15,13 +15,13 @@ const empty_submission: Submission = {
 };
 const submissions = [
   {
-    ...empty_submission,
+    ...emptySubmission,
     epoch_second: 1,
     result: "AC",
     problem_id: "problem_1"
   },
   {
-    ...empty_submission,
+    ...emptySubmission,
     epoch_second: 2,
     result: "AC",
     problem_id: "problem_1"
