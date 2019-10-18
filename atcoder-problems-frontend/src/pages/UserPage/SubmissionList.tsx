@@ -24,7 +24,7 @@ const SubmissionList = (props: Props) => {
     Map<string, string>()
   );
 
-  let verdictOptions: any = {};
+  const verdictOptions: any = {};
   submissions
     .reduce((set, s) => set.add(s.result), new Set<string>())
     .forEach((verdict, index) => {

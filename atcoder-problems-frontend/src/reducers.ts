@@ -135,7 +135,7 @@ const dataReducer = (
 
       const problemModels = action.problemModels.map(
         (model: ProblemModel): ProblemModel => {
-          if (model.difficulty === undefined) return model;
+          if (model.difficulty === undefined) { return model; }
           return {
             ...model,
             difficulty: clipDifficulty(model.difficulty),

@@ -283,7 +283,7 @@ class Recommendations extends React.Component<Props, LocalState> {
             <TableHeaderColumn
               dataField="difficulty"
               dataFormat={(difficulty: number | null) => {
-                if (difficulty === null) return "-";
+                if (difficulty === null) { return "-"; }
                 return String(difficulty);
               }}
             >
