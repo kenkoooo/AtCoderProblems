@@ -13,11 +13,13 @@ enum RatedTargetType {
   Unrated,
 };
 
-type RatedTarget = Number | RatedTargetType;
+type RatedTarget = number | RatedTargetType;
 
 function getRatedTarget(contest: Contest) : RatedTarget {
   const agc001date = 1468670400;
-  if(agc001date > contest.start_epoch_second) { return RatedTargetType.Unrated; }
+  if(agc001date > contest.start_epoch_second) {
+    return RatedTargetType.Unrated;
+  }
   switch (contest.rate_change){
     case undefined:
       return RatedTargetType.Unrated;
@@ -27,7 +29,7 @@ function getRatedTarget(contest: Contest) : RatedTarget {
       return RatedTargetType.All;
     case (/\d+/.test(contest.rate_change) ? contest.rate_change : false):
       const tmp = /\d+/.exec(contest.rate_change);
-      if(tmp !== null) { return parseInt(tmp[0]); }
+      if(tmp !== null) { return parseInt(tmp[0], 10); }
     default:
       return RatedTargetType.Unrated;
   }

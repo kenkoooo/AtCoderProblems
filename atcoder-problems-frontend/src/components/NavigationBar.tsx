@@ -109,7 +109,7 @@ class NavigationBar extends React.Component<Props, LocalState> {
                 <Input
                   style={{ width: "120px" }}
                   onKeyPress={e => {
-                    if (e.key == "Enter") {
+                    if (e.key === "Enter") {
                       this.submit(pageKind);
                     }
                   }}
@@ -125,7 +125,7 @@ class NavigationBar extends React.Component<Props, LocalState> {
                 <Input
                   style={{ width: "120px" }}
                   onKeyPress={e => {
-                    if (e.key == "Enter") {
+                    if (e.key === "Enter") {
                       this.submit(pageKind);
                     }
                   }}

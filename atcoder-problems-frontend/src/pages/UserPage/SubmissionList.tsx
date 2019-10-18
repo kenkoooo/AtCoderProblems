@@ -19,7 +19,7 @@ interface Props {
 
 const SubmissionList = (props: Props) => {
   const { submissions, problems, problemModels } = props;
-  const title_map = problems.reduce(
+  const titleMap = problems.reduce(
     (map, p) => map.set(p.id, p.title),
     Map<string, string>()
   );
@@ -34,7 +34,7 @@ const SubmissionList = (props: Props) => {
     <BootstrapTable
       data={submissions
         .sort((a, b) => b.epoch_second - a.epoch_second)
-        .map(s => ({ title: title_map.get(s.problem_id), ...s }))}
+        .map(s => ({ title: titleMap.get(s.problem_id), ...s }))}
       keyField="id"
       height="auto"
       hover
@@ -84,7 +84,7 @@ const SubmissionList = (props: Props) => {
             difficulty={problemModels.getIn([problem_id, "difficulty"], null)}
             showDifficulty={true}
             problemId={problem_id}
-            problemTitle={title_map.get(problem_id) || ""}
+            problemTitle={titleMap.get(problem_id) || ""}
             contestId={contest_id}
           />
         )}

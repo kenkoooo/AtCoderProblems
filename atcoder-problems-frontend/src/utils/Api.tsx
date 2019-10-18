@@ -37,6 +37,7 @@ const generateRanking = (
     )
     .entrySeq()
     .map(
+      // tslint:disable-next-line
       ([user_id, problem_count]): RankingEntry => ({ user_id, problem_count })
     )
     .toList();
@@ -106,6 +107,7 @@ export const fetchUserInfo = (user: string) =>
           if (isUserInfo(r)) {
             return r;
           } else {
+            // tslint:disable-next-line
             console.error("Invalid UserInfo: ", r);
           }
         })
