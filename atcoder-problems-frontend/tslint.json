@@ -3,9 +3,11 @@
   "extends": [
     "tslint:recommended",
     "tslint-react",
+    "tslint-plugin-prettier",
     "tslint-config-prettier"
   ],
   "rules": {
+    "prettier": true,
     "ordered-imports": false,
     "indent": [true, "spaces", 2],
     "max-line-length": [
