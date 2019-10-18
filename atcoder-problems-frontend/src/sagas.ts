@@ -43,7 +43,7 @@ function* requestAndReceiveSubmissions(action: Action) {
         .map(id => call(fetchSubmissions, id))
     );
     const submissions = submissionLists.reduce(
-      (submissions, list) => submissions.concat(list),
+      (ss, list) => ss.concat(list),
       List<Submission>()
     );
     yield put(receiveSubmissions(submissions));

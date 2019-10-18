@@ -200,7 +200,7 @@ class ListPage extends React.Component<Props, ListPageState> {
           <ButtonGroup className="mr-4">
             <UncontrolledButtonDropdown>
               <DropdownToggle caret>
-                {this.state.fromPoint == 0
+                {this.state.fromPoint === 0
                   ? "Point From"
                   : this.state.fromPoint}
               </DropdownToggle>
@@ -217,7 +217,7 @@ class ListPage extends React.Component<Props, ListPageState> {
             </UncontrolledButtonDropdown>
             <UncontrolledButtonDropdown>
               <DropdownToggle caret>
-                {this.state.toPoint == INF_POINT
+                {this.state.toPoint === INF_POINT
                   ? "Point To"
                   : this.state.toPoint}
               </DropdownToggle>

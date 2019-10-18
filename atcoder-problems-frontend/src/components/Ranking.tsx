@@ -20,7 +20,7 @@ const refineRanking = (ranking: List<RankingEntry>) =>
     .sort((a, b) => b.problem_count - a.problem_count)
     .reduce((list, entry, index) => {
       const last = list.last(undefined);
-      return last && last.count == entry.problem_count
+      return last && last.count === entry.problem_count
         ? list.push({
             rank: last.rank,
             id: entry.user_id,

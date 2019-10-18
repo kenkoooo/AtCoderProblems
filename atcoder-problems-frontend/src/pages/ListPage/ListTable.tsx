@@ -51,7 +51,7 @@ export const ListTable = (props: Props) => {
       dataField: "contest",
       dataSort: true,
       dataFormat: (contest, row) => (
-        contest ? 
+        contest ?
           <ContestLink contest={contest} />
         :
           <a
@@ -121,7 +121,7 @@ export const ListTable = (props: Props) => {
         if (point >= INF_POINT) {
           return <p>-</p>;
         } else {
-          if (point % 100 == 0) {
+          if (point % 100 === 0) {
             return <p>{point}</p>;
           } else {
             return <p>{point.toFixed(2)}</p>;

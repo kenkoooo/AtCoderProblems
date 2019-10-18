@@ -8,7 +8,13 @@
   "rules": {
     "ordered-imports": false,
     "indent": [true, "spaces", 2],
-    "max-line-length": [true, { "limit":  80 }],
+    "max-line-length": [
+      true,
+      {
+        "limit":  80,
+        "ignore-pattern": "^import ||// "
+      }
+    ],
     "jsx-no-lambda": false,
     "jsx-boolean-value": false,
     "object-literal-sort-keys": false,

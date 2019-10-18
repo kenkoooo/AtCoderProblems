@@ -18,9 +18,9 @@ import {
   predictSolveProbability,
   predictSolveTime
 } from "../../utils/ProblemModelUtil";
-import { 
-  Button, 
-  ButtonGroup, 
+import {
+  Button,
+  ButtonGroup,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
@@ -124,7 +124,7 @@ class Recommendations extends React.Component<Props, LocalState> {
       problemModels,
       userRatingInfo
     } = this.props;
-    const { 
+    const {
       recommendNum,
       recommendOption,
     } = this.state;
@@ -263,17 +263,17 @@ class Recommendations extends React.Component<Props, LocalState> {
             </TableHeaderColumn>
             <TableHeaderColumn
               dataField="contest_id"
-              dataFormat={(contest_id: string, problem: Problem) => {
-                const contest = contests.get(contest_id);
+              dataFormat={(contestId: string, problem: Problem) => {
+                const contest = contests.get(contestId);
                 return (
-                  contest ? 
+                  contest ?
                     <ContestLink contest={contest} />
                   :
                     <a
                       href={Url.formatContestUrl(problem.contest_id)}
                       target="_blank"
                     >
-                      {contest_id}
+                      {contestId}
                     </a>
                 );
               }}
