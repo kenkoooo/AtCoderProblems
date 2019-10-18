@@ -1,5 +1,8 @@
 # Change Log
 
+## 2019-10-18
+- [#303](https://github.com/kenkoooo/AtCoderProblems/pull/303) Installed ts-lint and Prettier.  
+
 ## 2019-10-15
 - [#300](https://github.com/kenkoooo/AtCoderProblems/pull/300) Removed corrupted difficulty.
 - [#299](https://github.com/kenkoooo/AtCoderProblems/pull/299) Updated `Docker.crawler` to reduce the image size.
