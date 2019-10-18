@@ -81,6 +81,7 @@ const solvedCountForPieChart = (
         return 5;
       }
       default: {
+        // tslint:disable-next-line
         console.error(`Unsupported problemId: ${contestId}/${problemId}`);
         return 0;
       }
@@ -209,8 +210,10 @@ class UserPage extends React.Component<Props> {
           const nextDateLabel = formatMoment(
             parseDateLabel(state.prevDateLabel).add(1, "day")
           );
+          // tslint:disable-next-line
           const currentStreak =
             dateLabel === nextDateLabel ? state.currentStreak + 1 : 1;
+          // tslint:disable-next-line
           const longestStreak = Math.max(state.longestStreak, currentStreak);
           return { longestStreak, currentStreak, prevDateLabel: dateLabel };
         },

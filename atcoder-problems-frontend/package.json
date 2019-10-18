@@ -33,7 +33,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "tslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "tslint 'src/**/*.{ts,tsx}' --fix"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -47,6 +49,11 @@
   "devDependencies": {
     "@types/react-redux": "^7.1.1",
     "codecov": "^3.5.0",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "prettier-tslint": "^0.4.2",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "tslint-react": "^4.1.0"
   }
 }

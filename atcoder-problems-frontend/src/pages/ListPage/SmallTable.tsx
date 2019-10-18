@@ -12,7 +12,12 @@ interface Props {
   setFilterFunc: (point: number) => any;
 }
 
-const SmallTable = ({ submissions, userIds, mergedProblems, setFilterFunc }: Props) => {
+const SmallTable = ({
+  submissions,
+  userIds,
+  mergedProblems,
+  setFilterFunc
+}: Props) => {
   const userPointCount = userIds
     .filter(userId => userId.length > 0)
     .map(userId => ({
@@ -50,7 +55,10 @@ const SmallTable = ({ submissions, userIds, mergedProblems, setFilterFunc }: Pro
           <th>Point</th>
           {totalCount.map(({ point }) => (
             <th key={point}>
-              <a href={window.location.hash} onClick={()=>setFilterFunc(point)}>
+              <a
+                href={window.location.hash}
+                onClick={() => setFilterFunc(point)}
+              >
                 {point}
               </a>
             </th>

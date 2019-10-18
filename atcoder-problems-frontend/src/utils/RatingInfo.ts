@@ -1,5 +1,5 @@
 import ContestParticipation from "../interfaces/ContestParticipation";
-import {List} from "immutable";
+import { List } from "immutable";
 
 export class RatingInfo {
   readonly rating: number;
@@ -19,14 +19,24 @@ export class RatingInfo {
       } else {
         ratingBeforeLowerAdjustment = rating;
       }
-      const participationAdjustment = (Math.sqrt(1 - (0.9 ** (2 * participationCount))) / (1 - 0.9 ** participationCount) - 1) / (Math.sqrt(19) - 1) * 1200;
-      this.internalRating = ratingBeforeLowerAdjustment + participationAdjustment;
+      const participationAdjustment =
+        ((Math.sqrt(1 - 0.9 ** (2 * participationCount)) /
+          (1 - 0.9 ** participationCount) -
+          1) /
+          (Math.sqrt(19) - 1)) *
+        1200;
+      this.internalRating =
+        ratingBeforeLowerAdjustment + participationAdjustment;
     }
   }
 }
 
-export const ratingInfoOf = (contestHistory: List<ContestParticipation>): RatingInfo => {
-  const latestRating = contestHistory.last({NewRating: 0}).NewRating;
-  const ratedCount = contestHistory.filter((participation) => participation.IsRated).count();
+export const ratingInfoOf = (
+  contestHistory: List<ContestParticipation>
+): RatingInfo => {
+  const latestRating = contestHistory.last({ NewRating: 0 }).NewRating;
+  const ratedCount = contestHistory
+    .filter(participation => participation.IsRated)
+    .count();
   return new RatingInfo(latestRating, ratedCount);
 };

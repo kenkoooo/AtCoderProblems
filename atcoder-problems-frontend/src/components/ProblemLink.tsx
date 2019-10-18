@@ -11,15 +11,26 @@ interface Props {
 }
 
 function getColorClass(difficulty: number | null): string {
-  if (difficulty === null) return "";
-  if (difficulty < 400) return "difficulty-grey";
-  else if (difficulty < 800) return "difficulty-brown";
-  else if (difficulty < 1200) return "difficulty-green";
-  else if (difficulty < 1600) return "difficulty-cyan";
-  else if (difficulty < 2000) return "difficulty-blue";
-  else if (difficulty < 2400) return "difficulty-yellow";
-  else if (difficulty < 2800) return "difficulty-orange";
-  else return "difficulty-red";
+  if (difficulty === null) {
+    return "";
+  }
+  if (difficulty < 400) {
+    return "difficulty-grey";
+  } else if (difficulty < 800) {
+    return "difficulty-brown";
+  } else if (difficulty < 1200) {
+    return "difficulty-green";
+  } else if (difficulty < 1600) {
+    return "difficulty-cyan";
+  } else if (difficulty < 2000) {
+    return "difficulty-blue";
+  } else if (difficulty < 2400) {
+    return "difficulty-yellow";
+  } else if (difficulty < 2800) {
+    return "difficulty-orange";
+  } else {
+    return "difficulty-red";
+  }
 }
 
 const ProblemLink: React.FC<Props> = props => {
@@ -35,9 +46,13 @@ const ProblemLink: React.FC<Props> = props => {
       {problemTitle}
     </a>
   );
-  if (!showDifficulty) return link;
+  if (!showDifficulty) {
+    return link;
+  }
 
-  if (difficulty === null) return link;
+  if (difficulty === null) {
+    return link;
+  }
   return (
     <>
       <DifficultyCircle
