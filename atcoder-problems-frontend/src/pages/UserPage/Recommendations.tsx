@@ -25,7 +25,7 @@ import {
   DropdownMenu,
   DropdownToggle,
   Row,
-  UncontrolledDropdown,
+  UncontrolledDropdown
 } from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import ProblemLink from "../../components/ProblemLink";
@@ -33,24 +33,24 @@ import ContestLink from "../../components/ContestLink";
 
 const RECOMMEND_NUM_OPTIONS = [
   {
-    text: '10',
-    value: 10,
+    text: "10",
+    value: 10
   },
   {
-    text: '20',
-    value: 20,
+    text: "20",
+    value: 20
   },
   {
-    text: '50',
-    value: 50,
+    text: "50",
+    value: 50
   },
   {
-    text: '100',
-    value: 100,
+    text: "100",
+    value: 100
   },
   {
-    text: 'All',
-    value: Number.POSITIVE_INFINITY,
+    text: "All",
+    value: Number.POSITIVE_INFINITY
   }
 ];
 
@@ -69,27 +69,29 @@ const getRecommendProbability = (option: RecommendOption): number => {
   }
 };
 
-const getRecommendProbabilityRange = (option: RecommendOption): {lowerBound: number, upperBound: number} => {
+const getRecommendProbabilityRange = (
+  option: RecommendOption
+): { lowerBound: number; upperBound: number } => {
   switch (option) {
     case "Easy":
       return {
         lowerBound: 0.5,
-        upperBound: Number.POSITIVE_INFINITY,
+        upperBound: Number.POSITIVE_INFINITY
       };
     case "Moderate":
       return {
         lowerBound: 0.2,
-        upperBound: 0.8,
+        upperBound: 0.8
       };
     case "Difficult":
       return {
         lowerBound: Number.NEGATIVE_INFINITY,
-        upperBound: 0.5,
+        upperBound: 0.5
       };
     default:
       return {
         lowerBound: Number.NEGATIVE_INFINITY,
-        upperBound: Number.POSITIVE_INFINITY,
+        upperBound: Number.POSITIVE_INFINITY
       };
   }
 };
@@ -112,7 +114,7 @@ class Recommendations extends React.Component<Props, LocalState> {
     super(props);
     this.state = {
       recommendNum: 10,
-      recommendOption: "Moderate",
+      recommendOption: "Moderate"
     };
   }
 
@@ -124,10 +126,7 @@ class Recommendations extends React.Component<Props, LocalState> {
       problemModels,
       userRatingInfo
     } = this.props;
-    const {
-      recommendNum,
-      recommendOption,
-    } = this.state;
+    const { recommendNum, recommendOption } = this.state;
 
     if (userSubmissions.isEmpty()) {
       return null;
@@ -188,7 +187,11 @@ class Recommendations extends React.Component<Props, LocalState> {
         );
         return da - db;
       })
-      .filter(p => recommendingRange.lowerBound <= p.predictedSolveProbability && p.predictedSolveProbability < recommendingRange.upperBound)
+      .filter(
+        p =>
+          recommendingRange.lowerBound <= p.predictedSolveProbability &&
+          p.predictedSolveProbability < recommendingRange.upperBound
+      )
       .slice(0, recommendNum)
       .sort((a, b) => b.difficulty - a.difficulty)
       .toArray();
@@ -216,25 +219,21 @@ class Recommendations extends React.Component<Props, LocalState> {
               Difficult
             </Button>
           </ButtonGroup>
-          <UncontrolledDropdown
-            direction="left"
-          >
-              <DropdownToggle caret>
-                {recommendNum === Number.POSITIVE_INFINITY
-                  ? "All"
-                  : recommendNum}
-              </DropdownToggle>
-              <DropdownMenu>
-                {RECOMMEND_NUM_OPTIONS.map(({text, value}) => (
-                  <DropdownItem
-                    key={value}
-                    onClick={() => this.setState({ recommendNum: value })}
-                  >
-                    {text}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </UncontrolledDropdown>
+          <UncontrolledDropdown direction="left">
+            <DropdownToggle caret>
+              {recommendNum === Number.POSITIVE_INFINITY ? "All" : recommendNum}
+            </DropdownToggle>
+            <DropdownMenu>
+              {RECOMMEND_NUM_OPTIONS.map(({ text, value }) => (
+                <DropdownItem
+                  key={value}
+                  onClick={() => this.setState({ recommendNum: value })}
+                >
+                  {text}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </UncontrolledDropdown>
         </Row>
         <Row className="my-3">
           <BootstrapTable
@@ -265,16 +264,15 @@ class Recommendations extends React.Component<Props, LocalState> {
               dataField="contest_id"
               dataFormat={(contestId: string, problem: Problem) => {
                 const contest = contests.get(contestId);
-                return (
-                  contest ?
-                    <ContestLink contest={contest} />
-                  :
-                    <a
-                      href={Url.formatContestUrl(problem.contest_id)}
-                      target="_blank"
-                    >
-                      {contestId}
-                    </a>
+                return contest ? (
+                  <ContestLink contest={contest} />
+                ) : (
+                  <a
+                    href={Url.formatContestUrl(problem.contest_id)}
+                    target="_blank"
+                  >
+                    {contestId}
+                  </a>
                 );
               }}
             >
@@ -283,7 +281,9 @@ class Recommendations extends React.Component<Props, LocalState> {
             <TableHeaderColumn
               dataField="difficulty"
               dataFormat={(difficulty: number | null) => {
-                if (difficulty === null) { return "-"; }
+                if (difficulty === null) {
+                  return "-";
+                }
                 return String(difficulty);
               }}
             >

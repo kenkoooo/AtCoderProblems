@@ -1,5 +1,5 @@
 import React from "react";
-import {Badge, Tooltip} from "reactstrap";
+import { Badge, Tooltip } from "reactstrap";
 
 interface Props {
   id: string;
@@ -18,9 +18,10 @@ class HelpBadgeTooltip extends React.Component<Props, LocalState> {
   }
 
   render(): React.ReactNode {
-    const {tooltipOpen} = this.state;
+    const { tooltipOpen } = this.state;
     const badgeId = "HelpBadgeTooltip-" + this.props.id;
-    return <>
+    return (
+      <>
         <Badge color="secondary" pill id={badgeId}>
           ?
         </Badge>
@@ -28,11 +29,12 @@ class HelpBadgeTooltip extends React.Component<Props, LocalState> {
           placement="top"
           target={badgeId}
           isOpen={tooltipOpen}
-          toggle={() => this.setState({tooltipOpen: !tooltipOpen})}
+          toggle={() => this.setState({ tooltipOpen: !tooltipOpen })}
         >
           {this.props.children}
         </Tooltip>
-      </>;
+      </>
+    );
   }
 }
 

@@ -67,7 +67,10 @@ const ReviewPage: React.FC<Props> = props => {
       }
       const { title } = problem;
       const problemModel = problemModels.get(problem_id);
-      const difficulty = problemModel && problemModel.difficulty !== undefined ? problemModel.difficulty : null;
+      const difficulty =
+        problemModel && problemModel.difficulty !== undefined
+          ? problemModel.difficulty
+          : null;
       const predictedSolveTime =
         problemModel &&
         internalRating &&
