@@ -133,4 +133,4 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/from/{unix_time_second}
 
 This will be updated once a week.
 
-- https://s3-ap-northeast-1.amazonaws.com/kenkoooo/submissions.csv
+- https://s3-ap-northeast-1.amazonaws.com/kenkoooo/submissions.csv.gz
