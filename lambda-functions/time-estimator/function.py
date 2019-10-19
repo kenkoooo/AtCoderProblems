@@ -28,6 +28,8 @@ def safe_sigmoid(x):
 
 
 def fit_2plm_irt(xs, ys):
+    random.seed(20191019)
+
     iter_n = max(100000 // len(xs), 1)
 
     eta = 1.
@@ -58,6 +60,18 @@ def fit_2plm_irt(xs, ys):
     best_logl, a, b = max(iterations)
     a /= x_scale
     return -b / a, -a
+
+
+def evaluate_2plm_irt(xs, ys, difficulty, discrimination):
+    n = len(xs)
+    if difficulty is None or discrimination is None:
+        logl = n * math.log(0.5)
+    else:
+        logl = 0
+        for x, y in zip(xs, ys):
+            p = safe_sigmoid(-discrimination * (x - difficulty))
+            logl += safe_log(p if y == 1. else (1 - p))
+    return logl, n
 
 
 def inverse_adjust_rating(rating, prev_contests):
@@ -136,6 +150,9 @@ def fit_problem_model(user_results, task_screen_name):
         else:
             model["difficulty"] = difficulty
             model["discrimination"] = discrimination
+        loglikelihood, users = evaluate_2plm_irt(d_raw_ratings, d_accepteds, difficulty, discrimination)
+        model["irt_loglikelihood"] = loglikelihood
+        model["irt_users"] = users
     return model
 
 
