@@ -31,3 +31,4 @@ matrix:
         - yarn build
         - yarn test --coverage
         - npx codecov
+        - yarn lint
