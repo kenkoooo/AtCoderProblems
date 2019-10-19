@@ -1,5 +1,8 @@
 # Change Log
 
+## 2019-10-20
+- [#307](https://github.com/kenkoooo/AtCoderProblems/pull/307) Compressed `submissions.csv`.
+
 ## 2019-10-19
 - [#306](https://github.com/kenkoooo/AtCoderProblems/pull/306) Added ts-lint check into CI.
 - [#305](https://github.com/kenkoooo/AtCoderProblems/pull/305) Removed unused python scripts.  
