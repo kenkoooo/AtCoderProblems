@@ -53,6 +53,11 @@ yarn start
 yarn build
 ```
 
+## Fix code format
+```bash
+yarn lint:fix
+```
+
 # Docker
 
 ```bash
