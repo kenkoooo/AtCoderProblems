@@ -110,10 +110,6 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
   - https://kenkoooo.com/atcoder/resources/sums.json
 - Accepted Count for each language
   - https://kenkoooo.com/atcoder/resources/lang.json
-- Minimum performances for each problems
-  - https://kenkoooo.com/atcoder/resources/problem-performances.json
-
-(The API `info/*` are deprecated. Please use new API.)
 
 ## UserInfo API
 - https://kenkoooo.com/atcoder/atcoder-api/v2/user_info?user=kenkoooo
