@@ -1,6 +1,7 @@
 # Change Log
 
 ## 2019-10-20
+- [#308](https://github.com/kenkoooo/AtCoderProblems/pull/308) Created a new Docker container for `backend`.
 - [#307](https://github.com/kenkoooo/AtCoderProblems/pull/307) Compressed `submissions.csv`.
 
 ## 2019-10-19
