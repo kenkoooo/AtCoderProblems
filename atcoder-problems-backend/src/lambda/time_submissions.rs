@@ -35,7 +35,7 @@ where
                 from_second: from_epoch_second,
                 count: 1000,
             })
-            .map_handler_error()?;
+            .herr()?;
         let max_id = submissions.iter().map(|s| s.id).max().unwrap_or(0);
 
         let mut hasher = Md5::new();
