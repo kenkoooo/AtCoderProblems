@@ -1,13 +1,13 @@
 use super::{LambdaInput, LambdaOutput};
-use crate::error::MapHandlerError;
+use crate::error::Result;
 use crate::sql::{AcceptedCountClient, RatedPointSumClient};
 
-use diesel::{Connection, ConnectionResult, PgConnection, QueryResult};
+use diesel::{Connection, ConnectionResult, PgConnection};
 use lambda_runtime::{error::HandlerError, Context, Handler};
 use log::info;
 use serde::Serialize;
 
-fn get_user_info<'a, C>(conn: &C, user_id: &'a str) -> QueryResult<UserInfo<'a>>
+fn get_user_info<'a, C>(conn: &C, user_id: &'a str) -> Result<UserInfo<'a>>
 where
     C: AcceptedCountClient + RatedPointSumClient,
 {
@@ -48,13 +48,17 @@ impl<C> Handler<LambdaInput, LambdaOutput, HandlerError> for UserInfoHandler<C>
 where
     C: AcceptedCountClient + RatedPointSumClient,
 {
-    fn run(&mut self, e: LambdaInput, _: Context) -> Result<LambdaOutput, HandlerError> {
+    fn run(
+        &mut self,
+        e: LambdaInput,
+        _: Context,
+    ) -> std::result::Result<LambdaOutput, HandlerError> {
         let user_id = e
             .param("user")
             .ok_or_else(|| HandlerError::from("There is no user."))?;
 
         info!("UserInfo API");
-        let user_info = get_user_info(&self.connection, user_id).herr()?;
+        let user_info = get_user_info(&self.connection, user_id)?;
 
         let body = serde_json::to_string(&user_info)?;
         Ok(LambdaOutput::new200(body, None))

@@ -1,21 +1,23 @@
 use super::models::{Submission, UserLanguageCount};
 use super::schema::language_count;
 use super::MAX_INSERT_ROWS;
+use crate::error::Result;
 use crate::utils::SplitToSegments;
+
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
-use diesel::{PgConnection, QueryResult};
+use diesel::PgConnection;
 use regex::Regex;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub trait LanguageCountClient {
-    fn update_language_count(&self, submissions: &[Submission]) -> QueryResult<()>;
-    fn load_language_count(&self) -> QueryResult<Vec<UserLanguageCount>>;
+    fn update_language_count(&self, submissions: &[Submission]) -> Result<()>;
+    fn load_language_count(&self) -> Result<Vec<UserLanguageCount>>;
 }
 
 impl LanguageCountClient for PgConnection {
-    fn update_language_count(&self, submissions: &[Submission]) -> QueryResult<()> {
+    fn update_language_count(&self, submissions: &[Submission]) -> Result<()> {
         let re = Regex::new(r"\d* \(.*\)").unwrap();
         let language_count = submissions
             .iter()
@@ -64,9 +66,10 @@ impl LanguageCountClient for PgConnection {
         Ok(())
     }
 
-    fn load_language_count(&self) -> QueryResult<Vec<UserLanguageCount>> {
-        language_count::table
+    fn load_language_count(&self) -> Result<Vec<UserLanguageCount>> {
+        let count = language_count::table
             .order_by(language_count::user_id)
-            .load::<UserLanguageCount>(self)
+            .load::<UserLanguageCount>(self)?;
+        Ok(count)
     }
 }
