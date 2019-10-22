@@ -1,21 +1,23 @@
 use super::models::Submission;
 use super::schema::max_streaks;
+use crate::error::Result;
 use crate::sql::MAX_INSERT_ROWS;
 use crate::utils::SplitToSegments;
+
 use chrono::Duration;
 use chrono::{DateTime, Datelike, FixedOffset, TimeZone, Utc};
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
-use diesel::{insert_into, PgConnection, QueryResult};
+use diesel::{insert_into, PgConnection};
 use std::cmp;
 use std::collections::BTreeMap;
 
 pub trait StreakUpdater {
-    fn update_streak_count(&self, submissions: &[Submission]) -> QueryResult<()>;
+    fn update_streak_count(&self, submissions: &[Submission]) -> Result<()>;
 }
 
 impl StreakUpdater for PgConnection {
-    fn update_streak_count(&self, ac_submissions: &[Submission]) -> QueryResult<()> {
+    fn update_streak_count(&self, ac_submissions: &[Submission]) -> Result<()> {
         let mut submissions = ac_submissions
             .iter()
             .map(|s| {

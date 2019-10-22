@@ -1,5 +1,4 @@
 use super::{LambdaInput, LambdaOutput};
-use crate::error::MapHandlerError;
 use crate::sql::{SubmissionClient, SubmissionRequest};
 
 use diesel::{Connection, ConnectionResult, PgConnection};
@@ -34,8 +33,7 @@ where
             .get_submissions(SubmissionRequest::FromTime {
                 from_second: from_epoch_second,
                 count: 1000,
-            })
-            .herr()?;
+            })?;
         let max_id = submissions.iter().map(|s| s.id).max().unwrap_or(0);
 
         let mut hasher = Md5::new();

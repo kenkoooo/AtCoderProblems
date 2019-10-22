@@ -2,21 +2,23 @@ use super::models::Submission;
 use super::schema::{contests, rated_point_sum};
 use super::MAX_INSERT_ROWS;
 use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
+use crate::error::Result;
 use crate::utils::SplitToSegments;
+
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
-use diesel::{PgConnection, QueryResult};
+use diesel::PgConnection;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub trait RatedPointSumClient {
-    fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> QueryResult<()>;
-    fn get_users_rated_point_sum(&self, user_id: &str) -> QueryResult<f64>;
-    fn get_rated_point_sum_rank(&self, point: f64) -> QueryResult<i64>;
+    fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> Result<()>;
+    fn get_users_rated_point_sum(&self, user_id: &str) -> Result<f64>;
+    fn get_rated_point_sum_rank(&self, point: f64) -> Result<i64>;
 }
 
 impl RatedPointSumClient for PgConnection {
-    fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> QueryResult<()> {
+    fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> Result<()> {
         let rated_contest_ids = contests::table
             .filter(contests::start_epoch_second.ge(FIRST_AGC_EPOCH_SECOND))
             .filter(contests::rate_change.ne(UNRATED_STATE))
@@ -59,17 +61,19 @@ impl RatedPointSumClient for PgConnection {
         Ok(())
     }
 
-    fn get_users_rated_point_sum(&self, user_id: &str) -> QueryResult<f64> {
-        rated_point_sum::table
+    fn get_users_rated_point_sum(&self, user_id: &str) -> Result<f64> {
+        let sum = rated_point_sum::table
             .filter(rated_point_sum::user_id.eq(user_id))
             .select(rated_point_sum::point_sum)
-            .first::<f64>(self)
+            .first::<f64>(self)?;
+        Ok(sum)
     }
 
-    fn get_rated_point_sum_rank(&self, rated_point_sum: f64) -> QueryResult<i64> {
-        rated_point_sum::table
+    fn get_rated_point_sum_rank(&self, rated_point_sum: f64) -> Result<i64> {
+        let rank = rated_point_sum::table
             .filter(rated_point_sum::point_sum.gt(rated_point_sum))
             .select(count_star())
-            .first::<i64>(self)
+            .first::<i64>(self)?;
+        Ok(rank)
     }
 }

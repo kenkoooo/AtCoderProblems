@@ -24,3 +24,11 @@ pub use rated_point_sum::RatedPointSumClient;
 pub use simple_client::SimpleClient;
 pub use streak::StreakUpdater;
 pub use submission_client::{SubmissionClient, SubmissionRequest};
+
+use crate::error::Result;
+use diesel::{Connection, PgConnection};
+
+pub fn connect(url: &str) -> Result<PgConnection> {
+    let connection = PgConnection::establish(url)?;
+    Ok(connection)
+}
