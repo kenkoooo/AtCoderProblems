@@ -1,3 +1,4 @@
+use crate::error::Result;
 use crate::sql::models::Submission;
 use crate::sql::schema::submissions;
 
@@ -5,7 +6,7 @@ use diesel::dsl::insert_into;
 use diesel::expression::count::count_star;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
-use diesel::{PgConnection, QueryResult};
+use diesel::PgConnection;
 
 pub enum SubmissionRequest<'a> {
     UserAll { user_id: &'a str },
@@ -17,15 +18,15 @@ pub enum SubmissionRequest<'a> {
 }
 
 pub trait SubmissionClient {
-    fn get_submissions(&self, request: SubmissionRequest) -> QueryResult<Vec<Submission>>;
-    fn get_user_submission_count(&self, user_id: &str) -> QueryResult<i64>;
-    fn get_submission_by_id(&self, id: i64) -> QueryResult<Option<Submission>>;
-    fn update_submissions(&self, values: &[Submission]) -> QueryResult<usize>;
+    fn get_submissions(&self, request: SubmissionRequest) -> Result<Vec<Submission>>;
+    fn get_user_submission_count(&self, user_id: &str) -> Result<i64>;
+    fn get_submission_by_id(&self, id: i64) -> Result<Option<Submission>>;
+    fn update_submissions(&self, values: &[Submission]) -> Result<usize>;
 }
 
 impl SubmissionClient for PgConnection {
-    fn get_submissions(&self, request: SubmissionRequest) -> QueryResult<Vec<Submission>> {
-        match request {
+    fn get_submissions(&self, request: SubmissionRequest) -> Result<Vec<Submission>> {
+        let submissions = match request {
             SubmissionRequest::UserAll { user_id } => submissions::table
                 .filter(submissions::user_id.eq(user_id))
                 .load(self),
@@ -50,23 +51,25 @@ impl SubmissionClient for PgConnection {
             SubmissionRequest::AllAccepted => submissions::table
                 .filter(submissions::result.eq("AC"))
                 .load(self),
-        }
+        }?;
+        Ok(submissions)
     }
-    fn get_user_submission_count(&self, user_id: &str) -> QueryResult<i64> {
-        submissions::table
+    fn get_user_submission_count(&self, user_id: &str) -> Result<i64> {
+        let count = submissions::table
             .filter(submissions::user_id.eq(user_id))
             .select(count_star())
-            .first(self)
+            .first(self)?;
+        Ok(count)
     }
-    fn get_submission_by_id(&self, id: i64) -> QueryResult<Option<Submission>> {
+    fn get_submission_by_id(&self, id: i64) -> Result<Option<Submission>> {
         let submissions: Vec<Submission> = submissions::table
             .filter(submissions::id.eq(id))
             .load::<Submission>(self)?;
         Ok(submissions.into_iter().next())
     }
 
-    fn update_submissions(&self, values: &[Submission]) -> QueryResult<usize> {
-        insert_into(submissions::table)
+    fn update_submissions(&self, values: &[Submission]) -> Result<usize> {
+        let count = insert_into(submissions::table)
             .values(values)
             .on_conflict(submissions::id)
             .do_update()
@@ -76,6 +79,7 @@ impl SubmissionClient for PgConnection {
                 submissions::point.eq(excluded(submissions::point)),
                 submissions::execution_time.eq(excluded(submissions::execution_time)),
             ))
-            .execute(self)
+            .execute(self)?;
+        Ok(count)
     }
 }

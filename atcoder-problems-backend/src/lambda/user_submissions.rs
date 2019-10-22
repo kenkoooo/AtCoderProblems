@@ -1,5 +1,4 @@
 use super::{LambdaInput, LambdaOutput};
-use crate::error::MapHandlerError;
 use crate::sql::{SubmissionClient, SubmissionRequest};
 
 use diesel::{Connection, ConnectionResult, PgConnection};
@@ -28,7 +27,7 @@ where
         let user_id = e
             .param("user")
             .ok_or_else(|| HandlerError::from("There is no user."))?;
-        let count: i64 = self.connection.get_user_submission_count(user_id).herr()?;
+        let count: i64 = self.connection.get_user_submission_count(user_id)?;
 
         let mut hasher = Md5::new();
         hasher.input(user_id.as_bytes());
@@ -41,8 +40,7 @@ where
             _ => {
                 let submissions = self
                     .connection
-                    .get_submissions(SubmissionRequest::UserAll { user_id })
-                    .herr()?;
+                    .get_submissions(SubmissionRequest::UserAll { user_id })?;
                 let body = serde_json::to_string(&submissions)?;
                 Ok(LambdaOutput::new200(body, Some(etag)))
             }
