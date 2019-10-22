@@ -5,7 +5,7 @@ use atcoder_problems_backend::sql::{ProblemInfoUpdater, SimpleClient, Submission
 use diesel::prelude::*;
 use diesel::PgConnection;
 
-mod utils;
+pub mod utils;
 
 fn get_solver(conn: &PgConnection) -> Vec<(String, i32)> {
     solver::table
