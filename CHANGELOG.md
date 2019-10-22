@@ -1,7 +1,8 @@
 # Change Log
 
 ## 2019-10-22
-- [#311](https://github.com/kenkoooo/AtCoderProblems/pull/311) Created SQL updater for AWS Lambda.
+- [#313](https://github.com/kenkoooo/AtCoderProblems/pull/313) Added `error::Error`.
+- [#312](https://github.com/kenkoooo/AtCoderProblems/pull/312) Created SQL updater for AWS Lambda.
 - [#310](https://github.com/kenkoooo/AtCoderProblems/pull/310) Removed unused AWS Lambda functions.
 
 ## 2019-10-20
