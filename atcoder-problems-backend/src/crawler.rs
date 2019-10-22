@@ -1,8 +1,8 @@
+use crate::error::Result;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
 use crate::sql::{ContestProblemClient, SimpleClient, SubmissionClient, SubmissionRequest};
 use algorithm_problem_client::{AtCoderClient, AtCoderProblem};
 use chrono::{Duration, Utc};
-use diesel::QueryResult;
 use log::{error, info};
 use std::collections::BTreeSet;
 use std::{thread, time};
@@ -10,7 +10,7 @@ use std::{thread, time};
 const NEW_CONTEST_THRESHOLD_DAYS: i64 = 7;
 const NEW_PAGE_THRESHOLD: usize = 5;
 
-pub fn crawl_from_new_contests<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
+pub fn crawl_from_new_contests<C>(conn: &C, client: &AtCoderClient) -> Result<()>
 where
     C: SimpleClient + SubmissionClient,
 {
@@ -53,7 +53,7 @@ where
     Ok(())
 }
 
-pub fn crawl_all_submissions<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
+pub fn crawl_all_submissions<C>(conn: &C, client: &AtCoderClient) -> Result<()>
 where
     C: SimpleClient + SubmissionClient,
 {
@@ -80,7 +80,7 @@ where
     Ok(())
 }
 
-pub fn crawl_new_submissions<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
+pub fn crawl_new_submissions<C>(conn: &C, client: &AtCoderClient) -> Result<()>
 where
     C: SimpleClient + SubmissionClient,
 {
@@ -113,7 +113,7 @@ where
     Ok(())
 }
 
-pub fn crawl_from_recent_submitted<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
+pub fn crawl_from_recent_submitted<C>(conn: &C, client: &AtCoderClient) -> Result<()>
 where
     C: SimpleClient + SubmissionClient,
 {
@@ -147,7 +147,7 @@ where
     Ok(())
 }
 
-pub fn crawl_contest_and_problems<C>(conn: &C, client: &AtCoderClient) -> QueryResult<()>
+pub fn crawl_contest_and_problems<C>(conn: &C, client: &AtCoderClient) -> Result<()>
 where
     C: SimpleClient + ContestProblemClient,
 {
