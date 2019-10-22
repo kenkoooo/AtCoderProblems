@@ -54,7 +54,7 @@ where
             .ok_or_else(|| HandlerError::from("There is no user."))?;
 
         info!("UserInfo API");
-        let user_info = get_user_info(&self.connection, user_id).map_handler_error()?;
+        let user_info = get_user_info(&self.connection, user_id).herr()?;
 
         let body = serde_json::to_string(&user_info)?;
         Ok(LambdaOutput::new200(body, None))
