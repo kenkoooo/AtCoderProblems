@@ -12,22 +12,25 @@ fn generate_query(table: &str, column: &str) -> String {
                 SELECT id, problem_id, contest_id FROM submissions
                 WHERE id IN
                 (
-                    SELECT MIN(id) FROM submissions
+                    SELECT MIN(submissions.id) FROM submissions
+                    LEFT JOIN contests ON contests.id=contest_id
                     WHERE result='AC'
-                    AND (problem_id, {column}) IN
+                    AND contests.start_epoch_second < submissions.epoch_second
+                    AND (problem_id, submissions.{column}) IN
                     (
-                        SELECT problem_id, MIN({column})            
-                        FROM submissions 
+                        SELECT problem_id, MIN(submissions.{column}) FROM submissions
+                        LEFT JOIN contests ON contests.id=contest_id
                         WHERE result='AC'
+                        AND contests.start_epoch_second < submissions.epoch_second
                         GROUP BY problem_id
                     )
                     GROUP BY problem_id
                 )
                 ON CONFLICT (problem_id)
                 DO UPDATE SET
-                            contest_id=EXCLUDED.contest_id,
-                            problem_id=EXCLUDED.problem_id,
-                            submission_id=EXCLUDED.submission_id;",
+                        contest_id=EXCLUDED.contest_id,
+                        problem_id=EXCLUDED.problem_id,
+                        submission_id=EXCLUDED.submission_id;",
         table = table,
         column = column
     )
