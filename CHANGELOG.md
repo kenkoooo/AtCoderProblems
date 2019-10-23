@@ -1,6 +1,7 @@
 # Change Log
 
-## 2019-10-22
+## 2019-10-24
+- [#316](https://github.com/kenkoooo/AtCoderProblems/pull/316) Stop aggregating before-contest submissions.
 - [#314](https://github.com/kenkoooo/AtCoderProblems/pull/314) Ported aggregation functions from Rust to SQL.
 
 ## 2019-10-23
