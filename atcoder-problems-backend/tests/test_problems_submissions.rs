@@ -51,12 +51,22 @@ fn test_problem_info_aggregator() {
         conn.batch_execute(
             r#"
                 INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change) VALUES
-                ('contest1', 0, 0, '', ''), ('contest2', 0, 0, '', '');
+                ('contest1', 1, 0, '', ''), ('contest2', 1, 0, '', '');
             "#,
         )
         .unwrap();
         conn
     }
+    let ignored_submission = vec![Submission {
+        id: 0,
+        problem_id: "problem1".to_owned(),
+        contest_id: "contest1".to_owned(),
+        epoch_second: 0,
+        length: 1,
+        execution_time: Some(1),
+        result: "AC".to_owned(),
+        ..Default::default()
+    }];
     let submissions1 = vec![Submission {
         id: 1,
         problem_id: "problem1".to_owned(),
@@ -80,6 +90,11 @@ fn test_problem_info_aggregator() {
 
     {
         let conn = setup_contests();
+
+        insert_submissions(&conn, &ignored_submission);
+        conn.update_submissions_of_problems().unwrap();
+        let first = get_first(&conn);
+        assert_eq!(first.len(), 0);
 
         insert_submissions(&conn, &submissions1);
         conn.update_submissions_of_problems().unwrap();
