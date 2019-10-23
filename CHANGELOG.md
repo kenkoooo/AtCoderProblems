@@ -1,6 +1,9 @@
 # Change Log
 
 ## 2019-10-22
+- [#314](https://github.com/kenkoooo/AtCoderProblems/pull/314) Ported aggregation functions from Rust to SQL.
+
+## 2019-10-23
 - [#313](https://github.com/kenkoooo/AtCoderProblems/pull/313) Added `error::Error`.
 - [#312](https://github.com/kenkoooo/AtCoderProblems/pull/312) Created SQL updater for AWS Lambda.
 - [#310](https://github.com/kenkoooo/AtCoderProblems/pull/310) Removed unused AWS Lambda functions.
