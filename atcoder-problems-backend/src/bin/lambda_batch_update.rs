@@ -54,7 +54,7 @@ fn handler(_: String, _: Context) -> Result<String, HandlerError> {
     conn.update_language_count(&all_accepted_submissions)?;
 
     info!("Executing update_submissions_of_problems...");
-    conn.update_submissions_of_problems(&all_accepted_submissions)?;
+    conn.update_submissions_of_problems()?;
 
     info!("Executing update_problem_points...");
     conn.update_problem_points()?;
