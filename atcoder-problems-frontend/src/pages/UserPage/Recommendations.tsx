@@ -160,7 +160,8 @@ class Recommendations extends React.Component<Props, LocalState> {
             difficulty: undefined,
             rawDifficulty: undefined,
             intercept: undefined,
-            discrimination: undefined
+            discrimination: undefined,
+            is_experimental: false
           });
           if (isProblemModelWithTimeModel(problemModel)) {
             predictedSolveTime = predictSolveTime(problemModel, internalRating);
@@ -251,6 +252,7 @@ class Recommendations extends React.Component<Props, LocalState> {
               ) => (
                 <ProblemLink
                   difficulty={problemModels.getIn([id, "difficulty"], null)}
+                  isExperimentalDifficulty={problemModels.getIn([id, "is_experimental"], false)}
                   showDifficulty={true}
                   problemId={id}
                   problemTitle={title}
