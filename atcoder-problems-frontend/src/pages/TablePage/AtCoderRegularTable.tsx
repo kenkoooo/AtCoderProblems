@@ -99,6 +99,10 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
                       [problem.id, "difficulty"],
                       null
                     )}
+                    isExperimentalDifficulty={problemModels.getIn(
+                      [problem.id, "is_experimental"],
+                      false
+                    )}
                     showDifficulty={showDifficulty}
                     contestId={contest.id}
                     problemId={problem.id}

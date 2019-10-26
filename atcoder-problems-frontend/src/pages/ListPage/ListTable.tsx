@@ -40,6 +40,7 @@ export const ListTable = (props: Props) => {
         <ProblemLink
           showDifficulty={true}
           difficulty={row.difficulty !== -1 ? row.difficulty : null}
+          isExperimentalDifficulty={row.isExperimentalDifficulty}
           problemId={row.mergedProblem.id}
           problemTitle={row.title}
           contestId={row.mergedProblem.contest_id}
