@@ -1,6 +1,7 @@
-import React from "react";
+import React, {Component} from "react";
 import * as Url from "../utils/Url";
 import { DifficultyCircle } from "./DifficultyCircle";
+import {Tooltip} from "reactstrap";
 
 interface Props {
   problemId: string;
@@ -8,6 +9,11 @@ interface Props {
   problemTitle: string;
   difficulty: number | null;
   showDifficulty: boolean;
+  isExperimentalDifficulty: boolean;
+}
+
+interface LocalState {
+  tooltipOpen: boolean;
 }
 
 function getColorClass(difficulty: number | null): string {
@@ -33,41 +39,72 @@ function getColorClass(difficulty: number | null): string {
   }
 }
 
-const ProblemLink: React.FC<Props> = props => {
-  const {
-    contestId,
-    problemId,
-    problemTitle,
-    difficulty,
-    showDifficulty
-  } = props;
-  const link = (
-    <a href={Url.formatProblemUrl(problemId, contestId)} target="_blank">
-      {problemTitle}
-    </a>
-  );
-  if (!showDifficulty) {
-    return link;
+class ProblemLink extends React.Component<Props, LocalState> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      tooltipOpen: false
+    };
   }
 
-  if (difficulty === null) {
-    return link;
-  }
-  return (
-    <>
-      <DifficultyCircle
-        id={problemId + "-" + contestId}
-        difficulty={difficulty}
-      />
-      <a
-        href={Url.formatProblemUrl(problemId, contestId)}
-        target="_blank"
-        className={getColorClass(difficulty)}
-      >
+  render() {
+    const {
+      contestId,
+      problemId,
+      problemTitle,
+      difficulty,
+      showDifficulty,
+      isExperimentalDifficulty
+    } = this.props;
+    const {
+      tooltipOpen
+    } = this.state;
+    const link = (
+      <a href={Url.formatProblemUrl(problemId, contestId)} target="_blank">
         {problemTitle}
       </a>
-    </>
-  );
-};
+    );
+    if (!showDifficulty) {
+      return link;
+    }
+
+    if (difficulty === null) {
+      return link;
+    }
+
+    const uniqueId = problemId + "-" + contestId;
+    const experimentalIconId = "experimental-" + uniqueId;
+    return (
+      <>
+        <DifficultyCircle
+          id={uniqueId}
+          difficulty={difficulty}
+        />
+        { isExperimentalDifficulty ?
+          <>
+            <span id={experimentalIconId}>
+              🧪
+            </span>
+            <Tooltip
+              placement="top"
+              target={experimentalIconId}
+              isOpen={tooltipOpen}
+              toggle={() => this.setState({ tooltipOpen: !tooltipOpen })}
+            >
+              This estimate is experimental.
+            </Tooltip>
+          </>
+        : null}
+        <a
+          href={Url.formatProblemUrl(problemId, contestId)}
+          target="_blank"
+          className={getColorClass(difficulty)}
+        >
+          {problemTitle}
+        </a>
+      </>
+    );
+  }
+}
 
 export default ProblemLink;

@@ -1,4 +1,20 @@
 import json
+import math
+
+
+def calc_average_normalized_loglikelihood(models, keys=None) -> float:
+    keys = keys or models.keys()
+    accum_normalized_logloss = 0.
+    for key in keys:
+        if key not in models:
+            accum_normalized_logloss += math.log(0.5)
+            continue
+        model = models[key]
+        if "irt_loglikelihood" not in model or "irt_users" not in model:
+            accum_normalized_logloss += math.log(0.5)
+            continue
+        accum_normalized_logloss += model["irt_loglikelihood"] / model["irt_users"]
+    return accum_normalized_logloss / len(keys)
 
 
 if __name__ == '__main__':
@@ -20,8 +36,20 @@ if __name__ == '__main__':
         print(f"{problem_key}: (not estimated) -> {new_difficulty:.02f}")
 
     print(f"common diffs")
+    diffs = []
     for problem_key in sorted(old_models.keys() & new_models.keys()):
         old_difficulty = old_models[problem_key]["difficulty"]
         new_difficulty = new_models[problem_key]["difficulty"]
-        if abs(new_difficulty - old_difficulty) > 100 and old_difficulty > 0:
+        if old_difficulty <= 0:
+            continue
+        diffs.append(new_difficulty - old_difficulty)
+        if abs(new_difficulty - old_difficulty) > 50:
             print(f"{problem_key}: {old_difficulty:.02f} -> {new_difficulty:.02f} d = {new_difficulty - old_difficulty:-.02f}")
+    average_diff = sum(diffs) / len(diffs)
+    stddev_diff = (sum(d * d for d in diffs) / len(diffs) - average_diff ** 2) ** 0.5
+    print(f"average diff = {average_diff:.03f}, stddev = {stddev_diff:.03f}")
+    common_keys = old_models.keys() & new_models.keys()
+    old_score = calc_average_normalized_loglikelihood(old_models, common_keys)
+    new_score = calc_average_normalized_loglikelihood(new_models, common_keys)
+    improvement = -(new_score - old_score) / old_score
+    print(f"likelihood: {old_score:.03f} -> {new_score:.03f} ({improvement * 100:.03f}% improvement)")
