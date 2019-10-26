@@ -70,6 +70,10 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                                 [p.id, "difficulty"],
                                 null
                               )}
+                              isExperimentalDifficulty={props.problemModels.getIn(
+                                [p.id, "is_experimental"],
+                                false
+                              )}
                               showDifficulty={props.showDifficulty}
                               problemId={p.id}
                               problemTitle={p.title}

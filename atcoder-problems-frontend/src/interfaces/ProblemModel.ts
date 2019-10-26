@@ -4,6 +4,7 @@ export default interface ProblemModel {
   readonly difficulty: number | undefined;
   readonly rawDifficulty: number | undefined;
   readonly discrimination: number | undefined;
+  readonly is_experimental: boolean;
 }
 
 export const isProblemModel = (obj: any): obj is ProblemModel =>
@@ -14,7 +15,8 @@ export const isProblemModel = (obj: any): obj is ProblemModel =>
   (typeof obj.rawDifficulty === "number" ||
     typeof obj.rawDifficulty === "undefined") &&
   (typeof obj.discrimination === "number" ||
-    typeof obj.discrimination === "undefined");
+    typeof obj.discrimination === "undefined") &&
+  typeof obj.is_experimental === "boolean";
 
 export interface ProblemModelWithDifficultyModel {
   readonly slope: number | undefined;
@@ -22,6 +24,7 @@ export interface ProblemModelWithDifficultyModel {
   readonly difficulty: number;
   readonly rawDifficulty: number;
   readonly discrimination: number;
+  readonly is_experimental: boolean;
 }
 
 export const isProblemModelWithDifficultyModel = (
@@ -31,7 +34,8 @@ export const isProblemModelWithDifficultyModel = (
   (typeof obj.intercept === "number" || typeof obj.intercept === "undefined") &&
   typeof obj.difficulty === "number" &&
   typeof obj.rawDifficulty === "number" &&
-  typeof obj.discrimination === "number";
+  typeof obj.discrimination === "number" &&
+  typeof obj.is_experimental === "boolean";
 
 export interface ProblemModelWithTimeModel {
   readonly slope: number;
@@ -39,6 +43,7 @@ export interface ProblemModelWithTimeModel {
   readonly difficulty: number | undefined;
   readonly rawDifficulty: number | undefined;
   readonly discrimination: number | undefined;
+  readonly is_experimental: boolean;
 }
 
 export const isProblemModelWithTimeModel = (
@@ -51,4 +56,5 @@ export const isProblemModelWithTimeModel = (
   (typeof obj.rawDifficulty === "number" ||
     typeof obj.rawDifficulty === "undefined") &&
   (typeof obj.discrimination === "number" ||
-    typeof obj.discrimination === "undefined");
+    typeof obj.discrimination === "undefined") &&
+  typeof obj.is_experimental === "boolean";

@@ -36,6 +36,7 @@ interface ReviewEntry {
   readonly point: number;
 
   readonly difficulty: number | null;
+  readonly isExperimentalDifficulty: boolean;
   readonly predictedSolveTime: number | null;
   readonly predictedSolveProbability: number | null;
 }
@@ -71,6 +72,10 @@ const ReviewPage: React.FC<Props> = props => {
         problemModel && problemModel.difficulty !== undefined
           ? problemModel.difficulty
           : null;
+      const isExperimentalDifficulty =
+        problemModel && problemModel.is_experimental !== undefined
+          ? problemModel.is_experimental
+          : false;
       const predictedSolveTime =
         problemModel &&
         internalRating &&
@@ -86,6 +91,7 @@ const ReviewPage: React.FC<Props> = props => {
 
       return {
         difficulty,
+        isExperimentalDifficulty,
         id,
         problem_id,
         contest_id,
@@ -162,6 +168,7 @@ const ReviewPage: React.FC<Props> = props => {
               contestId={entry.contest_id}
               problemTitle={entry.title}
               difficulty={entry.difficulty}
+              isExperimentalDifficulty={entry.isExperimentalDifficulty}
               showDifficulty={true}
             />
           )}

@@ -32,6 +32,14 @@ span.difficulty-circle {
   width: 12px;
 }
 
+svg.tube-icon {
+  display: inline-block;
+  border-width: 1px;
+  margin-right: 5px;
+  height: 12px;
+  width: 12px;
+}
+
 .difficulty-red {
   color: #FF0000;
 }
