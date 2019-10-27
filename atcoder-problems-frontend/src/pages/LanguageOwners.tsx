@@ -30,6 +30,8 @@ const OneOwner = (props: {
   </div>
 );
 
+const OWNERS_NUM_OPTIONS = [3, 5, 10, 20];
+
 interface Props {
   ranking: Map<string, List<LangRankingEntry>>;
   requestData: () => void;
@@ -37,15 +39,13 @@ interface Props {
 
 interface LocalState {
   ownersNum: number;
-  ownersNumOptions: number[];
 }
 
 class LanguageOwners extends React.Component<Props, LocalState> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      ownersNum: 3,
-      ownersNumOptions: [3, 5, 10, 20]
+      ownersNum: 3
     };
   }
 
@@ -54,16 +54,17 @@ class LanguageOwners extends React.Component<Props, LocalState> {
   }
 
   render() {
+    const { ownersNum } = this.state;
     return (
       <>
         <div className="clearfix">
           <ButtonGroup className="float-right">
-            {this.state.ownersNumOptions.map(option => (
+            {OWNERS_NUM_OPTIONS.map(option => (
               <Button
                 key={option}
                 color="secondary"
                 onClick={() => this.setState({ ownersNum: option })}
-                active={this.state.ownersNum === option}
+                active={ownersNum === option}
               >
                 {option}
               </Button>
@@ -78,7 +79,7 @@ class LanguageOwners extends React.Component<Props, LocalState> {
                 key={language}
                 language={language}
                 ranking={list}
-                size={this.state.ownersNum}
+                size={ownersNum}
               />
             ))
             .valueSeq()
