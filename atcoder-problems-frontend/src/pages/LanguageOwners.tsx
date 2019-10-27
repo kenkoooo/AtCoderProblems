@@ -55,32 +55,36 @@ class LanguageOwners extends React.Component<Props, LocalState> {
 
   render() {
     return (
-      <div>
-        <ButtonGroup>
-          {this.state.ownersNumOptions.map(option => (
-            <Button
-              key={option}
-              color="secondary"
-              onClick={() => this.setState({ ownersNum: option })}
-              active={this.state.ownersNum === option}
-            >
-              {option}
-            </Button>
-          ))}
-        </ButtonGroup>
-        {this.props.ranking
-          .sortBy((value, key) => key)
-          .map((list, language) => (
-            <OneOwner
-              key={language}
-              language={language}
-              ranking={list}
-              size={this.state.ownersNum}
-            />
-          ))
-          .valueSeq()
-          .toArray()}
-      </div>
+      <>
+        <div className="clearfix">
+          <ButtonGroup className="float-right">
+            {this.state.ownersNumOptions.map(option => (
+              <Button
+                key={option}
+                color="secondary"
+                onClick={() => this.setState({ ownersNum: option })}
+                active={this.state.ownersNum === option}
+              >
+                {option}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </div>
+        <div>
+          {this.props.ranking
+            .sortBy((value, key) => key)
+            .map((list, language) => (
+              <OneOwner
+                key={language}
+                language={language}
+                ranking={list}
+                size={this.state.ownersNum}
+              />
+            ))
+            .valueSeq()
+            .toArray()}
+        </div>
+      </>
     );
   }
 }
