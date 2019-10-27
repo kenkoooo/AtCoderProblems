@@ -1,7 +1,7 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import * as Url from "../utils/Url";
 import { DifficultyCircle } from "./DifficultyCircle";
-import {Tooltip} from "reactstrap";
+import { Tooltip } from "reactstrap";
 
 interface Props {
   problemId: string;
@@ -56,9 +56,7 @@ class ProblemLink extends React.Component<Props, LocalState> {
       showDifficulty,
       isExperimentalDifficulty
     } = this.props;
-    const {
-      tooltipOpen
-    } = this.state;
+    const { tooltipOpen } = this.state;
     const link = (
       <a href={Url.formatProblemUrl(problemId, contestId)} target="_blank">
         {problemTitle}
@@ -76,15 +74,10 @@ class ProblemLink extends React.Component<Props, LocalState> {
     const experimentalIconId = "experimental-" + uniqueId;
     return (
       <>
-        <DifficultyCircle
-          id={uniqueId}
-          difficulty={difficulty}
-        />
-        { isExperimentalDifficulty ?
+        <DifficultyCircle id={uniqueId} difficulty={difficulty} />
+        {isExperimentalDifficulty ? (
           <>
-            <span id={experimentalIconId}>
-              🧪
-            </span>
+            <span id={experimentalIconId}>🧪</span>
             <Tooltip
               placement="top"
               target={experimentalIconId}
@@ -94,7 +87,7 @@ class ProblemLink extends React.Component<Props, LocalState> {
               This estimate is experimental.
             </Tooltip>
           </>
-        : null}
+        ) : null}
         <a
           href={Url.formatProblemUrl(problemId, contestId)}
           target="_blank"
