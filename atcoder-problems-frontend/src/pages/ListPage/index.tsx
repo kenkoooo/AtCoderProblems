@@ -124,7 +124,10 @@ class ListPage extends React.Component<Props, ListPageState> {
           const shortestUserId = p.shortest_user_id ? p.shortest_user_id : "";
           const fastestUserId = p.fastest_user_id ? p.fastest_user_id : "";
           const difficulty = problemModels.getIn([p.id, "difficulty"], -1);
-          const isExperimentalDifficulty = problemModels.getIn([p.id, "is_experimental"], false);
+          const isExperimentalDifficulty = problemModels.getIn(
+            [p.id, "is_experimental"],
+            false
+          );
           return {
             id: p.id,
             title: p.title,

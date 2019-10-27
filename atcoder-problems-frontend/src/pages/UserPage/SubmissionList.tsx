@@ -82,7 +82,10 @@ const SubmissionList = (props: Props) => {
         dataFormat={(_: string, { problem_id, contest_id }: Submission) => (
           <ProblemLink
             difficulty={problemModels.getIn([problem_id, "difficulty"], null)}
-            isExperimentalDifficulty={problemModels.getIn([problem_id, "is_experimental"], false)}
+            isExperimentalDifficulty={problemModels.getIn(
+              [problem_id, "is_experimental"],
+              false
+            )}
             showDifficulty={true}
             problemId={problem_id}
             problemTitle={titleMap.get(problem_id) || ""}
