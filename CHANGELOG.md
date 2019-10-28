@@ -1,5 +1,10 @@
 # Change Log
 
+## 2019-10-27
+- [#320](https://github.com/kenkoooo/AtCoderProblems/pull/320) Refactoring of LanguageOwners.
+- [#319](https://github.com/kenkoooo/AtCoderProblems/pull/319) Enabled to choose the number of shown language owners.
+- [#318](https://github.com/kenkoooo/AtCoderProblems/pull/318) Difficulty estimation for old contests.
+
 ## 2019-10-24
 - [#316](https://github.com/kenkoooo/AtCoderProblems/pull/316) Stop aggregating before-contest submissions.
 - [#314](https://github.com/kenkoooo/AtCoderProblems/pull/314) Ported aggregation functions from Rust to SQL.
