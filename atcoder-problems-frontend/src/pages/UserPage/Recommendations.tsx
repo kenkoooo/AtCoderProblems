@@ -107,6 +107,7 @@ interface Props {
 interface LocalState {
   recommendNum: number;
   recommendOption: RecommendOption;
+  recommendExperimental: boolean;
 }
 
 class Recommendations extends React.Component<Props, LocalState> {
@@ -114,7 +115,8 @@ class Recommendations extends React.Component<Props, LocalState> {
     super(props);
     this.state = {
       recommendNum: 10,
-      recommendOption: "Moderate"
+      recommendOption: "Moderate",
+      recommendExperimental: true
     };
   }
 
@@ -126,7 +128,7 @@ class Recommendations extends React.Component<Props, LocalState> {
       problemModels,
       userRatingInfo
     } = this.props;
-    const { recommendNum, recommendOption } = this.state;
+    const { recommendNum, recommendOption, recommendExperimental } = this.state;
 
     if (userSubmissions.isEmpty()) {
       return null;
@@ -144,8 +146,10 @@ class Recommendations extends React.Component<Props, LocalState> {
       .filter(p => problemModels.has(p.id))
       .map(p => ({
         ...p,
-        difficulty: problemModels.getIn([p.id, "difficulty"], undefined)
+        difficulty: problemModels.getIn([p.id, "difficulty"], undefined),
+        is_experimental: problemModels.getIn([p.id, "is_experimental"], false)
       }))
+      .filter(p => recommendExperimental || !p.is_experimental)
       .filter(p => p.difficulty !== undefined)
       .map(p => {
         const internalRating = userRatingInfo.internalRating;
@@ -200,26 +204,42 @@ class Recommendations extends React.Component<Props, LocalState> {
     return (
       <>
         <Row className="my-3 d-flex justify-content-between">
-          <ButtonGroup>
-            <Button
-              onClick={() => this.setState({ recommendOption: "Easy" })}
-              active={recommendOption === "Easy"}
-            >
-              Easy
-            </Button>
-            <Button
-              onClick={() => this.setState({ recommendOption: "Moderate" })}
-              active={recommendOption === "Moderate"}
-            >
-              Moderate
-            </Button>
-            <Button
-              onClick={() => this.setState({ recommendOption: "Difficult" })}
-              active={recommendOption === "Difficult"}
-            >
-              Difficult
-            </Button>
-          </ButtonGroup>
+          <div>
+            <ButtonGroup>
+              <Button
+                onClick={() => this.setState({ recommendOption: "Easy" })}
+                active={recommendOption === "Easy"}
+              >
+                Easy
+              </Button>
+              <Button
+                onClick={() => this.setState({ recommendOption: "Moderate" })}
+                active={recommendOption === "Moderate"}
+              >
+                Moderate
+              </Button>
+              <Button
+                onClick={() => this.setState({ recommendOption: "Difficult" })}
+                active={recommendOption === "Difficult"}
+              >
+                Difficult
+              </Button>
+            </ButtonGroup>
+            <ButtonGroup className="mx-3">
+              <Button
+                onClick={() => this.setState({ recommendExperimental: true })}
+                active={recommendExperimental}
+              >
+                Show 🧪
+              </Button>
+              <Button
+                onClick={() => this.setState({ recommendExperimental: false })}
+                active={!recommendExperimental}
+              >
+                Hide 🧪
+              </Button>
+            </ButtonGroup>
+          </div>
           <UncontrolledDropdown direction="left">
             <DropdownToggle caret>
               {recommendNum === Number.POSITIVE_INFINITY ? "All" : recommendNum}
@@ -248,14 +268,11 @@ class Recommendations extends React.Component<Props, LocalState> {
               dataField="title"
               dataFormat={(
                 title: string,
-                { id, contest_id }: { id: string; contest_id: string }
+                { id, contest_id, is_experimental }: { id: string; contest_id: string; is_experimental: boolean }
               ) => (
                 <ProblemLink
                   difficulty={problemModels.getIn([id, "difficulty"], null)}
-                  isExperimentalDifficulty={problemModels.getIn(
-                    [id, "is_experimental"],
-                    false
-                  )}
+                  isExperimentalDifficulty={is_experimental}
                   showDifficulty={true}
                   problemId={id}
                   problemTitle={title}
