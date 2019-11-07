@@ -1,5 +1,8 @@
 # Change Log
 
+## 2019-11-01
+- [#322](https://github.com/kenkoooo/AtCoderProblems/pull/322)  Added an option to hide experimental recommendations. 
+
 ## 2019-10-27
 - [#320](https://github.com/kenkoooo/AtCoderProblems/pull/320) Refactoring of LanguageOwners.
 - [#319](https://github.com/kenkoooo/AtCoderProblems/pull/319) Enabled to choose the number of shown language owners.
