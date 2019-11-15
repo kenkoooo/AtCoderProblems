@@ -16,7 +16,7 @@ import {
   Button,
   FormGroup
 } from "reactstrap";
-import { ATCODER_USER_REGEXP, extractRivalsParam } from "../utils";
+import { extractRivalsParam, normalizeUserId } from "../utils";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { List } from "immutable";
@@ -62,16 +62,9 @@ const generatePath = (
   userId: string,
   rivalIdString: string
 ) => {
-  const trimmedUserId = userId.trim();
-  const users = [
-    checkUserId(trimmedUserId),
-    ...extractRivalsParam(rivalIdString)
-  ];
+  const users = [normalizeUserId(userId), ...extractRivalsParam(rivalIdString)];
   return "/" + kind + "/" + users.join("/");
 };
-
-const checkUserId = (inputUserId: string): string =>
-  inputUserId.match(ATCODER_USER_REGEXP) ? inputUserId : "";
 
 class NavigationBar extends React.Component<Props, LocalState> {
   constructor(props: Props) {
@@ -87,7 +80,10 @@ class NavigationBar extends React.Component<Props, LocalState> {
   submit(nextKind: PageKind) {
     const { userId, rivalIdString } = this.state;
     const path = generatePath(nextKind, userId, rivalIdString);
-    this.props.updateUserIds(userId.trim(), List(extractRivalsParam(rivalIdString)));
+    this.props.updateUserIds(
+      normalizeUserId(userId),
+      List(extractRivalsParam(rivalIdString))
+    );
     this.props.history.push({ pathname: path });
     this.setState({ pageKind: nextKind });
   }
@@ -97,7 +93,10 @@ class NavigationBar extends React.Component<Props, LocalState> {
     const pageKind = extractPageKind(pathname);
     const { userId, rivalIdString } = extractUserIds(pathname);
     this.setState({ userId, rivalIdString, pageKind });
-    this.props.updateUserIds(userId.trim(), List(extractRivalsParam(rivalIdString)));
+    this.props.updateUserIds(
+      normalizeUserId(userId),
+      List(extractRivalsParam(rivalIdString))
+    );
   }
 
   render() {
