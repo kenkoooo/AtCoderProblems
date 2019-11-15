@@ -15,6 +15,11 @@ export const extractRivalsParam = (rivalsParam: string): string[] => {
   }
 };
 
+export const normalizeUserId = (userId: string): string => {
+  const trimmedUserId = userId.trim();
+  return trimmedUserId.match(ATCODER_USER_REGEXP) ? trimmedUserId : "";
+};
+
 export const isAccepted = (result: string) => result === "AC";
 export const ordinalSuffixOf = (i: number) => {
   const j = i % 10;
