@@ -1,7 +1,8 @@
 import {
   ATCODER_RIVALS_REGEXP,
   ATCODER_USER_REGEXP,
-  extractRivalsParam
+  extractRivalsParam,
+  normalizeUserId,
 } from "./index";
 
 describe("user regex", () => {
@@ -38,4 +39,12 @@ it("extract rival params", () => {
     "USER2",
     "user_3"
   ]);
+});
+
+it("should normalize user id", () => {
+  expect(normalizeUserId("   userid")).toBe("userid");
+  expect(normalizeUserId("userid   ")).toBe("userid");
+  expect(normalizeUserId("  userid ")).toBe("userid");
+  expect(normalizeUserId("userid")).toBe("userid");
+  expect(normalizeUserId("user id")).toBe("");
 });
