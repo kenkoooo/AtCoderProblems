@@ -113,6 +113,13 @@ table! {
     }
 }
 
+table! {
+    submission_count (user_id) {
+        user_id -> Varchar,
+        count -> Int8,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     accepted_count,
     contests,
@@ -128,4 +135,5 @@ allow_tables_to_appear_in_same_query!(
     shortest,
     solver,
     submissions,
+    submission_count,
 );

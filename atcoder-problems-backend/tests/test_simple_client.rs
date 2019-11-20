@@ -1,7 +1,7 @@
 use atcoder_problems_backend::sql::models::{Contest, Problem};
 use atcoder_problems_backend::sql::SimpleClient;
 
-mod utils;
+pub mod utils;
 
 #[test]
 fn test_insert_contests() {
