@@ -80,6 +80,7 @@ fn test_submission_client() {
     let submissions = conn.get_submissions(request).unwrap();
     assert_eq!(submissions.len(), 2);
 
+    conn.update_submission_count().unwrap();
     assert_eq!(conn.get_user_submission_count("user1").unwrap(), 3);
     assert_eq!(conn.get_user_submission_count("user2").unwrap(), 1);
 
