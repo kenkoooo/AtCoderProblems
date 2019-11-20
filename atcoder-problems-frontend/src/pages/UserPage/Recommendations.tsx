@@ -268,7 +268,11 @@ class Recommendations extends React.Component<Props, LocalState> {
               dataField="title"
               dataFormat={(
                 title: string,
-                { id, contest_id, is_experimental }: { id: string; contest_id: string; is_experimental: boolean }
+                {
+                  id,
+                  contest_id,
+                  is_experimental
+                }: { id: string; contest_id: string; is_experimental: boolean }
               ) => (
                 <ProblemLink
                   difficulty={problemModels.getIn([id, "difficulty"], null)}
