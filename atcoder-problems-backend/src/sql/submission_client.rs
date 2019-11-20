@@ -1,9 +1,9 @@
 use crate::error::Result;
 use crate::sql::models::Submission;
-use crate::sql::schema::submissions;
+use crate::sql::schema::{submission_count, submissions};
 
+use diesel::connection::SimpleConnection;
 use diesel::dsl::insert_into;
-use diesel::expression::count::count_star;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
 use diesel::PgConnection;
@@ -22,6 +22,7 @@ pub trait SubmissionClient {
     fn get_user_submission_count(&self, user_id: &str) -> Result<i64>;
     fn get_submission_by_id(&self, id: i64) -> Result<Option<Submission>>;
     fn update_submissions(&self, values: &[Submission]) -> Result<usize>;
+    fn update_submission_count(&self) -> Result<()>;
 }
 
 impl SubmissionClient for PgConnection {
@@ -54,13 +55,15 @@ impl SubmissionClient for PgConnection {
         }?;
         Ok(submissions)
     }
+
     fn get_user_submission_count(&self, user_id: &str) -> Result<i64> {
-        let count = submissions::table
-            .filter(submissions::user_id.eq(user_id))
-            .select(count_star())
+        let count = submission_count::table
+            .filter(submission_count::user_id.eq(user_id))
+            .select(submission_count::count)
             .first(self)?;
         Ok(count)
     }
+
     fn get_submission_by_id(&self, id: i64) -> Result<Option<Submission>> {
         let submissions: Vec<Submission> = submissions::table
             .filter(submissions::id.eq(id))
@@ -81,5 +84,15 @@ impl SubmissionClient for PgConnection {
             ))
             .execute(self)?;
         Ok(count)
+    }
+
+    fn update_submission_count(&self) -> Result<()> {
+        self.batch_execute(
+            r"
+            INSERT INTO submission_count (user_id, count)
+            SELECT user_id, count(*) FROM submissions GROUP BY user_id
+            ON CONFLICT (user_id) DO UPDATE SET count=EXCLUDED.count",
+        )?;
+        Ok(())
     }
 }

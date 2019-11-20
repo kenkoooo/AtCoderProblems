@@ -116,3 +116,10 @@ CREATE TABLE max_streaks (
   streak                BIGINT NOT NULL,
   PRIMARY KEY (user_id)
 );
+
+DROP TABLE IF EXISTS submission_count;
+CREATE TABLE submission_count (
+  user_id               VARCHAR(255) NOT NULL,
+  count                BIGINT NOT NULL,
+  PRIMARY KEY (user_id)
+);
