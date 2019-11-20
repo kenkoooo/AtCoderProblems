@@ -2,7 +2,7 @@ import {
   ATCODER_RIVALS_REGEXP,
   ATCODER_USER_REGEXP,
   extractRivalsParam,
-  normalizeUserId,
+  normalizeUserId
 } from "./index";
 
 describe("user regex", () => {
