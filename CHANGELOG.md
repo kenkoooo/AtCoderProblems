@@ -1,5 +1,12 @@
 # Change Log
 
+## 2019-11-21
+- [#326](https://github.com/kenkoooo/AtCoderProblems/pull/326) Added a button to exclude experimental results.
+- [#325](https://github.com/kenkoooo/AtCoderProblems/pull/325) Added a new SQL table to cache the result.
+
+## 2019-11-16
+- [#324](https://github.com/kenkoooo/AtCoderProblems/pull/324) Trimming of the string of the text form.
+
 ## 2019-11-01
 - [#322](https://github.com/kenkoooo/AtCoderProblems/pull/322)  Added an option to hide experimental recommendations. 
 
