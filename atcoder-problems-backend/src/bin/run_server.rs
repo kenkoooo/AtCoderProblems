@@ -1,4 +1,5 @@
 use actix_web::{middleware, web, App, HttpResponse, HttpServer};
+use atcoder_problems_backend::server::time_submissions::get_time_submissions;
 use atcoder_problems_backend::server::user_info::get_user_info;
 use atcoder_problems_backend::server::user_submissions::get_user_submissions;
 use diesel::r2d2::ConnectionManager;
@@ -21,7 +22,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 web::resource("/atcoder-api/results").route(web::get().to(get_user_submissions)),
             )
             .service(web::resource("/atcoder-api/v2/user_info").route(web::get().to(get_user_info)))
-            .service(web::resource("/atcoder-api/v3/from/").route(web::get().to(get_user_info)))
+            .service(
+                web::resource("/atcoder-api/v3/from/{from}")
+                    .route(web::get().to(get_time_submissions)),
+            )
             .default_service(
                 web::resource("").route(web::route().to(HttpResponse::MethodNotAllowed)),
             )
