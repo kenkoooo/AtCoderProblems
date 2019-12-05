@@ -1,4 +1,4 @@
-FROM rust:1.38 AS builder
+FROM rust:1.39 AS builder
 
 RUN USER=root cargo new app
 WORKDIR /app
@@ -7,7 +7,7 @@ RUN cargo build --release
 ADD ./src /app/src
 RUN cargo build --release
 
-FROM rust:1.38
+FROM rust:1.39
 COPY --from=builder /app/target/release/crawl /usr/bin/crawl
 COPY --from=builder /app/target/release/dump_json /usr/bin/dump_json
 COPY --from=builder /app/target/release/delta_update /usr/bin/delta_update
