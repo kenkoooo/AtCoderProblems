@@ -47,7 +47,7 @@ pub fn config(cfg: &mut web::ServiceConfig, data: AppData) {
 
 #[derive(Clone)]
 pub struct AppData {
-    pub(crate) pool: Pool,
+    pub pool: Pool,
 }
 
 impl AppData {

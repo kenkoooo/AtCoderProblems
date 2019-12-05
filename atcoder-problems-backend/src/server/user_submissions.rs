@@ -7,7 +7,7 @@ use actix_web::http::header::ETAG;
 use actix_web::{web, HttpRequest, HttpResponse};
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct Query {
     user: String,
 }
@@ -42,8 +42,8 @@ fn inner<C: SubmissionClient>(
     let heavy_count = submissions.len();
     let heavy_etag = utils::calc_etag_for_user(user_id, heavy_count);
     if heavy_etag.as_str() == etag {
-        return Ok(None);
+        Ok(None)
     } else {
-        return Ok(Some((submissions, heavy_etag)));
+        Ok(Some((submissions, heavy_etag)))
     }
 }
