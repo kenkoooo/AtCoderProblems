@@ -1,4 +1,3 @@
-use lambda_runtime::error::HandlerError;
 use serde::export::Formatter;
 
 #[derive(Debug)]
@@ -40,12 +39,6 @@ impl From<actix_web::error::QueryPayloadError> for Error {
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
-
-impl From<Error> for HandlerError {
-    fn from(e: Error) -> Self {
-        HandlerError::from(e.to_string().as_str())
-    }
-}
 
 impl std::error::Error for Error {}
 
