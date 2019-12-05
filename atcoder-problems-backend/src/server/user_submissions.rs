@@ -1,5 +1,5 @@
 use crate::error::Result;
-use crate::server::{request_with_connection, utils, EtagExtractor, Pool};
+use crate::server::{request_with_connection, utils, AppData, EtagExtractor};
 use crate::sql::models::Submission;
 
 use crate::sql::{SubmissionClient, SubmissionRequest};
@@ -12,8 +12,8 @@ struct Query {
     user: String,
 }
 
-pub async fn get_user_submissions(request: HttpRequest, pool: web::Data<Pool>) -> HttpResponse {
-    request_with_connection(pool, move |conn| {
+pub async fn get_user_submissions(request: HttpRequest, data: web::Data<AppData>) -> HttpResponse {
+    request_with_connection(&data.pool, move |conn| {
         let etag = request.extract_etag();
         match inner(conn, &request, etag) {
             Ok(r) => match r {
