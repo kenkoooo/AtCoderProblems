@@ -1,5 +1,5 @@
 use crate::error::Result;
-use crate::server::{request_with_connection, Pool};
+use crate::server::{request_with_connection, AppData};
 use crate::server::{utils, EtagExtractor};
 use crate::sql::models::Submission;
 use crate::sql::{SubmissionClient, SubmissionRequest};
@@ -9,10 +9,10 @@ use actix_web::{web, HttpRequest, HttpResponse};
 pub async fn get_time_submissions(
     request: HttpRequest,
     path: web::Path<(i64,)>,
-    pool: web::Data<Pool>,
+    data: web::Data<AppData>,
 ) -> HttpResponse {
     let from_epoch_second = path.0;
-    request_with_connection(pool, |conn| {
+    request_with_connection(&data.pool, |conn| {
         let etag = request.extract_etag();
         match inner(conn, from_epoch_second, etag) {
             Ok(r) => match r {
