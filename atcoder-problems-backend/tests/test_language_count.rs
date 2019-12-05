@@ -1,7 +1,7 @@
 use atcoder_problems_backend::sql::models::{Submission, UserLanguageCount};
 use atcoder_problems_backend::sql::LanguageCountClient;
 
-mod utils;
+pub mod utils;
 
 #[test]
 fn test_language_count() {

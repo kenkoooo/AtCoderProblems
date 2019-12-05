@@ -1,8 +1,6 @@
 use actix_web::{middleware, web, App, HttpResponse, HttpServer};
 use atcoder_problems_backend::server;
 use atcoder_problems_backend::server::AppData;
-use diesel::r2d2::ConnectionManager;
-use diesel::PgConnection;
 use std::env;
 use std::error::Error;
 
