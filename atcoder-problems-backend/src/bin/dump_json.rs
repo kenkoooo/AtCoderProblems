@@ -1,6 +1,3 @@
-extern crate openssl; // Just for musl-compiler
-use openssl_probe; // Just for musl-compiler
-
 use atcoder_problems_backend::s3;
 use atcoder_problems_backend::sql::models::*;
 use atcoder_problems_backend::sql::schema::*;
@@ -15,8 +12,6 @@ use std::env;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    openssl_probe::init_ssl_cert_env_vars(); // Just for musl-compiler
-
     simple_logger::init_with_level(log::Level::Info)?;
 
     info!("Started!");

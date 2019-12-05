@@ -1,5 +1,3 @@
-extern crate openssl;
-
 use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler;
 use diesel::pg::PgConnection;
