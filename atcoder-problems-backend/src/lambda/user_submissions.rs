@@ -1,7 +1,6 @@
 use super::{LambdaInput, LambdaOutput};
 use crate::sql::{SubmissionClient, SubmissionRequest};
 
-use crate::sql::models::Submission;
 use diesel::{Connection, ConnectionResult, PgConnection};
 use lambda_runtime::{error::HandlerError, Context, Handler};
 use log::info;
