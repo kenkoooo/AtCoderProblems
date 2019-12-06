@@ -18,7 +18,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 web::resource("").route(web::route().to(HttpResponse::MethodNotAllowed)),
             )
     })
-    .bind("127.0.0.1:8080")?
+    .bind("0.0.0.0:8080")?
     .run()?;
     Ok(())
 }
