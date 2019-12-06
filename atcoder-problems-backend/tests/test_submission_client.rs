@@ -1,7 +1,7 @@
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::{SubmissionClient, SubmissionRequest};
 use diesel::connection::SimpleConnection;
-mod utils;
+pub mod utils;
 
 #[test]
 fn test_submission_client() {
