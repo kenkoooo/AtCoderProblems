@@ -5,13 +5,11 @@ authors = ["kenkoooo <kenkou.n@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+actix-web = "2.0.0-alpha.2"
 base64 = "0.10"
 chrono = "0.4"
-diesel = { version = "1.4.2", features = ["postgres"] }
-lambda_runtime = "0.2"
+diesel = { version = "1.4.3", features = ["postgres", "r2d2"] }
 log = "0.4.6"
-openssl = "*"
-openssl-probe = "0.1.2"
 regex = "1"
 reqwest = { version = "0.9", features = ["rustls-tls"], default-features = false }
 rusoto_s3 = "0.42.0"
@@ -24,3 +22,5 @@ simple_logger = "1.2"
 md-5 = "0.8"
 hex = "0.3"
 algorithm-problem-client = "0.4"
+r2d2 = "0.8.7"
+futures = "0.3"
