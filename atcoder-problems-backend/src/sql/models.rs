@@ -2,7 +2,7 @@ use super::schema::*;
 use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 use diesel::sql_types::*;
 use diesel::Queryable;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Eq, PartialEq, Queryable, Insertable, Serialize)]
 pub struct Contest {
@@ -26,7 +26,7 @@ pub struct Problem {
     pub title: String,
 }
 
-#[derive(Debug, Queryable, Insertable, Clone, Serialize, Default)]
+#[derive(Debug, Queryable, Insertable, Clone, Serialize, Default, Deserialize)]
 pub struct Submission {
     pub id: i64,
     pub epoch_second: i64,
