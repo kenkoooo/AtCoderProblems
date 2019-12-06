@@ -117,4 +117,12 @@ fn test_server_e2e() {
         .to_request();
     let response: ServiceResponse = block_on(app.call(request)).unwrap();
     assert!(response.status().is_client_error());
+
+    let request = test::TestRequest::get().uri("/healthcheck").to_request();
+    let response: ServiceResponse = block_on(app.call(request)).unwrap();
+    assert!(response.status().is_success());
+
+    let request = test::TestRequest::get().uri("/").to_request();
+    let response: ServiceResponse = block_on(app.call(request)).unwrap();
+    assert!(response.status().is_client_error());
 }
