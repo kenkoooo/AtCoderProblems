@@ -1,10 +1,12 @@
 use actix_web::dev::{Service, ServiceResponse};
+use actix_web::http::header::{ETAG, IF_NONE_MATCH};
 use actix_web::{test, App};
 use atcoder_problems_backend::server;
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::schema::*;
 use diesel::{insert_into, ExpressionMethods, PgConnection, RunQueryDsl};
 use futures::executor::block_on;
+use futures::StreamExt;
 
 pub mod utils;
 
@@ -55,6 +57,15 @@ fn prepare_data_set(conn: &PgConnection) {
         .unwrap();
 }
 
+async fn take_body(response: &mut ServiceResponse) -> Vec<u8> {
+    let mut body = response.take_body();
+    let mut bytes = vec![];
+    while let Some(item) = body.next().await {
+        bytes.extend_from_slice(&item.unwrap());
+    }
+    bytes
+}
+
 #[test]
 fn test_server_e2e() {
     let data = utils::connect_to_test_sql_pool();
@@ -74,9 +85,19 @@ fn test_server_e2e() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/results?user=u2")
         .to_request();
-    let submissions: Vec<Submission> = block_on(test::read_response_json(&mut app, request));
+    let mut response: ServiceResponse = block_on(app.call(request)).unwrap();
+    let body = block_on(take_body(&mut response));
+    let submissions: Vec<Submission> = serde_json::from_slice(&body).unwrap();
+    let etag = response.headers().get(ETAG).unwrap().to_str().unwrap();
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
+
+    let request = test::TestRequest::get()
+        .header(IF_NONE_MATCH, etag)
+        .uri("/atcoder-api/results?user=u2")
+        .to_request();
+    let response: ServiceResponse = block_on(app.call(request)).unwrap();
+    assert_eq!(response.status(), 304);
 
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/from/100")
