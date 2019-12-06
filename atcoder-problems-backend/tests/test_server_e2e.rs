@@ -1,3 +1,4 @@
+use actix_web::dev::{Service, ServiceResponse};
 use actix_web::{test, App};
 use atcoder_problems_backend::server;
 use atcoder_problems_backend::sql::models::Submission;
@@ -83,4 +84,16 @@ fn test_server_e2e() {
     let submissions: Vec<Submission> = block_on(test::read_response_json(&mut app, request));
     assert_eq!(submissions.len(), 2);
     assert!(submissions.iter().all(|s| s.epoch_second >= 100));
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/from/")
+        .to_request();
+    let response: ServiceResponse = block_on(app.call(request)).unwrap();
+    assert!(response.status().is_client_error());
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/results")
+        .to_request();
+    let response: ServiceResponse = block_on(app.call(request)).unwrap();
+    assert!(response.status().is_client_error());
 }
