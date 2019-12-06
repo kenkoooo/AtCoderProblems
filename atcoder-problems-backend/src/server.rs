@@ -42,7 +42,8 @@ pub fn config(cfg: &mut web::ServiceConfig, data: AppData) {
         .service(web::resource("/atcoder-api/v2/user_info").route(web::get().to(get_user_info)))
         .service(
             web::resource("/atcoder-api/v3/from/{from}").route(web::get().to(get_time_submissions)),
-        );
+        )
+        .service(web::resource("/healthcheck").route(web::route().to(HttpResponse::Ok)));
 }
 
 #[derive(Clone)]
