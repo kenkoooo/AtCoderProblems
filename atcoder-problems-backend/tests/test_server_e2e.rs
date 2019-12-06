@@ -1,18 +1,57 @@
-use actix_web::dev::Service;
-use actix_web::{test, web, App};
+use actix_web::dev::{Service, ServiceResponse};
+use actix_web::{test, App};
 use atcoder_problems_backend::server;
+use atcoder_problems_backend::sql::models::Submission;
+use atcoder_problems_backend::sql::schema::*;
+use diesel::{insert_into, PgConnection, RunQueryDsl};
+use futures::executor::block_on;
 
 pub mod utils;
+
+fn prepare_data_set(conn: &PgConnection) {
+    let submissions = vec![
+        // for user=u1
+        (0, "p1", "c1", "u1", "WA"),
+        (1, "p1", "c1", "u1", "RE"),
+        (2, "p1", "c1", "u1", "AC"),
+        (3, "p1", "c1", "u1", "AC"),
+        (100, "p1", "c1", "u1", "AC"),
+        // for user=u2
+        (4, "p1", "c1", "u2", "WA"),
+        (5, "p1", "c1", "u2", "RE"),
+        (6, "p1", "c1", "u2", "AC"),
+        (7, "p1", "c1", "u2", "AC"),
+        (200, "p1", "c1", "u2", "AC"),
+    ]
+    .into_iter()
+    .map(|(id, problem_id, contest_id, user_id, result)| Submission {
+        id,
+        epoch_second: id,
+        problem_id: problem_id.to_string(),
+        contest_id: contest_id.to_string(),
+        user_id: user_id.to_string(),
+        result: result.to_string(),
+        ..Default::default()
+    })
+    .collect::<Vec<_>>();
+    insert_into(submissions::table)
+        .values(submissions)
+        .execute(conn)
+        .unwrap();
+}
 
 #[test]
 fn test_server_e2e() {
     let data = utils::connect_to_test_sql_pool();
-    let mut app = test::block_on(test::init_service(
+    let conn = data.pool.get().unwrap();
+    prepare_data_set(&conn);
+
+    let mut app = block_on(test::init_service(
         App::new().configure(|cfg| server::config(cfg, data.clone())),
     ));
     let request = test::TestRequest::get()
-        .uri("/atcoder-api/results?user=1")
+        .uri("/atcoder-api/results?user=u1")
         .to_request();
-    let response = test::block_on(app.call(request)).unwrap();
-    unimplemented!("{:?}", response);
+    let response: ServiceResponse = block_on(app.call(request)).unwrap();
+    assert_eq!(response.status(), 200, "{:?}", response);
 }
