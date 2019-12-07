@@ -14,6 +14,7 @@ pub enum SubmissionRequest<'a> {
     FromTime { from_second: i64, count: i64 },
     RecentAccepted { count: i64 },
     RecentAll { count: i64 },
+    InvalidResult { from_second: i64 },
     AllAccepted,
 }
 
@@ -51,6 +52,13 @@ impl SubmissionClient for PgConnection {
                 .load(self),
             SubmissionRequest::AllAccepted => submissions::table
                 .filter(submissions::result.eq("AC"))
+                .load(self),
+            SubmissionRequest::InvalidResult { from_second } => submissions::table
+                .filter(submissions::result.ne_all(&[
+                    "AC", "WA", "TLE", "CE", "RE", "MLE", "OLE", "QLE", "IE", "NG",
+                ]))
+                .filter(submissions::epoch_second.ge(from_second))
+                .order_by(submissions::id.desc())
                 .load(self),
         }?;
         Ok(submissions)

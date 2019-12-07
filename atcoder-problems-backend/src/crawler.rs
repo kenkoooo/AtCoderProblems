@@ -1,3 +1,5 @@
+pub mod fix_crawler;
+
 use crate::error::Result;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
 use crate::sql::{ContestProblemClient, SimpleClient, SubmissionClient, SubmissionRequest};
