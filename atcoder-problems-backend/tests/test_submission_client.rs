@@ -11,10 +11,12 @@ fn test_submission_client() {
         INSERT INTO submissions
             (id, epoch_second, problem_id, contest_id, user_id, language, point, length, result)
         VALUES
-            (1, 0, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'AC'),
-            (2, 1, 'problem1', 'contest1', 'user2', 'language1', 1.0, 1, 'AC'),
-            (3, 2, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'WA'),
-            (4, 3, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'AC');
+            (1, 100, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'AC'),
+            (2, 200, 'problem1', 'contest1', 'user2', 'language1', 1.0, 1, 'AC'),
+            (3, 300, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'WA'),
+            (4, 400, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'AC'),
+            (5, 1, 'problem2', 'contest1', 'userx', 'language1', 1.0, 1, '23/42 TLE'),
+            (6, 2, 'problem2', 'contest1', 'userx', 'language1', 1.0, 1, '23/42 TLE');
     "#,
     )
     .unwrap();
@@ -48,21 +50,21 @@ fn test_submission_client() {
     assert_eq!(submissions.len(), 3);
 
     let request = SubmissionRequest::FromTime {
-        from_second: 0,
+        from_second: 100,
         count: 10,
     };
     let submissions = conn.get_submissions(request).unwrap();
     assert_eq!(submissions.len(), 4);
 
     let request = SubmissionRequest::FromTime {
-        from_second: 1,
+        from_second: 200,
         count: 10,
     };
     let submissions = conn.get_submissions(request).unwrap();
     assert_eq!(submissions.len(), 3);
 
     let request = SubmissionRequest::FromTime {
-        from_second: 1,
+        from_second: 100,
         count: 1,
     };
     let submissions = conn.get_submissions(request).unwrap();
@@ -91,6 +93,14 @@ fn test_submission_client() {
 
     assert!(conn.get_submission_by_id(1).unwrap().is_some());
     assert!(conn.get_submission_by_id(9).unwrap().is_none());
+
+    let request = SubmissionRequest::InvalidResult { from_second: 1 };
+    let submissions = conn.get_submissions(request).unwrap();
+    assert_eq!(submissions.len(), 2);
+
+    let request = SubmissionRequest::InvalidResult { from_second: 2 };
+    let submissions = conn.get_submissions(request).unwrap();
+    assert_eq!(submissions.len(), 1);
 }
 
 #[test]
