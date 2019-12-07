@@ -12,6 +12,10 @@ use std::{thread, time};
 const NEW_CONTEST_THRESHOLD_DAYS: i64 = 7;
 const NEW_PAGE_THRESHOLD: usize = 5;
 
+pub(crate) trait Fetcher {
+    fn fetch_submissions(&self, contest_id: &str, page: usize) -> Result<(Vec<Submission>, usize)>;
+}
+
 pub fn crawl_from_new_contests<C>(conn: &C, client: &AtCoderClient) -> Result<()>
 where
     C: SimpleClient + SubmissionClient,
