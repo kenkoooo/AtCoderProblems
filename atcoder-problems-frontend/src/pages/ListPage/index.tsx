@@ -413,7 +413,4 @@ const dispatchToProps = (dispatch: Dispatch) => ({
   }
 });
 
-export default connect(
-  stateToProps,
-  dispatchToProps
-)(ListPage);
+export default connect(stateToProps, dispatchToProps)(ListPage);

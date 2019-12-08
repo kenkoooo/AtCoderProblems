@@ -201,6 +201,7 @@ const ReviewPage: React.FC<Props> = props => {
           dataFormat={(_: number, entry: ReviewEntry) => (
             <a
               target="_blank"
+              rel="noopener noreferrer"
               href={Url.formatSubmissionUrl(entry.id, entry.contest_id)}
             >
               {formatMoment(parseSecond(entry.epoch_second))}

@@ -29,7 +29,4 @@ const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => dispatch(requestAcRanking())
 });
 
-export default connect(
-  stateToProps,
-  dispatchToProps
-)(ACRanking);
+export default connect(stateToProps, dispatchToProps)(ACRanking);

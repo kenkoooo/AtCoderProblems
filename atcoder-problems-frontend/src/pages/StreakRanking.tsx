@@ -32,7 +32,4 @@ const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => dispatch(requestStreakRanking())
 });
 
-export default connect(
-  stateToProps,
-  dispatchToProps
-)(StreakRanking);
+export default connect(stateToProps, dispatchToProps)(StreakRanking);

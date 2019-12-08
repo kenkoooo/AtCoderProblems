@@ -58,6 +58,7 @@ export const ListTable = (props: Props) => {
           <a
             href={Url.formatContestUrl(row.mergedProblem.contest_id)}
             target="_blank"
+            rel="noopener noreferrer"
           >
             {row.contestTitle}
           </a>
@@ -109,6 +110,7 @@ export const ListTable = (props: Props) => {
             row.mergedProblem.id
           )}
           target="_blank"
+          rel="noopener noreferrer"
         >
           {solverCount}
         </a>
@@ -160,6 +162,7 @@ export const ListTable = (props: Props) => {
                 fastest_contest_id
               )}
               target="_blank"
+              rel="noopener noreferrer"
             >
               {fastest_user_id} ({executionTime} ms)
             </a>
@@ -187,6 +190,7 @@ export const ListTable = (props: Props) => {
                 shortest_contest_id
               )}
               target="_blank"
+              rel="noopener noreferrer"
             >
               {shortest_user_id} ({codeLength} Bytes)
             </a>
@@ -214,6 +218,7 @@ export const ListTable = (props: Props) => {
                 first_contest_id
               )}
               target="_blank"
+              rel="noopener noreferrer"
             >
               {first_user_id}
             </a>
@@ -263,7 +268,7 @@ export const ListTable = (props: Props) => {
       data={props.rowData
         .filter(
           row => props.fromPoint <= row.point && row.point <= props.toPoint
-        )
+        ) // eslint-disable-next-line
         .filter(row => {
           switch (props.statusFilterState) {
             case "All":
@@ -273,7 +278,7 @@ export const ListTable = (props: Props) => {
             case "Only Trying":
               return row.status.label !== StatusLabel.Success;
           }
-        })
+        }) // eslint-disable-next-line
         .filter(row => {
           const isRated = !!row.mergedProblem.point;
           switch (props.ratedFilterState) {
