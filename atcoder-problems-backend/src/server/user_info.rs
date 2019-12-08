@@ -1,5 +1,5 @@
 use crate::error::Result;
-use crate::server::{request_with_connection, AppData};
+use crate::server::{create_cors_response, request_with_connection, AppData};
 
 use crate::sql::{AcceptedCountClient, RatedPointSumClient};
 use actix_web::{web, HttpRequest, HttpResponse};
@@ -18,9 +18,9 @@ struct UserInfo {
     rated_point_sum_rank: i64,
 }
 
-pub async fn get_user_info(request: HttpRequest, data: web::Data<AppData>) -> HttpResponse {
+pub(crate) async fn get_user_info(request: HttpRequest, data: web::Data<AppData>) -> HttpResponse {
     request_with_connection(&data.pool, move |conn| match inner(conn, request) {
-        Ok(user_info) => HttpResponse::Ok().json(user_info),
+        Ok(user_info) => create_cors_response().json(user_info),
         _ => HttpResponse::BadRequest().finish(),
     })
 }

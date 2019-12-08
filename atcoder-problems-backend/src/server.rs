@@ -2,7 +2,8 @@ use crate::error::Result;
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::get_user_submissions;
-use actix_web::http::header::IF_NONE_MATCH;
+use actix_web::dev::HttpResponseBuilder;
+use actix_web::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, IF_NONE_MATCH};
 use actix_web::{web, HttpRequest, HttpResponse};
 use diesel::PgConnection;
 
@@ -34,6 +35,12 @@ impl EtagExtractor for HttpRequest {
             .and_then(|value| value.to_str().ok())
             .unwrap_or_else(|| "no etag")
     }
+}
+
+pub(crate) fn create_cors_response() -> HttpResponseBuilder {
+    let mut builder = HttpResponse::Ok();
+    builder.header(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+    HttpResponseBuilder::from(builder)
 }
 
 pub fn config(cfg: &mut web::ServiceConfig, data: AppData) {
