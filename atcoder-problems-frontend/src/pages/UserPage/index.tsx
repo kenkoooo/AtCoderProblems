@@ -414,7 +414,4 @@ const dispatchToProps = (dispatch: Dispatch) => ({
   }
 });
 
-export default connect(
-  stateToProps,
-  dispatchToProps
-)(UserPage);
+export default connect(stateToProps, dispatchToProps)(UserPage);

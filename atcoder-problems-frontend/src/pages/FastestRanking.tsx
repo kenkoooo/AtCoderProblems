@@ -35,7 +35,4 @@ const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => dispatch(requestMergedProblems())
 });
 
-export default connect(
-  stateToProps,
-  dispatchToProps
-)(FastestRanking);
+export default connect(stateToProps, dispatchToProps)(FastestRanking);

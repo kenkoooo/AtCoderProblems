@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import * as Url from "../utils/Url";
 import { DifficultyCircle } from "./DifficultyCircle";
 import { Tooltip } from "reactstrap";
@@ -58,7 +58,11 @@ class ProblemLink extends React.Component<Props, LocalState> {
     } = this.props;
     const { tooltipOpen } = this.state;
     const link = (
-      <a href={Url.formatProblemUrl(problemId, contestId)} target="_blank">
+      <a
+        href={Url.formatProblemUrl(problemId, contestId)}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         {problemTitle}
       </a>
     );
@@ -77,7 +81,9 @@ class ProblemLink extends React.Component<Props, LocalState> {
         <DifficultyCircle id={uniqueId} difficulty={difficulty} />
         {isExperimentalDifficulty ? (
           <>
-            <span id={experimentalIconId}>🧪</span>
+            <span id={experimentalIconId} role="img" aria-label="experimental">
+              🧪
+            </span>
             <Tooltip
               placement="top"
               target={experimentalIconId}
@@ -91,6 +97,7 @@ class ProblemLink extends React.Component<Props, LocalState> {
         <a
           href={Url.formatProblemUrl(problemId, contestId)}
           target="_blank"
+          rel="noopener noreferrer"
           className={getColorClass(difficulty)}
         >
           {problemTitle}

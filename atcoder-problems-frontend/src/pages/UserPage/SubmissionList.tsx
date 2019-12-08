@@ -117,7 +117,11 @@ const SubmissionList = (props: Props) => {
         dataSort
         dataField="id"
         dataFormat={(_: number, { id, contest_id }: Submission) => (
-          <a target="_blank" href={Url.formatSubmissionUrl(id, contest_id)}>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={Url.formatSubmissionUrl(id, contest_id)}
+          >
             Detail
           </a>
         )}
