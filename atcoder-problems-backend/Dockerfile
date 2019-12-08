@@ -13,3 +13,4 @@ COPY --from=builder /app/target/release/dump_json /usr/bin/dump_json
 COPY --from=builder /app/target/release/delta_update /usr/bin/delta_update
 COPY --from=builder /app/target/release/batch_update /usr/bin/batch_update
 COPY --from=builder /app/target/release/run_server /usr/bin/run_server
+COPY --from=builder /app/target/release/fix_invalid_submissions /usr/bin/fix_invalid_submissions
