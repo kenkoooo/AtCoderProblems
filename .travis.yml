@@ -1,7 +1,5 @@
 services:
   - postgresql
-addons:
-  postgresql: "10.8"
 matrix:
   include:
     - language: rust
