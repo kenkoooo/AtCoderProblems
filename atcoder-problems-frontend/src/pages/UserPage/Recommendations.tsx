@@ -230,13 +230,19 @@ class Recommendations extends React.Component<Props, LocalState> {
                 onClick={() => this.setState({ recommendExperimental: true })}
                 active={recommendExperimental}
               >
-                Show 🧪
+                Show
+                <span role="img" aria-label="experimental">
+                  🧪
+                </span>
               </Button>
               <Button
                 onClick={() => this.setState({ recommendExperimental: false })}
                 active={!recommendExperimental}
               >
-                Hide 🧪
+                Hide
+                <span role="img" aria-label="experimental">
+                  🧪
+                </span>
               </Button>
             </ButtonGroup>
           </div>
@@ -296,6 +302,7 @@ class Recommendations extends React.Component<Props, LocalState> {
                   <a
                     href={Url.formatContestUrl(problem.contest_id)}
                     target="_blank"
+                    rel="noopener noreferrer"
                   >
                     {contestId}
                   </a>

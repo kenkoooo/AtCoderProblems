@@ -32,7 +32,4 @@ const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => dispatch(requestSumRanking())
 });
 
-export default connect(
-  stateToProps,
-  dispatchToProps
-)(SumRanking);
+export default connect(stateToProps, dispatchToProps)(SumRanking);

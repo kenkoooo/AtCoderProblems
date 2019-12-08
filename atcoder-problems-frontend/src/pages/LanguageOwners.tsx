@@ -105,7 +105,4 @@ const dispatchToProps = (dispatch: Dispatch) => ({
   requestData: () => dispatch(requestLangRanking())
 });
 
-export default connect(
-  stateToProps,
-  dispatchToProps
-)(LanguageOwners);
+export default connect(stateToProps, dispatchToProps)(LanguageOwners);

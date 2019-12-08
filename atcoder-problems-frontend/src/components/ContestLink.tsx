@@ -30,6 +30,8 @@ function getRatedTarget(contest: Contest): RatedTarget {
       const tmp = /\d+/.exec(contest.rate_change);
       if (tmp !== null) {
         return parseInt(tmp[0], 10);
+      } else {
+        return RatedTargetType.Unrated;
       }
     default:
       return RatedTargetType.Unrated;
@@ -71,7 +73,11 @@ const ContestLink: React.FC<Props> = props => {
     <>
       <span className={getColorClass(target)}>◉</span>
       <> </>
-      <a target="_blank" href={Url.formatContestUrl(contest.id)}>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href={Url.formatContestUrl(contest.id)}
+      >
         {title !== undefined ? title : contest.title}
       </a>
     </>
