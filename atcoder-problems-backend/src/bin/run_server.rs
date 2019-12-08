@@ -27,5 +27,6 @@ async fn run_server() -> Result<(), Box<dyn Error>> {
 }
 
 fn main() {
+    let _ = actix_rt::System::new("server");
     block_on(run_server()).expect("Failed to run the server");
 }
