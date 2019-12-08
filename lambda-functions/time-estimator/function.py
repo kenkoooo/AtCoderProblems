@@ -1,6 +1,7 @@
 import json
 import math
 import random
+import statistics
 from collections import defaultdict
 from datetime import datetime
 
@@ -125,6 +126,8 @@ def fit_problem_model(user_results, task_screen_name):
         else:
             model["slope"] = slope
             model["intercept"] = intercept
+            model["variance"] = statistics.variance([slope * rating + intercept - time_log
+                                                     for rating, time_log in zip(raw_ratings, time_logs)])
 
     if is_very_easy_problem(task_screen_name):
         # ad-hoc. excluding high-rating competitors from abc-a/abc-b dataset. They often skip these problems.
