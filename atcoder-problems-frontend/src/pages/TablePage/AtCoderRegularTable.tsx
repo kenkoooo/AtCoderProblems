@@ -3,7 +3,6 @@ import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Row } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import * as Url from "../../utils/Url";
 import React from "react";
 import {
   noneStatus,

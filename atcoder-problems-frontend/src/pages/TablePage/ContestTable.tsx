@@ -2,7 +2,6 @@ import { List, Map } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import Submission from "../../interfaces/Submission";
-import * as Url from "../../utils/Url";
 import { Table, Row } from "reactstrap";
 import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/State";
