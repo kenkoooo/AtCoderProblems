@@ -1,3 +1,5 @@
+pub mod fix_crawler;
+
 use crate::error::Result;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
 use crate::sql::{ContestProblemClient, SimpleClient, SubmissionClient, SubmissionRequest};
@@ -228,7 +230,7 @@ fn extract_no_problem_contests<'a>(
         .collect::<Vec<_>>()
 }
 
-trait SubmissionFetcher {
+pub trait SubmissionFetcher {
     fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission>;
 }
 
