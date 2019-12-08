@@ -127,6 +127,11 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/from/{unix_time_second}
 
 # Dataset
 
+## Submissions
+
 This will be updated once a week.
 
 - https://s3-ap-northeast-1.amazonaws.com/kenkoooo/submissions.csv.gz
+
+## Estimated difficulties of the problems
+- https://kenkoooo.com/atcoder/resources/problem-models.json
