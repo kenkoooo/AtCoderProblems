@@ -24,6 +24,20 @@ fn prepare_data_set(conn: &PgConnection) {
         ])
         .execute(conn)
         .unwrap();
+    insert_into(accepted_count::table)
+        .values(vec![(
+            accepted_count::user_id.eq("u1"),
+            accepted_count::problem_count.eq(1),
+        )])
+        .execute(conn)
+        .unwrap();
+    insert_into(rated_point_sum::table)
+        .values(vec![(
+            rated_point_sum::user_id.eq("u1"),
+            rated_point_sum::point_sum.eq(1.0),
+        )])
+        .execute(conn)
+        .unwrap();
     let submissions = vec![
         // for user=u1
         (0, "p1", "c1", "u1", "WA"),
@@ -125,4 +139,52 @@ fn test_server_e2e() {
     let request = test::TestRequest::get().uri("/").to_request();
     let response: ServiceResponse = block_on(app.call(request)).unwrap();
     assert!(response.status().is_client_error());
+
+    assert_eq!(
+        block_on(
+            app.call(
+                test::TestRequest::get()
+                    .uri("/atcoder-api/v3/from/100")
+                    .to_request()
+            )
+        )
+        .unwrap()
+        .headers()
+        .get("access-control-allow-origin")
+        .unwrap()
+        .to_str()
+        .unwrap(),
+        "*"
+    );
+    assert_eq!(
+        block_on(
+            app.call(
+                test::TestRequest::get()
+                    .uri("/atcoder-api/results?user=u2")
+                    .to_request()
+            )
+        )
+        .unwrap()
+        .headers()
+        .get("access-control-allow-origin")
+        .unwrap()
+        .to_str()
+        .unwrap(),
+        "*"
+    );
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v2/user_info?user=u1")
+        .to_request();
+    let response: ServiceResponse = block_on(app.call(request)).unwrap();
+    assert!(response.status().is_success());
+    assert_eq!(
+        response
+            .headers()
+            .get("access-control-allow-origin")
+            .unwrap()
+            .to_str()
+            .unwrap(),
+        "*"
+    );
 }

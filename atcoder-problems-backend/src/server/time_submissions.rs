@@ -1,12 +1,12 @@
 use crate::error::Result;
-use crate::server::{request_with_connection, AppData};
+use crate::server::{create_cors_response, request_with_connection, AppData};
 use crate::server::{utils, EtagExtractor};
 use crate::sql::models::Submission;
 use crate::sql::{SubmissionClient, SubmissionRequest};
 use actix_web::http::header::ETAG;
 use actix_web::{web, HttpRequest, HttpResponse};
 
-pub async fn get_time_submissions(
+pub(crate) async fn get_time_submissions(
     request: HttpRequest,
     path: web::Path<(i64,)>,
     data: web::Data<AppData>,
@@ -16,7 +16,7 @@ pub async fn get_time_submissions(
         let etag = request.extract_etag();
         match inner(conn, from_epoch_second, etag) {
             Ok(r) => match r {
-                Some((s, e)) => HttpResponse::Ok().header(ETAG, e).json(s),
+                Some((s, e)) => create_cors_response().header(ETAG, e).json(s),
                 None => HttpResponse::NotModified().finish(),
             },
             _ => HttpResponse::BadRequest().finish(),
