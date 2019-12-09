@@ -51,28 +51,26 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::crawler::utils::MockFetcher;
     use crate::sql::models::{Contest, Problem, Submission};
     use crate::sql::SubmissionRequest;
 
     #[test]
     fn test_recent_crawler() {
-        struct MockFetcher;
-        impl SubmissionFetcher for MockFetcher {
-            fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission> {
-                assert_eq!(contest_id, "contest");
-                assert_eq!(page, 1);
-                vec![
-                    Submission {
-                        id: 0,
-                        ..Default::default()
-                    },
-                    Submission {
-                        id: 1,
-                        ..Default::default()
-                    },
-                ]
-            }
-        }
+        let fetcher = MockFetcher(|contest_id: &str, page: u32| {
+            assert_eq!(contest_id, "contest");
+            assert_eq!(page, 1);
+            vec![
+                Submission {
+                    id: 0,
+                    ..Default::default()
+                },
+                Submission {
+                    id: 1,
+                    ..Default::default()
+                },
+            ]
+        });
 
         struct MockDB;
         impl SubmissionClient for MockDB {
@@ -114,7 +112,7 @@ mod tests {
             }
         }
 
-        let crawler = RecentCrawler::new(MockDB, MockFetcher);
+        let crawler = RecentCrawler::new(MockDB, fetcher);
         assert!(crawler.crawl().is_ok());
     }
 }

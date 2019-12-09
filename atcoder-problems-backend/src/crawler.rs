@@ -1,5 +1,7 @@
 pub mod fix_crawler;
 pub mod recent_crawler;
+pub(crate) mod utils;
+pub mod whole_contest_crawler;
 
 use crate::error::Result;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
