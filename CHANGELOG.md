@@ -1,5 +1,21 @@
 # Change Log
 
+## 2019-12-09
+- [#343](https://github.com/kenkoooo/AtCoderProblems/pull/343) Upgraded `actix-web` to `2.0.0-alpha.4`
+- [#342](https://github.com/kenkoooo/AtCoderProblems/pull/342) Fixed `grcov` command lines in the Travis config.
+- [#341](https://github.com/kenkoooo/AtCoderProblems/pull/341) Fixed the Travis config to use the latest `grcov`.
+- [#340](https://github.com/kenkoooo/AtCoderProblems/pull/340) Fixed es-lint warnings.
+- [#339](https://github.com/kenkoooo/AtCoderProblems/pull/339) Configured the CORS header of the server response.
+- [#338](https://github.com/kenkoooo/AtCoderProblems/pull/338) Added `fix_invalid_submissions`.
+- [#337](https://github.com/kenkoooo/AtCoderProblems/pull/337) Added `variance` to the Problem Model API.
+
+## 2019-12-07
+- [#334](https://github.com/kenkoooo/AtCoderProblems/pull/334) Upgraded npm packages.
+- [#332](https://github.com/kenkoooo/AtCoderProblems/pull/332) Added an `actix-web` based server application.
+
+## 2019-12-05
+- [#331](https://github.com/kenkoooo/AtCoderProblems/pull/331) Added `batch_update`
+
 ## 2019-11-21
 - [#326](https://github.com/kenkoooo/AtCoderProblems/pull/326) Added a button to exclude experimental results.
 - [#325](https://github.com/kenkoooo/AtCoderProblems/pull/325) Added a new SQL table to cache the result.
