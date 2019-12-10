@@ -10,6 +10,24 @@ pub mod user_info;
 pub mod user_submissions;
 pub mod utils;
 
+pub async fn run_server(sql_url: &str, port: u16) -> Result<()> {
+    let state = AppData::new(sql_url)?;
+    let mut app = tide::with_state(state);
+
+    app.at("/atcoder-api").nest(|api| {
+        api.at("/results").get(get_user_submissions);
+        api.at("/v2").nest(|api| {
+            api.at("/user_info").get(get_user_info);
+        });
+        api.at("/v3").nest(|api| {
+            api.at("/from/:from").get(get_time_submissions);
+        });
+    });
+    app.at("/healthcheck").get(|_| async move { "" });
+    app.listen(format!("0.0.0.0:{}", port)).await?;
+    Ok(())
+}
+
 pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConnection>>;
 
 pub(crate) fn request_with_connection<F>(pool: &Pool, f: F) -> tide::Response
@@ -37,23 +55,9 @@ pub(crate) fn create_cors_response() -> tide::Response {
     tide::Response::new(200).set_header(ACCESS_CONTROL_ALLOW_ORIGIN.as_str(), "*")
 }
 
-pub fn config_route(mut app: tide::Server<AppData>) -> tide::Server<AppData> {
-    app.at("/atcoder-api").nest(|api| {
-        api.at("/results").get(get_user_submissions);
-        api.at("/v2").nest(|api| {
-            api.at("/user_info").get(get_user_info);
-        });
-        api.at("/v3").nest(|api| {
-            api.at("/from/:from").get(get_time_submissions);
-        });
-    });
-    app.at("/healthcheck").get(|_| async move { "" });
-    app
-}
-
 #[derive(Clone)]
-pub struct AppData {
-    pub pool: Pool,
+pub(crate) struct AppData {
+    pub(crate) pool: Pool,
 }
 
 impl AppData {

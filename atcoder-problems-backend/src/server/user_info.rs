@@ -18,7 +18,7 @@ struct UserInfo {
     rated_point_sum_rank: i64,
 }
 
-pub(crate) async fn get_user_info(mut request: Request<AppData>) -> Response {
+pub(crate) async fn get_user_info(request: Request<AppData>) -> Response {
     request_with_connection(&request.state().pool, |conn| match inner(conn, &request) {
         Ok(user_info) => create_cors_response()
             .body_json(&user_info)

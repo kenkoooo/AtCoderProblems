@@ -6,7 +6,7 @@ use crate::sql::{SubmissionClient, SubmissionRequest};
 use http::header::ETAG;
 use tide::{Request, Response};
 
-pub(crate) async fn get_time_submissions(mut request: Request<AppData>) -> Response {
+pub(crate) async fn get_time_submissions(request: Request<AppData>) -> Response {
     request
         .param::<String>("from")
         .ok()

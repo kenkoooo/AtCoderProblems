@@ -12,7 +12,7 @@ struct Query {
     user: String,
 }
 
-pub(crate) async fn get_user_submissions(mut request: Request<AppData>) -> Response {
+pub(crate) async fn get_user_submissions(request: Request<AppData>) -> Response {
     request_with_connection(&request.state().pool, |conn| {
         let etag = request.extract_etag();
         match inner(conn, &request, etag) {
