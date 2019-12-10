@@ -3,17 +3,19 @@ use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::get_user_submissions;
 use diesel::PgConnection;
-use http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, IF_NONE_MATCH};
+use http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, ETAG, IF_NONE_MATCH};
 
-pub mod time_submissions;
-pub mod user_info;
-pub mod user_submissions;
-pub mod utils;
+pub(crate) mod middleware;
+pub(crate) mod time_submissions;
+pub(crate) mod user_info;
+pub(crate) mod user_submissions;
+pub(crate) mod utils;
 
 pub async fn run_server(sql_url: &str, port: u16) -> Result<()> {
     let state = AppData::new(sql_url)?;
     let mut app = tide::with_state(state);
 
+    app.middleware(a);
     app.at("/atcoder-api").nest(|api| {
         api.at("/results").get(get_user_submissions);
         api.at("/v2").nest(|api| {
@@ -28,18 +30,6 @@ pub async fn run_server(sql_url: &str, port: u16) -> Result<()> {
     Ok(())
 }
 
-pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConnection>>;
-
-pub(crate) fn request_with_connection<F>(pool: &Pool, f: F) -> tide::Response
-where
-    F: FnOnce(&PgConnection) -> tide::Response,
-{
-    match pool.get() {
-        Ok(conn) => f(&conn),
-        _ => tide::Response::new(503),
-    }
-}
-
 pub(crate) trait EtagExtractor {
     fn extract_etag(&self) -> &str;
 }
@@ -51,19 +41,51 @@ impl<T> EtagExtractor for tide::Request<T> {
     }
 }
 
-pub(crate) fn create_cors_response() -> tide::Response {
-    tide::Response::new(200).set_header(ACCESS_CONTROL_ALLOW_ORIGIN.as_str(), "*")
+pub(crate) trait CommonResponse {
+    fn new_cors() -> Self;
+    fn bad_request() -> Self;
+    fn internal_error() -> Self;
+    fn not_modified() -> Self;
+    fn etagged(etag: &str) -> Self;
+}
+
+impl CommonResponse for tide::Response {
+    fn new_cors() -> Self {
+        Self::new(200).set_header(ACCESS_CONTROL_ALLOW_ORIGIN.as_str(), "*")
+    }
+    fn bad_request() -> Self {
+        Self::new(400)
+    }
+    fn internal_error() -> Self {
+        Self::new(503)
+    }
+    fn not_modified() -> Self {
+        Self::new(304)
+    }
+    fn etagged(etag: &str) -> Self {
+        Self::new_cors().set_header(ETAG.as_str(), etag)
+    }
 }
 
 #[derive(Clone)]
 pub(crate) struct AppData {
-    pub(crate) pool: Pool,
+    pub(crate) pool: diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConnection>>,
 }
 
 impl AppData {
-    pub fn new<S: Into<String>>(database_url: S) -> Result<Self> {
+    pub(crate) fn new<S: Into<String>>(database_url: S) -> Result<Self> {
         let manager = diesel::r2d2::ConnectionManager::<PgConnection>::new(database_url);
         let pool = diesel::r2d2::Pool::builder().build(manager)?;
         Ok(Self { pool })
+    }
+
+    pub(crate) fn respond<F>(&self, f: F) -> tide::Response
+    where
+        F: FnOnce(&PgConnection) -> Result<tide::Response>,
+    {
+        match self.pool.get() {
+            Ok(conn) => f(&conn).unwrap_or_else(|_| tide::Response::bad_request()),
+            _ => tide::Response::internal_error(),
+        }
     }
 }
