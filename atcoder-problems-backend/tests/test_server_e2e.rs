@@ -79,65 +79,63 @@ fn run_test_server_e2e() {
             Result::<(), surf::Exception>::Ok(())
         });
 
-        let client = task::spawn(async {
+        let request = |path: &str| surf::get(format!("http://localhost:8080{}", path));
+        let client = task::spawn(async move {
             task::sleep(std::time::Duration::from_millis(100)).await;
 
-            let submissions: Vec<Submission> =
-                surf::get("http://localhost:8080/atcoder-api/results?user=u1")
-                    .await?
-                    .body_json()
-                    .await?;
+            let submissions: Vec<Submission> = request("/atcoder-api/results?user=u1")
+                .await?
+                .body_json()
+                .await?;
             assert_eq!(submissions.len(), 5);
             assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
 
-            let mut response =
-                surf::get("http://localhost:8080/atcoder-api/results?user=u2").await?;
+            let mut response = request("/atcoder-api/results?user=u2").await?;
             let etag = response.header("Etag").unwrap().to_string();
             let submissions: Vec<Submission> = response.body_json().await?;
             assert_eq!(submissions.len(), 5);
             assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
 
-            let response = surf::get("http://localhost:8080/atcoder-api/results?user=u2")
+            let response = request("/atcoder-api/results?user=u2")
                 .set_header("If-None-Match", etag)
                 .await?;
             assert_eq!(response.status(), 304);
 
-            let submissions: Vec<Submission> =
-                surf::get("http://localhost:8080/atcoder-api/v3/from/100")
-                    .await?
-                    .body_json()
-                    .await?;
+            let submissions: Vec<Submission> = request("/atcoder-api/v3/from/100")
+                .await?
+                .body_json()
+                .await?;
             assert_eq!(submissions.len(), 2);
             assert!(submissions.iter().all(|s| s.epoch_second >= 100));
 
-            let response = surf::get("http://localhost:8080/atcoder-api/v3/from/").await?;
+            let response = request("/atcoder-api/v3/from/").await?;
             assert_eq!(response.status(), 404);
 
-            let response = surf::get("http://localhost:8080/atcoder-api/results").await?;
+            let response = request("/atcoder-api/results").await?;
             assert_eq!(response.status(), 400);
 
-            let response = surf::get("http://localhost:8080/healthcheck").await?;
+            let response = request("/healthcheck").await?;
             assert_eq!(response.status(), 200);
 
-            let response = surf::get("http://localhost:8080/").await?;
+            let response = request("/").await?;
             assert_eq!(response.status(), 404);
 
             assert_eq!(
-                surf::get("http://localhost:8080/atcoder-api/v3/from/100")
+                request("/atcoder-api/v3/from/100")
                     .await?
                     .header("access-control-allow-origin")
                     .unwrap(),
                 "*"
             );
             assert_eq!(
-                surf::get("http://localhost:8080/atcoder-api/v2/user_info?user=u1")
+                request("/atcoder-api/v2/user_info?user=u1")
                     .await?
                     .header("access-control-allow-origin")
                     .unwrap(),
                 "*"
             );
             assert_eq!(
-                surf::get("http://localhost:8080/atcoder-api/results?user=u1")
+                request("/atcoder-api/results?user=u1")
                     .await?
                     .header("access-control-allow-origin")
                     .unwrap(),
