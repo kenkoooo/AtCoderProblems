@@ -106,35 +106,31 @@ mod tests {
     }
 
     use super::*;
+    use crate::crawler::utils::MockFetcher;
     use crate::sql::models::Submission;
 
     #[test]
     fn test_fix_crawler_found() {
-        struct MockFetcher;
-        impl SubmissionFetcher for MockFetcher {
-            fn fetch_submissions(&self, _: &str, _: u32) -> Vec<Submission> {
-                vec![Submission {
-                    id: 50,
-                    ..Default::default()
-                }]
-            }
-        }
-        let crawler = FixCrawler::new(MockDB, MockFetcher, CURRENT_TIME);
+        let fetcher = MockFetcher(|_, _| {
+            vec![Submission {
+                id: 50,
+                ..Default::default()
+            }]
+        });
+        let crawler = FixCrawler::new(MockDB, fetcher, CURRENT_TIME);
         assert!(crawler.crawl().is_ok());
     }
 
     #[test]
     fn test_fix_crawler_all_old() {
-        struct MockFetcher;
-        impl SubmissionFetcher for MockFetcher {
-            fn fetch_submissions(&self, _: &str, _: u32) -> Vec<Submission> {
-                vec![Submission {
-                    id: 30,
-                    ..Default::default()
-                }]
-            }
-        }
-        let crawler = FixCrawler::new(MockDB, MockFetcher, CURRENT_TIME);
+        let fetcher = MockFetcher(|_, _| {
+            vec![Submission {
+                id: 30,
+                ..Default::default()
+            }]
+        });
+
+        let crawler = FixCrawler::new(MockDB, fetcher, CURRENT_TIME);
         assert!(crawler.crawl().is_ok());
     }
 }
