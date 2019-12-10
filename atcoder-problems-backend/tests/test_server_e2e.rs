@@ -1,6 +1,3 @@
-use actix_web::dev::{Service, ServiceResponse};
-use actix_web::http::header::{ETAG, IF_NONE_MATCH};
-use actix_web::{test, App};
 use atcoder_problems_backend::server;
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::schema::*;

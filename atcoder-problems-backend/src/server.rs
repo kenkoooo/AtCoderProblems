@@ -2,10 +2,8 @@ use crate::error::Result;
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::get_user_submissions;
-use actix_web::dev::HttpResponseBuilder;
-use actix_web::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, IF_NONE_MATCH};
-use actix_web::{web, HttpRequest, HttpResponse};
 use diesel::PgConnection;
+use http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, IF_NONE_MATCH};
 
 pub mod time_submissions;
 pub mod user_info;
@@ -14,13 +12,13 @@ pub mod utils;
 
 pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConnection>>;
 
-pub(crate) fn request_with_connection<F>(pool: &Pool, f: F) -> HttpResponse
+pub(crate) fn request_with_connection<F>(pool: &Pool, f: F) -> tide::Response
 where
-    F: FnOnce(&PgConnection) -> HttpResponse,
+    F: FnOnce(&PgConnection) -> tide::Response,
 {
     match pool.get() {
         Ok(conn) => f(&conn),
-        _ => HttpResponse::ServiceUnavailable().finish(),
+        _ => tide::Response::new(503),
     }
 }
 
@@ -28,29 +26,29 @@ pub(crate) trait EtagExtractor {
     fn extract_etag(&self) -> &str;
 }
 
-impl EtagExtractor for HttpRequest {
+impl<T> EtagExtractor for tide::Request<T> {
     fn extract_etag(&self) -> &str {
-        self.headers()
-            .get(IF_NONE_MATCH)
-            .and_then(|value| value.to_str().ok())
+        self.header(IF_NONE_MATCH.as_str())
             .unwrap_or_else(|| "no etag")
     }
 }
 
-pub(crate) fn create_cors_response() -> HttpResponseBuilder {
-    let mut builder = HttpResponse::Ok();
-    builder.header(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-    HttpResponseBuilder::from(builder)
+pub(crate) fn create_cors_response() -> tide::Response {
+    tide::Response::new(200).set_header(ACCESS_CONTROL_ALLOW_ORIGIN.as_str(), "*")
 }
 
-pub fn config(cfg: &mut web::ServiceConfig, data: AppData) {
-    cfg.data(data)
-        .service(web::resource("/atcoder-api/results").route(web::get().to(get_user_submissions)))
-        .service(web::resource("/atcoder-api/v2/user_info").route(web::get().to(get_user_info)))
-        .service(
-            web::resource("/atcoder-api/v3/from/{from}").route(web::get().to(get_time_submissions)),
-        )
-        .service(web::resource("/healthcheck").route(web::route().to(HttpResponse::Ok)));
+pub fn config_route(mut app: tide::Server<AppData>) -> tide::Server<AppData> {
+    app.at("/atcoder-api").nest(|api| {
+        api.at("/results").get(get_user_submissions);
+        api.at("/v2").nest(|api| {
+            api.at("/user_info").get(get_user_info);
+        });
+        api.at("/v3").nest(|api| {
+            api.at("/from/:from").get(get_time_submissions);
+        });
+    });
+    app.at("/healthcheck").get(|_| async move { "" });
+    app
 }
 
 #[derive(Clone)]

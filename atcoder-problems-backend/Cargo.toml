@@ -5,7 +5,6 @@ authors = ["kenkoooo <kenkou.n@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-actix-web = "2.0.0-alpha.4"
 base64 = "0.10"
 chrono = "0.4"
 diesel = { version = "1.4.3", features = ["postgres", "r2d2"] }
@@ -24,4 +23,5 @@ hex = "0.3"
 algorithm-problem-client = "0.4"
 r2d2 = "0.8.7"
 futures = "0.3"
-actix-rt = "1.0.0-alpha.3"
+tide = "0.4.0"
+http = "0.2.0"

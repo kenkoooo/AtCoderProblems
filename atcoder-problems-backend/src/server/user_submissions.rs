@@ -3,37 +3,37 @@ use crate::server::{create_cors_response, request_with_connection, utils, AppDat
 use crate::sql::models::Submission;
 
 use crate::sql::{SubmissionClient, SubmissionRequest};
-use actix_web::http::header::ETAG;
-use actix_web::{web, HttpRequest, HttpResponse};
+use http::header::ETAG;
 use serde::Deserialize;
+use tide::{Request, Response};
 
 #[derive(Deserialize, Debug)]
 struct Query {
     user: String,
 }
 
-pub(crate) async fn get_user_submissions(
-    request: HttpRequest,
-    data: web::Data<AppData>,
-) -> HttpResponse {
-    request_with_connection(&data.pool, move |conn| {
+pub(crate) async fn get_user_submissions(mut request: Request<AppData>) -> Response {
+    request_with_connection(&request.state().pool, |conn| {
         let etag = request.extract_etag();
         match inner(conn, &request, etag) {
             Ok(r) => match r {
-                Some((s, e)) => create_cors_response().header(ETAG, e).json(s),
-                None => HttpResponse::NotModified().finish(),
+                Some((s, e)) => create_cors_response()
+                    .set_header(ETAG.as_str(), e)
+                    .body_json(&s)
+                    .unwrap_or_else(|_| Response::new(503)),
+                None => Response::new(304),
             },
-            _ => HttpResponse::BadRequest().finish(),
+            _ => Response::new(400),
         }
     })
 }
 
 fn inner<C: SubmissionClient>(
     c: &C,
-    request: &HttpRequest,
+    request: &Request<AppData>,
     etag: &str,
 ) -> Result<Option<(Vec<Submission>, String)>> {
-    let web::Query(query) = web::Query::<Query>::from_query(request.query_string())?;
+    let query = request.query::<Query>()?;
     let user_id = &query.user;
     let lite_count: i64 = c.get_user_submission_count(user_id)?;
     let lite_etag = utils::calc_etag_for_user(user_id, lite_count as usize);
