@@ -3,25 +3,30 @@ use crate::server::{create_cors_response, request_with_connection, AppData};
 use crate::server::{utils, EtagExtractor};
 use crate::sql::models::Submission;
 use crate::sql::{SubmissionClient, SubmissionRequest};
-use actix_web::http::header::ETAG;
-use actix_web::{web, HttpRequest, HttpResponse};
+use http::header::ETAG;
+use tide::{Request, Response};
 
-pub(crate) async fn get_time_submissions(
-    request: HttpRequest,
-    path: web::Path<(i64,)>,
-    data: web::Data<AppData>,
-) -> HttpResponse {
-    let from_epoch_second = path.0;
-    request_with_connection(&data.pool, |conn| {
-        let etag = request.extract_etag();
-        match inner(conn, from_epoch_second, etag) {
-            Ok(r) => match r {
-                Some((s, e)) => create_cors_response().header(ETAG, e).json(s),
-                None => HttpResponse::NotModified().finish(),
-            },
-            _ => HttpResponse::BadRequest().finish(),
-        }
-    })
+pub(crate) async fn get_time_submissions(mut request: Request<AppData>) -> Response {
+    request
+        .param::<String>("from")
+        .ok()
+        .and_then(|s| s.parse::<i64>().ok())
+        .map(|from_epoch_second| {
+            request_with_connection(&request.state().pool, |conn| {
+                let etag = request.extract_etag();
+                match inner(conn, from_epoch_second, etag) {
+                    Ok(r) => match r {
+                        Some((s, e)) => create_cors_response()
+                            .set_header(ETAG.as_str(), e)
+                            .body_json(&s)
+                            .unwrap_or_else(|_| Response::new(503)),
+                        None => Response::new(304),
+                    },
+                    _ => Response::new(400),
+                }
+            })
+        })
+        .unwrap_or_else(|| Response::new(503))
 }
 
 fn inner<C: SubmissionClient>(

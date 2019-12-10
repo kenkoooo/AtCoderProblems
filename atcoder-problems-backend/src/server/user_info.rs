@@ -2,8 +2,8 @@ use crate::error::Result;
 use crate::server::{create_cors_response, request_with_connection, AppData};
 
 use crate::sql::{AcceptedCountClient, RatedPointSumClient};
-use actix_web::{web, HttpRequest, HttpResponse};
 use serde::{Deserialize, Serialize};
+use tide::{Request, Response};
 
 #[derive(Deserialize)]
 struct Query {
@@ -18,18 +18,20 @@ struct UserInfo {
     rated_point_sum_rank: i64,
 }
 
-pub(crate) async fn get_user_info(request: HttpRequest, data: web::Data<AppData>) -> HttpResponse {
-    request_with_connection(&data.pool, move |conn| match inner(conn, request) {
-        Ok(user_info) => create_cors_response().json(user_info),
-        _ => HttpResponse::BadRequest().finish(),
+pub(crate) async fn get_user_info(mut request: Request<AppData>) -> Response {
+    request_with_connection(&request.state().pool, |conn| match inner(conn, &request) {
+        Ok(user_info) => create_cors_response()
+            .body_json(&user_info)
+            .unwrap_or_else(|_| Response::new(503)),
+        _ => Response::new(400),
     })
 }
 
 fn inner<C: AcceptedCountClient + RatedPointSumClient>(
     conn: &C,
-    request: HttpRequest,
+    request: &Request<AppData>,
 ) -> Result<UserInfo> {
-    let web::Query(query) = web::Query::<Query>::from_query(request.query_string())?;
+    let query = request.query::<Query>()?;
     let user_id = query.user;
     let accepted_count = conn.get_users_accepted_count(&user_id)?;
     let accepted_count_rank = conn.get_accepted_count_rank(accepted_count)?;
