@@ -5,7 +5,6 @@ use crate::server::user_submissions::get_user_submissions;
 use diesel::PgConnection;
 use http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, ETAG, IF_NONE_MATCH};
 
-pub(crate) mod middleware;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
 pub(crate) mod user_submissions;
