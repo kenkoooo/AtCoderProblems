@@ -14,8 +14,8 @@ matrix:
         - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
       script:
         - cargo clean
-        - cargo build
-        - RUST_TEST_THREADS=1 cargo test
+        - cargo build --release
+        - RUST_TEST_THREADS=1 cargo test --release
       after_success:
         - test $TRAVIS_BRANCH = "master" && echo "$DOCKER_PASSWORD" | docker login -u kenkoooo --password-stdin
         - test $TRAVIS_BRANCH = "master" && docker build -t kenkoooo/atcoder-problems-backend .
