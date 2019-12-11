@@ -2,66 +2,88 @@ use crate::error::Result;
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::get_user_submissions;
-use actix_web::dev::HttpResponseBuilder;
-use actix_web::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, IF_NONE_MATCH};
-use actix_web::{web, HttpRequest, HttpResponse};
 use diesel::PgConnection;
+use http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, ETAG, IF_NONE_MATCH};
 
-pub mod time_submissions;
-pub mod user_info;
-pub mod user_submissions;
-pub mod utils;
+pub(crate) mod time_submissions;
+pub(crate) mod user_info;
+pub(crate) mod user_submissions;
+pub(crate) mod utils;
 
-pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConnection>>;
+pub async fn run_server(sql_url: &str, port: u16) -> Result<()> {
+    let state = AppData::new(sql_url)?;
+    let mut app = tide::with_state(state);
 
-pub(crate) fn request_with_connection<F>(pool: &Pool, f: F) -> HttpResponse
-where
-    F: FnOnce(&PgConnection) -> HttpResponse,
-{
-    match pool.get() {
-        Ok(conn) => f(&conn),
-        _ => HttpResponse::ServiceUnavailable().finish(),
-    }
+    app.at("/atcoder-api").nest(|api| {
+        api.at("/results").get(get_user_submissions);
+        api.at("/v2").nest(|api| {
+            api.at("/user_info").get(get_user_info);
+        });
+        api.at("/v3").nest(|api| {
+            api.at("/from/:from").get(get_time_submissions);
+        });
+    });
+    app.at("/healthcheck").get(|_| async move { "" });
+    app.listen(format!("0.0.0.0:{}", port)).await?;
+    Ok(())
 }
 
 pub(crate) trait EtagExtractor {
     fn extract_etag(&self) -> &str;
 }
 
-impl EtagExtractor for HttpRequest {
+impl<T> EtagExtractor for tide::Request<T> {
     fn extract_etag(&self) -> &str {
-        self.headers()
-            .get(IF_NONE_MATCH)
-            .and_then(|value| value.to_str().ok())
+        self.header(IF_NONE_MATCH.as_str())
             .unwrap_or_else(|| "no etag")
     }
 }
 
-pub(crate) fn create_cors_response() -> HttpResponseBuilder {
-    let mut builder = HttpResponse::Ok();
-    builder.header(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-    HttpResponseBuilder::from(builder)
+pub(crate) trait CommonResponse {
+    fn new_cors() -> Self;
+    fn bad_request() -> Self;
+    fn internal_error() -> Self;
+    fn not_modified() -> Self;
+    fn etagged(etag: &str) -> Self;
 }
 
-pub fn config(cfg: &mut web::ServiceConfig, data: AppData) {
-    cfg.data(data)
-        .service(web::resource("/atcoder-api/results").route(web::get().to(get_user_submissions)))
-        .service(web::resource("/atcoder-api/v2/user_info").route(web::get().to(get_user_info)))
-        .service(
-            web::resource("/atcoder-api/v3/from/{from}").route(web::get().to(get_time_submissions)),
-        )
-        .service(web::resource("/healthcheck").route(web::route().to(HttpResponse::Ok)));
+impl CommonResponse for tide::Response {
+    fn new_cors() -> Self {
+        Self::new(200).set_header(ACCESS_CONTROL_ALLOW_ORIGIN.as_str(), "*")
+    }
+    fn bad_request() -> Self {
+        Self::new(400)
+    }
+    fn internal_error() -> Self {
+        Self::new(503)
+    }
+    fn not_modified() -> Self {
+        Self::new(304)
+    }
+    fn etagged(etag: &str) -> Self {
+        Self::new_cors().set_header(ETAG.as_str(), etag)
+    }
 }
 
 #[derive(Clone)]
-pub struct AppData {
-    pub pool: Pool,
+pub(crate) struct AppData {
+    pub(crate) pool: diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConnection>>,
 }
 
 impl AppData {
-    pub fn new<S: Into<String>>(database_url: S) -> Result<Self> {
+    pub(crate) fn new<S: Into<String>>(database_url: S) -> Result<Self> {
         let manager = diesel::r2d2::ConnectionManager::<PgConnection>::new(database_url);
         let pool = diesel::r2d2::Pool::builder().build(manager)?;
         Ok(Self { pool })
+    }
+
+    pub(crate) fn respond<F>(&self, f: F) -> tide::Response
+    where
+        F: FnOnce(&PgConnection) -> Result<tide::Response>,
+    {
+        match self.pool.get() {
+            Ok(conn) => f(&conn).unwrap_or_else(|_| tide::Response::bad_request()),
+            _ => tide::Response::internal_error(),
+        }
     }
 }

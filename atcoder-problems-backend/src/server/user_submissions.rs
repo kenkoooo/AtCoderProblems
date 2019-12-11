@@ -1,52 +1,32 @@
-use crate::error::Result;
-use crate::server::{create_cors_response, request_with_connection, utils, AppData, EtagExtractor};
-use crate::sql::models::Submission;
-
+use crate::server::{utils, AppData, CommonResponse, EtagExtractor};
 use crate::sql::{SubmissionClient, SubmissionRequest};
-use actix_web::http::header::ETAG;
-use actix_web::{web, HttpRequest, HttpResponse};
 use serde::Deserialize;
+use tide::{Request, Response};
 
 #[derive(Deserialize, Debug)]
 struct Query {
     user: String,
 }
 
-pub(crate) async fn get_user_submissions(
-    request: HttpRequest,
-    data: web::Data<AppData>,
-) -> HttpResponse {
-    request_with_connection(&data.pool, move |conn| {
+pub(crate) async fn get_user_submissions(request: Request<AppData>) -> Response {
+    request.state().respond(|conn| {
         let etag = request.extract_etag();
-        match inner(conn, &request, etag) {
-            Ok(r) => match r {
-                Some((s, e)) => create_cors_response().header(ETAG, e).json(s),
-                None => HttpResponse::NotModified().finish(),
-            },
-            _ => HttpResponse::BadRequest().finish(),
+        let query = request.query::<Query>()?;
+        let user_id = &query.user;
+        let lite_count: i64 = conn.get_user_submission_count(user_id)?;
+        let lite_etag = utils::calc_etag_for_user(user_id, lite_count as usize);
+        if lite_etag.as_str() == etag {
+            return Ok(Response::not_modified());
+        }
+
+        let submissions = conn.get_submissions(SubmissionRequest::UserAll { user_id })?;
+        let heavy_count = submissions.len();
+        let heavy_etag = utils::calc_etag_for_user(user_id, heavy_count);
+        if heavy_etag.as_str() == etag {
+            Ok(Response::not_modified())
+        } else {
+            let response = Response::etagged(&heavy_etag).body_json(&submissions)?;
+            Ok(response)
         }
     })
-}
-
-fn inner<C: SubmissionClient>(
-    c: &C,
-    request: &HttpRequest,
-    etag: &str,
-) -> Result<Option<(Vec<Submission>, String)>> {
-    let web::Query(query) = web::Query::<Query>::from_query(request.query_string())?;
-    let user_id = &query.user;
-    let lite_count: i64 = c.get_user_submission_count(user_id)?;
-    let lite_etag = utils::calc_etag_for_user(user_id, lite_count as usize);
-    if lite_etag.as_str() == etag {
-        return Ok(None);
-    }
-
-    let submissions = c.get_submissions(SubmissionRequest::UserAll { user_id })?;
-    let heavy_count = submissions.len();
-    let heavy_etag = utils::calc_etag_for_user(user_id, heavy_count);
-    if heavy_etag.as_str() == etag {
-        Ok(None)
-    } else {
-        Ok(Some((submissions, heavy_etag)))
-    }
 }

@@ -6,7 +6,8 @@ pub enum Error {
     QueryError(diesel::result::Error),
     IOError(std::io::Error),
     ConnectionPoolError(r2d2::Error),
-    QueryParseError(actix_web::error::QueryPayloadError),
+    TideError(tide::Error),
+    JSONError(serde_json::Error),
 }
 
 impl From<diesel::ConnectionError> for Error {
@@ -32,9 +33,15 @@ impl From<r2d2::Error> for Error {
     }
 }
 
-impl From<actix_web::error::QueryPayloadError> for Error {
-    fn from(e: actix_web::error::QueryPayloadError) -> Self {
-        Error::QueryParseError(e)
+impl From<tide::Error> for Error {
+    fn from(e: tide::Error) -> Self {
+        Error::TideError(e)
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(e: serde_json::Error) -> Self {
+        Error::JSONError(e)
     }
 }
 
