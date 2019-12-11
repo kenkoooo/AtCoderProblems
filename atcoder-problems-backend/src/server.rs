@@ -3,7 +3,6 @@ use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::get_user_submissions;
 use diesel::PgConnection;
-use http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, ETAG, IF_NONE_MATCH};
 
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
@@ -34,8 +33,7 @@ pub(crate) trait EtagExtractor {
 
 impl<T> EtagExtractor for tide::Request<T> {
     fn extract_etag(&self) -> &str {
-        self.header(IF_NONE_MATCH.as_str())
-            .unwrap_or_else(|| "no etag")
+        self.header("if-none-match").unwrap_or_else(|| "no etag")
     }
 }
 
@@ -49,7 +47,7 @@ pub(crate) trait CommonResponse {
 
 impl CommonResponse for tide::Response {
     fn new_cors() -> Self {
-        Self::new(200).set_header(ACCESS_CONTROL_ALLOW_ORIGIN.as_str(), "*")
+        Self::new(200).set_header("access-control-allow-origin", "*")
     }
     fn bad_request() -> Self {
         Self::new(400)
@@ -61,7 +59,7 @@ impl CommonResponse for tide::Response {
         Self::new(304)
     }
     fn etagged(etag: &str) -> Self {
-        Self::new_cors().set_header(ETAG.as_str(), etag)
+        Self::new_cors().set_header("etag", etag)
     }
 }
 
