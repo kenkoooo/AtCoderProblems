@@ -1,5 +1,6 @@
 services:
   - postgresql
+  - docker
 matrix:
   include:
     - language: rust
@@ -15,6 +16,10 @@ matrix:
         - cargo clean
         - cargo build
         - RUST_TEST_THREADS=1 cargo test
+      after_success:
+        - test $TRAVIS_BRANCH = "master" && echo "$DOCKER_PASSWORD" | docker login -u kenkoooo --password-stdin
+        - test $TRAVIS_BRANCH = "master" && docker build -t kenkoooo/atcoder-problems-backend .
+        - test $TRAVIS_BRANCH = "master" && docker push kenkoooo/atcoder-problems-backend
 
     - language: node_js
       node_js: node
