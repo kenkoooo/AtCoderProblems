@@ -14,7 +14,6 @@ pub async fn run_server(sql_url: &str, port: u16) -> Result<()> {
     let state = AppData::new(sql_url)?;
     let mut app = tide::with_state(state);
 
-    app.middleware(a);
     app.at("/atcoder-api").nest(|api| {
         api.at("/results").get(get_user_submissions);
         api.at("/v2").nest(|api| {
