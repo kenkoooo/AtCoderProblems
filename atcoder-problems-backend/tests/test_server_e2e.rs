@@ -68,6 +68,8 @@ fn prepare_data_set(conn: &PgConnection) {
         .unwrap();
 }
 
+async fn test_server_e2e() {}
+
 #[test]
 fn run_test_server_e2e() {
     task::block_on(async {
