@@ -4,6 +4,8 @@ use atcoder_problems_backend::server::run_server;
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::schema::*;
 use diesel::{insert_into, ExpressionMethods, PgConnection, RunQueryDsl};
+use rand::Rng;
+use std::future::Future;
 
 pub mod utils;
 
@@ -68,76 +70,164 @@ fn prepare_data_set(conn: &PgConnection) {
         .unwrap();
 }
 
-async fn test_server_e2e() {}
+fn url(path: &str, port: u16) -> String {
+    format!("http://localhost:{}{}", port, path)
+}
+
+fn start_server_handle(port: u16) -> task::JoinHandle<Result<(), surf::Exception>> {
+    task::spawn(async move {
+        run_server(utils::SQL_URL, port).await.unwrap();
+        Ok(())
+    })
+}
+
+fn run_client_handle<F>(future: F) -> task::JoinHandle<Result<(), surf::Exception>>
+where
+    F: Future<Output = Result<(), surf::Exception>> + Send + 'static,
+{
+    task::spawn(async {
+        task::sleep(std::time::Duration::from_millis(100)).await;
+        future.await
+    })
+}
+
+fn setup() -> u16 {
+    prepare_data_set(&utils::connect_to_test_sql());
+    let mut rng = rand::thread_rng();
+    rng.gen()
+}
 
 #[test]
-fn run_test_server_e2e() {
+fn test_user_submissions() {
     task::block_on(async {
-        let conn = utils::connect_to_test_sql();
-        prepare_data_set(&conn);
+        let port = setup();
 
-        let server = task::spawn(async {
-            run_server(utils::SQL_URL, 8080).await.unwrap();
-            Result::<(), surf::Exception>::Ok(())
-        });
-
-        let request = |path: &str| surf::get(format!("http://localhost:8080{}", path));
-        let client = task::spawn(async move {
-            task::sleep(std::time::Duration::from_millis(100)).await;
-
-            let submissions: Vec<Submission> = request("/atcoder-api/results?user=u1")
+        let server = start_server_handle(port);
+        let client = run_client_handle(async move {
+            let submissions: Vec<Submission> = surf::get(url("/atcoder-api/results?user=u1", port))
                 .await?
                 .body_json()
                 .await?;
             assert_eq!(submissions.len(), 5);
             assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
 
-            let mut response = request("/atcoder-api/results?user=u2").await?;
+            let mut response = surf::get(url("/atcoder-api/results?user=u2", port)).await?;
+            let submissions: Vec<Submission> = response.body_json().await?;
+            assert_eq!(submissions.len(), 5);
+            assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
+
+            Ok(())
+        });
+        server.race(client).await.unwrap();
+    });
+}
+
+#[test]
+fn test_etag() {
+    task::block_on(async {
+        let port = setup();
+
+        let server = start_server_handle(port);
+        let client = run_client_handle(async move {
+            let mut response = surf::get(url("/atcoder-api/results?user=u2", port)).await?;
             let etag = response.header("Etag").unwrap().to_string();
             let submissions: Vec<Submission> = response.body_json().await?;
             assert_eq!(submissions.len(), 5);
             assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
 
-            let response = request("/atcoder-api/results?user=u2")
+            let response = surf::get(url("/atcoder-api/results?user=u2", port))
                 .set_header("If-None-Match", etag)
                 .await?;
             assert_eq!(response.status(), 304);
 
-            let submissions: Vec<Submission> = request("/atcoder-api/v3/from/100")
+            Ok(())
+        });
+        server.race(client).await.unwrap();
+    });
+}
+
+#[test]
+fn test_time_submissions() {
+    task::block_on(async {
+        let port = setup();
+
+        let server = start_server_handle(port);
+        let client = run_client_handle(async move {
+            let submissions: Vec<Submission> = surf::get(url("/atcoder-api/v3/from/100", port))
                 .await?
                 .body_json()
                 .await?;
             assert_eq!(submissions.len(), 2);
             assert!(submissions.iter().all(|s| s.epoch_second >= 100));
 
-            let response = request("/atcoder-api/v3/from/").await?;
+            Ok(())
+        });
+        server.race(client).await.unwrap();
+    });
+}
+
+#[test]
+fn test_invalid_path() {
+    task::block_on(async {
+        let port = setup();
+
+        let server = start_server_handle(port);
+        let client = run_client_handle(async move {
+            let response = surf::get(url("/atcoder-api/v3/from/", port)).await?;
             assert_eq!(response.status(), 404);
 
-            let response = request("/atcoder-api/results").await?;
+            let response = surf::get(url("/atcoder-api/results", port)).await?;
             assert_eq!(response.status(), 400);
 
-            let response = request("/healthcheck").await?;
-            assert_eq!(response.status(), 200);
-
-            let response = request("/").await?;
+            let response = surf::get(url("/", port)).await?;
             assert_eq!(response.status(), 404);
 
+            Ok(())
+        });
+
+        server.race(client).await.unwrap();
+    });
+}
+
+#[test]
+fn test_health_check() {
+    task::block_on(async {
+        let port = setup();
+
+        let server = start_server_handle(port);
+        let client = run_client_handle(async move {
+            let response = surf::get(url("/healthcheck", port)).await?;
+            assert_eq!(response.status(), 200);
+
+            Ok(())
+        });
+        server.race(client).await.unwrap();
+    });
+}
+
+#[test]
+fn test_cors() {
+    task::block_on(async {
+        let port = setup();
+
+        let server = start_server_handle(port);
+        let client = run_client_handle(async move {
             assert_eq!(
-                request("/atcoder-api/v3/from/100")
+                surf::get(url("/atcoder-api/v3/from/100", port))
                     .await?
                     .header("access-control-allow-origin")
                     .unwrap(),
                 "*"
             );
             assert_eq!(
-                request("/atcoder-api/v2/user_info?user=u1")
+                surf::get(url("/atcoder-api/v2/user_info?user=u1", port))
                     .await?
                     .header("access-control-allow-origin")
                     .unwrap(),
                 "*"
             );
             assert_eq!(
-                request("/atcoder-api/results?user=u1")
+                surf::get(url("/atcoder-api/results?user=u1", port))
                     .await?
                     .header("access-control-allow-origin")
                     .unwrap(),
