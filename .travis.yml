@@ -33,7 +33,7 @@ deploy:
   script:
     - cd atcoder-problems-backend/
     - docker build -t kenkoooo/atcoder-problems-backend .
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - echo "$DOCKER_PASSWORD" | docker login -u kenkoooo --password-stdin
     - docker push kenkoooo/atcoder-problems-backend
   on:
     branch: master
