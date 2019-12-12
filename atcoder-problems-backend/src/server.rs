@@ -1,9 +1,11 @@
 use crate::error::Result;
+use crate::server::middleware::RequestLogger;
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::get_user_submissions;
 use diesel::PgConnection;
 
+pub(crate) mod middleware;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
 pub(crate) mod user_submissions;
@@ -13,6 +15,7 @@ pub async fn run_server(sql_url: &str, port: u16) -> Result<()> {
     let state = AppData::new(sql_url)?;
     let mut app = tide::with_state(state);
 
+    app.middleware(RequestLogger::new());
     app.at("/atcoder-api").nest(|api| {
         api.at("/results").get(get_user_submissions);
         api.at("/v2").nest(|api| {
