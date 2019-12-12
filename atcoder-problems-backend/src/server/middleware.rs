@@ -14,18 +14,19 @@ impl RequestLogger {
         req: Request<State>,
         next: Next<'a, State>,
     ) -> Response {
-        let path = req.uri().path().to_owned();
+        let uri = req.uri().to_string();
         let method = req.method().as_str().to_owned();
-        log::trace!("IN => {} {}", method, path);
         let start = std::time::Instant::now();
+        let user_agent = req.header("user-agent").unwrap_or_else(|| "").to_string();
         let res = next.run(req).await;
         let status = res.status();
         log::info!(
-            "{} {} {} {}ms",
-            method,
-            path,
-            status.as_str(),
-            start.elapsed().as_millis()
+            "{method} {uri} {status} \"{user_agent}\" {elapsed}ms",
+            method = method,
+            uri = uri,
+            status = status.as_str(),
+            user_agent = user_agent,
+            elapsed = start.elapsed().as_millis()
         );
         res
     }
