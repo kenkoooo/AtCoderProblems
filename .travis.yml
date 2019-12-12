@@ -15,7 +15,7 @@ matrix:
       script:
         - cargo clean
         - cargo build
-        - RUST_TEST_THREADS=1 cargo test
+        - env RUST_TEST_THREADS=1 RUST_BACKTRACE=1 cargo test
       after_success:
         - test $TRAVIS_BRANCH = "master" && echo "$DOCKER_PASSWORD" | docker login -u kenkoooo --password-stdin
         - test $TRAVIS_BRANCH = "master" && docker pull kenkoooo/atcoder-problems-backend
