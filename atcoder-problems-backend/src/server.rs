@@ -5,6 +5,7 @@ use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::get_user_submissions;
 use diesel::PgConnection;
 
+pub(crate) mod auth;
 pub(crate) mod middleware;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;

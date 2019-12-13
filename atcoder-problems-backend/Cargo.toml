@@ -36,7 +36,9 @@ futures = "0.3"
 # Web framework
 tide = "0.4.0"
 
+# Client to connect external services
+surf = "1.0.3"
+
 [dev-dependencies]
 async-std = "1.2.0"
-surf = "1.0.3"
 rand = "0.7.2"

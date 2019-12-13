@@ -8,6 +8,7 @@ pub enum Error {
     ConnectionPoolError(r2d2::Error),
     TideError(tide::Error),
     JSONError(serde_json::Error),
+    HttpConnectionError(surf::Exception),
 }
 
 impl From<diesel::ConnectionError> for Error {
@@ -42,6 +43,12 @@ impl From<tide::Error> for Error {
 impl From<serde_json::Error> for Error {
     fn from(e: serde_json::Error) -> Self {
         Error::JSONError(e)
+    }
+}
+
+impl From<surf::Exception> for Error {
+    fn from(e: surf::Exception) -> Self {
+        Error::HttpConnectionError(e)
     }
 }
 
