@@ -1,13 +1,29 @@
-use async_std::prelude::*;
-use async_std::task;
-use atcoder_problems_backend::server::{run_server, AppData, GitHubAuthentication};
+use atcoder_problems_backend::error::Result;
+use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::schema::*;
+
+use async_std::prelude::*;
+use async_std::task;
+use async_trait::async_trait;
 use diesel::{insert_into, ExpressionMethods, PgConnection, RunQueryDsl};
 use rand::Rng;
 use std::future::Future;
 
 pub mod utils;
+
+struct MockAuth;
+
+#[async_trait]
+impl Authentication for MockAuth {
+    async fn get_token(&self, code: &str) -> Result<String> {
+        unimplemented!()
+    }
+
+    async fn is_valid_token(&self, token: &str) -> bool {
+        unimplemented!()
+    }
+}
 
 fn prepare_data_set(conn: &PgConnection) {
     insert_into(submission_count::table)
@@ -74,17 +90,18 @@ fn url(path: &str, port: u16) -> String {
     format!("http://localhost:{}{}", port, path)
 }
 
-fn start_server_handle(port: u16) -> task::JoinHandle<Result<(), surf::Exception>> {
+fn start_server_handle(port: u16) -> task::JoinHandle<std::result::Result<(), surf::Exception>> {
     task::spawn(async move {
-        let app_data = AppData::new(utils::SQL_URL, GitHubAuthentication::new("", "")).unwrap();
-        run_server(app_data, port).await.unwrap();
+        let pool = initialize_pool(utils::SQL_URL).unwrap();
+        let auth = MockAuth;
+        run_server(pool, auth, port).await.unwrap();
         Ok(())
     })
 }
 
-fn run_client_handle<F>(future: F) -> task::JoinHandle<Result<(), surf::Exception>>
+fn run_client_handle<F>(future: F) -> task::JoinHandle<std::result::Result<(), surf::Exception>>
 where
-    F: Future<Output = Result<(), surf::Exception>> + Send + 'static,
+    F: Future<Output = std::result::Result<(), surf::Exception>> + Send + 'static,
 {
     task::spawn(async {
         task::sleep(std::time::Duration::from_millis(100)).await;
