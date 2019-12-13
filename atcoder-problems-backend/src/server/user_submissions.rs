@@ -8,7 +8,7 @@ struct Query {
     user: String,
 }
 
-pub(crate) async fn get_user_submissions(request: Request<AppData>) -> Response {
+pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Response {
     request.state().respond(|conn| {
         let etag = request.extract_etag();
         let query = request.query::<Query>()?;

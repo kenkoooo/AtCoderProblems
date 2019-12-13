@@ -17,7 +17,7 @@ struct UserInfo {
     rated_point_sum_rank: i64,
 }
 
-pub(crate) async fn get_user_info(request: Request<AppData>) -> Response {
+pub(crate) async fn get_user_info<A>(request: Request<AppData<A>>) -> Response {
     request.state().respond(|conn| {
         let query = request.query::<Query>()?;
         let user_id = query.user;

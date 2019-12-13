@@ -6,7 +6,7 @@ use crate::server::user_submissions::get_user_submissions;
 use diesel::PgConnection;
 
 pub(crate) mod auth;
-pub use auth::GitHubAuthentication;
+pub use auth::{Authentication, GitHubAuthentication};
 
 pub(crate) mod middleware;
 pub(crate) mod time_submissions;
@@ -14,7 +14,13 @@ pub(crate) mod user_info;
 pub(crate) mod user_submissions;
 pub(crate) mod utils;
 
-pub async fn run_server(app_data: AppData, port: u16) -> Result<()> {
+pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConnection>>;
+
+pub async fn run_server<A>(pool: Pool, authentication: A, port: u16) -> Result<()>
+where
+    A: Authentication + Send + Sync + 'static,
+{
+    let app_data = AppData::new(pool, authentication);
     let mut app = tide::with_state(app_data);
 
     app.middleware(RequestLogger::new());
@@ -30,6 +36,12 @@ pub async fn run_server(app_data: AppData, port: u16) -> Result<()> {
     app.at("/healthcheck").get(|_| async move { "" });
     app.listen(format!("0.0.0.0:{}", port)).await?;
     Ok(())
+}
+
+pub fn initialize_pool<S: Into<String>>(database_url: S) -> Result<Pool> {
+    let manager = diesel::r2d2::ConnectionManager::<PgConnection>::new(database_url);
+    let pool = diesel::r2d2::Pool::builder().build(manager)?;
+    Ok(pool)
 }
 
 pub(crate) trait EtagExtractor {
@@ -68,25 +80,27 @@ impl CommonResponse for tide::Response {
     }
 }
 
-#[derive(Clone)]
-pub struct AppData {
-    pub(crate) pool: diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConnection>>,
-    pub(crate) authentication: GitHubAuthentication,
+pub(crate) struct AppData<A> {
+    pub(crate) pool: Pool,
+    pub(crate) authentication: A,
 }
 
-impl AppData {
-    pub fn new<S: Into<String>>(
-        database_url: S,
-        authentication: GitHubAuthentication,
-    ) -> Result<Self> {
-        let manager = diesel::r2d2::ConnectionManager::<PgConnection>::new(database_url);
-        let pool = diesel::r2d2::Pool::builder().build(manager)?;
-        Ok(Self {
+impl<A: Clone> Clone for AppData<A> {
+    fn clone(&self) -> Self {
+        Self {
+            pool: self.pool.clone(),
+            authentication: self.authentication.clone(),
+        }
+    }
+}
+
+impl<A> AppData<A> {
+    fn new(pool: Pool, authentication: A) -> Self {
+        Self {
             pool,
             authentication,
-        })
+        }
     }
-
     pub(crate) fn respond<F>(&self, f: F) -> tide::Response
     where
         F: FnOnce(&PgConnection) -> Result<tide::Response>,

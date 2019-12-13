@@ -3,7 +3,7 @@ use crate::server::{AppData, CommonResponse};
 use crate::sql::{SubmissionClient, SubmissionRequest};
 use tide::{Request, Response};
 
-pub(crate) async fn get_time_submissions(request: Request<AppData>) -> Response {
+pub(crate) async fn get_time_submissions<A>(request: Request<AppData<A>>) -> Response {
     if let Some(from_epoch_second) = request
         .param::<String>("from")
         .ok()

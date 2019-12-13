@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 #[async_trait]
-pub(crate) trait Authentication: Clone {
+pub trait Authentication {
     async fn get_token(&self, code: &str) -> Result<String>;
     async fn is_valid_token(&self, token: &str) -> bool;
 }
