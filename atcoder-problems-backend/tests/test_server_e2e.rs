@@ -20,7 +20,7 @@ impl Authentication for MockAuth {
         unimplemented!()
     }
 
-    async fn is_valid_token(&self, token: &str) -> bool {
+    async fn validate_token(&self, token: &str) -> bool {
         unimplemented!()
     }
 }
