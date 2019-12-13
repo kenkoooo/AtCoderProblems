@@ -6,6 +6,7 @@ use crate::server::user_submissions::get_user_submissions;
 use diesel::PgConnection;
 
 pub(crate) mod auth;
+use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication};
 
 pub(crate) mod middleware;
@@ -31,6 +32,7 @@ where
         });
         api.at("/v3").nest(|api| {
             api.at("/from/:from").get(get_time_submissions);
+            api.at("/authorize").get(get_token);
         });
     });
     app.at("/healthcheck").get(|_| async move { "" });
