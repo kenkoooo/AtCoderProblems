@@ -1,7 +1,9 @@
-use crate::error::Result;
+use crate::error::{Error, Result};
 
+use crate::server::{AppData, CommonResponse};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use tide::{Request, Response};
 
 #[async_trait]
 pub trait Authentication {
@@ -60,3 +62,23 @@ impl GitHubAuthentication {
         }
     }
 }
+
+#[derive(Deserialize)]
+struct Query {
+    code: String,
+}
+
+pub(crate) async fn get_token<A: Authentication>(request: Request<AppData<A>>) -> Response {
+    let query = request.query::<Query>();
+    match query {
+        Err(_) => Response::bad_request(),
+        Ok(Query { code }) => {
+            let token = request.state().authentication.get_token(&code).await;
+            match token {
+                Err(_) => Response::internal_error(),
+                Ok(token) => Response::new_cors(),
+            }
+        }
+    }
+}
+pub(crate) async fn is_authorized<A: Authentication>(request: Request<A>) {}
