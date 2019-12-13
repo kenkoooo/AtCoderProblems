@@ -19,7 +19,7 @@ pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConn
 
 pub async fn run_server<A>(pool: Pool, authentication: A, port: u16) -> Result<()>
 where
-    A: Authentication + Send + Sync + 'static,
+    A: Authentication + Send + Sync + 'static + Clone,
 {
     let app_data = AppData::new(pool, authentication);
     let mut app = tide::with_state(app_data);
