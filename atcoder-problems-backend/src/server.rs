@@ -6,15 +6,16 @@ use crate::server::user_submissions::get_user_submissions;
 use diesel::PgConnection;
 
 pub(crate) mod auth;
+pub use auth::GitHubAuthentication;
+
 pub(crate) mod middleware;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
 pub(crate) mod user_submissions;
 pub(crate) mod utils;
 
-pub async fn run_server(sql_url: &str, port: u16) -> Result<()> {
-    let state = AppData::new(sql_url)?;
-    let mut app = tide::with_state(state);
+pub async fn run_server(app_data: AppData, port: u16) -> Result<()> {
+    let mut app = tide::with_state(app_data);
 
     app.middleware(RequestLogger::new());
     app.at("/atcoder-api").nest(|api| {
@@ -68,15 +69,22 @@ impl CommonResponse for tide::Response {
 }
 
 #[derive(Clone)]
-pub(crate) struct AppData {
+pub struct AppData {
     pub(crate) pool: diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<PgConnection>>,
+    pub(crate) authentication: GitHubAuthentication,
 }
 
 impl AppData {
-    pub(crate) fn new<S: Into<String>>(database_url: S) -> Result<Self> {
+    pub fn new<S: Into<String>>(
+        database_url: S,
+        authentication: GitHubAuthentication,
+    ) -> Result<Self> {
         let manager = diesel::r2d2::ConnectionManager::<PgConnection>::new(database_url);
         let pool = diesel::r2d2::Pool::builder().build(manager)?;
-        Ok(Self { pool })
+        Ok(Self {
+            pool,
+            authentication,
+        })
     }
 
     pub(crate) fn respond<F>(&self, f: F) -> tide::Response

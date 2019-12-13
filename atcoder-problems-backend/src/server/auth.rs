@@ -1,8 +1,10 @@
 use crate::error::Result;
 
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
-pub(crate) trait Authentication {
+#[async_trait]
+pub(crate) trait Authentication: Clone {
     async fn get_token(&self, code: &str) -> Result<String>;
     async fn is_valid_token(&self, token: &str) -> bool;
 }
@@ -19,11 +21,13 @@ struct TokenResponse {
     access_token: String,
 }
 
-pub(crate) struct GitHubAuthentication {
+#[derive(Clone)]
+pub struct GitHubAuthentication {
     client_id: String,
     client_secret: String,
 }
 
+#[async_trait]
 impl Authentication for GitHubAuthentication {
     async fn get_token(&self, code: &str) -> Result<String> {
         let request = TokenRequest {
@@ -49,7 +53,7 @@ impl Authentication for GitHubAuthentication {
 }
 
 impl GitHubAuthentication {
-    pub(crate) fn new(client_id: &str, client_secret: &str) -> Self {
+    pub fn new(client_id: &str, client_secret: &str) -> Self {
         Self {
             client_id: client_id.to_owned(),
             client_secret: client_secret.to_owned(),

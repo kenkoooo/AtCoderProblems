@@ -1,6 +1,6 @@
 use async_std::prelude::*;
 use async_std::task;
-use atcoder_problems_backend::server::run_server;
+use atcoder_problems_backend::server::{run_server, AppData, GitHubAuthentication};
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::schema::*;
 use diesel::{insert_into, ExpressionMethods, PgConnection, RunQueryDsl};
@@ -76,7 +76,8 @@ fn url(path: &str, port: u16) -> String {
 
 fn start_server_handle(port: u16) -> task::JoinHandle<Result<(), surf::Exception>> {
     task::spawn(async move {
-        run_server(utils::SQL_URL, port).await.unwrap();
+        let app_data = AppData::new(utils::SQL_URL, GitHubAuthentication::new("", "")).unwrap();
+        run_server(app_data, port).await.unwrap();
         Ok(())
     })
 }
