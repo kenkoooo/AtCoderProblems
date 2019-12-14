@@ -1,4 +1,4 @@
-use crate::server::{utils, EtagExtractor};
+use crate::server::{utils, CommonRequest};
 use crate::server::{AppData, CommonResponse};
 use crate::sql::{SubmissionClient, SubmissionRequest};
 use tide::{Request, Response};

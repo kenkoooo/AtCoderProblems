@@ -35,8 +35,7 @@ futures = "0.3"
 
 # Web framework
 tide = "0.4.0"
-
-# Client to connect external services
+cookie = "0.12"
 surf = "1.0.3"
 
 async-trait = "0.1"

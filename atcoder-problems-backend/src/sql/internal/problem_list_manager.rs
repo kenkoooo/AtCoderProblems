@@ -1,26 +1,25 @@
 use crate::error::Result;
 use crate::sql::schema::*;
 
-use diesel::dsl::*;
 use diesel::prelude::*;
-use diesel::query_dsl::*;
-use diesel::sql_types::*;
 use diesel::PgConnection;
-use diesel::Queryable;
+use serde::Serialize;
 use std::collections::BTreeMap;
 
-struct ProblemList {
+#[derive(Serialize)]
+pub(crate) struct ProblemList {
     internal_list_id: String,
     internal_list_name: String,
     items: Vec<ListItem>,
 }
 
-struct ListItem {
+#[derive(Serialize)]
+pub(crate) struct ListItem {
     problem_id: String,
     memo: String,
 }
 
-trait ProblemListManager {
+pub(crate) trait ProblemListManager {
     fn get_list(&self, internal_user_id: &str) -> Result<Vec<ProblemList>>;
 }
 
