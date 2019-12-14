@@ -1,6 +1,7 @@
 use crate::error::Result;
-use crate::server::{AppData, CommonResponse};
+use crate::server::{AppData, CommonResponse, PooledConnection};
 
+use crate::sql::internal::user_manager::UserManager;
 use async_trait::async_trait;
 use cookie::Cookie;
 use serde::{Deserialize, Serialize};
@@ -9,7 +10,7 @@ use tide::{Request, Response};
 #[async_trait]
 pub trait Authentication {
     async fn get_token(&self, code: &str) -> Result<String>;
-    async fn validate_token(&self, token: &str) -> bool;
+    async fn get_user_id(&self, token: &str) -> Result<String>;
 }
 
 #[derive(Serialize)]
@@ -22,6 +23,11 @@ struct TokenRequest {
 #[derive(Deserialize)]
 struct TokenResponse {
     access_token: String,
+}
+
+#[derive(Deserialize)]
+struct GitHubUserResponse {
+    login: String,
 }
 
 #[derive(Clone)]
@@ -45,13 +51,12 @@ impl Authentication for GitHubAuthentication {
             .await?;
         Ok(response.access_token)
     }
-    async fn validate_token(&self, access_token: &str) -> bool {
-        surf::get("https://api.github.com/user")
+    async fn get_user_id(&self, access_token: &str) -> Result<String> {
+        let response: GitHubUserResponse = surf::get("https://api.github.com/user")
             .set_header("Authorization", format!("token {}", access_token))
-            .await
-            .ok()
-            .filter(|response| response.status().is_success())
-            .is_some()
+            .recv_json()
+            .await?;
+        Ok(response.login)
     }
 }
 
@@ -69,20 +74,40 @@ struct Query {
     code: String,
 }
 
+#[derive(Serialize)]
+struct AuthorizeResponse {
+    internal_user_id: String,
+}
+
 pub(crate) async fn get_token<A: Authentication + Clone>(request: Request<AppData<A>>) -> Response {
-    let query = request.query::<Query>();
-    match query {
-        Err(_) => Response::bad_request(),
-        Ok(Query { code }) => {
-            let client = request.state().authentication.clone();
-            let token = client.get_token(&code).await;
-            match token {
-                Err(_) => Response::internal_error(),
-                Ok(token) => {
-                    let cookie = Cookie::build("token", token).path("/").finish();
-                    Response::new(200).set_cookie(cookie)
-                }
-            }
-        }
+    fn unpack_request<A: Authentication + Clone>(
+        request: Request<AppData<A>>,
+    ) -> Result<(Query, A, PooledConnection)> {
+        let query = request.query::<Query>()?;
+        let client = request.state().authentication.clone();
+        let conn = request.state().pool.get()?;
+        Ok((query, client, conn))
+    }
+
+    async fn create_response<A: Authentication + Clone>(
+        client: A,
+        code: String,
+        conn: PooledConnection,
+    ) -> Result<Response> {
+        let token = client.get_token(&code).await?;
+        let internal_user_id = client.get_user_id(&token).await?;
+        conn.register_user(&internal_user_id)?;
+        let cookie = Cookie::build("token", token).path("/").finish();
+        let response = AuthorizeResponse { internal_user_id };
+        let response = Response::ok().set_cookie(cookie).body_json(&response)?;
+        Ok(response)
+    }
+
+    match unpack_request(request) {
+        Ok((query, client, conn)) => match create_response(client, query.code, conn).await {
+            Ok(response) => response,
+            _ => Response::bad_request(),
+        },
+        _ => Response::bad_request(),
     }
 }

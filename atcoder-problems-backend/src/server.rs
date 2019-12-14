@@ -5,7 +5,7 @@ use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::get_user_submissions;
 
 pub(crate) mod auth;
-use crate::server::problem_list::get_list;
+use crate::server::problem_list::{create_list, get_list};
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication};
 use cookie::Cookie;
@@ -38,7 +38,10 @@ where
             api.at("/from/:from").get(get_time_submissions);
             api.at("/authorize").get(get_token);
             api.at("/internal").nest(|api| {
-                api.at("/list/:internal_user_id").get(get_list);
+                api.at("/list").nest(|api| {
+                    api.at("/get").get(get_list);
+                    api.at("/create").post(create_list);
+                });
             });
         });
     });

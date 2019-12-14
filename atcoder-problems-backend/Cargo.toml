@@ -37,6 +37,7 @@ futures = "0.3"
 tide = "0.4.0"
 cookie = "0.12"
 surf = "1.0.3"
+uuid = { version = "0.8", features = ["serde", "v4"] }
 
 async-trait = "0.1"
 
