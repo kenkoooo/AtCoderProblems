@@ -10,19 +10,19 @@ pub(crate) mod user_manager;
 
 #[async_trait]
 pub(crate) trait RequestUnpack {
-    async fn unpack<T: DeserializeOwned + Send + Sync + 'static>(
+    async fn post_unpack<Body: DeserializeOwned + Send + Sync + 'static>(
         self,
-    ) -> Result<(T, PooledConnection, String, String)>;
+    ) -> Result<(Body, PooledConnection, String, String)>;
 }
 
 #[async_trait]
 impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Request<AppData<A>> {
-    async fn unpack<T: DeserializeOwned + Send + Sync + 'static>(
+    async fn post_unpack<Body: DeserializeOwned + Send + Sync + 'static>(
         self,
-    ) -> Result<(T, PooledConnection, String, String)> {
+    ) -> Result<(Body, PooledConnection, String, String)> {
         let client = self.state().authentication.clone();
         let mut request = self;
-        let body: T = request.body_json().await?;
+        let body: Body = request.body_json().await?;
         let token = request.get_cookie("token")?;
         let conn = request.state().pool.get()?;
         let user_id = client.get_user_id(&token).await?;
