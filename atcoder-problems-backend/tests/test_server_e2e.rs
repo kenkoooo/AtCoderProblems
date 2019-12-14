@@ -12,6 +12,7 @@ use std::future::Future;
 
 pub mod utils;
 
+#[derive(Clone)]
 struct MockAuth;
 
 #[async_trait]

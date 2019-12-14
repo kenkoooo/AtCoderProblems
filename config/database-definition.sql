@@ -120,6 +120,30 @@ CREATE TABLE max_streaks (
 DROP TABLE IF EXISTS submission_count;
 CREATE TABLE submission_count (
   user_id               VARCHAR(255) NOT NULL,
-  count                BIGINT NOT NULL,
+  count                 BIGINT NOT NULL,
   PRIMARY KEY (user_id)
+);
+
+-- For internal services:
+DROP TABLE IF EXISTS internal_problem_list_items;
+DROP TABLE IF EXISTS internal_problem_lists;
+DROP TABLE IF EXISTS internal_users;
+
+CREATE TABLE internal_users (
+  internal_user_id      VARCHAR(255) NOT NULL,
+  PRIMARY KEY (internal_user_id)
+);
+
+CREATE TABLE internal_problem_lists (
+  internal_list_id      VARCHAR(255) NOT NULL,
+  internal_user_id      VARCHAR(255) REFERENCES internal_users ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (internal_list_id)
+);
+CREATE INDEX ON internal_problem_lists (internal_user_id);
+
+CREATE TABLE internal_problem_list_items (
+  internal_list_id      VARCHAR(255) REFERENCES internal_problem_lists ON DELETE CASCADE ON UPDATE CASCADE,
+  problem_id            VARCHAR(255) NOT NULL,
+  memo                  VARCHAR(255) DEFAULT '',
+  PRIMARY KEY (internal_list_id, problem_id)
 );
