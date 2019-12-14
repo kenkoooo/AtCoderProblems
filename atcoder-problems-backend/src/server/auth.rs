@@ -1,6 +1,6 @@
 use crate::error::{Error, Result};
-
 use crate::server::{AppData, CommonResponse};
+
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use tide::{Request, Response};
