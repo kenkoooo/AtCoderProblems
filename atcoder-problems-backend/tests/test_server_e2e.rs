@@ -21,7 +21,7 @@ impl Authentication for MockAuth {
         unimplemented!()
     }
 
-    async fn validate_token(&self, token: &str) -> bool {
+    async fn get_user_id(&self, token: &str) -> Result<String> {
         unimplemented!()
     }
 }
