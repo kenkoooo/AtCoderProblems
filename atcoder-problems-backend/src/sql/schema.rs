@@ -120,6 +120,29 @@ table! {
     }
 }
 
+// internal tables
+table! {
+    internal_users (internal_user_id) {
+        internal_user_id -> Varchar,
+    }
+}
+
+table! {
+    internal_problem_lists (internal_list_id) {
+        internal_list_id -> Varchar,
+        internal_user_id -> Varchar,
+        internal_list_name -> Varchar,
+    }
+}
+
+table! {
+    internal_problem_list_items (internal_list_id, problem_id) {
+        internal_list_id -> Varchar,
+        problem_id -> Varchar,
+        memo -> Varchar,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     accepted_count,
     contests,
@@ -137,28 +160,6 @@ allow_tables_to_appear_in_same_query!(
     submissions,
     submission_count,
 );
-
-// internal tables
-table! {
-    internal_users (internal_user_id) {
-        internal_user_id -> Varchar,
-    }
-}
-
-table! {
-    internal_problem_lists (internal_list_id) {
-        internal_list_id -> Varchar,
-        internal_user_id -> Varchar,
-    }
-}
-
-table! {
-    internal_problem_list_items (internal_list_id, problem_id) {
-        internal_list_id -> Varchar,
-        problem_id -> Varchar,
-        memo -> Varchar,
-    }
-}
 
 allow_tables_to_appear_in_same_query!(
     internal_users,

@@ -131,12 +131,14 @@ DROP TABLE IF EXISTS internal_users;
 
 CREATE TABLE internal_users (
   internal_user_id      VARCHAR(255) NOT NULL,
+  atcoder_user_id       VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (internal_user_id)
 );
 
 CREATE TABLE internal_problem_lists (
   internal_list_id      VARCHAR(255) NOT NULL,
   internal_user_id      VARCHAR(255) REFERENCES internal_users ON DELETE CASCADE ON UPDATE CASCADE,
+  internal_list_name    VARCHAR(255) DEFAULT '',
   PRIMARY KEY (internal_list_id)
 );
 CREATE INDEX ON internal_problem_lists (internal_user_id);
