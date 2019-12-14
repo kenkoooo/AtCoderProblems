@@ -2,6 +2,7 @@ use crate::error::Result;
 use crate::server::{AppData, Authentication, CommonRequest, CommonResponse, PooledConnection};
 use crate::sql::internal::problem_list_manager::ProblemListManager;
 
+use crate::sql::internal::RequestUnpack;
 use serde::{Deserialize, Serialize};
 use tide::{Request, Response};
 
@@ -29,7 +30,7 @@ pub(crate) async fn get_list<A: Clone + Authentication>(request: Request<AppData
     }
 }
 
-pub(crate) async fn create_list<A: Authentication + Clone>(
+pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
 ) -> Response {
     #[derive(Deserialize)]
@@ -40,14 +41,6 @@ pub(crate) async fn create_list<A: Authentication + Clone>(
     struct Created {
         internal_list_id: String,
     }
-    async fn unpack_request<A>(
-        mut request: Request<AppData<A>>,
-    ) -> Result<(String, PooledConnection, String)> {
-        let query: Query = request.body_json().await?;
-        let token = request.get_cookie("token")?;
-        let conn = request.state().pool.get()?;
-        Ok((token, conn, query.list_name))
-    }
     fn create_response(conn: PooledConnection, user_id: &str, list_name: &str) -> Result<Response> {
         let internal_list_id = conn.create_list(user_id, list_name)?;
         let created = Created { internal_list_id };
@@ -55,25 +48,15 @@ pub(crate) async fn create_list<A: Authentication + Clone>(
         Ok(response)
     }
 
-    use log::info;
-    let client = request.state().authentication.clone();
-    match unpack_request(request).await {
-        Ok((token, conn, list_name)) => match client.get_user_id(&token).await {
-            Ok(internal_user_id) => match create_response(conn, &internal_user_id, &list_name) {
+    match request.unpack::<Query>().await {
+        Ok((query, conn, token, internal_user_id)) => {
+            match create_response(conn, &internal_user_id, &query.list_name) {
                 Ok(response) => response,
-                Err(e) => {
-                    info!("{:?}", e);
-                    Response::bad_request()
-                }
-            },
-            Err(e) => {
-                info!("{:?}", e);
-                Response::bad_request()
+                Err(_) => Response::bad_request(),
             }
-        },
-        Err(e) => {
-            info!("{:?}", e);
-            Response::bad_request()
         }
+        Err(_) => Response::bad_request(),
     }
 }
+
+pub(crate) fn delete_list() {}
