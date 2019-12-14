@@ -17,6 +17,7 @@ pub(crate) async fn get_list<A: Clone + Authentication>(request: Request<AppData
         let response = Response::ok().body_json(&list)?;
         Ok(response)
     }
+
     let client = request.state().authentication.clone();
     match unpack_request(request) {
         Ok((token, conn)) => match client.get_user_id(&token).await {
@@ -48,7 +49,7 @@ pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'stati
         Ok(response)
     }
 
-    match request.unpack::<Query>().await {
+    match request.post_unpack::<Query>().await {
         Ok((query, conn, token, internal_user_id)) => {
             match create_response(conn, &internal_user_id, &query.list_name) {
                 Ok(response) => response,
