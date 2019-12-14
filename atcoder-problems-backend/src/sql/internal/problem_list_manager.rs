@@ -2,7 +2,7 @@ use crate::error::Result;
 use crate::sql::schema::*;
 
 use diesel::prelude::*;
-use diesel::{insert_into, PgConnection};
+use diesel::{delete, insert_into, update, PgConnection};
 use serde::Serialize;
 use std::collections::BTreeMap;
 
@@ -22,6 +22,8 @@ pub(crate) struct ListItem {
 pub(crate) trait ProblemListManager {
     fn get_list(&self, internal_user_id: &str) -> Result<Vec<ProblemList>>;
     fn create_list(&self, internal_user_id: &str, name: &str) -> Result<String>;
+    fn update_list(&self, internal_list_id: &str, name: &str) -> Result<()>;
+    fn delete_list(&self, internal_list_id: &str) -> Result<()>;
 }
 
 impl ProblemListManager for PgConnection {
@@ -68,5 +70,22 @@ impl ProblemListManager for PgConnection {
             )])
             .execute(self)?;
         Ok(new_list_id)
+    }
+    fn update_list(&self, internal_list_id: &str, name: &str) -> Result<()> {
+        update(
+            internal_problem_lists::table
+                .filter(internal_problem_lists::internal_list_id.eq(internal_list_id)),
+        )
+        .set(internal_problem_lists::internal_list_name.eq(name))
+        .execute(self)?;
+        Ok(())
+    }
+    fn delete_list(&self, internal_list_id: &str) -> Result<()> {
+        delete(
+            internal_problem_lists::table
+                .filter(internal_problem_lists::internal_list_id.eq(internal_list_id)),
+        )
+        .execute(self)?;
+        Ok(())
     }
 }

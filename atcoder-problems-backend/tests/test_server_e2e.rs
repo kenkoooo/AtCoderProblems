@@ -113,7 +113,7 @@ where
 fn setup() -> u16 {
     prepare_data_set(&utils::connect_to_test_sql());
     let mut rng = rand::thread_rng();
-    rng.gen()
+    rng.gen::<u16>() % 30000 + 30000
 }
 
 #[test]

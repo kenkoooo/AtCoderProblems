@@ -12,20 +12,20 @@ pub(crate) mod user_manager;
 pub(crate) trait RequestUnpack {
     async fn post_unpack<Body: DeserializeOwned + Send + Sync + 'static>(
         self,
-    ) -> Result<(Body, PooledConnection, String, String)>;
+    ) -> Result<(Body, PooledConnection, String)>;
 }
 
 #[async_trait]
 impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Request<AppData<A>> {
     async fn post_unpack<Body: DeserializeOwned + Send + Sync + 'static>(
         self,
-    ) -> Result<(Body, PooledConnection, String, String)> {
+    ) -> Result<(Body, PooledConnection, String)> {
         let client = self.state().authentication.clone();
         let mut request = self;
         let body: Body = request.body_json().await?;
         let token = request.get_cookie("token")?;
         let conn = request.state().pool.get()?;
         let user_id = client.get_user_id(&token).await?;
-        Ok((body, conn, token, user_id))
+        Ok((body, conn, user_id))
     }
 }
