@@ -1,5 +1,7 @@
 use serde::export::Formatter;
 
+pub type Result<T> = std::result::Result<T, Error>;
+
 #[derive(Debug)]
 pub enum Error {
     ConnectionError(diesel::ConnectionError),
@@ -9,6 +11,8 @@ pub enum Error {
     TideError(tide::Error),
     JSONError(serde_json::Error),
     HttpConnectionError(surf::Exception),
+    CookieNotFound,
+    OtherError,
 }
 
 impl From<diesel::ConnectionError> for Error {
@@ -52,7 +56,11 @@ impl From<surf::Exception> for Error {
     }
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+impl From<()> for Error {
+    fn from(_: ()) -> Self {
+        Error::OtherError
+    }
+}
 
 impl std::error::Error for Error {}
 

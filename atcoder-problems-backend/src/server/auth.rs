@@ -1,7 +1,8 @@
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::server::{AppData, CommonResponse};
 
 use async_trait::async_trait;
+use cookie::Cookie;
 use serde::{Deserialize, Serialize};
 use tide::{Request, Response};
 
@@ -77,9 +78,11 @@ pub(crate) async fn get_token<A: Authentication + Clone>(request: Request<AppDat
             let token = client.get_token(&code).await;
             match token {
                 Err(_) => Response::internal_error(),
-                Ok(token) => Response::new_cors(),
+                Ok(token) => {
+                    let cookie = Cookie::build("token", token).path("/").finish();
+                    Response::new(200).set_cookie(cookie)
+                }
             }
         }
     }
 }
-pub(crate) async fn is_authorized<A: Authentication>(request: Request<A>) {}

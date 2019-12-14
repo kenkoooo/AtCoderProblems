@@ -11,7 +11,7 @@ mod simple_client;
 mod streak;
 mod submission_client;
 
-mod internal;
+pub(crate) mod internal;
 
 const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
 const UNRATED_STATE: &str = "-";
