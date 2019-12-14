@@ -50,14 +50,47 @@ pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'stati
     }
 
     match request.post_unpack::<Query>().await {
-        Ok((query, conn, token, internal_user_id)) => {
+        Ok((query, conn, internal_user_id)) => {
             match create_response(conn, &internal_user_id, &query.list_name) {
                 Ok(response) => response,
-                Err(_) => Response::bad_request(),
+                Err(_) => Response::internal_error(),
             }
         }
         Err(_) => Response::bad_request(),
     }
 }
 
-pub(crate) fn delete_list() {}
+pub(crate) async fn delete_list<A>(request: Request<AppData<A>>) -> Response
+where
+    A: Authentication + Clone + Send + Sync + 'static,
+{
+    #[derive(Deserialize)]
+    struct Q {
+        internal_list_id: String,
+    }
+    match request.post_unpack::<Q>().await {
+        Ok((query, conn, _)) => match conn.delete_list(&query.internal_list_id) {
+            Ok(_) => Response::ok(),
+            _ => Response::internal_error(),
+        },
+        Err(_) => Response::bad_request(),
+    }
+}
+
+pub(crate) async fn update_list<A>(request: Request<AppData<A>>) -> Response
+where
+    A: Authentication + Clone + Send + Sync + 'static,
+{
+    #[derive(Deserialize)]
+    struct Q {
+        internal_list_id: String,
+        name: String,
+    }
+    match request.post_unpack::<Q>().await {
+        Ok((query, conn, _)) => match conn.update_list(&query.internal_list_id, &query.name) {
+            Ok(_) => Response::ok(),
+            _ => Response::internal_error(),
+        },
+        Err(_) => Response::bad_request(),
+    }
+}
