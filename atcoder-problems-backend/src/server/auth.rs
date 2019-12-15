@@ -27,7 +27,7 @@ struct TokenResponse {
 
 #[derive(Deserialize)]
 struct GitHubUserResponse {
-    login: String,
+    id: i64,
 }
 
 #[derive(Clone)]
@@ -56,7 +56,7 @@ impl Authentication for GitHubAuthentication {
             .set_header("Authorization", format!("token {}", access_token))
             .recv_json()
             .await?;
-        Ok(response.login)
+        Ok(response.id.to_string())
     }
 }
 
