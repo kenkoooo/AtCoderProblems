@@ -47,8 +47,10 @@ pub(crate) trait VirtualContestManager {
     fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
     fn get_participated_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
 
-    fn add_item(&self, contest_id: &str, problem_id: &str) -> Result<()>;
-    fn remove_item(&self, contest_id: &str, problem_id: &str) -> Result<()>;
+    fn add_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()>;
+    fn remove_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()>;
+
+    fn join_contest(&self, contest_id: &str, internal_user_id: &str) -> Result<()>;
 }
 
 impl VirtualContestManager for PgConnection {
@@ -168,7 +170,15 @@ impl VirtualContestManager for PgConnection {
         Ok(virtual_contests)
     }
 
-    fn add_item(&self, contest_id: &str, problem_id: &str) -> Result<()> {
+    fn add_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()> {
+        v_contests::table
+            .filter(
+                v_contests::internal_user_id
+                    .eq(user_id)
+                    .and(v_contests::id.eq(contest_id)),
+            )
+            .select(count_star())
+            .first::<i64>(self)?;
         let count = v_items::table
             .filter(v_items::internal_virtual_contest_id.eq(contest_id))
             .select(count_star())
@@ -185,7 +195,15 @@ impl VirtualContestManager for PgConnection {
             .execute(self)?;
         Ok(())
     }
-    fn remove_item(&self, contest_id: &str, problem_id: &str) -> Result<()> {
+    fn remove_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()> {
+        v_contests::table
+            .filter(
+                v_contests::internal_user_id
+                    .eq(user_id)
+                    .and(v_contests::id.eq(contest_id)),
+            )
+            .select(count_star())
+            .first::<i64>(self)?;
         delete(
             v_items::table.filter(
                 v_items::internal_virtual_contest_id
@@ -194,6 +212,16 @@ impl VirtualContestManager for PgConnection {
             ),
         )
         .execute(self)?;
+        Ok(())
+    }
+
+    fn join_contest(&self, contest_id: &str, internal_user_id: &str) -> Result<()> {
+        insert_into(v_participants::table)
+            .values(vec![(
+                v_participants::internal_virtual_contest_id.eq(contest_id),
+                v_participants::internal_user_id.eq(internal_user_id),
+            )])
+            .execute(self)?;
         Ok(())
     }
 }
