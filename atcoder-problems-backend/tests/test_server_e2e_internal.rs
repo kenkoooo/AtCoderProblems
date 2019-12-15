@@ -74,8 +74,7 @@ fn test_list() {
             map.insert("list_name", "a");
             let mut response = surf::post(url("/atcoder-api/v3/internal/list/create", port))
                 .set_header("Cookie", format!("token={}", token))
-                .body_json(&map)
-                .unwrap()
+                .body_json(&map)?
                 .await?;
             assert!(response.status().is_success(), "{:?}", response);
             let value: Value = response.body_json().await?;
@@ -101,8 +100,7 @@ fn test_list() {
             map.insert("name", "b");
             let response = surf::post(url("/atcoder-api/v3/internal/list/update", port))
                 .set_header("Cookie", format!("token={}", token))
-                .body_json(&map)
-                .unwrap()
+                .body_json(&map)?
                 .await?;
             assert!(response.status().is_success());
             let response = surf::get(url("/atcoder-api/v3/internal/list/get", port))
@@ -124,8 +122,7 @@ fn test_list() {
             map.insert("internal_list_id", &internal_list_id);
             let response = surf::post(url("/atcoder-api/v3/internal/list/delete", port))
                 .set_header("Cookie", format!("token={}", token))
-                .body_json(&map)
-                .unwrap()
+                .body_json(&map)?
                 .await?;
             assert!(response.status().is_success());
 
@@ -181,12 +178,114 @@ fn test_list_item() {
             map.insert("list_name", "a");
             let mut response = surf::post(url("/atcoder-api/v3/internal/list/create", port))
                 .set_header("Cookie", &cookie_header)
-                .body_json(&map)
-                .unwrap()
+                .body_json(&map)?
                 .await?;
             assert!(response.status().is_success(), "{:?}", response);
             let value: Value = response.body_json().await?;
             let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
+
+            let mut map = BTreeMap::new();
+            map.insert("internal_list_id", internal_list_id);
+            map.insert("problem_id", "problem_1");
+            let response = surf::post(url("/atcoder-api/v3/internal/list/item/add", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&map)?
+                .await?;
+            assert!(response.status().is_success(), "{:?}", response);
+            let list = surf::get(url("/atcoder-api/v3/internal/list/get", port))
+                .set_header("Cookie", &cookie_header)
+                .recv_json::<Value>()
+                .await?;
+            assert_eq!(list[0]["items"][0]["problem_id"], "problem_1", "{:?}", list);
+            assert_eq!(list[0]["items"][0]["memo"], "", "{:?}", list);
+
+            let mut map = BTreeMap::new();
+            map.insert("internal_list_id", internal_list_id);
+            map.insert("problem_id", "problem_1");
+            map.insert("memo", "memo_1");
+            let response = surf::post(url("/atcoder-api/v3/internal/list/item/update", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&map)?
+                .await?;
+            assert!(response.status().is_success(), "{:?}", response);
+            let list = surf::get(url("/atcoder-api/v3/internal/list/get", port))
+                .set_header("Cookie", &cookie_header)
+                .recv_json::<Value>()
+                .await?;
+            assert_eq!(list[0]["items"][0]["problem_id"], "problem_1", "{:?}", list);
+            assert_eq!(list[0]["items"][0]["memo"], "memo_1", "{:?}", list);
+
+            let mut map = BTreeMap::new();
+            map.insert("internal_list_id", internal_list_id);
+            map.insert("problem_id", "problem_1");
+            let response = surf::post(url("/atcoder-api/v3/internal/list/item/delete", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&map)?
+                .await?;
+            assert!(response.status().is_success(), "{:?}", response);
+            let list = surf::get(url("/atcoder-api/v3/internal/list/get", port))
+                .set_header("Cookie", &cookie_header)
+                .recv_json::<Value>()
+                .await?;
+            assert!(list[0]["items"].as_array().unwrap().is_empty());
+
+            Ok(())
+        });
+        server.race(client).await.unwrap();
+    });
+}
+
+#[test]
+fn test_list_delete() {
+    task::block_on(async {
+        let port = setup();
+        let server = utils::start_server_handle(MockAuth, port);
+        let client = utils::run_client_handle(async move {
+            surf::get(url(
+                &format!("/atcoder-api/v3/authorize?code={}", VALID_CODE),
+                port,
+            ))
+            .await?;
+            let cookie_header = format!("token={}", VALID_TOKEN);
+
+            let mut map = BTreeMap::new();
+            map.insert("list_name", "a");
+            let mut response = surf::post(url("/atcoder-api/v3/internal/list/create", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&map)?
+                .await?;
+            assert!(response.status().is_success(), "{:?}", response);
+            let value: Value = response.body_json().await?;
+            let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
+
+            let mut map = BTreeMap::new();
+            map.insert("internal_list_id", internal_list_id);
+            map.insert("problem_id", "problem_1");
+            let response = surf::post(url("/atcoder-api/v3/internal/list/item/add", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&map)?
+                .await?;
+            assert!(response.status().is_success(), "{:?}", response);
+            let list = surf::get(url("/atcoder-api/v3/internal/list/get", port))
+                .set_header("Cookie", &cookie_header)
+                .recv_json::<Value>()
+                .await?;
+            assert_eq!(list[0]["items"][0]["problem_id"], "problem_1", "{:?}", list);
+            assert_eq!(list[0]["items"][0]["memo"], "", "{:?}", list);
+
+            let mut map = BTreeMap::new();
+            map.insert("internal_list_id", &internal_list_id);
+            let response = surf::post(url("/atcoder-api/v3/internal/list/delete", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&map)?
+                .await?;
+            assert!(response.status().is_success());
+
+            let list = surf::get(url("/atcoder-api/v3/internal/list/get", port))
+                .set_header("Cookie", &cookie_header)
+                .recv_json::<Value>()
+                .await?;
+            assert!(list.as_array().unwrap().is_empty());
 
             Ok(())
         });
