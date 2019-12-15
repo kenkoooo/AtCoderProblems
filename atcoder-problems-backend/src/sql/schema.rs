@@ -120,6 +120,24 @@ table! {
     }
 }
 
+allow_tables_to_appear_in_same_query!(
+    accepted_count,
+    contests,
+    contest_problem,
+    fastest,
+    first,
+    language_count,
+    max_streaks,
+    points,
+    predicted_rating,
+    problems,
+    rated_point_sum,
+    shortest,
+    solver,
+    submissions,
+    submission_count,
+);
+
 // internal tables
 table! {
     internal_users (internal_user_id) {
@@ -145,25 +163,35 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
-    accepted_count,
-    contests,
-    contest_problem,
-    fastest,
-    first,
-    language_count,
-    max_streaks,
-    points,
-    predicted_rating,
-    problems,
-    rated_point_sum,
-    shortest,
-    solver,
-    submissions,
-    submission_count,
-);
-
-allow_tables_to_appear_in_same_query!(
     internal_users,
     internal_problem_lists,
     internal_problem_list_items,
+    internal_virtual_contests,
+    internal_virtual_contest_items,
+    internal_virtual_contest_participants,
 );
+
+table! {
+    internal_virtual_contests (id) {
+        id -> Varchar,
+        title -> Varchar,
+        memo -> Varchar,
+        internal_user_id -> Varchar,
+        start_epoch_second -> Int8,
+        duration_second -> Int8,
+    }
+}
+
+table! {
+    internal_virtual_contest_items (problem_id, internal_virtual_contest_id) {
+        problem_id -> Varchar,
+        internal_virtual_contest_id -> Varchar,
+    }
+}
+
+table! {
+    internal_virtual_contest_participants (internal_virtual_contest_id, internal_user_id) {
+        internal_virtual_contest_id -> Varchar,
+        internal_user_id -> Varchar,
+    }
+}

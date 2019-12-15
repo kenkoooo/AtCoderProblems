@@ -18,6 +18,7 @@ pub(crate) mod time_submissions;
 pub(crate) mod user_info;
 pub(crate) mod user_submissions;
 pub(crate) mod utils;
+pub(crate) mod virtual_contest;
 
 pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
 pub(crate) type PooledConnection =
@@ -50,6 +51,20 @@ where
                         api.at("/update").post(update_item);
                         api.at("/delete").post(delete_item);
                     });
+                });
+
+                api.at("/contest").nest(|api| {
+                    api.at("/create").post(virtual_contest::create_contest);
+                    api.at("/update").post(virtual_contest::update_contest);
+                    api.at("/item").nest(|api| {
+                        api.at("/add").post(virtual_contest::add_item);
+                        api.at("/delete").post(virtual_contest::delete_item);
+                    });
+                    api.at("/get/:contest_id")
+                        .get(virtual_contest::get_single_contest);
+                    api.at("/join").post(virtual_contest::join_contest);
+                    api.at("/my").get(virtual_contest::get_my_contests);
+                    api.at("/joined").get(virtual_contest::get_participated);
                 });
             });
         });

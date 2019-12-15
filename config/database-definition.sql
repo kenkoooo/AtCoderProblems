@@ -127,6 +127,11 @@ CREATE TABLE submission_count (
 -- For internal services:
 DROP TABLE IF EXISTS internal_problem_list_items;
 DROP TABLE IF EXISTS internal_problem_lists;
+
+DROP TABLE IF EXISTS internal_virtual_contest_participants;
+DROP TABLE IF EXISTS internal_virtual_contest_items;
+DROP TABLE IF EXISTS internal_virtual_contests;
+
 DROP TABLE IF EXISTS internal_users;
 
 CREATE TABLE internal_users (
@@ -150,3 +155,29 @@ CREATE TABLE internal_problem_list_items (
   PRIMARY KEY (internal_list_id, problem_id)
 );
 CREATE INDEX ON internal_problem_list_items (internal_list_id);
+
+CREATE TABLE internal_virtual_contests (
+  id        VARCHAR(255) NOT NULL,
+  title     VARCHAR(255) DEFAULT '',
+  memo      VARCHAR(255) DEFAULT '',
+  internal_user_id     VARCHAR(255) REFERENCES internal_users ON DELETE CASCADE ON UPDATE CASCADE,
+  start_epoch_second    BIGINT       NOT NULL,
+  duration_second       BIGINT       NOT NULL,
+  PRIMARY KEY (id)
+);
+CREATE INDEX ON internal_virtual_contests (internal_user_id);
+
+CREATE TABLE internal_virtual_contest_items (
+  problem_id    VARCHAR(255) NOT NULL,
+  internal_virtual_contest_id VARCHAR(255) REFERENCES internal_virtual_contests(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (problem_id, internal_virtual_contest_id)
+);
+CREATE INDEX ON internal_virtual_contest_items (internal_virtual_contest_id);
+
+CREATE TABLE internal_virtual_contest_participants (
+  internal_virtual_contest_id VARCHAR(255) REFERENCES internal_virtual_contests(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  internal_user_id      VARCHAR(255) REFERENCES internal_users ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (internal_virtual_contest_id, internal_user_id)  
+);
+CREATE INDEX ON internal_virtual_contest_participants (internal_user_id);
+
