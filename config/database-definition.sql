@@ -149,3 +149,4 @@ CREATE TABLE internal_problem_list_items (
   memo                  VARCHAR(255) DEFAULT '',
   PRIMARY KEY (internal_list_id, problem_id)
 );
+CREATE INDEX ON internal_problem_list_items (internal_list_id);
