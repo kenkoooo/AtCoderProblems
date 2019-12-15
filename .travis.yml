@@ -19,6 +19,7 @@ matrix:
       deploy:
         provider: script
         script:
+          - cd atcoder-problems-backend/
           - echo "$DOCKER_PASSWORD" | docker login -u kenkoooo --password-stdin
           - docker pull kenkoooo/atcoder-problems-backend
           - docker build -t kenkoooo/atcoder-problems-backend .
