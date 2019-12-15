@@ -24,7 +24,7 @@ matrix:
           - docker build -t kenkoooo/atcoder-problems-backend .
           - docker push kenkoooo/atcoder-problems-backend
         on:
-          repo: master
+          branch: master
 
     - language: node_js
       node_js: node
