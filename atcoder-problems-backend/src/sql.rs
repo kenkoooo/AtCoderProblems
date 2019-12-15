@@ -11,6 +11,8 @@ mod simple_client;
 mod streak;
 mod submission_client;
 
+pub(crate) mod internal;
+
 const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
 const UNRATED_STATE: &str = "-";
 const MAX_INSERT_ROWS: usize = 10_000;
