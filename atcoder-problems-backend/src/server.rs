@@ -5,7 +5,9 @@ use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::get_user_submissions;
 
 pub(crate) mod auth;
-use crate::server::problem_list::{create_list, delete_list, get_list, update_list};
+use crate::server::problem_list::{
+    add_item, create_list, delete_item, delete_list, get_list, update_item, update_list,
+};
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication};
 use cookie::Cookie;
@@ -43,6 +45,11 @@ where
                     api.at("/create").post(create_list);
                     api.at("/delete").post(delete_list);
                     api.at("/update").post(update_list);
+                    api.at("/item").nest(|api| {
+                        api.at("/add").post(add_item);
+                        api.at("/update").post(update_item);
+                        api.at("/delete").post(delete_item);
+                    });
                 });
             });
         });

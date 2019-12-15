@@ -94,3 +94,62 @@ where
         Err(_) => Response::bad_request(),
     }
 }
+
+pub(crate) async fn add_item<A>(request: Request<AppData<A>>) -> Response
+where
+    A: Authentication + Clone + Send + Sync + 'static,
+{
+    #[derive(Deserialize)]
+    struct Q {
+        internal_list_id: String,
+        problem_id: String,
+    }
+    match request.post_unpack::<Q>().await {
+        Ok((query, conn, _)) => match conn.add_item(&query.internal_list_id, &query.problem_id) {
+            Ok(_) => Response::ok(),
+            _ => Response::internal_error(),
+        },
+        Err(_) => Response::bad_request(),
+    }
+}
+
+pub(crate) async fn update_item<A>(request: Request<AppData<A>>) -> Response
+where
+    A: Authentication + Clone + Send + Sync + 'static,
+{
+    #[derive(Deserialize)]
+    struct Q {
+        internal_list_id: String,
+        problem_id: String,
+        memo: String,
+    }
+    match request.post_unpack::<Q>().await {
+        Ok((query, conn, _)) => {
+            match conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo) {
+                Ok(_) => Response::ok(),
+                _ => Response::internal_error(),
+            }
+        }
+        Err(_) => Response::bad_request(),
+    }
+}
+
+pub(crate) async fn delete_item<A>(request: Request<AppData<A>>) -> Response
+where
+    A: Authentication + Clone + Send + Sync + 'static,
+{
+    #[derive(Deserialize)]
+    struct Q {
+        internal_list_id: String,
+        problem_id: String,
+    }
+    match request.post_unpack::<Q>().await {
+        Ok((query, conn, _)) => {
+            match conn.delete_item(&query.internal_list_id, &query.problem_id) {
+                Ok(_) => Response::ok(),
+                _ => Response::internal_error(),
+            }
+        }
+        Err(_) => Response::bad_request(),
+    }
+}
