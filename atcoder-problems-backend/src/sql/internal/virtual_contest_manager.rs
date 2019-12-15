@@ -7,12 +7,13 @@ use internal_virtual_contests as v_contests;
 
 use diesel::expression::dsl::count_star;
 use diesel::prelude::*;
-use diesel::{insert_into, update, PgConnection};
+use diesel::{delete, insert_into, update, PgConnection};
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
 const MAX_CONTEST_NUM: i64 = 1024;
+const MAX_PROBLEM_NUM_PER_CONTEST: i64 = 16;
 
 #[derive(Serialize)]
 pub(crate) struct VirtualContest {
@@ -45,6 +46,9 @@ pub(crate) trait VirtualContestManager {
     ) -> Result<()>;
     fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
     fn get_participated_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
+
+    fn add_item(&self, contest_id: &str, problem_id: &str) -> Result<()>;
+    fn remove_item(&self, contest_id: &str, problem_id: &str) -> Result<()>;
 }
 
 impl VirtualContestManager for PgConnection {
@@ -162,6 +166,35 @@ impl VirtualContestManager for PgConnection {
             )>(self)?;
         let virtual_contests = construct_virtual_contests(data);
         Ok(virtual_contests)
+    }
+
+    fn add_item(&self, contest_id: &str, problem_id: &str) -> Result<()> {
+        let count = v_items::table
+            .filter(v_items::internal_virtual_contest_id.eq(contest_id))
+            .select(count_star())
+            .first::<i64>(self)?;
+        if count >= MAX_PROBLEM_NUM_PER_CONTEST {
+            return Err(Error::InvalidPostRequest);
+        }
+
+        insert_into(v_items::table)
+            .values(vec![(
+                v_items::internal_virtual_contest_id.eq(contest_id),
+                v_items::problem_id.eq(problem_id),
+            )])
+            .execute(self)?;
+        Ok(())
+    }
+    fn remove_item(&self, contest_id: &str, problem_id: &str) -> Result<()> {
+        delete(
+            v_items::table.filter(
+                v_items::internal_virtual_contest_id
+                    .eq(contest_id)
+                    .and(v_items::problem_id.eq(problem_id)),
+            ),
+        )
+        .execute(self)?;
+        Ok(())
     }
 }
 
