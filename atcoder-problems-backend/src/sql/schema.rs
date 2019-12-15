@@ -124,6 +124,7 @@ table! {
 table! {
     internal_users (internal_user_id) {
         internal_user_id -> Varchar,
+        atcoder_user_id -> Varchar,
     }
 }
 
