@@ -133,6 +133,17 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
     }
 }
 
+pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> Response {
+    match request.param::<String>("contest_id") {
+        Ok(contest_id) => request.state().respond(|conn| {
+            let contest = conn.get_single_contest(&contest_id)?;
+            let response = Response::ok().body_json(&contest)?;
+            Ok(response)
+        }),
+        _ => Response::internal_error(),
+    }
+}
+
 pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
 ) -> Response {
