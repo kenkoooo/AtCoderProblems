@@ -76,32 +76,16 @@ fn test_list() {
                 .set_header("Cookie", format!("token={}", token))
                 .recv_json::<Value>()
                 .await?;
-            assert_eq!(
-                response
-                    .get(0)
-                    .unwrap()
-                    .get("internal_list_id")
-                    .unwrap()
-                    .as_str(),
-                Some(internal_list_id)
-            );
-            assert_eq!(
-                response
-                    .get(0)
-                    .unwrap()
-                    .get("internal_list_name")
-                    .unwrap()
-                    .as_str(),
-                Some("a")
-            );
-            assert!(response
-                .get(0)
-                .unwrap()
-                .get("items")
-                .unwrap()
-                .as_array()
-                .unwrap()
-                .is_empty());
+            let expected: Value = serde_json::from_str(&format!(
+                r#"[{{
+                    "internal_list_id": "{}",
+                    "internal_list_name": "a",
+                    "items": []
+                    }}]"#,
+                internal_list_id
+            ))
+            .unwrap();
+            assert_eq!(response, expected);
 
             let mut map = BTreeMap::new();
             map.insert("internal_list_id", internal_list_id);
