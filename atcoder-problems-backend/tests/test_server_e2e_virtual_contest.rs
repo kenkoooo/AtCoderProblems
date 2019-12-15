@@ -5,7 +5,7 @@ use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
 use rand::Rng;
-use serde_json::Value;
+use serde_json::{json, Value};
 
 pub mod utils;
 
@@ -56,7 +56,7 @@ fn test_virtual_contest() {
 
             let mut response = surf::post(url("/atcoder-api/v3/internal/contest/create", port))
                 .set_header("Cookie", &cookie_header)
-                .body_json(&serde_json::json!({
+                .body_json(&json!({
                     "title":"contest title",
                     "memo": "contest memo",
                     "start_epoch_second": 1,
@@ -69,7 +69,7 @@ fn test_virtual_contest() {
 
             let response = surf::post(url("/atcoder-api/v3/internal/contest/update", port))
                 .set_header("Cookie", &cookie_header)
-                .body_json(&serde_json::json!({
+                .body_json(&json!({
                     "id": format!("{}", contest_id),
                     "title":"contest title",
                     "memo": "contest memo",
@@ -85,7 +85,7 @@ fn test_virtual_contest() {
                 .await?;
             assert_eq!(
                 response,
-                serde_json::json!([
+                json!([
                     {
                         "owner_user_id": "user_name",
                         "duration_second": 2,
@@ -95,6 +95,96 @@ fn test_virtual_contest() {
                         "id": format!("{}", contest_id),
                         "participants": [],
                         "problems": []
+                    }
+                ])
+            );
+
+            let response = surf::get(url("/atcoder-api/v3/internal/contest/joined", port))
+                .set_header("Cookie", &cookie_header)
+                .recv_json::<Value>()
+                .await?;
+            assert_eq!(response, json!([]));
+
+            let response = surf::post(url("/atcoder-api/v3/internal/contest/join", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&json!({
+                    "contest_id": format!("{}", contest_id),
+                }))?
+                .await?;
+            assert!(response.status().is_success());
+
+            let response = surf::get(url("/atcoder-api/v3/internal/contest/joined", port))
+                .set_header("Cookie", &cookie_header)
+                .recv_json::<Value>()
+                .await?;
+            assert_eq!(
+                response,
+                json!([
+                    {
+                        "owner_user_id": "user_name",
+                        "duration_second": 2,
+                        "start_epoch_second": 1,
+                        "memo": "contest memo",
+                        "title": "contest title",
+                        "id": format!("{}", contest_id),
+                        "participants": ["user_name"],
+                        "problems": []
+                    }
+                ])
+            );
+
+            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/add", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&json!({
+                    "contest_id": format!("{}", contest_id),
+                    "problem_id": "problem_1",
+                }))?
+                .await?;
+            assert!(response.status().is_success());
+
+            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/add", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&json!({
+                    "contest_id": format!("{}", contest_id),
+                    "problem_id": "problem_1",
+                }))?
+                .await?;
+            assert!(!response.status().is_success());
+
+            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/add", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&json!({
+                    "contest_id": format!("{}", contest_id),
+                    "problem_id": "problem_2",
+                }))?
+                .await?;
+            assert!(response.status().is_success());
+
+            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/delete", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&json!({
+                    "contest_id": format!("{}", contest_id),
+                    "problem_id": "problem_1",
+                }))?
+                .await?;
+            assert!(response.status().is_success());
+
+            let response = surf::get(url("/atcoder-api/v3/internal/contest/joined", port))
+                .set_header("Cookie", &cookie_header)
+                .recv_json::<Value>()
+                .await?;
+            assert_eq!(
+                response,
+                json!([
+                    {
+                        "owner_user_id": "user_name",
+                        "duration_second": 2,
+                        "start_epoch_second": 1,
+                        "memo": "contest memo",
+                        "title": "contest title",
+                        "id": format!("{}", contest_id),
+                        "participants": ["user_name"],
+                        "problems": ["problem_2"]
                     }
                 ])
             );

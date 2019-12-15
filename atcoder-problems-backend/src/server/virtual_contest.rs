@@ -77,7 +77,7 @@ pub(crate) async fn add_item<A: Authentication + Clone + Send + Sync + 'static>(
     }
 
     match request.post_unpack::<Q>().await {
-        Ok((q, conn, _)) => match conn.add_item(&q.contest_id, &q.problem_id) {
+        Ok((q, conn, user_id)) => match conn.add_item(&q.contest_id, &q.problem_id, &user_id) {
             Ok(_) => Response::ok(),
             _ => Response::internal_error(),
         },
@@ -95,7 +95,7 @@ pub(crate) async fn delete_item<A: Authentication + Clone + Send + Sync + 'stati
     }
 
     match request.post_unpack::<Q>().await {
-        Ok((q, conn, _)) => match conn.remove_item(&q.contest_id, &q.problem_id) {
+        Ok((q, conn, user_id)) => match conn.remove_item(&q.contest_id, &q.problem_id, &user_id) {
             Ok(_) => Response::ok(),
             _ => Response::internal_error(),
         },
@@ -127,6 +127,23 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
                 Ok(response) => response,
                 Err(_) => Response::internal_error(),
             },
+            _ => Response::internal_error(),
+        },
+        _ => Response::bad_request(),
+    }
+}
+
+pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'static>(
+    request: Request<AppData<A>>,
+) -> Response {
+    #[derive(Deserialize)]
+    struct Q {
+        contest_id: String,
+    }
+
+    match request.post_unpack::<Q>().await {
+        Ok((q, conn, user_id)) => match conn.join_contest(&q.contest_id, &user_id) {
+            Ok(_) => Response::ok(),
             _ => Response::internal_error(),
         },
         _ => Response::bad_request(),
