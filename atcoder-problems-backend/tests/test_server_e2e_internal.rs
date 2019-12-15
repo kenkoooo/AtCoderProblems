@@ -1,14 +1,12 @@
 use atcoder_problems_backend::error::{Error, Result};
-use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
+use atcoder_problems_backend::server::Authentication;
 
 use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
-use diesel::{insert_into, ExpressionMethods, PgConnection, RunQueryDsl};
 use rand::Rng;
 use serde_json::Value;
 use std::collections::BTreeMap;
-use std::future::Future;
 
 pub mod utils;
 
@@ -44,31 +42,12 @@ fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-fn start_server_handle(port: u16) -> task::JoinHandle<std::result::Result<(), surf::Exception>> {
-    task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
-        let auth = MockAuth;
-        run_server(pool, auth, port).await.unwrap();
-        Ok(())
-    })
-}
-
-fn run_client_handle<F>(future: F) -> task::JoinHandle<std::result::Result<(), surf::Exception>>
-where
-    F: Future<Output = std::result::Result<(), surf::Exception>> + Send + 'static,
-{
-    task::spawn(async {
-        task::sleep(std::time::Duration::from_millis(1000)).await;
-        future.await
-    })
-}
-
 #[test]
 fn test_list() {
     task::block_on(async {
         let port = setup();
-        let server = start_server_handle(port);
-        let client = run_client_handle(async move {
+        let server = utils::start_server_handle(MockAuth, port);
+        let client = utils::run_client_handle(async move {
             let response = surf::get(url(
                 &format!("/atcoder-api/v3/authorize?code={}", VALID_CODE),
                 port,

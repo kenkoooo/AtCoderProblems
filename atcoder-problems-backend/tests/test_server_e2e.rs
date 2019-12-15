@@ -1,5 +1,5 @@
 use atcoder_problems_backend::error::Result;
-use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
+use atcoder_problems_backend::server::Authentication;
 use atcoder_problems_backend::sql::models::Submission;
 use atcoder_problems_backend::sql::schema::*;
 
@@ -8,7 +8,6 @@ use async_std::task;
 use async_trait::async_trait;
 use diesel::{insert_into, ExpressionMethods, PgConnection, RunQueryDsl};
 use rand::Rng;
-use std::future::Future;
 
 pub mod utils;
 
@@ -17,11 +16,10 @@ struct MockAuth;
 
 #[async_trait]
 impl Authentication for MockAuth {
-    async fn get_token(&self, code: &str) -> Result<String> {
+    async fn get_token(&self, _: &str) -> Result<String> {
         unimplemented!()
     }
-
-    async fn get_user_id(&self, token: &str) -> Result<String> {
+    async fn get_user_id(&self, _: &str) -> Result<String> {
         unimplemented!()
     }
 }
@@ -91,25 +89,6 @@ fn url(path: &str, port: u16) -> String {
     format!("http://localhost:{}{}", port, path)
 }
 
-fn start_server_handle(port: u16) -> task::JoinHandle<std::result::Result<(), surf::Exception>> {
-    task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
-        let auth = MockAuth;
-        run_server(pool, auth, port).await.unwrap();
-        Ok(())
-    })
-}
-
-fn run_client_handle<F>(future: F) -> task::JoinHandle<std::result::Result<(), surf::Exception>>
-where
-    F: Future<Output = std::result::Result<(), surf::Exception>> + Send + 'static,
-{
-    task::spawn(async {
-        task::sleep(std::time::Duration::from_millis(100)).await;
-        future.await
-    })
-}
-
 fn setup() -> u16 {
     prepare_data_set(&utils::connect_to_test_sql());
     let mut rng = rand::thread_rng();
@@ -121,8 +100,8 @@ fn test_user_submissions() {
     task::block_on(async {
         let port = setup();
 
-        let server = start_server_handle(port);
-        let client = run_client_handle(async move {
+        let server = utils::start_server_handle(MockAuth, port);
+        let client = utils::run_client_handle(async move {
             let submissions: Vec<Submission> = surf::get(url("/atcoder-api/results?user=u1", port))
                 .await?
                 .body_json()
@@ -146,8 +125,8 @@ fn test_etag() {
     task::block_on(async {
         let port = setup();
 
-        let server = start_server_handle(port);
-        let client = run_client_handle(async move {
+        let server = utils::start_server_handle(MockAuth, port);
+        let client = utils::run_client_handle(async move {
             let mut response = surf::get(url("/atcoder-api/results?user=u2", port)).await?;
             let etag = response.header("Etag").unwrap().to_string();
             let submissions: Vec<Submission> = response.body_json().await?;
@@ -170,8 +149,8 @@ fn test_time_submissions() {
     task::block_on(async {
         let port = setup();
 
-        let server = start_server_handle(port);
-        let client = run_client_handle(async move {
+        let server = utils::start_server_handle(MockAuth, port);
+        let client = utils::run_client_handle(async move {
             let submissions: Vec<Submission> = surf::get(url("/atcoder-api/v3/from/100", port))
                 .await?
                 .body_json()
@@ -190,8 +169,8 @@ fn test_invalid_path() {
     task::block_on(async {
         let port = setup();
 
-        let server = start_server_handle(port);
-        let client = run_client_handle(async move {
+        let server = utils::start_server_handle(MockAuth, port);
+        let client = utils::run_client_handle(async move {
             let response = surf::get(url("/atcoder-api/v3/from/", port)).await?;
             assert_eq!(response.status(), 404);
 
@@ -213,8 +192,8 @@ fn test_health_check() {
     task::block_on(async {
         let port = setup();
 
-        let server = start_server_handle(port);
-        let client = run_client_handle(async move {
+        let server = utils::start_server_handle(MockAuth, port);
+        let client = utils::run_client_handle(async move {
             let response = surf::get(url("/healthcheck", port)).await?;
             assert_eq!(response.status(), 200);
 
@@ -229,8 +208,8 @@ fn test_cors() {
     task::block_on(async {
         let port = setup();
 
-        let server = start_server_handle(port);
-        let client = run_client_handle(async move {
+        let server = utils::start_server_handle(MockAuth, port);
+        let client = utils::run_client_handle(async move {
             assert_eq!(
                 surf::get(url("/atcoder-api/v3/from/100", port))
                     .await?
