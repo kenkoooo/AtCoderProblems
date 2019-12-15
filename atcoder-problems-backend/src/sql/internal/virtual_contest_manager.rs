@@ -44,8 +44,10 @@ pub(crate) trait VirtualContestManager {
         start_epoch_second: i64,
         duration_second: i64,
     ) -> Result<()>;
+
     fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
     fn get_participated_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
+    fn get_single_contest(&self, contest_id: &str) -> Result<VirtualContest>;
 
     fn add_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()>;
     fn remove_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()>;
@@ -223,6 +225,41 @@ impl VirtualContestManager for PgConnection {
             )])
             .execute(self)?;
         Ok(())
+    }
+    fn get_single_contest(&self, contest_id: &str) -> Result<VirtualContest> {
+        let data = v_contests::table
+            .left_join(v_items::table.on(v_items::internal_virtual_contest_id.eq(v_contests::id)))
+            .left_join(
+                v_participants::table
+                    .on(v_participants::internal_virtual_contest_id.eq(v_contests::id)),
+            )
+            .filter(v_contests::id.eq(contest_id))
+            .select((
+                v_contests::id,
+                v_contests::title,
+                v_contests::memo,
+                v_contests::internal_user_id,
+                v_contests::start_epoch_second,
+                v_contests::duration_second,
+                v_items::problem_id.nullable(),
+                v_participants::internal_user_id.nullable(),
+            ))
+            .limit(1)
+            .load::<(
+                String,
+                String,
+                String,
+                String,
+                i64,
+                i64,
+                Option<String>,
+                Option<String>,
+            )>(self)?;
+        let virtual_contests = construct_virtual_contests(data);
+        virtual_contests
+            .into_iter()
+            .next()
+            .ok_or_else(|| Error::InvalidPostRequest)
     }
 }
 

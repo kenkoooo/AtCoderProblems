@@ -60,7 +60,8 @@ where
                         api.at("/add").post(virtual_contest::add_item);
                         api.at("/delete").post(virtual_contest::delete_item);
                     });
-                    //                                        api.at("/get/:contest_id").get();
+                    api.at("/get/:contest_id")
+                        .get(virtual_contest::get_single_contest);
                     api.at("/join").post(virtual_contest::join_contest);
                     api.at("/my").get(virtual_contest::get_my_contests);
                     api.at("/joined").get(virtual_contest::get_participated);
