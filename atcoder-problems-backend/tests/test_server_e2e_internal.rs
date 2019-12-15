@@ -54,7 +54,15 @@ fn test_list() {
             ))
             .await?;
             let cookie = response.header("set-cookie").unwrap();
-            let token = cookie.split("=").skip(1).next().unwrap();
+            let token = cookie
+                .split(";")
+                .next()
+                .unwrap()
+                .split("=")
+                .skip(1)
+                .next()
+                .unwrap();
+            assert_eq!(token, VALID_TOKEN);
 
             let response = surf::get(url("/atcoder-api/v3/internal/list/get", port))
                 .set_header("Cookie", format!("token={}", token))
