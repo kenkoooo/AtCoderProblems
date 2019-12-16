@@ -14,11 +14,7 @@ algorithm-problem-client = "0.4"
 
 chrono = "0.4"
 regex = "1"
-
-rusoto_s3 = "0.42.0"
-rusoto_core = "0.42.0"
-rusoto_mock = "0.42.0"
-
+rust-s3 = "0.18.6"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
@@ -37,6 +33,7 @@ futures = "0.3"
 tide = "0.4.0"
 cookie = "0.12"
 surf = "1.0.3"
+isahc = "0.8"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 
 async-trait = "0.1"

@@ -108,10 +108,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         ),
     ];
 
-    let client = s3::S3Client::new();
+    let client = s3::S3Client::new()?;
     for (data, path) in data_paths.into_iter() {
         info!("Uploading {}", path);
-        client.update(data, path, s3::ContentType::Json)?;
+        client.update(data, path)?;
         info!("Uploaded");
     }
 
