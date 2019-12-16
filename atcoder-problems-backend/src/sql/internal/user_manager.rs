@@ -12,6 +12,7 @@ impl UserManager for PgConnection {
     fn register_user(&self, internal_user_id: &str) -> Result<()> {
         insert_into(internal_users::table)
             .values(vec![internal_users::internal_user_id.eq(internal_user_id)])
+            .on_conflict_do_nothing()
             .execute(self)?;
         Ok(())
     }
