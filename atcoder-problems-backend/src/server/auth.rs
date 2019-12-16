@@ -107,8 +107,14 @@ pub(crate) async fn get_token<A: Authentication + Clone>(request: Request<AppDat
     match unpack_request(request) {
         Ok((query, client, conn)) => match create_response(client, query.code, conn).await {
             Ok(response) => response,
-            _ => Response::bad_request(),
+            Err(e) => {
+                log::error!("{:?}", e);
+                Response::bad_request()
+            }
         },
-        _ => Response::bad_request(),
+        Err(e) => {
+            log::error!("{:?}", e);
+            Response::bad_request()
+        }
     }
 }
