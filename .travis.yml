@@ -18,7 +18,7 @@ matrix:
         - env RUST_TEST_THREADS=1 RUST_BACKTRACE=1 cargo test
       deploy:
         provider: script
-        script: docker-deploy.sh
+        script: atcoder-problems-backend/docker-deploy.sh
         on:
           branch: master
 
