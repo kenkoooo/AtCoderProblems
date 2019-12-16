@@ -292,3 +292,29 @@ fn test_list_delete() {
         server.race(client).await.unwrap();
     });
 }
+
+#[test]
+fn test_register_twice() {
+    task::block_on(async {
+        let port = setup();
+        let server = utils::start_server_handle(MockAuth, port);
+        let client = utils::run_client_handle(async move {
+            let response = surf::get(url(
+                &format!("/atcoder-api/v3/authorize?code={}", VALID_CODE),
+                port,
+            ))
+            .await?;
+            assert!(response.status().is_success());
+
+            let response = surf::get(url(
+                &format!("/atcoder-api/v3/authorize?code={}", VALID_CODE),
+                port,
+            ))
+            .await?;
+            assert!(response.status().is_success());
+
+            Ok(())
+        });
+        server.race(client).await.unwrap();
+    });
+}
