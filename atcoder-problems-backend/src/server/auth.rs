@@ -52,8 +52,9 @@ impl Authentication for GitHubAuthentication {
         Ok(response.access_token)
     }
     async fn get_user_id(&self, access_token: &str) -> Result<String> {
+        let token_header = format!("token {}", access_token);
         let response: GitHubUserResponse = surf::get("https://api.github.com/user")
-            .set_header("Authorization", format!("token {}", access_token))
+            .set_header("Authorization", token_header)
             .recv_json()
             .await?;
         Ok(response.id.to_string())

@@ -14,6 +14,7 @@ pub enum Error {
     CookieNotFound,
     InvalidPostRequest,
     OtherError,
+    S3Error(s3::error::S3Error),
 }
 
 impl From<diesel::ConnectionError> for Error {
@@ -60,6 +61,12 @@ impl From<surf::Exception> for Error {
 impl From<()> for Error {
     fn from(_: ()) -> Self {
         Error::OtherError
+    }
+}
+
+impl From<s3::error::S3Error> for Error {
+    fn from(e: s3::error::S3Error) -> Self {
+        Error::S3Error(e)
     }
 }
 
