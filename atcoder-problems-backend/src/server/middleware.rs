@@ -1,4 +1,5 @@
 use futures::future::BoxFuture;
+use log::info;
 use tide::{Middleware, Next, Request, Response};
 
 #[derive(Debug, Clone, Default)]
@@ -20,13 +21,13 @@ impl RequestLogger {
         let user_agent = req.header("user-agent").unwrap_or_else(|| "").to_string();
         let res = next.run(req).await;
         let status = res.status();
-        log::info!(
-            "{method} {uri} {status} \"{user_agent}\" {elapsed}ms",
-            method = method,
-            uri = uri,
-            status = status.as_str(),
-            user_agent = user_agent,
-            elapsed = start.elapsed().as_millis()
+        info!(
+            "{} {} {} \"{}\" {}ms",
+            method,
+            uri,
+            status.as_str(),
+            user_agent,
+            start.elapsed().as_millis()
         );
         res
     }
