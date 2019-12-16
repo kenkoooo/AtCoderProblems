@@ -164,7 +164,10 @@ impl<A> AppData<A> {
     {
         match self.pool.get() {
             Ok(conn) => f(&conn).unwrap_or_else(|_| tide::Response::bad_request()),
-            _ => tide::Response::internal_error(),
+            Err(e) => {
+                log::error!("{:?}", e);
+                tide::Response::internal_error()
+            }
         }
     }
 }

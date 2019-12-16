@@ -1,10 +1,10 @@
 use crate::error::Result;
-use crate::server::{AppData, Authentication, CommonRequest, PooledConnection};
+use crate::server::{AppData, Authentication, CommonRequest, CommonResponse, PooledConnection};
 
 use async_trait::async_trait;
 use md5::{Digest, Md5};
 use serde::de::DeserializeOwned;
-use tide::Request;
+use tide::{Request, Response};
 
 pub(crate) fn calc_etag_for_user(user_id: &str, count: usize) -> String {
     let mut hasher = Md5::new();
@@ -50,5 +50,18 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         let conn = request.state().pool.get()?;
         let user_id = client.get_user_id(&token).await?;
         Ok((body, conn, user_id))
+    }
+}
+
+pub(crate) trait UnwrapResponse {
+    fn unwrap_response(self) -> Response;
+}
+
+impl UnwrapResponse for Result<Response> {
+    fn unwrap_response(self) -> Response {
+        self.unwrap_or_else(|e| {
+            log::error!("{:?}", e);
+            Response::bad_request()
+        })
     }
 }
