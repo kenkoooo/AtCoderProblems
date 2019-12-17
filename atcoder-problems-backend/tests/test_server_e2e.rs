@@ -6,6 +6,7 @@ use atcoder_problems_backend::sql::schema::*;
 use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
+use atcoder_problems_backend::server::GitHubUserResponse;
 use diesel::{insert_into, ExpressionMethods, PgConnection, RunQueryDsl};
 use rand::Rng;
 
@@ -19,7 +20,7 @@ impl Authentication for MockAuth {
     async fn get_token(&self, _: &str) -> Result<String> {
         unimplemented!()
     }
-    async fn get_user_id(&self, _: &str) -> Result<String> {
+    async fn get_user_id(&self, _: &str) -> Result<GitHubUserResponse> {
         unimplemented!()
     }
 }

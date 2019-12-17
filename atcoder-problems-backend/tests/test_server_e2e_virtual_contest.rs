@@ -4,6 +4,7 @@ use atcoder_problems_backend::server::Authentication;
 use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
+use atcoder_problems_backend::server::GitHubUserResponse;
 use rand::Rng;
 use serde_json::{json, Value};
 
@@ -23,9 +24,9 @@ impl Authentication for MockAuth {
             _ => Err(Error::OtherError),
         }
     }
-    async fn get_user_id(&self, token: &str) -> Result<String> {
+    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse> {
         match token {
-            VALID_TOKEN => Ok("user_name".to_owned()),
+            VALID_TOKEN => Ok(GitHubUserResponse::default()),
             _ => Err(Error::OtherError),
         }
     }
@@ -87,7 +88,7 @@ fn test_virtual_contest() {
                 response,
                 json!([
                     {
-                        "owner_user_id": "user_name",
+                        "owner_user_id": "0",
                         "duration_second": 2,
                         "start_epoch_second": 1,
                         "memo": "contest memo",
@@ -121,13 +122,13 @@ fn test_virtual_contest() {
                 response,
                 json!([
                     {
-                        "owner_user_id": "user_name",
+                        "owner_user_id": "0",
                         "duration_second": 2,
                         "start_epoch_second": 1,
                         "memo": "contest memo",
                         "title": "contest title",
                         "id": format!("{}", contest_id),
-                        "participants": ["user_name"],
+                        "participants": ["0"],
                         "problems": []
                     }
                 ])
@@ -177,13 +178,13 @@ fn test_virtual_contest() {
                 response,
                 json!([
                     {
-                        "owner_user_id": "user_name",
+                        "owner_user_id": "0",
                         "duration_second": 2,
                         "start_epoch_second": 1,
                         "memo": "contest memo",
                         "title": "contest title",
                         "id": format!("{}", contest_id),
-                        "participants": ["user_name"],
+                        "participants": ["0"],
                         "problems": ["problem_2"]
                     }
                 ])
@@ -199,13 +200,13 @@ fn test_virtual_contest() {
                 response,
                 json!(
                 {
-                    "owner_user_id": "user_name",
+                    "owner_user_id": "0",
                     "duration_second": 2,
                     "start_epoch_second": 1,
                     "memo": "contest memo",
                     "title": "contest title",
                     "id": format!("{}", contest_id),
-                    "participants": ["user_name"],
+                    "participants": ["0"],
                     "problems": ["problem_2"]
                 })
             );

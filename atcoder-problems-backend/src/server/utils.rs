@@ -37,8 +37,8 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         let request = self;
         let token = request.get_cookie("token")?;
         let conn = request.state().pool.get()?;
-        let user_id = client.get_user_id(&token).await?;
-        Ok((conn, user_id))
+        let response = client.get_user_id(&token).await?;
+        Ok((conn, response.id.to_string()))
     }
     async fn post_unpack<Body: DeserializeOwned + Send + Sync + 'static>(
         self,
@@ -48,8 +48,8 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         let body: Body = request.body_json().await?;
         let token = request.get_cookie("token")?;
         let conn = request.state().pool.get()?;
-        let user_id = client.get_user_id(&token).await?;
-        Ok((body, conn, user_id))
+        let response = client.get_user_id(&token).await?;
+        Ok((body, conn, response.id.to_string()))
     }
 }
 

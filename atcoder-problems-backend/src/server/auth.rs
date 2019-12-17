@@ -10,7 +10,7 @@ use tide::{Request, Response};
 #[async_trait]
 pub trait Authentication {
     async fn get_token(&self, code: &str) -> Result<String>;
-    async fn get_user_id(&self, token: &str) -> Result<String>;
+    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse>;
 }
 
 #[derive(Serialize)]
@@ -25,9 +25,10 @@ struct TokenResponse {
     access_token: String,
 }
 
-#[derive(Deserialize)]
-struct GitHubUserResponse {
-    id: i64,
+#[derive(Deserialize, Default)]
+pub struct GitHubUserResponse {
+    pub(crate) id: i64,
+    pub(crate) login: String,
 }
 
 #[derive(Clone)]
@@ -51,13 +52,13 @@ impl Authentication for GitHubAuthentication {
             .await?;
         Ok(response.access_token)
     }
-    async fn get_user_id(&self, access_token: &str) -> Result<String> {
+    async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
         let token_header = format!("token {}", access_token);
         let response: GitHubUserResponse = surf::get("https://api.github.com/user")
             .set_header("Authorization", token_header)
             .recv_json()
             .await?;
-        Ok(response.id.to_string())
+        Ok(response)
     }
 }
 
@@ -73,11 +74,6 @@ impl GitHubAuthentication {
 #[derive(Deserialize)]
 struct Query {
     code: String,
-}
-
-#[derive(Serialize)]
-struct AuthorizeResponse {
-    internal_user_id: String,
 }
 
 pub(crate) async fn get_token<A: Authentication + Clone>(request: Request<AppData<A>>) -> Response {
@@ -96,11 +92,13 @@ pub(crate) async fn get_token<A: Authentication + Clone>(request: Request<AppDat
         conn: PooledConnection,
     ) -> Result<Response> {
         let token = client.get_token(&code).await?;
-        let internal_user_id = client.get_user_id(&token).await?;
+        let response = client.get_user_id(&token).await?;
+        let internal_user_id = response.id.to_string();
         conn.register_user(&internal_user_id)?;
+
         let cookie = Cookie::build("token", token).path("/").finish();
-        let response = AuthorizeResponse { internal_user_id };
-        let response = Response::ok().set_cookie(cookie).body_json(&response)?;
+        let redirect_url = format!("https://kenkoooo.com/atcoder/#/login/{}", response.login);
+        let response = Response::redirect(&redirect_url).set_cookie(cookie);
         Ok(response)
     }
 
