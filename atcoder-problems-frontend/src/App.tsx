@@ -17,7 +17,6 @@ import ListPage from "./pages/ListPage";
 import UserPage from "./pages/UserPage";
 import TablePage from "./pages/TablePage";
 import NavigationBar from "./components/NavigationBar";
-import ReviewPage from "./pages/ReviewPage";
 import StreakRanking from "./pages/StreakRanking";
 
 const App = () => (
@@ -33,11 +32,6 @@ const App = () => (
           <Route exact path="/sum" component={() => <SumRanking />} />
           <Route exact path="/streak" component={() => <StreakRanking />} />
           <Route exact path="/lang" component={() => <LanguageOwners />} />
-          <Route
-            exact
-            path="/review/([a-zA-Z0-9_]*)*"
-            component={() => <ReviewPage />}
-          />
           <Route path="/user/([a-zA-Z0-9_]*)*" component={() => <UserPage />} />
           <Route
             path="/table/([a-zA-Z0-9_]*)*"

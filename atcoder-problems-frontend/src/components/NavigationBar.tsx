@@ -207,23 +207,6 @@ class NavigationBar extends React.Component<Props, LocalState> {
 
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
-                Other
-              </DropdownToggle>
-              <DropdownMenu right>
-                <DropdownItem
-                  tag={RouterLink}
-                  to={generatePath("review", userId, rivalIdString)}
-                  onClick={() => {
-                    this.submit("review");
-                  }}
-                >
-                  Review
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-
-            <UncontrolledDropdown nav inNavbar>
-              <DropdownToggle nav caret>
                 Links
               </DropdownToggle>
               <DropdownMenu right>
