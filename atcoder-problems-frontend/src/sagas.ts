@@ -60,18 +60,6 @@ function* initialFetchData() {
   yield put(receiveInitialData(contests, problems, pairs, problemModels));
 }
 
-function* fetchMergedProblemsOnce() {
-  yield take(REQUEST_MERGED_PROBLEMS);
-  const problems = yield call(fetchMergedProblems);
-  yield put(receiveMergedProblems(problems));
-}
-
-function* fetchStreakRankingOnce() {
-  yield take(REQUEST_STREAK_RANKING);
-  const ranking = yield call(fetchStreaks);
-  yield put(receiveStreakRanking(ranking));
-}
-
 function* requestAndReceiveUserInfo(action: Action) {
   if (action.type === UPDATE_USER_IDS) {
     const { userId } = action;
@@ -93,9 +81,7 @@ function* rootSaga() {
     call(initialFetchData),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveSubmissions),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveUserInfo),
-    takeLatest(UPDATE_USER_IDS, requestAndReceiveUserContestHistory),
-    call(fetchMergedProblemsOnce),
-    call(fetchStreakRankingOnce)
+    takeLatest(UPDATE_USER_IDS, requestAndReceiveUserContestHistory)
   ]);
 }
 
