@@ -6,7 +6,7 @@ import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
 import { formatMoment, parseSecond } from "../../utils/DateUtil";
 import { Map } from "immutable";
-import { ProblemId } from "../../interfaces/State";
+import { ProblemId } from "../../interfaces/Status";
 
 type FilterStatus = "AC" | "Submissions" | "Unique AC";
 

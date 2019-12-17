@@ -20,14 +20,10 @@ import FilteringHeatmap from "./FilteringHeatmap";
 import SubmissionList from "./SubmissionList";
 import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
-import { ContestId, ProblemId } from "../../interfaces/State";
+import { ContestId, ProblemId } from "../../interfaces/Status";
 import { List, Map } from "immutable";
-import {
-  getFastRanking,
-  getFirstRanking,
-  getShortRanking
-} from "../../utils/Api";
 import * as Api from "../../utils/Api";
+import * as CachedApiClient from "../../utils/CachedApiClient";
 import { RankingEntry } from "../../interfaces/RankingEntry";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
@@ -46,6 +42,9 @@ interface InnerProps extends OuterProps {
   contestsFetch: PromiseState<Map<ContestId, Contest>>;
   contestToProblemsFetch: PromiseState<Map<ContestId, List<Problem>>>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
+  shortRankingFetch: PromiseState<List<RankingEntry>>;
+  fastRankingFetch: PromiseState<List<RankingEntry>>;
+  firstRankingFetch: PromiseState<List<RankingEntry>>;
 }
 
 const solvedCountForPieChart = (
@@ -147,7 +146,10 @@ const UserPage = (props: InnerProps) => {
     mergedProblemsFetch,
     contestToProblemsFetch,
     contestsFetch,
-    problemModelsFetch
+    problemModelsFetch,
+    shortRankingFetch,
+    firstRankingFetch,
+    fastRankingFetch
   } = props;
   const userInfo = userInfoFetch.fulfilled ? userInfoFetch.value : undefined;
   const userRatingInfo = userRatingInfoFetch.fulfilled
@@ -172,9 +174,16 @@ const UserPage = (props: InnerProps) => {
   if (userId.length === 0 || submissions.isEmpty() || userInfo === undefined) {
     return null;
   }
-  const shortRanking = getShortRanking(mergedProblems.valueSeq().toList());
-  const fastRanking = getFastRanking(mergedProblems.valueSeq().toList());
-  const firstRanking = getFirstRanking(mergedProblems.valueSeq().toList());
+
+  const shortRanking = shortRankingFetch.fulfilled
+    ? shortRankingFetch.value
+    : List<RankingEntry>();
+  const fastRanking = fastRankingFetch.fulfilled
+    ? fastRankingFetch.value
+    : List<RankingEntry>();
+  const firstRanking = firstRankingFetch.fulfilled
+    ? firstRankingFetch.value
+    : List<RankingEntry>();
 
   const shortRank = findFromRanking(shortRanking, userId);
   const firstRank = findFromRanking(firstRanking, userId);
@@ -405,26 +414,23 @@ const PieCharts = ({
 export default connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: props.userId,
-    value: () => Api.fetchUsersSubmissions(List(props.userId))
+    value: () => CachedApiClient.cachedUsersSubmissions(List([props.userId]))
   },
   mergedProblemsFetch: {
     comparison: null,
-    value: () => Api.fetchMergedProblemMap()
+    value: () => CachedApiClient.cachedMergedProblemMap()
   },
   problemModelsFetch: {
     comparison: null,
-    value: () => Api.fetchProblemModels()
+    value: () => CachedApiClient.cachedProblemModels()
   },
   contestsFetch: {
     comparison: null,
-    value: () => Api.fetchContestMap()
+    value: () => CachedApiClient.cachedContestMap()
   },
   userRatingInfoFetch: {
     comparison: props.userId,
-    value: () =>
-      Api.fetchContestHistory(props.userId).then(history =>
-        ratingInfoOf(history)
-      )
+    value: () => CachedApiClient.cachedRatingInfo(props.userId)
   },
   userInfoFetch: {
     comparison: props.userId,
@@ -432,6 +438,18 @@ export default connect<OuterProps, InnerProps>(props => ({
   },
   contestToProblemsFetch: {
     comparison: null,
-    value: () => Api.fetchContestToProblemMap()
+    value: () => CachedApiClient.cachedContestToProblemMap()
+  },
+  shortRankingFetch: {
+    comparison: null,
+    value: () => CachedApiClient.cachedShortRanking()
+  },
+  fastRankingFetch: {
+    comparison: null,
+    value: () => CachedApiClient.cachedFastRanking()
+  },
+  firstRankingFetch: {
+    comparison: null,
+    value: () => CachedApiClient.cachedFirstRanking()
   }
 }))(UserPage);

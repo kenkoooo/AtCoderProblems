@@ -6,7 +6,7 @@ import { List, Map, Range } from "immutable";
 import MergedProblem from "../../interfaces/MergedProblem";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
-import { ProblemId } from "../../interfaces/State";
+import { ProblemId } from "../../interfaces/Status";
 import { Button, ButtonGroup } from "reactstrap";
 
 interface Props {

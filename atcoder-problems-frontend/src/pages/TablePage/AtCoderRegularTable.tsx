@@ -9,7 +9,7 @@ import {
   ProblemId,
   ProblemStatus,
   StatusLabel
-} from "../../interfaces/State";
+} from "../../interfaces/Status";
 import { statusLabelToTableColor } from "./index";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";

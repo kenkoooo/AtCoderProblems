@@ -3,7 +3,7 @@ import Ranking from "../components/Ranking";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import * as Api from "../utils/Api";
+import * as CachedApiClient from "../utils/CachedApiClient";
 
 interface InnerProps {
   rankingFetch: PromiseState<List<RankingEntry>>;
@@ -19,6 +19,6 @@ const ACRanking = (props: InnerProps) => (
 export default connect<{}, InnerProps>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () => Api.fetchACRanking()
+    value: () => CachedApiClient.cachedACRanking()
   }
 }))(ACRanking);
