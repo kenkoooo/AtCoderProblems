@@ -20,13 +20,11 @@
     "react-bootstrap-table": "^4.3.1",
     "react-dom": "^16.8.3",
     "react-measure": "^2.2.4",
-    "react-redux": "^7.1.0",
+    "react-refetch": "^3.0.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.3.0",
     "reactstrap": "^8.2.0",
     "recharts": "^2.0.0-beta.1",
-    "redux": "^4.0.4",
-    "redux-saga": "^1.0.5",
     "typescript": "3.7.3"
   },
   "scripts": {
@@ -47,7 +45,6 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@types/react-redux": "^7.1.1",
     "codecov": "^3.5.0",
     "prettier": "^1.18.2",
     "prettier-tslint": "^0.4.2",
