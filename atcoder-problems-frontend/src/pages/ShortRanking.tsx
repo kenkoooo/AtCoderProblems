@@ -1,34 +1,24 @@
 import React from "react";
 import Ranking from "../components/Ranking";
-import State from "../interfaces/State";
-import { getShortRanking } from "../utils/Api";
 import { List } from "immutable";
 import { RankingEntry } from "../interfaces/RankingEntry";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { requestMergedProblems } from "../actions";
+import { connect, PromiseState } from "react-refetch";
+import * as CachedApiClient from "../utils/CachedApiClient";
 
 interface Props {
-  ranking: List<RankingEntry>;
-  requestData: () => void;
+  rankingFetch: PromiseState<List<RankingEntry>>;
 }
 
-class ShortRanking extends React.Component<Props> {
-  componentDidMount(): void {
-    this.props.requestData();
+const FirstRanking = (props: Props) => (
+  <Ranking
+    title={"Top Golfers"}
+    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : List()}
+  />
+);
+
+export default connect<{}, Props>(() => ({
+  rankingFetch: {
+    comparison: null,
+    value: () => CachedApiClient.cachedShortRanking()
   }
-
-  render() {
-    return <Ranking title={"Top Golfers"} ranking={this.props.ranking} />;
-  }
-}
-
-const stateToProps = (state: State) => ({
-  ranking: getShortRanking(state.mergedProblems.toList())
-});
-
-const dispatchToProps = (dispatch: Dispatch) => ({
-  requestData: () => dispatch(requestMergedProblems())
-});
-
-export default connect(stateToProps, dispatchToProps)(ShortRanking);
+}))(FirstRanking);

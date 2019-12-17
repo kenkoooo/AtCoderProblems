@@ -1,5 +1,5 @@
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { StatusLabel } from "../../interfaces/State";
+import { StatusLabel } from "../../interfaces/Status";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
 import ProblemLink from "../../components/ProblemLink";

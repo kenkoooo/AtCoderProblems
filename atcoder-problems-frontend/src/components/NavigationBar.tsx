@@ -17,10 +17,7 @@ import {
   FormGroup
 } from "reactstrap";
 import { extractRivalsParam, normalizeUserId } from "../utils";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
 import { List } from "immutable";
-import { updateUserIds } from "../actions";
 
 type PageKind = "table" | "list" | "user" | "review";
 
@@ -207,23 +204,6 @@ class NavigationBar extends React.Component<Props, LocalState> {
 
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
-                Other
-              </DropdownToggle>
-              <DropdownMenu right>
-                <DropdownItem
-                  tag={RouterLink}
-                  to={generatePath("review", userId, rivalIdString)}
-                  onClick={() => {
-                    this.submit("review");
-                  }}
-                >
-                  Review
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-
-            <UncontrolledDropdown nav inNavbar>
-              <DropdownToggle nav caret>
                 Links
               </DropdownToggle>
               <DropdownMenu right>
@@ -264,13 +244,4 @@ class NavigationBar extends React.Component<Props, LocalState> {
   }
 }
 
-const stateToProps = () => ({});
-const dispatchToProps = (dispatch: Dispatch) => ({
-  updateUserIds: (userId: string, rivals: List<string>) =>
-    dispatch(updateUserIds(userId, rivals))
-});
-
-export default connect(
-  stateToProps,
-  dispatchToProps
-)(withRouter(NavigationBar));
+export default withRouter(NavigationBar);

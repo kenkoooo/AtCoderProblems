@@ -4,7 +4,7 @@ import Problem from "../../interfaces/Problem";
 import Submission from "../../interfaces/Submission";
 import { Table, Row } from "reactstrap";
 import React from "react";
-import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/State";
+import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
 import { statusLabelToTableColor } from "./index";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
