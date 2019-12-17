@@ -1,32 +1,26 @@
 import React from "react";
 import Ranking from "../components/Ranking";
-import State from "../interfaces/State";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import { List } from "immutable";
-import { Dispatch } from "redux";
-import { requestAcRanking } from "../actions";
-import { connect } from "react-redux";
+import { connect, PromiseState } from "react-refetch";
+import * as Api from "../utils/Api";
 
-interface Props {
-  ranking: List<RankingEntry>;
-  requestData: () => void;
+interface OuterProps {}
+
+interface InnerProps extends OuterProps {
+  rankingFetch: PromiseState<List<RankingEntry>>;
 }
 
-class ACRanking extends React.Component<Props> {
-  componentDidMount(): void {
-    this.props.requestData();
+const ACRanking = (props: InnerProps) => (
+  <Ranking
+    title="AC Count Ranking"
+    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : List()}
+  />
+);
+
+export default connect<OuterProps, InnerProps>(() => ({
+  rankingFetch: {
+    comparison: null,
+    value: () => Api.fetchACRanking()
   }
-  render() {
-    return <Ranking title="AC Count Ranking" ranking={this.props.ranking} />;
-  }
-}
-
-const stateToProps = (state: State) => ({
-  ranking: state.acRanking
-});
-
-const dispatchToProps = (dispatch: Dispatch) => ({
-  requestData: () => dispatch(requestAcRanking())
-});
-
-export default connect(stateToProps, dispatchToProps)(ACRanking);
+}))(ACRanking);
