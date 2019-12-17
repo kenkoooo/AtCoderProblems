@@ -5,9 +5,7 @@ import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import * as Api from "../utils/Api";
 
-interface OuterProps {}
-
-interface InnerProps extends OuterProps {
+interface InnerProps {
   rankingFetch: PromiseState<List<RankingEntry>>;
 }
 
@@ -18,7 +16,7 @@ const ACRanking = (props: InnerProps) => (
   />
 );
 
-export default connect<OuterProps, InnerProps>(() => ({
+export default connect<{}, InnerProps>(() => ({
   rankingFetch: {
     comparison: null,
     value: () => Api.fetchACRanking()

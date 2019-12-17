@@ -1,13 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Row, Col, ButtonGroup, Button } from "reactstrap";
 
+import { connect, PromiseState } from "react-refetch";
 import { LangRankingEntry } from "../interfaces/RankingEntry";
 import { List, Map } from "immutable";
-import State from "../interfaces/State";
-import { Dispatch } from "redux";
-import { requestLangRanking } from "../actions";
-import { connect } from "react-redux";
 import { ordinalSuffixOf } from "../utils";
+import * as Api from "../utils/Api";
 
 const OneOwner = (props: {
   language: string;
@@ -33,76 +31,63 @@ const OneOwner = (props: {
 const OWNERS_NUM_OPTIONS = [3, 5, 10, 20];
 
 interface Props {
-  ranking: Map<string, List<LangRankingEntry>>;
-  requestData: () => void;
+  rankingFetch: PromiseState<Map<string, List<LangRankingEntry>>>;
 }
 
-interface LocalState {
-  ownersNum: number;
-}
+const LanguageOwners = (props: Props) => {
+  const [ownersNum, setOwnersNum] = useState(3);
 
-class LanguageOwners extends React.Component<Props, LocalState> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      ownersNum: 3
-    };
+  const ranking = props.rankingFetch.fulfilled
+    ? props.rankingFetch.value
+    : Map<string, List<LangRankingEntry>>();
+  return (
+    <>
+      <div className="clearfix">
+        <ButtonGroup className="float-right">
+          {OWNERS_NUM_OPTIONS.map(option => (
+            <Button
+              key={option}
+              color="secondary"
+              onClick={() => setOwnersNum(option)}
+              active={ownersNum === option}
+            >
+              {option}
+            </Button>
+          ))}
+        </ButtonGroup>
+      </div>
+      <div>
+        {ranking
+          .sortBy((value, key) => key)
+          .map((list, language) => (
+            <OneOwner
+              key={language}
+              language={language}
+              ranking={list}
+              size={ownersNum}
+            />
+          ))
+          .valueSeq()
+          .toArray()}
+      </div>
+    </>
+  );
+};
+
+export default connect<{}, Props>(() => ({
+  rankingFetch: {
+    comparison: null,
+    value: () =>
+      Api.fetchLangRanking().then(ranking =>
+        ranking
+          .reduce(
+            (map, entry) =>
+              map.update(entry.language, List<LangRankingEntry>(), list =>
+                list.push(entry)
+              ),
+            Map<string, List<LangRankingEntry>>()
+          )
+          .map(list => list.sort((a, b) => b.count - a.count))
+      )
   }
-
-  componentDidMount() {
-    this.props.requestData();
-  }
-
-  render() {
-    const { ownersNum } = this.state;
-    return (
-      <>
-        <div className="clearfix">
-          <ButtonGroup className="float-right">
-            {OWNERS_NUM_OPTIONS.map(option => (
-              <Button
-                key={option}
-                color="secondary"
-                onClick={() => this.setState({ ownersNum: option })}
-                active={ownersNum === option}
-              >
-                {option}
-              </Button>
-            ))}
-          </ButtonGroup>
-        </div>
-        <div>
-          {this.props.ranking
-            .sortBy((value, key) => key)
-            .map((list, language) => (
-              <OneOwner
-                key={language}
-                language={language}
-                ranking={list}
-                size={ownersNum}
-              />
-            ))
-            .valueSeq()
-            .toArray()}
-        </div>
-      </>
-    );
-  }
-}
-
-const stateToProps = (state: State) => ({
-  ranking: state.langRanking
-    .reduce(
-      (map, entry) =>
-        map.update(entry.language, List<LangRankingEntry>(), list =>
-          list.push(entry)
-        ),
-      Map<string, List<LangRankingEntry>>()
-    )
-    .map(list => list.sort((a, b) => b.count - a.count))
-});
-const dispatchToProps = (dispatch: Dispatch) => ({
-  requestData: () => dispatch(requestLangRanking())
-});
-
-export default connect(stateToProps, dispatchToProps)(LanguageOwners);
+}))(LanguageOwners);

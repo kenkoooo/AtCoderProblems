@@ -66,28 +66,10 @@ function* fetchMergedProblemsOnce() {
   yield put(receiveMergedProblems(problems));
 }
 
-function* fetchAcRankingOnce() {
-  yield take(REQUEST_AC_RANKING);
-  const ranking = yield call(fetchACRanking);
-  yield put(receiveAcRanking(ranking));
-}
-
 function* fetchStreakRankingOnce() {
   yield take(REQUEST_STREAK_RANKING);
   const ranking = yield call(fetchStreaks);
   yield put(receiveStreakRanking(ranking));
-}
-
-function* fetchSumRankingOnce() {
-  yield take(REQUEST_SUM_RANKING);
-  const ranking = yield call(fetchSumRanking);
-  yield put(receiveSumRanking(ranking));
-}
-
-function* fetchLangRankingOnce() {
-  yield take(REQUEST_LANG_RANKING);
-  const ranking = yield call(fetchLangRanking);
-  yield put(receiveLangRanking(ranking));
 }
 
 function* requestAndReceiveUserInfo(action: Action) {
@@ -113,9 +95,6 @@ function* rootSaga() {
     takeLatest(UPDATE_USER_IDS, requestAndReceiveUserInfo),
     takeLatest(UPDATE_USER_IDS, requestAndReceiveUserContestHistory),
     call(fetchMergedProblemsOnce),
-    call(fetchAcRankingOnce),
-    call(fetchSumRankingOnce),
-    call(fetchLangRankingOnce),
     call(fetchStreakRankingOnce)
   ]);
 }

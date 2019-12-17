@@ -1,35 +1,30 @@
 import React from "react";
 import Ranking from "../components/Ranking";
-import State from "../interfaces/State";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import { List } from "immutable";
-import { Dispatch } from "redux";
-import { requestSumRanking } from "../actions";
-import { connect } from "react-redux";
+import { connect, PromiseState } from "react-refetch";
+import * as Api from "../utils/Api";
 
 interface Props {
-  ranking: List<RankingEntry>;
-  requestData: () => void;
+  rankingFetch: PromiseState<List<RankingEntry>>;
 }
 
-class SumRanking extends React.Component<Props> {
-  componentDidMount(): void {
-    this.props.requestData();
+const SumRanking = (props: Props) => (
+  <Ranking
+    title="Rated Point Ranking"
+    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : List()}
+  />
+);
+
+export default connect<{}, Props>(() => ({
+  rankingFetch: {
+    comparison: null,
+    value: () =>
+      Api.fetchSumRanking().then(ranking =>
+        ranking.map(r => ({
+          problem_count: r.point_sum,
+          user_id: r.user_id
+        }))
+      )
   }
-  render() {
-    return <Ranking title="Rated Point Ranking" ranking={this.props.ranking} />;
-  }
-}
-
-const stateToProps = (state: State) => ({
-  ranking: state.sumRanking.map(r => ({
-    problem_count: r.point_sum,
-    user_id: r.user_id
-  }))
-});
-
-const dispatchToProps = (dispatch: Dispatch) => ({
-  requestData: () => dispatch(requestSumRanking())
-});
-
-export default connect(stateToProps, dispatchToProps)(SumRanking);
+}))(SumRanking);
