@@ -69,6 +69,16 @@ const TablePage: React.FC<InnerProps> = props => {
   const [showAccepted, setShowAccepted] = useState(true);
   const [showDifficulty, setShowDifficulties] = useState(true);
 
+  const allFetch = PromiseState.all([
+    problemModelsFetch,
+    contestToProblemsFetch,
+    submissionsFetch,
+    contestsFetch
+  ]);
+  if (!allFetch.fulfilled) {
+    return null;
+  }
+
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
     : Map<ProblemId, ProblemModel>();
@@ -93,6 +103,7 @@ const TablePage: React.FC<InnerProps> = props => {
     .filter(contest => contest.start_epoch_second >= 1468670400); // agc001
   const ratedContestIds = atcoderContestIds.concat(othersRated.keySeq());
   const others = contests.filter(c => !ratedContestIds.has(c.id));
+
   const statusLabelMap = submissions.map(list => {
     const userList = list.filter(s => s.user_id === userId);
     const rivalsList = list
@@ -189,7 +200,7 @@ const TablePage: React.FC<InnerProps> = props => {
 
 export default connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
-    comparison: props.rivals.push(props.userId),
+    comparison: [props.userId, props.rivals],
     value: () =>
       CachedApiClient.cachedUsersSubmissions(props.rivals.push(props.userId))
   },
