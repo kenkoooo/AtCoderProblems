@@ -8838,6 +8838,15 @@ react-redux@^7.1.0:
     prop-types "^15.7.2"
     react-is "^16.9.0"
 
+react-refetch@4.0.0-0:
+  version "4.0.0-0"
+  resolved "https://registry.yarnpkg.com/react-refetch/-/react-refetch-4.0.0-0.tgz#4bdc6c69f36f84d49be7010deb54bc13c0455aff"
+  integrity sha512-xTzCklbbNURYgDiqK5xF1BeFQT54JCKYl8MP5q+cHqLSLAXjNTfy8P1+XTK4pbAneu+gmFhJ7IM9SZiZ27zPZw==
+  dependencies:
+    hoist-non-react-statics "^3.3.0"
+    invariant "^2.2.4"
+    warning "^4.0.3"
+
 react-resize-detector@^4.2.1:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/react-resize-detector/-/react-resize-detector-4.2.1.tgz#8982b74c3e1cf949afaa3c41050458c87b033982"
