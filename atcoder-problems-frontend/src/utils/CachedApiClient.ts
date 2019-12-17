@@ -27,7 +27,7 @@ import ContestParticipation, {
   isContestParticipation
 } from "../interfaces/ContestParticipation";
 
-let MERGED_PROBLEMS: Promise<List<MergedProblem>> | undefined = undefined;
+let MERGED_PROBLEMS: Promise<List<MergedProblem>> | undefined;
 const cachedMergedProblems = () => {
   if (MERGED_PROBLEMS === undefined) {
     MERGED_PROBLEMS = fetchMergedProblems();
@@ -37,7 +37,7 @@ const cachedMergedProblems = () => {
 
 let CACHED_MERGED_PROBLEM_MAP:
   | Promise<Map<ProblemId, MergedProblem>>
-  | undefined = undefined;
+  | undefined;
 export const cachedMergedProblemMap = () => {
   if (CACHED_MERGED_PROBLEM_MAP === undefined) {
     CACHED_MERGED_PROBLEM_MAP = cachedMergedProblems().then(list =>
@@ -50,9 +50,7 @@ export const cachedMergedProblemMap = () => {
   return CACHED_MERGED_PROBLEM_MAP;
 };
 
-let CACHED_PROBLEM_MODELS:
-  | undefined
-  | Promise<Map<ProblemId, ProblemModel>> = undefined;
+let CACHED_PROBLEM_MODELS: undefined | Promise<Map<ProblemId, ProblemModel>>;
 export const cachedProblemModels = () => {
   if (CACHED_PROBLEM_MODELS === undefined) {
     CACHED_PROBLEM_MODELS = fetchProblemModels();
@@ -60,7 +58,7 @@ export const cachedProblemModels = () => {
   return CACHED_PROBLEM_MODELS;
 };
 
-let CACHED_CONTESTS: undefined | Promise<Map<ContestId, Contest>> = undefined;
+let CACHED_CONTESTS: undefined | Promise<Map<ContestId, Contest>>;
 export const cachedContestMap = () => {
   if (CACHED_CONTESTS === undefined) {
     CACHED_CONTESTS = fetchContestMap();
@@ -68,7 +66,7 @@ export const cachedContestMap = () => {
   return CACHED_CONTESTS;
 };
 
-let CACHED_PROBLEMS: undefined | Promise<Map<ProblemId, Problem>> = undefined;
+let CACHED_PROBLEMS: undefined | Promise<Map<ProblemId, Problem>>;
 export const cachedProblemMap = () => {
   if (CACHED_PROBLEMS === undefined) {
     CACHED_PROBLEMS = fetchProblems().then(problems =>
@@ -83,7 +81,7 @@ export const cachedProblemMap = () => {
 
 let CACHED_CONTEST_TO_PROBLEM:
   | undefined
-  | Promise<Map<ContestId, List<Problem>>> = undefined;
+  | Promise<Map<ContestId, List<Problem>>>;
 export const cachedContestToProblemMap = () => {
   if (CACHED_CONTEST_TO_PROBLEM === undefined) {
     CACHED_CONTEST_TO_PROBLEM = fetchContestToProblemMap();
@@ -115,7 +113,7 @@ export const cachedUsersSubmissions = (users: List<string>) =>
     )
   );
 
-let STREAK_RANKING: Promise<List<RankingEntry>> | undefined = undefined;
+let STREAK_RANKING: Promise<List<RankingEntry>> | undefined;
 export const cachedStreaksRanking = () => {
   if (STREAK_RANKING === undefined) {
     STREAK_RANKING = fetchStreaks().then(x =>
@@ -128,7 +126,7 @@ export const cachedStreaksRanking = () => {
   return STREAK_RANKING;
 };
 
-let AC_RANKING: Promise<List<RankingEntry>> | undefined = undefined;
+let AC_RANKING: Promise<List<RankingEntry>> | undefined;
 export const cachedACRanking = () => {
   if (AC_RANKING === undefined) {
     AC_RANKING = fetchTypedList(
@@ -163,9 +161,7 @@ export const cachedFastRanking = async () =>
 export const cachedFirstRanking = async () =>
   generateRanking(await cachedMergedProblems(), "first_user_id");
 
-let LANGUAGE_RANKING:
-  | undefined
-  | Promise<Map<string, List<LangRankingEntry>>> = undefined;
+let LANGUAGE_RANKING: undefined | Promise<Map<string, List<LangRankingEntry>>>;
 export const cachedLangRanking = () => {
   if (LANGUAGE_RANKING === undefined) {
     LANGUAGE_RANKING = fetchTypedList(
@@ -186,7 +182,7 @@ export const cachedLangRanking = () => {
   return LANGUAGE_RANKING;
 };
 
-let STATUS_LABEL_MAP: {
+const STATUS_LABEL_MAP: {
   userId: string;
   rivals: List<string>;
   statusLabelMap: Promise<Map<ProblemId, ProblemStatus>> | undefined;
@@ -226,7 +222,7 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
   return STATUS_LABEL_MAP.statusLabelMap;
 };
 
-let SUM_RANKING: undefined | Promise<List<RankingEntry>> = undefined;
+let SUM_RANKING: undefined | Promise<List<RankingEntry>>;
 export const cachedSumRanking = () => {
   if (SUM_RANKING === undefined) {
     SUM_RANKING = fetchTypedList(
@@ -242,7 +238,7 @@ export const cachedSumRanking = () => {
   return SUM_RANKING;
 };
 
-let RATING_INFO_MAP = Map<string, Promise<RatingInfo>>();
+const RATING_INFO_MAP = Map<string, Promise<RatingInfo>>();
 export const cachedRatingInfo = (user: string) => {
   const info = RATING_INFO_MAP.get(user);
   if (info) {
