@@ -1,33 +1,26 @@
 import React from "react";
 import Ranking from "../components/Ranking";
-import State from "../interfaces/State";
 import { getFirstRanking } from "../utils/Api";
 import { List } from "immutable";
 import { RankingEntry } from "../interfaces/RankingEntry";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { requestMergedProblems } from "../actions";
+import { connect, PromiseState } from "react-refetch";
+import * as Api from "../utils/Api";
 
 interface Props {
-  ranking: List<RankingEntry>;
-  requestData: () => void;
+  rankingFetch: PromiseState<List<RankingEntry>>;
 }
 
-class FirstRanking extends React.Component<Props> {
-  componentDidMount(): void {
-    this.props.requestData();
+const FirstRanking = (props: Props) => (
+  <Ranking
+    title={"First AC Ranking"}
+    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : List()}
+  />
+);
+
+export default connect<{}, Props>(() => ({
+  rankingFetch: {
+    comparison: null,
+    value: () =>
+      Api.fetchMergedProblems().then(p => getFirstRanking(p.toList()))
   }
-
-  render() {
-    return <Ranking title={"First AC Ranking"} ranking={this.props.ranking} />;
-  }
-}
-const stateToProps = (state: State) => ({
-  ranking: getFirstRanking(state.mergedProblems.toList())
-});
-
-const dispatchToProps = (dispatch: Dispatch) => ({
-  requestData: () => dispatch(requestMergedProblems())
-});
-
-export default connect(stateToProps, dispatchToProps)(FirstRanking);
+}))(FirstRanking);
