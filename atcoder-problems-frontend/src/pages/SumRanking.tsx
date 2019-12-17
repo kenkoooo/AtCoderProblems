@@ -3,7 +3,7 @@ import Ranking from "../components/Ranking";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import * as Api from "../utils/Api";
+import * as CachedApiClient from "../utils/CachedApiClient";
 
 interface Props {
   rankingFetch: PromiseState<List<RankingEntry>>;
@@ -19,12 +19,6 @@ const SumRanking = (props: Props) => (
 export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () =>
-      Api.fetchSumRanking().then(ranking =>
-        ranking.map(r => ({
-          problem_count: r.point_sum,
-          user_id: r.user_id
-        }))
-      )
+    value: () => CachedApiClient.cachedSumRanking()
   }
 }))(SumRanking);

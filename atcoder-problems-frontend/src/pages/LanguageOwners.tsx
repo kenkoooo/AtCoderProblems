@@ -5,7 +5,7 @@ import { connect, PromiseState } from "react-refetch";
 import { LangRankingEntry } from "../interfaces/RankingEntry";
 import { List, Map } from "immutable";
 import { ordinalSuffixOf } from "../utils";
-import * as Api from "../utils/Api";
+import * as CachedApiClient from "../utils/CachedApiClient";
 
 const OneOwner = (props: {
   language: string;
@@ -78,16 +78,6 @@ export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: () =>
-      Api.fetchLangRanking().then(ranking =>
-        ranking
-          .reduce(
-            (map, entry) =>
-              map.update(entry.language, List<LangRankingEntry>(), list =>
-                list.push(entry)
-              ),
-            Map<string, List<LangRankingEntry>>()
-          )
-          .map(list => list.sort((a, b) => b.count - a.count))
-      )
+      CachedApiClient.cachedLangRanking()
   }
 }))(LanguageOwners);

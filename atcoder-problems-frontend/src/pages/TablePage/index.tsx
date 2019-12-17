@@ -10,7 +10,7 @@ import {
   StatusLabel,
   successStatus,
   warningStatus
-} from "../../interfaces/State";
+} from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
 import Submission from "../../interfaces/Submission";
 import ContestTable from "./ContestTable";
@@ -18,7 +18,7 @@ import { AtCoderRegularTable } from "./AtCoderRegularTable";
 import Options from "./Options";
 import TableTabButtons, { TableTab } from "./TableTab";
 import ProblemModel from "../../interfaces/ProblemModel";
-import * as Api from "../../utils/Api";
+import * as CachedApiClient from "../../utils/CachedApiClient";
 import { isAccepted } from "../../utils";
 
 const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
@@ -190,22 +190,23 @@ const TablePage: React.FC<InnerProps> = props => {
 export default connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: props.rivals.push(props.userId),
-    value: () => Api.fetchUsersSubmissions(props.rivals.push(props.userId))
+    value: () =>
+      CachedApiClient.cachedUsersSubmissions(props.rivals.push(props.userId))
   },
   problemModelsFetch: {
     comparison: null,
-    value: () => Api.fetchProblemModels()
+    value: () => CachedApiClient.cachedProblemModels()
   },
   contestsFetch: {
     comparison: null,
-    value: () => Api.fetchContestMap()
+    value: () => CachedApiClient.cachedContestMap()
   },
   problemsFetch: {
     comparison: null,
-    value: () => Api.fetchProblemMap()
+    value: () => CachedApiClient.cachedProblemMap()
   },
   contestToProblemsFetch: {
     comparison: null,
-    value: () => Api.fetchContestToProblemMap()
+    value: () => CachedApiClient.cachedContestToProblemMap()
   }
 }))(TablePage);

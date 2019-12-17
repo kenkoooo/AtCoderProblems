@@ -24,13 +24,13 @@ import {
   ProblemStatus,
   successStatus,
   warningStatus
-} from "../../interfaces/State";
+} from "../../interfaces/Status";
 import { List, Map, Range, Set } from "immutable";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
 import { ListTable } from "./ListTable";
 import { connect, PromiseState } from "react-refetch";
-import * as Api from "../../utils/Api";
+import * as CachedApiClient from "../../utils/CachedApiClient";
 
 export const INF_POINT = 1e18;
 
@@ -368,18 +368,19 @@ interface InnerProps extends OuterProps {
 export default connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: props.rivals.push(props.userId),
-    value: () => Api.fetchUsersSubmissions(props.rivals.push(props.userId))
+    value: () =>
+      CachedApiClient.cachedUsersSubmissions(props.rivals.push(props.userId))
   },
   mergedProblemsFetch: {
     comparison: null,
-    value: () => Api.fetchMergedProblemMap()
+    value: () => CachedApiClient.cachedMergedProblemMap()
   },
   problemModelsFetch: {
     comparison: null,
-    value: () => Api.fetchProblemModels()
+    value: () => CachedApiClient.cachedProblemModels()
   },
   contestsFetch: {
     comparison: null,
-    value: () => Api.fetchContestMap()
+    value: () => CachedApiClient.cachedContestMap()
   }
 }))(ListPage);

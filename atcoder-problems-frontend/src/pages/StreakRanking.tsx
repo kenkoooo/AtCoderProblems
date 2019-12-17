@@ -3,7 +3,7 @@ import Ranking from "../components/Ranking";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import * as Api from "../utils/Api";
+import * as CachedApiClient from "../utils/CachedApiClient";
 
 interface Props {
   rankingFetch: PromiseState<List<RankingEntry>>;
@@ -19,12 +19,6 @@ const StreakRanking = (props: Props) => (
 export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () =>
-      Api.fetchStreaks().then(x =>
-        x.map(r => ({
-          problem_count: r.streak,
-          user_id: r.user_id
-        }))
-      )
+    value: () => CachedApiClient.cachedStreaksRanking()
   }
 }))(StreakRanking);
