@@ -43,7 +43,7 @@ const App = () => {
             <Route exact path="/lang" component={() => <LanguageOwners />} />
             <Route
               path="/user/([a-zA-Z0-9_]*)*"
-              component={() => <UserPage />}
+              component={() => <UserPage userId={userId} />}
             />
             <Route
               path="/table/([a-zA-Z0-9_]*)*"

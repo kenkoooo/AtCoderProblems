@@ -20,32 +20,32 @@ import FilteringHeatmap from "./FilteringHeatmap";
 import SubmissionList from "./SubmissionList";
 import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
-import State, { ContestId } from "../../interfaces/State";
-import { Dispatch } from "redux";
-import { requestMergedProblems } from "../../actions";
+import { ContestId, ProblemId } from "../../interfaces/State";
 import { List, Map } from "immutable";
-import { connect } from "react-redux";
 import {
   getFastRanking,
   getFirstRanking,
   getShortRanking
 } from "../../utils/Api";
+import * as Api from "../../utils/Api";
 import { RankingEntry } from "../../interfaces/RankingEntry";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import Problem from "../../interfaces/Problem";
+import { connect, PromiseState } from "react-refetch";
 
-interface Props {
+interface OuterProps {
   userId: string;
-  userInfo: UserInfo | undefined;
-  userRatingInfo: RatingInfo;
-  contests: Map<string, Contest>;
-  mergedProblems: Map<string, MergedProblem>;
-  contestToProblems: Map<ContestId, List<Problem>>;
-  submissions: Map<string, List<Submission>>;
-  problemModels: Map<string, ProblemModel>;
+}
 
-  requestData: () => void;
+interface InnerProps extends OuterProps {
+  userInfoFetch: PromiseState<UserInfo | undefined>;
+  userRatingInfoFetch: PromiseState<RatingInfo>;
+  mergedProblemsFetch: PromiseState<Map<ProblemId, MergedProblem>>;
+  submissionsFetch: PromiseState<Map<ProblemId, List<Submission>>>;
+  contestsFetch: PromiseState<Map<ContestId, Contest>>;
+  contestToProblemsFetch: PromiseState<Map<ContestId, List<Problem>>>;
+  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 const solvedCountForPieChart = (
@@ -138,231 +138,236 @@ const findFromRanking = (ranking: List<RankingEntry>, userId: string) => {
     return { rank: ranking.size, count: 0 };
   }
 };
+const UserPage = (props: InnerProps) => {
+  const {
+    userId,
+    userInfoFetch,
+    userRatingInfoFetch,
+    submissionsFetch,
+    mergedProblemsFetch,
+    contestToProblemsFetch,
+    contestsFetch,
+    problemModelsFetch
+  } = props;
+  const userInfo = userInfoFetch.fulfilled ? userInfoFetch.value : undefined;
+  const userRatingInfo = userRatingInfoFetch.fulfilled
+    ? userRatingInfoFetch.value
+    : ratingInfoOf(List());
+  const mergedProblems = mergedProblemsFetch.fulfilled
+    ? mergedProblemsFetch.value
+    : Map<ProblemId, MergedProblem>();
+  const contests = contestsFetch.fulfilled
+    ? contestsFetch.value
+    : Map<string, Contest>();
+  const problemModels = problemModelsFetch.fulfilled
+    ? problemModelsFetch.value
+    : Map<ProblemId, ProblemModel>();
+  const submissions = submissionsFetch.fulfilled
+    ? submissionsFetch.value
+    : Map<ProblemId, List<Submission>>();
+  const contestToProblems = contestToProblemsFetch.fulfilled
+    ? contestToProblemsFetch.value
+    : Map<ContestId, List<Problem>>();
 
-class UserPage extends React.Component<Props> {
-  componentDidMount() {
-    this.props.requestData();
+  if (userId.length === 0 || submissions.isEmpty() || userInfo === undefined) {
+    return null;
   }
+  const shortRanking = getShortRanking(mergedProblems.valueSeq().toList());
+  const fastRanking = getFastRanking(mergedProblems.valueSeq().toList());
+  const firstRanking = getFirstRanking(mergedProblems.valueSeq().toList());
 
-  render() {
-    const {
-      userId,
-      userInfo,
-      userRatingInfo,
-      submissions,
-      mergedProblems,
-      contestToProblems,
-      contests,
-      problemModels
-    } = this.props;
-    if (
-      userId.length === 0 ||
-      submissions.isEmpty() ||
-      userInfo === undefined
-    ) {
-      return null;
-    }
+  const shortRank = findFromRanking(shortRanking, userId);
+  const firstRank = findFromRanking(firstRanking, userId);
+  const fastRank = findFromRanking(fastRanking, userId);
 
-    const shortRanking = getShortRanking(mergedProblems.valueSeq().toList());
-    const fastRanking = getFastRanking(mergedProblems.valueSeq().toList());
-    const firstRanking = getFirstRanking(mergedProblems.valueSeq().toList());
+  const userSubmissions = submissions
+    .valueSeq()
+    .flatMap(list => list)
+    .filter(s => s.user_id === userId);
 
-    const shortRank = findFromRanking(shortRanking, userId);
-    const firstRank = findFromRanking(firstRanking, userId);
-    const fastRank = findFromRanking(fastRanking, userId);
+  const dailyCount = submissions
+    .map(submissionList =>
+      submissionList
+        .filter(s => s.user_id === userId && isAccepted(s.result))
+        .map(s => s.epoch_second)
+        .min()
+    )
+    .filter(
+      (second: number | undefined): second is number => second !== undefined
+    )
+    .map(second => formatMoment(parseSecond(second)))
+    .reduce(
+      (map, date) => map.update(date, 0, count => count + 1),
+      Map<string, number>()
+    )
+    .entrySeq()
+    .map(([dateLabel, count]) => ({ dateLabel, count }))
+    .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
 
-    const userSubmissions = submissions
-      .valueSeq()
-      .flatMap(list => list)
-      .filter(s => s.user_id === userId);
+  const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
+    const dateSecond = parseDateLabel(dateLabel).unix();
+    const last = list.last(undefined);
+    return last
+      ? list.push({ dateSecond, count: last.count + count })
+      : list.push({ dateSecond, count });
+  }, List<{ dateSecond: number; count: number }>());
 
-    const dailyCount = submissions
-      .map(submissionList =>
-        submissionList
-          .filter(s => s.user_id === userId && isAccepted(s.result))
-          .map(s => s.epoch_second)
-          .min()
-      )
-      .filter(
-        (second: number | undefined): second is number => second !== undefined
-      )
-      .map(second => formatMoment(parseSecond(second)))
-      .reduce(
-        (map, date) => map.update(date, 0, count => count + 1),
-        Map<string, number>()
-      )
-      .entrySeq()
-      .map(([dateLabel, count]) => ({ dateLabel, count }))
-      .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
-
-    const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
-      const dateSecond = parseDateLabel(dateLabel).unix();
-      const last = list.last(undefined);
-      return last
-        ? list.push({ dateSecond, count: last.count + count })
-        : list.push({ dateSecond, count });
-    }, List<{ dateSecond: number; count: number }>());
-
-    const { longestStreak, currentStreak, prevDateLabel } = dailyCount
-      .map(e => e.dateLabel)
-      .reduce(
-        (state, dateLabel) => {
-          const nextDateLabel = formatMoment(
-            parseDateLabel(state.prevDateLabel).add(1, "day")
-          );
-          // tslint:disable-next-line
-          const currentStreak =
-            dateLabel === nextDateLabel ? state.currentStreak + 1 : 1;
-          // tslint:disable-next-line
-          const longestStreak = Math.max(state.longestStreak, currentStreak);
-          return { longestStreak, currentStreak, prevDateLabel: dateLabel };
-        },
-        {
-          longestStreak: 0,
-          currentStreak: 0,
-          prevDateLabel: ""
-        }
-      );
-
-    const yesterDayLabel = formatMoment(getToday().add(-1, "day"));
-    const isIncreasing = prevDateLabel >= yesterDayLabel;
-
-    const abcSolved = solvedCountForPieChart(
-      contestToProblems.filter((value, key) => key.substring(0, 3) === "abc"),
-      submissions,
-      userId
-    );
-    const arcSolved = solvedCountForPieChart(
-      contestToProblems.filter((value, key) => key.substring(0, 3) === "arc"),
-
-      submissions,
-      userId
-    );
-    const agcSolved = solvedCountForPieChart(
-      contestToProblems.filter((value, key) => key.substring(0, 3) === "agc"),
-      submissions,
-      userId
-    );
-
-    const achievements = [
-      {
-        key: "Accepted",
-        value: userInfo.accepted_count,
-        rank: userInfo.accepted_count_rank
+  const { longestStreak, currentStreak, prevDateLabel } = dailyCount
+    .map(e => e.dateLabel)
+    .reduce(
+      (state, dateLabel) => {
+        const nextDateLabel = formatMoment(
+          parseDateLabel(state.prevDateLabel).add(1, "day")
+        );
+        // tslint:disable-next-line
+        const currentStreak =
+          dateLabel === nextDateLabel ? state.currentStreak + 1 : 1;
+        // tslint:disable-next-line
+        const longestStreak = Math.max(state.longestStreak, currentStreak);
+        return { longestStreak, currentStreak, prevDateLabel: dateLabel };
       },
       {
-        key: "Shortest Code",
-        value: shortRank.count,
-        rank: shortRank.rank
-      },
-      {
-        key: "Fastest Code",
-        value: fastRank.count,
-        rank: fastRank.rank
-      },
-      {
-        key: "First AC",
-        value: firstRank.count,
-        rank: firstRank.rank
+        longestStreak: 0,
+        currentStreak: 0,
+        prevDateLabel: ""
       }
-    ];
-
-    return (
-      <div>
-        <Row className="my-2 border-bottom">
-          <h1>{userId}</h1>
-        </Row>
-        <Row className="my-3">
-          {achievements.map(({ key, value, rank }) => (
-            <Col key={key} className="text-center" xs="6" md="3">
-              <h6>{key}</h6>
-              <h3>{value}</h3>
-              <h6 className="text-muted">{`${rank + 1}${ordinalSuffixOf(
-                rank + 1
-              )}`}</h6>
-            </Col>
-          ))}
-          <Col key="Rated Point Sum" className="text-center" xs="6" md="3">
-            <h6>Rated Point Sum</h6>
-            <h3>{userInfo.rated_point_sum} pt</h3>
-            <h6 className="text-muted">{`${userInfo.rated_point_sum_rank +
-              1}${ordinalSuffixOf(userInfo.rated_point_sum_rank + 1)}`}</h6>
-          </Col>
-          <Col key="Longest Streak" className="text-center" xs="6" md="3">
-            <h6>Longest Streak</h6>
-            <h3>{longestStreak} days</h3>
-          </Col>
-          <Col key="Current Streak" className="text-center" xs="6" md="3">
-            <h6>Current Streak</h6>
-            <h3>{isIncreasing ? currentStreak : 0} days</h3>
-            <h6 className="text-muted">{`Last AC: ${prevDateLabel}`}</h6>
-          </Col>
-          <Col />
-        </Row>
-
-        <PieCharts
-          problems={abcSolved.toArray()}
-          title="AtCoder Beginner Contest"
-        />
-        <PieCharts
-          problems={arcSolved.toArray()}
-          title="AtCoder Regular Contest"
-        />
-        <PieCharts
-          problems={agcSolved.toArray()}
-          title="AtCoder Grand Contest"
-        />
-
-        <Row className="my-2 border-bottom">
-          <h1>Daily Effort</h1>
-        </Row>
-        <DailyEffortBarChart
-          dailyData={dailyCount
-            .map(({ dateLabel, count }) => ({
-              dateSecond: parseDateLabel(dateLabel).unix(),
-              count
-            }))
-            .toArray()}
-        />
-
-        <Row className="my-2 border-bottom">
-          <h1>Climbing</h1>
-        </Row>
-        <ClimbingLineChart climbingData={climbing.toArray()} />
-
-        <Row className="my-2 border-bottom">
-          <h1>Heatmap</h1>
-        </Row>
-        <FilteringHeatmap submissions={userSubmissions.toArray()} />
-
-        <Row className="my-2 border-bottom">
-          <h1>Submissions</h1>
-        </Row>
-        <SubmissionList
-          problemModels={problemModels}
-          problems={mergedProblems.valueSeq().toArray()}
-          submissions={userSubmissions.toArray()}
-        />
-
-        <Row className="my-2 border-bottom">
-          <h1>Languages</h1>
-        </Row>
-        <LanguageCount submissions={userSubmissions.toArray()} />
-
-        <Row className="my-2 border-bottom">
-          <h1>Recommendations</h1>
-        </Row>
-        <Recommendations
-          userSubmissions={userSubmissions.toList()}
-          problems={mergedProblems.valueSeq().toList()}
-          contests={contests}
-          problemModels={problemModels}
-          userRatingInfo={userRatingInfo}
-        />
-      </div>
     );
-  }
-}
+
+  const yesterDayLabel = formatMoment(getToday().add(-1, "day"));
+  const isIncreasing = prevDateLabel >= yesterDayLabel;
+
+  const abcSolved = solvedCountForPieChart(
+    contestToProblems.filter((value, key) => key.substring(0, 3) === "abc"),
+    submissions,
+    userId
+  );
+  const arcSolved = solvedCountForPieChart(
+    contestToProblems.filter((value, key) => key.substring(0, 3) === "arc"),
+
+    submissions,
+    userId
+  );
+  const agcSolved = solvedCountForPieChart(
+    contestToProblems.filter((value, key) => key.substring(0, 3) === "agc"),
+    submissions,
+    userId
+  );
+
+  const achievements = [
+    {
+      key: "Accepted",
+      value: userInfo.accepted_count,
+      rank: userInfo.accepted_count_rank
+    },
+    {
+      key: "Shortest Code",
+      value: shortRank.count,
+      rank: shortRank.rank
+    },
+    {
+      key: "Fastest Code",
+      value: fastRank.count,
+      rank: fastRank.rank
+    },
+    {
+      key: "First AC",
+      value: firstRank.count,
+      rank: firstRank.rank
+    }
+  ];
+
+  return (
+    <div>
+      <Row className="my-2 border-bottom">
+        <h1>{userId}</h1>
+      </Row>
+      <Row className="my-3">
+        {achievements.map(({ key, value, rank }) => (
+          <Col key={key} className="text-center" xs="6" md="3">
+            <h6>{key}</h6>
+            <h3>{value}</h3>
+            <h6 className="text-muted">{`${rank + 1}${ordinalSuffixOf(
+              rank + 1
+            )}`}</h6>
+          </Col>
+        ))}
+        <Col key="Rated Point Sum" className="text-center" xs="6" md="3">
+          <h6>Rated Point Sum</h6>
+          <h3>{userInfo.rated_point_sum} pt</h3>
+          <h6 className="text-muted">{`${userInfo.rated_point_sum_rank +
+            1}${ordinalSuffixOf(userInfo.rated_point_sum_rank + 1)}`}</h6>
+        </Col>
+        <Col key="Longest Streak" className="text-center" xs="6" md="3">
+          <h6>Longest Streak</h6>
+          <h3>{longestStreak} days</h3>
+        </Col>
+        <Col key="Current Streak" className="text-center" xs="6" md="3">
+          <h6>Current Streak</h6>
+          <h3>{isIncreasing ? currentStreak : 0} days</h3>
+          <h6 className="text-muted">{`Last AC: ${prevDateLabel}`}</h6>
+        </Col>
+        <Col />
+      </Row>
+
+      <PieCharts
+        problems={abcSolved.toArray()}
+        title="AtCoder Beginner Contest"
+      />
+      <PieCharts
+        problems={arcSolved.toArray()}
+        title="AtCoder Regular Contest"
+      />
+      <PieCharts problems={agcSolved.toArray()} title="AtCoder Grand Contest" />
+
+      <Row className="my-2 border-bottom">
+        <h1>Daily Effort</h1>
+      </Row>
+      <DailyEffortBarChart
+        dailyData={dailyCount
+          .map(({ dateLabel, count }) => ({
+            dateSecond: parseDateLabel(dateLabel).unix(),
+            count
+          }))
+          .toArray()}
+      />
+
+      <Row className="my-2 border-bottom">
+        <h1>Climbing</h1>
+      </Row>
+      <ClimbingLineChart climbingData={climbing.toArray()} />
+
+      <Row className="my-2 border-bottom">
+        <h1>Heatmap</h1>
+      </Row>
+      <FilteringHeatmap submissions={userSubmissions.toArray()} />
+
+      <Row className="my-2 border-bottom">
+        <h1>Submissions</h1>
+      </Row>
+      <SubmissionList
+        problemModels={problemModels}
+        problems={mergedProblems.valueSeq().toArray()}
+        submissions={userSubmissions.toArray()}
+      />
+
+      <Row className="my-2 border-bottom">
+        <h1>Languages</h1>
+      </Row>
+      <LanguageCount submissions={userSubmissions.toArray()} />
+
+      <Row className="my-2 border-bottom">
+        <h1>Recommendations</h1>
+      </Row>
+      <Recommendations
+        userSubmissions={userSubmissions.toList()}
+        problems={mergedProblems.valueSeq().toList()}
+        contests={contests}
+        problemModels={problemModels}
+        userRatingInfo={userRatingInfo}
+      />
+    </div>
+  );
+};
 
 const PieCharts = ({
   problems,
@@ -397,21 +402,36 @@ const PieCharts = ({
   </div>
 );
 
-const stateToProps = (state: State) => ({
-  userId: state.users.userId,
-  contests: state.contests,
-  mergedProblems: state.mergedProblems,
-  contestToProblems: state.contestToProblems,
-  submissions: state.submissions,
-  userInfo: state.userInfo,
-  userRatingInfo: ratingInfoOf(state.contestHistory),
-  problemModels: state.problemModels
-});
-
-const dispatchToProps = (dispatch: Dispatch) => ({
-  requestData: () => {
-    dispatch(requestMergedProblems());
+export default connect<OuterProps, InnerProps>(props => ({
+  submissionsFetch: {
+    comparison: props.userId,
+    value: () => Api.fetchUsersSubmissions(List(props.userId))
+  },
+  mergedProblemsFetch: {
+    comparison: null,
+    value: () => Api.fetchMergedProblemMap()
+  },
+  problemModelsFetch: {
+    comparison: null,
+    value: () => Api.fetchProblemModels()
+  },
+  contestsFetch: {
+    comparison: null,
+    value: () => Api.fetchContestMap()
+  },
+  userRatingInfoFetch: {
+    comparison: props.userId,
+    value: () =>
+      Api.fetchContestHistory(props.userId).then(history =>
+        ratingInfoOf(history)
+      )
+  },
+  userInfoFetch: {
+    comparison: props.userId,
+    value: () => Api.fetchUserInfo(props.userId)
+  },
+  contestToProblemsFetch: {
+    comparison: null,
+    value: () => Api.fetchContestToProblemMap()
   }
-});
-
-export default connect(stateToProps, dispatchToProps)(UserPage);
+}))(UserPage);
