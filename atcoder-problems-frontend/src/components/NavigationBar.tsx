@@ -14,7 +14,9 @@ import {
   Form,
   Input,
   Button,
-  FormGroup
+  FormGroup,
+  NavItem,
+  NavLink
 } from "reactstrap";
 import { extractRivalsParam, normalizeUserId } from "../utils";
 import { List } from "immutable";
@@ -202,6 +204,11 @@ class NavigationBar extends React.Component<Props, LocalState> {
               </DropdownMenu>
             </UncontrolledDropdown>
 
+            <NavItem>
+              <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
+                Login
+              </NavLink>
+            </NavItem>
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
                 Links

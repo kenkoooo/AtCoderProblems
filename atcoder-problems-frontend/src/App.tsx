@@ -19,10 +19,12 @@ import TablePage from "./pages/TablePage";
 import NavigationBar from "./components/NavigationBar";
 import StreakRanking from "./pages/StreakRanking";
 import { List } from "immutable";
+import InternalDashboardPage from "./pages/InternalDashboardPage";
 
 const App = () => {
   const [userId, setUserId] = useState("");
   const [rivals, setRivals] = useState(List<string>());
+  const [loginId, setLoginId] = useState("");
   return (
     <Router>
       <div>
@@ -53,6 +55,11 @@ const App = () => {
               path="/list/([a-zA-Z0-9_]*)*"
               component={() => <ListPage userId={userId} rivals={rivals} />}
             />
+            <Route
+              path="/login/:loginId([a-zA-Z0-9_\-]*)"
+              component={InternalDashboardPage}
+            />
+
             <Redirect path="/" to="/table/" />
           </Switch>
         </Container>
