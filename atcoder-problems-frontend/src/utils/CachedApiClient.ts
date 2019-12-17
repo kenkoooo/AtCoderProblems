@@ -1,4 +1,12 @@
-import { ContestId, ProblemId } from "../interfaces/Status";
+import {
+  ContestId,
+  failedStatus,
+  noneStatus,
+  ProblemId,
+  ProblemStatus,
+  successStatus,
+  warningStatus
+} from "../interfaces/Status";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import { List, Map } from "immutable";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
@@ -14,7 +22,7 @@ import {
   RankingEntry
 } from "../interfaces/RankingEntry";
 import { RatingInfo, ratingInfoOf } from "./RatingInfo";
-import { clipDifficulty } from "./index";
+import { clipDifficulty, isAccepted } from "./index";
 import ContestParticipation, {
   isContestParticipation
 } from "../interfaces/ContestParticipation";
@@ -176,6 +184,46 @@ export const cachedLangRanking = () => {
     );
   }
   return LANGUAGE_RANKING;
+};
+
+let STATUS_LABEL_MAP: {
+  userId: string;
+  rivals: List<string>;
+  statusLabelMap: Promise<Map<ProblemId, ProblemStatus>> | undefined;
+} = { userId: "", rivals: List(), statusLabelMap: undefined };
+export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
+  if (
+    STATUS_LABEL_MAP.statusLabelMap === undefined ||
+    STATUS_LABEL_MAP.userId !== userId ||
+    STATUS_LABEL_MAP.rivals !== rivals
+  ) {
+    STATUS_LABEL_MAP.userId = userId;
+    STATUS_LABEL_MAP.rivals = rivals;
+    STATUS_LABEL_MAP.statusLabelMap = cachedUsersSubmissions(
+      rivals.push(userId)
+    ).then(submissions =>
+      submissions.map(list => {
+        const userList = list.filter(s => s.user_id === userId);
+        const rivalsList = list
+          .filter(s => rivals.contains(s.user_id))
+          .filter(s => isAccepted(s.result));
+        if (userList.find(s => isAccepted(s.result))) {
+          return successStatus();
+        } else if (!rivalsList.isEmpty()) {
+          return failedStatus(
+            rivalsList
+              .map(s => s.user_id)
+              .toSet()
+              .toList()
+          );
+        } else {
+          const last = userList.maxBy(s => s.epoch_second);
+          return last ? warningStatus(last.result) : noneStatus();
+        }
+      })
+    );
+  }
+  return STATUS_LABEL_MAP.statusLabelMap;
 };
 
 let SUM_RANKING: undefined | Promise<List<RankingEntry>> = undefined;

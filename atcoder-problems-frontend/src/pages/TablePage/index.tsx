@@ -4,12 +4,9 @@ import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import {
   ContestId,
-  failedStatus,
-  noneStatus,
   ProblemId,
-  StatusLabel,
-  successStatus,
-  warningStatus
+  ProblemStatus,
+  StatusLabel
 } from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
 import Submission from "../../interfaces/Submission";
@@ -19,7 +16,6 @@ import Options from "./Options";
 import TableTabButtons, { TableTab } from "./TableTab";
 import ProblemModel from "../../interfaces/ProblemModel";
 import * as CachedApiClient from "../../utils/CachedApiClient";
-import { isAccepted } from "../../utils";
 
 const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
   return (
@@ -53,6 +49,7 @@ interface InnerProps extends OuterProps {
   contestToProblemsFetch: PromiseState<Map<ContestId, List<Problem>>>;
   problemsFetch: PromiseState<Map<ProblemId, Problem>>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
+  statusLabelMapFetch: PromiseState<Map<ProblemId, ProblemStatus>>;
 }
 
 const TablePage: React.FC<InnerProps> = props => {
@@ -62,7 +59,8 @@ const TablePage: React.FC<InnerProps> = props => {
     contestsFetch,
     contestToProblemsFetch,
     submissionsFetch,
-    problemModelsFetch
+    problemModelsFetch,
+    statusLabelMapFetch
   } = props;
 
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
@@ -73,7 +71,8 @@ const TablePage: React.FC<InnerProps> = props => {
     problemModelsFetch,
     contestToProblemsFetch,
     submissionsFetch,
-    contestsFetch
+    contestsFetch,
+    statusLabelMapFetch
   ]);
   if (!allFetch.fulfilled) {
     return null;
@@ -91,6 +90,9 @@ const TablePage: React.FC<InnerProps> = props => {
   const contests = contestsFetch.fulfilled
     ? contestsFetch.value
     : Map<ContestId, Contest>();
+  const statusLabelMap = statusLabelMapFetch.fulfilled
+    ? statusLabelMapFetch.value
+    : Map<ProblemId, ProblemStatus>();
   const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
   const arc = contests.filter((v, k) => k.match(/^arc\d{3}$/));
   const agc = contests.filter((v, k) => k.match(/^agc\d{3}$/));
@@ -103,26 +105,6 @@ const TablePage: React.FC<InnerProps> = props => {
     .filter(contest => contest.start_epoch_second >= 1468670400); // agc001
   const ratedContestIds = atcoderContestIds.concat(othersRated.keySeq());
   const others = contests.filter(c => !ratedContestIds.has(c.id));
-
-  const statusLabelMap = submissions.map(list => {
-    const userList = list.filter(s => s.user_id === userId);
-    const rivalsList = list
-      .filter(s => rivals.contains(s.user_id))
-      .filter(s => isAccepted(s.result));
-    if (userList.find(s => isAccepted(s.result))) {
-      return successStatus();
-    } else if (!rivalsList.isEmpty()) {
-      return failedStatus(
-        rivalsList
-          .map(s => s.user_id)
-          .toSet()
-          .toList()
-      );
-    } else {
-      const last = userList.maxBy(s => s.epoch_second);
-      return last ? warningStatus(last.result) : noneStatus();
-    }
-  });
 
   return (
     <div>
@@ -219,5 +201,10 @@ export default connect<OuterProps, InnerProps>(props => ({
   contestToProblemsFetch: {
     comparison: null,
     value: () => CachedApiClient.cachedContestToProblemMap()
+  },
+  statusLabelMapFetch: {
+    comparison: [props.userId, props.rivals],
+    value: () =>
+      CachedApiClient.cachedStatusLabelMap(props.userId, props.rivals)
   }
 }))(TablePage);
