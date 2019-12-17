@@ -29,7 +29,7 @@ const App = () => {
         <NavigationBar
           updateUserIds={(id, list) => {
             setUserId(id);
-            setRivals(rivals);
+            setRivals(list);
           }}
         />
         <Container style={{ width: "100%", maxWidth: "90%" }}>
@@ -47,7 +47,7 @@ const App = () => {
             />
             <Route
               path="/table/([a-zA-Z0-9_]*)*"
-              component={() => <TablePage />}
+              component={() => <TablePage userId={userId} rivals={rivals} />}
             />
             <Route
               path="/list/([a-zA-Z0-9_]*)*"
