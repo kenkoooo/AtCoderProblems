@@ -14,13 +14,13 @@ import {
   RankingEntry
 } from "../interfaces/RankingEntry";
 import { RatingInfo, ratingInfoOf } from "./RatingInfo";
-import { clipDifficulty, isAccepted } from "./index";
+import { clipDifficulty } from "./index";
 import ContestParticipation, {
   isContestParticipation
 } from "../interfaces/ContestParticipation";
 
 let MERGED_PROBLEMS: Promise<List<MergedProblem>> | undefined = undefined;
-const cachedMergedProblems = async () => {
+const cachedMergedProblems = () => {
   if (MERGED_PROBLEMS === undefined) {
     MERGED_PROBLEMS = fetchMergedProblems();
   }
@@ -30,7 +30,7 @@ const cachedMergedProblems = async () => {
 let CACHED_MERGED_PROBLEM_MAP:
   | Promise<Map<ProblemId, MergedProblem>>
   | undefined = undefined;
-export const cachedMergedProblemMap = async () => {
+export const cachedMergedProblemMap = () => {
   if (CACHED_MERGED_PROBLEM_MAP === undefined) {
     CACHED_MERGED_PROBLEM_MAP = cachedMergedProblems().then(list =>
       list.reduce(
@@ -45,7 +45,7 @@ export const cachedMergedProblemMap = async () => {
 let CACHED_PROBLEM_MODELS:
   | undefined
   | Promise<Map<ProblemId, ProblemModel>> = undefined;
-export const cachedProblemModels = async () => {
+export const cachedProblemModels = () => {
   if (CACHED_PROBLEM_MODELS === undefined) {
     CACHED_PROBLEM_MODELS = fetchProblemModels();
   }
@@ -53,7 +53,7 @@ export const cachedProblemModels = async () => {
 };
 
 let CACHED_CONTESTS: undefined | Promise<Map<ContestId, Contest>> = undefined;
-export const cachedContestMap = async () => {
+export const cachedContestMap = () => {
   if (CACHED_CONTESTS === undefined) {
     CACHED_CONTESTS = fetchContestMap();
   }
@@ -61,9 +61,14 @@ export const cachedContestMap = async () => {
 };
 
 let CACHED_PROBLEMS: undefined | Promise<Map<ProblemId, Problem>> = undefined;
-export const cachedProblemMap = async () => {
+export const cachedProblemMap = () => {
   if (CACHED_PROBLEMS === undefined) {
-    CACHED_PROBLEMS = fetchProblemMap();
+    CACHED_PROBLEMS = fetchProblems().then(problems =>
+      problems.reduce(
+        (map, problem) => map.set(problem.id, problem),
+        Map<string, Problem>()
+      )
+    );
   }
   return CACHED_PROBLEMS;
 };
@@ -71,7 +76,7 @@ export const cachedProblemMap = async () => {
 let CACHED_CONTEST_TO_PROBLEM:
   | undefined
   | Promise<Map<ContestId, List<Problem>>> = undefined;
-export const cachedContestToProblemMap = async () => {
+export const cachedContestToProblemMap = () => {
   if (CACHED_CONTEST_TO_PROBLEM === undefined) {
     CACHED_CONTEST_TO_PROBLEM = fetchContestToProblemMap();
   }
@@ -103,7 +108,7 @@ export const cachedUsersSubmissions = (users: List<string>) =>
   );
 
 let STREAK_RANKING: Promise<List<RankingEntry>> | undefined = undefined;
-export const cachedStreaksRanking = async () => {
+export const cachedStreaksRanking = () => {
   if (STREAK_RANKING === undefined) {
     STREAK_RANKING = fetchStreaks().then(x =>
       x.map(r => ({
@@ -116,7 +121,7 @@ export const cachedStreaksRanking = async () => {
 };
 
 let AC_RANKING: Promise<List<RankingEntry>> | undefined = undefined;
-export const cachedACRanking = async () => {
+export const cachedACRanking = () => {
   if (AC_RANKING === undefined) {
     AC_RANKING = fetchTypedList(
       STATIC_API_BASE_URL + "/ac.json",
@@ -284,17 +289,9 @@ const fetchContestMap = () =>
       Map<string, Contest>()
     )
   );
-const fetchProblemMap = () =>
-  fetchProblems().then(problems =>
-    problems.reduce(
-      (map, problem) => map.set(problem.id, problem),
-      Map<string, Problem>()
-    )
-  );
-
 const fetchContestToProblemMap = async () => {
   const pairs = await fetchContestProblemPairs();
-  const problems = await fetchProblemMap();
+  const problems = await cachedProblemMap();
   return pairs
     .map(({ contest_id, problem_id }) => ({
       contest_id,
