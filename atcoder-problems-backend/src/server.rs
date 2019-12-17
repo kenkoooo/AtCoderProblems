@@ -9,7 +9,7 @@ use crate::server::problem_list::{
     add_item, create_list, delete_item, delete_list, get_list, update_item, update_list,
 };
 use auth::get_token;
-pub use auth::{Authentication, GitHubAuthentication};
+pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use cookie::Cookie;
 
 pub(crate) mod middleware;
@@ -108,6 +108,7 @@ pub(crate) trait CommonResponse {
     fn internal_error() -> Self;
     fn not_modified() -> Self;
     fn etagged(etag: &str) -> Self;
+    fn redirect(location: &str) -> Self;
 
     fn set_cookie(self, cookie: cookie::Cookie) -> Self;
 }
@@ -130,6 +131,9 @@ impl CommonResponse for tide::Response {
     }
     fn etagged(etag: &str) -> Self {
         Self::new_cors().set_header("etag", etag)
+    }
+    fn redirect(location: &str) -> Self {
+        Self::new(302).set_header("location", location)
     }
 
     fn set_cookie(self, cookie: cookie::Cookie) -> Self {
