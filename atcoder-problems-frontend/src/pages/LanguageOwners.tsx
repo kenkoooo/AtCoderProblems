@@ -77,7 +77,6 @@ const LanguageOwners = (props: Props) => {
 export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () =>
-      CachedApiClient.cachedLangRanking()
+    value: () => CachedApiClient.cachedLangRanking()
   }
 }))(LanguageOwners);
