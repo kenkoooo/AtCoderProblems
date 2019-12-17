@@ -1,7 +1,7 @@
-import { isContest } from "../interfaces/Contest";
-import { isProblem } from "../interfaces/Problem";
+import Contest, { isContest } from "../interfaces/Contest";
+import Problem, { isProblem } from "../interfaces/Problem";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
-import { isSubmission } from "../interfaces/Submission";
+import Submission, { isSubmission } from "../interfaces/Submission";
 import { List, Map } from "immutable";
 import {
   isLangRankingEntry,
@@ -12,7 +12,9 @@ import {
 } from "../interfaces/RankingEntry";
 import { isUserInfo } from "../interfaces/UserInfo";
 import { isContestParticipation } from "../interfaces/ContestParticipation";
-import { isProblemModel } from "../interfaces/ProblemModel";
+import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
+import { ProblemId } from "../interfaces/State";
+import { clipDifficulty } from "./index";
 
 const BASE_URL = "https://kenkoooo.com/atcoder";
 const STATIC_API_BASE_URL = BASE_URL + "/resources";
@@ -97,7 +99,23 @@ export const fetchMergedProblems = () =>
   );
 
 export const fetchProblemModels = () =>
-  fetchTypedMap(STATIC_API_BASE_URL + "/problem-models.json", isProblemModel);
+  fetchTypedMap(
+    STATIC_API_BASE_URL + "/problem-models.json",
+    isProblemModel
+  ).then(map =>
+    map.map(
+      (model: ProblemModel): ProblemModel => {
+        if (model.difficulty === undefined) {
+          return model;
+        }
+        return {
+          ...model,
+          difficulty: clipDifficulty(model.difficulty),
+          rawDifficulty: model.difficulty
+        };
+      }
+    )
+  );
 
 export const fetchUserInfo = (user: string) =>
   user.length > 0
@@ -120,7 +138,7 @@ export const fetchSubmissions = (user: string) =>
         `${DYNAMIC_API_BASE_URL}/results?user=${user}`,
         isSubmission
       )
-    : Promise.resolve([]);
+    : Promise.resolve(List<Submission>());
 
 export const fetchContestHistory = (user: string) =>
   user.length > 0
@@ -132,3 +150,39 @@ export const fetchContestHistory = (user: string) =>
 
 export const fetchStreaks = () =>
   fetchTypedList(STREAKS_URL, isStreakRankingEntry);
+
+export const fetchUsersSubmissions = (users: List<string>) =>
+  Promise.all(users.toArray().map(user => fetchSubmissions(user))).then(lists =>
+    lists.reduce(
+      (map, submissions) =>
+        submissions.reduce(
+          (m, s) =>
+            m.update(s.problem_id, List<Submission>(), list => list.push(s)),
+          map
+        ),
+      Map<ProblemId, List<Submission>>()
+    )
+  );
+
+export const fetchMergedProblemMap = () =>
+  fetchMergedProblems().then(list =>
+    list.reduce(
+      (map, problem) => map.set(problem.id, problem),
+      Map<string, MergedProblem>()
+    )
+  );
+
+export const fetchContestMap = () =>
+  fetchContests().then(contests =>
+    contests.reduce(
+      (map, contest) => map.set(contest.id, contest),
+      Map<string, Contest>()
+    )
+  );
+export const fetchProblemMap = () =>
+  fetchProblems().then(problems =>
+    problems.reduce(
+      (map, problem) => map.set(problem.id, problem),
+      Map<string, Problem>()
+    )
+  );
