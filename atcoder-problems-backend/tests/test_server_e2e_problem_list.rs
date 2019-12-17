@@ -4,6 +4,7 @@ use atcoder_problems_backend::server::Authentication;
 use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
+use atcoder_problems_backend::server::GitHubUserResponse;
 use rand::Rng;
 use serde_json::Value;
 use std::collections::BTreeMap;
@@ -24,9 +25,9 @@ impl Authentication for MockAuth {
             _ => Err(Error::OtherError),
         }
     }
-    async fn get_user_id(&self, token: &str) -> Result<String> {
+    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse> {
         match token {
-            VALID_TOKEN => Ok("user_name".to_owned()),
+            VALID_TOKEN => Ok(GitHubUserResponse::default()),
             _ => Err(Error::OtherError),
         }
     }
@@ -304,14 +305,14 @@ fn test_register_twice() {
                 port,
             ))
             .await?;
-            assert!(response.status().is_success());
+            assert_eq!(response.status(), 302);
 
             let response = surf::get(url(
                 &format!("/atcoder-api/v3/authorize?code={}", VALID_CODE),
                 port,
             ))
             .await?;
-            assert!(response.status().is_success());
+            assert_eq!(response.status(), 302);
 
             Ok(())
         });
