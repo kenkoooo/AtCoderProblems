@@ -8,7 +8,7 @@ import { isAccepted } from "../../utils";
 import { Badge } from "reactstrap";
 import ProblemLink from "../../components/ProblemLink";
 import { Map } from "immutable";
-import { ProblemId } from "../../interfaces/State";
+import { ProblemId } from "../../interfaces/Status";
 import ProblemModel from "../../interfaces/ProblemModel";
 
 interface Props {

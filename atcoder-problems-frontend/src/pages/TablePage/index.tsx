@@ -1,20 +1,21 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
+import { connect, PromiseState } from "react-refetch";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
-import State, {
+import {
   ContestId,
   ProblemId,
   ProblemStatus,
   StatusLabel
-} from "../../interfaces/State";
-import { List, Map } from "immutable";
+} from "../../interfaces/Status";
+import { List, Map, Set } from "immutable";
 import Submission from "../../interfaces/Submission";
 import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
 import Options from "./Options";
 import TableTabButtons, { TableTab } from "./TableTab";
 import ProblemModel from "../../interfaces/ProblemModel";
+import * as CachedApiClient from "../../utils/CachedApiClient";
 
 const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
   return (
@@ -37,40 +38,73 @@ export const statusLabelToTableColor = (label: StatusLabel) => {
   }
 };
 
-interface Props {
+interface OuterProps {
   userId: string;
   rivals: List<string>;
-  submissions: Map<ProblemId, List<Submission>>;
-  contests: Map<ContestId, Contest>;
-  contestToProblems: Map<ContestId, List<Problem>>;
-  problems: Map<ProblemId, Problem>;
-  statusLabelMap: Map<ProblemId, ProblemStatus>;
-  abc: Map<ContestId, Contest>;
-  arc: Map<ContestId, Contest>;
-  agc: Map<ContestId, Contest>;
-  othersRated: Map<ContestId, Contest>;
-  others: Map<ContestId, Contest>;
-  problemModels: Map<ProblemId, ProblemModel>;
 }
 
-const TablePage: React.FC<Props> = props => {
+interface InnerProps extends OuterProps {
+  submissionsFetch: PromiseState<Map<ProblemId, List<Submission>>>;
+  contestsFetch: PromiseState<Map<ContestId, Contest>>;
+  contestToProblemsFetch: PromiseState<Map<ContestId, List<Problem>>>;
+  problemsFetch: PromiseState<Map<ProblemId, Problem>>;
+  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
+  statusLabelMapFetch: PromiseState<Map<ProblemId, ProblemStatus>>;
+}
+
+const TablePage: React.FC<InnerProps> = props => {
   const {
     userId,
     rivals,
-    contestToProblems,
-    submissions,
-    statusLabelMap,
-    abc,
-    arc,
-    agc,
-    others,
-    othersRated,
-    problemModels
+    contestsFetch,
+    contestToProblemsFetch,
+    submissionsFetch,
+    problemModelsFetch,
+    statusLabelMapFetch
   } = props;
 
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
   const [showAccepted, setShowAccepted] = useState(true);
   const [showDifficulty, setShowDifficulties] = useState(true);
+
+  const allFetch = PromiseState.all([
+    problemModelsFetch,
+    contestToProblemsFetch,
+    submissionsFetch,
+    contestsFetch,
+    statusLabelMapFetch
+  ]);
+  if (!allFetch.fulfilled) {
+    return null;
+  }
+
+  const problemModels = problemModelsFetch.fulfilled
+    ? problemModelsFetch.value
+    : Map<ProblemId, ProblemModel>();
+  const contestToProblems = contestToProblemsFetch.fulfilled
+    ? contestToProblemsFetch.value
+    : Map<ContestId, List<Problem>>();
+  const submissions = submissionsFetch.fulfilled
+    ? submissionsFetch.value
+    : Map<ProblemId, List<Submission>>();
+  const contests = contestsFetch.fulfilled
+    ? contestsFetch.value
+    : Map<ContestId, Contest>();
+  const statusLabelMap = statusLabelMapFetch.fulfilled
+    ? statusLabelMapFetch.value
+    : Map<ProblemId, ProblemStatus>();
+  const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
+  const arc = contests.filter((v, k) => k.match(/^arc\d{3}$/));
+  const agc = contests.filter((v, k) => k.match(/^agc\d{3}$/));
+  const atcoderContestIds = [abc, arc, agc]
+    .map(s => s.keySeq())
+    .reduce((set, keys) => set.concat(keys), Set<ContestId>());
+  const othersRated = contests
+    .filter(contest => !atcoderContestIds.has(contest.id))
+    .filter(contest => contest.rate_change !== "-")
+    .filter(contest => contest.start_epoch_second >= 1468670400); // agc001
+  const ratedContestIds = atcoderContestIds.concat(othersRated.keySeq());
+  const others = contests.filter(c => !ratedContestIds.has(c.id));
 
   return (
     <div>
@@ -146,20 +180,31 @@ const TablePage: React.FC<Props> = props => {
   );
 };
 
-const stateToProps = (state: State) => ({
-  userId: state.users.userId,
-  rivals: state.users.rivals,
-  contestToProblems: state.contestToProblems,
-  problems: state.problems,
-  contests: state.contests,
-  submissions: state.submissions,
-  statusLabelMap: state.cache.statusLabelMap,
-  problemModels: state.problemModels,
-  abc: state.abc,
-  arc: state.arc,
-  agc: state.agc,
-  others: state.others,
-  othersRated: state.othersRated
-});
-
-export default connect(stateToProps)(TablePage);
+export default connect<OuterProps, InnerProps>(props => ({
+  submissionsFetch: {
+    comparison: [props.userId, props.rivals],
+    value: () =>
+      CachedApiClient.cachedUsersSubmissions(props.rivals.push(props.userId))
+  },
+  problemModelsFetch: {
+    comparison: null,
+    value: () => CachedApiClient.cachedProblemModels()
+  },
+  contestsFetch: {
+    comparison: null,
+    value: () => CachedApiClient.cachedContestMap()
+  },
+  problemsFetch: {
+    comparison: null,
+    value: () => CachedApiClient.cachedProblemMap()
+  },
+  contestToProblemsFetch: {
+    comparison: null,
+    value: () => CachedApiClient.cachedContestToProblemMap()
+  },
+  statusLabelMapFetch: {
+    comparison: [props.userId, props.rivals],
+    value: () =>
+      CachedApiClient.cachedStatusLabelMap(props.userId, props.rivals)
+  }
+}))(TablePage);
