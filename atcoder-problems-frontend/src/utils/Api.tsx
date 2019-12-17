@@ -13,7 +13,7 @@ import {
 import { isUserInfo } from "../interfaces/UserInfo";
 import { isContestParticipation } from "../interfaces/ContestParticipation";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
-import { ProblemId } from "../interfaces/State";
+import { ContestId, ProblemId } from "../interfaces/State";
 import { clipDifficulty } from "./index";
 
 const BASE_URL = "https://kenkoooo.com/atcoder";
@@ -186,3 +186,22 @@ export const fetchProblemMap = () =>
       Map<string, Problem>()
     )
   );
+
+export const fetchContestToProblemMap = async () => {
+  const pairs = await fetchContestProblemPairs();
+  const problems = await fetchProblemMap();
+  return pairs
+    .map(({ contest_id, problem_id }) => ({
+      contest_id,
+      problem: problems.get(problem_id)
+    }))
+    .reduce((map, { contest_id, problem }) => {
+      if (problem === undefined) {
+        return map;
+      } else {
+        return map.update(contest_id, List<Problem>(), list =>
+          list.push(problem)
+        );
+      }
+    }, Map<ContestId, List<Problem>>());
+};
