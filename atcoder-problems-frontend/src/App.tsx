@@ -21,6 +21,7 @@ import StreakRanking from "./pages/StreakRanking";
 import { List } from "immutable";
 import InternalDashboardPage from "./pages/InternalDashboardPage";
 import ContestCreatePage from "./pages/VirtualContest/ContestCreatePage";
+import ShowContest from "./pages/VirtualContest/ShowContest";
 
 const App = () => {
   const [userId, setUserId] = useState("");
@@ -62,6 +63,10 @@ const App = () => {
                 setLoginId={userId => setLoginId(userId)}
               />
             </Route>
+            <Route
+              path={"/contest/show/:contestId([a-zA-Z0-9_-]+)"}
+              component={ShowContest}
+            />
 
             <Route path="/contest/create" component={ContestCreatePage} />
 
