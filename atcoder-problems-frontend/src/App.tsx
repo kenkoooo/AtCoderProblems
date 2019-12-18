@@ -20,7 +20,7 @@ import NavigationBar from "./components/NavigationBar";
 import StreakRanking from "./pages/StreakRanking";
 import { List } from "immutable";
 import InternalDashboardPage from "./pages/InternalDashboardPage";
-import CreateContestPage from "./pages/VirtualContest/CreateContestPage";
+import ContestCreatePage from "./pages/VirtualContest/ContestCreatePage";
 
 const App = () => {
   const [userId, setUserId] = useState("");
@@ -57,13 +57,13 @@ const App = () => {
               path="/list/([a-zA-Z0-9_]*)*"
               component={() => <ListPage userId={userId} rivals={rivals} />}
             />
-            <Route path="/login/:loginId([a-zA-Z0-9_\-]*)">
+            <Route path="/login/:loginId([a-zA-Z0-9_\-]+)">
               <InternalDashboardPage
                 setLoginId={userId => setLoginId(userId)}
               />
             </Route>
 
-            <Route path="/contest/create" component={CreateContestPage} />
+            <Route path="/contest/create" component={ContestCreatePage} />
 
             <Redirect path="/" to="/table/" />
           </Switch>

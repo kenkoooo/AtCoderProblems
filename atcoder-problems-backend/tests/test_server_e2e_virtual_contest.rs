@@ -134,38 +134,29 @@ fn test_virtual_contest() {
                 ])
             );
 
-            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/add", port))
+            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/update", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
-                    "problem_id": "problem_1",
+                    "problem_ids": ["problem_1"],
                 }))?
                 .await?;
             assert!(response.status().is_success());
 
-            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/add", port))
+            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/update", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
-                    "problem_id": "problem_1",
-                }))?
-                .await?;
-            assert!(!response.status().is_success());
-
-            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/add", port))
-                .set_header("Cookie", &cookie_header)
-                .body_json(&json!({
-                    "contest_id": format!("{}", contest_id),
-                    "problem_id": "problem_2",
+                    "problem_ids": ["problem_1"],
                 }))?
                 .await?;
             assert!(response.status().is_success());
 
-            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/delete", port))
+            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/update", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
-                    "problem_id": "problem_1",
+                    "problem_ids": ["problem_2"],
                 }))?
                 .await?;
             assert!(response.status().is_success());
