@@ -54,8 +54,6 @@ interface InnerProps extends OuterProps {
 
 const TablePage: React.FC<InnerProps> = props => {
   const {
-    userId,
-    rivals,
     contestsFetch,
     contestToProblemsFetch,
     submissionsFetch,
@@ -66,17 +64,6 @@ const TablePage: React.FC<InnerProps> = props => {
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
   const [showAccepted, setShowAccepted] = useState(true);
   const [showDifficulty, setShowDifficulties] = useState(true);
-
-  const allFetch = PromiseState.all([
-    problemModelsFetch,
-    contestToProblemsFetch,
-    submissionsFetch,
-    contestsFetch,
-    statusLabelMapFetch
-  ]);
-  if (!allFetch.fulfilled) {
-    return null;
-  }
 
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
@@ -152,13 +139,10 @@ const TablePage: React.FC<InnerProps> = props => {
         <ContestTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
-          contests={othersRated}
+          contests={othersRated.valueSeq()}
           title="Other Rated Contests"
           contestToProblems={contestToProblems}
           showSolved={showAccepted}
-          submissions={submissions}
-          userId={userId}
-          rivals={rivals}
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>
@@ -166,13 +150,10 @@ const TablePage: React.FC<InnerProps> = props => {
         <ContestTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
-          contests={others}
+          contests={others.valueSeq()}
           title="Other Contests"
           contestToProblems={contestToProblems}
           showSolved={showAccepted}
-          submissions={submissions}
-          userId={userId}
-          rivals={rivals}
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>

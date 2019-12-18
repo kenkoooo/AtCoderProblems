@@ -92,7 +92,7 @@ export const cachedContestToProblemMap = () => {
 let SUBMISSION_MAP = Map<string, Promise<List<Submission>>>();
 export const cachedUsersSubmissions = (users: List<string>) =>
   Promise.all(
-    users.toArray().map(async user => {
+    users.toArray().map(user => {
       const cache = SUBMISSION_MAP.get(user);
       if (cache) {
         return cache;
@@ -154,12 +154,14 @@ const generateRanking = (
     )
     .toList();
 
-export const cachedShortRanking = async () =>
-  generateRanking(await cachedMergedProblems(), "shortest_user_id");
-export const cachedFastRanking = async () =>
-  generateRanking(await cachedMergedProblems(), "fastest_user_id");
-export const cachedFirstRanking = async () =>
-  generateRanking(await cachedMergedProblems(), "first_user_id");
+export const cachedShortRanking = () =>
+  cachedMergedProblems().then(list =>
+    generateRanking(list, "shortest_user_id")
+  );
+export const cachedFastRanking = () =>
+  cachedMergedProblems().then(list => generateRanking(list, "fastest_user_id"));
+export const cachedFirstRanking = () =>
+  cachedMergedProblems().then(list => generateRanking(list, "first_user_id"));
 
 let LANGUAGE_RANKING: undefined | Promise<Map<string, List<LangRankingEntry>>>;
 export const cachedLangRanking = () => {
@@ -333,10 +335,11 @@ const fetchContestMap = () =>
       Map<string, Contest>()
     )
   );
+
 const fetchContestToProblemMap = async () => {
   const pairs = await fetchContestProblemPairs();
   const problems = await cachedProblemMap();
-  return pairs
+  const result = pairs
     .map(({ contest_id, problem_id }) => ({
       contest_id,
       problem: problems.get(problem_id)
@@ -350,4 +353,5 @@ const fetchContestToProblemMap = async () => {
         );
       }
     }, Map<ContestId, List<Problem>>());
+  return result;
 };
