@@ -47,7 +47,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
     .toArray();
   interface OneContest {
     contest: Contest;
-    id: String;
+    id: string;
     problemStatus: List<{
       problem: Problem;
       status: ProblemStatus;
