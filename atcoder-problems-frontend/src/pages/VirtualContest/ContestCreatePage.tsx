@@ -20,13 +20,16 @@ const ContestCreatePage = (props: InnerProps) => {
       initialEndMinute={0}
       initialProblems={Set()}
       buttonTitle="Create"
-      buttonPush={({ title, memo, startSecond, endSecond }) =>
-        props.createContest({
-          title,
-          memo,
-          start_epoch_second: startSecond,
-          duration_second: endSecond - startSecond
-        })
+      buttonPush={({ title, memo, startSecond, endSecond, problems }) =>
+        props.createContest(
+          {
+            title,
+            memo,
+            start_epoch_second: startSecond,
+            duration_second: endSecond - startSecond
+          },
+          problems.toArray()
+        )
       }
     />
   );
@@ -45,12 +48,12 @@ interface Response {
 
 interface InnerProps {
   createContestResponse: PromiseState<Response | null>;
-  createContest: (reqiest: Request) => void;
+  createContest: (request: Request, problems: string[]) => void;
 }
 
 const mapper = () => {
   return {
-    createContest: (request: Request) => ({
+    createContest: (request: Request, problems: string[]) => ({
       createContestResponse: {
         url: "http://localhost/atcoder-api/v3/internal/contest/create",
         method: "POST",
@@ -59,17 +62,14 @@ const mapper = () => {
         },
         body: JSON.stringify(request),
         then: (response: Response) => ({
-          url: "http://localhost/atcoder-api/v3/internal/contest/update",
+          url: "http://localhost/atcoder-api/v3/internal/contest/item/update",
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            id: response.contest_id,
-            title: request.title,
-            memo: request.memo,
-            start_epoch_second: request.start_epoch_second,
-            duration_second: request.duration_second
+            contest_id: response.contest_id,
+            problem_ids: problems
           })
         })
       }
