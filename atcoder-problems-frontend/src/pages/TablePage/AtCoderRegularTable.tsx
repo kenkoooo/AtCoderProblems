@@ -45,7 +45,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
     .filter(({ solvedAll }) => props.showSolved || !solvedAll)
     .sort((a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second)
     .toArray();
-  type OneContest = {
+  interface OneContest {
     contest: Contest;
     id: String;
     problemStatus: List<{
@@ -54,7 +54,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
       model: ProblemModel | undefined;
     }>;
     solvedAll: boolean;
-  };
+  }
 
   const maxProblemCount = contests.reduce(
     (currentCount, { problemStatus }) =>
