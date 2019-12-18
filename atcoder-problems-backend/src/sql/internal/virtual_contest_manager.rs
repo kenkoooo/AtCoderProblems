@@ -13,7 +13,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
 const MAX_CONTEST_NUM: i64 = 1024;
-const MAX_PROBLEM_NUM_PER_CONTEST: i64 = 16;
+const MAX_PROBLEM_NUM_PER_CONTEST: usize = 16;
 
 #[derive(Serialize)]
 pub(crate) struct VirtualContest {
@@ -49,8 +49,7 @@ pub(crate) trait VirtualContestManager {
     fn get_participated_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
     fn get_single_contest(&self, contest_id: &str) -> Result<VirtualContest>;
 
-    fn add_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()>;
-    fn remove_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()>;
+    fn update_items(&self, contest_id: &str, problem_ids: &[String], user_id: &str) -> Result<()>;
 
     fn join_contest(&self, contest_id: &str, internal_user_id: &str) -> Result<()>;
 }
@@ -172,60 +171,6 @@ impl VirtualContestManager for PgConnection {
         Ok(virtual_contests)
     }
 
-    fn add_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()> {
-        v_contests::table
-            .filter(
-                v_contests::internal_user_id
-                    .eq(user_id)
-                    .and(v_contests::id.eq(contest_id)),
-            )
-            .select(count_star())
-            .first::<i64>(self)?;
-        let count = v_items::table
-            .filter(v_items::internal_virtual_contest_id.eq(contest_id))
-            .select(count_star())
-            .first::<i64>(self)?;
-        if count >= MAX_PROBLEM_NUM_PER_CONTEST {
-            return Err(Error::InvalidPostRequest);
-        }
-
-        insert_into(v_items::table)
-            .values(vec![(
-                v_items::internal_virtual_contest_id.eq(contest_id),
-                v_items::problem_id.eq(problem_id),
-            )])
-            .execute(self)?;
-        Ok(())
-    }
-    fn remove_item(&self, contest_id: &str, problem_id: &str, user_id: &str) -> Result<()> {
-        v_contests::table
-            .filter(
-                v_contests::internal_user_id
-                    .eq(user_id)
-                    .and(v_contests::id.eq(contest_id)),
-            )
-            .select(count_star())
-            .first::<i64>(self)?;
-        delete(
-            v_items::table.filter(
-                v_items::internal_virtual_contest_id
-                    .eq(contest_id)
-                    .and(v_items::problem_id.eq(problem_id)),
-            ),
-        )
-        .execute(self)?;
-        Ok(())
-    }
-
-    fn join_contest(&self, contest_id: &str, internal_user_id: &str) -> Result<()> {
-        insert_into(v_participants::table)
-            .values(vec![(
-                v_participants::internal_virtual_contest_id.eq(contest_id),
-                v_participants::internal_user_id.eq(internal_user_id),
-            )])
-            .execute(self)?;
-        Ok(())
-    }
     fn get_single_contest(&self, contest_id: &str) -> Result<VirtualContest> {
         let data = v_contests::table
             .left_join(v_items::table.on(v_items::internal_virtual_contest_id.eq(v_contests::id)))
@@ -260,6 +205,45 @@ impl VirtualContestManager for PgConnection {
             .into_iter()
             .next()
             .ok_or_else(|| Error::InvalidPostRequest)
+    }
+
+    fn update_items(&self, contest_id: &str, problem_ids: &[String], user_id: &str) -> Result<()> {
+        if problem_ids.len() >= MAX_PROBLEM_NUM_PER_CONTEST {
+            return Err(Error::InvalidPostRequest);
+        }
+        v_contests::table
+            .filter(
+                v_contests::internal_user_id
+                    .eq(user_id)
+                    .and(v_contests::id.eq(contest_id)),
+            )
+            .select(count_star())
+            .first::<i64>(self)?;
+        delete(v_items::table.filter(v_items::internal_virtual_contest_id.eq(contest_id)))
+            .execute(self)?;
+        insert_into(v_items::table)
+            .values(
+                problem_ids
+                    .iter()
+                    .map(|problem_id| {
+                        (
+                            v_items::internal_virtual_contest_id.eq(contest_id),
+                            v_items::problem_id.eq(problem_id),
+                        )
+                    })
+                    .collect::<Vec<_>>(),
+            )
+            .execute(self)?;
+        Ok(())
+    }
+    fn join_contest(&self, contest_id: &str, internal_user_id: &str) -> Result<()> {
+        insert_into(v_participants::table)
+            .values(vec![(
+                v_participants::internal_virtual_contest_id.eq(contest_id),
+                v_participants::internal_user_id.eq(internal_user_id),
+            )])
+            .execute(self)?;
+        Ok(())
     }
 }
 

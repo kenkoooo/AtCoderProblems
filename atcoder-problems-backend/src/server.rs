@@ -57,8 +57,7 @@ where
                     api.at("/create").post(virtual_contest::create_contest);
                     api.at("/update").post(virtual_contest::update_contest);
                     api.at("/item").nest(|api| {
-                        api.at("/add").post(virtual_contest::add_item);
-                        api.at("/delete").post(virtual_contest::delete_item);
+                        api.at("/update").post(virtual_contest::update_items);
                     });
                     api.at("/get/:contest_id")
                         .get(virtual_contest::get_single_contest);
