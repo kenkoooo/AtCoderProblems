@@ -58,53 +58,53 @@ fn main() -> Result<(), Box<dyn Error>> {
             merged_query
                 .load::<MergedProblem>(&conn)?
                 .serialize_to_bytes()?,
-            "resources/merged-problems.json",
+            "/resources/merged-problems.json",
         ),
         (
             contests::table
                 .order_by(contests::id)
                 .load::<Contest>(&conn)?
                 .serialize_to_bytes()?,
-            "resources/contests.json",
+            "/resources/contests.json",
         ),
         (
             accepted_count::table
                 .order_by(accepted_count::user_id)
                 .load::<UserProblemCount>(&conn)?
                 .serialize_to_bytes()?,
-            "resources/ac.json",
+            "/resources/ac.json",
         ),
         (
             problems::table
                 .order_by(problems::id)
                 .load::<Problem>(&conn)?
                 .serialize_to_bytes()?,
-            "resources/problems.json",
+            "/resources/problems.json",
         ),
         (
             rated_point_sum::table
                 .order_by(rated_point_sum::user_id)
                 .load::<UserSum>(&conn)?
                 .serialize_to_bytes()?,
-            "resources/sums.json",
+            "/resources/sums.json",
         ),
         (
             conn.load_language_count()?.serialize_to_bytes()?,
-            "resources/lang.json",
+            "/resources/lang.json",
         ),
         (
             contest_problem::table
                 .order_by(contest_problem::problem_id)
                 .load::<ContestProblem>(&conn)?
                 .serialize_to_bytes()?,
-            "resources/contest-problem.json",
+            "/resources/contest-problem.json",
         ),
         (
             max_streaks::table
                 .order_by(max_streaks::user_id)
                 .load::<UserStreak>(&conn)?
                 .serialize_to_bytes()?,
-            "resources/streaks.json",
+            "/resources/streaks.json",
         ),
     ];
 
