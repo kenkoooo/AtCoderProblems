@@ -7,6 +7,8 @@ import {
   Label,
   ListGroup,
   ListGroupItem,
+  ListGroupItemHeading,
+  ListGroupItemText,
   Row
 } from "reactstrap";
 import { Range, Map } from "immutable";
@@ -15,6 +17,11 @@ import * as CachedApiClient from "../../utils/CachedApiClient";
 import { ProblemId } from "../../interfaces/Status";
 import Problem from "../../interfaces/Problem";
 import { formatProblemUrl } from "../../utils/Url";
+
+const problemMatch = (text: string, problem: Problem) =>
+  problem.title.toLowerCase().includes(text.toLowerCase()) ||
+  problem.id.toLowerCase().includes(text.toLowerCase()) ||
+  problem.contest_id.toLowerCase().includes(text.toLowerCase());
 
 const CreateContestPage = (props: InnerProps) => {
   const [startDate, setStartDate] = useState("");
@@ -29,9 +36,7 @@ const CreateContestPage = (props: InnerProps) => {
   const filterProblems = problems
     .filter(
       problem =>
-        problemSearch.length > 0 &&
-        (problem.title.toLowerCase().includes(problemSearch.toLowerCase()) ||
-          problem.id.toLowerCase().includes(problemSearch.toLowerCase()))
+        problemSearch.length > 0 && problemMatch(problemSearch, problem)
     )
     .slice(0, 10);
 
@@ -139,7 +144,10 @@ const CreateContestPage = (props: InnerProps) => {
                   setProblemSearch("");
                 }}
               >
-                {problem.title}
+                <ListGroupItemHeading>{problem.title}</ListGroupItemHeading>
+                <ListGroupItemText>
+                  {formatProblemUrl(problem.id, problem.contest_id)}
+                </ListGroupItemText>
               </ListGroupItem>
             ))}
           </ListGroup>
@@ -147,19 +155,58 @@ const CreateContestPage = (props: InnerProps) => {
       </Row>
 
       <Row className="my-2">
-        <Button>Create</Button>
+        <Button
+          onClick={() =>
+            props.createContest({
+              title: "a",
+              memo: "neno",
+              start_epoch_second: 0,
+              duration_second: 1
+            })
+          }
+        >
+          Create
+        </Button>
       </Row>
     </>
   );
 };
 
-interface InnerProps {
-  problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
+interface Request {
+  title: string;
+  memo: string;
+  start_epoch_second: number;
+  duration_second: number;
 }
 
-export default connect<{}, InnerProps>(() => ({
-  problemMapFetch: {
-    comparison: null,
-    value: () => CachedApiClient.cachedProblemMap()
-  }
-}))(CreateContestPage);
+interface Response {
+  contest_id: string;
+}
+
+interface InnerProps {
+  problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
+  createContestResponse: PromiseState<Response>;
+  createContest: (reqiest: Request) => void;
+}
+
+const mapper = () => {
+  return {
+    createContest: (request: Request) => ({
+      createContestResponse: {
+        url:
+          "http://kenkoooo.com/atcoder/atcoder-api/results/v3/internal/contest/create",
+        method: "POST",
+        body: JSON.stringify(request)
+      }
+    }),
+    problemMapFetch: {
+      comparison: null,
+      value: () => CachedApiClient.cachedProblemMap()
+    },
+    createContestResponse: {
+      value: []
+    }
+  };
+};
+
+export default connect<{}, InnerProps>(mapper)(CreateContestPage);
