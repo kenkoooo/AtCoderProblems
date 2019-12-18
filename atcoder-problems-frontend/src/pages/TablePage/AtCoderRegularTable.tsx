@@ -95,7 +95,9 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
                 return (
                   <ProblemLink
                     difficulty={
-                      model && model.difficulty ? model.difficulty : null
+                      model && model.difficulty !== undefined
+                        ? model.difficulty
+                        : null
                     }
                     isExperimentalDifficulty={!!model && model.is_experimental}
                     showDifficulty={props.showDifficulty}
