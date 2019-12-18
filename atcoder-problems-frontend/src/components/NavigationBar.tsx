@@ -47,6 +47,7 @@ const extractUserIds = (pathname: string) => {
 
 interface Props extends RouteComponentProps {
   updateUserIds: (userId: string, rivals: List<string>) => void;
+  loginId: string | undefined;
 }
 
 interface LocalState {
@@ -204,11 +205,17 @@ class NavigationBar extends React.Component<Props, LocalState> {
               </DropdownMenu>
             </UncontrolledDropdown>
 
-            {/*<NavItem>*/}
-            {/*  <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">*/}
-            {/*    Login*/}
-            {/*  </NavLink>*/}
-            {/*</NavItem>*/}
+            <NavItem>
+              {this.props.loginId ? (
+                <NavLink tag={RouterLink} to={`/login/${this.props.loginId}`}>
+                  {this.props.loginId}
+                </NavLink>
+              ) : (
+                <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
+                  Login
+                </NavLink>
+              )}
+            </NavItem>
 
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>

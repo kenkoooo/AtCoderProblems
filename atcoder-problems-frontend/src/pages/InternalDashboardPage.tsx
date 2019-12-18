@@ -1,12 +1,14 @@
 import React from "react";
-import { RouteComponentProps } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-type Props = {} & RouteComponentProps<{
-  loginId: string;
-}>;
+interface Props {
+  setLoginId: (loginId: string | undefined) => void;
+}
 
-const InternalDashboardPage = (props: Props) => (
-  <p>{props.match.params.loginId}</p>
-);
+const InternalDashboardPage = (props: Props) => {
+  const { loginId } = useParams();
+  props.setLoginId(loginId);
+  return <p>{loginId}</p>;
+};
 
 export default InternalDashboardPage;
