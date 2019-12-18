@@ -1,4 +1,4 @@
-import { List, Map } from "immutable";
+import { List, Map, Seq } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Row } from "reactstrap";
@@ -16,7 +16,7 @@ import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 
 interface Props {
-  contests: Map<string, Contest>;
+  contests: Seq.Indexed<Contest>;
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
@@ -26,37 +26,39 @@ interface Props {
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = props => {
-  const {
-    contestToProblems,
-    showSolved,
-    statusLabelMap,
-    showDifficulty,
-    problemModels
-  } = props;
-  const solvedAll = (contest: Contest) => {
-    return contestToProblems
-      .get(contest.id, List<Problem>())
-      .every(
-        p =>
-          statusLabelMap.get(p.id, noneStatus()).label === StatusLabel.Success
-      );
-  };
-  const ithProblem = (contest: Contest, i: number) =>
-    contestToProblems
-      .get(contest.id, List<Problem>())
-      .sort((a, b) => a.id.localeCompare(b.id))
-      .get(i);
   const contests = props.contests
     .valueSeq()
-    .filter(contest => showSolved || !solvedAll(contest))
-    .sort((a, b) => b.start_epoch_second - a.start_epoch_second)
+    .map(contest => {
+      const problems = props.contestToProblems
+        .get(contest.id, List<Problem>())
+        .sort((a, b) => a.id.localeCompare(b.id));
+      const problemStatus = problems.map(problem => ({
+        problem,
+        status: props.statusLabelMap.get(problem.id, noneStatus()),
+        model: props.problemModels.get(problem.id)
+      }));
+      const solvedAll = problemStatus.every(
+        ({ status }) => status.label === StatusLabel.Success
+      );
+      return { contest, problemStatus, solvedAll, id: contest.id };
+    })
+    .filter(({ solvedAll }) => props.showSolved || !solvedAll)
+    .sort((a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second)
     .toArray();
+  type OneContest = {
+    contest: Contest;
+    id: String;
+    problemStatus: List<{
+      problem: Problem;
+      status: ProblemStatus;
+      model: ProblemModel | undefined;
+    }>;
+    solvedAll: boolean;
+  };
+
   const maxProblemCount = contests.reduce(
-    (currentCount, contest) =>
-      Math.max(
-        contestToProblems.get(contest.id, List<string>()).size,
-        currentCount
-      ),
+    (currentCount, { problemStatus }) =>
+      Math.max(problemStatus.size, currentCount),
     0
   );
   const header = ["A", "B", "C", "D", "E", "F", "F2"].slice(0, maxProblemCount);
@@ -67,10 +69,10 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         <TableHeaderColumn
           isKey
           dataField="id"
-          columnClassName={(_: any, contest: Contest) =>
-            solvedAll(contest) ? "table-success" : ""
+          columnClassName={(_: string, { solvedAll }: OneContest) =>
+            solvedAll ? "table-success" : ""
           }
-          dataFormat={(_: any, contest: Contest) => (
+          dataFormat={(_: any, { contest }: OneContest) => (
             <ContestLink contest={contest} title={contest.id.toUpperCase()} />
           )}
         >
@@ -80,32 +82,26 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
           <TableHeaderColumn
             dataField={c}
             key={c}
-            columnClassName={(_: any, contest: Contest) => {
-              const problem = ithProblem(contest, i);
-              if (problem) {
-                const status = statusLabelMap.get(problem.id, noneStatus());
-                return statusLabelToTableColor(status.label);
-              } else {
-                return "";
-              }
+            columnClassName={(_: any, { problemStatus }: OneContest) => {
+              const problem = problemStatus.get(i);
+              return problem
+                ? statusLabelToTableColor(problem.status.label)
+                : "";
             }}
-            dataFormat={(_: any, contest: Contest) => {
-              const problem = ithProblem(contest, i);
+            dataFormat={(_: any, { contest, problemStatus }: OneContest) => {
+              const problem = problemStatus.get(i);
+              const model = problem ? problem.model : undefined;
               if (problem) {
                 return (
                   <ProblemLink
-                    difficulty={problemModels.getIn(
-                      [problem.id, "difficulty"],
-                      null
-                    )}
-                    isExperimentalDifficulty={problemModels.getIn(
-                      [problem.id, "is_experimental"],
-                      false
-                    )}
-                    showDifficulty={showDifficulty}
+                    difficulty={
+                      model && model.difficulty ? model.difficulty : null
+                    }
+                    isExperimentalDifficulty={!!model && model.is_experimental}
+                    showDifficulty={props.showDifficulty}
                     contestId={contest.id}
-                    problemId={problem.id}
-                    problemTitle={problem.title}
+                    problemId={problem.problem.id}
+                    problemTitle={problem.problem.title}
                   />
                 );
               } else {

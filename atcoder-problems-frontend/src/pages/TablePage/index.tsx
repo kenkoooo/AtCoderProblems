@@ -9,7 +9,6 @@ import {
   StatusLabel
 } from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
-import Submission from "../../interfaces/Submission";
 import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
 import Options from "./Options";
@@ -44,7 +43,6 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissionsFetch: PromiseState<Map<ProblemId, List<Submission>>>;
   contestsFetch: PromiseState<Map<ContestId, Contest>>;
   contestToProblemsFetch: PromiseState<Map<ContestId, List<Problem>>>;
   problemsFetch: PromiseState<Map<ProblemId, Problem>>;
@@ -56,7 +54,6 @@ const TablePage: React.FC<InnerProps> = props => {
   const {
     contestsFetch,
     contestToProblemsFetch,
-    submissionsFetch,
     problemModelsFetch,
     statusLabelMapFetch
   } = props;
@@ -71,9 +68,6 @@ const TablePage: React.FC<InnerProps> = props => {
   const contestToProblems = contestToProblemsFetch.fulfilled
     ? contestToProblemsFetch.value
     : Map<ContestId, List<Problem>>();
-  const submissions = submissionsFetch.fulfilled
-    ? submissionsFetch.value
-    : Map<ProblemId, List<Submission>>();
   const contests = contestsFetch.fulfilled
     ? contestsFetch.value
     : Map<ContestId, Contest>();
@@ -107,7 +101,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
-          contests={abc}
+          contests={abc.valueSeq()}
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
@@ -118,7 +112,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
-          contests={arc}
+          contests={arc.valueSeq()}
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
@@ -129,7 +123,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
-          contests={agc}
+          contests={agc.valueSeq()}
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
@@ -162,11 +156,6 @@ const TablePage: React.FC<InnerProps> = props => {
 };
 
 export default connect<OuterProps, InnerProps>(props => ({
-  submissionsFetch: {
-    comparison: [props.userId, props.rivals],
-    value: () =>
-      CachedApiClient.cachedUsersSubmissions(props.rivals.push(props.userId))
-  },
   problemModelsFetch: {
     comparison: null,
     value: () => CachedApiClient.cachedProblemModels()
