@@ -19,17 +19,22 @@ impl S3Client {
     }
 
     pub fn update(&self, data: Vec<u8>, path: &str) -> Result<bool> {
+        log::info!("Fetching old data ...");
         let old_data = self
             .bucket
             .get_object(path)
-            .ok()
             .map(|(data, _)| data)
-            .unwrap_or_else(Vec::new);
+            .unwrap_or_else(|e| {
+                log::error!("{:?}", e);
+                Vec::new()
+            });
         if old_data != data {
+            log::info!("Uploading new data ...");
             self.bucket
                 .put_object(path, &data, "application/json;charset=utf-8")?;
             Ok(true)
         } else {
+            log::info!("No update on {}", path);
             Ok(false)
         }
     }
