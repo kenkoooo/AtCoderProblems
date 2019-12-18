@@ -30,8 +30,11 @@ impl S3Client {
             });
         if old_data != data {
             log::info!("Uploading new data ...");
-            self.bucket
-                .put_object(path, &data, "application/json;charset=utf-8")?;
+            let (data, status) =
+                self.bucket
+                    .put_object(path, &data, "application/json;charset=utf-8")?;
+            log::info!("data={:?}", data);
+            log::info!("status={}", status);
             Ok(true)
         } else {
             log::info!("No update on {}", path);
