@@ -24,11 +24,12 @@ import InternalDashboardPage from "./pages/InternalDashboardPage";
 const App = () => {
   const [userId, setUserId] = useState("");
   const [rivals, setRivals] = useState(List<string>());
-  const [loginId, setLoginId] = useState("");
+  const [loginId, setLoginId] = useState<string | undefined>(undefined);
   return (
     <Router>
       <div>
         <NavigationBar
+          loginId={loginId}
           updateUserIds={(id, list) => {
             setUserId(id);
             setRivals(list);
@@ -55,10 +56,11 @@ const App = () => {
               path="/list/([a-zA-Z0-9_]*)*"
               component={() => <ListPage userId={userId} rivals={rivals} />}
             />
-            <Route
-              path="/login/:loginId([a-zA-Z0-9_\-]*)"
-              component={InternalDashboardPage}
-            />
+            <Route path="/login/:loginId([a-zA-Z0-9_\-]*)">
+              <InternalDashboardPage
+                setLoginId={userId => setLoginId(userId)}
+              />
+            </Route>
 
             <Redirect path="/" to="/table/" />
           </Switch>
