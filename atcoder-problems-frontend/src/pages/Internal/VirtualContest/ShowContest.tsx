@@ -43,7 +43,14 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ contest_id: props.contestId })
+      body: JSON.stringify({ contest_id: props.contestId }),
+      andThen: () => ({
+        contestInfoFetch: {
+          url: `http://localhost/internal-api/contest/get/${props.contestId}`,
+          force: true,
+          refreshing: true
+        }
+      })
     }
   }),
   joinContestPost: { value: null }
