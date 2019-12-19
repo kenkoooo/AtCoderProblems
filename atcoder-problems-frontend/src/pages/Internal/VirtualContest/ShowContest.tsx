@@ -2,7 +2,15 @@ import React from "react";
 import { useParams, useHistory, Redirect } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import { VirtualContest } from "./types";
-import { Button, Row, Table, Col, Spinner, Alert } from "reactstrap";
+import {
+  Button,
+  Row,
+  Table,
+  Col,
+  Spinner,
+  Alert,
+  ButtonGroup
+} from "reactstrap";
 import * as CachedApi from "../../../utils/CachedApiClient";
 import { Map } from "immutable";
 import { ProblemId } from "../../../interfaces/Status";
@@ -84,33 +92,29 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
 
   return (
     <>
-      <Row>
+      <Row className="my-2">
         <Col sm="12">
           <h1>{contestInfo.title}</h1>
+          <ButtonGroup>
+            {!alreadyJoined && atcoderUserId !== null ? (
+              <Button onClick={() => props.joinContest()}>Join</Button>
+            ) : null}
+            {isOwner ? (
+              <Button
+                onClick={() =>
+                  history.push({
+                    pathname: `/contest/update/${contestInfo.id}`
+                  })
+                }
+              >
+                Edit
+              </Button>
+            ) : null}
+          </ButtonGroup>
         </Col>
       </Row>
-      {!alreadyJoined && atcoderUserId !== null ? (
-        <Row>
-          <Col sm="12">
-            <Button onClick={() => props.joinContest()}>Join</Button>
-          </Col>
-        </Row>
-      ) : null}
-      {isOwner ? (
-        <Row>
-          <Col sm="12">
-            <Button
-              onClick={() =>
-                history.push({ pathname: `/contest/update/${contestInfo.id}` })
-              }
-            >
-              Update
-            </Button>
-          </Col>
-        </Row>
-      ) : null}
 
-      <Row>
+      <Row className="my-2">
         <Col sm="12">
           <Table striped>
             <thead>
