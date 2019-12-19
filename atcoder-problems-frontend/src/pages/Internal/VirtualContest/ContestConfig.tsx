@@ -18,6 +18,8 @@ import { ProblemId } from "../../../interfaces/Status";
 import Problem from "../../../interfaces/Problem";
 import { formatProblemUrl } from "../../../utils/Url";
 import moment from "moment";
+import * as CookieUtils from "../../../utils/CookieUtils";
+import { Redirect } from "react-router-dom";
 
 const problemMatch = (text: string, problem: Problem) =>
   problem.title.toLowerCase().includes(text.toLowerCase()) ||
@@ -39,6 +41,11 @@ const ContestConfig = (props: InnerProps) => {
   const [problemSet, setProblemSet] = useState(props.initialProblems);
 
   const [problemSearch, setProblemSearch] = useState("");
+  if (props.loginState.rejected) {
+    CookieUtils.clear();
+    return <Redirect to="/" />;
+  }
+
   const { problemMapFetch } = props;
   if (!problemMapFetch.fulfilled) {
     return null;
@@ -52,6 +59,10 @@ const ContestConfig = (props: InnerProps) => {
         problemSearch.length > 0 && problemMatch(problemSearch, problem)
     )
     .slice(0, 10);
+
+  const startSecond = toUnixSecond(startDate, startHour, startMinute);
+  const endSecond = toUnixSecond(endDate, endHour, endMinute);
+  const isValid = title.length > 0 && startSecond <= endSecond;
 
   return (
     <>
@@ -195,12 +206,13 @@ const ContestConfig = (props: InnerProps) => {
 
       <Row className="my-2">
         <Button
+          disabled={!isValid}
           onClick={() =>
             props.buttonPush({
               title,
               memo,
-              startSecond: toUnixSecond(startDate, startHour, startMinute),
-              endSecond: toUnixSecond(endDate, endHour, endMinute),
+              startSecond,
+              endSecond,
               problems: problemSet
             })
           }
@@ -238,12 +250,16 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
+  loginState: PromiseState<{}>;
 }
 
 export default connect<OuterProps, InnerProps>(() => ({
   problemMapFetch: {
     comparison: null,
     value: () => CachedApiClient.cachedProblemMap()
+  },
+  loginState: {
+    url: "http://localhost/internal-api/user/get"
   }
 }))(ContestConfig);
 

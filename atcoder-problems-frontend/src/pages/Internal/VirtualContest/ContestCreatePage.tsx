@@ -3,6 +3,7 @@ import { Set } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import ContestConfig from "./ContestConfig";
 import { Redirect } from "react-router-dom";
+import * as DateUtil from "../../../utils/DateUtil";
 
 const ContestCreatePage = (props: InnerProps) => {
   const createResponse = props.createContestResponse.fulfilled
@@ -16,15 +17,17 @@ const ContestCreatePage = (props: InnerProps) => {
     return <Redirect to={`/contest/show/${contestId}`} />;
   }
 
+  const today = DateUtil.formatMomentDate(DateUtil.getToday());
+
   return (
     <ContestConfig
       pageTitle="Create Contest"
       initialTitle=""
       initialMemo=""
-      initialStartDate=""
+      initialStartDate={today}
       initialStartHour={0}
       initialStartMinute={0}
-      initialEndDate=""
+      initialEndDate={today}
       initialEndHour={0}
       initialEndMinute={0}
       initialProblems={Set()}

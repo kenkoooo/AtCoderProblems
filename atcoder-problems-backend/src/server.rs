@@ -51,14 +51,13 @@ where
         api.at("/contest").nest(|api| {
             api.at("/create").post(virtual_contest::create_contest);
             api.at("/update").post(virtual_contest::update_contest);
-            api.at("/item").nest(|api| {
-                api.at("/update").post(virtual_contest::update_items);
-            });
+            api.at("/item/update").post(virtual_contest::update_items);
             api.at("/get/:contest_id")
                 .get(virtual_contest::get_single_contest);
             api.at("/join").post(virtual_contest::join_contest);
             api.at("/my").get(virtual_contest::get_my_contests);
             api.at("/joined").get(virtual_contest::get_participated);
+            api.at("/recent").get(virtual_contest::get_recent_contests);
         });
 
         api.at("/user").nest(|api| {

@@ -54,7 +54,7 @@ where
         .post_unpack::<Q>()
         .await
         .and_then(|(query, conn, _)| conn.delete_list(&query.internal_list_id))
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
@@ -71,7 +71,7 @@ where
         .post_unpack::<Q>()
         .await
         .and_then(|(query, conn, _)| conn.update_list(&query.internal_list_id, &query.name))
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
@@ -88,7 +88,7 @@ where
         .post_unpack::<Q>()
         .await
         .and_then(|(query, conn, _)| conn.add_item(&query.internal_list_id, &query.problem_id))
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
@@ -108,7 +108,7 @@ where
         .and_then(|(query, conn, _)| {
             conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)
         })
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
@@ -125,6 +125,6 @@ where
         .post_unpack::<Q>()
         .await
         .and_then(|(query, conn, _)| conn.delete_item(&query.internal_list_id, &query.problem_id))
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }

@@ -166,6 +166,7 @@ CREATE TABLE internal_virtual_contests (
   PRIMARY KEY (id)
 );
 CREATE INDEX ON internal_virtual_contests (internal_user_id);
+CREATE INDEX ON internal_virtual_contests (start_epoch_second);
 
 CREATE TABLE internal_virtual_contest_items (
   problem_id    VARCHAR(255) NOT NULL,

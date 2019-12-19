@@ -163,7 +163,7 @@ fn test_virtual_contest() {
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
-                    "problem_ids": ["problem_2"],
+                    "problem_ids": ["problem_2","problem_1"],
                 }))?
                 .await?;
             assert!(response.status().is_success());
@@ -183,7 +183,7 @@ fn test_virtual_contest() {
                         "title": "contest title",
                         "id": format!("{}", contest_id),
                         "participants": ["atcoder_user1"],
-                        "problems": ["problem_2"]
+                        "problem_ids": ["problem_2","problem_1"],
                     }
                 ])
             );
@@ -205,7 +205,7 @@ fn test_virtual_contest() {
                     "title": "contest title",
                     "id": format!("{}", contest_id),
                     "participants": ["atcoder_user1"],
-                    "problems": ["problem_2"]
+                    "problem_ids": ["problem_2","problem_1"],
                 })
             );
 
