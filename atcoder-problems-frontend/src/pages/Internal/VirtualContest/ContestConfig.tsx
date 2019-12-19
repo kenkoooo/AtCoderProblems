@@ -18,8 +18,8 @@ import { ProblemId } from "../../../interfaces/Status";
 import Problem from "../../../interfaces/Problem";
 import { formatProblemUrl } from "../../../utils/Url";
 import moment from "moment";
-import * as CookieUtils from "../../../utils/CookieUtils";
 import { Redirect } from "react-router-dom";
+import { USER_GET } from "../ApiUrl";
 
 const problemMatch = (text: string, problem: Problem) =>
   problem.title.toLowerCase().includes(text.toLowerCase()) ||
@@ -42,7 +42,6 @@ const ContestConfig = (props: InnerProps) => {
 
   const [problemSearch, setProblemSearch] = useState("");
   if (props.loginState.rejected) {
-    CookieUtils.clear();
     return <Redirect to="/" />;
   }
 
@@ -259,7 +258,7 @@ export default connect<OuterProps, InnerProps>(() => ({
     value: () => CachedApiClient.cachedProblemMap()
   },
   loginState: {
-    url: "http://localhost/internal-api/user/get"
+    url: USER_GET
   }
 }))(ContestConfig);
 

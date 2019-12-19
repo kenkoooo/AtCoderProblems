@@ -4,6 +4,7 @@ import { connect, PromiseState } from "react-refetch";
 import ContestConfig from "./ContestConfig";
 import { Redirect } from "react-router-dom";
 import * as DateUtil from "../../../utils/DateUtil";
+import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
 
 const ContestCreatePage = (props: InnerProps) => {
   const createResponse = props.createContestResponse.fulfilled
@@ -68,7 +69,7 @@ const mapper = () => {
   return {
     createContest: (request: Request, problems: string[]) => ({
       createContestResponse: {
-        url: "http://localhost/internal-api/contest/create",
+        url: CONTEST_CREATE,
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -76,7 +77,7 @@ const mapper = () => {
         body: JSON.stringify(request),
         andThen: (response: Response) => ({
           updateResponse: {
-            url: "http://localhost/internal-api/contest/item/update",
+            url: CONTEST_ITEM_UPDATE,
             method: "POST",
             headers: {
               "Content-Type": "application/json"

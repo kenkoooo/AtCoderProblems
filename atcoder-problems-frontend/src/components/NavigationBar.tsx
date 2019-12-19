@@ -20,8 +20,8 @@ import {
 } from "reactstrap";
 import { extractRivalsParam, normalizeUserId } from "../utils";
 import { List } from "immutable";
-import * as CookieUtils from "../utils/CookieUtils";
 import { connect, PromiseState } from "react-refetch";
+import { USER_GET } from "../pages/Internal/ApiUrl";
 
 type PageKind = "table" | "list" | "user";
 
@@ -110,7 +110,6 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
     const { userId, rivalIdString, isOpen, pageKind } = this.state;
     const loggedIn = this.props.loginState.fulfilled;
     if (this.props.loginState.rejected) {
-      CookieUtils.clear();
     }
     return (
       <Navbar color="light" light expand="lg" fixed="top">
@@ -273,7 +272,7 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
 export default withRouter(
   connect<OuterProps, InnerProps>(() => ({
     loginState: {
-      url: "http://localhost/internal-api/user/get"
+      url: USER_GET
     }
   }))(NavigationBar)
 );

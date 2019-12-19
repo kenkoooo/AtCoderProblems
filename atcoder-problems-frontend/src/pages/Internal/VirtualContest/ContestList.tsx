@@ -3,6 +3,7 @@ import { connect, PromiseState } from "react-refetch";
 import { VirtualContest } from "./types";
 import { Col, Row } from "reactstrap";
 import VirtualContestTable from "../VirtualContestTable";
+import { CONTEST_RECENT } from "../ApiUrl";
 
 interface InnerProps {
   contestListGet: PromiseState<VirtualContest[]>;
@@ -10,7 +11,7 @@ interface InnerProps {
 
 export default connect<{}, InnerProps>(() => ({
   contestListGet: {
-    url: "http://localhost/internal-api/contest/recent"
+    url: CONTEST_RECENT
   }
 }))(props => {
   const contests = props.contestListGet.fulfilled
