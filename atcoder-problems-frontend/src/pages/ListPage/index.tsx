@@ -72,7 +72,8 @@ const ListPage = (props: InnerProps) => {
     submissionsFetch,
     userId,
     rivals,
-    contestsFetch
+    contestsFetch,
+    statusLabelMapFetch
   } = props;
 
   const mergedProblems = mergedProblemsFetch.fulfilled
@@ -87,25 +88,9 @@ const ListPage = (props: InnerProps) => {
   const submissions = submissionsFetch.fulfilled
     ? submissionsFetch.value
     : Map<ProblemId, List<Submission>>();
-  const statusLabelMap = submissions.map(list => {
-    const userList = list.filter(s => s.user_id === userId);
-    const rivalsList = list
-      .filter(s => rivals.contains(s.user_id))
-      .filter(s => isAccepted(s.result));
-    if (userList.find(s => isAccepted(s.result))) {
-      return successStatus();
-    } else if (!rivalsList.isEmpty()) {
-      return failedStatus(
-        rivalsList
-          .map(s => s.user_id)
-          .toSet()
-          .toList()
-      );
-    } else {
-      const last = userList.maxBy(s => s.epoch_second);
-      return last ? warningStatus(last.result) : noneStatus();
-    }
-  });
+  const statusLabelMap = statusLabelMapFetch.fulfilled
+    ? statusLabelMapFetch.value
+    : Map<ProblemId, ProblemStatus>();
 
   const rowData = mergedProblems
     .valueSeq()
@@ -363,11 +348,12 @@ interface InnerProps extends OuterProps {
   readonly mergedProblemsFetch: PromiseState<Map<ProblemId, MergedProblem>>;
   readonly problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   readonly contestsFetch: PromiseState<Map<string, Contest>>;
+  readonly statusLabelMapFetch: PromiseState<Map<ProblemId, ProblemStatus>>;
 }
 
 export default connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
-    comparison: props.rivals.push(props.userId),
+    comparison: [props.userId, props.rivals],
     value: () =>
       CachedApiClient.cachedUsersSubmissions(props.rivals.push(props.userId))
   },
@@ -382,5 +368,10 @@ export default connect<OuterProps, InnerProps>(props => ({
   contestsFetch: {
     comparison: null,
     value: () => CachedApiClient.cachedContestMap()
+  },
+  statusLabelMapFetch: {
+    comparison: [props.userId, props.rivals],
+    value: () =>
+      CachedApiClient.cachedStatusLabelMap(props.userId, props.rivals)
   }
 }))(ListPage);
