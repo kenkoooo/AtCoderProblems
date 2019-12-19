@@ -26,12 +26,10 @@ import ShowContest from "./pages/VirtualContest/ShowContest";
 const App = () => {
   const [userId, setUserId] = useState("");
   const [rivals, setRivals] = useState(List<string>());
-  const [loginId, setLoginId] = useState<string | undefined>(undefined);
   return (
     <Router>
       <div>
         <NavigationBar
-          loginId={loginId}
           updateUserIds={(id, list) => {
             setUserId(id);
             setRivals(list);
@@ -58,11 +56,6 @@ const App = () => {
               path="/list/([a-zA-Z0-9_]*)*"
               component={() => <ListPage userId={userId} rivals={rivals} />}
             />
-            <Route path="/login/:loginId([a-zA-Z0-9_\-]+)">
-              <InternalDashboardPage
-                setLoginId={userId => setLoginId(userId)}
-              />
-            </Route>
             <Route
               path={"/contest/show/:contestId([a-zA-Z0-9_-]+)"}
               component={ShowContest}
