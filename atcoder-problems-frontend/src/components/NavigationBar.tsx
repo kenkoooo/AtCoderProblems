@@ -210,7 +210,7 @@ class NavigationBar extends React.Component<Props, LocalState> {
             <NavItem>
               {CookieUtils.isLoggedIn() ? (
                 <NavLink tag={RouterLink} to="/login/user">
-                  Settings
+                  Dashboard
                 </NavLink>
               ) : (
                 <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
