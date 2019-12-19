@@ -12,6 +12,7 @@ use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use cookie::Cookie;
 
+pub(crate) mod internal_user;
 pub(crate) mod middleware;
 pub(crate) mod problem_list;
 pub(crate) mod time_submissions;
@@ -64,6 +65,11 @@ where
                     api.at("/join").post(virtual_contest::join_contest);
                     api.at("/my").get(virtual_contest::get_my_contests);
                     api.at("/joined").get(virtual_contest::get_participated);
+                });
+
+                api.at("/user").nest(|api| {
+                    api.at("/get").get(internal_user::get);
+                    api.at("/update").post(internal_user::update);
                 });
             });
         });
