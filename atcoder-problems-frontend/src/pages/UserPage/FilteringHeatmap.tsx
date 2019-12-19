@@ -4,7 +4,7 @@ import { ButtonGroup, Button, Row } from "reactstrap";
 import CalendarHeatmap from "../../components/CalendarHeatmap";
 import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
-import { formatMoment, parseSecond } from "../../utils/DateUtil";
+import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import { Map } from "immutable";
 import { ProblemId } from "../../interfaces/Status";
 
@@ -80,7 +80,7 @@ class FilteringHeatmap extends React.Component<Props, State> {
         <Row className="my-5">
           <CalendarHeatmap
             dateLabels={filteredSubmissions.map(s =>
-              formatMoment(parseSecond(s.epoch_second))
+              formatMomentDate(parseSecond(s.epoch_second))
             )}
             formatTooltip={(date: string, count: number) =>
               `${date} ${count} ${filterStatus}`

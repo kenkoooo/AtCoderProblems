@@ -14,9 +14,10 @@ import {
   TabContent,
   TabPane
 } from "reactstrap";
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect, useHistory, Link } from "react-router-dom";
 import { VirtualContest } from "./VirtualContest/types";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import * as DateUtil from "../../utils/DateUtil";
 
 type TabType = "Account Info" | "Virtual Contests" | "Problem Lists";
 
@@ -31,12 +32,35 @@ const VirtualContestTable = (props: { contests: VirtualContest[] }) => {
       striped
       search
     >
-      <TableHeaderColumn dataField="title">Title</TableHeaderColumn>
+      <TableHeaderColumn
+        dataField="title"
+        dataFormat={(title: string, contest: VirtualContest) => (
+          <Link to={`/contest/show/${contest.id}`}>{title}</Link>
+        )}
+      >
+        Title
+      </TableHeaderColumn>
       <TableHeaderColumn dataField="memo">Description</TableHeaderColumn>
-      <TableHeaderColumn dataField="start_epoch_second">
+      <TableHeaderColumn
+        dataField="start_epoch_second"
+        dataFormat={(_: number, contest: VirtualContest) => {
+          const time = DateUtil.parseSecond(contest.start_epoch_second);
+          return DateUtil.formatMomentDateTime(time);
+        }}
+      >
         Start
       </TableHeaderColumn>
-      <TableHeaderColumn dataField="duration_second">End</TableHeaderColumn>
+      <TableHeaderColumn
+        dataField="duration_second"
+        dataFormat={(_: number, contest: VirtualContest) => {
+          const time = DateUtil.parseSecond(
+            contest.start_epoch_second + contest.duration_second
+          );
+          return DateUtil.formatMomentDateTime(time);
+        }}
+      >
+        End
+      </TableHeaderColumn>
     </BootstrapTable>
   );
 };
