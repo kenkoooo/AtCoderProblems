@@ -9,7 +9,7 @@ use serde::Serialize;
 #[table_name = "internal_users"]
 pub(crate) struct InternalUserInfo {
     internal_user_id: String,
-    atcoder_user_id: String,
+    atcoder_user_id: Option<String>,
 }
 
 pub(crate) trait UserManager {

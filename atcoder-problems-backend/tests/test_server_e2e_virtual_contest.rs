@@ -49,20 +49,20 @@ fn test_virtual_contest() {
         let server = utils::start_server_handle(MockAuth, port);
         let client = utils::run_client_handle(async move {
             surf::get(url(
-                &format!("/atcoder-api/v3/authorize?code={}", VALID_CODE),
+                &format!("/internal-api/authorize?code={}", VALID_CODE),
                 port,
             ))
             .await?;
             let cookie_header = format!("token={}", VALID_TOKEN);
 
-            let response = surf::post(url("/atcoder-api/v3/internal/user/update", port))
+            let response = surf::post(url("/internal-api/user/update", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                         "atcoder_user_id": "atcoder_user1"
                 }))?
                 .await?;
             assert!(response.status().is_success());
-            let mut response = surf::post(url("/atcoder-api/v3/internal/contest/create", port))
+            let mut response = surf::post(url("/internal-api/contest/create", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "title":"contest title",
@@ -75,7 +75,7 @@ fn test_virtual_contest() {
             let body = response.body_json::<Value>().await?;
             let contest_id = body["contest_id"].as_str().unwrap();
 
-            let response = surf::post(url("/atcoder-api/v3/internal/contest/update", port))
+            let response = surf::post(url("/internal-api/contest/update", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "id": format!("{}", contest_id),
@@ -87,7 +87,7 @@ fn test_virtual_contest() {
                 .await?;
             assert!(response.status().is_success());
 
-            let response = surf::get(url("/atcoder-api/v3/internal/contest/my", port))
+            let response = surf::get(url("/internal-api/contest/my", port))
                 .set_header("Cookie", &cookie_header)
                 .recv_json::<Value>()
                 .await?;
@@ -107,13 +107,13 @@ fn test_virtual_contest() {
                 ])
             );
 
-            let response = surf::get(url("/atcoder-api/v3/internal/contest/joined", port))
+            let response = surf::get(url("/internal-api/contest/joined", port))
                 .set_header("Cookie", &cookie_header)
                 .recv_json::<Value>()
                 .await?;
             assert_eq!(response, json!([]));
 
-            let response = surf::post(url("/atcoder-api/v3/internal/contest/join", port))
+            let response = surf::post(url("/internal-api/contest/join", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
@@ -121,7 +121,7 @@ fn test_virtual_contest() {
                 .await?;
             assert!(response.status().is_success());
 
-            let response = surf::get(url("/atcoder-api/v3/internal/contest/joined", port))
+            let response = surf::get(url("/internal-api/contest/joined", port))
                 .set_header("Cookie", &cookie_header)
                 .recv_json::<Value>()
                 .await?;
@@ -141,7 +141,7 @@ fn test_virtual_contest() {
                 ])
             );
 
-            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/update", port))
+            let response = surf::post(url("/internal-api/contest/item/update", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
@@ -150,7 +150,7 @@ fn test_virtual_contest() {
                 .await?;
             assert!(response.status().is_success());
 
-            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/update", port))
+            let response = surf::post(url("/internal-api/contest/item/update", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
@@ -159,7 +159,7 @@ fn test_virtual_contest() {
                 .await?;
             assert!(response.status().is_success());
 
-            let response = surf::post(url("/atcoder-api/v3/internal/contest/item/update", port))
+            let response = surf::post(url("/internal-api/contest/item/update", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
@@ -168,7 +168,7 @@ fn test_virtual_contest() {
                 .await?;
             assert!(response.status().is_success());
 
-            let response = surf::get(url("/atcoder-api/v3/internal/contest/joined", port))
+            let response = surf::get(url("/internal-api/contest/joined", port))
                 .set_header("Cookie", &cookie_header)
                 .recv_json::<Value>()
                 .await?;
@@ -189,7 +189,7 @@ fn test_virtual_contest() {
             );
 
             let response = surf::get(url(
-                &format!("/atcoder-api/v3/internal/contest/get/{}", contest_id),
+                &format!("/internal-api/contest/get/{}", contest_id),
                 port,
             ))
             .recv_json::<Value>()
