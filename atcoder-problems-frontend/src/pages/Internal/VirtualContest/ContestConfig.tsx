@@ -13,10 +13,10 @@ import {
 } from "reactstrap";
 import { Range, Set, Map } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import * as CachedApiClient from "../../utils/CachedApiClient";
-import { ProblemId } from "../../interfaces/Status";
-import Problem from "../../interfaces/Problem";
-import { formatProblemUrl } from "../../utils/Url";
+import * as CachedApiClient from "../../../utils/CachedApiClient";
+import { ProblemId } from "../../../interfaces/Status";
+import Problem from "../../../interfaces/Problem";
+import { formatProblemUrl } from "../../../utils/Url";
 import moment from "moment";
 
 const problemMatch = (text: string, problem: Problem) =>

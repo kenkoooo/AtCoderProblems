@@ -3,11 +3,11 @@ import { useParams } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import { VirtualContest } from "./types";
 import { Button, Row, Table } from "reactstrap";
-import * as CachedApi from "../../utils/CachedApiClient";
+import * as CachedApi from "../../../utils/CachedApiClient";
 import { Map } from "immutable";
-import { ProblemId } from "../../interfaces/Status";
-import Problem from "../../interfaces/Problem";
-import * as CookieUtils from "../../utils/CookieUtils";
+import { ProblemId } from "../../../interfaces/Status";
+import Problem from "../../../interfaces/Problem";
+import * as CookieUtils from "../../../utils/CookieUtils";
 
 interface OuterProps {
   contestId: string | undefined;
@@ -22,7 +22,7 @@ interface InnerProps extends OuterProps {
 
 const ShowContest = connect<OuterProps, InnerProps>(props => ({
   contestInfoFetch: {
-    url: `http://localhost/atcoder-api/v3/internal/contest/get/${props.contestId}`
+    url: `http://localhost/internal-api/contest/get/${props.contestId}`
   },
   problemMapFetch: {
     comparison: null,
@@ -30,7 +30,7 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
   },
   joinContest: () => ({
     joinContestPost: {
-      url: "http://localhost/atcoder-api/v3/internal/contest/join",
+      url: "http://localhost/internal-api/contest/join",
       method: "POST",
       headers: {
         "Content-Type": "application/json"

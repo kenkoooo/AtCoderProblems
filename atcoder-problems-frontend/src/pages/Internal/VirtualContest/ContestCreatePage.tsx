@@ -65,7 +65,7 @@ const mapper = () => {
   return {
     createContest: (request: Request, problems: string[]) => ({
       createContestResponse: {
-        url: "http://localhost/atcoder-api/v3/internal/contest/create",
+        url: "http://localhost/internal-api/contest/create",
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -73,7 +73,7 @@ const mapper = () => {
         body: JSON.stringify(request),
         andThen: (response: Response) => ({
           updateResponse: {
-            url: "http://localhost/atcoder-api/v3/internal/contest/item/update",
+            url: "http://localhost/internal-api/contest/item/update",
             method: "POST",
             headers: {
               "Content-Type": "application/json"
