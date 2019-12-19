@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, Redirect } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import { VirtualContest } from "./types";
 import { Button, Row, Table, Col, Spinner, Alert } from "reactstrap";
@@ -7,8 +7,8 @@ import * as CachedApi from "../../../utils/CachedApiClient";
 import { Map } from "immutable";
 import { ProblemId } from "../../../interfaces/Status";
 import Problem from "../../../interfaces/Problem";
-import * as CookieUtils from "../../../utils/CookieUtils";
 import { formatProblemUrl } from "../../../utils/Url";
+import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../ApiUrl";
 
 interface UserInfo {
   internal_user_id: string;
@@ -16,7 +16,7 @@ interface UserInfo {
 }
 
 interface OuterProps {
-  contestId: string | undefined;
+  contestId: string;
 }
 
 interface InnerProps extends OuterProps {
@@ -29,10 +29,10 @@ interface InnerProps extends OuterProps {
 
 const ShowContest = connect<OuterProps, InnerProps>(props => ({
   userInfoGet: {
-    url: "http://localhost/internal-api/user/get"
+    url: USER_GET
   },
   contestInfoFetch: {
-    url: `http://localhost/internal-api/contest/get/${props.contestId}`
+    url: contestGetUrl(props.contestId)
   },
   problemMapFetch: {
     comparison: null,
@@ -40,7 +40,7 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
   },
   joinContest: () => ({
     joinContestPost: {
-      url: "http://localhost/internal-api/contest/join",
+      url: CONTEST_JOIN,
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -48,7 +48,7 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
       body: JSON.stringify({ contest_id: props.contestId }),
       andThen: () => ({
         contestInfoFetch: {
-          url: `http://localhost/internal-api/contest/get/${props.contestId}`,
+          url: contestGetUrl(props.contestId),
           force: true,
           refreshing: true
         }
@@ -60,7 +60,6 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
   if (userInfoGet.rejected) {
-    CookieUtils.clear();
   }
 
   if (contestInfoFetch.pending) {
@@ -165,5 +164,9 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
 
 export default () => {
   const { contestId } = useParams();
-  return <ShowContest contestId={contestId} />;
+  if (contestId) {
+    return <ShowContest contestId={contestId} />;
+  } else {
+    return <Redirect to="/contest/recent" />;
+  }
 };

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
-import * as CookieUtils from "../../utils/CookieUtils";
 import {
   Alert,
   Button,
@@ -17,6 +16,7 @@ import {
 import { Redirect, useHistory } from "react-router-dom";
 import { VirtualContest } from "./VirtualContest/types";
 import VirtualContestTable from "./VirtualContestTable";
+import { CONTEST_JOINED, CONTEST_MY, USER_GET, USER_UPDATE } from "./ApiUrl";
 
 type TabType = "Account Info" | "Virtual Contests" | "Problem Lists";
 
@@ -35,13 +35,13 @@ interface InnerProps {
 
 export default connect<{}, InnerProps>(() => ({
   userInfoGet: {
-    url: "http://localhost/internal-api/user/get"
+    url: USER_GET
   },
   updateUserInfo: (atcoderUser: string) => ({
     updateUserInfoResponse: {
       force: true,
       refreshing: true,
-      url: "http://localhost/internal-api/user/update",
+      url: USER_UPDATE,
       method: "POST",
       body: JSON.stringify({ atcoder_user_id: atcoderUser })
     }
@@ -50,10 +50,10 @@ export default connect<{}, InnerProps>(() => ({
     value: null
   },
   ownedContestsGet: {
-    url: "http://localhost/internal-api/contest/my"
+    url: CONTEST_MY
   },
   joinedContestsGet: {
-    url: "http://localhost/internal-api/contest/joined"
+    url: CONTEST_JOINED
   }
 }))(props => {
   const {
@@ -64,7 +64,6 @@ export default connect<{}, InnerProps>(() => ({
   } = props;
   const history = useHistory();
   if (userInfoGet.rejected || updateUserInfoResponse.rejected) {
-    CookieUtils.clear();
     return <Redirect to="/" />;
   } else if (userInfoGet.pending) {
     return <p>loading ...</p>;
