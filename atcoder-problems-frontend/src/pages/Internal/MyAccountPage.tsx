@@ -1,10 +1,24 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
 import * as CookieUtils from "../../utils/CookieUtils";
-import { Alert, Button, Input, Label, Row } from "reactstrap";
-import { Redirect } from "react-router-dom";
+import {
+  Alert,
+  Button,
+  Col,
+  Input,
+  Label,
+  Nav,
+  NavItem,
+  NavLink,
+  Row,
+  TabContent,
+  TabPane
+} from "reactstrap";
+import { Redirect, useHistory } from "react-router-dom";
 import { VirtualContest } from "./VirtualContest/types";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+
+type TabType = "Account Info" | "Virtual Contests" | "Problem Lists";
 
 const VirtualContestTable = (props: { contests: VirtualContest[] }) => {
   return (
@@ -69,6 +83,7 @@ export default connect<{}, InnerProps>(() => ({
     ownedContestsGet,
     joinedContestsGet
   } = props;
+  const history = useHistory();
   if (userInfoGet.rejected || updateUserInfoResponse.rejected) {
     CookieUtils.clear();
     return <Redirect to="/" />;
@@ -79,6 +94,7 @@ export default connect<{}, InnerProps>(() => ({
     const [userId, setUserId] = useState(
       userInfo.atcoder_user_id ? userInfo.atcoder_user_id : ""
     );
+    const [activeTab, setActiveTab] = useState<TabType>("Account Info");
 
     const updating = updateUserInfoResponse.refreshing;
     const updated =
@@ -94,45 +110,111 @@ export default connect<{}, InnerProps>(() => ({
 
     return (
       <>
-        <Row className="my-2">
-          <h2>Account Info</h2>
-        </Row>
-        <Row className="my-2">
-          <Label>AtCoder User Id</Label>
-          <Input
-            type="text"
-            placeholder="Contest Title"
-            value={userId}
-            onChange={event => setUserId(event.target.value)}
-          />
-        </Row>
-        <Row className="my-2">
-          <Button
-            disabled={updating}
-            onClick={() => props.updateUserInfo(userId)}
-          >
-            {updating ? "Updating..." : "Update"}
-          </Button>
-        </Row>
-        <Row className="my-2">
-          <Alert color="success" isOpen={updated}>
-            Updated
-          </Alert>
-        </Row>
+        <Nav tabs>
+          <NavItem>
+            <NavLink
+              active={activeTab === "Account Info"}
+              onClick={() => {
+                setActiveTab("Account Info");
+              }}
+            >
+              Account Info
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              active={activeTab === "Virtual Contests"}
+              onClick={() => {
+                setActiveTab("Virtual Contests");
+              }}
+            >
+              Virtual Contests
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              active={activeTab === "Problem Lists"}
+              onClick={() => {
+                setActiveTab("Problem Lists");
+              }}
+            >
+              Problem Lists
+            </NavLink>
+          </NavItem>
+        </Nav>
+        <TabContent activeTab={activeTab}>
+          <TabPane tabId="Account Info">
+            <Row my="2">
+              <Col sm="12">
+                <h2>Account Info</h2>
+              </Col>
+            </Row>
+            <Row my="2">
+              <Col sm="12">
+                <Label>AtCoder User ID</Label>
+                <Input
+                  type="text"
+                  placeholder="AtCoder User ID"
+                  value={userId}
+                  onChange={event => setUserId(event.target.value)}
+                />
+              </Col>
+            </Row>
+            <Row my="2">
+              <Col sm="12">
+                <Button
+                  disabled={updating}
+                  onClick={() => props.updateUserInfo(userId)}
+                >
+                  {updating ? "Updating..." : "Update"}
+                </Button>
+              </Col>
+            </Row>
+            <Row my="2">
+              <Col sm="12">
+                <Alert color="success" isOpen={updated}>
+                  Updated
+                </Alert>
+              </Col>
+            </Row>
+          </TabPane>
 
-        <Row className="my-2">
-          <h2>My Contests</h2>
-        </Row>
-        <Row>
-          <VirtualContestTable contests={ownedContests} />
-        </Row>
+          <TabPane tabId="Virtual Contests">
+            <Row my="2">
+              <Col sm="12">
+                <Button
+                  onClick={() => {
+                    history.push({ pathname: "/contest/create" });
+                  }}
+                >
+                  Create New Contest
+                </Button>
+              </Col>
+            </Row>
+            <Row my="2">
+              <Col sm="12">
+                <h2>My Contests</h2>
+              </Col>
+            </Row>
+            <Row my="2">
+              <Col sm="12">
+                <VirtualContestTable contests={ownedContests} />
+              </Col>
+            </Row>
 
-        <Row className="my-2">
-          <h2>Joined Contests</h2>
-        </Row>
-        <Row>
-          <VirtualContestTable contests={joinedContests} />
-        </Row>
+            <Row my="2">
+              <Col sm="12">
+                <h2>Joined Contests</h2>
+              </Col>
+            </Row>
+            <Row my="2">
+              <Col sm="12">
+                <VirtualContestTable contests={joinedContests} />
+              </Col>
+            </Row>
+          </TabPane>
+          <TabPane tabId="Problem Lists">b</TabPane>
+        </TabContent>
       </>
     );
   }
