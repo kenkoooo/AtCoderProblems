@@ -206,6 +206,7 @@ const ContestConfig = (props: InnerProps) => {
       <Row className="my-2">
         <Button
           disabled={!isValid}
+          color={isValid ? "success" : "link"}
           onClick={() =>
             props.buttonPush({
               title,

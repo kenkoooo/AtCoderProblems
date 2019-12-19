@@ -12,10 +12,6 @@ interface Props {
   isExperimentalDifficulty: boolean;
 }
 
-interface LocalState {
-  tooltipOpen: boolean;
-}
-
 function getColorClass(difficulty: number | null): string {
   if (difficulty === null) {
     return "";

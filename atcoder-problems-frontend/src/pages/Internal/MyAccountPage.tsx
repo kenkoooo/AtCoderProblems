@@ -18,7 +18,7 @@ import { VirtualContest } from "./VirtualContest/types";
 import VirtualContestTable from "./VirtualContestTable";
 import { CONTEST_JOINED, CONTEST_MY, USER_GET, USER_UPDATE } from "./ApiUrl";
 
-type TabType = "Account Info" | "Virtual Contests" | "Problem Lists";
+type TabType = "Account Info" | "My Contests" | "Problem Lists";
 
 interface UserResponse {
   internal_user_id: number;
@@ -101,12 +101,12 @@ export default connect<{}, InnerProps>(() => ({
           </NavItem>
           <NavItem>
             <NavLink
-              active={activeTab === "Virtual Contests"}
+              active={activeTab === "My Contests"}
               onClick={() => {
-                setActiveTab("Virtual Contests");
+                setActiveTab("My Contests");
               }}
             >
-              Virtual Contests
+              My Contests
             </NavLink>
           </NavItem>
           <NavItem>
@@ -122,12 +122,12 @@ export default connect<{}, InnerProps>(() => ({
         </Nav>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="Account Info">
-            <Row my="2">
+            <Row className="my-2">
               <Col sm="12">
                 <h2>Account Info</h2>
               </Col>
             </Row>
-            <Row my="2">
+            <Row className="my-2">
               <Col sm="12">
                 <Label>AtCoder User ID</Label>
                 <Input
@@ -138,7 +138,7 @@ export default connect<{}, InnerProps>(() => ({
                 />
               </Col>
             </Row>
-            <Row my="2">
+            <Row className="my-2">
               <Col sm="12">
                 <Button
                   disabled={updating}
@@ -148,7 +148,7 @@ export default connect<{}, InnerProps>(() => ({
                 </Button>
               </Col>
             </Row>
-            <Row my="2">
+            <Row className="my-2">
               <Col sm="12">
                 <Alert color="success" isOpen={updated}>
                   Updated
@@ -157,8 +157,8 @@ export default connect<{}, InnerProps>(() => ({
             </Row>
           </TabPane>
 
-          <TabPane tabId="Virtual Contests">
-            <Row my="2">
+          <TabPane tabId="My Contests">
+            <Row className="my-2">
               <Col sm="12">
                 <Button
                   onClick={() => {
@@ -169,23 +169,23 @@ export default connect<{}, InnerProps>(() => ({
                 </Button>
               </Col>
             </Row>
-            <Row my="2">
+            <Row className="my-2">
               <Col sm="12">
                 <h2>My Contests</h2>
               </Col>
             </Row>
-            <Row my="2">
+            <Row className="my-2">
               <Col sm="12">
                 <VirtualContestTable contests={ownedContests} />
               </Col>
             </Row>
 
-            <Row my="2">
+            <Row className="my-2">
               <Col sm="12">
                 <h2>Joined Contests</h2>
               </Col>
             </Row>
-            <Row my="2">
+            <Row className="my-2">
               <Col sm="12">
                 <VirtualContestTable contests={joinedContests} />
               </Col>
