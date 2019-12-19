@@ -49,11 +49,11 @@ const App = () => {
               component={() => <UserPage userId={userId} />}
             />
             <Route
-              path="/table/([a-zA-Z0-9_]+)+"
+              path="/table/([a-zA-Z0-9_]*)*"
               component={() => <TablePage userId={userId} rivals={rivals} />}
             />
             <Route
-              path="/list/([a-zA-Z0-9_]+)+"
+              path="/list/([a-zA-Z0-9_]*)*"
               component={() => <ListPage userId={userId} rivals={rivals} />}
             />
             <Route

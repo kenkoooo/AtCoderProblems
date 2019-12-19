@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
 import * as CookieUtils from "../../utils/CookieUtils";
 import { Alert, Button, Input, Label, Row } from "reactstrap";
+import { Redirect } from "react-router-dom";
 
 interface UserResponse {
   internal_user_id: number;
@@ -33,8 +34,8 @@ export default connect<{}, InnerProps>(() => ({
 }))(props => {
   const { userInfoGet, updateUserInfoResponse } = props;
   if (props.userInfoGet.rejected) {
-    // TODO
-    return <p>dead</p>;
+    CookieUtils.clear();
+    return <Redirect to="/" />;
   } else if (props.userInfoGet.pending) {
     return <p>loading ...</p>;
   } else {
