@@ -2,11 +2,20 @@ import React from "react";
 import { Set } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import ContestConfig from "./ContestConfig";
+import { Redirect } from "react-router-dom";
 
 const ContestCreatePage = (props: InnerProps) => {
-  if (props.createContestResponse.fulfilled) {
-    console.log(props.createContestResponse.value);
+  const createResponse = props.createContestResponse.fulfilled
+    ? props.createContestResponse.value
+    : null;
+  const updateResponse = props.updateResponse.fulfilled
+    ? props.updateResponse.value
+    : null;
+  if (createResponse !== null && updateResponse !== null) {
+    const contestId = createResponse.contest_id;
+    return <Redirect to={`/contest/show/${contestId}`} />;
   }
+
   return (
     <ContestConfig
       pageTitle="Create Contest"
@@ -49,6 +58,7 @@ interface Response {
 interface InnerProps {
   createContestResponse: PromiseState<Response | null>;
   createContest: (request: Request, problems: string[]) => void;
+  updateResponse: PromiseState<{} | null>;
 }
 
 const mapper = () => {
@@ -61,20 +71,25 @@ const mapper = () => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(request),
-        then: (response: Response) => ({
-          url: "http://localhost/atcoder-api/v3/internal/contest/item/update",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            contest_id: response.contest_id,
-            problem_ids: problems
-          })
+        andThen: (response: Response) => ({
+          updateResponse: {
+            url: "http://localhost/atcoder-api/v3/internal/contest/item/update",
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              contest_id: response.contest_id,
+              problem_ids: problems
+            })
+          }
         })
       }
     }),
     createContestResponse: {
+      value: null
+    },
+    updateResponse: {
       value: null
     }
   };

@@ -76,7 +76,10 @@ pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'stat
         .post_unpack::<Q>()
         .await
         .and_then(|(q, conn, user_id)| conn.update_items(&q.contest_id, &q.problem_ids, &user_id))
-        .map(|_| Response::ok())
+        .and_then(|_| {
+            let response = Response::ok().body_json(&serde_json::json!({}))?;
+            Ok(response)
+        })
         .unwrap_response()
 }
 
