@@ -1,6 +1,7 @@
 use crate::error::{Error, Result};
 use crate::sql::schema::*;
 
+use internal_users as i_users;
 use internal_virtual_contest_items as v_items;
 use internal_virtual_contest_participants as v_participants;
 use internal_virtual_contests as v_contests;
@@ -109,6 +110,9 @@ impl VirtualContestManager for PgConnection {
                 v_participants::table
                     .on(v_participants::internal_virtual_contest_id.eq(v_contests::id)),
             )
+            .left_join(
+                i_users::table.on(v_participants::internal_user_id.eq(i_users::internal_user_id)),
+            )
             .filter(v_contests::internal_user_id.eq(internal_user_id))
             .select((
                 v_contests::id,
@@ -118,7 +122,7 @@ impl VirtualContestManager for PgConnection {
                 v_contests::start_epoch_second,
                 v_contests::duration_second,
                 v_items::problem_id.nullable(),
-                v_participants::internal_user_id.nullable(),
+                i_users::atcoder_user_id.nullable(),
             ))
             .load::<(
                 String,
@@ -146,6 +150,9 @@ impl VirtualContestManager for PgConnection {
                 v_participants::table
                     .on(v_participants::internal_virtual_contest_id.eq(v_contests::id)),
             )
+            .left_join(
+                i_users::table.on(v_participants::internal_user_id.eq(i_users::internal_user_id)),
+            )
             .filter(v_contests::id.eq_any(participated_contest_ids))
             .select((
                 v_contests::id,
@@ -155,7 +162,7 @@ impl VirtualContestManager for PgConnection {
                 v_contests::start_epoch_second,
                 v_contests::duration_second,
                 v_items::problem_id.nullable(),
-                v_participants::internal_user_id.nullable(),
+                i_users::atcoder_user_id.nullable(),
             ))
             .load::<(
                 String,
@@ -178,6 +185,9 @@ impl VirtualContestManager for PgConnection {
                 v_participants::table
                     .on(v_participants::internal_virtual_contest_id.eq(v_contests::id)),
             )
+            .left_join(
+                i_users::table.on(v_participants::internal_user_id.eq(i_users::internal_user_id)),
+            )
             .filter(v_contests::id.eq(contest_id))
             .select((
                 v_contests::id,
@@ -187,7 +197,7 @@ impl VirtualContestManager for PgConnection {
                 v_contests::start_epoch_second,
                 v_contests::duration_second,
                 v_items::problem_id.nullable(),
-                v_participants::internal_user_id.nullable(),
+                i_users::atcoder_user_id.nullable(),
             ))
             .limit(1)
             .load::<(

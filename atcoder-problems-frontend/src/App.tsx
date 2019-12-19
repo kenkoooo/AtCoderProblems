@@ -19,7 +19,6 @@ import TablePage from "./pages/TablePage";
 import NavigationBar from "./components/NavigationBar";
 import StreakRanking from "./pages/StreakRanking";
 import { List } from "immutable";
-import InternalDashboardPage from "./pages/InternalDashboardPage";
 import ContestCreatePage from "./pages/VirtualContest/ContestCreatePage";
 import ShowContest from "./pages/VirtualContest/ShowContest";
 

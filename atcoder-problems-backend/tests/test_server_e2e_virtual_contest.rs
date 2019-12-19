@@ -55,6 +55,13 @@ fn test_virtual_contest() {
             .await?;
             let cookie_header = format!("token={}", VALID_TOKEN);
 
+            let response = surf::post(url("/atcoder-api/v3/internal/user/update", port))
+                .set_header("Cookie", &cookie_header)
+                .body_json(&json!({
+                        "atcoder_user_id": "atcoder_user1"
+                }))?
+                .await?;
+            assert!(response.status().is_success());
             let mut response = surf::post(url("/atcoder-api/v3/internal/contest/create", port))
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
@@ -128,7 +135,7 @@ fn test_virtual_contest() {
                         "memo": "contest memo",
                         "title": "contest title",
                         "id": format!("{}", contest_id),
-                        "participants": ["0"],
+                        "participants": ["atcoder_user1"],
                         "problems": []
                     }
                 ])
@@ -175,7 +182,7 @@ fn test_virtual_contest() {
                         "memo": "contest memo",
                         "title": "contest title",
                         "id": format!("{}", contest_id),
-                        "participants": ["0"],
+                        "participants": ["atcoder_user1"],
                         "problems": ["problem_2"]
                     }
                 ])
@@ -197,7 +204,7 @@ fn test_virtual_contest() {
                     "memo": "contest memo",
                     "title": "contest title",
                     "id": format!("{}", contest_id),
-                    "participants": ["0"],
+                    "participants": ["atcoder_user1"],
                     "problems": ["problem_2"]
                 })
             );

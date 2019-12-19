@@ -127,6 +127,9 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
         .post_unpack::<Q>()
         .await
         .and_then(|(q, conn, user_id)| conn.join_contest(&q.contest_id, &user_id))
-        .map(|_| Response::ok())
+        .and_then(|_| {
+            let response = Response::ok().body_json(&serde_json::json!({}))?;
+            Ok(response)
+        })
         .unwrap_response()
 }
