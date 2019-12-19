@@ -17,14 +17,7 @@ import Submission from "../../interfaces/Submission";
 import SmallTable from "./SmallTable";
 import DifficultyTable from "./DifficultyTable";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
-import {
-  failedStatus,
-  noneStatus,
-  ProblemId,
-  ProblemStatus,
-  successStatus,
-  warningStatus
-} from "../../interfaces/Status";
+import { noneStatus, ProblemId, ProblemStatus } from "../../interfaces/Status";
 import { List, Map, Range, Set } from "immutable";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
@@ -355,7 +348,7 @@ export default connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: [props.userId, props.rivals],
     value: () =>
-      CachedApiClient.cachedUsersSubmissions(props.rivals.push(props.userId))
+      CachedApiClient.cachedUsersSubmissionMap(props.rivals.push(props.userId))
   },
   mergedProblemsFetch: {
     comparison: null,
