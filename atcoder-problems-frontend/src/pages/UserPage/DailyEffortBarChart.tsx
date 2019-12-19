@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts";
-import { formatMoment, parseSecond } from "../../utils/DateUtil";
+import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 
 interface Props {
   dailyData: { dateSecond: number; count: number }[];
@@ -33,13 +33,13 @@ const DailyEffortBarChart = (props: Props) => (
           type="number"
           domain={["dataMin", "dataMax"]}
           tickFormatter={(dateSecond: number) =>
-            formatMoment(parseSecond(dateSecond))
+            formatMomentDate(parseSecond(dateSecond))
           }
         />
         <YAxis />
         <Tooltip
           labelFormatter={(dateSecond: any) =>
-            formatMoment(parseSecond(dateSecond))
+            formatMomentDate(parseSecond(dateSecond))
           }
         />
         <Bar dataKey="count" fill="#8884d8" />
