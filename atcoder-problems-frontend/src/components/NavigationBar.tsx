@@ -20,18 +20,19 @@ import {
 } from "reactstrap";
 import { extractRivalsParam, normalizeUserId } from "../utils";
 import { List } from "immutable";
+import * as CookieUtils from "../utils/CookieUtils";
 
-type PageKind = "table" | "list" | "user" | "review";
+type PageKind = "table" | "list" | "user";
 
-const extractPageKind = (pathname: string): PageKind => {
+const extractPageKind = (pathname: string): PageKind | null => {
   if (pathname.match(/^\/user/)) {
     return "user";
   } else if (pathname.match(/^\/list/)) {
     return "list";
-  } else if (pathname.match(/^\/review/)) {
-    return "review";
-  } else {
+  } else if (pathname.match(/^\/table/)) {
     return "table";
+  } else {
+    return null;
   }
 };
 
@@ -53,7 +54,7 @@ interface LocalState {
   isOpen: boolean;
   userId: string;
   rivalIdString: string;
-  pageKind: PageKind;
+  pageKind: PageKind | null;
 }
 
 const generatePath = (
@@ -91,11 +92,13 @@ class NavigationBar extends React.Component<Props, LocalState> {
     const { pathname } = this.props.location;
     const pageKind = extractPageKind(pathname);
     const { userId, rivalIdString } = extractUserIds(pathname);
-    this.setState({ userId, rivalIdString, pageKind });
-    this.props.updateUserIds(
-      normalizeUserId(userId),
-      List(extractRivalsParam(rivalIdString))
-    );
+    if (pageKind !== null) {
+      this.setState({ userId, rivalIdString, pageKind });
+      this.props.updateUserIds(
+        normalizeUserId(userId),
+        List(extractRivalsParam(rivalIdString))
+      );
+    }
   }
 
   render() {
@@ -111,7 +114,7 @@ class NavigationBar extends React.Component<Props, LocalState> {
                 <Input
                   style={{ width: "120px" }}
                   onKeyPress={e => {
-                    if (e.key === "Enter") {
+                    if (e.key === "Enter" && pageKind !== null) {
                       this.submit(pageKind);
                     }
                   }}
@@ -127,7 +130,7 @@ class NavigationBar extends React.Component<Props, LocalState> {
                 <Input
                   style={{ width: "120px" }}
                   onKeyPress={e => {
-                    if (e.key === "Enter") {
+                    if (e.key === "Enter" && pageKind !== null) {
                       this.submit(pageKind);
                     }
                   }}
@@ -205,9 +208,15 @@ class NavigationBar extends React.Component<Props, LocalState> {
             </UncontrolledDropdown>
 
             <NavItem>
-              <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
-                Login
-              </NavLink>
+              {CookieUtils.isLoggedIn() ? (
+                <NavLink tag={RouterLink} to="/login/user">
+                  Settings
+                </NavLink>
+              ) : (
+                <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
+                  Login
+                </NavLink>
+              )}
             </NavItem>
 
             <UncontrolledDropdown nav inNavbar>

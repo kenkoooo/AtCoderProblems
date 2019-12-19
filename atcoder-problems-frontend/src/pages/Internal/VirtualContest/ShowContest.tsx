@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Redirect } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import { VirtualContest } from "./types";
 import { Button, Row, Table } from "reactstrap";
@@ -9,18 +9,26 @@ import { ProblemId } from "../../../interfaces/Status";
 import Problem from "../../../interfaces/Problem";
 import * as CookieUtils from "../../../utils/CookieUtils";
 
+interface UserInfo {
+  atcoder_user_id: string;
+}
+
 interface OuterProps {
   contestId: string | undefined;
 }
 
 interface InnerProps extends OuterProps {
   contestInfoFetch: PromiseState<VirtualContest>;
+  userInfoGet: PromiseState<UserInfo>;
   joinContest: () => void;
   joinContestPost: PromiseState<{} | null>;
   problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
 }
 
 const ShowContest = connect<OuterProps, InnerProps>(props => ({
+  userInfoGet: {
+    url: "http://localhost/internal-api/user/get"
+  },
   contestInfoFetch: {
     url: `http://localhost/internal-api/contest/get/${props.contestId}`
   },
@@ -40,20 +48,29 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
   }),
   joinContestPost: { value: null }
 }))(props => {
-  const { contestInfoFetch } = props;
+  const { contestInfoFetch, userInfoGet } = props;
+  if (userInfoGet.rejected) {
+    CookieUtils.clear();
+  }
+
   if (contestInfoFetch.pending) {
     return <p>loading...</p>;
   } else if (contestInfoFetch.rejected) {
     return <p>connection error</p>;
   }
+
   const contestInfo = contestInfoFetch.value;
-  const isLoggedIn = CookieUtils.isLoggedIn();
+  const atcoderUserId = userInfoGet.fulfilled
+    ? userInfoGet.value.atcoder_user_id
+    : null;
+  const alreadyJoined =
+    atcoderUserId != null && contestInfo.participants.includes(atcoderUserId);
 
   return (
     <>
       <Row>
         <h1>{contestInfo.title}</h1>
-        {isLoggedIn ? (
+        {!alreadyJoined && atcoderUserId != null ? (
           <Button onClick={() => props.joinContest()}>Join</Button>
         ) : null}
       </Row>
@@ -68,6 +85,20 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
               ))}
             </tr>
           </thead>
+          <tbody>
+            {contestInfo.participants.map(userId => {
+              return (
+                <tr>
+                  <th>{userId}</th>
+                  {contestInfo.problems.map(problemId => (
+                    <td>
+                      {userId} {problemId}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
         </Table>
       </Row>
     </>
