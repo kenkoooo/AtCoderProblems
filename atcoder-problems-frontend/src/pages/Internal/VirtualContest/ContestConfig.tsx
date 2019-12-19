@@ -21,8 +21,9 @@ import moment from "moment";
 
 const problemMatch = (text: string, problem: Problem) =>
   problem.title.toLowerCase().includes(text.toLowerCase()) ||
-  problem.id.toLowerCase().includes(text.toLowerCase()) ||
-  problem.contest_id.toLowerCase().includes(text.toLowerCase());
+  formatProblemUrl(problem.id, problem.contest_id)
+    .toLowerCase()
+    .includes(text.toLowerCase());
 
 const ContestConfig = (props: InnerProps) => {
   const [title, setTitle] = useState(props.initialTitle);
