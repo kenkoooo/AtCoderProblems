@@ -21,6 +21,7 @@ import {
 import { extractRivalsParam, normalizeUserId } from "../utils";
 import { List } from "immutable";
 import * as CookieUtils from "../utils/CookieUtils";
+import { connect, PromiseState } from "react-refetch";
 
 type PageKind = "table" | "list" | "user";
 
@@ -46,8 +47,12 @@ const extractUserIds = (pathname: string) => {
   return { userId, rivalIdString };
 };
 
-interface Props extends RouteComponentProps {
+interface OuterProps extends RouteComponentProps {
   updateUserIds: (userId: string, rivals: List<string>) => void;
+}
+
+interface InnerProps extends OuterProps {
+  loginState: PromiseState<{}>;
 }
 
 interface LocalState {
@@ -66,8 +71,8 @@ const generatePath = (
   return "/" + kind + "/" + users.join("/");
 };
 
-class NavigationBar extends React.Component<Props, LocalState> {
-  constructor(props: Props) {
+class NavigationBar extends React.Component<InnerProps, LocalState> {
+  constructor(props: InnerProps) {
     super(props);
     this.state = {
       isOpen: false,
@@ -103,6 +108,10 @@ class NavigationBar extends React.Component<Props, LocalState> {
 
   render() {
     const { userId, rivalIdString, isOpen, pageKind } = this.state;
+    const loggedIn = this.props.loginState.fulfilled;
+    if (this.props.loginState.rejected) {
+      CookieUtils.clear();
+    }
     return (
       <Navbar color="light" light expand="lg" fixed="top">
         <NavbarBrand>AtCoder Problems</NavbarBrand>
@@ -208,7 +217,7 @@ class NavigationBar extends React.Component<Props, LocalState> {
             </UncontrolledDropdown>
 
             <NavItem>
-              {CookieUtils.isLoggedIn() ? (
+              {loggedIn ? (
                 <NavLink tag={RouterLink} to="/login/user">
                   Dashboard
                 </NavLink>
@@ -261,4 +270,10 @@ class NavigationBar extends React.Component<Props, LocalState> {
   }
 }
 
-export default withRouter(NavigationBar);
+export default withRouter(
+  connect<OuterProps, InnerProps>(() => ({
+    loginState: {
+      url: "http://localhost/internal-api/user/get"
+    }
+  }))(NavigationBar)
+);

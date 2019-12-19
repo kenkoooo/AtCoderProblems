@@ -15,6 +15,7 @@ use uuid::Uuid;
 
 const MAX_CONTEST_NUM: i64 = 1024;
 const MAX_PROBLEM_NUM_PER_CONTEST: usize = 16;
+const RECENT_CONTEST_NUM: i64 = 500;
 
 #[derive(Serialize)]
 pub(crate) struct VirtualContest {
@@ -48,6 +49,7 @@ pub(crate) trait VirtualContestManager {
 
     fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
     fn get_participated_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
+    fn get_recent_contests(&self) -> Result<Vec<VirtualContest>>;
     fn get_single_contest(&self, contest_id: &str) -> Result<VirtualContest>;
 
     fn update_items(&self, contest_id: &str, problem_ids: &[String], user_id: &str) -> Result<()>;
@@ -178,6 +180,42 @@ impl VirtualContestManager for PgConnection {
         Ok(virtual_contests)
     }
 
+    fn get_recent_contests(&self) -> Result<Vec<VirtualContest>> {
+        let data = v_contests::table
+            .left_join(v_items::table.on(v_items::internal_virtual_contest_id.eq(v_contests::id)))
+            .left_join(
+                v_participants::table
+                    .on(v_participants::internal_virtual_contest_id.eq(v_contests::id)),
+            )
+            .left_join(
+                i_users::table.on(v_participants::internal_user_id.eq(i_users::internal_user_id)),
+            )
+            .order_by(v_contests::start_epoch_second.desc())
+            .limit(RECENT_CONTEST_NUM)
+            .select((
+                v_contests::id,
+                v_contests::title,
+                v_contests::memo,
+                v_contests::internal_user_id,
+                v_contests::start_epoch_second,
+                v_contests::duration_second,
+                v_items::problem_id.nullable(),
+                i_users::atcoder_user_id.nullable(),
+            ))
+            .load::<(
+                String,
+                String,
+                String,
+                String,
+                i64,
+                i64,
+                Option<String>,
+                Option<String>,
+            )>(self)?;
+        let virtual_contests = construct_virtual_contests(data);
+        Ok(virtual_contests)
+    }
+
     fn get_single_contest(&self, contest_id: &str) -> Result<VirtualContest> {
         let data = v_contests::table
             .left_join(v_items::table.on(v_items::internal_virtual_contest_id.eq(v_contests::id)))
@@ -199,7 +237,6 @@ impl VirtualContestManager for PgConnection {
                 v_items::problem_id.nullable(),
                 i_users::atcoder_user_id.nullable(),
             ))
-            .limit(1)
             .load::<(
                 String,
                 String,
