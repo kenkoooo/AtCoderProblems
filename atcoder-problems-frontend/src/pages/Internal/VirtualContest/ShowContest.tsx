@@ -1,8 +1,8 @@
 import React from "react";
-import { useParams, Redirect } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import { VirtualContest } from "./types";
-import { Button, Row, Table } from "reactstrap";
+import { Button, Row, Table, Col } from "reactstrap";
 import * as CachedApi from "../../../utils/CachedApiClient";
 import { Map } from "immutable";
 import { ProblemId } from "../../../interfaces/Status";
@@ -76,37 +76,41 @@ const ShowContest = connect<OuterProps, InnerProps>(props => ({
   return (
     <>
       <Row>
-        <h1>{contestInfo.title}</h1>
-        {!alreadyJoined && atcoderUserId != null ? (
-          <Button onClick={() => props.joinContest()}>Join</Button>
-        ) : null}
+        <Col sm="12">
+          <h1>{contestInfo.title}</h1>
+          {!alreadyJoined && atcoderUserId != null ? (
+            <Button onClick={() => props.joinContest()}>Join</Button>
+          ) : null}
+        </Col>
       </Row>
 
       <Row>
-        <Table>
-          <thead>
-            <tr>
-              <th>Participants</th>
-              {contestInfo.problems.map(problemId => (
-                <th key={problemId}>{problemId}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {contestInfo.participants.map(userId => {
-              return (
-                <tr>
-                  <th>{userId}</th>
-                  {contestInfo.problems.map(problemId => (
-                    <td>
-                      {userId} {problemId}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
+        <Col sm="12">
+          <Table>
+            <thead>
+              <tr>
+                <th>Participants</th>
+                {contestInfo.problems.map(problemId => (
+                  <th key={problemId}>{problemId}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {contestInfo.participants.map(userId => {
+                return (
+                  <tr>
+                    <th>{userId}</th>
+                    {contestInfo.problems.map(problemId => (
+                      <td>
+                        {userId} {problemId}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </Col>
       </Row>
     </>
   );
