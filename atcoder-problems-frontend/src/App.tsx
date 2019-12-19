@@ -21,7 +21,7 @@ import StreakRanking from "./pages/StreakRanking";
 import { List } from "immutable";
 import ContestCreatePage from "./pages/Internal/VirtualContest/ContestCreatePage";
 import ShowContest from "./pages/Internal/VirtualContest/ShowContest";
-import UserConfigPage from "./pages/Internal/UserConfigPage";
+import UserConfigPage from "./pages/Internal/MyAccountPage";
 
 const App = () => {
   const [userId, setUserId] = useState("");
