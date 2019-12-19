@@ -12,11 +12,16 @@ import {
   ButtonGroup
 } from "reactstrap";
 import * as CachedApi from "../../../utils/CachedApiClient";
-import { Map } from "immutable";
+import { List, Map } from "immutable";
 import { ProblemId } from "../../../interfaces/Status";
 import Problem from "../../../interfaces/Problem";
 import { formatProblemUrl } from "../../../utils/Url";
 import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../ApiUrl";
+import Submission from "../../../interfaces/Submission";
+
+interface ShowingVirtualContest extends VirtualContest {
+  map: Map<ProblemId, List<Submission>>;
+}
 
 interface UserInfo {
   internal_user_id: string;
@@ -28,47 +33,56 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  contestInfoFetch: PromiseState<VirtualContest>;
+  contestInfoFetch: PromiseState<ShowingVirtualContest>;
   userInfoGet: PromiseState<UserInfo>;
   joinContest: () => void;
   joinContestPost: PromiseState<{} | null>;
   problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
 }
 
-const ShowContest = connect<OuterProps, InnerProps>(props => ({
-  userInfoGet: {
-    url: USER_GET
-  },
-  contestInfoFetch: {
-    url: contestGetUrl(props.contestId)
-  },
-  problemMapFetch: {
-    comparison: null,
-    value: () => CachedApi.cachedProblemMap()
-  },
-  joinContest: () => ({
-    joinContestPost: {
-      url: CONTEST_JOIN,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ contest_id: props.contestId }),
-      andThen: () => ({
-        contestInfoFetch: {
-          url: contestGetUrl(props.contestId),
-          force: true,
-          refreshing: true
-        }
-      })
-    }
-  }),
-  joinContestPost: { value: null }
-}))(props => {
+const ShowContest = connect<OuterProps, InnerProps>(props => {
+  return {
+    userInfoGet: {
+      url: USER_GET
+    },
+    contestInfoFetch: {
+      url: contestGetUrl(props.contestId),
+      then: contest => {
+        const users: string[] = contest.participants;
+        return {
+          value: CachedApi.cachedUsersSubmissionMap(List(users)).then(map => ({
+            map,
+            ...contest
+          }))
+        };
+      }
+    },
+    problemMapFetch: {
+      comparison: null,
+      value: () => CachedApi.cachedProblemMap()
+    },
+    joinContest: () => ({
+      joinContestPost: {
+        url: CONTEST_JOIN,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ contest_id: props.contestId }),
+        andThen: () => ({
+          contestInfoFetch: {
+            url: contestGetUrl(props.contestId),
+            force: true,
+            refreshing: true
+          }
+        })
+      }
+    }),
+    joinContestPost: { value: null }
+  };
+})(props => {
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
-  if (userInfoGet.rejected) {
-  }
 
   if (contestInfoFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;

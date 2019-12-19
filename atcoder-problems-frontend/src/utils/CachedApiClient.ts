@@ -90,17 +90,9 @@ export const cachedContestToProblemMap = () => {
 };
 
 let SUBMISSION_MAP = Map<string, Promise<List<Submission>>>();
-export const cachedUsersSubmissions = (users: List<string>) =>
+export const cachedUsersSubmissionMap = (users: List<string>) =>
   Promise.all(
-    users.toArray().map(user => {
-      const cache = SUBMISSION_MAP.get(user);
-      if (cache) {
-        return cache;
-      }
-      const submissions = fetchSubmissions(user);
-      SUBMISSION_MAP = SUBMISSION_MAP.set(user, submissions);
-      return submissions;
-    })
+    users.toArray().map(user => cachedSubmissions(user))
   ).then(lists =>
     lists.reduce(
       (map, submissions) =>
@@ -112,6 +104,15 @@ export const cachedUsersSubmissions = (users: List<string>) =>
       Map<ProblemId, List<Submission>>()
     )
   );
+const cachedSubmissions = (user: string) => {
+  const cache = SUBMISSION_MAP.get(user);
+  if (cache) {
+    return cache;
+  }
+  const submissions = fetchSubmissions(user);
+  SUBMISSION_MAP = SUBMISSION_MAP.set(user, submissions);
+  return submissions;
+};
 
 let STREAK_RANKING: Promise<List<RankingEntry>> | undefined;
 export const cachedStreaksRanking = () => {
@@ -197,7 +198,7 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
   ) {
     STATUS_LABEL_MAP.userId = userId;
     STATUS_LABEL_MAP.rivals = rivals;
-    STATUS_LABEL_MAP.statusLabelMap = cachedUsersSubmissions(
+    STATUS_LABEL_MAP.statusLabelMap = cachedUsersSubmissionMap(
       rivals.push(userId)
     ).then(submissions =>
       submissions.map(list => {

@@ -414,7 +414,7 @@ const PieCharts = ({
 export default connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: props.userId,
-    value: () => CachedApiClient.cachedUsersSubmissions(List([props.userId]))
+    value: () => CachedApiClient.cachedUsersSubmissionMap(List([props.userId]))
   },
   mergedProblemsFetch: {
     comparison: null,
