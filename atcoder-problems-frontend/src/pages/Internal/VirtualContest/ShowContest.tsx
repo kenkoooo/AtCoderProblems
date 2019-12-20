@@ -14,7 +14,6 @@ import {
 import * as CachedApi from "../../../utils/CachedApiClient";
 import { List, Map } from "immutable";
 import { ProblemId } from "../../../interfaces/Status";
-import Problem from "../../../interfaces/Problem";
 import { formatProblemUrl } from "../../../utils/Url";
 import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../ApiUrl";
 import Submission from "../../../interfaces/Submission";
@@ -104,6 +103,8 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
   const alreadyJoined =
     atcoderUserId != null && contestInfo.participants.includes(atcoderUserId);
   const isOwner = contestInfo.owner_user_id === internalUserId;
+  const start = contestInfo.start_epoch_second;
+  const end = contestInfo.start_epoch_second + contestInfo.duration_second;
 
   return (
     <>
@@ -161,10 +162,17 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
             </thead>
             <tbody>
               {contestInfo.participants.map(userId => {
-                contestInfo.problems.map(problemId => {
+                const problemResults = contestInfo.problems.map(problemId => {
                   const problem = problemMap.get(problemId);
-                  const submissions = contestInfo.map
+                  const submissionMap = contestInfo.map
+                    ? contestInfo.map
+                    : Map<ProblemId, List<Submission>>();
+                  const submissions = submissionMap
                     .get(problemId, List<Submission>())
+                    .filter(s => s.user_id === userId)
+                    .filter(
+                      s => start <= s.epoch_second && s.epoch_second <= end
+                    )
                     .sortBy(s => s.id);
                   const result = submissions.reduce(
                     (cur, submission, i) => {
@@ -184,15 +192,35 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
                       trialsBeforeMax: 0
                     }
                   );
+                  return {
+                    problemId,
+                    submissionCount: submissions.size,
+                    ...result
+                  };
                 });
                 return (
                   <tr key={userId}>
                     <th>{userId}</th>
-                    {contestInfo.problems.map(problemId => (
-                      <td key={problemId}>
-                        {userId} {problemId}
-                      </td>
-                    ))}
+                    {problemResults.map(result => {
+                      if (result.submissionCount === 0) {
+                        return <td key={result.problemId}>-</td>;
+                      }
+
+                      const trials =
+                        result.maxPoint === 0
+                          ? result.submissionCount
+                          : result.trialsBeforeMax;
+
+                      return (
+                        <td key={result.problemId}>
+                          {result.maxPoint}{" "}
+                          {trials === 0 ? "" : <p>({trials})</p>}{" "}
+                          {result.maxPoint === 0
+                            ? ""
+                            : formatDuration(result.maxPointSubmissionTime)}
+                        </td>
+                      );
+                    })}
                     <td>0</td>
                   </tr>
                 );
@@ -205,7 +233,15 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
   );
 });
 
-const formatDuration = (durationSecond: number) => {};
+const formatDuration = (durationSecond: number) => {
+  const hours = Math.floor(durationSecond / 3600);
+  const minutes = Math.floor(durationSecond / 60) - hours * 60;
+  const seconds = durationSecond - hours * 3600 - minutes * 60;
+
+  const mm = minutes < 10 ? "0" + minutes : "" + minutes;
+  const ss = seconds < 10 ? "0" + seconds : "" + seconds;
+  return `${hours}:${mm}:${ss}`;
+};
 
 export default () => {
   const { contestId } = useParams();

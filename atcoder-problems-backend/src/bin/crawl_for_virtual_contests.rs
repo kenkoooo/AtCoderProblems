@@ -34,7 +34,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         log::info!("Start updating...");
         let conn = PgConnection::establish(&url)?;
-        let request = SubmissionRequest::RecentAccepted { count: 1000 };
+        let request = SubmissionRequest::RecentAll { count: 200 };
         let recent_submissions = conn.get_submissions(request)?;
 
         let user_ids = recent_submissions
