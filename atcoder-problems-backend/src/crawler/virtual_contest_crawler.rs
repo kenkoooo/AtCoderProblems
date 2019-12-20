@@ -43,11 +43,15 @@ where
                 }
                 let fetched_ids = submissions.iter().map(|s| s.id).collect::<Vec<_>>();
                 let stored_submissions = self.db.count_stored_submissions(&fetched_ids)?;
+
                 if fetched_ids.len() == stored_submissions {
                     streak += 1;
                 } else {
                     streak = 0;
                 }
+
+                self.db.update_submissions(&submissions)?;
+
                 if streak >= 5 {
                     break;
                 }
