@@ -52,7 +52,7 @@ interface OuterProps extends RouteComponentProps {
 }
 
 interface InnerProps extends OuterProps {
-  loginState: PromiseState<{}>;
+  loginState: PromiseState<{} | null>;
 }
 
 interface LocalState {
