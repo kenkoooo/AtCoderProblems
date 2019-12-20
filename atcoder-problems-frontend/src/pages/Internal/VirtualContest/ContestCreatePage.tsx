@@ -18,19 +18,26 @@ const ContestCreatePage = (props: InnerProps) => {
     return <Redirect to={`/contest/show/${contestId}`} />;
   }
 
-  const today = DateUtil.formatMomentDate(DateUtil.getToday());
+  const todayMoment = DateUtil.getToday();
+  const today =
+    todayMoment.hour() === 23 && todayMoment.minute() >= 55
+      ? todayMoment.add(60 - todayMoment.minute(), "minute")
+      : todayMoment;
+  const todayDateTime = DateUtil.formatMomentDate(today);
+  const todayHour = today.hour();
+  const todayMinute = Math.floor(today.minute() / 5) * 5 + 5;
 
   return (
     <ContestConfig
       pageTitle="Create Contest"
       initialTitle=""
       initialMemo=""
-      initialStartDate={today}
-      initialStartHour={0}
-      initialStartMinute={0}
-      initialEndDate={today}
-      initialEndHour={0}
-      initialEndMinute={0}
+      initialStartDate={todayDateTime}
+      initialStartHour={todayHour}
+      initialStartMinute={todayMinute}
+      initialEndDate={todayDateTime}
+      initialEndHour={todayHour}
+      initialEndMinute={todayMinute}
       initialProblems={Set()}
       buttonTitle="Create"
       buttonPush={({ title, memo, startSecond, endSecond, problems }) =>

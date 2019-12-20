@@ -93,6 +93,10 @@ mod tests {
             fn update_submission_count(&self) -> Result<()> {
                 unimplemented!()
             }
+
+            fn update_delta_submission_count(&self, values: &[Submission]) -> Result<()> {
+                unimplemented!()
+            }
         }
         impl SimpleClient for MockDB {
             fn insert_contests(&self, _: &[Contest]) -> Result<usize> {

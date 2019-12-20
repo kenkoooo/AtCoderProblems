@@ -5,6 +5,7 @@ export default interface ProblemModel {
   readonly rawDifficulty: number | undefined;
   readonly discrimination: number | undefined;
   readonly is_experimental: boolean;
+  readonly variance: number | undefined;
 }
 
 export const isProblemModel = (obj: any): obj is ProblemModel =>
@@ -30,6 +31,7 @@ export interface ProblemModelWithDifficultyModel {
 export const isProblemModelWithDifficultyModel = (
   obj: any
 ): obj is ProblemModelWithDifficultyModel =>
+  obj !== undefined &&
   (typeof obj.slope === "number" || typeof obj.slope === "undefined") &&
   (typeof obj.intercept === "number" || typeof obj.intercept === "undefined") &&
   typeof obj.difficulty === "number" &&
