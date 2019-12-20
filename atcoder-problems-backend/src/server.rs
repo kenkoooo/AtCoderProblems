@@ -12,6 +12,7 @@ use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use cookie::Cookie;
 
+pub(crate) mod internal_user;
 pub(crate) mod middleware;
 pub(crate) mod problem_list;
 pub(crate) mod time_submissions;
@@ -29,48 +30,52 @@ where
     A: Authentication + Send + Sync + 'static + Clone,
 {
     let app_data = AppData::new(pool, authentication);
-    let mut app = tide::with_state(app_data);
+    let mut api = tide::with_state(app_data);
 
-    app.middleware(RequestLogger::new());
-    app.at("/atcoder-api").nest(|api| {
+    api.middleware(RequestLogger::new());
+    api.at("/internal-api").nest(|api| {
+        api.at("/authorize").get(get_token);
+
+        api.at("/list").nest(|api| {
+            api.at("/get").get(get_list);
+            api.at("/create").post(create_list);
+            api.at("/delete").post(delete_list);
+            api.at("/update").post(update_list);
+            api.at("/item").nest(|api| {
+                api.at("/add").post(add_item);
+                api.at("/update").post(update_item);
+                api.at("/delete").post(delete_item);
+            });
+        });
+
+        api.at("/contest").nest(|api| {
+            api.at("/create").post(virtual_contest::create_contest);
+            api.at("/update").post(virtual_contest::update_contest);
+            api.at("/item/update").post(virtual_contest::update_items);
+            api.at("/get/:contest_id")
+                .get(virtual_contest::get_single_contest);
+            api.at("/join").post(virtual_contest::join_contest);
+            api.at("/my").get(virtual_contest::get_my_contests);
+            api.at("/joined").get(virtual_contest::get_participated);
+            api.at("/recent").get(virtual_contest::get_recent_contests);
+        });
+
+        api.at("/user").nest(|api| {
+            api.at("/get").get(internal_user::get);
+            api.at("/update").post(internal_user::update);
+        });
+    });
+    api.at("/atcoder-api").nest(|api| {
         api.at("/results").get(get_user_submissions);
         api.at("/v2").nest(|api| {
             api.at("/user_info").get(get_user_info);
         });
         api.at("/v3").nest(|api| {
             api.at("/from/:from").get(get_time_submissions);
-            api.at("/authorize").get(get_token);
-            api.at("/internal").nest(|api| {
-                api.at("/list").nest(|api| {
-                    api.at("/get").get(get_list);
-                    api.at("/create").post(create_list);
-                    api.at("/delete").post(delete_list);
-                    api.at("/update").post(update_list);
-                    api.at("/item").nest(|api| {
-                        api.at("/add").post(add_item);
-                        api.at("/update").post(update_item);
-                        api.at("/delete").post(delete_item);
-                    });
-                });
-
-                api.at("/contest").nest(|api| {
-                    api.at("/create").post(virtual_contest::create_contest);
-                    api.at("/update").post(virtual_contest::update_contest);
-                    api.at("/item").nest(|api| {
-                        api.at("/add").post(virtual_contest::add_item);
-                        api.at("/delete").post(virtual_contest::delete_item);
-                    });
-                    api.at("/get/:contest_id")
-                        .get(virtual_contest::get_single_contest);
-                    api.at("/join").post(virtual_contest::join_contest);
-                    api.at("/my").get(virtual_contest::get_my_contests);
-                    api.at("/joined").get(virtual_contest::get_participated);
-                });
-            });
         });
     });
-    app.at("/healthcheck").get(|_| async move { "" });
-    app.listen(format!("0.0.0.0:{}", port)).await?;
+    api.at("/healthcheck").get(|_| async move { "" });
+    api.listen(format!("0.0.0.0:{}", port)).await?;
     Ok(())
 }
 

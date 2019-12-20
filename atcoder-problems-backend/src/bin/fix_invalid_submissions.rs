@@ -1,5 +1,5 @@
 use algorithm_problem_client::AtCoderClient;
-use atcoder_problems_backend::crawler::fix_crawler::FixCrawler;
+use atcoder_problems_backend::crawler::FixCrawler;
 use chrono::Utc;
 use diesel::{Connection, PgConnection};
 use log::info;

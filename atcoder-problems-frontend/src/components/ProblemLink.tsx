@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import * as Url from "../utils/Url";
 import { DifficultyCircle } from "./DifficultyCircle";
 import { Tooltip } from "reactstrap";
@@ -10,10 +10,6 @@ interface Props {
   difficulty: number | null;
   showDifficulty: boolean;
   isExperimentalDifficulty: boolean;
-}
-
-interface LocalState {
-  tooltipOpen: boolean;
 }
 
 function getColorClass(difficulty: number | null): string {
@@ -39,72 +35,64 @@ function getColorClass(difficulty: number | null): string {
   }
 }
 
-class ProblemLink extends React.Component<Props, LocalState> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      tooltipOpen: false
-    };
+const ProblemLink = (props: Props) => {
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+
+  const {
+    contestId,
+    problemId,
+    problemTitle,
+    difficulty,
+    showDifficulty,
+    isExperimentalDifficulty
+  } = props;
+  const link = (
+    <a
+      href={Url.formatProblemUrl(problemId, contestId)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {problemTitle}
+    </a>
+  );
+  if (!showDifficulty) {
+    return link;
   }
 
-  render() {
-    const {
-      contestId,
-      problemId,
-      problemTitle,
-      difficulty,
-      showDifficulty,
-      isExperimentalDifficulty
-    } = this.props;
-    const { tooltipOpen } = this.state;
-    const link = (
+  if (difficulty === null) {
+    return link;
+  }
+
+  const uniqueId = problemId + "-" + contestId;
+  const experimentalIconId = "experimental-" + uniqueId;
+  return (
+    <>
+      <DifficultyCircle id={uniqueId} difficulty={difficulty} />
+      {isExperimentalDifficulty ? (
+        <>
+          <span id={experimentalIconId} role="img" aria-label="experimental">
+            🧪
+          </span>
+          <Tooltip
+            placement="top"
+            target={experimentalIconId}
+            isOpen={tooltipOpen}
+            toggle={() => setTooltipOpen(!tooltipOpen)}
+          >
+            This estimate is experimental.
+          </Tooltip>
+        </>
+      ) : null}
       <a
         href={Url.formatProblemUrl(problemId, contestId)}
         target="_blank"
         rel="noopener noreferrer"
+        className={getColorClass(difficulty)}
       >
         {problemTitle}
       </a>
-    );
-    if (!showDifficulty) {
-      return link;
-    }
-
-    if (difficulty === null) {
-      return link;
-    }
-
-    const uniqueId = problemId + "-" + contestId;
-    const experimentalIconId = "experimental-" + uniqueId;
-    return (
-      <>
-        <DifficultyCircle id={uniqueId} difficulty={difficulty} />
-        {isExperimentalDifficulty ? (
-          <>
-            <span id={experimentalIconId} role="img" aria-label="experimental">
-              🧪
-            </span>
-            <Tooltip
-              placement="top"
-              target={experimentalIconId}
-              isOpen={tooltipOpen}
-              toggle={() => this.setState({ tooltipOpen: !tooltipOpen })}
-            >
-              This estimate is experimental.
-            </Tooltip>
-          </>
-        ) : null}
-        <a
-          href={Url.formatProblemUrl(problemId, contestId)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={getColorClass(difficulty)}
-        >
-          {problemTitle}
-        </a>
-      </>
-    );
-  }
-}
+    </>
+  );
+};
 
 export default ProblemLink;

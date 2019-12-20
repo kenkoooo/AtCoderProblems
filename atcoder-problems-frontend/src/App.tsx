@@ -19,6 +19,11 @@ import TablePage from "./pages/TablePage";
 import NavigationBar from "./components/NavigationBar";
 import StreakRanking from "./pages/StreakRanking";
 import { List } from "immutable";
+import ContestCreatePage from "./pages/Internal/VirtualContest/ContestCreatePage";
+import ShowContest from "./pages/Internal/VirtualContest/ShowContest";
+import UserConfigPage from "./pages/Internal/MyAccountPage";
+import RecentContestList from "./pages/Internal/VirtualContest/RecentContestList";
+import ContestUpdatePage from "./pages/Internal/VirtualContest/ContestUpdatePage";
 
 const App = () => {
   const [userId, setUserId] = useState("");
@@ -42,7 +47,7 @@ const App = () => {
             <Route exact path="/streak" component={() => <StreakRanking />} />
             <Route exact path="/lang" component={() => <LanguageOwners />} />
             <Route
-              path="/user/([a-zA-Z0-9_]*)*"
+              path="/user/([a-zA-Z0-9_]+)+"
               component={() => <UserPage userId={userId} />}
             />
             <Route
@@ -53,6 +58,18 @@ const App = () => {
               path="/list/([a-zA-Z0-9_]*)*"
               component={() => <ListPage userId={userId} rivals={rivals} />}
             />
+            <Route
+              path="/contest/show/:contestId([a-zA-Z0-9_-]+)"
+              component={ShowContest}
+            />
+            <Route path="/contest/create" component={ContestCreatePage} />
+            <Route
+              path="/contest/update/:contestId([a-zA-Z0-9_-]+)"
+              component={ContestUpdatePage}
+            />
+            <Route path="/contest/recent" component={RecentContestList} />
+            <Route path="/login/user" component={UserConfigPage} />
+
             <Redirect path="/" to="/table/" />
           </Switch>
         </Container>

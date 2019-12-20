@@ -142,7 +142,7 @@ allow_tables_to_appear_in_same_query!(
 table! {
     internal_users (internal_user_id) {
         internal_user_id -> Varchar,
-        atcoder_user_id -> Varchar,
+        atcoder_user_id -> Nullable<Varchar>,
     }
 }
 

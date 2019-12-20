@@ -1,7 +1,13 @@
-pub mod fix_crawler;
-pub mod recent_crawler;
+mod fix_crawler;
+mod recent_crawler;
 pub(crate) mod utils;
-pub mod whole_contest_crawler;
+mod virtual_contest_crawler;
+mod whole_contest_crawler;
+
+pub use fix_crawler::FixCrawler;
+pub use recent_crawler::RecentCrawler;
+pub use virtual_contest_crawler::VirtualContestCrawler;
+pub use whole_contest_crawler::WholeContestCrawler;
 
 use crate::error::Result;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
@@ -106,7 +112,7 @@ where
 
             info!("Inserting {} submissions...", new_submissions.len());
             let min_id = new_submissions.iter().map(|s| s.id).min().unwrap_or(0);
-            let exists = conn.get_submission_by_id(min_id)?.is_some();
+            let exists = conn.count_stored_submissions(&[min_id])? != 0;
             conn.update_submissions(&new_submissions)?;
             thread::sleep(time::Duration::from_millis(200));
 
@@ -140,7 +146,7 @@ where
 
             info!("Inserting {} submissions...", new_submissions.len());
             let min_id = new_submissions.iter().map(|s| s.id).min().unwrap_or(0);
-            let exists = conn.get_submission_by_id(min_id)?.is_some();
+            let exists = conn.count_stored_submissions(&[min_id])? != 0;
             conn.update_submissions(&new_submissions)?;
             thread::sleep(time::Duration::from_millis(200));
 

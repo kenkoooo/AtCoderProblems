@@ -9,7 +9,7 @@ import {
   Line,
   ResponsiveContainer
 } from "recharts";
-import { formatMoment, parseSecond } from "../../utils/DateUtil";
+import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 
 const ClimbingLineChart = (props: {
   climbingData: { dateSecond: number; count: number }[];
@@ -31,13 +31,13 @@ const ClimbingLineChart = (props: {
           type="number"
           domain={["dataMin", "dataMax"]}
           tickFormatter={(dateSecond: number) =>
-            formatMoment(parseSecond(dateSecond))
+            formatMomentDate(parseSecond(dateSecond))
           }
         />
         <YAxis />
         <Tooltip
           labelFormatter={(dateSecond: any) =>
-            formatMoment(parseSecond(dateSecond))
+            formatMomentDate(parseSecond(dateSecond))
           }
         />
         <Line dataKey="count" stroke="#8884d8" />
