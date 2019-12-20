@@ -316,6 +316,12 @@ const fetchSubmissions = (user: string) =>
       )
     : Promise.resolve(List<Submission>());
 
+export const fetchSubmissionsFrom = (epochSecond: number) =>
+  fetchTypedList(
+    `${BASE_URL}/atcoder-api/v3/from/${epochSecond}`,
+    isSubmission
+  );
+
 const fetchRatingInfo = async (user: string) => {
   const history =
     user.length > 0

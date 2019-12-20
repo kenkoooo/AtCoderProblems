@@ -18,6 +18,7 @@ import { formatProblemUrl } from "../../../utils/Url";
 import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../ApiUrl";
 import Submission from "../../../interfaces/Submission";
 import MergedProblem from "../../../interfaces/MergedProblem";
+import { fetchSubmissionsFrom } from "../../../utils/CachedApiClient";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
@@ -48,9 +49,10 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
     contestInfoFetch: {
       url: contestGetUrl(props.contestId),
       then: contest => {
-        const users: string[] = contest.participants;
+        const start = contest.start_epoch_second;
+        const end = contest.start_epoch_second + contest.duration_second;
         return {
-          value: CachedApi.cachedUsersSubmissionMap(List(users)).then(map => ({
+          value: fetchSubmissions(start, end).then(map => ({
             map,
             ...contest
           }))
@@ -108,6 +110,68 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   const isOwner = contestInfo.owner_user_id === internalUserId;
   const start = contestInfo.start_epoch_second;
   const end = contestInfo.start_epoch_second + contestInfo.duration_second;
+  const problemIds = contestInfo.problems.sort();
+
+  const contestResults = contestInfo.participants
+    .map(userId => {
+      const problemResults = problemIds.map(problemId => {
+        const submissions = submissionMap
+          .get(problemId, List<Submission>())
+          .filter(s => s.user_id === userId)
+          .filter(s => start <= s.epoch_second && s.epoch_second <= end)
+          .sortBy(s => s.id);
+        const result = submissions.reduce(
+          (cur, submission, i) => {
+            if (cur.maxPoint < submission.point) {
+              return {
+                maxPoint: submission.point,
+                maxPointSubmissionTime: submission.epoch_second,
+                trialsBeforeMax: i
+              };
+            } else {
+              return cur;
+            }
+          },
+          {
+            maxPoint: 0,
+            maxPointSubmissionTime: 0,
+            trialsBeforeMax: 0
+          }
+        );
+        return {
+          problemId,
+          submissionCount: submissions.size,
+          ...result
+        };
+      });
+      const totalResult = problemResults.reduce(
+        (result, e) => {
+          return {
+            wrongAnswers: result.wrongAnswers + e.trialsBeforeMax,
+            pointSum: result.pointSum + e.maxPoint,
+            lastIncreaseTime: Math.max(
+              result.lastIncreaseTime,
+              e.maxPointSubmissionTime
+            )
+          };
+        },
+        {
+          wrongAnswers: 0,
+          pointSum: 0,
+          lastIncreaseTime: 0
+        }
+      );
+      return { totalResult, problemResults, userId };
+    })
+    .sort((a, b) => {
+      if (a.totalResult.pointSum !== b.totalResult.pointSum) {
+        return b.totalResult.pointSum - a.totalResult.pointSum;
+      }
+      if (a.totalResult.lastIncreaseTime !== b.totalResult.lastIncreaseTime) {
+        return a.totalResult.lastIncreaseTime - b.totalResult.lastIncreaseTime;
+      }
+      return a.totalResult.wrongAnswers - b.totalResult.wrongAnswers;
+    });
 
   return (
     <>
@@ -139,7 +203,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
             <thead>
               <tr>
                 <th>Participant</th>
-                {contestInfo.problems.map(problemId => {
+                {problemIds.map(problemId => {
                   const problem = problemMap.get(problemId, null);
                   return (
                     <th key={problemId}>
@@ -164,70 +228,48 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
               </tr>
             </thead>
             <tbody>
-              {contestInfo.participants.map(userId => {
-                const problemResults = contestInfo.problems.map(problemId => {
-                  const submissions = submissionMap
-                    .get(problemId, List<Submission>())
-                    .filter(s => s.user_id === userId)
-                    .filter(
-                      s => start <= s.epoch_second && s.epoch_second <= end
-                    )
-                    .sortBy(s => s.id);
-                  const result = submissions.reduce(
-                    (cur, submission, i) => {
-                      if (cur.maxPoint < submission.point) {
-                        return {
-                          maxPoint: submission.point,
-                          maxPointSubmissionTime: submission.epoch_second,
-                          trialsBeforeMax: i
-                        };
-                      } else {
-                        return cur;
-                      }
-                    },
-                    {
-                      maxPoint: 0,
-                      maxPointSubmissionTime: 0,
-                      trialsBeforeMax: 0
+              {contestResults.map(({ userId, problemResults, totalResult }) => (
+                <tr key={userId}>
+                  <th>{userId}</th>
+                  {problemResults.map(result => {
+                    if (result.submissionCount === 0) {
+                      return <td key={result.problemId}>-</td>;
                     }
-                  );
-                  return {
-                    problemId,
-                    submissionCount: submissions.size,
-                    ...result
-                  };
-                });
-                return (
-                  <tr key={userId}>
-                    <th>{userId}</th>
-                    {problemResults.map(result => {
-                      if (result.submissionCount === 0) {
-                        return <td key={result.problemId}>-</td>;
-                      }
 
-                      const trials =
-                        result.maxPoint === 0
-                          ? result.submissionCount
-                          : result.trialsBeforeMax;
+                    const trials =
+                      result.maxPoint === 0
+                        ? result.submissionCount
+                        : result.trialsBeforeMax;
 
-                      return (
-                        <td key={result.problemId}>
-                          <p>{result.maxPoint}</p>
-                          <p>{trials === 0 ? "" : `(${trials})`}</p>
-                          <p>
-                            {result.maxPoint === 0
-                              ? ""
-                              : formatDuration(
-                                  result.maxPointSubmissionTime - start
-                                )}
-                          </p>
-                        </td>
-                      );
-                    })}
-                    <td>0</td>
-                  </tr>
-                );
-              })}
+                    return (
+                      <td key={result.problemId}>
+                        <p>{result.maxPoint}</p>
+                        <p>{trials === 0 ? "" : `(${trials})`}</p>
+                        <p>
+                          {result.maxPoint === 0
+                            ? ""
+                            : formatDuration(
+                                result.maxPointSubmissionTime - start
+                              )}
+                        </p>
+                      </td>
+                    );
+                  })}
+                  <td>
+                    <p>{totalResult.pointSum}</p>
+                    <p>
+                      {totalResult.wrongAnswers === 0
+                        ? ""
+                        : `(${totalResult.wrongAnswers})`}
+                    </p>
+                    <p>
+                      {totalResult.pointSum === 0
+                        ? ""
+                        : formatDuration(totalResult.lastIncreaseTime - start)}
+                    </p>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </Table>
         </Col>
@@ -244,6 +286,24 @@ const formatDuration = (durationSecond: number) => {
   const mm = minutes < 10 ? "0" + minutes : "" + minutes;
   const ss = seconds < 10 ? "0" + seconds : "" + seconds;
   return `${hours}:${mm}:${ss}`;
+};
+
+const fetchSubmissions = async (start: number, end: number) => {
+  let cur = start;
+  let result = List<Submission>();
+  while (cur <= end) {
+    const submissions = await fetchSubmissionsFrom(cur);
+    result = result.concat(submissions);
+    const maxSecond = submissions.map(s => s.epoch_second).max();
+    if (!maxSecond || maxSecond > end) {
+      break;
+    }
+    cur = maxSecond + 1;
+  }
+  return result.reduce((map, s) => {
+    const list = map.get(s.problem_id, List<Submission>());
+    return map.set(s.problem_id, list.push(s));
+  }, Map<ProblemId, List<Submission>>());
 };
 
 export default () => {
