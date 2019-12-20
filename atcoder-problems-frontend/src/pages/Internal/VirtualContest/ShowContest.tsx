@@ -23,7 +23,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel
 } from "../../../interfaces/ProblemModel";
 import { predictSolveProbability } from "../../../utils/ProblemModelUtil";
-import { clipDifficulty } from "../../../utils";
+import { clipDifficulty, getRatingColorClass } from "../../../utils";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
@@ -290,33 +290,31 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                           result.maxPoint === 0
                             ? result.submissionCount
                             : result.trialsBeforeMax;
-
                         return (
                           <td key={result.problemId}>
-                            <p>{result.maxPoint}</p>
-                            <p>{trials === 0 ? "" : `(${trials})`}</p>
-                            <p>
-                              {result.maxPoint === 0
-                                ? ""
-                                : formatDuration(result.maxPointSubmissionTime)}
-                            </p>
+                            <ScoreCell
+                              maxPoint={result.maxPoint}
+                              trials={trials}
+                              time={result.maxPointSubmissionTime}
+                            />
                           </td>
                         );
                       })}
                     <td>
-                      <p>{totalResult.pointSum}</p>
-                      <p>
-                        {totalResult.wrongAnswers === 0
-                          ? ""
-                          : `(${totalResult.wrongAnswers})`}
-                      </p>
-                      <p>
-                        {totalResult.pointSum === 0
-                          ? ""
-                          : formatDuration(totalResult.lastIncreaseTime)}
+                      <ScoreCell
+                        maxPoint={totalResult.pointSum}
+                        trials={totalResult.wrongAnswers}
+                        time={totalResult.lastIncreaseTime}
+                      />
+                    </td>
+                    <td>
+                      <p
+                        className={getRatingColorClass(estimatedPerformance)}
+                        style={{ textAlign: "center", fontWeight: "bold" }}
+                      >
+                        {estimatedPerformance}
                       </p>
                     </td>
-                    <td>{estimatedPerformance}</td>
                   </tr>
                 )
               )}
@@ -327,6 +325,28 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
     </>
   );
 });
+
+const ScoreCell = (props: {
+  maxPoint: number;
+  trials: number;
+  time: number;
+}) => (
+  <>
+    <p style={{ textAlign: "center" }}>
+      <span style={{ color: "limegreen", fontWeight: "bold" }}>
+        {props.maxPoint}
+      </span>{" "}
+      <span style={{ color: "red" }}>
+        {props.trials === 0 ? "" : `(${props.trials})`}
+      </span>
+    </p>
+    <p style={{ textAlign: "center" }}>
+      <span style={{ color: "gray" }}>
+        {props.maxPoint === 0 ? "-" : formatDuration(props.time)}
+      </span>
+    </p>
+  </>
+);
 
 const calcPerformance = (
   solvedData: List<{ problemId: string; time: number; solved: boolean }>,
