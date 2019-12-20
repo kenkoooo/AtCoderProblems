@@ -24,6 +24,7 @@ import ProblemModel, {
 } from "../../../interfaces/ProblemModel";
 import { predictSolveProbability } from "../../../utils/ProblemModelUtil";
 import { clipDifficulty, getRatingColorClass } from "../../../utils";
+import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
@@ -124,11 +125,13 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   const modelMap = problemModelGet.fulfilled
     ? problemModelGet.value
     : Map<ProblemId, ProblemModel>();
-  const alreadyJoined =
-    atcoderUserId != null && contestInfo.participants.includes(atcoderUserId);
-  const isOwner = contestInfo.owner_user_id === internalUserId;
   const start = contestInfo.start_epoch_second;
   const end = contestInfo.start_epoch_second + contestInfo.duration_second;
+  const alreadyJoined =
+    atcoderUserId != null && contestInfo.participants.includes(atcoderUserId);
+  const now = Math.floor(Date.now() / 1000);
+  const canJoin = !alreadyJoined && atcoderUserId !== null && now < end;
+  const isOwner = contestInfo.owner_user_id === internalUserId;
   const problemIds = contestInfo.problems.sort();
 
   const contestResults = contestInfo.participants
@@ -221,8 +224,17 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
       <Row className="my-2">
         <Col sm="12">
           <h1>{contestInfo.title}</h1>
+          <h3>
+            {formatMomentDateTime(parseSecond(start))} -{" "}
+            {formatMomentDateTime(parseSecond(end))}
+          </h3>
+          {atcoderUserId === null ? (
+            <Alert color="warning">
+              Please set the AtCoder ID, before you join the contest.
+            </Alert>
+          ) : null}
           <ButtonGroup>
-            {!alreadyJoined && atcoderUserId !== null ? (
+            {canJoin ? (
               <Button onClick={() => props.joinContest()}>Join</Button>
             ) : null}
             {isOwner ? (
@@ -432,14 +444,16 @@ const fetchSubmissions = async (
     result = result.concat(submissions);
   });
 
-  let cur = Math.max(Date.now() - 3600, start);
+  let cur = Math.max(Math.floor(Date.now() / 1000) - 600, start);
+  let fetchCount = 0;
   while (cur <= end) {
     const submissions = await fetchSubmissionsFrom(cur).catch(() =>
       List<Submission>()
     );
+    fetchCount += 1;
     result = result.concat(submissions);
     const maxSecond = submissions.map(s => s.epoch_second).max();
-    if (!maxSecond || maxSecond > end) {
+    if (!maxSecond || maxSecond > end || fetchCount > 15) {
       break;
     }
     cur = maxSecond + 1;
