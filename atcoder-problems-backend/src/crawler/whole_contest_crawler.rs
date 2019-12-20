@@ -68,6 +68,10 @@ mod tests {
         fn update_submission_count(&self) -> Result<()> {
             unimplemented!()
         }
+
+        fn update_delta_submission_count(&self, values: &[Submission]) -> Result<()> {
+            unimplemented!()
+        }
     }
     #[test]
     fn whole_contest_crawler() {

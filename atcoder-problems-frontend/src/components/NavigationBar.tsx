@@ -226,14 +226,11 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
                     <NavLink tag={RouterLink} to="/login/user">
                       Account
                     </NavLink>
-                  ) : null
-
-                  //   (
-                  //   <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
-                  //     Login
-                  //   </NavLink>
-                  // )
-                  }
+                  ) : (
+                    <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
+                      Login
+                    </NavLink>
+                  )}
                 </NavItem>
               </>
             ) : null}
