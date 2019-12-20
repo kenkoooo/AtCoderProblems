@@ -35,7 +35,7 @@ pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'stati
             Ok(list_id)
         })
         .and_then(|internal_list_id| {
-            let body = serde_json::json!({ "internal_list_id": format!("{}", internal_list_id) });
+            let body = serde_json::json!({ "internal_list_id": internal_list_id });
             let response = Response::ok().body_json(&body)?;
             Ok(response)
         })
