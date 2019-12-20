@@ -104,7 +104,7 @@ export const cachedUsersSubmissionMap = (users: List<string>) =>
       Map<ProblemId, List<Submission>>()
     )
   );
-const cachedSubmissions = (user: string) => {
+export const cachedSubmissions = (user: string) => {
   const cache = SUBMISSION_MAP.get(user);
   if (cache) {
     return cache;
