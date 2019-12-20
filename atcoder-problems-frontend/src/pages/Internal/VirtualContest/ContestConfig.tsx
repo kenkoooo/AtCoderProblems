@@ -28,6 +28,8 @@ const problemMatch = (text: string, problem: Problem) =>
     .includes(text.toLowerCase());
 
 const ContestConfig = (props: InnerProps) => {
+  const [focusingId, setFocusingId] = useState(-1);
+
   const [title, setTitle] = useState(props.initialTitle);
   const [memo, setMemo] = useState(props.initialMemo);
 
@@ -57,7 +59,8 @@ const ContestConfig = (props: InnerProps) => {
       problem =>
         problemSearch.length > 0 && problemMatch(problemSearch, problem)
     )
-    .slice(0, 10);
+    .slice(0, 10)
+    .toList();
 
   const startSecond = toUnixSecond(startDate, startHour, startMinute);
   const endSecond = toUnixSecond(endDate, endHour, endMinute);
@@ -185,16 +188,35 @@ const ContestConfig = (props: InnerProps) => {
           type="text"
           placeholder="Search Problems"
           value={problemSearch}
-          onChange={e => setProblemSearch(e.target.value)}
+          onChange={e => {
+            setProblemSearch(e.target.value);
+            setFocusingId(-1);
+          }}
+          onKeyDown={e => {
+            if (e.key === "Enter") {
+              const problem = filterProblems.get(focusingId);
+              if (problem) {
+                setProblemSet(problemSet.add(problem.id));
+                setProblemSearch("");
+                setFocusingId(-1);
+              }
+            } else if (e.key === "ArrowDown") {
+              setFocusingId(Math.min(filterProblems.size - 1, focusingId + 1));
+            } else if (e.key === "ArrowUp") {
+              setFocusingId(Math.max(-1, focusingId - 1));
+            }
+          }}
         />
         <Col>
           <ListGroup>
-            {filterProblems.map(problem => (
+            {filterProblems.map((problem, i) => (
               <ListGroupItem
+                active={i === focusingId}
                 key={problem.id}
                 onClick={() => {
                   setProblemSet(problemSet.add(problem.id));
                   setProblemSearch("");
+                  setFocusingId(-1);
                 }}
               >
                 <ListGroupItemHeading>{problem.title}</ListGroupItemHeading>
