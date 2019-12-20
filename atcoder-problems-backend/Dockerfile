@@ -15,3 +15,4 @@ COPY --from=builder /app/target/release/batch_update /usr/bin/batch_update
 COPY --from=builder /app/target/release/run_server /usr/bin/run_server
 COPY --from=builder /app/target/release/fix_invalid_submissions /usr/bin/fix_invalid_submissions
 COPY --from=builder /app/target/release/crawl_whole_contest /usr/bin/crawl_whole_contest
+COPY --from=builder /app/target/release/crawl_for_virtual_contests /usr/bin/crawl_for_virtual_contests

@@ -18,6 +18,7 @@ import Problem from "../../../interfaces/Problem";
 import { formatProblemUrl } from "../../../utils/Url";
 import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../ApiUrl";
 import Submission from "../../../interfaces/Submission";
+import MergedProblem from "../../../interfaces/MergedProblem";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>>;
@@ -37,7 +38,7 @@ interface InnerProps extends OuterProps {
   userInfoGet: PromiseState<UserInfo>;
   joinContest: () => void;
   joinContestPost: PromiseState<{} | null>;
-  problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
+  problemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;
 }
 
 const ShowContest = connect<OuterProps, InnerProps>(props => {
@@ -59,7 +60,7 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
     },
     problemMapFetch: {
       comparison: null,
-      value: () => CachedApi.cachedProblemMap()
+      value: () => CachedApi.cachedMergedProblemMap()
     },
     joinContest: () => ({
       joinContestPost: {
@@ -92,7 +93,7 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
 
   const problemMap = problemMapFetch.fulfilled
     ? problemMapFetch.value
-    : Map<ProblemId, Problem>();
+    : Map<ProblemId, MergedProblem>();
   const contestInfo = contestInfoFetch.value;
   const atcoderUserId = userInfoGet.fulfilled
     ? userInfoGet.value.atcoder_user_id
@@ -160,6 +161,30 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
             </thead>
             <tbody>
               {contestInfo.participants.map(userId => {
+                contestInfo.problems.map(problemId => {
+                  const problem = problemMap.get(problemId);
+                  const submissions = contestInfo.map
+                    .get(problemId, List<Submission>())
+                    .sortBy(s => s.id);
+                  const result = submissions.reduce(
+                    (cur, submission, i) => {
+                      if (cur.maxPoint < submission.point) {
+                        return {
+                          maxPoint: submission.point,
+                          maxPointSubmissionTime: submission.epoch_second,
+                          trialsBeforeMax: i + 1
+                        };
+                      } else {
+                        return cur;
+                      }
+                    },
+                    {
+                      maxPoint: 0,
+                      maxPointSubmissionTime: 0,
+                      trialsBeforeMax: 0
+                    }
+                  );
+                });
                 return (
                   <tr key={userId}>
                     <th>{userId}</th>
@@ -179,6 +204,8 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
     </>
   );
 });
+
+const formatDuration = (durationSecond: number) => {};
 
 export default () => {
   const { contestId } = useParams();
