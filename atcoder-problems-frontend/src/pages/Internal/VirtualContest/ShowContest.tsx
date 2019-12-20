@@ -181,8 +181,6 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           }
         ).list;
 
-      const estimatedPerformance = calcPerformance(solvedData, modelMap);
-
       const totalResult = problemResults.reduce(
         (result, e) => {
           return {
@@ -200,7 +198,12 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           lastIncreaseTime: 0
         }
       );
-      return { totalResult, problemResults, userId, estimatedPerformance };
+      return {
+        totalResult,
+        problemResults,
+        userId,
+        estimatedPerformance: calcPerformance(solvedData, modelMap)
+      };
     })
     .sort((a, b) => {
       if (a.totalResult.pointSum !== b.totalResult.pointSum) {
