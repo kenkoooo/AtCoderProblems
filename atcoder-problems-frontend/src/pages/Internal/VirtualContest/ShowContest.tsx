@@ -360,7 +360,7 @@ const calcPerformance = (
         const model = modelMap.get(problemId);
         return calcProbability(model, candidateRating, time, solved);
       })
-      .reduce((cur, p) => (p ? cur * p : cur), 1.0);
+      .reduce((prev, cur) => (cur ? prev * cur : prev), 1.0);
     if (probability < p) {
       probability = p;
       internalRating = candidateRating;
