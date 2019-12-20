@@ -143,7 +143,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
             if (cur.maxPoint < submission.point) {
               return {
                 maxPoint: submission.point,
-                maxPointSubmissionTime: submission.epoch_second,
+                maxPointSubmissionTime: submission.epoch_second - start,
                 trialsBeforeMax: i
               };
             } else {
@@ -298,9 +298,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                             <p>
                               {result.maxPoint === 0
                                 ? ""
-                                : formatDuration(
-                                    result.maxPointSubmissionTime - start
-                                  )}
+                                : formatDuration(result.maxPointSubmissionTime)}
                             </p>
                           </td>
                         );
@@ -315,9 +313,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                       <p>
                         {totalResult.pointSum === 0
                           ? ""
-                          : formatDuration(
-                              totalResult.lastIncreaseTime - start
-                            )}
+                          : formatDuration(totalResult.lastIncreaseTime)}
                       </p>
                     </td>
                     <td>{estimatedPerformance}</td>
@@ -338,7 +334,7 @@ const calcPerformance = (
 ) => {
   let internalRating = 0;
   let probability = 0.0;
-  for (let candidateRating = 0; candidateRating < 4000; candidateRating++) {
+  for (let candidateRating = -4000; candidateRating < 4000; candidateRating++) {
     const p = solvedData
       .map(({ problemId, time, solved }) => {
         const model = modelMap.get(problemId);
@@ -362,13 +358,8 @@ const calcProbability = (
 ) => {
   const slope = model?.slope;
   const intercept = model?.intercept;
-  const variance = model?.variance;
-  if (
-    isProblemModelWithDifficultyModel(model) &&
-    slope &&
-    intercept &&
-    variance
-  ) {
+  const v = model?.variance;
+  if (isProblemModelWithDifficultyModel(model) && slope && intercept && v) {
     const pSolved = predictSolveProbability(model, rating);
     if (!solved) {
       return 1.0 - pSolved;
@@ -376,10 +367,9 @@ const calcProbability = (
 
     const logTime = Math.log(time);
     const mean = slope * rating + intercept;
-    const diff = logTime - mean;
+    const d = logTime - mean;
     const pTime =
-      Math.exp((-diff * diff) / (2 * variance * variance)) /
-      Math.sqrt(2 * Math.PI * variance * variance);
+      Math.exp((-d * d) / (2 * v * v)) / Math.sqrt(2 * Math.PI * v * v);
     return pSolved * pTime;
   } else {
     return undefined;
