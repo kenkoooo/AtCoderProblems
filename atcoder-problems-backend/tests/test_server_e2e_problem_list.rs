@@ -85,45 +85,59 @@ fn test_list() {
                 .set_header("Cookie", format!("token={}", token))
                 .recv_json::<Value>()
                 .await?;
-            let expected: Value = serde_json::from_str(&format!(
-                r#"[{{
-                    "internal_list_id": "{}",
-                    "internal_list_name": "a",
-                    "items": []
-                    }}]"#,
-                internal_list_id
-            ))
-            .unwrap();
-            assert_eq!(response, expected);
+            assert_eq!(
+                response,
+                serde_json::json!([
+                    {
+                        "internal_list_id": internal_list_id,
+                        "internal_list_name": "a",
+                        "items": []
+                    }
+                ])
+            );
 
-            let mut map = BTreeMap::new();
-            map.insert("internal_list_id", internal_list_id);
-            map.insert("name", "b");
             let response = surf::post(url("/internal-api/list/update", port))
                 .set_header("Cookie", format!("token={}", token))
-                .body_json(&map)?
+                .body_json(&serde_json::json!({
+                    "internal_list_id":internal_list_id,
+                    "name":"b"
+                }))?
                 .await?;
             assert!(response.status().is_success());
             let response = surf::get(url("/internal-api/list/my", port))
                 .set_header("Cookie", format!("token={}", token))
                 .recv_json::<Value>()
                 .await?;
-            let expected: Value = serde_json::from_str(&format!(
-                r#"[{{
-                    "internal_list_id": "{}",
+            assert_eq!(
+                response,
+                serde_json::json!([
+                    {
+                        "internal_list_id": internal_list_id,
+                        "internal_list_name": "b",
+                        "items": []
+                    }
+                ])
+            );
+
+            let response = surf::get(url(
+                &format!("/internal-api/list/get/{}", internal_list_id),
+                port,
+            ))
+            .recv_json::<Value>()
+            .await?;
+            assert_eq!(
+                response,
+                serde_json::json!(
+                {
+                    "internal_list_id": internal_list_id,
                     "internal_list_name": "b",
                     "items": []
-                    }}]"#,
-                internal_list_id
-            ))
-            .unwrap();
-            assert_eq!(response, expected);
+                })
+            );
 
-            let mut map = BTreeMap::new();
-            map.insert("internal_list_id", &internal_list_id);
             let response = surf::post(url("/internal-api/list/delete", port))
                 .set_header("Cookie", format!("token={}", token))
-                .body_json(&map)?
+                .body_json(&serde_json::json!({ "internal_list_id": internal_list_id }))?
                 .await?;
             assert!(response.status().is_success());
 
