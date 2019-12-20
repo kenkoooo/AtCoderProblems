@@ -21,7 +21,7 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  contestInfoFetch: PromiseState<VirtualContest>;
+  contestInfoFetch: PromiseState<VirtualContest | null>;
   updateResponse: PromiseState<{} | null>;
   updateContest: (request: Request, problems: string[]) => void;
 }
@@ -58,7 +58,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
   const { contestId, contestInfoFetch, updateResponse } = props;
   if (contestInfoFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
-  } else if (contestInfoFetch.rejected) {
+  } else if (contestInfoFetch.rejected || !contestInfoFetch.value) {
     return <Alert color="danger">Failed to fetch contest info.</Alert>;
   }
   const contestInfo = contestInfoFetch.value;
@@ -81,7 +81,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
       initialStartMinute={start.minute()}
       initialEndDate={DateUtil.formatMomentDate(end)}
       initialEndHour={end.hour()}
-      initialEndMinute={start.minute()}
+      initialEndMinute={end.minute()}
       initialProblems={Set(contestInfo.problems)}
       buttonTitle="Update"
       buttonPush={({ title, memo, startSecond, endSecond, problems }) =>

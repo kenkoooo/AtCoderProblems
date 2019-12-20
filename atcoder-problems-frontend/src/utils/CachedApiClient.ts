@@ -26,11 +26,14 @@ import { clipDifficulty, isAccepted } from "./index";
 import ContestParticipation, {
   isContestParticipation
 } from "../interfaces/ContestParticipation";
+import { isBlockedProblem } from "./BlockList";
 
 let MERGED_PROBLEMS: Promise<List<MergedProblem>> | undefined;
 const cachedMergedProblems = () => {
   if (MERGED_PROBLEMS === undefined) {
-    MERGED_PROBLEMS = fetchMergedProblems();
+    MERGED_PROBLEMS = fetchMergedProblems().then(problems =>
+      problems.filter(p => !isBlockedProblem(p.id))
+    );
   }
   return MERGED_PROBLEMS;
 };
@@ -69,12 +72,14 @@ export const cachedContestMap = () => {
 let CACHED_PROBLEMS: undefined | Promise<Map<ProblemId, Problem>>;
 export const cachedProblemMap = () => {
   if (CACHED_PROBLEMS === undefined) {
-    CACHED_PROBLEMS = fetchProblems().then(problems =>
-      problems.reduce(
-        (map, problem) => map.set(problem.id, problem),
-        Map<string, Problem>()
-      )
-    );
+    CACHED_PROBLEMS = fetchProblems()
+      .then(problems => problems.filter(p => !isBlockedProblem(p.id)))
+      .then(problems =>
+        problems.reduce(
+          (map, problem) => map.set(problem.id, problem),
+          Map<string, Problem>()
+        )
+      );
   }
   return CACHED_PROBLEMS;
 };
@@ -104,7 +109,7 @@ export const cachedUsersSubmissionMap = (users: List<string>) =>
       Map<ProblemId, List<Submission>>()
     )
   );
-const cachedSubmissions = (user: string) => {
+export const cachedSubmissions = (user: string) => {
   const cache = SUBMISSION_MAP.get(user);
   if (cache) {
     return cache;
@@ -150,8 +155,9 @@ const generateRanking = (
     )
     .entrySeq()
     .map(
-      // tslint:disable-next-line
-      ([user_id, problem_count]): RankingEntry => ({ user_id, problem_count })
+      ([i, c]): RankingEntry => {
+        return { user_id: i, problem_count: c };
+      }
     )
     .toList();
 
@@ -315,6 +321,12 @@ const fetchSubmissions = (user: string) =>
       )
     : Promise.resolve(List<Submission>());
 
+export const fetchSubmissionsFrom = (epochSecond: number) =>
+  fetchTypedList(
+    `${BASE_URL}/atcoder-api/v3/from/${epochSecond}`,
+    isSubmission
+  );
+
 const fetchRatingInfo = async (user: string) => {
   const history =
     user.length > 0
@@ -340,7 +352,7 @@ const fetchContestMap = () =>
 const fetchContestToProblemMap = async () => {
   const pairs = await fetchContestProblemPairs();
   const problems = await cachedProblemMap();
-  const result = pairs
+  return pairs
     .map(({ contest_id, problem_id }) => ({
       contest_id,
       problem: problems.get(problem_id)
@@ -354,5 +366,4 @@ const fetchContestToProblemMap = async () => {
         );
       }
     }, Map<ContestId, List<Problem>>());
-  return result;
 };

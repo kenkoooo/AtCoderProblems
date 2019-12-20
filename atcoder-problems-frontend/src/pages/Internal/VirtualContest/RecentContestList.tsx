@@ -21,8 +21,20 @@ export default connect<{}, InnerProps>(() => ({
 }))(props => {
   const history = useHistory();
   const contests = props.contestListGet.fulfilled
-    ? props.contestListGet.value
+    ? props.contestListGet.value.sort(
+        (a, b) => b.start_epoch_second - a.start_epoch_second
+      )
     : [];
+  const now = Math.floor(Date.now() / 1000);
+  const future = contests.filter(c => c.start_epoch_second > now);
+  const current = contests.filter(
+    c =>
+      c.start_epoch_second <= now &&
+      now < c.start_epoch_second + c.duration_second
+  );
+  const past = contests.filter(
+    c => c.start_epoch_second + c.duration_second <= now
+  );
   return (
     <>
       {props.userInfoGet.fulfilled ? (
@@ -39,6 +51,29 @@ export default connect<{}, InnerProps>(() => ({
           </Col>
         </Row>
       ) : null}
+
+      <Row className="my-2">
+        <Col sm="12">
+          <h2>Running Contests</h2>
+        </Col>
+      </Row>
+      <Row className="my-2">
+        <Col sm="12">
+          <VirtualContestTable contests={current} />
+        </Col>
+      </Row>
+
+      <Row className="my-2">
+        <Col sm="12">
+          <h2>Upcoming Contests</h2>
+        </Col>
+      </Row>
+      <Row className="my-2">
+        <Col sm="12">
+          <VirtualContestTable contests={future} />
+        </Col>
+      </Row>
+
       <Row className="my-2">
         <Col sm="12">
           <h2>Recent Contests</h2>
@@ -46,7 +81,7 @@ export default connect<{}, InnerProps>(() => ({
       </Row>
       <Row className="my-2">
         <Col sm="12">
-          <VirtualContestTable contests={contests} />
+          <VirtualContestTable contests={past} />
         </Col>
       </Row>
     </>

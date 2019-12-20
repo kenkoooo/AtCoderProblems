@@ -52,7 +52,7 @@ interface OuterProps extends RouteComponentProps {
 }
 
 interface InnerProps extends OuterProps {
-  loginState: PromiseState<{}>;
+  loginState: PromiseState<{} | null>;
 }
 
 interface LocalState {
@@ -108,7 +108,8 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
 
   render() {
     const { userId, rivalIdString, isOpen, pageKind } = this.state;
-    const loggedIn = this.props.loginState.fulfilled;
+    const loggedIn =
+      this.props.loginState.fulfilled && this.props.loginState.value;
     return (
       <Navbar color="light" light expand="lg" fixed="top">
         <NavbarBrand>AtCoder Problems</NavbarBrand>
@@ -226,14 +227,11 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
                     <NavLink tag={RouterLink} to="/login/user">
                       Account
                     </NavLink>
-                  ) : null
-
-                  //   (
-                  //   <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
-                  //     Login
-                  //   </NavLink>
-                  // )
-                  }
+                  ) : (
+                    <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
+                      Login
+                    </NavLink>
+                  )}
                 </NavItem>
               </>
             ) : null}

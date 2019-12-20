@@ -1,7 +1,9 @@
 use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
+use atcoder_problems_backend::sql::{SubmissionClient, SubmissionRequest};
 use chrono::Utc;
 use diesel::{Connection, PgConnection};
+use std::collections::BTreeSet;
 use std::error::Error;
 use std::time::{Duration, Instant};
 use std::{env, thread};
@@ -13,10 +15,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     log::info!("Started");
 
     loop {
-        log::info!("Starting new loop...");
+        log::info!("Start new loop...");
         let now = Instant::now();
 
-        log::info!("Starting crawling...");
+        log::info!("Start crawling...");
         let url = env::var("SQL_URL")?;
         let conn = PgConnection::establish(&url)?;
         let crawler = VirtualContestCrawler::new(conn, AtCoderClient::default());
@@ -33,11 +35,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         let elapsed_secs = now.elapsed().as_secs();
         log::info!("Elapsed {} sec.", elapsed_secs);
         if elapsed_secs < 10 {
-            let sleep = elapsed_secs - 10;
-            log::info!("Sleeping {} sec.", sleep);
-            thread::sleep(Duration::from_secs(sleep));
+            let sleep_seconds = 10 - elapsed_secs;
+            log::info!("Sleeping {} sec.", sleep_seconds);
+            thread::sleep(Duration::from_secs(sleep_seconds));
         }
 
-        log::info!("Finished a loop")
+        log::info!("Finished a loop");
     }
 }

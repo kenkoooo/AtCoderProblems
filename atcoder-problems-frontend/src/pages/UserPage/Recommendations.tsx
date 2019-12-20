@@ -165,7 +165,8 @@ class Recommendations extends React.Component<Props, LocalState> {
             rawDifficulty: undefined,
             intercept: undefined,
             discrimination: undefined,
-            is_experimental: false
+            is_experimental: false,
+            variance: undefined
           });
           if (isProblemModelWithTimeModel(problemModel)) {
             predictedSolveTime = predictSolveTime(problemModel, internalRating);

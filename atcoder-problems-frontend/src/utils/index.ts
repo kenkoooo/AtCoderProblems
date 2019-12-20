@@ -40,3 +40,26 @@ export const clipDifficulty = (difficulty: number) =>
   Math.round(
     difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400)
   );
+
+export const getRatingColorClass = (rating: number | null) => {
+  if (rating === null) {
+    return "";
+  }
+  if (rating < 400) {
+    return "difficulty-grey";
+  } else if (rating < 800) {
+    return "difficulty-brown";
+  } else if (rating < 1200) {
+    return "difficulty-green";
+  } else if (rating < 1600) {
+    return "difficulty-cyan";
+  } else if (rating < 2000) {
+    return "difficulty-blue";
+  } else if (rating < 2400) {
+    return "difficulty-yellow";
+  } else if (rating < 2800) {
+    return "difficulty-orange";
+  } else {
+    return "difficulty-red";
+  }
+};

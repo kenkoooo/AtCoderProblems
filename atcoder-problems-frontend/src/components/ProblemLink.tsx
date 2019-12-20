@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as Url from "../utils/Url";
 import { DifficultyCircle } from "./DifficultyCircle";
 import { Tooltip } from "reactstrap";
+import { getRatingColorClass } from "../utils";
 
 interface Props {
   problemId: string;
@@ -10,29 +11,6 @@ interface Props {
   difficulty: number | null;
   showDifficulty: boolean;
   isExperimentalDifficulty: boolean;
-}
-
-function getColorClass(difficulty: number | null): string {
-  if (difficulty === null) {
-    return "";
-  }
-  if (difficulty < 400) {
-    return "difficulty-grey";
-  } else if (difficulty < 800) {
-    return "difficulty-brown";
-  } else if (difficulty < 1200) {
-    return "difficulty-green";
-  } else if (difficulty < 1600) {
-    return "difficulty-cyan";
-  } else if (difficulty < 2000) {
-    return "difficulty-blue";
-  } else if (difficulty < 2400) {
-    return "difficulty-yellow";
-  } else if (difficulty < 2800) {
-    return "difficulty-orange";
-  } else {
-    return "difficulty-red";
-  }
 }
 
 const ProblemLink = (props: Props) => {
@@ -87,7 +65,7 @@ const ProblemLink = (props: Props) => {
         href={Url.formatProblemUrl(problemId, contestId)}
         target="_blank"
         rel="noopener noreferrer"
-        className={getColorClass(difficulty)}
+        className={getRatingColorClass(difficulty)}
       >
         {problemTitle}
       </a>
