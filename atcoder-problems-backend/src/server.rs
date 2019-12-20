@@ -6,7 +6,7 @@ use crate::server::user_submissions::get_user_submissions;
 
 pub(crate) mod auth;
 use crate::server::problem_list::{
-    add_item, create_list, delete_item, delete_list, get_list, update_item, update_list,
+    add_item, create_list, delete_item, delete_list, get_own_lists, update_item, update_list,
 };
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
@@ -37,7 +37,7 @@ where
         api.at("/authorize").get(get_token);
 
         api.at("/list").nest(|api| {
-            api.at("/get").get(get_list);
+            api.at("/my").get(get_own_lists);
             api.at("/create").post(create_list);
             api.at("/delete").post(delete_list);
             api.at("/update").post(update_list);
