@@ -69,7 +69,7 @@ mod tests {
             unimplemented!()
         }
 
-        fn update_delta_submission_count(&self, values: &[Submission]) -> Result<()> {
+        fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
             unimplemented!()
         }
     }

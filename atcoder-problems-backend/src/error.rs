@@ -12,6 +12,7 @@ pub enum Error {
     JSONError(serde_json::Error),
     HttpConnectionError(surf::Exception),
     CookieNotFound,
+    InvalidGetRequest,
     InvalidPostRequest,
     OtherError,
     S3Error(s3::error::S3Error),
