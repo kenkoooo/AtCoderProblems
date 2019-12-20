@@ -238,27 +238,29 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
             <thead>
               <tr>
                 <th>Participant</th>
-                {problemIds.map(problemId => {
-                  const problem = problemMap.get(problemId, null);
-                  return (
-                    <th key={problemId}>
-                      {problem ? (
-                        <a
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          href={formatProblemUrl(
-                            problem.id,
-                            problem.contest_id
-                          )}
-                        >
-                          {problem.title}
-                        </a>
-                      ) : (
-                        problemId
-                      )}
-                    </th>
-                  );
-                })}
+                {problemIds
+                  .sort((a, b) => a.localeCompare(b))
+                  .map(problemId => {
+                    const problem = problemMap.get(problemId, null);
+                    return (
+                      <th key={problemId}>
+                        {problem ? (
+                          <a
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={formatProblemUrl(
+                              problem.id,
+                              problem.contest_id
+                            )}
+                          >
+                            {problem.title}
+                          </a>
+                        ) : (
+                          problemId
+                        )}
+                      </th>
+                    );
+                  })}
                 <th>Score</th>
                 <th>Estimated Performance</th>
               </tr>
@@ -273,30 +275,32 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                 }) => (
                   <tr key={userId}>
                     <th>{userId}</th>
-                    {problemResults.map(result => {
-                      if (result.submissionCount === 0) {
-                        return <td key={result.problemId}>-</td>;
-                      }
+                    {problemResults
+                      .sort((a, b) => a.problemId.localeCompare(b.problemId))
+                      .map(result => {
+                        if (result.submissionCount === 0) {
+                          return <td key={result.problemId}>-</td>;
+                        }
 
-                      const trials =
-                        result.maxPoint === 0
-                          ? result.submissionCount
-                          : result.trialsBeforeMax;
+                        const trials =
+                          result.maxPoint === 0
+                            ? result.submissionCount
+                            : result.trialsBeforeMax;
 
-                      return (
-                        <td key={result.problemId}>
-                          <p>{result.maxPoint}</p>
-                          <p>{trials === 0 ? "" : `(${trials})`}</p>
-                          <p>
-                            {result.maxPoint === 0
-                              ? ""
-                              : formatDuration(
-                                  result.maxPointSubmissionTime - start
-                                )}
-                          </p>
-                        </td>
-                      );
-                    })}
+                        return (
+                          <td key={result.problemId}>
+                            <p>{result.maxPoint}</p>
+                            <p>{trials === 0 ? "" : `(${trials})`}</p>
+                            <p>
+                              {result.maxPoint === 0
+                                ? ""
+                                : formatDuration(
+                                    result.maxPointSubmissionTime - start
+                                  )}
+                            </p>
+                          </td>
+                        );
+                      })}
                     <td>
                       <p>{totalResult.pointSum}</p>
                       <p>
