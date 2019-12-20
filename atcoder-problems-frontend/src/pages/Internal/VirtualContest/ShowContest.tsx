@@ -19,6 +19,11 @@ import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../ApiUrl";
 import Submission from "../../../interfaces/Submission";
 import MergedProblem from "../../../interfaces/MergedProblem";
 import { fetchSubmissionsFrom } from "../../../utils/CachedApiClient";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel
+} from "../../../interfaces/ProblemModel";
+import { predictSolveProbability } from "../../../utils/ProblemModelUtil";
+import { clipDifficulty } from "../../../utils";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
@@ -39,10 +44,15 @@ interface InnerProps extends OuterProps {
   joinContest: () => void;
   joinContestPost: PromiseState<{} | null>;
   problemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;
+  problemModelGet: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   return {
+    problemModelGet: {
+      comparison: null,
+      value: () => CachedApi.cachedProblemModels()
+    },
     userInfoGet: {
       url: USER_GET
     },
@@ -84,7 +94,12 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   };
 })((props: InnerProps) => {
   const history = useHistory();
-  const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
+  const {
+    contestInfoFetch,
+    userInfoGet,
+    problemMapFetch,
+    problemModelGet
+  } = props;
 
   if (contestInfoFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
@@ -105,6 +120,9 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   const submissionMap = contestInfo.map
     ? contestInfo.map
     : Map<ProblemId, List<Submission>>();
+  const modelMap = problemModelGet.fulfilled
+    ? problemModelGet.value
+    : Map<ProblemId, ProblemModel>();
   const alreadyJoined =
     atcoderUserId != null && contestInfo.participants.includes(atcoderUserId);
   const isOwner = contestInfo.owner_user_id === internalUserId;
@@ -144,7 +162,23 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           ...result
         };
       });
-      problemResults.sort().map(({ problemId, maxPointSubmissionTime }) => {});
+
+      const solvedData = problemResults
+        .sort((a, b) => a.maxPointSubmissionTime - b.maxPointSubmissionTime)
+        .reduce(
+          ({ list, prev }, a) => {
+            const problemId = a.problemId;
+            const time = a.maxPointSubmissionTime - prev;
+            return {
+              list: list.push({ problemId, time }),
+              prev: a.maxPointSubmissionTime
+            };
+          },
+          { list: List<{ problemId: string; time: number }>(), prev: start }
+        ).list;
+
+      const estimatedPerformance = calcPerformance(solvedData, modelMap);
+
       const totalResult = problemResults.reduce(
         (result, e) => {
           return {
@@ -162,7 +196,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           lastIncreaseTime: 0
         }
       );
-      return { totalResult, problemResults, userId };
+      return { totalResult, problemResults, userId, estimatedPerformance };
     })
     .sort((a, b) => {
       if (a.totalResult.pointSum !== b.totalResult.pointSum) {
@@ -226,51 +260,62 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                   );
                 })}
                 <th>Score</th>
+                <th>Estimated Performance</th>
               </tr>
             </thead>
             <tbody>
-              {contestResults.map(({ userId, problemResults, totalResult }) => (
-                <tr key={userId}>
-                  <th>{userId}</th>
-                  {problemResults.map(result => {
-                    if (result.submissionCount === 0) {
-                      return <td key={result.problemId}>-</td>;
-                    }
+              {contestResults.map(
+                ({
+                  userId,
+                  problemResults,
+                  totalResult,
+                  estimatedPerformance
+                }) => (
+                  <tr key={userId}>
+                    <th>{userId}</th>
+                    {problemResults.map(result => {
+                      if (result.submissionCount === 0) {
+                        return <td key={result.problemId}>-</td>;
+                      }
 
-                    const trials =
-                      result.maxPoint === 0
-                        ? result.submissionCount
-                        : result.trialsBeforeMax;
+                      const trials =
+                        result.maxPoint === 0
+                          ? result.submissionCount
+                          : result.trialsBeforeMax;
 
-                    return (
-                      <td key={result.problemId}>
-                        <p>{result.maxPoint}</p>
-                        <p>{trials === 0 ? "" : `(${trials})`}</p>
-                        <p>
-                          {result.maxPoint === 0
-                            ? ""
-                            : formatDuration(
-                                result.maxPointSubmissionTime - start
-                              )}
-                        </p>
-                      </td>
-                    );
-                  })}
-                  <td>
-                    <p>{totalResult.pointSum}</p>
-                    <p>
-                      {totalResult.wrongAnswers === 0
-                        ? ""
-                        : `(${totalResult.wrongAnswers})`}
-                    </p>
-                    <p>
-                      {totalResult.pointSum === 0
-                        ? ""
-                        : formatDuration(totalResult.lastIncreaseTime - start)}
-                    </p>
-                  </td>
-                </tr>
-              ))}
+                      return (
+                        <td key={result.problemId}>
+                          <p>{result.maxPoint}</p>
+                          <p>{trials === 0 ? "" : `(${trials})`}</p>
+                          <p>
+                            {result.maxPoint === 0
+                              ? ""
+                              : formatDuration(
+                                  result.maxPointSubmissionTime - start
+                                )}
+                          </p>
+                        </td>
+                      );
+                    })}
+                    <td>
+                      <p>{totalResult.pointSum}</p>
+                      <p>
+                        {totalResult.wrongAnswers === 0
+                          ? ""
+                          : `(${totalResult.wrongAnswers})`}
+                      </p>
+                      <p>
+                        {totalResult.pointSum === 0
+                          ? ""
+                          : formatDuration(
+                              totalResult.lastIncreaseTime - start
+                            )}
+                      </p>
+                    </td>
+                    <td>{estimatedPerformance}</td>
+                  </tr>
+                )
+              )}
             </tbody>
           </Table>
         </Col>
@@ -278,6 +323,49 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
     </>
   );
 });
+
+const calcPerformance = (
+  solvedData: List<{ problemId: string; time: number }>,
+  modelMap: Map<ProblemId, ProblemModel>
+) => {
+  let internalRating = 0;
+  let probability = 0.0;
+  for (let candidateRating = 0; candidateRating < 6000; candidateRating++) {
+    const p = solvedData
+      .map(({ problemId, time }) => {
+        const model = modelMap.get(problemId);
+        const slope = model?.slope;
+        const intercept = model?.intercept;
+        const variance = model?.variance;
+
+        if (
+          isProblemModelWithDifficultyModel(model) &&
+          slope &&
+          intercept &&
+          variance
+        ) {
+          const pSolved = predictSolveProbability(model, candidateRating);
+
+          const logTime = Math.log(time);
+          const mean = slope * candidateRating + intercept;
+          const diff = logTime - mean;
+          const pTime =
+            Math.exp(((-diff * diff) / variance) * variance) / variance;
+
+          return pSolved * pTime;
+        } else {
+          return undefined;
+        }
+      })
+      .reduce((cur, p) => (p ? cur * p : cur), 0.0);
+    if (probability < p) {
+      probability = p;
+      internalRating = candidateRating;
+    }
+  }
+
+  return clipDifficulty(internalRating);
+};
 
 const formatDuration = (durationSecond: number) => {
   const hours = Math.floor(durationSecond / 3600);
