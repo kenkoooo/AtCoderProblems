@@ -97,7 +97,7 @@ pub(crate) async fn get_token<A: Authentication + Clone>(request: Request<AppDat
         conn.register_user(&internal_user_id)?;
 
         let cookie = Cookie::build("token", token).path("/").finish();
-        let redirect_url = format!("https://kenkoooo.com/atcoder/#/login/{}", response.login);
+        let redirect_url = format!("https://kenkoooo.com/atcoder/#/login/user");
         let response = Response::redirect(&redirect_url).set_cookie(cookie);
         Ok(response)
     }
