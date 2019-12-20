@@ -183,7 +183,7 @@ fn test_virtual_contest() {
                         "title": "contest title",
                         "id": format!("{}", contest_id),
                         "participants": ["atcoder_user1"],
-                        "problem_ids": ["problem_2","problem_1"],
+                        "problems": ["problem_1","problem_2"],
                     }
                 ])
             );
@@ -205,7 +205,7 @@ fn test_virtual_contest() {
                     "title": "contest title",
                     "id": format!("{}", contest_id),
                     "participants": ["atcoder_user1"],
-                    "problem_ids": ["problem_2","problem_1"],
+                    "problems": ["problem_1","problem_2"],
                 })
             );
 

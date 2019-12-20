@@ -18,18 +18,18 @@ const MAX_PROBLEM_NUM_PER_CONTEST: usize = 16;
 const RECENT_CONTEST_NUM: i64 = 500;
 
 #[derive(Serialize)]
-pub(crate) struct VirtualContest {
+pub struct VirtualContest {
     id: String,
     title: String,
     memo: String,
     owner_user_id: String,
     start_epoch_second: i64,
     duration_second: i64,
-    problems: Vec<String>,
+    pub(crate) problems: Vec<String>,
     participants: Vec<String>,
 }
 
-pub(crate) trait VirtualContestManager {
+pub trait VirtualContestManager {
     fn create_contest(
         &self,
         title: &str,
