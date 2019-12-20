@@ -81,7 +81,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
       initialStartMinute={start.minute()}
       initialEndDate={DateUtil.formatMomentDate(end)}
       initialEndHour={end.hour()}
-      initialEndMinute={start.minute()}
+      initialEndMinute={end.minute()}
       initialProblems={Set(contestInfo.problems)}
       buttonTitle="Update"
       buttonPush={({ title, memo, startSecond, endSecond, problems }) =>
