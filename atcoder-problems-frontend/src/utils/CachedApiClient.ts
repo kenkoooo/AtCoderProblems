@@ -150,8 +150,9 @@ const generateRanking = (
     )
     .entrySeq()
     .map(
-      // tslint:disable-next-line
-      ([user_id, problem_count]): RankingEntry => ({ user_id, problem_count })
+      ([i, c]): RankingEntry => {
+        return { user_id: i, problem_count: c };
+      }
     )
     .toList();
 
