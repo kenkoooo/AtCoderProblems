@@ -41,7 +41,7 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   contestInfoFetch: PromiseState<ShowingVirtualContest>;
-  userInfoGet: PromiseState<UserInfo>;
+  userInfoGet: PromiseState<UserInfo | null>;
   joinContest: () => void;
   joinContestPost: PromiseState<{} | null>;
   problemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;
@@ -113,12 +113,14 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
     ? problemMapFetch.value
     : Map<ProblemId, MergedProblem>();
   const contestInfo = contestInfoFetch.value;
-  const atcoderUserId = userInfoGet.fulfilled
-    ? userInfoGet.value.atcoder_user_id
-    : null;
-  const internalUserId = userInfoGet.fulfilled
-    ? userInfoGet.value.internal_user_id
-    : null;
+  const atcoderUserId =
+    userInfoGet.fulfilled && userInfoGet.value
+      ? userInfoGet.value.atcoder_user_id
+      : null;
+  const internalUserId =
+    userInfoGet.fulfilled && userInfoGet.value
+      ? userInfoGet.value.internal_user_id
+      : null;
   const submissionMap = contestInfo.map
     ? contestInfo.map
     : Map<ProblemId, List<Submission>>();

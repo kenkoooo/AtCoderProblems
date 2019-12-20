@@ -276,7 +276,7 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
-  loginState: PromiseState<{}>;
+  loginState: PromiseState<{} | null>;
 }
 
 export default connect<OuterProps, InnerProps>(() => ({

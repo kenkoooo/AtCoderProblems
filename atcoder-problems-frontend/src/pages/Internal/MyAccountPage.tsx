@@ -26,11 +26,11 @@ interface UserResponse {
 }
 
 interface InnerProps {
-  userInfoGet: PromiseState<UserResponse>;
+  userInfoGet: PromiseState<UserResponse | null>;
   updateUserInfo: (atcoderUser: string) => void;
   updateUserInfoResponse: PromiseState<{} | null>;
-  ownedContestsGet: PromiseState<VirtualContest[]>;
-  joinedContestsGet: PromiseState<VirtualContest[]>;
+  ownedContestsGet: PromiseState<VirtualContest[] | null>;
+  joinedContestsGet: PromiseState<VirtualContest[] | null>;
 }
 
 export default connect<{}, InnerProps>(() => ({
@@ -70,7 +70,7 @@ export default connect<{}, InnerProps>(() => ({
   } else {
     const userInfo = userInfoGet.value;
     const [userId, setUserId] = useState(
-      userInfo.atcoder_user_id ? userInfo.atcoder_user_id : ""
+      userInfo && userInfo.atcoder_user_id ? userInfo.atcoder_user_id : ""
     );
     const [activeTab, setActiveTab] = useState<TabType>("Account Info");
 
@@ -176,7 +176,9 @@ export default connect<{}, InnerProps>(() => ({
             </Row>
             <Row className="my-2">
               <Col sm="12">
-                <VirtualContestTable contests={ownedContests} />
+                <VirtualContestTable
+                  contests={ownedContests ? ownedContests : []}
+                />
               </Col>
             </Row>
 
@@ -187,7 +189,9 @@ export default connect<{}, InnerProps>(() => ({
             </Row>
             <Row className="my-2">
               <Col sm="12">
-                <VirtualContestTable contests={joinedContests} />
+                <VirtualContestTable
+                  contests={joinedContests ? joinedContests : []}
+                />
               </Col>
             </Row>
           </TabPane>
