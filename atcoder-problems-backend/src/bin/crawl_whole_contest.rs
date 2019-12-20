@@ -1,5 +1,5 @@
 use algorithm_problem_client::AtCoderClient;
-use atcoder_problems_backend::crawler::whole_contest_crawler::WholeContestCrawler;
+use atcoder_problems_backend::crawler::WholeContestCrawler;
 use atcoder_problems_backend::error::Result;
 use atcoder_problems_backend::sql::connect;
 use log::info;

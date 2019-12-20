@@ -94,7 +94,7 @@ mod tests {
         fn get_user_submission_count(&self, _: &str) -> Result<i64> {
             unimplemented!()
         }
-        fn get_submission_by_id(&self, _: i64) -> Result<Option<Submission>> {
+        fn get_submission_by_ids(&self, _: &[i64]) -> Result<Vec<Submission>> {
             unimplemented!()
         }
         fn update_submissions(&self, _: &[Submission]) -> Result<usize> {
