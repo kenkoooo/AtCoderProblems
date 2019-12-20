@@ -32,7 +32,7 @@ where
                 }
 
                 let min_id = submissions.iter().map(|s| s.id).min().unwrap();
-                let exists = self.db.get_submission_by_id(min_id)?.is_some();
+                let exists = self.db.count_stored_submissions(&[min_id])? != 0;
                 self.db.update_submissions(&submissions)?;
                 thread::sleep(time::Duration::from_millis(200));
 
@@ -80,11 +80,11 @@ mod tests {
             fn get_user_submission_count(&self, _: &str) -> Result<i64> {
                 unimplemented!()
             }
-            fn get_submission_by_id(&self, id: i64) -> Result<Option<Submission>> {
-                assert_eq!(id, 0);
-                Ok(Some(Submission {
+            fn get_submission_by_ids(&self, ids: &[i64]) -> Result<Vec<Submission>> {
+                assert_eq!(ids, &[0]);
+                Ok(vec![Submission {
                     ..Default::default()
-                }))
+                }])
             }
             fn update_submissions(&self, submissions: &[Submission]) -> Result<usize> {
                 assert_eq!(submissions.len(), 2);

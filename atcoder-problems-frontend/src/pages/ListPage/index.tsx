@@ -10,21 +10,14 @@ import {
 } from "reactstrap";
 
 import { isAccepted } from "../../utils";
-import { formatMoment, parseSecond } from "../../utils/DateUtil";
+import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import Submission from "../../interfaces/Submission";
 import SmallTable from "./SmallTable";
 import DifficultyTable from "./DifficultyTable";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
-import {
-  failedStatus,
-  noneStatus,
-  ProblemId,
-  ProblemStatus,
-  successStatus,
-  warningStatus
-} from "../../interfaces/Status";
+import { noneStatus, ProblemId, ProblemStatus } from "../../interfaces/Status";
 import { List, Map, Range, Set } from "immutable";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
@@ -72,7 +65,8 @@ const ListPage = (props: InnerProps) => {
     submissionsFetch,
     userId,
     rivals,
-    contestsFetch
+    contestsFetch,
+    statusLabelMapFetch
   } = props;
 
   const mergedProblems = mergedProblemsFetch.fulfilled
@@ -87,25 +81,9 @@ const ListPage = (props: InnerProps) => {
   const submissions = submissionsFetch.fulfilled
     ? submissionsFetch.value
     : Map<ProblemId, List<Submission>>();
-  const statusLabelMap = submissions.map(list => {
-    const userList = list.filter(s => s.user_id === userId);
-    const rivalsList = list
-      .filter(s => rivals.contains(s.user_id))
-      .filter(s => isAccepted(s.result));
-    if (userList.find(s => isAccepted(s.result))) {
-      return successStatus();
-    } else if (!rivalsList.isEmpty()) {
-      return failedStatus(
-        rivalsList
-          .map(s => s.user_id)
-          .toSet()
-          .toList()
-      );
-    } else {
-      const last = userList.maxBy(s => s.epoch_second);
-      return last ? warningStatus(last.result) : noneStatus();
-    }
-  });
+  const statusLabelMap = statusLabelMapFetch.fulfilled
+    ? statusLabelMapFetch.value
+    : Map<ProblemId, ProblemStatus>();
 
   const rowData = mergedProblems
     .valueSeq()
@@ -113,7 +91,7 @@ const ListPage = (props: InnerProps) => {
       (p): ProblemRowData => {
         const contest = contests.get(p.contest_id);
         const contestDate = contest
-          ? formatMoment(parseSecond(contest.start_epoch_second))
+          ? formatMomentDate(parseSecond(contest.start_epoch_second))
           : "";
         const contestTitle = contest ? contest.title : "";
 
@@ -123,7 +101,7 @@ const ListPage = (props: InnerProps) => {
           .filter(s => isAccepted(s.result))
           .maxBy(s => s.epoch_second);
         const lastAcceptedDate = lastSubmission
-          ? formatMoment(parseSecond(lastSubmission.epoch_second))
+          ? formatMomentDate(parseSecond(lastSubmission.epoch_second))
           : "";
         const point = p.point ? p.point : p.predict ? p.predict : INF_POINT;
         const firstUserId = p.first_user_id ? p.first_user_id : "";
@@ -363,13 +341,14 @@ interface InnerProps extends OuterProps {
   readonly mergedProblemsFetch: PromiseState<Map<ProblemId, MergedProblem>>;
   readonly problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   readonly contestsFetch: PromiseState<Map<string, Contest>>;
+  readonly statusLabelMapFetch: PromiseState<Map<ProblemId, ProblemStatus>>;
 }
 
 export default connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
-    comparison: props.rivals.push(props.userId),
+    comparison: [props.userId, props.rivals],
     value: () =>
-      CachedApiClient.cachedUsersSubmissions(props.rivals.push(props.userId))
+      CachedApiClient.cachedUsersSubmissionMap(props.rivals.push(props.userId))
   },
   mergedProblemsFetch: {
     comparison: null,
@@ -382,5 +361,10 @@ export default connect<OuterProps, InnerProps>(props => ({
   contestsFetch: {
     comparison: null,
     value: () => CachedApiClient.cachedContestMap()
+  },
+  statusLabelMapFetch: {
+    comparison: [props.userId, props.rivals],
+    value: () =>
+      CachedApiClient.cachedStatusLabelMap(props.userId, props.rivals)
   }
 }))(ListPage);

@@ -29,7 +29,7 @@ pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'st
             Ok(contest_id)
         })
         .and_then(|contest_id| {
-            let body = serde_json::json!({ "contest_id": format!("{}", contest_id) });
+            let body = serde_json::json!({ "contest_id": contest_id });
             let response = Response::ok().body_json(&body)?;
             Ok(response)
         })
@@ -60,40 +60,23 @@ pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'st
                 q.duration_second,
             )
         })
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
-pub(crate) async fn add_item<A: Authentication + Clone + Send + Sync + 'static>(
+pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
 ) -> Response {
     #[derive(Deserialize)]
     struct Q {
         contest_id: String,
-        problem_id: String,
+        problem_ids: Vec<String>,
     }
     request
         .post_unpack::<Q>()
         .await
-        .and_then(|(q, conn, user_id)| conn.add_item(&q.contest_id, &q.problem_id, &user_id))
-        .map(|_| Response::ok())
-        .unwrap_response()
-}
-
-pub(crate) async fn delete_item<A: Authentication + Clone + Send + Sync + 'static>(
-    request: Request<AppData<A>>,
-) -> Response {
-    #[derive(Deserialize)]
-    struct Q {
-        contest_id: String,
-        problem_id: String,
-    }
-
-    request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(q, conn, user_id)| conn.remove_item(&q.contest_id, &q.problem_id, &user_id))
-        .map(|_| Response::ok())
+        .and_then(|(q, conn, user_id)| conn.update_items(&q.contest_id, &q.problem_ids, &user_id))
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
@@ -129,6 +112,13 @@ pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> Respo
         _ => Response::internal_error(),
     }
 }
+pub(crate) async fn get_recent_contests<A>(request: Request<AppData<A>>) -> Response {
+    request.state().respond(|conn| {
+        let contest = conn.get_recent_contests()?;
+        let response = Response::ok().body_json(&contest)?;
+        Ok(response)
+    })
+}
 
 pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
@@ -141,6 +131,9 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
         .post_unpack::<Q>()
         .await
         .and_then(|(q, conn, user_id)| conn.join_contest(&q.contest_id, &user_id))
-        .map(|_| Response::ok())
+        .and_then(|_| {
+            let response = Response::ok().body_json(&serde_json::json!({}))?;
+            Ok(response)
+        })
         .unwrap_response()
 }

@@ -14,22 +14,26 @@ import {
   Form,
   Input,
   Button,
-  FormGroup
+  FormGroup,
+  NavItem,
+  NavLink
 } from "reactstrap";
 import { extractRivalsParam, normalizeUserId } from "../utils";
 import { List } from "immutable";
+import { connect, PromiseState } from "react-refetch";
+import { USER_GET } from "../pages/Internal/ApiUrl";
 
-type PageKind = "table" | "list" | "user" | "review";
+type PageKind = "table" | "list" | "user";
 
-const extractPageKind = (pathname: string): PageKind => {
+const extractPageKind = (pathname: string): PageKind | null => {
   if (pathname.match(/^\/user/)) {
     return "user";
   } else if (pathname.match(/^\/list/)) {
     return "list";
-  } else if (pathname.match(/^\/review/)) {
-    return "review";
-  } else {
+  } else if (pathname.match(/^\/table/)) {
     return "table";
+  } else {
+    return null;
   }
 };
 
@@ -43,15 +47,19 @@ const extractUserIds = (pathname: string) => {
   return { userId, rivalIdString };
 };
 
-interface Props extends RouteComponentProps {
+interface OuterProps extends RouteComponentProps {
   updateUserIds: (userId: string, rivals: List<string>) => void;
+}
+
+interface InnerProps extends OuterProps {
+  loginState: PromiseState<{}>;
 }
 
 interface LocalState {
   isOpen: boolean;
   userId: string;
   rivalIdString: string;
-  pageKind: PageKind;
+  pageKind: PageKind | null;
 }
 
 const generatePath = (
@@ -63,8 +71,8 @@ const generatePath = (
   return "/" + kind + "/" + users.join("/");
 };
 
-class NavigationBar extends React.Component<Props, LocalState> {
-  constructor(props: Props) {
+class NavigationBar extends React.Component<InnerProps, LocalState> {
+  constructor(props: InnerProps) {
     super(props);
     this.state = {
       isOpen: false,
@@ -89,15 +97,18 @@ class NavigationBar extends React.Component<Props, LocalState> {
     const { pathname } = this.props.location;
     const pageKind = extractPageKind(pathname);
     const { userId, rivalIdString } = extractUserIds(pathname);
-    this.setState({ userId, rivalIdString, pageKind });
-    this.props.updateUserIds(
-      normalizeUserId(userId),
-      List(extractRivalsParam(rivalIdString))
-    );
+    if (pageKind !== null) {
+      this.setState({ userId, rivalIdString, pageKind });
+      this.props.updateUserIds(
+        normalizeUserId(userId),
+        List(extractRivalsParam(rivalIdString))
+      );
+    }
   }
 
   render() {
     const { userId, rivalIdString, isOpen, pageKind } = this.state;
+    const loggedIn = this.props.loginState.fulfilled;
     return (
       <Navbar color="light" light expand="lg" fixed="top">
         <NavbarBrand>AtCoder Problems</NavbarBrand>
@@ -109,7 +120,7 @@ class NavigationBar extends React.Component<Props, LocalState> {
                 <Input
                   style={{ width: "120px" }}
                   onKeyPress={e => {
-                    if (e.key === "Enter") {
+                    if (e.key === "Enter" && pageKind !== null) {
                       this.submit(pageKind);
                     }
                   }}
@@ -125,7 +136,7 @@ class NavigationBar extends React.Component<Props, LocalState> {
                 <Input
                   style={{ width: "120px" }}
                   onKeyPress={e => {
-                    if (e.key === "Enter") {
+                    if (e.key === "Enter" && pageKind !== null) {
                       this.submit(pageKind);
                     }
                   }}
@@ -202,6 +213,31 @@ class NavigationBar extends React.Component<Props, LocalState> {
               </DropdownMenu>
             </UncontrolledDropdown>
 
+            {loggedIn ? (
+              <>
+                <NavItem>
+                  <NavLink tag={RouterLink} to="/contest/recent">
+                    Virtual Contests
+                  </NavLink>
+                </NavItem>
+
+                <NavItem>
+                  {loggedIn ? (
+                    <NavLink tag={RouterLink} to="/login/user">
+                      Account
+                    </NavLink>
+                  ) : null
+
+                  //   (
+                  //   <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
+                  //     Login
+                  //   </NavLink>
+                  // )
+                  }
+                </NavItem>
+              </>
+            ) : null}
+
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
                 Links
@@ -244,4 +280,10 @@ class NavigationBar extends React.Component<Props, LocalState> {
   }
 }
 
-export default withRouter(NavigationBar);
+export default withRouter(
+  connect<OuterProps, InnerProps>(() => ({
+    loginState: {
+      url: USER_GET
+    }
+  }))(NavigationBar)
+);

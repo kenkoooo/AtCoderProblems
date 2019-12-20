@@ -1,5 +1,5 @@
 use algorithm_problem_client::AtCoderClient;
-use atcoder_problems_backend::crawler::recent_crawler::RecentCrawler;
+use atcoder_problems_backend::crawler::RecentCrawler;
 use diesel::{Connection, PgConnection};
 use log::{error, info};
 use std::env;

@@ -35,7 +35,7 @@ pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'stati
             Ok(list_id)
         })
         .and_then(|internal_list_id| {
-            let body = serde_json::json!({ "internal_list_id": format!("{}", internal_list_id) });
+            let body = serde_json::json!({ "internal_list_id": internal_list_id });
             let response = Response::ok().body_json(&body)?;
             Ok(response)
         })
@@ -54,7 +54,7 @@ where
         .post_unpack::<Q>()
         .await
         .and_then(|(query, conn, _)| conn.delete_list(&query.internal_list_id))
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
@@ -71,7 +71,7 @@ where
         .post_unpack::<Q>()
         .await
         .and_then(|(query, conn, _)| conn.update_list(&query.internal_list_id, &query.name))
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
@@ -88,7 +88,7 @@ where
         .post_unpack::<Q>()
         .await
         .and_then(|(query, conn, _)| conn.add_item(&query.internal_list_id, &query.problem_id))
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
@@ -108,7 +108,7 @@ where
         .and_then(|(query, conn, _)| {
             conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)
         })
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }
 
@@ -125,6 +125,6 @@ where
         .post_unpack::<Q>()
         .await
         .and_then(|(query, conn, _)| conn.delete_item(&query.internal_list_id, &query.problem_id))
-        .map(|_| Response::ok())
+        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
         .unwrap_response()
 }

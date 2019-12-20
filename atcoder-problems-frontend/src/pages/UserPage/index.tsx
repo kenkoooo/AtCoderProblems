@@ -7,7 +7,7 @@ import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import { isAccepted, ordinalSuffixOf } from "../../utils";
 import {
-  formatMoment,
+  formatMomentDate,
   getToday,
   parseDateLabel,
   parseSecond
@@ -204,7 +204,7 @@ const UserPage = (props: InnerProps) => {
     .filter(
       (second: number | undefined): second is number => second !== undefined
     )
-    .map(second => formatMoment(parseSecond(second)))
+    .map(second => formatMomentDate(parseSecond(second)))
     .reduce(
       (map, date) => map.update(date, 0, count => count + 1),
       Map<string, number>()
@@ -225,7 +225,7 @@ const UserPage = (props: InnerProps) => {
     .map(e => e.dateLabel)
     .reduce(
       (state, dateLabel) => {
-        const nextDateLabel = formatMoment(
+        const nextDateLabel = formatMomentDate(
           parseDateLabel(state.prevDateLabel).add(1, "day")
         );
         // tslint:disable-next-line
@@ -242,7 +242,7 @@ const UserPage = (props: InnerProps) => {
       }
     );
 
-  const yesterDayLabel = formatMoment(getToday().add(-1, "day"));
+  const yesterDayLabel = formatMomentDate(getToday().add(-1, "day"));
   const isIncreasing = prevDateLabel >= yesterDayLabel;
 
   const abcSolved = solvedCountForPieChart(
@@ -414,7 +414,7 @@ const PieCharts = ({
 export default connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: props.userId,
-    value: () => CachedApiClient.cachedUsersSubmissions(List([props.userId]))
+    value: () => CachedApiClient.cachedUsersSubmissionMap(List([props.userId]))
   },
   mergedProblemsFetch: {
     comparison: null,

@@ -91,8 +91,8 @@ fn test_submission_client() {
         .unwrap();
     assert_eq!(submissions.len(), 3);
 
-    assert!(conn.get_submission_by_id(1).unwrap().is_some());
-    assert!(conn.get_submission_by_id(9).unwrap().is_none());
+    assert_eq!(conn.count_stored_submissions(&[1]).unwrap(), 1);
+    assert_eq!(conn.count_stored_submissions(&[9]).unwrap(), 0);
 
     let request = SubmissionRequest::InvalidResult { from_second: 1 };
     let submissions = conn.get_submissions(request).unwrap();
