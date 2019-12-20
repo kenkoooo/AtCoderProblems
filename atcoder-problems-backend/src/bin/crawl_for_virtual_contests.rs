@@ -1,9 +1,7 @@
 use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
-use atcoder_problems_backend::sql::{SubmissionClient, SubmissionRequest};
 use chrono::Utc;
 use diesel::{Connection, PgConnection};
-use std::collections::BTreeSet;
 use std::error::Error;
 use std::time::{Duration, Instant};
 use std::{env, thread};

@@ -5,7 +5,7 @@ use crate::sql::internal::problem_list_manager::ProblemListManager;
 use serde::Deserialize;
 use tide::{Request, Response};
 
-pub(crate) async fn get_list<A: Authentication + Clone + Send + Sync + 'static>(
+pub(crate) async fn get_own_lists<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
 ) -> Response {
     request
