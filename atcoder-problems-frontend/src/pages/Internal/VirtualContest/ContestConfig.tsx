@@ -99,6 +99,7 @@ const ContestConfig = (props: InnerProps) => {
           />
           <Input
             type="select"
+            value={startHour}
             onChange={e => setStartHour(Number(e.target.value))}
           >
             {Range(0, 24).map(i => (
@@ -107,6 +108,7 @@ const ContestConfig = (props: InnerProps) => {
           </Input>
           <Input
             type="select"
+            value={startMinute}
             onChange={e => setStartMinute(Number(e.target.value))}
           >
             {Range(0, 60, 5).map(i => (
@@ -126,6 +128,7 @@ const ContestConfig = (props: InnerProps) => {
           />
           <Input
             type="select"
+            value={endHour}
             onChange={e => setEndHour(Number(e.target.value))}
           >
             {Range(0, 24).map(i => (
@@ -134,6 +137,7 @@ const ContestConfig = (props: InnerProps) => {
           </Input>
           <Input
             type="select"
+            value={endMinute}
             onChange={e => setEndMinute(Number(e.target.value))}
           >
             {Range(0, 60, 5).map(i => (

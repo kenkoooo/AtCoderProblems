@@ -144,6 +144,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           ...result
         };
       });
+      problemResults.sort().map(({ problemId, maxPointSubmissionTime }) => {});
       const totalResult = problemResults.reduce(
         (result, e) => {
           return {
