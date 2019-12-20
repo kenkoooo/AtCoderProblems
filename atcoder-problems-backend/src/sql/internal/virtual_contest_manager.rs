@@ -17,6 +17,17 @@ const MAX_CONTEST_NUM: i64 = 1024;
 const MAX_PROBLEM_NUM_PER_CONTEST: usize = 16;
 const RECENT_CONTEST_NUM: i64 = 500;
 
+type VirtualContestTuple = (
+    String,
+    String,
+    String,
+    String,
+    i64,
+    i64,
+    Option<String>,
+    Option<String>,
+);
+
 #[derive(Serialize)]
 pub struct VirtualContest {
     id: String,
@@ -126,16 +137,7 @@ impl VirtualContestManager for PgConnection {
                 v_items::problem_id.nullable(),
                 i_users::atcoder_user_id.nullable(),
             ))
-            .load::<(
-                String,
-                String,
-                String,
-                String,
-                i64,
-                i64,
-                Option<String>,
-                Option<String>,
-            )>(self)?;
+            .load::<VirtualContestTuple>(self)?;
 
         let virtual_contests = construct_virtual_contests(data);
         Ok(virtual_contests)
@@ -166,16 +168,7 @@ impl VirtualContestManager for PgConnection {
                 v_items::problem_id.nullable(),
                 i_users::atcoder_user_id.nullable(),
             ))
-            .load::<(
-                String,
-                String,
-                String,
-                String,
-                i64,
-                i64,
-                Option<String>,
-                Option<String>,
-            )>(self)?;
+            .load::<VirtualContestTuple>(self)?;
         let virtual_contests = construct_virtual_contests(data);
         Ok(virtual_contests)
     }
@@ -202,16 +195,7 @@ impl VirtualContestManager for PgConnection {
                 v_items::problem_id.nullable(),
                 i_users::atcoder_user_id.nullable(),
             ))
-            .load::<(
-                String,
-                String,
-                String,
-                String,
-                i64,
-                i64,
-                Option<String>,
-                Option<String>,
-            )>(self)?;
+            .load::<VirtualContestTuple>(self)?;
         let virtual_contests = construct_virtual_contests(data);
         Ok(virtual_contests)
     }
@@ -237,16 +221,7 @@ impl VirtualContestManager for PgConnection {
                 v_items::problem_id.nullable(),
                 i_users::atcoder_user_id.nullable(),
             ))
-            .load::<(
-                String,
-                String,
-                String,
-                String,
-                i64,
-                i64,
-                Option<String>,
-                Option<String>,
-            )>(self)?;
+            .load::<VirtualContestTuple>(self)?;
         let virtual_contests = construct_virtual_contests(data);
         virtual_contests
             .into_iter()
@@ -294,18 +269,7 @@ impl VirtualContestManager for PgConnection {
     }
 }
 
-fn construct_virtual_contests(
-    data: Vec<(
-        String,
-        String,
-        String,
-        String,
-        i64,
-        i64,
-        Option<String>,
-        Option<String>,
-    )>,
-) -> Vec<VirtualContest> {
+fn construct_virtual_contests(data: Vec<VirtualContestTuple>) -> Vec<VirtualContest> {
     let mut contest_set = BTreeSet::new();
     let mut problem_map = BTreeMap::new();
     let mut participants = BTreeMap::new();
@@ -314,13 +278,13 @@ fn construct_virtual_contests(
         if let Some(problem_id) = problem_id {
             problem_map
                 .entry(id.clone())
-                .or_insert(BTreeSet::new())
+                .or_insert_with(BTreeSet::new)
                 .insert(problem_id);
         }
         if let Some(user_id) = user_id {
             participants
                 .entry(id)
-                .or_insert(BTreeSet::new())
+                .or_insert_with(BTreeSet::new)
                 .insert(user_id);
         }
     }

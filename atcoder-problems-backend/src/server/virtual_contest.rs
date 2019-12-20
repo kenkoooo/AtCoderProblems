@@ -29,7 +29,7 @@ pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'st
             Ok(contest_id)
         })
         .and_then(|contest_id| {
-            let body = serde_json::json!({ "contest_id": format!("{}", contest_id) });
+            let body = serde_json::json!({ "contest_id": contest_id });
             let response = Response::ok().body_json(&body)?;
             Ok(response)
         })
