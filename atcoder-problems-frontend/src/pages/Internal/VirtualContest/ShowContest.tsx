@@ -169,12 +169,16 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           ({ list, prev }, a) => {
             const problemId = a.problemId;
             const time = a.maxPointSubmissionTime - prev;
+            const solved = a.maxPoint !== 0;
             return {
-              list: list.push({ problemId, time }),
+              list: list.push({ problemId, time, solved }),
               prev: a.maxPointSubmissionTime
             };
           },
-          { list: List<{ problemId: string; time: number }>(), prev: start }
+          {
+            list: List<{ problemId: string; time: number; solved: boolean }>(),
+            prev: start
+          }
         ).list;
 
       const estimatedPerformance = calcPerformance(solvedData, modelMap);
@@ -329,39 +333,18 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
 });
 
 const calcPerformance = (
-  solvedData: List<{ problemId: string; time: number }>,
+  solvedData: List<{ problemId: string; time: number; solved: boolean }>,
   modelMap: Map<ProblemId, ProblemModel>
 ) => {
   let internalRating = 0;
   let probability = 0.0;
-  for (let candidateRating = 0; candidateRating < 6000; candidateRating++) {
+  for (let candidateRating = 0; candidateRating < 4000; candidateRating++) {
     const p = solvedData
-      .map(({ problemId, time }) => {
+      .map(({ problemId, time, solved }) => {
         const model = modelMap.get(problemId);
-        const slope = model?.slope;
-        const intercept = model?.intercept;
-        const variance = model?.variance;
-
-        if (
-          isProblemModelWithDifficultyModel(model) &&
-          slope &&
-          intercept &&
-          variance
-        ) {
-          const pSolved = predictSolveProbability(model, candidateRating);
-
-          const logTime = Math.log(time);
-          const mean = slope * candidateRating + intercept;
-          const diff = logTime - mean;
-          const pTime =
-            Math.exp(((-diff * diff) / variance) * variance) / variance;
-
-          return pSolved * pTime;
-        } else {
-          return undefined;
-        }
+        return calcProbability(model, candidateRating, time, solved);
       })
-      .reduce((cur, p) => (p ? cur * p : cur), 0.0);
+      .reduce((cur, p) => (p ? cur * p : cur), 1.0);
     if (probability < p) {
       probability = p;
       internalRating = candidateRating;
@@ -369,6 +352,38 @@ const calcPerformance = (
   }
 
   return clipDifficulty(internalRating);
+};
+
+const calcProbability = (
+  model: ProblemModel | undefined,
+  rating: number,
+  time: number,
+  solved: boolean
+) => {
+  const slope = model?.slope;
+  const intercept = model?.intercept;
+  const variance = model?.variance;
+  if (
+    isProblemModelWithDifficultyModel(model) &&
+    slope &&
+    intercept &&
+    variance
+  ) {
+    const pSolved = predictSolveProbability(model, rating);
+    if (!solved) {
+      return 1.0 - pSolved;
+    }
+
+    const logTime = Math.log(time);
+    const mean = slope * rating + intercept;
+    const diff = logTime - mean;
+    const pTime =
+      Math.exp((-diff * diff) / (2 * variance * variance)) /
+      Math.sqrt(2 * Math.PI * variance * variance);
+    return pSolved * pTime;
+  } else {
+    return undefined;
+  }
 };
 
 const formatDuration = (durationSecond: number) => {
