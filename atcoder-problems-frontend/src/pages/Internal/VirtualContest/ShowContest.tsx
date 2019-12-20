@@ -20,7 +20,7 @@ import Submission from "../../../interfaces/Submission";
 import MergedProblem from "../../../interfaces/MergedProblem";
 
 interface ShowingVirtualContest extends VirtualContest {
-  map: Map<ProblemId, List<Submission>>;
+  map: Map<ProblemId, List<Submission>> | undefined;
 }
 
 interface UserInfo {
@@ -40,7 +40,7 @@ interface InnerProps extends OuterProps {
   problemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;
 }
 
-const ShowContest = connect<OuterProps, InnerProps>(props => {
+const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   return {
     userInfoGet: {
       url: USER_GET
@@ -80,7 +80,7 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
     }),
     joinContestPost: { value: null }
   };
-})(props => {
+})((props: InnerProps) => {
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
 
@@ -100,6 +100,9 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
   const internalUserId = userInfoGet.fulfilled
     ? userInfoGet.value.internal_user_id
     : null;
+  const submissionMap = contestInfo.map
+    ? contestInfo.map
+    : Map<ProblemId, List<Submission>>();
   const alreadyJoined =
     atcoderUserId != null && contestInfo.participants.includes(atcoderUserId);
   const isOwner = contestInfo.owner_user_id === internalUserId;
@@ -163,10 +166,6 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
             <tbody>
               {contestInfo.participants.map(userId => {
                 const problemResults = contestInfo.problems.map(problemId => {
-                  const problem = problemMap.get(problemId);
-                  const submissionMap = contestInfo.map
-                    ? contestInfo.map
-                    : Map<ProblemId, List<Submission>>();
                   const submissions = submissionMap
                     .get(problemId, List<Submission>())
                     .filter(s => s.user_id === userId)
@@ -180,7 +179,7 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
                         return {
                           maxPoint: submission.point,
                           maxPointSubmissionTime: submission.epoch_second,
-                          trialsBeforeMax: i + 1
+                          trialsBeforeMax: i
                         };
                       } else {
                         return cur;
@@ -213,11 +212,15 @@ const ShowContest = connect<OuterProps, InnerProps>(props => {
 
                       return (
                         <td key={result.problemId}>
-                          {result.maxPoint}{" "}
-                          {trials === 0 ? "" : <p>({trials})</p>}{" "}
-                          {result.maxPoint === 0
-                            ? ""
-                            : formatDuration(result.maxPointSubmissionTime)}
+                          <p>{result.maxPoint}</p>
+                          <p>{trials === 0 ? "" : `(${trials})`}</p>
+                          <p>
+                            {result.maxPoint === 0
+                              ? ""
+                              : formatDuration(
+                                  result.maxPointSubmissionTime - start
+                                )}
+                          </p>
                         </td>
                       );
                     })}

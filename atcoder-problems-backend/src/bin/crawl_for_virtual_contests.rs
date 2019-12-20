@@ -32,31 +32,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         crawler.crawl()?;
         log::info!("Finished fixing");
 
-        log::info!("Start updating...");
-        let conn = PgConnection::establish(&url)?;
-        let request = SubmissionRequest::RecentAll { count: 200 };
-        let recent_submissions = conn.get_submissions(request)?;
-
-        let user_ids = recent_submissions
-            .into_iter()
-            .map(|s| s.user_id)
-            .collect::<BTreeSet<_>>();
-        let user_ids = user_ids.iter().map(|s| s.as_str()).collect::<Vec<_>>();
-
-        log::info!("Loading submissions of {} users ...", user_ids.len());
-        let request = SubmissionRequest::UsersAccepted {
-            user_ids: &user_ids,
-        };
-        let user_accepted_submissions = conn.get_submissions(request)?;
-        conn.update_delta_submission_count(&user_accepted_submissions)?;
-        log::info!("Finished updating");
-
         let elapsed_secs = now.elapsed().as_secs();
         log::info!("Elapsed {} sec.", elapsed_secs);
         if elapsed_secs < 10 {
-            let sleep = elapsed_secs - 10;
-            log::info!("Sleeping {} sec.", sleep);
-            thread::sleep(Duration::from_secs(sleep));
+            let sleep_seconds = 10 - elapsed_secs;
+            log::info!("Sleeping {} sec.", sleep_seconds);
+            thread::sleep(Duration::from_secs(sleep_seconds));
         }
 
         log::info!("Finished a loop");
