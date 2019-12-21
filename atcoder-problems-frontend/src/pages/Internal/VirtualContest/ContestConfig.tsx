@@ -7,8 +7,6 @@ import {
   Label,
   ListGroup,
   ListGroupItem,
-  ListGroupItemHeading,
-  ListGroupItemText,
   Row
 } from "reactstrap";
 import { Range, Set, Map } from "immutable";
@@ -20,16 +18,9 @@ import { formatProblemUrl } from "../../../utils/Url";
 import moment from "moment";
 import { Redirect } from "react-router-dom";
 import { USER_GET } from "../ApiUrl";
-
-const problemMatch = (text: string, problem: Problem) =>
-  problem.title.toLowerCase().includes(text.toLowerCase()) ||
-  formatProblemUrl(problem.id, problem.contest_id)
-    .toLowerCase()
-    .includes(text.toLowerCase());
+import ProblemSearchBox from "../../../components/ProblemSearchBox";
 
 const ContestConfig = (props: InnerProps) => {
-  const [focusingId, setFocusingId] = useState(-1);
-
   const [title, setTitle] = useState(props.initialTitle);
   const [memo, setMemo] = useState(props.initialMemo);
 
@@ -42,7 +33,6 @@ const ContestConfig = (props: InnerProps) => {
 
   const [problemSet, setProblemSet] = useState(props.initialProblems);
 
-  const [problemSearch, setProblemSearch] = useState("");
   if (props.loginState.rejected) {
     return <Redirect to="/" />;
   }
@@ -52,15 +42,6 @@ const ContestConfig = (props: InnerProps) => {
     return null;
   }
   const problemMap = problemMapFetch.value;
-
-  const filterProblems = problemMap
-    .valueSeq()
-    .filter(
-      problem =>
-        problemSearch.length > 0 && problemMatch(problemSearch, problem)
-    )
-    .slice(0, 10)
-    .toList();
 
   const startSecond = toUnixSecond(startDate, startHour, startMinute);
   const endSecond = toUnixSecond(endDate, endHour, endMinute);
@@ -184,49 +165,12 @@ const ContestConfig = (props: InnerProps) => {
       </Row>
 
       <Row className="my-2">
-        <Input
-          type="text"
-          placeholder="Search Problems"
-          value={problemSearch}
-          onChange={e => {
-            setProblemSearch(e.target.value);
-            setFocusingId(-1);
-          }}
-          onKeyDown={e => {
-            if (e.key === "Enter") {
-              const problem = filterProblems.get(focusingId);
-              if (problem) {
-                setProblemSet(problemSet.add(problem.id));
-                setProblemSearch("");
-                setFocusingId(-1);
-              }
-            } else if (e.key === "ArrowDown") {
-              setFocusingId(Math.min(filterProblems.size - 1, focusingId + 1));
-            } else if (e.key === "ArrowUp") {
-              setFocusingId(Math.max(-1, focusingId - 1));
-            }
+        <ProblemSearchBox
+          problems={problemMap.valueSeq().toList()}
+          selectProblem={problem => {
+            setProblemSet(problemSet.add(problem.id));
           }}
         />
-        <Col>
-          <ListGroup>
-            {filterProblems.map((problem, i) => (
-              <ListGroupItem
-                active={i === focusingId}
-                key={problem.id}
-                onClick={() => {
-                  setProblemSet(problemSet.add(problem.id));
-                  setProblemSearch("");
-                  setFocusingId(-1);
-                }}
-              >
-                <ListGroupItemHeading>{problem.title}</ListGroupItemHeading>
-                <ListGroupItemText>
-                  {formatProblemUrl(problem.id, problem.contest_id)}
-                </ListGroupItemText>
-              </ListGroupItem>
-            ))}
-          </ListGroup>
-        </Col>
       </Row>
 
       <Row className="my-2">
