@@ -24,6 +24,7 @@ import ShowContest from "./pages/Internal/VirtualContest/ShowContest";
 import UserConfigPage from "./pages/Internal/MyAccountPage";
 import RecentContestList from "./pages/Internal/VirtualContest/RecentContestList";
 import ContestUpdatePage from "./pages/Internal/VirtualContest/ContestUpdatePage";
+import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
 
 const App = () => {
   const [userId, setUserId] = useState("");
@@ -58,6 +59,8 @@ const App = () => {
               path="/list/([a-zA-Z0-9_]*)*"
               component={() => <ListPage userId={userId} rivals={rivals} />}
             />
+
+            {/*Virtual Contests*/}
             <Route
               path="/contest/show/:contestId([a-zA-Z0-9_-]+)"
               component={ShowContest}
@@ -68,7 +71,15 @@ const App = () => {
               component={ContestUpdatePage}
             />
             <Route path="/contest/recent" component={RecentContestList} />
+
+            {/*User Settings*/}
             <Route path="/login/user" component={UserConfigPage} />
+
+            {/*Problem List*/}
+            <Route
+              path="/problemlist/:listId([a-zA-Z0-9_-]+)"
+              component={SingleProblemList}
+            />
 
             <Redirect path="/" to="/table/" />
           </Switch>
