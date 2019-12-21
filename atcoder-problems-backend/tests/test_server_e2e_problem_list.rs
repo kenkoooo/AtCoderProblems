@@ -90,6 +90,7 @@ fn test_list() {
                 serde_json::json!([
                     {
                         "internal_list_id": internal_list_id,
+                        "internal_user_id": "0",
                         "internal_list_name": "a",
                         "items": []
                     }
@@ -113,6 +114,7 @@ fn test_list() {
                 serde_json::json!([
                     {
                         "internal_list_id": internal_list_id,
+                        "internal_user_id": "0",
                         "internal_list_name": "b",
                         "items": []
                     }
@@ -130,6 +132,7 @@ fn test_list() {
                 serde_json::json!(
                 {
                     "internal_list_id": internal_list_id,
+                    "internal_user_id": "0",
                     "internal_list_name": "b",
                     "items": []
                 })
@@ -201,6 +204,7 @@ fn test_list_item() {
                 .set_header("Cookie", &cookie_header)
                 .body_json(&serde_json::json!({
                     "internal_list_id": internal_list_id,
+                    "internal_user_id": "0",
                     "problem_id": "problem_1"
                 }))?
                 .await?;
@@ -215,6 +219,7 @@ fn test_list_item() {
                     {
                         "internal_list_id": internal_list_id,
                         "internal_list_name": "a",
+                        "internal_user_id": "0",
                         "items": [{"problem_id": "problem_1", "memo":""}]
                     }
                 ])
@@ -225,6 +230,7 @@ fn test_list_item() {
                 .body_json(&serde_json::json!({
                     "internal_list_id": internal_list_id,
                     "problem_id": "problem_1",
+                    "internal_user_id": "0",
                     "memo": "memo_1"
                 }))?
                 .await?;
@@ -239,6 +245,7 @@ fn test_list_item() {
                     {
                         "internal_list_id": internal_list_id,
                         "internal_list_name": "a",
+                        "internal_user_id": "0",
                         "items": [{"problem_id": "problem_1", "memo":"memo_1"}]
                     }
                 ])
@@ -262,6 +269,7 @@ fn test_list_item() {
                     {
                         "internal_list_id": internal_list_id,
                         "internal_list_name": "a",
+                        "internal_user_id": "0",
                         "items": []
                     }
                 ])
