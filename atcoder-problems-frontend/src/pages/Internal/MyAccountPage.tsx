@@ -17,6 +17,7 @@ import { Redirect, useHistory } from "react-router-dom";
 import { VirtualContest } from "./VirtualContest/types";
 import VirtualContestTable from "./VirtualContestTable";
 import { CONTEST_JOINED, CONTEST_MY, USER_GET, USER_UPDATE } from "./ApiUrl";
+import ListProblemList from "./ListProblemList";
 
 type TabType = "Account Info" | "My Contests" | "Problem Lists";
 
@@ -195,7 +196,9 @@ export default connect<{}, InnerProps>(() => ({
               </Col>
             </Row>
           </TabPane>
-          <TabPane tabId="Problem Lists">b</TabPane>
+          <TabPane tabId="Problem Lists">
+            <ListProblemList />
+          </TabPane>
         </TabContent>
       </>
     );
