@@ -2,10 +2,11 @@ use crate::server::utils::{RequestUnpack, UnwrapResponse};
 use crate::server::{AppData, Authentication, CommonResponse};
 use crate::sql::internal::problem_list_manager::ProblemListManager;
 
+use crate::error::Error;
 use serde::Deserialize;
 use tide::{Request, Response};
 
-pub(crate) async fn get_list<A: Authentication + Clone + Send + Sync + 'static>(
+pub(crate) async fn get_own_lists<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
 ) -> Response {
     request
@@ -15,6 +16,22 @@ pub(crate) async fn get_list<A: Authentication + Clone + Send + Sync + 'static>(
         .and_then(|list| {
             let response = Response::ok().body_json(&list)?;
             Ok(response)
+        })
+        .unwrap_response()
+}
+pub(crate) async fn get_single_list<A: Authentication + Clone + Send + Sync + 'static>(
+    request: Request<AppData<A>>,
+) -> Response {
+    request
+        .param::<String>("list_id")
+        .map_err(|_| Error::InvalidGetRequest)
+        .and_then(|list_id| {
+            let conn = request.state().pool.get()?;
+            Ok((conn, list_id))
+        })
+        .and_then(|(conn, list_id)| {
+            let list = conn.get_single_list(&list_id)?;
+            Ok(Response::ok().body_json(&list)?)
         })
         .unwrap_response()
 }
