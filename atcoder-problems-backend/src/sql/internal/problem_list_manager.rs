@@ -13,6 +13,7 @@ const MAX_ITEM_NUM: usize = 1024;
 pub(crate) struct ProblemList {
     internal_list_id: String,
     internal_list_name: String,
+    internal_user_id: String,
     items: Vec<ListItem>,
 }
 
@@ -46,22 +47,26 @@ impl ProblemListManager for PgConnection {
             .select((
                 internal_problem_lists::internal_list_id,
                 internal_problem_lists::internal_list_name,
+                internal_problem_lists::internal_user_id,
                 internal_problem_list_items::problem_id.nullable(),
                 internal_problem_list_items::memo.nullable(),
             ))
-            .load::<(String, String, Option<String>, Option<String>)>(self)?;
+            .load::<(String, String, String, Option<String>, Option<String>)>(self)?;
         let mut map = BTreeMap::new();
-        for (list_id, list_name, problem_id, memo) in items.into_iter() {
-            let list = map.entry(list_id).or_insert((list_name, Vec::new()));
+        for (list_id, list_name, user_id, problem_id, memo) in items.into_iter() {
+            let list = map
+                .entry(list_id)
+                .or_insert((list_name, user_id, Vec::new()));
             if let (Some(problem_id), Some(memo)) = (problem_id, memo) {
-                list.1.push(ListItem { problem_id, memo });
+                list.2.push(ListItem { problem_id, memo });
             }
         }
         let list = map
             .into_iter()
             .map(
-                |(internal_list_id, (internal_list_name, items))| ProblemList {
+                |(internal_list_id, (internal_list_name, internal_user_id, items))| ProblemList {
                     internal_list_id,
+                    internal_user_id,
                     internal_list_name,
                     items,
                 },
@@ -79,22 +84,26 @@ impl ProblemListManager for PgConnection {
             .select((
                 internal_problem_lists::internal_list_id,
                 internal_problem_lists::internal_list_name,
+                internal_problem_lists::internal_user_id,
                 internal_problem_list_items::problem_id.nullable(),
                 internal_problem_list_items::memo.nullable(),
             ))
-            .load::<(String, String, Option<String>, Option<String>)>(self)?;
+            .load::<(String, String, String, Option<String>, Option<String>)>(self)?;
         let mut map = BTreeMap::new();
-        for (list_id, list_name, problem_id, memo) in items.into_iter() {
-            let list = map.entry(list_id).or_insert((list_name, Vec::new()));
+        for (list_id, list_name, user_id, problem_id, memo) in items.into_iter() {
+            let list = map
+                .entry(list_id)
+                .or_insert((list_name, user_id, Vec::new()));
             if let (Some(problem_id), Some(memo)) = (problem_id, memo) {
-                list.1.push(ListItem { problem_id, memo });
+                list.2.push(ListItem { problem_id, memo });
             }
         }
         let list = map
             .into_iter()
             .map(
-                |(internal_list_id, (internal_list_name, items))| ProblemList {
+                |(internal_list_id, (internal_list_name, internal_user_id, items))| ProblemList {
                     internal_list_id,
+                    internal_user_id,
                     internal_list_name,
                     items,
                 },

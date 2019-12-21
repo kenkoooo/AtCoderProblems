@@ -19,13 +19,11 @@ const ContestCreatePage = (props: InnerProps) => {
   }
 
   const todayMoment = DateUtil.getToday();
-  const today =
-    todayMoment.hour() === 23 && todayMoment.minute() >= 55
-      ? todayMoment.add(60 - todayMoment.minute(), "minute")
-      : todayMoment;
+  const d = 5 - (todayMoment.minutes() % 5);
+  const today = todayMoment.add(d, "minute");
   const todayDateTime = DateUtil.formatMomentDate(today);
   const todayHour = today.hour();
-  const todayMinute = Math.floor(today.minute() / 5) * 5 + 5;
+  const todayMinute = today.minute();
 
   return (
     <ContestConfig
