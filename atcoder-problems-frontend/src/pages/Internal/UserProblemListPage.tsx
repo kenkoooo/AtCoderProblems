@@ -1,5 +1,5 @@
 import { connect, PromiseState } from "react-refetch";
-import React from "react";
+import React, { useState } from "react";
 import {
   Alert,
   Badge,
@@ -9,10 +9,14 @@ import {
   ListGroupItem,
   ListGroupItemHeading,
   ListGroupItemText,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Row,
   Spinner
 } from "reactstrap";
-import { LIST_CREATE, LIST_MY, USER_GET } from "./ApiUrl";
+import { LIST_CREATE, LIST_DELETE, LIST_MY, USER_GET } from "./ApiUrl";
 import { Link, Redirect } from "react-router-dom";
 import UserInfo from "../../interfaces/UserInfo";
 import { ProblemList } from "./types";
@@ -22,6 +26,8 @@ interface Props {
   myListFetch: PromiseState<ProblemList[] | null>;
   createListFetch: PromiseState<{ internal_list_id: string } | null>;
   createNewList: () => void;
+  deleteList: (internalListId: string) => void;
+  deleteResponse: PromiseState<{} | null>;
 }
 
 export default connect<{}, Props>(() => ({
@@ -34,9 +40,25 @@ export default connect<{}, Props>(() => ({
       method: "POST",
       body: JSON.stringify({ list_name: "New List" })
     }
-  })
+  }),
+  deleteList: (internalListId: string) => ({
+    deleteResponse: {
+      url: LIST_DELETE,
+      method: "POST",
+      body: JSON.stringify({ internal_list_id: internalListId }),
+      andThen: () => ({
+        myListFetch: {
+          url: LIST_MY,
+          refreshing: true,
+          force: true
+        }
+      })
+    }
+  }),
+  deleteResponse: { value: null }
 }))(props => {
   const { createListFetch, myListFetch } = props;
+  const [modalOpen, setModalOpen] = useState(false);
   if (createListFetch.fulfilled && createListFetch.value !== null) {
     const listId = createListFetch.value.internal_list_id;
     return <Redirect to={`/problemlist/${listId}`} />;
@@ -48,6 +70,7 @@ export default connect<{}, Props>(() => ({
   }
 
   const myList = myListFetch.value;
+  const toggle = () => setModalOpen(!modalOpen);
 
   return (
     <>
@@ -64,7 +87,35 @@ export default connect<{}, Props>(() => ({
           <ListGroup>
             {myList.map(({ internal_list_id, internal_list_name, items }) => (
               <ListGroupItem key={internal_list_id}>
-                <Button close />
+                <Button
+                  style={{ float: "right" }}
+                  color="danger"
+                  onClick={() => setModalOpen(true)}
+                >
+                  Remove
+                </Button>
+                <Modal isOpen={modalOpen} toggle={toggle}>
+                  <ModalHeader toggle={toggle}>
+                    Remove {internal_list_name}?
+                  </ModalHeader>
+                  <ModalBody>
+                    Do you really want to remove {internal_list_name}?
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      color="danger"
+                      onClick={() => {
+                        toggle();
+                        props.deleteList(internal_list_id);
+                      }}
+                    >
+                      Remove
+                    </Button>{" "}
+                    <Button color="secondary" onClick={toggle}>
+                      Cancel
+                    </Button>
+                  </ModalFooter>
+                </Modal>
                 <ListGroupItemHeading>
                   <Link to={`/problemlist/${internal_list_id}`}>
                     {internal_list_name.length > 0
