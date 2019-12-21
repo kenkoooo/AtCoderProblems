@@ -28,7 +28,7 @@ import {
 import Problem from "../../../interfaces/Problem";
 import { ProblemId } from "../../../interfaces/Status";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
-import { formatProblemUrl, default as Url } from "../../../utils/Url";
+import { formatProblemUrl } from "../../../utils/Url";
 
 interface OuterProps {
   listId: string;
@@ -143,6 +143,7 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
               const problem = problems.find(p => p.id === item.problem_id);
               return (
                 <ListGroupItem key={item.problem_id}>
+                  <Button close />
                   <ListGroupItemHeading>
                     {problem ? (
                       <a
@@ -184,6 +185,12 @@ const DoubleClickEdit = (props: {
           onBlur={() => {
             setIsInput(!isInput);
             props.saveText(text);
+          }}
+          onKeyDown={e => {
+            if (e.key === "Enter") {
+              setIsInput(!isInput);
+              props.saveText(text);
+            }
           }}
         />
       ) : (
