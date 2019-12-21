@@ -142,7 +142,7 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
             {listInfo.items.map(item => {
               const problem = problems.find(p => p.id === item.problem_id);
               return (
-                <ListGroupItem>
+                <ListGroupItem key={item.problem_id}>
                   <ListGroupItemHeading>
                     {problem ? (
                       <a
