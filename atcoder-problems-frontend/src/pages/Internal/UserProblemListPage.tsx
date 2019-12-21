@@ -15,7 +15,7 @@ import {
 import { LIST_CREATE, LIST_MY, USER_GET } from "./ApiUrl";
 import { Link, Redirect } from "react-router-dom";
 import UserInfo from "../../interfaces/UserInfo";
-import { ProblemList } from "./ProblemList/types";
+import { ProblemList } from "./types";
 
 interface Props {
   userInfoFetch: PromiseState<UserInfo | null>;
@@ -72,8 +72,9 @@ export default connect<{}, Props>(() => ({
                       : "(empty)"}
                   </Link>
                 </ListGroupItemHeading>
-                <ListGroupItemText>aaa</ListGroupItemText>
-                <Badge pill>{items.length}</Badge>
+                <ListGroupItemText>
+                  <Badge pill>{items.length}</Badge>
+                </ListGroupItemText>
               </ListGroupItem>
             ))}
           </ListGroup>

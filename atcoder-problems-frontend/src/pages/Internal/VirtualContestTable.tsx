@@ -1,8 +1,8 @@
-import { VirtualContest } from "./VirtualContest/types";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { Link } from "react-router-dom";
 import * as DateUtil from "../../utils/DateUtil";
 import React from "react";
+import { VirtualContest } from "./types";
 
 export default (props: { contests: VirtualContest[] }) => {
   return (

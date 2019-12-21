@@ -1,14 +1,14 @@
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
-import { VirtualContest } from "./types";
 import { Button, Col, Row } from "reactstrap";
 import VirtualContestTable from "../VirtualContestTable";
 import { CONTEST_RECENT, USER_GET } from "../ApiUrl";
 import { useHistory } from "react-router-dom";
+import { VirtualContest } from "../types";
 
 interface InnerProps {
   contestListGet: PromiseState<VirtualContest[]>;
-  userInfoGet: PromiseState<{}>;
+  userInfoGet: PromiseState<{} | null>;
 }
 
 export default connect<{}, InnerProps>(() => ({
@@ -37,7 +37,7 @@ export default connect<{}, InnerProps>(() => ({
   );
   return (
     <>
-      {props.userInfoGet.fulfilled ? (
+      {props.userInfoGet.fulfilled && props.userInfoGet.value ? (
         <Row className="my-2">
           <Col sm="12">
             <Button

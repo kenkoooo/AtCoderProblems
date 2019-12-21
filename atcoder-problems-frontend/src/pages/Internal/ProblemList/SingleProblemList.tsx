@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Redirect, useParams } from "react-router-dom";
-import UserInfo from "../../../interfaces/UserInfo";
 import {
   LIST_ITEM_ADD,
   LIST_ITEM_DELETE,
@@ -10,12 +9,12 @@ import {
   listGetUrl,
   USER_GET
 } from "../ApiUrl";
-import { ProblemList } from "./types";
 import * as CachedApi from "../../../utils/CachedApiClient";
 import { Map, List } from "immutable";
 import {
   Alert,
   Button,
+  ButtonGroup,
   Col,
   Input,
   ListGroup,
@@ -29,12 +28,13 @@ import Problem from "../../../interfaces/Problem";
 import { ProblemId } from "../../../interfaces/Status";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
 import { formatProblemUrl } from "../../../utils/Url";
+import { ProblemList, ProblemListItem, UserResponse } from "../types";
 
 interface OuterProps {
   listId: string;
 }
 interface InnerProps extends OuterProps {
-  userInfoFetch: PromiseState<UserInfo | null>;
+  userInfoFetch: PromiseState<UserResponse | null>;
   problemListFetch: PromiseState<ProblemList>;
   updateList: (name: string) => void;
   updateListResponse: PromiseState<{} | null>;
@@ -52,7 +52,8 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
     updateListResponse: {
       url: LIST_UPDATE,
       method: "POST",
-      body: JSON.stringify({ internal_list_id: props.listId, name })
+      body: JSON.stringify({ internal_list_id: props.listId, name }),
+      force: true
     }
   }),
   updateListResponse: { value: null },
@@ -96,13 +97,17 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
   })
 }))(props => {
   const { problemListFetch, userInfoFetch } = props;
-  const loggedIn = userInfoFetch.fulfilled && userInfoFetch.value !== null;
+  const internalUserId =
+    userInfoFetch.fulfilled && userInfoFetch.value
+      ? userInfoFetch.value.internal_user_id
+      : null;
   if (problemListFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else if (problemListFetch.rejected || !problemListFetch.value) {
     return <Alert color="danger">Failed to fetch list info.</Alert>;
   }
   const listInfo = problemListFetch.value;
+  const modifiable = listInfo.internal_user_id === internalUserId;
   const [adding, setAdding] = useState(false);
   const problems = props.problems.fulfilled
     ? props.problems.value.valueSeq().toList()
@@ -114,6 +119,7 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
         <Col sm="12">
           <h2>
             <DoubleClickEdit
+              modifiable={modifiable}
               saveText={name => props.updateList(name)}
               initialText={listInfo.internal_list_name}
             />
@@ -129,11 +135,11 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
                 props.addItem(problem.id);
               }}
             />
-          ) : (
+          ) : modifiable ? (
             <Button color="success" onClick={() => setAdding(!adding)}>
               Add
             </Button>
-          )}
+          ) : null}
         </Col>
       </Row>
       <Row className="my-2">
@@ -142,23 +148,16 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
             {listInfo.items.map(item => {
               const problem = problems.find(p => p.id === item.problem_id);
               return (
-                <ListGroupItem key={item.problem_id}>
-                  <Button close />
-                  <ListGroupItemHeading>
-                    {problem ? (
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={formatProblemUrl(problem.id, problem.contest_id)}
-                      >
-                        {problem.title}
-                      </a>
-                    ) : (
-                      item.problem_id
-                    )}
-                  </ListGroupItemHeading>
-                  <ListGroupItemText>{item.memo}</ListGroupItemText>
-                </ListGroupItem>
+                <ProblemEntry
+                  modifiable={modifiable}
+                  key={item.problem_id}
+                  item={item}
+                  problem={problem}
+                  saveText={(memo: string) =>
+                    props.updateItem(item.problem_id, memo)
+                  }
+                  deleteItem={() => props.deleteItem(item.problem_id)}
+                />
               );
             })}
           </ListGroup>
@@ -168,9 +167,84 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
   );
 });
 
+const ProblemEntry = (props: {
+  item: ProblemListItem;
+  problem: Problem | undefined;
+  saveText: (text: string) => void;
+  deleteItem: () => void;
+  modifiable: boolean;
+}) => {
+  const { item, problem } = props;
+  const [isEdit, setEdit] = useState(false);
+  const [text, setText] = useState(item.memo);
+  return (
+    <ListGroupItem
+      onDoubleClick={() => {
+        if (props.modifiable) {
+          setEdit(true);
+        }
+      }}
+    >
+      {props.modifiable ? (
+        <ButtonGroup style={{ float: "right" }}>
+          {isEdit ? (
+            <Button
+              color="success"
+              onClick={() => {
+                setEdit(false);
+                props.saveText(text);
+              }}
+            >
+              Save
+            </Button>
+          ) : (
+            <Button onClick={() => setEdit(true)}>Edit</Button>
+          )}
+          {isEdit ? null : (
+            <Button color="danger" onClick={() => props.deleteItem()}>
+              Remove
+            </Button>
+          )}
+        </ButtonGroup>
+      ) : null}
+      <ListGroupItemHeading>
+        {problem ? (
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={formatProblemUrl(problem.id, problem.contest_id)}
+          >
+            {problem.title}
+          </a>
+        ) : (
+          item.problem_id
+        )}
+      </ListGroupItemHeading>
+      <ListGroupItemText>
+        {isEdit ? (
+          <Input
+            type="textarea"
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={e => {
+              if (e.ctrlKey && e.key === "Enter") {
+                setEdit(false);
+                props.saveText(text);
+              }
+            }}
+          />
+        ) : (
+          <pre>{text}</pre>
+        )}
+      </ListGroupItemText>
+    </ListGroupItem>
+  );
+};
+
 const DoubleClickEdit = (props: {
   saveText: (text: string) => void;
   initialText: string;
+  modifiable: boolean;
 }) => {
   const [text, setText] = useState(props.initialText);
   const [isInput, setIsInput] = useState(false);
@@ -194,7 +268,13 @@ const DoubleClickEdit = (props: {
           }}
         />
       ) : (
-        <span onDoubleClick={() => setIsInput(!isInput)}>
+        <span
+          onDoubleClick={() => {
+            if (props.modifiable) {
+              setIsInput(!isInput);
+            }
+          }}
+        >
           {text.length > 0 ? text : "(empty)"}
         </span>
       )}
