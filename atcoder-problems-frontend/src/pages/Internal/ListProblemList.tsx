@@ -1,6 +1,17 @@
 import { connect, PromiseState } from "react-refetch";
 import React from "react";
-import { Alert, Button, Col, Row, Spinner, Table } from "reactstrap";
+import {
+  Alert,
+  Badge,
+  Button,
+  Col,
+  ListGroup,
+  ListGroupItem,
+  ListGroupItemHeading,
+  ListGroupItemText,
+  Row,
+  Spinner
+} from "reactstrap";
 import { LIST_CREATE, LIST_MY, USER_GET } from "./ApiUrl";
 import { Link, Redirect } from "react-router-dom";
 import UserInfo from "../../interfaces/UserInfo";
@@ -50,26 +61,22 @@ export default connect<{}, Props>(() => ({
 
       <Row className="my-2">
         <Col sm="12">
-          <Table>
-            <thead>
-              <tr>
-                <th>List</th>
-              </tr>
-            </thead>
-            <tbody>
-              {myList.map(({ internal_list_id, internal_list_name }) => (
-                <tr key={internal_list_id}>
-                  <td>
-                    <Link to={`/problemlist/${internal_list_id}`}>
-                      {internal_list_name.length > 0
-                        ? internal_list_name
-                        : "(empty)"}
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <ListGroup>
+            {myList.map(({ internal_list_id, internal_list_name, items }) => (
+              <ListGroupItem key={internal_list_id}>
+                <Button close />
+                <ListGroupItemHeading>
+                  <Link to={`/problemlist/${internal_list_id}`}>
+                    {internal_list_name.length > 0
+                      ? internal_list_name
+                      : "(empty)"}
+                  </Link>
+                </ListGroupItemHeading>
+                <ListGroupItemText>aaa</ListGroupItemText>
+                <Badge pill>{items.length}</Badge>
+              </ListGroupItem>
+            ))}
+          </ListGroup>
         </Col>
       </Row>
     </>
