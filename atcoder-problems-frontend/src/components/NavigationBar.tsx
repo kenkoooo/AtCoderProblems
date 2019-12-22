@@ -214,27 +214,23 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
               </DropdownMenu>
             </UncontrolledDropdown>
 
-            {loggedIn ? (
-              <>
-                <NavItem>
-                  <NavLink tag={RouterLink} to="/contest/recent">
-                    Virtual Contests
-                  </NavLink>
-                </NavItem>
+            <NavItem>
+              <NavLink tag={RouterLink} to="/contest/recent">
+                Virtual Contests
+              </NavLink>
+            </NavItem>
 
-                <NavItem>
-                  {loggedIn ? (
-                    <NavLink tag={RouterLink} to="/login/user">
-                      Account
-                    </NavLink>
-                  ) : (
-                    <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
-                      Login
-                    </NavLink>
-                  )}
-                </NavItem>
-              </>
-            ) : null}
+            <NavItem>
+              {loggedIn ? (
+                <NavLink tag={RouterLink} to="/login/user">
+                  Account
+                </NavLink>
+              ) : (
+                <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
+                  Login
+                </NavLink>
+              )}
+            </NavItem>
 
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
