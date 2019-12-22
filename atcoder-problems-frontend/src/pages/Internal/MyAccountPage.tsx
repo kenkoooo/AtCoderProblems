@@ -14,17 +14,12 @@ import {
   TabPane
 } from "reactstrap";
 import { Redirect, useHistory } from "react-router-dom";
-import { VirtualContest } from "./VirtualContest/types";
 import VirtualContestTable from "./VirtualContestTable";
 import { CONTEST_JOINED, CONTEST_MY, USER_GET, USER_UPDATE } from "./ApiUrl";
-import ListProblemList from "./ListProblemList";
+import ListProblemList from "./UserProblemListPage";
+import { UserResponse, VirtualContest } from "./types";
 
 type TabType = "Account Info" | "My Contests" | "Problem Lists";
-
-interface UserResponse {
-  internal_user_id: number;
-  atcoder_user_id: string | null;
-}
 
 interface InnerProps {
   userInfoGet: PromiseState<UserResponse | null>;
