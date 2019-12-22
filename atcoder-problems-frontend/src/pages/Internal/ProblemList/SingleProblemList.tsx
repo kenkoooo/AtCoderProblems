@@ -95,8 +95,7 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
     }
   })
 }))(props => {
-  const { problemListFetch, userInfoFetch } = props;
-  const loggedIn = userInfoFetch.fulfilled && userInfoFetch.value !== null;
+  const { problemListFetch } = props;
   if (problemListFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else if (problemListFetch.rejected || !problemListFetch.value) {

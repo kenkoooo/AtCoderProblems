@@ -1,5 +1,4 @@
 import {
-  Col,
   Input,
   ListGroup,
   ListGroupItem,
@@ -12,13 +11,16 @@ import Problem from "../interfaces/Problem";
 import { List } from "immutable";
 
 const problemMatch = (text: string, problem: Problem) => {
-  return text.split("").every(
-    word =>
-      word.length > 0 &&
-      (problem.title.toLowerCase().includes(word.toLowerCase()) ||
+  return (
+    text.length > 0 &&
+    text.split(/\s/).every(
+      word =>
+        (word.trim().length > 0 &&
+          problem.title.toLowerCase().includes(word.toLowerCase())) ||
         formatProblemUrl(problem.id, problem.contest_id)
           .toLowerCase()
-          .includes(word.toLowerCase()))
+          .includes(word.toLowerCase())
+    )
   );
 };
 
