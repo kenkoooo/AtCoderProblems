@@ -11,12 +11,16 @@ import { formatProblemUrl } from "../utils/Url";
 import Problem from "../interfaces/Problem";
 import { List } from "immutable";
 
-const problemMatch = (text: string, problem: Problem) =>
-  text.length > 0 &&
-  (problem.title.toLowerCase().includes(text.toLowerCase()) ||
-    formatProblemUrl(problem.id, problem.contest_id)
-      .toLowerCase()
-      .includes(text.toLowerCase()));
+const problemMatch = (text: string, problem: Problem) => {
+  return text.split("").every(
+    word =>
+      word.length > 0 &&
+      (problem.title.toLowerCase().includes(word.toLowerCase()) ||
+        formatProblemUrl(problem.id, problem.contest_id)
+          .toLowerCase()
+          .includes(word.toLowerCase()))
+  );
+};
 
 interface Props {
   problems: List<Problem>;
