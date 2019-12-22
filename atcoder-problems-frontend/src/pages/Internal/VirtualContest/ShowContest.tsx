@@ -1,7 +1,6 @@
 import React from "react";
 import { useParams, useHistory, Redirect } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
-import { VirtualContest } from "./types";
 import {
   Button,
   Row,
@@ -25,14 +24,10 @@ import ProblemModel, {
 import { predictSolveProbability } from "../../../utils/ProblemModelUtil";
 import { clipDifficulty, getRatingColorClass } from "../../../utils";
 import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
+import { UserResponse, VirtualContest } from "../types";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
-}
-
-interface UserInfo {
-  internal_user_id: string;
-  atcoder_user_id: string;
 }
 
 interface OuterProps {
@@ -41,7 +36,7 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   contestInfoFetch: PromiseState<ShowingVirtualContest>;
-  userInfoGet: PromiseState<UserInfo | null>;
+  userInfoGet: PromiseState<UserResponse | null>;
   joinContest: () => void;
   joinContestPost: PromiseState<{} | null>;
   problemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;

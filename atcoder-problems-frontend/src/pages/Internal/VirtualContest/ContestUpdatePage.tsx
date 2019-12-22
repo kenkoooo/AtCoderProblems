@@ -3,10 +3,10 @@ import { Set } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import ContestConfig from "./ContestConfig";
 import { Redirect, useParams } from "react-router-dom";
-import { VirtualContest } from "./types";
 import { Alert, Spinner } from "reactstrap";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_ITEM_UPDATE, CONTEST_UPDATE, contestGetUrl } from "../ApiUrl";
+import { VirtualContest } from "../types";
 
 interface Request {
   id: string;
