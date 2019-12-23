@@ -21,6 +21,11 @@ export const normalizeUserId = (userId: string): string => {
 };
 
 export const isAccepted = (result: string) => result === "AC";
+export const isValidResult = (result: string) =>
+  ["AC", "WA", "TLE", "CE", "RE", "MLE", "OLE", "QLE", "IE", "NG"].includes(
+    result
+  );
+
 export const ordinalSuffixOf = (i: number) => {
   const j = i % 10;
   const k = i % 100;
