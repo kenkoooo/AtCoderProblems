@@ -1,34 +1,42 @@
 use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
+use atcoder_problems_backend::error::Result;
 use chrono::Utc;
 use diesel::{Connection, PgConnection};
-use std::error::Error;
 use std::time::{Duration, Instant};
 use std::{env, thread};
 
 const FIX_RANGE_SECOND: i64 = 10 * 60;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    simple_logger::init_with_level(log::Level::Info)?;
+fn crawl(url: &str) -> Result<()> {
+    log::info!("Start crawling...");
+    let conn = PgConnection::establish(url)?;
+    let crawler = VirtualContestCrawler::new(conn, AtCoderClient::default());
+    crawler.crawl()?;
+    log::info!("Finished crawling");
+
+    log::info!("Starting fixing...");
+    let conn = PgConnection::establish(&url)?;
+    let cur = Utc::now().timestamp();
+    let crawler = FixCrawler::new(conn, AtCoderClient::default(), cur - FIX_RANGE_SECOND);
+    crawler.crawl()?;
+    log::info!("Finished fixing");
+
+    Ok(())
+}
+
+fn main() {
+    simple_logger::init_with_level(log::Level::Info).expect("Failed to initialize the logger.");
+    let url = env::var("SQL_URL").expect("SQL_URL must be set.");
     log::info!("Started");
 
     loop {
         log::info!("Start new loop...");
         let now = Instant::now();
 
-        log::info!("Start crawling...");
-        let url = env::var("SQL_URL")?;
-        let conn = PgConnection::establish(&url)?;
-        let crawler = VirtualContestCrawler::new(conn, AtCoderClient::default());
-        crawler.crawl()?;
-        log::info!("Finished crawling");
-
-        log::info!("Starting fixing...");
-        let conn = PgConnection::establish(&url)?;
-        let cur = Utc::now().timestamp();
-        let crawler = FixCrawler::new(conn, AtCoderClient::default(), cur - FIX_RANGE_SECOND);
-        crawler.crawl()?;
-        log::info!("Finished fixing");
+        if let Err(e) = crawl(&url) {
+            log::error!("{:?}", e);
+        }
 
         let elapsed_secs = now.elapsed().as_secs();
         log::info!("Elapsed {} sec.", elapsed_secs);

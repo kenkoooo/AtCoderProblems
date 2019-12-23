@@ -22,7 +22,7 @@ import {
   RankingEntry
 } from "../interfaces/RankingEntry";
 import { RatingInfo, ratingInfoOf } from "./RatingInfo";
-import { clipDifficulty, isAccepted } from "./index";
+import { clipDifficulty, isAccepted, isValidResult } from "./index";
 import ContestParticipation, {
   isContestParticipation
 } from "../interfaces/ContestParticipation";
@@ -319,13 +319,15 @@ const fetchSubmissions = (user: string) =>
         `${BASE_URL}/atcoder-api/results?user=${user}`,
         isSubmission
       )
-    : Promise.resolve(List<Submission>());
+    : Promise.resolve(List<Submission>()).then(submissions =>
+        submissions.filter(s => isValidResult(s.result))
+      );
 
 export const fetchSubmissionsFrom = (epochSecond: number) =>
   fetchTypedList(
     `${BASE_URL}/atcoder-api/v3/from/${epochSecond}`,
     isSubmission
-  );
+  ).then(submissions => submissions.filter(s => isValidResult(s.result)));
 
 const fetchRatingInfo = async (user: string) => {
   const history =
