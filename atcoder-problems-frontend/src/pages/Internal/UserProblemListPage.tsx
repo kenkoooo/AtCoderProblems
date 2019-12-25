@@ -58,7 +58,6 @@ export default connect<{}, Props>(() => ({
   deleteResponse: { value: null }
 }))(props => {
   const { createListFetch, myListFetch } = props;
-  const [modalOpen, setModalOpen] = useState(false);
   if (createListFetch.fulfilled && createListFetch.value !== null) {
     const listId = createListFetch.value.internal_list_id;
     return <Redirect to={`/problemlist/${listId}`} />;
@@ -70,7 +69,6 @@ export default connect<{}, Props>(() => ({
   }
 
   const myList = myListFetch.value;
-  const toggle = () => setModalOpen(!modalOpen);
 
   return (
     <>
@@ -86,47 +84,13 @@ export default connect<{}, Props>(() => ({
         <Col sm="12">
           <ListGroup>
             {myList.map(({ internal_list_id, internal_list_name, items }) => (
-              <ListGroupItem key={internal_list_id}>
-                <Button
-                  style={{ float: "right" }}
-                  color="danger"
-                  onClick={() => setModalOpen(true)}
-                >
-                  Remove
-                </Button>
-                <Modal isOpen={modalOpen} toggle={toggle}>
-                  <ModalHeader toggle={toggle}>
-                    Remove {internal_list_name}?
-                  </ModalHeader>
-                  <ModalBody>
-                    Do you really want to remove {internal_list_name}?
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button
-                      color="danger"
-                      onClick={() => {
-                        toggle();
-                        props.deleteList(internal_list_id);
-                      }}
-                    >
-                      Remove
-                    </Button>{" "}
-                    <Button color="secondary" onClick={toggle}>
-                      Cancel
-                    </Button>
-                  </ModalFooter>
-                </Modal>
-                <ListGroupItemHeading>
-                  <Link to={`/problemlist/${internal_list_id}`}>
-                    {internal_list_name.length > 0
-                      ? internal_list_name
-                      : "(empty)"}
-                  </Link>
-                </ListGroupItemHeading>
-                <ListGroupItemText>
-                  <Badge pill>{items.length}</Badge>
-                </ListGroupItemText>
-              </ListGroupItem>
+              <SingleListEntry
+                key={internal_list_id}
+                internalListId={internal_list_id}
+                internalListName={internal_list_name}
+                listItemCount={items.length}
+                deleteList={props.deleteList}
+              />
             ))}
           </ListGroup>
         </Col>
@@ -134,3 +98,56 @@ export default connect<{}, Props>(() => ({
     </>
   );
 });
+
+const SingleListEntry = (props: {
+  internalListId: string;
+  internalListName: string;
+  listItemCount: number;
+  deleteList: (internalListId: string) => void;
+}) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const toggle = () => setModalOpen(!modalOpen);
+  return (
+    <ListGroupItem>
+      <Button
+        style={{ float: "right" }}
+        color="danger"
+        onClick={() => setModalOpen(true)}
+      >
+        Remove
+      </Button>
+      <Modal isOpen={modalOpen} toggle={toggle}>
+        <ModalHeader toggle={toggle}>
+          Remove {props.internalListName}?
+        </ModalHeader>
+        <ModalBody>
+          Do you really want to remove {props.internalListName}?
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            color="danger"
+            onClick={() => {
+              toggle();
+              props.deleteList(props.internalListId);
+            }}
+          >
+            Remove
+          </Button>{" "}
+          <Button color="secondary" onClick={toggle}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+      <ListGroupItemHeading>
+        <Link to={`/problemlist/${props.internalListId}`}>
+          {props.internalListName.length > 0
+            ? props.internalListName
+            : "(no name)"}
+        </Link>
+      </ListGroupItemHeading>
+      <ListGroupItemText>
+        <Badge pill>{props.listItemCount}</Badge>
+      </ListGroupItemText>
+    </ListGroupItem>
+  );
+};
