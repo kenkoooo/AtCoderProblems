@@ -225,18 +225,6 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
             {formatMomentDateTime(parseSecond(start))} -{" "}
             {formatMomentDateTime(parseSecond(end))}
           </h3>
-          <p>
-            <a
-              href="https://twitter.com/share?ref_src=twsrc%5Etfw"
-              className="twitter-share-button"
-              data-text={contestInfo.title}
-              data-url={`https://kenkoooo.com/atcoder/#/contest/show/${contestInfo.id}`}
-              data-hashtags="#AtCoderProblems"
-              data-show-count="false"
-            >
-              Tweet
-            </a>
-          </p>
           {atcoderUserId === null ? (
             <Alert color="warning">
               Please set the AtCoder ID, before you join the contest.
