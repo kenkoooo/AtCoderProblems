@@ -9,7 +9,7 @@ import {
   ListGroupItem,
   Row
 } from "reactstrap";
-import { Range, Set, Map } from "immutable";
+import { Range, Map, List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
 import { ProblemId } from "../../../interfaces/Status";
@@ -19,6 +19,7 @@ import moment from "moment";
 import { Redirect } from "react-router-dom";
 import { USER_GET } from "../ApiUrl";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
+import { VirtualContestItem } from "../types";
 
 const ContestConfig = (props: InnerProps) => {
   const [title, setTitle] = useState(props.initialTitle);
@@ -138,13 +139,16 @@ const ContestConfig = (props: InnerProps) => {
       <Row>
         <Col>
           <ListGroup>
-            {problemSet.valueSeq().map(problemId => {
+            {problemSet.valueSeq().map(p => {
+              const problemId = p.id;
               const problem = problemMap.get(problemId);
               return (
                 <ListGroupItem key={problemId}>
                   <Button
                     close
-                    onClick={() => setProblemSet(problemSet.remove(problemId))}
+                    onClick={() => {
+                      setProblemSet(problemSet.filter(p => p.id !== problemId));
+                    }}
                   />
                   {problem ? (
                     <a
@@ -168,7 +172,11 @@ const ContestConfig = (props: InnerProps) => {
         <ProblemSearchBox
           problems={problemMap.valueSeq().toList()}
           selectProblem={problem => {
-            setProblemSet(problemSet.add(problem.id));
+            if (problemSet.every(p => p.id !== problem.id)) {
+              setProblemSet(
+                problemSet.push({ id: problem.id, point: null, order: null })
+              );
+            }
           }}
         />
       </Row>
@@ -199,11 +207,11 @@ interface ContestInfo {
   memo: string;
   startSecond: number;
   endSecond: number;
-  problems: Set<string>;
+  problems: List<VirtualContestItem>;
 }
 
 interface OuterProps {
-  initialProblems: Set<ProblemId>;
+  initialProblems: List<VirtualContestItem>;
   pageTitle: string;
   initialTitle: string;
   initialMemo: string;
