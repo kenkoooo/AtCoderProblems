@@ -22,9 +22,18 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel
 } from "../../../interfaces/ProblemModel";
 import { predictSolveProbability } from "../../../utils/ProblemModelUtil";
-import { clipDifficulty, getRatingColorClass } from "../../../utils";
+import {
+  clipDifficulty,
+  getRatingColorClass,
+  isAccepted
+} from "../../../utils";
 import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
-import { formatMode, UserResponse, VirtualContest } from "../types";
+import {
+  formatMode,
+  UserResponse,
+  VirtualContest,
+  VirtualContestItem
+} from "../types";
 import { compareProblem } from "./util";
 
 interface ShowingVirtualContest extends VirtualContest {
@@ -135,36 +144,11 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   const contestResults = contestInfo.participants
     .map(userId => {
       const problemResults = problems.map(problem => {
-        const submissions = submissionMap
-          .get(problem.id, List<Submission>())
-          .filter(s => s.user_id === userId)
-          .filter(s => start <= s.epoch_second && s.epoch_second <= end)
-          .sortBy(s => s.id);
-        const result = submissions.reduce(
-          (cur, submission, i) => {
-            if (cur.maxPoint < submission.point) {
-              return {
-                maxPoint: submission.point,
-                maxPointSubmissionTime: submission.epoch_second - start,
-                trialsBeforeMax: i
-              };
-            } else {
-              return cur;
-            }
-          },
-          {
-            maxPoint: 0,
-            maxPointSubmissionTime: 0,
-            trialsBeforeMax: 0
-          }
-        );
-        return {
-          problemId: problem.id,
-          order: problem.order,
-          id: problem.id,
-          submissionCount: submissions.size,
-          ...result
-        };
+        if (contestInfo.mode === "lockdown") {
+          return calcLockDown(problem, submissionMap, userId, start, end);
+        } else {
+          return calcNormal(problem, submissionMap, userId, start, end);
+        }
       });
 
       const solvedData = problemResults
@@ -284,7 +268,9 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                   );
                 })}
                 <th style={{ textAlign: "center" }}>Score</th>
-                <th style={{ textAlign: "center" }}>Estimated Performance</th>
+                {contestInfo.mode !== "lockdown" ? (
+                  <th style={{ textAlign: "center" }}>Estimated Performance</th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -300,10 +286,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                     {problemResults.sort(compareProblem).map(result => {
                       if (result.submissionCount === 0) {
                         return (
-                          <td
-                            key={result.problemId}
-                            style={{ textAlign: "center" }}
-                          >
+                          <td key={result.id} style={{ textAlign: "center" }}>
                             -
                           </td>
                         );
@@ -314,7 +297,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                           ? result.submissionCount
                           : result.trialsBeforeMax;
                       return (
-                        <td key={result.problemId}>
+                        <td key={result.id}>
                           <ScoreCell
                             maxPoint={result.maxPoint}
                             trials={trials}
@@ -330,14 +313,17 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                         time={totalResult.lastIncreaseTime}
                       />
                     </td>
-                    <td>
-                      <p
-                        className={getRatingColorClass(estimatedPerformance)}
-                        style={{ textAlign: "center", fontWeight: "bold" }}
-                      >
-                        {estimatedPerformance}
-                      </p>
-                    </td>
+
+                    {contestInfo.mode !== "lockdown" ? (
+                      <td>
+                        <p
+                          className={getRatingColorClass(estimatedPerformance)}
+                          style={{ textAlign: "center", fontWeight: "bold" }}
+                        >
+                          {estimatedPerformance}
+                        </p>
+                      </td>
+                    ) : null}
                   </tr>
                 )
               )}
@@ -479,6 +465,78 @@ const fetchSubmissions = async (
     const list = map.get(s.problem_id, List<Submission>());
     return map.set(s.problem_id, list.push(s));
   }, Map<ProblemId, List<Submission>>());
+};
+
+const calcNormal = (
+  problem: VirtualContestItem,
+  submissionMap: Map<ProblemId, List<Submission>>,
+  userId: string,
+  start: number,
+  end: number
+) => {
+  const submissions = submissionMap
+    .get(problem.id, List<Submission>())
+    .filter(s => s.user_id === userId)
+    .filter(s => start <= s.epoch_second && s.epoch_second <= end)
+    .sortBy(s => s.id);
+  const result = submissions.reduce(
+    (cur, submission, i) => {
+      if (cur.maxPoint < submission.point) {
+        return {
+          maxPoint: submission.point,
+          maxPointSubmissionTime: submission.epoch_second - start,
+          trialsBeforeMax: i
+        };
+      } else {
+        return cur;
+      }
+    },
+    {
+      maxPoint: 0,
+      maxPointSubmissionTime: 0,
+      trialsBeforeMax: 0
+    }
+  );
+  return {
+    order: problem.order,
+    id: problem.id,
+    submissionCount: submissions.size,
+    ...result
+  };
+};
+
+const calcLockDown = (
+  problem: VirtualContestItem,
+  submissionMap: Map<ProblemId, List<Submission>>,
+  userId: string,
+  start: number,
+  end: number
+) => {
+  const acSubmissions = submissionMap
+    .get(problem.id, List<Submission>())
+    .filter(s => start <= s.epoch_second && s.epoch_second <= end)
+    .filter(s => isAccepted(s.result))
+    .sortBy(s => s.id);
+  const firstAc = acSubmissions.get(0);
+  if (firstAc && firstAc.user_id === userId) {
+    return {
+      order: problem.order,
+      id: problem.id,
+      submissionCount: 1,
+      maxPoint: problem.point !== null ? problem.point : firstAc.point,
+      maxPointSubmissionTime: firstAc.epoch_second,
+      trialsBeforeMax: 0
+    };
+  } else {
+    return {
+      order: problem.order,
+      id: problem.id,
+      submissionCount: 0,
+      maxPoint: 0,
+      maxPointSubmissionTime: 0,
+      trialsBeforeMax: 0
+    };
+  }
 };
 
 export default () => {
