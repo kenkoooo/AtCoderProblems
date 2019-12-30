@@ -1,10 +1,11 @@
 import React from "react";
-import { Set } from "immutable";
+import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import ContestConfig from "./ContestConfig";
 import { Redirect } from "react-router-dom";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
+import { VirtualContestItem, VirtualContestMode } from "../types";
 
 const ContestCreatePage = (props: InnerProps) => {
   const createResponse = props.createContestResponse.fulfilled
@@ -36,15 +37,17 @@ const ContestCreatePage = (props: InnerProps) => {
       initialEndDate={todayDateTime}
       initialEndHour={todayHour}
       initialEndMinute={todayMinute}
-      initialProblems={Set()}
+      initialProblems={List()}
+      initialMode={null}
       buttonTitle="Create"
-      buttonPush={({ title, memo, startSecond, endSecond, problems }) =>
+      buttonPush={({ title, memo, startSecond, endSecond, problems, mode }) =>
         props.createContest(
           {
             title,
             memo,
             start_epoch_second: startSecond,
-            duration_second: endSecond - startSecond
+            duration_second: endSecond - startSecond,
+            mode
           },
           problems.toArray()
         )
@@ -58,6 +61,7 @@ interface Request {
   memo: string;
   start_epoch_second: number;
   duration_second: number;
+  mode: VirtualContestMode;
 }
 
 interface Response {
@@ -66,13 +70,13 @@ interface Response {
 
 interface InnerProps {
   createContestResponse: PromiseState<Response | null>;
-  createContest: (request: Request, problems: string[]) => void;
+  createContest: (request: Request, problems: VirtualContestItem[]) => void;
   updateResponse: PromiseState<{} | null>;
 }
 
 const mapper = () => {
   return {
-    createContest: (request: Request, problems: string[]) => ({
+    createContest: (request: Request, problems: VirtualContestItem[]) => ({
       createContestResponse: {
         url: CONTEST_CREATE,
         method: "POST",
@@ -89,7 +93,10 @@ const mapper = () => {
             },
             body: JSON.stringify({
               contest_id: response.contest_id,
-              problem_ids: problems
+              problems: problems.map((p, i) => ({
+                ...p,
+                order: i
+              }))
             })
           }
         })

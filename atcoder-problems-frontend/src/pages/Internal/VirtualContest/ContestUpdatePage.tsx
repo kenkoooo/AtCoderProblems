@@ -1,12 +1,12 @@
 import React from "react";
-import { Set } from "immutable";
+import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import ContestConfig from "./ContestConfig";
 import { Redirect, useParams } from "react-router-dom";
 import { Alert, Spinner } from "reactstrap";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_ITEM_UPDATE, CONTEST_UPDATE, contestGetUrl } from "../ApiUrl";
-import { VirtualContest } from "../types";
+import { VirtualContest, VirtualContestItem } from "../types";
 
 interface Request {
   id: string;
@@ -14,6 +14,7 @@ interface Request {
   memo: string;
   start_epoch_second: number;
   duration_second: number;
+  mode: string | null;
 }
 
 interface OuterProps {
@@ -23,14 +24,14 @@ interface OuterProps {
 interface InnerProps extends OuterProps {
   contestInfoFetch: PromiseState<VirtualContest | null>;
   updateResponse: PromiseState<{} | null>;
-  updateContest: (request: Request, problems: string[]) => void;
+  updateContest: (request: Request, problems: VirtualContestItem[]) => void;
 }
 
 const InnerComponent = connect<OuterProps, InnerProps>(props => ({
   contestInfoFetch: {
     url: contestGetUrl(props.contestId)
   },
-  updateContest: (request: Request, problems: string[]) => ({
+  updateContest: (request: Request, problems: VirtualContestItem[]) => ({
     updateResponse: {
       url: CONTEST_UPDATE,
       method: "POST",
@@ -46,7 +47,10 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
         },
         body: JSON.stringify({
           contest_id: props.contestId,
-          problem_ids: problems
+          problems: problems.map((p, i) => ({
+            ...p,
+            order: i
+          }))
         })
       })
     }
@@ -71,6 +75,13 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
     contestInfo.start_epoch_second + contestInfo.duration_second
   );
 
+  const problems = contestInfo.problems.sort((a, b) => {
+    if (a.order !== null && b.order !== null) {
+      return a.order - b.order;
+    }
+    return a.id.localeCompare(b.id);
+  });
+
   return (
     <ContestConfig
       pageTitle="Update Contest"
@@ -82,20 +93,29 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
       initialEndDate={DateUtil.formatMomentDate(end)}
       initialEndHour={end.hour()}
       initialEndMinute={end.minute()}
-      initialProblems={Set(contestInfo.problems)}
+      initialProblems={List(problems)}
+      initialMode={contestInfo.mode}
       buttonTitle="Update"
-      buttonPush={({ title, memo, startSecond, endSecond, problems }) =>
+      buttonPush={({
+        title,
+        memo,
+        startSecond,
+        endSecond,
+        problems: ps,
+        mode
+      }) => {
         props.updateContest(
           {
             id: contestId,
             title,
             memo,
             start_epoch_second: startSecond,
-            duration_second: endSecond - startSecond
+            duration_second: endSecond - startSecond,
+            mode
           },
-          problems.toArray()
-        )
-      }
+          ps.toArray()
+        );
+      }}
     />
   );
 });

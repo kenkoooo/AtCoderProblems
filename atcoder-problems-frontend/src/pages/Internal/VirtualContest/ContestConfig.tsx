@@ -2,14 +2,19 @@ import React, { useState } from "react";
 import {
   Button,
   Col,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   Input,
   InputGroup,
+  InputGroupAddon,
   Label,
   ListGroup,
   ListGroupItem,
-  Row
+  Row,
+  UncontrolledDropdown
 } from "reactstrap";
-import { Range, Set, Map } from "immutable";
+import { Range, Map, List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
 import { ProblemId } from "../../../interfaces/Status";
@@ -19,6 +24,7 @@ import moment from "moment";
 import { Redirect } from "react-router-dom";
 import { USER_GET } from "../ApiUrl";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
+import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
 
 const ContestConfig = (props: InnerProps) => {
   const [title, setTitle] = useState(props.initialTitle);
@@ -30,8 +36,8 @@ const ContestConfig = (props: InnerProps) => {
   const [endDate, setEndDate] = useState(props.initialEndDate);
   const [endHour, setEndHour] = useState(props.initialEndHour);
   const [endMinute, setEndMinute] = useState(props.initialEndMinute);
-
   const [problemSet, setProblemSet] = useState(props.initialProblems);
+  const [mode, setMode] = useState(props.initialMode);
 
   if (props.loginState.rejected) {
     return <Redirect to="/" />;
@@ -71,6 +77,23 @@ const ContestConfig = (props: InnerProps) => {
           value={memo}
           onChange={event => setMemo(event.target.value)}
         />
+      </Row>
+
+      <Row className="my-2">
+        <Label>Mode</Label>
+        <InputGroup>
+          <UncontrolledDropdown>
+            <DropdownToggle caret>{formatMode(mode)}</DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem onClick={() => setMode(null)}>
+                {formatMode(null)}
+              </DropdownItem>
+              <DropdownItem onClick={() => setMode("lockout")}>
+                {formatMode("lockout")}
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </InputGroup>
       </Row>
 
       <Row className="my-2">
@@ -138,13 +161,16 @@ const ContestConfig = (props: InnerProps) => {
       <Row>
         <Col>
           <ListGroup>
-            {problemSet.valueSeq().map(problemId => {
+            {problemSet.valueSeq().map((p, i) => {
+              const problemId = p.id;
               const problem = problemMap.get(problemId);
               return (
                 <ListGroupItem key={problemId}>
                   <Button
                     close
-                    onClick={() => setProblemSet(problemSet.remove(problemId))}
+                    onClick={() => {
+                      setProblemSet(problemSet.filter(x => x.id !== problemId));
+                    }}
                   />
                   {problem ? (
                     <a
@@ -157,6 +183,53 @@ const ContestConfig = (props: InnerProps) => {
                   ) : (
                     problemId
                   )}
+                  {p.point === null ? (
+                    <Button
+                      style={{ float: "right" }}
+                      onClick={() => {
+                        setProblemSet(
+                          problemSet.update(i, x => ({
+                            ...x,
+                            point: 0
+                          }))
+                        );
+                      }}
+                    >
+                      Set Point
+                    </Button>
+                  ) : null}
+                  {p.point !== null ? (
+                    <InputGroup>
+                      <Input
+                        type="number"
+                        value={p.point}
+                        onChange={e => {
+                          const parse = parseInt(e.target.value, 10);
+                          const point = !isNaN(parse) ? parse : 0;
+                          setProblemSet(
+                            problemSet.update(i, x => ({
+                              ...x,
+                              point
+                            }))
+                          );
+                        }}
+                      />
+                      <InputGroupAddon addonType="append">
+                        <Button
+                          onClick={() => {
+                            setProblemSet(
+                              problemSet.update(i, x => ({
+                                ...x,
+                                point: null
+                              }))
+                            );
+                          }}
+                        >
+                          Unset
+                        </Button>
+                      </InputGroupAddon>
+                    </InputGroup>
+                  ) : null}
                 </ListGroupItem>
               );
             })}
@@ -168,7 +241,11 @@ const ContestConfig = (props: InnerProps) => {
         <ProblemSearchBox
           problems={problemMap.valueSeq().toList()}
           selectProblem={problem => {
-            setProblemSet(problemSet.add(problem.id));
+            if (problemSet.every(p => p.id !== problem.id)) {
+              setProblemSet(
+                problemSet.push({ id: problem.id, point: null, order: null })
+              );
+            }
           }}
         />
       </Row>
@@ -183,7 +260,8 @@ const ContestConfig = (props: InnerProps) => {
               memo,
               startSecond,
               endSecond,
-              problems: problemSet
+              problems: problemSet,
+              mode
             })
           }
         >
@@ -199,11 +277,12 @@ interface ContestInfo {
   memo: string;
   startSecond: number;
   endSecond: number;
-  problems: Set<string>;
+  mode: VirtualContestMode;
+  problems: List<VirtualContestItem>;
 }
 
 interface OuterProps {
-  initialProblems: Set<ProblemId>;
+  initialProblems: List<VirtualContestItem>;
   pageTitle: string;
   initialTitle: string;
   initialMemo: string;
@@ -213,6 +292,7 @@ interface OuterProps {
   initialEndDate: string;
   initialEndHour: number;
   initialEndMinute: number;
+  initialMode: VirtualContestMode;
 
   buttonPush: (contest: ContestInfo) => void;
   buttonTitle: string;
