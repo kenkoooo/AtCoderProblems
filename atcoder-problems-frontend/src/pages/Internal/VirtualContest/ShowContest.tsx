@@ -24,7 +24,7 @@ import ProblemModel, {
 import { predictSolveProbability } from "../../../utils/ProblemModelUtil";
 import { clipDifficulty, getRatingColorClass } from "../../../utils";
 import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
-import { UserResponse, VirtualContest } from "../types";
+import { formatMode, UserResponse, VirtualContest } from "../types";
 import { compareProblem } from "./util";
 
 interface ShowingVirtualContest extends VirtualContest {
@@ -224,10 +224,13 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
       <Row className="my-2">
         <Col sm="12">
           <h1>{contestInfo.title}</h1>
-          <h3>
+          <h4>{contestInfo.memo}</h4>
+          <h5>Mode: {formatMode(contestInfo.mode)}</h5>
+          <h5>
+            Time:
             {formatMomentDateTime(parseSecond(start))} -{" "}
             {formatMomentDateTime(parseSecond(end))}
-          </h3>
+          </h5>
           {atcoderUserId === null ? (
             <Alert color="warning">
               Please set the AtCoder ID, before you join the contest.

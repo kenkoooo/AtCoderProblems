@@ -24,6 +24,7 @@ export interface VirtualContest {
   readonly duration_second: number;
   readonly problems: VirtualContestItem[];
   readonly participants: string[];
+  readonly mode: VirtualContestMode;
 }
 
 export interface VirtualContestItem {
@@ -31,3 +32,13 @@ export interface VirtualContestItem {
   readonly point: number | null;
   readonly order: number | null;
 }
+
+export type VirtualContestMode = null | "lockdown";
+export const formatMode = (mode: VirtualContestMode) => {
+  switch (mode) {
+    case "lockdown":
+      return "LockDown";
+    case null:
+      return "Normal";
+  }
+};

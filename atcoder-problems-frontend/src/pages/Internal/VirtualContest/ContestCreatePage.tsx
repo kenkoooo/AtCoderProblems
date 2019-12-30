@@ -5,7 +5,7 @@ import ContestConfig from "./ContestConfig";
 import { Redirect } from "react-router-dom";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
-import { VirtualContestItem } from "../types";
+import { VirtualContestItem, VirtualContestMode } from "../types";
 
 const ContestCreatePage = (props: InnerProps) => {
   const createResponse = props.createContestResponse.fulfilled
@@ -38,15 +38,16 @@ const ContestCreatePage = (props: InnerProps) => {
       initialEndHour={todayHour}
       initialEndMinute={todayMinute}
       initialProblems={List()}
+      initialMode={null}
       buttonTitle="Create"
-      buttonPush={({ title, memo, startSecond, endSecond, problems }) =>
+      buttonPush={({ title, memo, startSecond, endSecond, problems, mode }) =>
         props.createContest(
           {
             title,
             memo,
             start_epoch_second: startSecond,
             duration_second: endSecond - startSecond,
-            mode: null
+            mode
           },
           problems.toArray()
         )
@@ -60,7 +61,7 @@ interface Request {
   memo: string;
   start_epoch_second: number;
   duration_second: number;
-  mode: string | null;
+  mode: VirtualContestMode;
 }
 
 interface Response {
