@@ -145,7 +145,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
     .map(userId => {
       const problemResults = problems.map(problem => {
         if (contestInfo.mode === "lockout") {
-          return calcLockDown(problem, submissionMap, userId, start, end);
+          return calcLockout(problem, submissionMap, userId, start, end);
         } else {
           return calcNormal(problem, submissionMap, userId, start, end);
         }
@@ -508,7 +508,7 @@ const calcNormal = (
   };
 };
 
-const calcLockDown = (
+const calcLockout = (
   problem: VirtualContestItem,
   submissionMap: Map<ProblemId, List<Submission>>,
   userId: string,
@@ -527,7 +527,7 @@ const calcLockDown = (
       id: problem.id,
       submissionCount: 1,
       maxPoint: problem.point !== null ? problem.point : firstAc.point,
-      maxPointSubmissionTime: firstAc.epoch_second,
+      maxPointSubmissionTime: firstAc.epoch_second - start,
       trialsBeforeMax: 0
     };
   } else {
