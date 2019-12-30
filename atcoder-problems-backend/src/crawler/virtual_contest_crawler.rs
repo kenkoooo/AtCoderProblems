@@ -28,6 +28,7 @@ where
         let problem_set = contests
             .into_iter()
             .flat_map(|c| c.problems)
+            .map(|problem| problem.id)
             .collect::<BTreeSet<_>>();
         let contest_set = pairs
             .into_iter()
