@@ -33,11 +33,11 @@ export interface VirtualContestItem {
   readonly order: number | null;
 }
 
-export type VirtualContestMode = null | "lockdown";
+export type VirtualContestMode = null | "lockout";
 export const formatMode = (mode: VirtualContestMode) => {
   switch (mode) {
-    case "lockdown":
-      return "LockDown";
+    case "lockout":
+      return "Lockout";
     case null:
       return "Normal";
   }

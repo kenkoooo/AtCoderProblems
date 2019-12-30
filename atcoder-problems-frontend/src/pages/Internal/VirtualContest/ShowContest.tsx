@@ -144,7 +144,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   const contestResults = contestInfo.participants
     .map(userId => {
       const problemResults = problems.map(problem => {
-        if (contestInfo.mode === "lockdown") {
+        if (contestInfo.mode === "lockout") {
           return calcLockDown(problem, submissionMap, userId, start, end);
         } else {
           return calcNormal(problem, submissionMap, userId, start, end);
@@ -268,7 +268,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                   );
                 })}
                 <th style={{ textAlign: "center" }}>Score</th>
-                {contestInfo.mode !== "lockdown" ? (
+                {contestInfo.mode !== "lockout" ? (
                   <th style={{ textAlign: "center" }}>Estimated Performance</th>
                 ) : null}
               </tr>
@@ -314,7 +314,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                       />
                     </td>
 
-                    {contestInfo.mode !== "lockdown" ? (
+                    {contestInfo.mode !== "lockout" ? (
                       <td>
                         <p
                           className={getRatingColorClass(estimatedPerformance)}
