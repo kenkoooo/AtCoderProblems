@@ -7,6 +7,7 @@ import {
   DropdownToggle,
   Input,
   InputGroup,
+  InputGroupAddon,
   Label,
   ListGroup,
   ListGroupItem,
@@ -182,21 +183,52 @@ const ContestConfig = (props: InnerProps) => {
                   ) : (
                     problemId
                   )}
-                  {mode === "lockout" ? (
-                    <Input
-                      type="number"
-                      value={p.point !== null ? p.point : 0}
-                      onChange={e => {
-                        const parse = parseInt(e.target.value, 10);
-                        const point = !isNaN(parse) ? parse : null;
+                  {p.point === null ? (
+                    <Button
+                      style={{ float: "right" }}
+                      onClick={() => {
                         setProblemSet(
                           problemSet.update(i, x => ({
                             ...x,
-                            point
+                            point: 0
                           }))
                         );
                       }}
-                    />
+                    >
+                      Set Point
+                    </Button>
+                  ) : null}
+                  {p.point !== null ? (
+                    <InputGroup>
+                      <Input
+                        type="number"
+                        value={p.point}
+                        onChange={e => {
+                          const parse = parseInt(e.target.value, 10);
+                          const point = !isNaN(parse) ? parse : 0;
+                          setProblemSet(
+                            problemSet.update(i, x => ({
+                              ...x,
+                              point
+                            }))
+                          );
+                        }}
+                      />
+                      <InputGroupAddon addonType="append">
+                        <Button
+                          onClick={() => {
+                            setProblemSet(
+                              problemSet.update(i, x => ({
+                                ...x,
+                                point: null
+                              }))
+                            );
+                          }}
+                        >
+                          Unset
+                        </Button>
+                      </InputGroupAddon>
+                    </InputGroup>
                   ) : null}
                 </ListGroupItem>
               );

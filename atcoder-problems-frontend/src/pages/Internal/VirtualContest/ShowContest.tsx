@@ -264,9 +264,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                       ) : (
                         problemId
                       )}
-                      {contestInfo.mode === "lockout" && p.point !== null
-                        ? ` (${p.point})`
-                        : null}
+                      {p.point !== null ? ` (${p.point})` : null}
                     </th>
                   );
                 })}
