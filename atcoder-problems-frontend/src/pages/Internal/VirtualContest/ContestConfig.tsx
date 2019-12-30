@@ -160,9 +160,10 @@ const ContestConfig = (props: InnerProps) => {
       <Row>
         <Col>
           <ListGroup>
-            {problemSet.valueSeq().map(p => {
+            {problemSet.valueSeq().map((p, i) => {
               const problemId = p.id;
               const problem = problemMap.get(problemId);
+              console.log(p);
               return (
                 <ListGroupItem key={problemId}>
                   <Button
@@ -182,6 +183,22 @@ const ContestConfig = (props: InnerProps) => {
                   ) : (
                     problemId
                   )}
+                  {mode === "lockout" ? (
+                    <Input
+                      type="number"
+                      value={p.point !== null ? p.point : 0}
+                      onChange={e => {
+                        const parse = parseInt(e.target.value);
+                        const point = !isNaN(parse) ? parse : null;
+                        setProblemSet(
+                          problemSet.update(i, x => ({
+                            ...x,
+                            point
+                          }))
+                        );
+                      }}
+                    />
+                  ) : null}
                 </ListGroupItem>
               );
             })}
