@@ -1,4 +1,4 @@
-use crate::crawler::SubmissionFetcher;
+use crate::crawler::AtCoderFetcher;
 use crate::error::Result;
 use crate::sql::{SubmissionClient, SubmissionRequest};
 
@@ -14,7 +14,7 @@ pub struct FixCrawler<C, F> {
 impl<C, F> FixCrawler<C, F>
 where
     C: SubmissionClient,
-    F: SubmissionFetcher,
+    F: AtCoderFetcher,
 {
     pub fn new(db: C, fetcher: F, current_time_second: i64) -> Self {
         Self {
@@ -23,7 +23,7 @@ where
             current_time_second,
         }
     }
-    pub fn crawl(&self) -> Result<()> {
+    pub async fn crawl(&self) -> Result<()> {
         info!(
             "Pulling invalid submissions after {} ...",
             self.current_time_second
@@ -47,7 +47,7 @@ where
         for (contest_id, minimum_id) in contests.into_iter() {
             for page in 1.. {
                 info!("Fetching from {}-{}", contest_id, page);
-                let submissions = self.fetcher.fetch_submissions(&contest_id, page);
+                let submissions = self.fetcher.fetch_submissions(&contest_id, page).await;
                 self.db.update_submissions(&submissions)?;
                 let all_old = submissions.iter().all(|s| s.id <= minimum_id);
                 if all_old {
@@ -62,6 +62,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use futures::executor::block_on;
     const CURRENT_TIME: i64 = 100;
 
     struct MockDB;
@@ -122,7 +123,7 @@ mod tests {
             }]
         });
         let crawler = FixCrawler::new(MockDB, fetcher, CURRENT_TIME);
-        assert!(crawler.crawl().is_ok());
+        assert!(block_on(crawler.crawl()).is_ok());
     }
 
     #[test]
@@ -135,6 +136,6 @@ mod tests {
         });
 
         let crawler = FixCrawler::new(MockDB, fetcher, CURRENT_TIME);
-        assert!(crawler.crawl().is_ok());
+        assert!(block_on(crawler.crawl()).is_ok());
     }
 }

@@ -1,4 +1,4 @@
-use crate::crawler::SubmissionFetcher;
+use crate::crawler::AtCoderFetcher;
 use crate::error::Result;
 use crate::sql::{SimpleClient, SubmissionClient};
 
@@ -13,19 +13,19 @@ pub struct RecentCrawler<C, F> {
 impl<C, F> RecentCrawler<C, F>
 where
     C: SubmissionClient + SimpleClient,
-    F: SubmissionFetcher,
+    F: AtCoderFetcher,
 {
     pub fn new(db: C, fetcher: F) -> Self {
         Self { db, fetcher }
     }
 
-    pub fn crawl(&self) -> Result<()> {
+    pub async fn crawl(&self) -> Result<()> {
         info!("Started");
         let contests = self.db.load_contests()?;
         for contest in contests.into_iter() {
             for page in 1.. {
                 info!("Crawling {}-{} ...", contest.id, page);
-                let submissions = self.fetcher.fetch_submissions(&contest.id, page);
+                let submissions = self.fetcher.fetch_submissions(&contest.id, page).await;
                 if submissions.is_empty() {
                     info!("There is no submission on {}-{}", contest.id, page);
                     break;
@@ -54,6 +54,7 @@ mod tests {
     use crate::crawler::utils::MockFetcher;
     use crate::sql::models::{Contest, Problem, Submission};
     use crate::sql::SubmissionRequest;
+    use futures::executor::block_on;
 
     #[test]
     fn test_recent_crawler() {
@@ -117,6 +118,6 @@ mod tests {
         }
 
         let crawler = RecentCrawler::new(MockDB, fetcher);
-        assert!(crawler.crawl().is_ok());
+        assert!(block_on(crawler.crawl()).is_ok());
     }
 }
