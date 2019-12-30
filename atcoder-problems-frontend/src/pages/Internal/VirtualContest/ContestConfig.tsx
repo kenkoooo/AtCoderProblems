@@ -87,8 +87,8 @@ const ContestConfig = (props: InnerProps) => {
               <DropdownItem onClick={() => setMode(null)}>
                 {formatMode(null)}
               </DropdownItem>
-              <DropdownItem onClick={() => setMode("lockdown")}>
-                {formatMode("lockdown")}
+              <DropdownItem onClick={() => setMode("lockout")}>
+                {formatMode("lockout")}
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
