@@ -1,8 +1,9 @@
-use crate::crawler::SubmissionFetcher;
+use crate::crawler::AtCoderFetcher;
 use crate::error::Result;
 use crate::sql::SubmissionClient;
 
 use log::info;
+use std::{thread, time};
 
 pub struct WholeContestCrawler<C, F> {
     db: C,
@@ -13,7 +14,7 @@ pub struct WholeContestCrawler<C, F> {
 impl<C, F> WholeContestCrawler<C, F>
 where
     C: SubmissionClient,
-    F: SubmissionFetcher,
+    F: AtCoderFetcher,
 {
     pub fn new<S: ToString>(db: C, fetcher: F, contest_id: S) -> Self {
         Self {
@@ -23,16 +24,17 @@ where
         }
     }
 
-    pub fn crawl(&self) -> Result<()> {
+    pub async fn crawl(&self) -> Result<()> {
         for page in 1.. {
             info!("Crawling {} {} ...", self.contest_id, page);
-            let submissions = self.fetcher.fetch_submissions(&self.contest_id, page);
+            let submissions = self.fetcher.fetch_submissions(&self.contest_id, page).await;
             if submissions.is_empty() {
                 info!("Empty!");
                 break;
             }
 
             self.db.update_submissions(&submissions)?;
+            thread::sleep(time::Duration::from_millis(200));
         }
 
         info!("Finished");
@@ -46,6 +48,7 @@ mod tests {
     use crate::crawler::utils::MockFetcher;
     use crate::sql::models::Submission;
     use crate::sql::SubmissionRequest;
+    use futures::executor::block_on;
 
     struct MockDB;
     impl SubmissionClient for MockDB {
@@ -85,6 +88,6 @@ mod tests {
             }
         });
         let crawler = WholeContestCrawler::new(MockDB, fetcher, "contest-id");
-        assert!(crawler.crawl().is_ok());
+        assert!(block_on(crawler.crawl()).is_ok());
     }
 }

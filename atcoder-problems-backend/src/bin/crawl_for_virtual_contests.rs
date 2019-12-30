@@ -1,25 +1,26 @@
 use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
 use atcoder_problems_backend::error::Result;
+use atcoder_problems_backend::sql::connect;
 use chrono::Utc;
-use diesel::{Connection, PgConnection};
+use futures::executor::block_on;
 use std::time::{Duration, Instant};
 use std::{env, thread};
 
 const FIX_RANGE_SECOND: i64 = 10 * 60;
 
-fn crawl(url: &str) -> Result<()> {
+async fn crawl(url: &str) -> Result<()> {
     log::info!("Start crawling...");
-    let conn = PgConnection::establish(url)?;
+    let conn = connect(&url)?;
     let crawler = VirtualContestCrawler::new(conn, AtCoderClient::default());
-    crawler.crawl()?;
+    crawler.crawl().await?;
     log::info!("Finished crawling");
 
     log::info!("Starting fixing...");
-    let conn = PgConnection::establish(&url)?;
+    let conn = connect(&url)?;
     let cur = Utc::now().timestamp();
     let crawler = FixCrawler::new(conn, AtCoderClient::default(), cur - FIX_RANGE_SECOND);
-    crawler.crawl()?;
+    crawler.crawl().await?;
     log::info!("Finished fixing");
 
     Ok(())
@@ -34,7 +35,7 @@ fn main() {
         log::info!("Start new loop...");
         let now = Instant::now();
 
-        if let Err(e) = crawl(&url) {
+        if let Err(e) = block_on(crawl(&url)) {
             log::error!("{:?}", e);
         }
 
