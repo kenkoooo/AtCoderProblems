@@ -163,13 +163,12 @@ const ContestConfig = (props: InnerProps) => {
             {problemSet.valueSeq().map((p, i) => {
               const problemId = p.id;
               const problem = problemMap.get(problemId);
-              console.log(p);
               return (
                 <ListGroupItem key={problemId}>
                   <Button
                     close
                     onClick={() => {
-                      setProblemSet(problemSet.filter(p => p.id !== problemId));
+                      setProblemSet(problemSet.filter(x => x.id !== problemId));
                     }}
                   />
                   {problem ? (
@@ -188,7 +187,7 @@ const ContestConfig = (props: InnerProps) => {
                       type="number"
                       value={p.point !== null ? p.point : 0}
                       onChange={e => {
-                        const parse = parseInt(e.target.value);
+                        const parse = parseInt(e.target.value, 10);
                         const point = !isNaN(parse) ? parse : null;
                         setProblemSet(
                           problemSet.update(i, x => ({
