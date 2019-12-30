@@ -163,6 +163,7 @@ CREATE TABLE internal_virtual_contests (
   internal_user_id     VARCHAR(255) REFERENCES internal_users ON DELETE CASCADE ON UPDATE CASCADE,
   start_epoch_second    BIGINT       NOT NULL,
   duration_second       BIGINT       NOT NULL,
+  mode      VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (id)
 );
 CREATE INDEX ON internal_virtual_contests (internal_user_id);
@@ -171,6 +172,8 @@ CREATE INDEX ON internal_virtual_contests (start_epoch_second);
 CREATE TABLE internal_virtual_contest_items (
   problem_id    VARCHAR(255) NOT NULL,
   internal_virtual_contest_id VARCHAR(255) REFERENCES internal_virtual_contests(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  user_defined_point    BIGINT DEFAULT NULL,
+  user_defined_order    BIGINT DEFAULT NULL,
   PRIMARY KEY (problem_id, internal_virtual_contest_id)
 );
 CREATE INDEX ON internal_virtual_contest_items (internal_virtual_contest_id);
