@@ -96,7 +96,14 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
       initialProblems={List(problems)}
       initialMode={contestInfo.mode}
       buttonTitle="Update"
-      buttonPush={({ title, memo, startSecond, endSecond, problems, mode }) => {
+      buttonPush={({
+        title,
+        memo,
+        startSecond,
+        endSecond,
+        problems: ps,
+        mode
+      }) => {
         props.updateContest(
           {
             id: contestId,
@@ -106,7 +113,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
             duration_second: endSecond - startSecond,
             mode
           },
-          problems.toArray()
+          ps.toArray()
         );
       }}
     />
