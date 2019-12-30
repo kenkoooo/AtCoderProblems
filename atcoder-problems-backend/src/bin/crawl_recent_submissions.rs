@@ -1,6 +1,7 @@
 use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler::RecentCrawler;
 use diesel::{Connection, PgConnection};
+use futures::executor::block_on;
 use log::{error, info};
 use std::env;
 
@@ -13,7 +14,7 @@ fn main() {
         match PgConnection::establish(&url) {
             Ok(conn) => {
                 let crawler = RecentCrawler::new(conn, AtCoderClient::default());
-                match crawler.crawl() {
+                match block_on(crawler.crawl()) {
                     Ok(_) => {}
                     Err(e) => {
                         error!("Failed to crawl submissions: {:?}", e);
