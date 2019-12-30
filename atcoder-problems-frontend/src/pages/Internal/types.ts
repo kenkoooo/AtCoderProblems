@@ -22,6 +22,12 @@ export interface VirtualContest {
   readonly owner_user_id: string;
   readonly start_epoch_second: number;
   readonly duration_second: number;
-  readonly problems: string[];
+  readonly problems: VirtualContestItem[];
   readonly participants: string[];
+}
+
+export interface VirtualContestItem {
+  readonly id: string;
+  readonly point: number | null;
+  readonly order: number | null;
 }

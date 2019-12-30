@@ -25,6 +25,7 @@ import { predictSolveProbability } from "../../../utils/ProblemModelUtil";
 import { clipDifficulty, getRatingColorClass } from "../../../utils";
 import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
 import { UserResponse, VirtualContest } from "../types";
+import { compareProblem } from "./util";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
@@ -129,13 +130,13 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   const now = Math.floor(Date.now() / 1000);
   const canJoin = !alreadyJoined && atcoderUserId !== null && now < end;
   const isOwner = contestInfo.owner_user_id === internalUserId;
-  const problemIds = contestInfo.problems.sort();
+  const problems = contestInfo.problems;
 
   const contestResults = contestInfo.participants
     .map(userId => {
-      const problemResults = problemIds.map(problemId => {
+      const problemResults = problems.map(problem => {
         const submissions = submissionMap
-          .get(problemId, List<Submission>())
+          .get(problem.id, List<Submission>())
           .filter(s => s.user_id === userId)
           .filter(s => start <= s.epoch_second && s.epoch_second <= end)
           .sortBy(s => s.id);
@@ -158,7 +159,9 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           }
         );
         return {
-          problemId,
+          problemId: problem.id,
+          order: problem.order,
+          id: problem.id,
           submissionCount: submissions.size,
           ...result
         };
@@ -168,7 +171,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
         .sort((a, b) => a.maxPointSubmissionTime - b.maxPointSubmissionTime)
         .reduce(
           ({ list, prev }, a) => {
-            const problemId = a.problemId;
+            const problemId = a.id;
             const time = a.maxPointSubmissionTime - prev;
             const solved = a.maxPoint !== 0;
             return {
@@ -255,29 +258,28 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
             <thead>
               <tr>
                 <th>Participant</th>
-                {problemIds
-                  .sort((a, b) => a.localeCompare(b))
-                  .map(problemId => {
-                    const problem = problemMap.get(problemId, null);
-                    return (
-                      <th key={problemId}>
-                        {problem ? (
-                          <a
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href={formatProblemUrl(
-                              problem.id,
-                              problem.contest_id
-                            )}
-                          >
-                            {problem.title}
-                          </a>
-                        ) : (
-                          problemId
-                        )}
-                      </th>
-                    );
-                  })}
+                {problems.sort(compareProblem).map(p => {
+                  const problemId = p.id;
+                  const problem = problemMap.get(problemId, null);
+                  return (
+                    <th key={problemId}>
+                      {problem ? (
+                        <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={formatProblemUrl(
+                            problem.id,
+                            problem.contest_id
+                          )}
+                        >
+                          {problem.title}
+                        </a>
+                      ) : (
+                        problemId
+                      )}
+                    </th>
+                  );
+                })}
                 <th style={{ textAlign: "center" }}>Score</th>
                 <th style={{ textAlign: "center" }}>Estimated Performance</th>
               </tr>
@@ -292,34 +294,32 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                 }) => (
                   <tr key={userId}>
                     <th>{userId}</th>
-                    {problemResults
-                      .sort((a, b) => a.problemId.localeCompare(b.problemId))
-                      .map(result => {
-                        if (result.submissionCount === 0) {
-                          return (
-                            <td
-                              key={result.problemId}
-                              style={{ textAlign: "center" }}
-                            >
-                              -
-                            </td>
-                          );
-                        }
-
-                        const trials =
-                          result.maxPoint === 0
-                            ? result.submissionCount
-                            : result.trialsBeforeMax;
+                    {problemResults.sort(compareProblem).map(result => {
+                      if (result.submissionCount === 0) {
                         return (
-                          <td key={result.problemId}>
-                            <ScoreCell
-                              maxPoint={result.maxPoint}
-                              trials={trials}
-                              time={result.maxPointSubmissionTime}
-                            />
+                          <td
+                            key={result.problemId}
+                            style={{ textAlign: "center" }}
+                          >
+                            -
                           </td>
                         );
-                      })}
+                      }
+
+                      const trials =
+                        result.maxPoint === 0
+                          ? result.submissionCount
+                          : result.trialsBeforeMax;
+                      return (
+                        <td key={result.problemId}>
+                          <ScoreCell
+                            maxPoint={result.maxPoint}
+                            trials={trials}
+                            time={result.maxPointSubmissionTime}
+                          />
+                        </td>
+                      );
+                    })}
                     <td>
                       <ScoreCell
                         maxPoint={totalResult.pointSum}
