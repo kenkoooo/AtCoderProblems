@@ -2,6 +2,7 @@ use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler::FixCrawler;
 use chrono::Utc;
 use diesel::{Connection, PgConnection};
+use futures::executor::block_on;
 use log::info;
 use std::env;
 
@@ -14,6 +15,6 @@ fn main() {
     let conn = PgConnection::establish(&url).expect("Failed to connect PostgreSQL.");
     let now = Utc::now().timestamp();
     let crawler = FixCrawler::new(conn, AtCoderClient::default(), now - ONE_DAY);
-    crawler.crawl().expect("Failed to crawl");
+    block_on(crawler.crawl()).expect("Failed to crawl");
     info!("Finished fixing.");
 }

@@ -1,8 +1,11 @@
-use crate::crawler::SubmissionFetcher;
+use crate::crawler::AtCoderFetcher;
 use crate::error::Result;
 use crate::sql::internal::virtual_contest_manager::VirtualContestManager;
 use crate::sql::{ContestProblemClient, SubmissionClient};
 use std::collections::BTreeSet;
+use std::{thread, time};
+
+const CRAWLED_STREAK: usize = 3;
 
 pub struct VirtualContestCrawler<C, F> {
     db: C,
@@ -12,13 +15,13 @@ pub struct VirtualContestCrawler<C, F> {
 impl<C, F> VirtualContestCrawler<C, F>
 where
     C: SubmissionClient + VirtualContestManager + ContestProblemClient,
-    F: SubmissionFetcher,
+    F: AtCoderFetcher,
 {
     pub fn new(db: C, fetcher: F) -> Self {
         Self { db, fetcher }
     }
 
-    pub fn crawl(&self) -> Result<()> {
+    pub async fn crawl(&self) -> Result<()> {
         let pairs = self.db.load_contest_problem()?;
         let contests = self.db.get_recent_contests()?;
 
@@ -37,7 +40,7 @@ where
             let mut streak = 0;
             for page in 1.. {
                 log::info!("Fetching from {} {} ...", contest, page);
-                let submissions = self.fetcher.fetch_submissions(&contest, page);
+                let submissions = self.fetcher.fetch_submissions(&contest, page).await;
                 if submissions.is_empty() {
                     break;
                 }
@@ -52,9 +55,10 @@ where
 
                 self.db.update_submissions(&submissions)?;
 
-                if streak >= 5 {
+                if streak >= CRAWLED_STREAK {
                     break;
                 }
+                thread::sleep(time::Duration::from_millis(200));
             }
             log::info!("Finished {}", contest);
         }
