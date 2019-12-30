@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import {
   Button,
   Col,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   Input,
   InputGroup,
   Label,
   ListGroup,
   ListGroupItem,
-  Row
+  Row,
+  UncontrolledDropdown
 } from "reactstrap";
 import { Range, Map, List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
@@ -19,7 +23,7 @@ import moment from "moment";
 import { Redirect } from "react-router-dom";
 import { USER_GET } from "../ApiUrl";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
-import { VirtualContestItem } from "../types";
+import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
 
 const ContestConfig = (props: InnerProps) => {
   const [title, setTitle] = useState(props.initialTitle);
@@ -31,8 +35,8 @@ const ContestConfig = (props: InnerProps) => {
   const [endDate, setEndDate] = useState(props.initialEndDate);
   const [endHour, setEndHour] = useState(props.initialEndHour);
   const [endMinute, setEndMinute] = useState(props.initialEndMinute);
-
   const [problemSet, setProblemSet] = useState(props.initialProblems);
+  const [mode, setMode] = useState(props.initialMode);
 
   if (props.loginState.rejected) {
     return <Redirect to="/" />;
@@ -72,6 +76,23 @@ const ContestConfig = (props: InnerProps) => {
           value={memo}
           onChange={event => setMemo(event.target.value)}
         />
+      </Row>
+
+      <Row className="my-2">
+        <Label>Mode</Label>
+        <InputGroup>
+          <UncontrolledDropdown>
+            <DropdownToggle caret>{formatMode(mode)}</DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem onClick={() => setMode(null)}>
+                {formatMode(null)}
+              </DropdownItem>
+              <DropdownItem onClick={() => setMode("lockdown")}>
+                {formatMode("lockdown")}
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </InputGroup>
       </Row>
 
       <Row className="my-2">
@@ -191,7 +212,8 @@ const ContestConfig = (props: InnerProps) => {
               memo,
               startSecond,
               endSecond,
-              problems: problemSet
+              problems: problemSet,
+              mode
             })
           }
         >
@@ -207,6 +229,7 @@ interface ContestInfo {
   memo: string;
   startSecond: number;
   endSecond: number;
+  mode: VirtualContestMode;
   problems: List<VirtualContestItem>;
 }
 
@@ -221,6 +244,7 @@ interface OuterProps {
   initialEndDate: string;
   initialEndHour: number;
   initialEndMinute: number;
+  initialMode: VirtualContestMode;
 
   buttonPush: (contest: ContestInfo) => void;
   buttonTitle: string;

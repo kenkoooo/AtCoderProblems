@@ -75,7 +75,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
     contestInfo.start_epoch_second + contestInfo.duration_second
   );
 
-  const problems = contestInfo?.problems.sort((a, b) => {
+  const problems = contestInfo.problems.sort((a, b) => {
     if (a.order !== null && b.order !== null) {
       return a.order - b.order;
     }
@@ -94,8 +94,9 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
       initialEndHour={end.hour()}
       initialEndMinute={end.minute()}
       initialProblems={List(problems)}
+      initialMode={contestInfo.mode}
       buttonTitle="Update"
-      buttonPush={({ title, memo, startSecond, endSecond, problems }) =>
+      buttonPush={({ title, memo, startSecond, endSecond, problems, mode }) => {
         props.updateContest(
           {
             id: contestId,
@@ -103,11 +104,11 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
             memo,
             start_epoch_second: startSecond,
             duration_second: endSecond - startSecond,
-            mode: null
+            mode
           },
           problems.toArray()
-        )
-      }
+        );
+      }}
     />
   );
 });
