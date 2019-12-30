@@ -179,6 +179,7 @@ table! {
         internal_user_id -> Varchar,
         start_epoch_second -> Int8,
         duration_second -> Int8,
+        mode -> Nullable<Varchar>,
     }
 }
 
@@ -186,6 +187,8 @@ table! {
     internal_virtual_contest_items (problem_id, internal_virtual_contest_id) {
         problem_id -> Varchar,
         internal_virtual_contest_id -> Varchar,
+        user_defined_point -> Nullable<Int8>,
+        user_defined_order -> Nullable<Int8>,
     }
 }
 

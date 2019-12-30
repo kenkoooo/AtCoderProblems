@@ -22,9 +22,19 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel
 } from "../../../interfaces/ProblemModel";
 import { predictSolveProbability } from "../../../utils/ProblemModelUtil";
-import { clipDifficulty, getRatingColorClass } from "../../../utils";
+import {
+  clipDifficulty,
+  getRatingColorClass,
+  isAccepted
+} from "../../../utils";
 import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
-import { UserResponse, VirtualContest } from "../types";
+import {
+  formatMode,
+  UserResponse,
+  VirtualContest,
+  VirtualContestItem
+} from "../types";
+import { compareProblem } from "./util";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
@@ -129,46 +139,23 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   const now = Math.floor(Date.now() / 1000);
   const canJoin = !alreadyJoined && atcoderUserId !== null && now < end;
   const isOwner = contestInfo.owner_user_id === internalUserId;
-  const problemIds = contestInfo.problems.sort();
+  const problems = contestInfo.problems;
 
   const contestResults = contestInfo.participants
     .map(userId => {
-      const problemResults = problemIds.map(problemId => {
-        const submissions = submissionMap
-          .get(problemId, List<Submission>())
-          .filter(s => s.user_id === userId)
-          .filter(s => start <= s.epoch_second && s.epoch_second <= end)
-          .sortBy(s => s.id);
-        const result = submissions.reduce(
-          (cur, submission, i) => {
-            if (cur.maxPoint < submission.point) {
-              return {
-                maxPoint: submission.point,
-                maxPointSubmissionTime: submission.epoch_second - start,
-                trialsBeforeMax: i
-              };
-            } else {
-              return cur;
-            }
-          },
-          {
-            maxPoint: 0,
-            maxPointSubmissionTime: 0,
-            trialsBeforeMax: 0
-          }
-        );
-        return {
-          problemId,
-          submissionCount: submissions.size,
-          ...result
-        };
+      const problemResults = problems.map(problem => {
+        if (contestInfo.mode === "lockout") {
+          return calcLockout(problem, submissionMap, userId, start, end);
+        } else {
+          return calcNormal(problem, submissionMap, userId, start, end);
+        }
       });
 
       const solvedData = problemResults
         .sort((a, b) => a.maxPointSubmissionTime - b.maxPointSubmissionTime)
         .reduce(
           ({ list, prev }, a) => {
-            const problemId = a.problemId;
+            const problemId = a.id;
             const time = a.maxPointSubmissionTime - prev;
             const solved = a.maxPoint !== 0;
             return {
@@ -221,10 +208,13 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
       <Row className="my-2">
         <Col sm="12">
           <h1>{contestInfo.title}</h1>
-          <h3>
+          <h4>{contestInfo.memo}</h4>
+          <h5>Mode: {formatMode(contestInfo.mode)}</h5>
+          <h5>
+            Time:
             {formatMomentDateTime(parseSecond(start))} -{" "}
             {formatMomentDateTime(parseSecond(end))}
-          </h3>
+          </h5>
           {atcoderUserId === null ? (
             <Alert color="warning">
               Please set the AtCoder ID, before you join the contest.
@@ -255,31 +245,33 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
             <thead>
               <tr>
                 <th>Participant</th>
-                {problemIds
-                  .sort((a, b) => a.localeCompare(b))
-                  .map(problemId => {
-                    const problem = problemMap.get(problemId, null);
-                    return (
-                      <th key={problemId}>
-                        {problem ? (
-                          <a
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href={formatProblemUrl(
-                              problem.id,
-                              problem.contest_id
-                            )}
-                          >
-                            {problem.title}
-                          </a>
-                        ) : (
-                          problemId
-                        )}
-                      </th>
-                    );
-                  })}
+                {problems.sort(compareProblem).map(p => {
+                  const problemId = p.id;
+                  const problem = problemMap.get(problemId, null);
+                  return (
+                    <th key={problemId}>
+                      {problem ? (
+                        <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={formatProblemUrl(
+                            problem.id,
+                            problem.contest_id
+                          )}
+                        >
+                          {problem.title}
+                        </a>
+                      ) : (
+                        problemId
+                      )}
+                      {p.point !== null ? ` (${p.point})` : null}
+                    </th>
+                  );
+                })}
                 <th style={{ textAlign: "center" }}>Score</th>
-                <th style={{ textAlign: "center" }}>Estimated Performance</th>
+                {contestInfo.mode !== "lockout" ? (
+                  <th style={{ textAlign: "center" }}>Estimated Performance</th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -292,34 +284,29 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                 }) => (
                   <tr key={userId}>
                     <th>{userId}</th>
-                    {problemResults
-                      .sort((a, b) => a.problemId.localeCompare(b.problemId))
-                      .map(result => {
-                        if (result.submissionCount === 0) {
-                          return (
-                            <td
-                              key={result.problemId}
-                              style={{ textAlign: "center" }}
-                            >
-                              -
-                            </td>
-                          );
-                        }
-
-                        const trials =
-                          result.maxPoint === 0
-                            ? result.submissionCount
-                            : result.trialsBeforeMax;
+                    {problemResults.sort(compareProblem).map(result => {
+                      if (result.submissionCount === 0) {
                         return (
-                          <td key={result.problemId}>
-                            <ScoreCell
-                              maxPoint={result.maxPoint}
-                              trials={trials}
-                              time={result.maxPointSubmissionTime}
-                            />
+                          <td key={result.id} style={{ textAlign: "center" }}>
+                            -
                           </td>
                         );
-                      })}
+                      }
+
+                      const trials =
+                        result.maxPoint === 0
+                          ? result.submissionCount
+                          : result.trialsBeforeMax;
+                      return (
+                        <td key={result.id}>
+                          <ScoreCell
+                            maxPoint={result.maxPoint}
+                            trials={trials}
+                            time={result.maxPointSubmissionTime}
+                          />
+                        </td>
+                      );
+                    })}
                     <td>
                       <ScoreCell
                         maxPoint={totalResult.pointSum}
@@ -327,14 +314,17 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                         time={totalResult.lastIncreaseTime}
                       />
                     </td>
-                    <td>
-                      <p
-                        className={getRatingColorClass(estimatedPerformance)}
-                        style={{ textAlign: "center", fontWeight: "bold" }}
-                      >
-                        {estimatedPerformance}
-                      </p>
-                    </td>
+
+                    {contestInfo.mode !== "lockout" ? (
+                      <td>
+                        <p
+                          className={getRatingColorClass(estimatedPerformance)}
+                          style={{ textAlign: "center", fontWeight: "bold" }}
+                        >
+                          {estimatedPerformance}
+                        </p>
+                      </td>
+                    ) : null}
                   </tr>
                 )
               )}
@@ -476,6 +466,78 @@ const fetchSubmissions = async (
     const list = map.get(s.problem_id, List<Submission>());
     return map.set(s.problem_id, list.push(s));
   }, Map<ProblemId, List<Submission>>());
+};
+
+const calcNormal = (
+  problem: VirtualContestItem,
+  submissionMap: Map<ProblemId, List<Submission>>,
+  userId: string,
+  start: number,
+  end: number
+) => {
+  const submissions = submissionMap
+    .get(problem.id, List<Submission>())
+    .filter(s => s.user_id === userId)
+    .filter(s => start <= s.epoch_second && s.epoch_second <= end)
+    .sortBy(s => s.id);
+  const result = submissions.reduce(
+    (cur, submission, i) => {
+      if (cur.maxPoint < submission.point) {
+        return {
+          maxPoint: submission.point,
+          maxPointSubmissionTime: submission.epoch_second - start,
+          trialsBeforeMax: i
+        };
+      } else {
+        return cur;
+      }
+    },
+    {
+      maxPoint: 0,
+      maxPointSubmissionTime: 0,
+      trialsBeforeMax: 0
+    }
+  );
+  return {
+    order: problem.order,
+    id: problem.id,
+    submissionCount: submissions.size,
+    ...result
+  };
+};
+
+const calcLockout = (
+  problem: VirtualContestItem,
+  submissionMap: Map<ProblemId, List<Submission>>,
+  userId: string,
+  start: number,
+  end: number
+) => {
+  const acSubmissions = submissionMap
+    .get(problem.id, List<Submission>())
+    .filter(s => start <= s.epoch_second && s.epoch_second <= end)
+    .filter(s => isAccepted(s.result))
+    .sortBy(s => s.id);
+  const firstAc = acSubmissions.get(0);
+  if (firstAc && firstAc.user_id === userId) {
+    return {
+      order: problem.order,
+      id: problem.id,
+      submissionCount: 1,
+      maxPoint: problem.point !== null ? problem.point : firstAc.point,
+      maxPointSubmissionTime: firstAc.epoch_second - start,
+      trialsBeforeMax: 0
+    };
+  } else {
+    return {
+      order: problem.order,
+      id: problem.id,
+      submissionCount: 0,
+      maxPoint: 0,
+      maxPointSubmissionTime: 0,
+      trialsBeforeMax: 0
+    };
+  }
 };
 
 export default () => {

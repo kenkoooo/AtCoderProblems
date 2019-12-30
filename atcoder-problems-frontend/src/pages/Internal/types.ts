@@ -22,6 +22,23 @@ export interface VirtualContest {
   readonly owner_user_id: string;
   readonly start_epoch_second: number;
   readonly duration_second: number;
-  readonly problems: string[];
+  readonly problems: VirtualContestItem[];
   readonly participants: string[];
+  readonly mode: VirtualContestMode;
 }
+
+export interface VirtualContestItem {
+  readonly id: string;
+  readonly point: number | null;
+  readonly order: number | null;
+}
+
+export type VirtualContestMode = null | "lockout";
+export const formatMode = (mode: VirtualContestMode) => {
+  switch (mode) {
+    case "lockout":
+      return "Lockout";
+    case null:
+      return "Normal";
+  }
+};

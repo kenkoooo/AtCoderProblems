@@ -44,6 +44,7 @@ fn setup() -> u16 {
 
 #[test]
 fn test_virtual_contest() {
+    simple_logger::init_with_level(log::Level::Info).unwrap();
     task::block_on(async {
         let port = setup();
         let server = utils::start_server_handle(MockAuth, port);
@@ -102,7 +103,8 @@ fn test_virtual_contest() {
                         "title": "contest title",
                         "id": format!("{}", contest_id),
                         "participants": [],
-                        "problems": []
+                        "problems": [],
+                        "mode": null
                     }
                 ])
             );
@@ -136,7 +138,8 @@ fn test_virtual_contest() {
                         "title": "contest title",
                         "id": format!("{}", contest_id),
                         "participants": ["atcoder_user1"],
-                        "problems": []
+                        "problems": [],
+                        "mode": null
                     }
                 ])
             );
@@ -145,7 +148,7 @@ fn test_virtual_contest() {
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
-                    "problem_ids": ["problem_1"],
+                    "problems": [{"id":"problem_1", "point":100}],
                 }))?
                 .await?;
             assert!(response.status().is_success());
@@ -154,7 +157,7 @@ fn test_virtual_contest() {
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
-                    "problem_ids": ["problem_1"],
+                    "problems": [{"id":"problem_1", "point":100}],
                 }))?
                 .await?;
             assert!(response.status().is_success());
@@ -163,7 +166,7 @@ fn test_virtual_contest() {
                 .set_header("Cookie", &cookie_header)
                 .body_json(&json!({
                     "contest_id": format!("{}", contest_id),
-                    "problem_ids": ["problem_2","problem_1"],
+                    "problems": [{"id":"problem_1", "point":100}, {"id": "problem_2"}],
                 }))?
                 .await?;
             assert!(response.status().is_success());
@@ -183,7 +186,8 @@ fn test_virtual_contest() {
                         "title": "contest title",
                         "id": format!("{}", contest_id),
                         "participants": ["atcoder_user1"],
-                        "problems": ["problem_1","problem_2"],
+                        "problems": [{"id":"problem_1", "point":100, "order":null}, {"id": "problem_2", "point":null, "order":null}],
+                        "mode":null,
                     }
                 ])
             );
@@ -205,7 +209,8 @@ fn test_virtual_contest() {
                     "title": "contest title",
                     "id": format!("{}", contest_id),
                     "participants": ["atcoder_user1"],
-                    "problems": ["problem_1","problem_2"],
+                    "problems": [{"id":"problem_1", "point":100, "order":null}, {"id": "problem_2", "point":null, "order":null}],
+                    "mode":null,
                 })
             );
 

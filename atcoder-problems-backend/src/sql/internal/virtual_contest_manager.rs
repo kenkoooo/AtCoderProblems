@@ -9,7 +9,7 @@ use internal_virtual_contests as v_contests;
 use diesel::expression::dsl::count_star;
 use diesel::prelude::*;
 use diesel::{delete, insert_into, update, PgConnection};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
@@ -18,14 +18,17 @@ const MAX_PROBLEM_NUM_PER_CONTEST: usize = 16;
 const RECENT_CONTEST_NUM: i64 = 500;
 
 type VirtualContestTuple = (
-    String,
-    String,
-    String,
-    String,
-    i64,
-    i64,
-    Option<String>,
-    Option<String>,
+    String,         //id
+    String,         //title
+    String,         //memo
+    String,         //user_id
+    i64,            //start
+    i64,            //duration
+    Option<String>, //problem_id
+    Option<String>, //atcoder_user_id
+    Option<String>, //mode
+    Option<i64>,    //point
+    Option<i64>,    //order
 );
 
 #[derive(Serialize)]
@@ -36,8 +39,16 @@ pub struct VirtualContest {
     owner_user_id: String,
     start_epoch_second: i64,
     duration_second: i64,
-    pub(crate) problems: Vec<String>,
+    mode: Option<String>,
+    pub(crate) problems: Vec<VirtualContestItem>,
     participants: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct VirtualContestItem {
+    pub(crate) id: String,
+    point: Option<i64>,
+    order: Option<i64>,
 }
 
 pub trait VirtualContestManager {
@@ -48,6 +59,7 @@ pub trait VirtualContestManager {
         internal_user_id: &str,
         start_epoch_second: i64,
         duration_second: i64,
+        mode: Option<&str>,
     ) -> Result<String>;
     fn update_contest(
         &self,
@@ -56,6 +68,7 @@ pub trait VirtualContestManager {
         memo: &str,
         start_epoch_second: i64,
         duration_second: i64,
+        mode: Option<&str>,
     ) -> Result<()>;
 
     fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
@@ -63,7 +76,12 @@ pub trait VirtualContestManager {
     fn get_recent_contests(&self) -> Result<Vec<VirtualContest>>;
     fn get_single_contest(&self, contest_id: &str) -> Result<VirtualContest>;
 
-    fn update_items(&self, contest_id: &str, problem_ids: &[String], user_id: &str) -> Result<()>;
+    fn update_items(
+        &self,
+        contest_id: &str,
+        problems: &[VirtualContestItem],
+        user_id: &str,
+    ) -> Result<()>;
 
     fn join_contest(&self, contest_id: &str, internal_user_id: &str) -> Result<()>;
 }
@@ -76,6 +94,7 @@ impl VirtualContestManager for PgConnection {
         internal_user_id: &str,
         start_epoch_second: i64,
         duration_second: i64,
+        mode: Option<&str>,
     ) -> Result<String> {
         let count = v_contests::table
             .filter(v_contests::internal_user_id.eq(internal_user_id))
@@ -94,6 +113,7 @@ impl VirtualContestManager for PgConnection {
                 v_contests::internal_user_id.eq(internal_user_id),
                 v_contests::start_epoch_second.eq(start_epoch_second),
                 v_contests::duration_second.eq(duration_second),
+                v_contests::mode.eq(mode),
             )])
             .execute(self)?;
         Ok(uuid)
@@ -105,6 +125,7 @@ impl VirtualContestManager for PgConnection {
         memo: &str,
         start_epoch_second: i64,
         duration_second: i64,
+        mode: Option<&str>,
     ) -> Result<()> {
         update(v_contests::table.filter(v_contests::id.eq(id)))
             .set((
@@ -112,6 +133,7 @@ impl VirtualContestManager for PgConnection {
                 v_contests::memo.eq(memo),
                 v_contests::start_epoch_second.eq(start_epoch_second),
                 v_contests::duration_second.eq(duration_second),
+                v_contests::mode.eq(mode),
             ))
             .execute(self)?;
         Ok(())
@@ -136,6 +158,9 @@ impl VirtualContestManager for PgConnection {
                 v_contests::duration_second,
                 v_items::problem_id.nullable(),
                 i_users::atcoder_user_id.nullable(),
+                v_contests::mode,
+                v_items::user_defined_point,
+                v_items::user_defined_order,
             ))
             .load::<VirtualContestTuple>(self)?;
 
@@ -167,6 +192,9 @@ impl VirtualContestManager for PgConnection {
                 v_contests::duration_second,
                 v_items::problem_id.nullable(),
                 i_users::atcoder_user_id.nullable(),
+                v_contests::mode,
+                v_items::user_defined_point,
+                v_items::user_defined_order,
             ))
             .load::<VirtualContestTuple>(self)?;
         let virtual_contests = construct_virtual_contests(data);
@@ -194,6 +222,9 @@ impl VirtualContestManager for PgConnection {
                 v_contests::duration_second,
                 v_items::problem_id.nullable(),
                 i_users::atcoder_user_id.nullable(),
+                v_contests::mode,
+                v_items::user_defined_point,
+                v_items::user_defined_order,
             ))
             .load::<VirtualContestTuple>(self)?;
         let virtual_contests = construct_virtual_contests(data);
@@ -220,6 +251,9 @@ impl VirtualContestManager for PgConnection {
                 v_contests::duration_second,
                 v_items::problem_id.nullable(),
                 i_users::atcoder_user_id.nullable(),
+                v_contests::mode,
+                v_items::user_defined_point,
+                v_items::user_defined_order,
             ))
             .load::<VirtualContestTuple>(self)?;
         let virtual_contests = construct_virtual_contests(data);
@@ -229,8 +263,13 @@ impl VirtualContestManager for PgConnection {
             .ok_or_else(|| Error::InvalidPostRequest)
     }
 
-    fn update_items(&self, contest_id: &str, problem_ids: &[String], user_id: &str) -> Result<()> {
-        if problem_ids.len() >= MAX_PROBLEM_NUM_PER_CONTEST {
+    fn update_items(
+        &self,
+        contest_id: &str,
+        problems: &[VirtualContestItem],
+        user_id: &str,
+    ) -> Result<()> {
+        if problems.len() >= MAX_PROBLEM_NUM_PER_CONTEST {
             return Err(Error::InvalidPostRequest);
         }
         v_contests::table
@@ -245,12 +284,14 @@ impl VirtualContestManager for PgConnection {
             .execute(self)?;
         insert_into(v_items::table)
             .values(
-                problem_ids
+                problems
                     .iter()
-                    .map(|problem_id| {
+                    .map(|problem| {
                         (
                             v_items::internal_virtual_contest_id.eq(contest_id),
-                            v_items::problem_id.eq(problem_id),
+                            v_items::problem_id.eq(problem.id.as_str()),
+                            v_items::user_defined_point.eq(problem.point),
+                            v_items::user_defined_order.eq(problem.order),
                         )
                     })
                     .collect::<Vec<_>>(),
@@ -273,13 +314,15 @@ fn construct_virtual_contests(data: Vec<VirtualContestTuple>) -> Vec<VirtualCont
     let mut contest_set = BTreeSet::new();
     let mut problem_map = BTreeMap::new();
     let mut participants = BTreeMap::new();
-    for (id, title, memo, owner, start, duration, problem_id, user_id) in data.into_iter() {
-        contest_set.insert((id.clone(), title, memo, owner, start, duration));
+    for (id, title, memo, owner, start, duration, problem_id, user_id, mode, point, order) in
+        data.into_iter()
+    {
+        contest_set.insert((id.clone(), title, memo, owner, start, duration, mode));
         if let Some(problem_id) = problem_id {
             problem_map
                 .entry(id.clone())
                 .or_insert_with(BTreeSet::new)
-                .insert(problem_id);
+                .insert((problem_id, point, order));
         }
         if let Some(user_id) = user_id {
             participants
@@ -292,10 +335,19 @@ fn construct_virtual_contests(data: Vec<VirtualContestTuple>) -> Vec<VirtualCont
     contest_set
         .into_iter()
         .map(
-            |(id, title, memo, owner_user_id, start_epoch_second, duration_second)| {
+            |(id, title, memo, owner_user_id, start_epoch_second, duration_second, mode)| {
                 let problems = problem_map
                     .get(&id)
-                    .map(|set| set.iter().cloned().collect::<Vec<_>>())
+                    .map(|set| {
+                        set.iter()
+                            .cloned()
+                            .map(|(problem_id, point, order)| VirtualContestItem {
+                                id: problem_id,
+                                point,
+                                order,
+                            })
+                            .collect::<Vec<_>>()
+                    })
                     .unwrap_or_else(Vec::new);
                 let participants = participants
                     .get(&id)
@@ -310,6 +362,7 @@ fn construct_virtual_contests(data: Vec<VirtualContestTuple>) -> Vec<VirtualCont
                     duration_second,
                     problems,
                     participants,
+                    mode,
                 }
             },
         )
