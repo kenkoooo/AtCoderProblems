@@ -8,9 +8,9 @@ interface Props {
   problemId: string;
   contestId: string;
   problemTitle: string;
-  difficulty: number | null;
-  showDifficulty: boolean;
-  isExperimentalDifficulty: boolean;
+  difficulty?: number | null;
+  showDifficulty?: boolean;
+  isExperimentalDifficulty?: boolean;
 }
 
 const ProblemLink = (props: Props) => {
@@ -33,11 +33,7 @@ const ProblemLink = (props: Props) => {
       {problemTitle}
     </a>
   );
-  if (!showDifficulty) {
-    return link;
-  }
-
-  if (difficulty === null) {
+  if (!showDifficulty || difficulty === null || difficulty === undefined) {
     return link;
   }
 
