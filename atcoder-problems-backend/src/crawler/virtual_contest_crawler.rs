@@ -2,6 +2,7 @@ use crate::crawler::AtCoderFetcher;
 use crate::error::Result;
 use crate::sql::internal::virtual_contest_manager::VirtualContestManager;
 use crate::sql::{ContestProblemClient, SubmissionClient};
+use chrono::Utc;
 use std::collections::BTreeSet;
 use std::{thread, time};
 
@@ -22,11 +23,16 @@ where
     }
 
     pub async fn crawl(&self) -> Result<()> {
+        let now = Utc::now().timestamp();
         let pairs = self.db.load_contest_problem()?;
-        let contests = self.db.get_recent_contests()?;
+        let recent_contests = self.db.get_recent_contests()?;
 
-        let problem_set = contests
+        let problem_set = recent_contests
             .into_iter()
+            .filter(|contest| {
+                let end = contest.start_epoch_second + contest.duration_second;
+                end + 120 > now
+            })
             .flat_map(|c| c.problems)
             .map(|problem| problem.id)
             .collect::<BTreeSet<_>>();
