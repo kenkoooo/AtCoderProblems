@@ -13,7 +13,6 @@ import {
 import * as CachedApi from "../../../utils/CachedApiClient";
 import { List, Map, Set } from "immutable";
 import { ProblemId } from "../../../interfaces/Status";
-import { formatProblemUrl } from "../../../utils/Url";
 import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../ApiUrl";
 import Submission from "../../../interfaces/Submission";
 import MergedProblem from "../../../interfaces/MergedProblem";
@@ -35,6 +34,7 @@ import {
   VirtualContestItem
 } from "../types";
 import { compareProblem } from "./util";
+import ProblemLink from "../../../components/ProblemLink";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
@@ -251,16 +251,11 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                   return (
                     <th key={problemId}>
                       {problem ? (
-                        <a
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          href={formatProblemUrl(
-                            problem.id,
-                            problem.contest_id
-                          )}
-                        >
-                          {problem.title}
-                        </a>
+                        <ProblemLink
+                          problemId={problem.id}
+                          contestId={problem.contest_id}
+                          problemTitle={problem.title}
+                        />
                       ) : (
                         problemId
                       )}
@@ -482,9 +477,14 @@ const calcNormal = (
     .sortBy(s => s.id);
   const result = submissions.reduce(
     (cur, submission, i) => {
-      if (cur.maxPoint < submission.point) {
+      const point =
+        isAccepted(submission.result) && problem.point !== null
+          ? problem.point
+          : submission.point;
+
+      if (cur.maxPoint < point) {
         return {
-          maxPoint: submission.point,
+          maxPoint: point,
           maxPointSubmissionTime: submission.epoch_second - start,
           trialsBeforeMax: i
         };

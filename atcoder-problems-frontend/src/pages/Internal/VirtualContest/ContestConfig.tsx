@@ -19,12 +19,12 @@ import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
 import { ProblemId } from "../../../interfaces/Status";
 import Problem from "../../../interfaces/Problem";
-import { formatProblemUrl } from "../../../utils/Url";
 import moment from "moment";
 import { Redirect } from "react-router-dom";
 import { USER_GET } from "../ApiUrl";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
 import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
+import ProblemLink from "../../../components/ProblemLink";
 
 const ContestConfig = (props: InnerProps) => {
   const [title, setTitle] = useState(props.initialTitle);
@@ -173,13 +173,11 @@ const ContestConfig = (props: InnerProps) => {
                     }}
                   />
                   {problem ? (
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={formatProblemUrl(problem.id, problem.contest_id)}
-                    >
-                      {problem.title}
-                    </a>
+                    <ProblemLink
+                      problemId={problem.id}
+                      contestId={problem.contest_id}
+                      problemTitle={problem.title}
+                    />
                   ) : (
                     problemId
                   )}
