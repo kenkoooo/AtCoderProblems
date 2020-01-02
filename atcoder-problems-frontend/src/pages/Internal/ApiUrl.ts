@@ -1,5 +1,4 @@
-// const BASE_URL = "https://kenkoooo.com/atcoder/internal-api";
-const BASE_URL = "http://localhost/internal-api";
+const BASE_URL = "https://kenkoooo.com/atcoder/internal-api";
 
 export const USER_GET = `${BASE_URL}/user/get`;
 export const USER_UPDATE = `${BASE_URL}/user/update`;
