@@ -35,6 +35,7 @@ import {
 } from "../types";
 import { compareProblem } from "./util";
 import ProblemLink from "../../../components/ProblemLink";
+import TweetButton from "../../../components/TweetButton";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
@@ -235,6 +236,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
                 Edit
               </Button>
             ) : null}
+            <TweetButton title={contestInfo.title} id={contestInfo.id} />
           </ButtonGroup>
         </Col>
       </Row>
