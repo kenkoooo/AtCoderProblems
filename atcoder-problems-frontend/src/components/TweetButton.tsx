@@ -13,5 +13,14 @@ export default (props: Props) => {
   )}&text=${props.title}&hashtags=AtCoderProblems`;
   console.log(internalUrl);
   console.log(shareUrl);
-  return <Button href={shareUrl}>Tweet</Button>;
+  return (
+    <Button
+      href={shareUrl}
+      rel="noopener noreferrer"
+      target="_blank"
+      color="primary"
+    >
+      Tweet
+    </Button>
+  );
 };
