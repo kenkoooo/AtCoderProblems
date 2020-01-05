@@ -11,8 +11,6 @@ export default (props: Props) => {
   const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
     internalUrl
   )}&text=${props.title}&hashtags=AtCoderProblems`;
-  console.log(internalUrl);
-  console.log(shareUrl);
   return (
     <Button
       href={shareUrl}
