@@ -24,7 +24,7 @@ import { DifficultyCircle } from "../../components/DifficultyCircle";
 import { ListTable } from "./ListTable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../utils/CachedApiClient";
-import {RatingInfo} from "../../utils/RatingInfo";
+import { RatingInfo } from "../../utils/RatingInfo";
 
 export const INF_POINT = 1e18;
 
@@ -372,5 +372,5 @@ export default connect<OuterProps, InnerProps>(props => ({
   userRatingInfoFetch: {
     comparison: props.userId,
     value: () => CachedApiClient.cachedRatingInfo(props.userId)
-  },
+  }
 }))(ListPage);
