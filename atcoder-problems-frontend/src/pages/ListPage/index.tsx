@@ -24,6 +24,7 @@ import { DifficultyCircle } from "../../components/DifficultyCircle";
 import { ListTable } from "./ListTable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../utils/CachedApiClient";
+import {RatingInfo} from "../../utils/RatingInfo";
 
 export const INF_POINT = 1e18;
 
@@ -36,8 +37,7 @@ export interface ProblemRowData {
   readonly lastAcceptedDate: string;
   readonly solverCount: number;
   readonly point: number;
-  readonly difficulty: number;
-  readonly isExperimentalDifficulty: boolean;
+  readonly problemModel?: ProblemModel;
   readonly firstUserId: string;
   readonly executionTime: number;
   readonly codeLength: number;
@@ -66,7 +66,8 @@ const ListPage = (props: InnerProps) => {
     userId,
     rivals,
     contestsFetch,
-    statusLabelMapFetch
+    statusLabelMapFetch,
+    userRatingInfoFetch
   } = props;
 
   const mergedProblems = mergedProblemsFetch.fulfilled
@@ -84,6 +85,10 @@ const ListPage = (props: InnerProps) => {
   const statusLabelMap = statusLabelMapFetch.fulfilled
     ? statusLabelMapFetch.value
     : Map<ProblemId, ProblemStatus>();
+
+  const userInternalRating = userRatingInfoFetch.fulfilled
+    ? userRatingInfoFetch.value.internalRating
+    : null;
 
   const rowData = mergedProblems
     .valueSeq()
@@ -112,11 +117,7 @@ const ListPage = (props: InnerProps) => {
           : INF_POINT;
         const shortestUserId = p.shortest_user_id ? p.shortest_user_id : "";
         const fastestUserId = p.fastest_user_id ? p.fastest_user_id : "";
-        const difficulty = problemModels.getIn([p.id, "difficulty"], -1);
-        const isExperimentalDifficulty = problemModels.getIn(
-          [p.id, "is_experimental"],
-          false
-        );
+        const problemModel = problemModels.get(p.id);
         return {
           id: p.id,
           title: p.title,
@@ -126,8 +127,7 @@ const ListPage = (props: InnerProps) => {
           lastAcceptedDate,
           solverCount: p.solver_count ? p.solver_count : 0,
           point,
-          difficulty,
-          isExperimentalDifficulty,
+          problemModel,
           firstUserId,
           executionTime,
           codeLength,
@@ -325,6 +325,7 @@ const ListPage = (props: InnerProps) => {
           fromDifficulty={fromDifficulty}
           toDifficulty={toDifficulty}
           rowData={rowData}
+          userInternalRating={userInternalRating}
         />
       </Row>
     </div>
@@ -342,6 +343,7 @@ interface InnerProps extends OuterProps {
   readonly problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   readonly contestsFetch: PromiseState<Map<string, Contest>>;
   readonly statusLabelMapFetch: PromiseState<Map<ProblemId, ProblemStatus>>;
+  readonly userRatingInfoFetch: PromiseState<RatingInfo>;
 }
 
 export default connect<OuterProps, InnerProps>(props => ({
@@ -366,5 +368,9 @@ export default connect<OuterProps, InnerProps>(props => ({
     comparison: [props.userId, props.rivals],
     value: () =>
       CachedApiClient.cachedStatusLabelMap(props.userId, props.rivals)
-  }
+  },
+  userRatingInfoFetch: {
+    comparison: props.userId,
+    value: () => CachedApiClient.cachedRatingInfo(props.userId)
+  },
 }))(ListPage);

@@ -7,6 +7,8 @@ import ContestLink from "../../components/ContestLink";
 import * as Url from "../../utils/Url";
 import { INF_POINT, ProblemRowData } from "./index";
 import { List } from "immutable";
+import {formatPredictedSolveTime, predictSolveTime} from "../../utils/ProblemModelUtil";
+import ProblemModel, {isProblemModelWithDifficultyModel, isProblemModelWithTimeModel} from "../../interfaces/ProblemModel";
 
 interface Props {
   fromPoint: number;
@@ -16,6 +18,7 @@ interface Props {
   fromDifficulty: number;
   toDifficulty: number;
   rowData: List<ProblemRowData>;
+  userInternalRating: number | null;
 }
 
 export const ListTable = (props: Props) => {
@@ -39,8 +42,8 @@ export const ListTable = (props: Props) => {
       dataFormat: (_, row) => (
         <ProblemLink
           showDifficulty={true}
-          difficulty={row.difficulty !== -1 ? row.difficulty : null}
-          isExperimentalDifficulty={row.isExperimentalDifficulty}
+          difficulty={isProblemModelWithDifficultyModel(row.problemModel) ? row.problemModel.difficulty : null}
+          isExperimentalDifficulty={row.problemModel?.is_experimental}
           problemId={row.mergedProblem.id}
           problemTitle={row.title}
           contestId={row.mergedProblem.contest_id}
@@ -134,14 +137,33 @@ export const ListTable = (props: Props) => {
     },
     {
       header: "Difficulty",
-      dataField: "difficulty",
+      dataField: "problemModel",
       dataSort: true,
-      dataFormat: (difficulty: number) => {
-        if (difficulty === -1) {
+      dataFormat: (problemModel: ProblemModel) => {
+        if (!isProblemModelWithDifficultyModel(problemModel)) {
           return <p>-</p>;
         } else {
-          return <p>{difficulty}</p>;
+          return <p>{problemModel.difficulty}</p>;
         }
+      }
+    },
+    {
+      header: "Time",
+      dataField: "a",
+      dataFormat: (_: string, row) => {
+        if (props.userInternalRating === null) {
+          return <p>-</p>;
+        }
+        const problemModel = row.problemModel;
+        if (problemModel === undefined) {
+          return <p>-</p>;
+        }
+        if (!isProblemModelWithTimeModel(problemModel)) {
+          return <p>-</p>;
+        }
+        const solveTime = predictSolveTime(problemModel, props.userInternalRating);
+        const solveTimeString = formatPredictedSolveTime(solveTime);
+        return <p>{solveTimeString}</p>;
       }
     },
     {
@@ -291,9 +313,12 @@ export const ListTable = (props: Props) => {
           }
         })
         .filter(
-          row =>
-            props.fromDifficulty <= row.difficulty &&
-            row.difficulty <= props.toDifficulty
+          row => {
+            const difficulty = isProblemModelWithDifficultyModel(row.problemModel) ?
+              row.problemModel.difficulty : -1;
+            return props.fromDifficulty <= difficulty &&
+              difficulty <= props.toDifficulty
+          }
         )
         .toArray()}
       options={{
