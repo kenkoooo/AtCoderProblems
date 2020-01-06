@@ -7,8 +7,14 @@ import ContestLink from "../../components/ContestLink";
 import * as Url from "../../utils/Url";
 import { INF_POINT, ProblemRowData } from "./index";
 import { List } from "immutable";
-import {formatPredictedSolveTime, predictSolveTime} from "../../utils/ProblemModelUtil";
-import ProblemModel, {isProblemModelWithDifficultyModel, isProblemModelWithTimeModel} from "../../interfaces/ProblemModel";
+import {
+  formatPredictedSolveTime,
+  predictSolveTime
+} from "../../utils/ProblemModelUtil";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel,
+  isProblemModelWithTimeModel
+} from "../../interfaces/ProblemModel";
 
 interface Props {
   fromPoint: number;
@@ -42,7 +48,11 @@ export const ListTable = (props: Props) => {
       dataFormat: (_, row) => (
         <ProblemLink
           showDifficulty={true}
-          difficulty={isProblemModelWithDifficultyModel(row.problemModel) ? row.problemModel.difficulty : null}
+          difficulty={
+            isProblemModelWithDifficultyModel(row.problemModel)
+              ? row.problemModel.difficulty
+              : null
+          }
           isExperimentalDifficulty={row.problemModel?.is_experimental}
           problemId={row.mergedProblem.id}
           problemTitle={row.title}
@@ -161,7 +171,10 @@ export const ListTable = (props: Props) => {
         if (!isProblemModelWithTimeModel(problemModel)) {
           return <p>-</p>;
         }
-        const solveTime = predictSolveTime(problemModel, props.userInternalRating);
+        const solveTime = predictSolveTime(
+          problemModel,
+          props.userInternalRating
+        );
         const solveTimeString = formatPredictedSolveTime(solveTime);
         return <p>{solveTimeString}</p>;
       }
@@ -312,14 +325,15 @@ export const ListTable = (props: Props) => {
               return !isRated;
           }
         })
-        .filter(
-          row => {
-            const difficulty = isProblemModelWithDifficultyModel(row.problemModel) ?
-              row.problemModel.difficulty : -1;
-            return props.fromDifficulty <= difficulty &&
-              difficulty <= props.toDifficulty
-          }
-        )
+        .filter(row => {
+          const difficulty = isProblemModelWithDifficultyModel(row.problemModel)
+            ? row.problemModel.difficulty
+            : -1;
+          return (
+            props.fromDifficulty <= difficulty &&
+            difficulty <= props.toDifficulty
+          );
+        })
         .toArray()}
       options={{
         paginationPosition: "top",
