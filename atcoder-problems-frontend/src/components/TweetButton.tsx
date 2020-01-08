@@ -10,7 +10,7 @@ export default (props: Props) => {
   const internalUrl = `https://kenkoooo.com/atcoder/#/contest/show/${props.id}`;
   const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
     internalUrl
-  )}&text=${props.title}&hashtags=AtCoderProblems`;
+  )}&text=${encodeURIComponent(props.title)}&hashtags=AtCoderProblems`;
   return (
     <Button
       href={shareUrl}
