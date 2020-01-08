@@ -1,4 +1,8 @@
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import {
+  BootstrapTable,
+  SortOrder,
+  TableHeaderColumn
+} from "react-bootstrap-table";
 import { StatusLabel } from "../../interfaces/Status";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
@@ -27,6 +31,22 @@ interface Props {
   userInternalRating: number | null;
 }
 
+const calcSolveTime = (
+  userInternalRating: number | null,
+  problemModel: ProblemModel | undefined
+) => {
+  if (userInternalRating === null) {
+    return undefined;
+  }
+  if (problemModel === undefined) {
+    return undefined;
+  }
+  if (!isProblemModelWithTimeModel(problemModel)) {
+    return undefined;
+  }
+  return predictSolveTime(problemModel, userInternalRating);
+};
+
 export const ListTable = (props: Props) => {
   const columns: {
     header: string;
@@ -35,6 +55,11 @@ export const ListTable = (props: Props) => {
     dataAlign?: "center";
     dataFormat?: (cell: any, row: ProblemRowData) => ReactElement | string;
     hidden?: boolean;
+    sortFunc?: (
+      a: ProblemRowData,
+      b: ProblemRowData,
+      order: SortOrder
+    ) => number;
   }[] = [
     {
       header: "Date",
@@ -149,6 +174,22 @@ export const ListTable = (props: Props) => {
       header: "Difficulty",
       dataField: "problemModel",
       dataSort: true,
+      sortFunc: (a, b, order) => {
+        const modelA = a.problemModel;
+        const modelB = b.problemModel;
+        const difficultyA = isProblemModelWithDifficultyModel(modelA)
+          ? modelA.difficulty
+          : INF_POINT;
+        const difficultyB = isProblemModelWithDifficultyModel(modelB)
+          ? modelB.difficulty
+          : INF_POINT;
+        const result = difficultyA - difficultyB;
+        if (order === "asc") {
+          return result;
+        } else {
+          return -result;
+        }
+      },
       dataFormat: (problemModel: ProblemModel) => {
         if (!isProblemModelWithDifficultyModel(problemModel)) {
           return <p>-</p>;
@@ -160,21 +201,33 @@ export const ListTable = (props: Props) => {
     {
       header: "Time",
       dataField: "a",
-      dataFormat: (_: string, row) => {
-        if (props.userInternalRating === null) {
-          return <p>-</p>;
-        }
-        const problemModel = row.problemModel;
-        if (problemModel === undefined) {
-          return <p>-</p>;
-        }
-        if (!isProblemModelWithTimeModel(problemModel)) {
-          return <p>-</p>;
-        }
-        const solveTime = predictSolveTime(
-          problemModel,
-          props.userInternalRating
+      dataSort: true,
+      sortFunc: (a, b, order) => {
+        const solveTimeA = calcSolveTime(
+          props.userInternalRating,
+          a.problemModel
         );
+        const solveTimeB = calcSolveTime(
+          props.userInternalRating,
+          b.problemModel
+        );
+        const ta = solveTimeA !== undefined ? solveTimeA : INF_POINT;
+        const tb = solveTimeB !== undefined ? solveTimeB : INF_POINT;
+        const dt = ta - tb;
+        if (order === "asc") {
+          return dt;
+        } else {
+          return -dt;
+        }
+      },
+      dataFormat: (_: string, row) => {
+        const solveTime = calcSolveTime(
+          props.userInternalRating,
+          row.problemModel
+        );
+        if (solveTime === undefined) {
+          return <p>-</p>;
+        }
         const solveTimeString = formatPredictedSolveTime(solveTime);
         return <p>{solveTimeString}</p>;
       }
