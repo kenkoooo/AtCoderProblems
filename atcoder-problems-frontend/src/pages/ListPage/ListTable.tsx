@@ -28,6 +28,30 @@ interface Props {
 }
 
 export const ListTable = (props: Props) => {
+  const readDifficultyAsNumber: (row: ProblemRowData) => number = row => {
+    const problemModel = row.problemModel;
+    if (problemModel === undefined) {
+      return -1;
+    }
+    if (!isProblemModelWithDifficultyModel(problemModel)) {
+      return -1;
+    }
+    return problemModel.difficulty;
+  };
+  const predictSolveTimeOfRow: (row: ProblemRowData) => number | null = row => {
+    if (props.userInternalRating === null) {
+      return null;
+    }
+    const problemModel = row.problemModel;
+    if (problemModel === undefined) {
+      return null;
+    }
+    if (!isProblemModelWithTimeModel(problemModel)) {
+      return null;
+    }
+    return predictSolveTime(problemModel, props.userInternalRating);
+  };
+
   const columns: {
     header: string;
     dataField: string;
@@ -35,6 +59,11 @@ export const ListTable = (props: Props) => {
     dataAlign?: "center";
     dataFormat?: (cell: any, row: ProblemRowData) => ReactElement | string;
     hidden?: boolean;
+    sortFunc?: (
+      fieldA: ProblemRowData,
+      fieldB: ProblemRowData,
+      order: "asc" | "desc"
+    ) => number;
   }[] = [
     {
       header: "Date",
@@ -149,6 +178,11 @@ export const ListTable = (props: Props) => {
       header: "Difficulty",
       dataField: "problemModel",
       dataSort: true,
+      sortFunc: (a, b, order) => {
+        const delta = readDifficultyAsNumber(a) - readDifficultyAsNumber(b);
+        const sign = order === "asc" ? 1 : -1;
+        return delta * sign;
+      },
       dataFormat: (problemModel: ProblemModel) => {
         if (!isProblemModelWithDifficultyModel(problemModel)) {
           return <p>-</p>;
@@ -160,23 +194,22 @@ export const ListTable = (props: Props) => {
     {
       header: "Time",
       dataField: "a",
+      dataSort: true,
+      sortFunc: (a, b, order) => {
+        const aPred = predictSolveTimeOfRow(a);
+        const bPred = predictSolveTimeOfRow(b);
+        const aV = aPred === null ? -1 : aPred;
+        const bV = bPred === null ? -1 : bPred;
+        const delta = aV - bV;
+        const sign = order === "asc" ? 1 : -1;
+        return delta * sign;
+      },
       dataFormat: (_: string, row) => {
-        if (props.userInternalRating === null) {
+        const solveTime = predictSolveTimeOfRow(row);
+        if (solveTime === null) {
           return <p>-</p>;
         }
-        const problemModel = row.problemModel;
-        if (problemModel === undefined) {
-          return <p>-</p>;
-        }
-        if (!isProblemModelWithTimeModel(problemModel)) {
-          return <p>-</p>;
-        }
-        const solveTime = predictSolveTime(
-          problemModel,
-          props.userInternalRating
-        );
-        const solveTimeString = formatPredictedSolveTime(solveTime);
-        return <p>{solveTimeString}</p>;
+        return <p>{formatPredictedSolveTime(solveTime)}</p>;
       }
     },
     {
