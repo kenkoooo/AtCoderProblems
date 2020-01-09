@@ -2,11 +2,36 @@
 
 [![Build Status](https://travis-ci.org/kenkoooo/AtCoderProblems.svg?branch=master)](https://travis-ci.org/kenkoooo/AtCoderProblems)
 
+# atcoder-problems-frontend
+
+`atcoder-problems-frontend` is a web application written in TypeScript.
+
+## Install required packages
+```bash
+yarn
+```
+
+## Start the web application on your local
+```bash
+yarn start
+```
+
+## Build optimized files for distribution
+```bash
+yarn build
+```
+
+## Fix code format
+```bash
+yarn lint:fix
+```
+
 # atcoder-problems-backend
 
 `atcoder-problems-backend` is a set of backend applications written in Rust.
 
-You don't need to run backend applications in most cases.
+Since the web app, which is running in your local, will connect to the
+production backend server, you don't need to run backend applications in most cases.
 
 ## Build
 ```bash
@@ -36,31 +61,6 @@ cargo run --bin batch_update
 cargo run --bin delta_update
 cargo run --bin dump_json
 cargo run --bin fix_invalid_submissions
-```
-
-
-# atcoder-problems-frontend
-
-`atcoder-problems-frontend` is a web application written in TypeScript.
-
-## Install required packages
-```bash
-yarn
-```
-
-## Start the web application on your local
-```bash
-yarn start
-```
-
-## Build optimized files for distribution
-```bash
-yarn build
-```
-
-## Fix code format
-```bash
-yarn lint:fix
 ```
 
 # API
