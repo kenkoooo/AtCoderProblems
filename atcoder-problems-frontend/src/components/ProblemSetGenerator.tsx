@@ -3,6 +3,9 @@ import { List, Map } from "immutable";
 import {
   Button,
   Col,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   Form,
   FormGroup,
   Input,
@@ -10,7 +13,7 @@ import {
   InputGroupAddon,
   InputGroupText,
   Label,
-  Row
+  UncontrolledDropdown
 } from "reactstrap";
 import React, { useState } from "react";
 import { isAccepted, shuffleList } from "../utils";
@@ -18,91 +21,70 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel
 } from "../interfaces/ProblemModel";
 import { cachedSubmissions } from "../utils/CachedApiClient";
-import HelpBadgeTooltip from "./HelpBadgeTooltip";
 
 interface Props {
   problems: List<Problem>;
   problemModels: Map<string, ProblemModel>;
   selectProblem: (...problems: Problem[]) => void;
+  expectedParticipantUserIds: string[];
 }
 
+interface ProblemSelectionParams {
+  minDifficulty: number;
+  maxDifficulty: number;
+}
+
+interface ProblemSetSelectionPreset {
+  displayName: string;
+  problemSelectionParams: ProblemSelectionParams[];
+}
+
+const ABC_PRESET: ProblemSetSelectionPreset = {
+  displayName: "Preset 1",
+  problemSelectionParams: [
+    { minDifficulty: 0, maxDifficulty: 50 },
+    { minDifficulty: 10, maxDifficulty: 100 },
+    { minDifficulty: 50, maxDifficulty: 800 },
+    { minDifficulty: 800, maxDifficulty: 1200 },
+    { minDifficulty: 1200, maxDifficulty: 1600 },
+    { minDifficulty: 2000, maxDifficulty: 2400 }
+  ]
+};
+
+const ARC_PRESET: ProblemSetSelectionPreset = {
+  displayName: "Preset 2",
+  problemSelectionParams: [
+    { minDifficulty: 800, maxDifficulty: 1200 },
+    { minDifficulty: 1200, maxDifficulty: 1800 },
+    { minDifficulty: 2000, maxDifficulty: 2800 },
+    { minDifficulty: 2800, maxDifficulty: 4000 }
+  ]
+};
+
+const AGC_PRESET: ProblemSetSelectionPreset = {
+  displayName: "Preset 3",
+  problemSelectionParams: [
+    { minDifficulty: 400, maxDifficulty: 1200 },
+    { minDifficulty: 1200, maxDifficulty: 2400 },
+    { minDifficulty: 1600, maxDifficulty: 3200 },
+    { minDifficulty: 2400, maxDifficulty: 9999 },
+    { minDifficulty: 2800, maxDifficulty: 9999 },
+    { minDifficulty: 2800, maxDifficulty: 9999 }
+  ]
+};
 export default (props: Props) => {
-  const [nProblems, setNProblems] = useState(1);
-  const [difficultyLowerBound, setDifficultyLowerBound] = useState(0);
-  const [excludeLowDifficulty, setExcludeLowDifficulty] = useState(false);
-  const [difficultyUpperBound, setDifficultyUpperBound] = useState(10000);
-  const [excludeHighDifficulty, setExcludeHighDifficulty] = useState(false);
+  const [problemSelectionParamsList, setProblemSelectionParamsList] = useState(
+    ABC_PRESET.problemSelectionParams
+  );
   const [excludeExperimental, setExcludeExperimental] = useState(false);
-  const [excludeUserIds, setExcludeUserIds] = useState("");
+  const [
+    excludeAlreadySolvedProblems,
+    setExcludeAlreadySolvedProblems
+  ] = useState(true);
+  const [selectedPreset, setSelectedPreset] = useState(ABC_PRESET);
 
   return (
     <Form className={"w-100"}>
-      <FormGroup row>
-        <Col>
-          <InputGroup>
-            <InputGroupAddon addonType="prepend">
-              <InputGroupText>
-                <Input
-                  addon
-                  type="checkbox"
-                  aria-label="Enable filter by difficulty lower bound"
-                  checked={excludeLowDifficulty}
-                  onChange={event =>
-                    setExcludeLowDifficulty(event.target.checked)
-                  }
-                />
-              </InputGroupText>
-              <InputGroupText>Difficulty Lower Bound</InputGroupText>
-            </InputGroupAddon>
-            <Input
-              placeholder="difficulty lower bound"
-              min={0}
-              max={10000}
-              type="number"
-              value={difficultyLowerBound}
-              step={100}
-              disabled={!excludeLowDifficulty}
-              onChange={event =>
-                setDifficultyLowerBound(parseInt(event.target.value, 10))
-              }
-            />
-          </InputGroup>
-        </Col>
-      </FormGroup>
-
-      <FormGroup row>
-        <Col>
-          <InputGroup>
-            <InputGroupAddon addonType="prepend">
-              <InputGroupText>
-                <Input
-                  addon
-                  type="checkbox"
-                  aria-label="Enable filter by difficulty upper bound"
-                  checked={excludeHighDifficulty}
-                  onChange={event =>
-                    setExcludeHighDifficulty(event.target.checked)
-                  }
-                />
-              </InputGroupText>
-              <InputGroupText>Difficulty Upper Bound</InputGroupText>
-            </InputGroupAddon>
-            <Input
-              placeholder="difficulty upper bound"
-              min={0}
-              max={10000}
-              type="number"
-              value={difficultyUpperBound}
-              step={100}
-              disabled={!excludeHighDifficulty}
-              onChange={event =>
-                setDifficultyUpperBound(parseInt(event.target.value, 10))
-              }
-            />
-          </InputGroup>
-        </Col>
-      </FormGroup>
-
       <FormGroup row>
         <Col>
           <InputGroup>
@@ -123,43 +105,148 @@ export default (props: Props) => {
           </InputGroup>
         </Col>
       </FormGroup>
-
       <FormGroup row>
-        <Label sm={2}>
-          New to
-          <HelpBadgeTooltip id={"help-newto"}>
-            Exclude problems solved by at least one AtCoder account listed here.
-          </HelpBadgeTooltip>
-        </Label>
-        <Col sm={10}>
-          <Input
-            placeholder="a list of AtCoder ID separated by space"
-            value={excludeUserIds}
-            onChange={event => setExcludeUserIds(event.target.value)}
-          />
+        <Col>
+          <InputGroup>
+            <InputGroupAddon addonType="prepend">
+              <InputGroupText>
+                <Input
+                  addon
+                  type="checkbox"
+                  aria-label="Exclude already solved problems by expected participants"
+                  checked={excludeAlreadySolvedProblems}
+                  onChange={event =>
+                    setExcludeAlreadySolvedProblems(event.target.checked)
+                  }
+                />
+              </InputGroupText>
+            </InputGroupAddon>
+            <InputGroupText>
+              Exclude already solved problems by expected participants
+            </InputGroupText>
+          </InputGroup>
+        </Col>
+      </FormGroup>
+      <FormGroup row>
+        <Col sm={6}>
+          <Label>Difficulty Adjustment Preset</Label>
+          <InputGroup>
+            <UncontrolledDropdown>
+              <DropdownToggle caret>
+                {selectedPreset.displayName}
+              </DropdownToggle>
+              <DropdownMenu>
+                {[ABC_PRESET, ARC_PRESET, AGC_PRESET].map(preset => {
+                  return (
+                    <DropdownItem
+                      onClick={() => {
+                        setSelectedPreset(preset);
+                        setProblemSelectionParamsList(
+                          preset.problemSelectionParams
+                        );
+                      }}
+                      key={preset.displayName}
+                    >
+                      {preset.displayName}
+                    </DropdownItem>
+                  );
+                })}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </InputGroup>
         </Col>
       </FormGroup>
 
-      <FormGroup row>
-        <Label sm={2}>Size</Label>
-        <Col sm={10}>
-          <Input
-            placeholder="The number of problems"
-            min={1}
-            max={100}
-            type="number"
-            value={nProblems}
-            step={100}
-            onChange={event => setNProblems(parseInt(event.target.value, 10))}
-          />
-        </Col>
-      </FormGroup>
+      {problemSelectionParamsList.map((problemSelectionParams, idx) => (
+        <FormGroup row key={idx}>
+          <Col sm={6}>
+            <Label> Problem {idx + 1}</Label>
+            <Button
+              close
+              onClick={() => {
+                const newParamsList = [...problemSelectionParamsList];
+                newParamsList.splice(idx, 1);
+                setProblemSelectionParamsList(newParamsList);
+              }}
+            />
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>Min Difficulty</InputGroupText>
+              </InputGroupAddon>
+              <Input
+                placeholder="Min Difficulty"
+                min={0}
+                max={10000}
+                type="number"
+                value={problemSelectionParams.minDifficulty}
+                step={50}
+                onChange={event => {
+                  const newParamsList = [...problemSelectionParamsList];
+                  newParamsList[idx] = {
+                    ...problemSelectionParams,
+                    minDifficulty: parseInt(event.target.value, 10)
+                  };
+                  setProblemSelectionParamsList(newParamsList);
+                }}
+              />
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>Max Difficulty</InputGroupText>
+              </InputGroupAddon>
+              <Input
+                placeholder="Max Difficulty"
+                min={0}
+                max={10000}
+                type="number"
+                value={problemSelectionParams.maxDifficulty}
+                step={50}
+                onChange={event => {
+                  const newParamsList = [...problemSelectionParamsList];
+                  newParamsList[idx] = {
+                    ...problemSelectionParams,
+                    maxDifficulty: parseInt(event.target.value, 10)
+                  };
+                  setProblemSelectionParamsList(newParamsList);
+                }}
+              />
+            </InputGroup>
+          </Col>
+        </FormGroup>
+      ))}
+      <div style={{ paddingBottom: 16 }}>
+        <Button
+          color={"link"}
+          onClick={() => {
+            let addedElement;
+            if (problemSelectionParamsList.length === 0) {
+              addedElement = {
+                minDifficulty: 0,
+                maxDifficulty: 10000
+              };
+            } else {
+              addedElement = {
+                ...problemSelectionParamsList[
+                  problemSelectionParamsList.length - 1
+                ]
+              };
+            }
+
+            setProblemSelectionParamsList([
+              ...problemSelectionParamsList,
+              addedElement
+            ]);
+          }}
+        >
+          More problem ...
+        </Button>
+      </div>
 
       <FormGroup row>
         <Col>
           <Button
             color="success"
-            onClick={() => {
+            onClick={async () => {
+              const nProblems = problemSelectionParamsList.length;
+
               let candidateProblems = props.problems.map(problem => ({
                 problem,
                 model: props.problemModels.get(problem.id)
@@ -168,55 +255,80 @@ export default (props: Props) => {
               if (excludeExperimental) {
                 candidateProblems = candidateProblems.filter(problem => {
                   return (
-                    problem.model !== undefined && !problem.model.is_experimental
+                    problem.model !== undefined &&
+                    !problem.model.is_experimental
                   );
                 });
               }
 
-              if (excludeLowDifficulty) {
-                candidateProblems = candidateProblems.filter(problem => {
-                  return (
-                    isProblemModelWithDifficultyModel(problem.model) &&
-                    problem.model.difficulty >= difficultyLowerBound
+              if (excludeAlreadySolvedProblems) {
+                try {
+                  const alreadySolvedProblems = await Promise.all(
+                    props.expectedParticipantUserIds.map(cachedSubmissions)
+                  ).then(userSubmissions => {
+                    return List(userSubmissions)
+                      .flatten(true)
+                      .filter(submission => isAccepted(submission.result))
+                      .map(submission => submission.problem_id)
+                      .toSet();
+                  });
+                  candidateProblems = candidateProblems.filter(
+                    problem =>
+                      !alreadySolvedProblems.contains(problem.problem.id)
                   );
-                });
+                } catch (e) {
+                  alert(
+                    "Error happened during fetching submissions. See console."
+                  );
+                  throw e;
+                }
               }
 
-              if (excludeHighDifficulty) {
-                candidateProblems = candidateProblems.filter(problem => {
-                  return (
-                    isProblemModelWithDifficultyModel(problem.model) &&
-                    problem.model.difficulty <= difficultyUpperBound
-                  );
-                });
-              }
+              candidateProblems = shuffleList(candidateProblems).toList();
 
-              const tokenizedUserIds = List.of(...excludeUserIds.split(" "));
-              Promise.all(tokenizedUserIds.map(cachedSubmissions)).then(
-                userSubmissions => {
-                  const solvedProblemIds = List(userSubmissions)
-                    .flatten(true)
-                    .filter(submission => isAccepted(submission.result))
-                    .map(submission => submission.problem_id)
-                    .toSet();
+              const selectedProblems: Problem[] = [];
+              const alreadySelectedProblemIds = new Set<string>();
+              const selectionFailedProblemNumbers: number[] = [];
+              problemSelectionParamsList.forEach(
+                (problemSelectionParams, idx) => {
+                  let found = false;
+                  candidateProblems.forEach(problem => {
+                    if (
+                      found ||
+                      alreadySelectedProblemIds.has(problem.problem.id)
+                    ) {
+                      return;
+                    }
 
-                  const filteredProblem = candidateProblems
-                    .map(problem => problem.problem)
-                    .filter(problem => !solvedProblemIds.contains(problem.id));
-                  if (filteredProblem.size < nProblems) {
-                    alert(
-                      "Only " +
-                        filteredProblem.size +
-                        " problems matched, while " +
-                        nProblems +
-                        " problems requested."
-                    );
+                    if (
+                      isProblemModelWithDifficultyModel(problem.model) &&
+                      problem.model.difficulty >=
+                        problemSelectionParams.minDifficulty &&
+                      problem.model.difficulty <=
+                        problemSelectionParams.maxDifficulty
+                    ) {
+                      alreadySelectedProblemIds.add(problem.problem.id);
+                      selectedProblems.push(problem.problem);
+                      found = true;
+                      return;
+                    }
+                  });
+                  if (!found) {
+                    selectionFailedProblemNumbers.push(idx);
                   }
-                  props.selectProblem(
-                    ...shuffleList(filteredProblem, nProblems).toArray()
-                  );
                 }
               );
+
+              if (selectedProblems.length < nProblems) {
+                alert(
+                  `Only ${
+                    selectedProblems.length
+                  } problems are prepared. (Failed to assign a problem for problem ${selectionFailedProblemNumbers
+                    .map(num => num + 1)
+                    .join(",")})`
+                );
+              }
+              props.selectProblem(...selectedProblems);
             }}
           >
             Add
