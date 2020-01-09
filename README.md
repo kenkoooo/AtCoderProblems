@@ -6,26 +6,38 @@
 
 `atcoder-problems-backend` is a set of backend applications written in Rust.
 
-## Crawler
+You don't need to run backend applications in most cases.
 
-### Build
+## Build
 ```bash
 cd atcoder-problems-backend/
-cargo build --release --bin crawl
-```
-### Run
-Before running, please make sure the URL of PostgreSQL is set to `SQL_URL`, and [SQL table schema](config/database-definition.sql) is loaded on your database.
-```bash
-export SQL_URL="postgresql://..." # URL of PostgreSQL database
-cargo run --release --bin crawl [option]
+cargo build
 ```
 
-#### Options
-- `new_contests`
-- `new`
-- `all`
-- `recent_submitted`
-- `contest`
+## Run
+```bash
+export SQL_URL=... # URL of PostgreSQL 
+export CLIENT_ID=... # GitHub client_id, which is required to use login function.
+export CLIENT_SECRET=... # GitHub client_secret, which is required to use login function.
+
+# Run backend server
+cargo run --bin run_server
+
+# Run crawlers
+cargo run --bin crawl_all_submissions
+cargo run --bin crawl_for_virtual_contests
+cargo run --bin crawl_from_new_contests
+cargo run --bin crawl_problems
+cargo run --bin crawl_recent_submissions
+cargo run --bin crawl_whole_contest
+
+# Run other tools
+cargo run --bin batch_update
+cargo run --bin delta_update
+cargo run --bin dump_json
+cargo run --bin fix_invalid_submissions
+```
+
 
 # atcoder-problems-frontend
 
@@ -50,24 +62,6 @@ yarn build
 ```bash
 yarn lint:fix
 ```
-
-# Docker
-
-```bash
-#build Dockerfile
-docker build ./
-
-#run docker image
-docker run -h spam -i -t {image_name} /bin/bash
-
-#after you entered shell
-#please start db server
-service postgresql start
-
-```
-You can login db server with this user:name="kenkoooo",password="pass",dbname="test".
-This docker image has everything you need for building and testing this repository(including prepared db server).
-You can use git to get data and start testing.
 
 # API
 
