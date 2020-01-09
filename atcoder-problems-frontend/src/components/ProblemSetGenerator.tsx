@@ -40,7 +40,7 @@ interface ProblemSetSelectionPreset {
 }
 
 const ABC_PRESET: ProblemSetSelectionPreset = {
-  displayName: "Preset 1",
+  displayName: "Level 1",
   problemSelectionParams: [
     { minDifficulty: 0, maxDifficulty: 50 },
     { minDifficulty: 10, maxDifficulty: 100 },
@@ -52,7 +52,7 @@ const ABC_PRESET: ProblemSetSelectionPreset = {
 };
 
 const ARC_PRESET: ProblemSetSelectionPreset = {
-  displayName: "Preset 2",
+  displayName: "Level 2",
   problemSelectionParams: [
     { minDifficulty: 800, maxDifficulty: 1200 },
     { minDifficulty: 1200, maxDifficulty: 1800 },
@@ -62,7 +62,7 @@ const ARC_PRESET: ProblemSetSelectionPreset = {
 };
 
 const AGC_PRESET: ProblemSetSelectionPreset = {
-  displayName: "Preset 3",
+  displayName: "Level 3",
   problemSelectionParams: [
     { minDifficulty: 400, maxDifficulty: 1200 },
     { minDifficulty: 1200, maxDifficulty: 2400 },
@@ -244,6 +244,7 @@ export default (props: Props) => {
         <Col>
           <Button
             color="success"
+            disabled={problemSelectionParamsList.length === 0}
             onClick={async () => {
               const nProblems = problemSelectionParamsList.length;
 
