@@ -1,4 +1,4 @@
-import {List} from "immutable";
+import { List } from "immutable";
 
 const userIdRegex = /[0-9a-zA-Z_]+/;
 export const ATCODER_USER_REGEXP = new RegExp(`^${userIdRegex.source}$`);
