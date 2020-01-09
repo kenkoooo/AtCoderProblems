@@ -25,6 +25,8 @@ import { USER_GET } from "../ApiUrl";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
 import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
 import ProblemLink from "../../../components/ProblemLink";
+import ProblemModel from "../../../interfaces/ProblemModel";
+import ProblemSetGenerator from "../../../components/ProblemSetGenerator";
 
 const ContestConfig = (props: InnerProps) => {
   const [title, setTitle] = useState(props.initialTitle);
@@ -43,15 +45,30 @@ const ContestConfig = (props: InnerProps) => {
     return <Redirect to="/" />;
   }
 
-  const { problemMapFetch } = props;
-  if (!problemMapFetch.fulfilled) {
+  const { problemMapFetch, problemModelsFetch } = props;
+  if (!problemMapFetch.fulfilled || !problemModelsFetch.fulfilled) {
     return null;
   }
   const problemMap = problemMapFetch.value;
+  const problemModelMap = problemModelsFetch.value;
 
   const startSecond = toUnixSecond(startDate, startHour, startMinute);
   const endSecond = toUnixSecond(endDate, endHour, endMinute);
   const isValid = title.length > 0 && startSecond <= endSecond;
+
+  const addProblemsIfNotSelected = (...problems: Problem[]): void => {
+    let newProblemSet = problemSet;
+    problems.forEach(problem => {
+      if (problemSet.every(p => p.id !== problem.id)) {
+        newProblemSet = newProblemSet.push({
+          id: problem.id,
+          point: null,
+          order: null
+        });
+      }
+    });
+    setProblemSet(newProblemSet);
+  };
 
   return (
     <>
@@ -238,13 +255,19 @@ const ContestConfig = (props: InnerProps) => {
       <Row className="my-2">
         <ProblemSearchBox
           problems={problemMap.valueSeq().toList()}
-          selectProblem={problem => {
-            if (problemSet.every(p => p.id !== problem.id)) {
-              setProblemSet(
-                problemSet.push({ id: problem.id, point: null, order: null })
-              );
-            }
-          }}
+          selectProblem={addProblemsIfNotSelected}
+        />
+      </Row>
+
+      <Row>
+        <Label>Bacha Gacha</Label>
+      </Row>
+
+      <Row className="my-2">
+        <ProblemSetGenerator
+          problems={problemMap.valueSeq().toList()}
+          problemModels={problemModelMap}
+          selectProblem={addProblemsIfNotSelected}
         />
       </Row>
 
@@ -298,6 +321,7 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
+  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   loginState: PromiseState<{} | null>;
 }
 
@@ -305,6 +329,10 @@ export default connect<OuterProps, InnerProps>(() => ({
   problemMapFetch: {
     comparison: null,
     value: () => CachedApiClient.cachedProblemMap()
+  },
+  problemModelsFetch: {
+    comparison: null,
+    value: () => CachedApiClient.cachedProblemModels()
   },
   loginState: {
     url: USER_GET

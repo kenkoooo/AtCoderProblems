@@ -1,3 +1,5 @@
+import { List } from "immutable";
+
 const userIdRegex = /[0-9a-zA-Z_]+/;
 export const ATCODER_USER_REGEXP = new RegExp(`^${userIdRegex.source}$`);
 export const ATCODER_RIVALS_REGEXP = new RegExp(
@@ -67,4 +69,15 @@ export const getRatingColorClass = (rating: number | null) => {
   } else {
     return "difficulty-red";
   }
+};
+
+export const shuffleList = (list: List<any>, k?: number): List<any> => {
+  let shuffledList = List();
+  const size = k === undefined ? list.size : Math.min(k, list.size);
+  for (let i = 0; i < size; ++i) {
+    const index = Math.floor(Math.random() * (list.size - i)) + i;
+    shuffledList = shuffledList.push(list.get(index));
+    list = list.set(index, list.get(i));
+  }
+  return shuffledList;
 };
