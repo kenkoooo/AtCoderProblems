@@ -73,106 +73,120 @@ const ContestConfig = (props: InnerProps) => {
   return (
     <>
       <Row>
-        <h1>{props.pageTitle}</h1>
+        <Col>
+          <h1>{props.pageTitle}</h1>
+        </Col>
       </Row>
 
       <Row className="my-2">
-        <Label>Contest Title</Label>
-        <Input
-          type="text"
-          placeholder="Contest Title"
-          value={title}
-          onChange={event => setTitle(event.target.value)}
-        />
-      </Row>
-
-      <Row className="my-2">
-        <Label>Description</Label>
-        <Input
-          type="text"
-          placeholder="Description"
-          value={memo}
-          onChange={event => setMemo(event.target.value)}
-        />
-      </Row>
-
-      <Row className="my-2">
-        <Label>Mode</Label>
-        <InputGroup>
-          <UncontrolledDropdown>
-            <DropdownToggle caret>{formatMode(mode)}</DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem onClick={() => setMode(null)}>
-                {formatMode(null)}
-              </DropdownItem>
-              <DropdownItem onClick={() => setMode("lockout")}>
-                {formatMode("lockout")}
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
-        </InputGroup>
-      </Row>
-
-      <Row className="my-2">
-        <Label>Start Time</Label>
-        <InputGroup>
+        <Col>
+          <Label>Contest Title</Label>
           <Input
-            type="date"
-            value={startDate}
-            onChange={event => setStartDate(event.target.value)}
+            type="text"
+            placeholder="Contest Title"
+            value={title}
+            onChange={event => setTitle(event.target.value)}
           />
-          <Input
-            type="select"
-            value={startHour}
-            onChange={e => setStartHour(Number(e.target.value))}
-          >
-            {Range(0, 24).map(i => (
-              <option key={i}>{i}</option>
-            ))}
-          </Input>
-          <Input
-            type="select"
-            value={startMinute}
-            onChange={e => setStartMinute(Number(e.target.value))}
-          >
-            {Range(0, 60, 5).map(i => (
-              <option key={i}>{i}</option>
-            ))}
-          </Input>
-        </InputGroup>
+        </Col>
       </Row>
 
       <Row className="my-2">
-        <Label>End Time</Label>
-        <InputGroup>
+        <Col>
+          <Label>Description</Label>
           <Input
-            type="date"
-            value={endDate}
-            onChange={event => setEndDate(event.target.value)}
+            type="text"
+            placeholder="Description"
+            value={memo}
+            onChange={event => setMemo(event.target.value)}
           />
-          <Input
-            type="select"
-            value={endHour}
-            onChange={e => setEndHour(Number(e.target.value))}
-          >
-            {Range(0, 24).map(i => (
-              <option key={i}>{i}</option>
-            ))}
-          </Input>
-          <Input
-            type="select"
-            value={endMinute}
-            onChange={e => setEndMinute(Number(e.target.value))}
-          >
-            {Range(0, 60, 5).map(i => (
-              <option key={i}>{i}</option>
-            ))}
-          </Input>
-        </InputGroup>
+        </Col>
+      </Row>
+
+      <Row className="my-2">
+        <Col>
+          <Label>Mode</Label>
+          <InputGroup>
+            <UncontrolledDropdown>
+              <DropdownToggle caret>{formatMode(mode)}</DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem onClick={() => setMode(null)}>
+                  {formatMode(null)}
+                </DropdownItem>
+                <DropdownItem onClick={() => setMode("lockout")}>
+                  {formatMode("lockout")}
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </InputGroup>
+        </Col>
+      </Row>
+
+      <Row className="my-2">
+        <Col>
+          <Label>Start Time</Label>
+          <InputGroup>
+            <Input
+              type="date"
+              value={startDate}
+              onChange={event => setStartDate(event.target.value)}
+            />
+            <Input
+              type="select"
+              value={startHour}
+              onChange={e => setStartHour(Number(e.target.value))}
+            >
+              {Range(0, 24).map(i => (
+                <option key={i}>{i}</option>
+              ))}
+            </Input>
+            <Input
+              type="select"
+              value={startMinute}
+              onChange={e => setStartMinute(Number(e.target.value))}
+            >
+              {Range(0, 60, 5).map(i => (
+                <option key={i}>{i}</option>
+              ))}
+            </Input>
+          </InputGroup>
+        </Col>
+      </Row>
+
+      <Row className="my-2">
+        <Col>
+          <Label>End Time</Label>
+          <InputGroup>
+            <Input
+              type="date"
+              value={endDate}
+              onChange={event => setEndDate(event.target.value)}
+            />
+            <Input
+              type="select"
+              value={endHour}
+              onChange={e => setEndHour(Number(e.target.value))}
+            >
+              {Range(0, 24).map(i => (
+                <option key={i}>{i}</option>
+              ))}
+            </Input>
+            <Input
+              type="select"
+              value={endMinute}
+              onChange={e => setEndMinute(Number(e.target.value))}
+            >
+              {Range(0, 60, 5).map(i => (
+                <option key={i}>{i}</option>
+              ))}
+            </Input>
+          </InputGroup>
+        </Col>
       </Row>
 
       <Row>
-        <Label>Problems</Label>
+        <Col>
+          <Label>Problems</Label>
+        </Col>
       </Row>
 
       <Row>
@@ -253,41 +267,49 @@ const ContestConfig = (props: InnerProps) => {
       </Row>
 
       <Row className="my-2">
-        <ProblemSearchBox
-          problems={problemMap.valueSeq().toList()}
-          selectProblem={addProblemsIfNotSelected}
-        />
+        <Col>
+          <ProblemSearchBox
+            problems={problemMap.valueSeq().toList()}
+            selectProblem={addProblemsIfNotSelected}
+          />
+        </Col>
       </Row>
 
       <Row>
-        <Label>Bacha Gacha</Label>
+        <Col>
+          <Label>Bacha Gacha</Label>
+        </Col>
       </Row>
 
       <Row className="my-2">
-        <ProblemSetGenerator
-          problems={problemMap.valueSeq().toList()}
-          problemModels={problemModelMap}
-          selectProblem={addProblemsIfNotSelected}
-        />
+        <Col>
+          <ProblemSetGenerator
+            problems={problemMap.valueSeq().toList()}
+            problemModels={problemModelMap}
+            selectProblem={addProblemsIfNotSelected}
+          />
+        </Col>
       </Row>
 
       <Row className="my-2">
-        <Button
-          disabled={!isValid}
-          color={isValid ? "success" : "link"}
-          onClick={() =>
-            props.buttonPush({
-              title,
-              memo,
-              startSecond,
-              endSecond,
-              problems: problemSet,
-              mode
-            })
-          }
-        >
-          {props.buttonTitle}
-        </Button>
+        <Col>
+          <Button
+            disabled={!isValid}
+            color={isValid ? "success" : "link"}
+            onClick={() =>
+              props.buttonPush({
+                title,
+                memo,
+                startSecond,
+                endSecond,
+                problems: problemSet,
+                mode
+              })
+            }
+          >
+            {props.buttonTitle}
+          </Button>
+        </Col>
       </Row>
     </>
   );
