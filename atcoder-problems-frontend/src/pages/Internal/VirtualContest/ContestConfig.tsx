@@ -14,19 +14,20 @@ import {
   Row,
   UncontrolledDropdown
 } from "reactstrap";
-import { Range, Map, List } from "immutable";
+import { List, Map, Range } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
 import { ProblemId } from "../../../interfaces/Status";
 import Problem from "../../../interfaces/Problem";
 import moment from "moment";
-import { Redirect } from "react-router-dom";
 import { USER_GET } from "../ApiUrl";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
 import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
 import ProblemLink from "../../../components/ProblemLink";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import ProblemSetGenerator from "../../../components/ProblemSetGenerator";
+import HelpBadgeTooltip from "../../../components/HelpBadgeTooltip";
+import { Redirect } from "react-router";
 
 const ContestConfig = (props: InnerProps) => {
   const [title, setTitle] = useState(props.initialTitle);
@@ -40,6 +41,15 @@ const ContestConfig = (props: InnerProps) => {
   const [endMinute, setEndMinute] = useState(props.initialEndMinute);
   const [problemSet, setProblemSet] = useState(props.initialProblems);
   const [mode, setMode] = useState(props.initialMode);
+  const [
+    expectedParticipantUserIdsText,
+    setExpectedParticipantUserIdsText
+  ] = useState("");
+
+  const expectedParticipantUserIds =
+    expectedParticipantUserIdsText.length > 0
+      ? expectedParticipantUserIdsText.split(" ")
+      : [];
 
   if (props.loginState.rejected) {
     return <Redirect to="/" />;
@@ -183,6 +193,25 @@ const ContestConfig = (props: InnerProps) => {
         </Col>
       </Row>
 
+      <Row className="my-2">
+        <Col>
+          <Label>
+            Expected Participants
+            <HelpBadgeTooltip id={"help-expected-participants"}>
+              This list is used for checking if the problems in the list are
+              already solved by each participant.
+            </HelpBadgeTooltip>
+          </Label>
+          <Input
+            placeholder="AtCoder ID list separated by space"
+            value={expectedParticipantUserIdsText}
+            onChange={event => {
+              setExpectedParticipantUserIdsText(event.target.value);
+            }}
+          />
+        </Col>
+      </Row>
+
       <Row>
         <Col>
           <Label>Problems</Label>
@@ -277,17 +306,20 @@ const ContestConfig = (props: InnerProps) => {
 
       <Row>
         <Col>
-          <Label>Bacha Gacha</Label>
-        </Col>
-      </Row>
+          <div style={{ padding: 8, border: "solid 1px lightgray" }}>
+            <Label>Bacha Gacha</Label>
 
-      <Row className="my-2">
-        <Col>
-          <ProblemSetGenerator
-            problems={problemMap.valueSeq().toList()}
-            problemModels={problemModelMap}
-            selectProblem={addProblemsIfNotSelected}
-          />
+            <Row className="my-2">
+              <Col>
+                <ProblemSetGenerator
+                  problems={problemMap.valueSeq().toList()}
+                  problemModels={problemModelMap}
+                  selectProblem={addProblemsIfNotSelected}
+                  expectedParticipantUserIds={expectedParticipantUserIds}
+                />
+              </Col>
+            </Row>
+          </div>
         </Col>
       </Row>
 
