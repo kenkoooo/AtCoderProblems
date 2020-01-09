@@ -39,7 +39,7 @@ const ContestCreatePage = (props: InnerProps) => {
       initialEndMinute={todayMinute}
       initialProblems={List()}
       initialMode={null}
-      buttonTitle="Create"
+      buttonTitle="Create Contest"
       buttonPush={({ title, memo, startSecond, endSecond, problems, mode }) =>
         props.createContest(
           {
