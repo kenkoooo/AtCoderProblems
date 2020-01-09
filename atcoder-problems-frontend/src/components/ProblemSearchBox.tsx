@@ -1,8 +1,14 @@
-import {Input, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText} from "reactstrap";
-import React, {useState} from "react";
-import {formatProblemUrl} from "../utils/Url";
+import {
+  Input,
+  ListGroup,
+  ListGroupItem,
+  ListGroupItemHeading,
+  ListGroupItemText
+} from "reactstrap";
+import React, { useState } from "react";
+import { formatProblemUrl } from "../utils/Url";
 import Problem from "../interfaces/Problem";
-import {List} from "immutable";
+import { List } from "immutable";
 
 const problemMatch = (text: string, problem: Problem) => {
   return (

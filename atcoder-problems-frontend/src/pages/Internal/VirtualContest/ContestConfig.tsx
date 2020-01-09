@@ -60,7 +60,11 @@ const ContestConfig = (props: InnerProps) => {
     let newProblemSet = problemSet;
     problems.forEach(problem => {
       if (problemSet.every(p => p.id !== problem.id)) {
-        newProblemSet = newProblemSet.push({ id: problem.id, point: null, order: null });
+        newProblemSet = newProblemSet.push({
+          id: problem.id,
+          point: null,
+          order: null
+        });
       }
     });
     setProblemSet(newProblemSet);
