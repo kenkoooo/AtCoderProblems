@@ -5,6 +5,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
+  FormFeedback,
   Input,
   InputGroup,
   Label,
@@ -42,6 +43,12 @@ const ContestConfig = (props: InnerProps) => {
     expectedParticipantUserIdsText,
     setExpectedParticipantUserIdsText
   ] = useState("");
+  const [
+    expectedParticipantsInputErrorMessage,
+    setExpectedParticipantsInputErrorMessage
+  ] = useState("");
+  const hasExpectedParticipantsInputError =
+    expectedParticipantsInputErrorMessage.length > 0;
 
   const expectedParticipantUserIds =
     expectedParticipantUserIdsText.length > 0
@@ -202,10 +209,14 @@ const ContestConfig = (props: InnerProps) => {
           <Input
             placeholder="AtCoder ID list separated by space"
             value={expectedParticipantUserIdsText}
+            invalid={hasExpectedParticipantsInputError}
             onChange={event => {
               setExpectedParticipantUserIdsText(event.target.value);
             }}
           />
+          {hasExpectedParticipantsInputError && (
+            <FormFeedback>{expectedParticipantsInputErrorMessage}</FormFeedback>
+          )}
         </Col>
       </Row>
 
@@ -218,6 +229,9 @@ const ContestConfig = (props: InnerProps) => {
       <Row>
         <Col>
           <ContestConfigProblemList
+            onSolvedProblemsFetchFinished={errorMessage => {
+              setExpectedParticipantsInputErrorMessage(errorMessage || "");
+            }}
             problemModelMap={problemModelMap}
             problemMap={problemMap}
             problemSet={problemSet}
@@ -248,6 +262,11 @@ const ContestConfig = (props: InnerProps) => {
                   problemModels={problemModelMap}
                   selectProblem={addProblemsIfNotSelected}
                   expectedParticipantUserIds={expectedParticipantUserIds}
+                  addButtonDisabled={hasExpectedParticipantsInputError}
+                  feedbackForDisabledAddButton={
+                    expectedParticipantsInputErrorMessage &&
+                    "Please fix expected participants field first"
+                  }
                 />
               </Col>
             </Row>

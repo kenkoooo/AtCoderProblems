@@ -120,6 +120,7 @@ interface OuterProps {
   problemSet: List<VirtualContestItem>;
   setProblemSet: (newProblemSet: List<VirtualContestItem>) => void;
   expectedParticipantUserIds: string[];
+  onSolvedProblemsFetchFinished: (errorMessage?: string | null) => void;
 }
 
 interface InnerProps extends OuterProps {
@@ -132,6 +133,7 @@ export default connect<OuterProps, InnerProps>(props => ({
     refreshing: true,
     value: async () => {
       const res: { [problem: string]: Set<string> } = {};
+      const failedUserIds: string[] = [];
       for (const userId of props.expectedParticipantUserIds) {
         try {
           const submissions = await cachedSubmissions(userId);
@@ -140,8 +142,15 @@ export default connect<OuterProps, InnerProps>(props => ({
             .map(submission => submission.problem_id)
             .toSet();
         } catch (e) {
-          // ignore
+          failedUserIds.push(userId);
         }
+      }
+      if (failedUserIds.length > 0) {
+        props.onSolvedProblemsFetchFinished(
+          `Fetch Failed for ${failedUserIds.join(", ")}`
+        );
+      } else {
+        props.onSolvedProblemsFetchFinished();
       }
       return res;
     }
