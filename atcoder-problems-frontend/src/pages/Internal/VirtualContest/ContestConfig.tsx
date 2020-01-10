@@ -7,10 +7,7 @@ import {
   DropdownToggle,
   Input,
   InputGroup,
-  InputGroupAddon,
   Label,
-  ListGroup,
-  ListGroupItem,
   Row,
   UncontrolledDropdown
 } from "reactstrap";
@@ -23,11 +20,11 @@ import moment from "moment";
 import { USER_GET } from "../ApiUrl";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
 import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
-import ProblemLink from "../../../components/ProblemLink";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import ProblemSetGenerator from "../../../components/ProblemSetGenerator";
 import HelpBadgeTooltip from "../../../components/HelpBadgeTooltip";
 import { Redirect } from "react-router";
+import ContestConfigProblemList from "./ContestConfigProblemList";
 
 const ContestConfig = (props: InnerProps) => {
   const [title, setTitle] = useState(props.initialTitle);
@@ -220,78 +217,13 @@ const ContestConfig = (props: InnerProps) => {
 
       <Row>
         <Col>
-          <ListGroup>
-            {problemSet.valueSeq().map((p, i) => {
-              const problemId = p.id;
-              const problem = problemMap.get(problemId);
-              return (
-                <ListGroupItem key={problemId}>
-                  <Button
-                    close
-                    onClick={() => {
-                      setProblemSet(problemSet.filter(x => x.id !== problemId));
-                    }}
-                  />
-                  {problem ? (
-                    <ProblemLink
-                      problemId={problem.id}
-                      contestId={problem.contest_id}
-                      problemTitle={problem.title}
-                    />
-                  ) : (
-                    problemId
-                  )}
-                  {p.point === null ? (
-                    <Button
-                      style={{ float: "right" }}
-                      onClick={() => {
-                        setProblemSet(
-                          problemSet.update(i, x => ({
-                            ...x,
-                            point: 0
-                          }))
-                        );
-                      }}
-                    >
-                      Set Point
-                    </Button>
-                  ) : null}
-                  {p.point !== null ? (
-                    <InputGroup>
-                      <Input
-                        type="number"
-                        value={p.point}
-                        onChange={e => {
-                          const parse = parseInt(e.target.value, 10);
-                          const point = !isNaN(parse) ? parse : 0;
-                          setProblemSet(
-                            problemSet.update(i, x => ({
-                              ...x,
-                              point
-                            }))
-                          );
-                        }}
-                      />
-                      <InputGroupAddon addonType="append">
-                        <Button
-                          onClick={() => {
-                            setProblemSet(
-                              problemSet.update(i, x => ({
-                                ...x,
-                                point: null
-                              }))
-                            );
-                          }}
-                        >
-                          Unset
-                        </Button>
-                      </InputGroupAddon>
-                    </InputGroup>
-                  ) : null}
-                </ListGroupItem>
-              );
-            })}
-          </ListGroup>
+          <ContestConfigProblemList
+            problemModelMap={problemModelMap}
+            problemMap={problemMap}
+            problemSet={problemSet}
+            setProblemSet={setProblemSet}
+            expectedParticipantUserIds={expectedParticipantUserIds}
+          />
         </Col>
       </Row>
 
