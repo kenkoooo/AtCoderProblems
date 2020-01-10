@@ -24,10 +24,10 @@ const ContestConfigProblemList = (props: InnerProps) => {
         const problem = props.problemMap.get(problemId);
 
         const solvedUsers =
-          problem && props.userSolvedSubmissionsMapFetch.fulfilled
-            ? Object.entries(props.userSolvedSubmissionsMapFetch.value)
-                .filter(([user, submissions]) =>
-                  submissions.contains(problem.id)
+          problem && props.userSolvedProblemsMapFetch.fulfilled
+            ? Object.entries(props.userSolvedProblemsMapFetch.value)
+                .filter(([user, solvedProblems]) =>
+                  solvedProblems.contains(problem.id)
                 )
                 .map(([user, ignored]) => user)
             : [];
@@ -123,11 +123,11 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  userSolvedSubmissionsMapFetch: PromiseState<{ [user: string]: Set<string> }>;
+  userSolvedProblemsMapFetch: PromiseState<{ [user: string]: Set<string> }>;
 }
 
 export default connect<OuterProps, InnerProps>(props => ({
-  userSolvedSubmissionsMapFetch: {
+  userSolvedProblemsMapFetch: {
     comparison: props.expectedParticipantUserIds,
     refreshing: true,
     value: async () => {
