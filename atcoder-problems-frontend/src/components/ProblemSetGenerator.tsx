@@ -27,6 +27,8 @@ interface Props {
   problemModels: Map<string, ProblemModel>;
   selectProblem: (...problems: Problem[]) => void;
   expectedParticipantUserIds: string[];
+  addButtonDisabled: boolean;
+  feedbackForDisabledAddButton: string;
 }
 
 interface ProblemSelectionParams {
@@ -241,10 +243,12 @@ export default (props: Props) => {
       </div>
 
       <FormGroup row>
-        <Col>
+        <Col sm={12}>
           <Button
             color="success"
-            disabled={problemSelectionParamsList.length === 0}
+            disabled={
+              problemSelectionParamsList.length === 0 || props.addButtonDisabled
+            }
             onClick={async () => {
               const nProblems = problemSelectionParamsList.length;
 
@@ -334,6 +338,11 @@ export default (props: Props) => {
           >
             Add
           </Button>
+        </Col>
+        <Col>
+          {props.addButtonDisabled && (
+            <span>{props.feedbackForDisabledAddButton}</span>
+          )}
         </Col>
       </FormGroup>
     </Form>
