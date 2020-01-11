@@ -13,7 +13,7 @@ pub use whole_contest_crawler::WholeContestCrawler;
 
 use crate::error::Result;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
-use algorithm_problem_client::{AtCoderClient, AtCoderProblem};
+use algorithm_problem_client::{AtCoderClient, AtCoderProblem, AtCoderSubmission};
 use async_trait::async_trait;
 use log::info;
 
@@ -28,13 +28,9 @@ pub trait AtCoderFetcher {
 #[async_trait]
 impl AtCoderFetcher for AtCoderClient {
     async fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission> {
-        self.fetch_atcoder_submission_list(contest_id, Some(page))
+        let submissions = retry_fetch_submissions(self, 5, contest_id, page);
+        submissions
             .await
-            .map(|response| response.submissions)
-            .unwrap_or_else(|e| {
-                log::error!("{:?}", e);
-                Vec::new()
-            })
             .into_iter()
             .map(|s| Submission {
                 id: s.id as i64,
@@ -88,6 +84,30 @@ impl AtCoderFetcher for AtCoderClient {
     }
 }
 
+async fn retry_fetch_submissions(
+    client: &AtCoderClient,
+    retry_count: usize,
+    contest_id: &str,
+    page: u32,
+) -> Vec<AtCoderSubmission> {
+    for _ in 0..retry_count {
+        match client
+            .fetch_atcoder_submission_list(contest_id, Some(page))
+            .await
+        {
+            Ok(response) => {
+                return response.submissions;
+            }
+            Err(e) => {
+                log::error!("Error when fetching {} {}: {:?} ", contest_id, page, e);
+                log::info!("Sleeping 1sec before retry ...");
+                async_std::task::sleep(std::time::Duration::from_secs(1)).await;
+            }
+        }
+    }
+    Vec::new()
+}
+
 fn convert_problem(p: AtCoderProblem) -> Problem {
     Problem {
         id: p.id,
@@ -99,6 +119,7 @@ fn convert_problem(p: AtCoderProblem) -> Problem {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::executor::block_on;
 
     #[test]
     fn test_convert_problem() {
