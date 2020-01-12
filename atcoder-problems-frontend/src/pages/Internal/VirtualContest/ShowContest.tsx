@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useHistory, Redirect } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import {
@@ -54,53 +54,7 @@ interface InnerProps extends OuterProps {
   problemModelGet: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
-const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
-  return {
-    problemModelGet: {
-      comparison: null,
-      value: () => CachedApi.cachedProblemModels()
-    },
-    userInfoGet: {
-      url: USER_GET
-    },
-    contestInfoFetch: {
-      url: contestGetUrl(props.contestId),
-      then: contest => {
-        const start = contest.start_epoch_second;
-        const end = contest.start_epoch_second + contest.duration_second;
-        const users = contest.participants;
-        return {
-          value: fetchSubmissions(start, end, users).then(map => ({
-            map,
-            ...contest
-          }))
-        };
-      }
-    },
-    problemMapFetch: {
-      comparison: null,
-      value: () => CachedApi.cachedMergedProblemMap()
-    },
-    joinContest: () => ({
-      joinContestPost: {
-        url: CONTEST_JOIN,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ contest_id: props.contestId }),
-        andThen: () => ({
-          contestInfoFetch: {
-            url: contestGetUrl(props.contestId),
-            force: true,
-            refreshing: true
-          }
-        })
-      }
-    }),
-    joinContestPost: { value: null }
-  };
-})((props: InnerProps) => {
+const InnerShowContest = (props: InnerProps) => {
   const history = useHistory();
   const {
     contestInfoFetch,
@@ -212,10 +166,14 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           <h4>{contestInfo.memo}</h4>
           <h5>Mode: {formatMode(contestInfo.mode)}</h5>
           <h5>
-            Time:
-            {formatMomentDateTime(parseSecond(start))} -{" "}
+            Time: {formatMomentDateTime(parseSecond(start))} -{" "}
             {formatMomentDateTime(parseSecond(end))}
           </h5>
+          {end - now > 0 ? (
+            <h5>
+              Remain: <Timer remain={end - now} />
+            </h5>
+          ) : null}
           {atcoderUserId === null ? (
             <Alert color="warning">
               Please set the AtCoder ID, before you join the contest.
@@ -331,7 +289,55 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
       </Row>
     </>
   );
-});
+};
+
+const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
+  return {
+    problemModelGet: {
+      comparison: null,
+      value: () => CachedApi.cachedProblemModels()
+    },
+    userInfoGet: {
+      url: USER_GET
+    },
+    contestInfoFetch: {
+      url: contestGetUrl(props.contestId),
+      then: contest => {
+        const start = contest.start_epoch_second;
+        const end = contest.start_epoch_second + contest.duration_second;
+        const users = contest.participants;
+        return {
+          value: fetchSubmissions(start, end, users).then(map => ({
+            map,
+            ...contest
+          }))
+        };
+      }
+    },
+    problemMapFetch: {
+      comparison: null,
+      value: () => CachedApi.cachedMergedProblemMap()
+    },
+    joinContest: () => ({
+      joinContestPost: {
+        url: CONTEST_JOIN,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ contest_id: props.contestId }),
+        andThen: () => ({
+          contestInfoFetch: {
+            url: contestGetUrl(props.contestId),
+            force: true,
+            refreshing: true
+          }
+        })
+      }
+    }),
+    joinContestPost: { value: null }
+  };
+})(InnerShowContest);
 
 const ScoreCell = (props: {
   maxPoint: number;
@@ -354,6 +360,19 @@ const ScoreCell = (props: {
     </p>
   </>
 );
+
+const Timer = (props: { remain: number }) => {
+  const [timeLeft, setTimeLeft] = useState(props.remain);
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const intervalId = setInterval(() => {
+      setTimeLeft(timeLeft - 1);
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, [timeLeft]);
+  if (timeLeft <= 0) return null;
+  return <span>{formatDuration(timeLeft)}</span>;
+};
 
 const calcPerformance = (
   solvedData: List<{ problemId: string; time: number; solved: boolean }>,
