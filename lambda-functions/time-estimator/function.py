@@ -1,14 +1,33 @@
+import itertools
 import json
 import math
 import random
 import statistics
 from collections import defaultdict
-from datetime import datetime
+from html.parser import HTMLParser
 
 import boto3
 import requests
 
 from rating import RatingSystem, ContestType
+
+
+class AtCoderCSRFExtractor(HTMLParser):
+    def __init__(self):
+        super(AtCoderCSRFExtractor, self).__init__()
+        self.csrf = None
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "input" and attrs.get("name") == "csrf_token":
+            self.csrf = attrs["value"]
+
+    def extract(self, html):
+        self.feed(html)
+        if self.csrf is not None:
+            return self.csrf
+        else:
+            raise ValueError("Failed to extract CSRF token")
 
 
 def single_regression(x, y):
@@ -163,9 +182,9 @@ def fit_problem_model(user_results, task_screen_name):
     return model
 
 
-def fetch_dataset_for_contest(contest_name, existing_problem):
+def fetch_dataset_for_contest(contest_name, existing_problem, session):
     try:
-        results = requests.get(
+        results = session.get(
             "https://atcoder.jp/contests/{}/standings/json".format(contest_name)).json()
     except json.JSONDecodeError as e:
         print(f"{e}")
@@ -262,7 +281,12 @@ def all_rated_contests():
     return [(contest_id, contest_type) for contest_id, contest_type in contests_and_types if contest_type != ContestType.UNRATED]
 
 
-def run(target, overwrite):
+def all_contest_problems():
+    problems = requests.get("https://kenkoooo.com/atcoder/resources/problems.json").json()
+    return {contest_id: set(problem["id"] for problem in problems) for contest_id, problems in itertools.groupby(problems, key=lambda problem: problem["contest_id"])}
+
+
+def run(target, overwrite, session):
     recompute_history = target is None and overwrite
     if target is None:
         target = all_rated_contests()
@@ -270,6 +294,7 @@ def run(target, overwrite):
         target = [(target_id, None) for target_id in target]
     current_models = get_current_models()
     existing_problems = current_models.keys() if not overwrite else set()
+    contest_problems = all_contest_problems()
 
     print(f"Fetching dataset from {len(target)} contests.")
     dataset_by_problem = defaultdict(list)
@@ -277,8 +302,12 @@ def run(target, overwrite):
     competition_history_by_id = defaultdict(set)
     experimental_problems = set()
     for contest, contest_type in target:
+        problems = set(contest_problems.get(contest, []))
+        if not overwrite and existing_problems & problems == problems:
+            print("All problem models of contest {} are already estimated. specify overwrite = True if you want to update the model.".format(contest))
+            continue
         is_old_contest = not contest_type.is_rated
-        user_results_by_problem, standings = fetch_dataset_for_contest(contest, existing_problems)
+        user_results_by_problem, standings = fetch_dataset_for_contest(contest, existing_problems, session)
         for problem, data_points in user_results_by_problem.items():
             if recompute_history:
                 # overwrite competition history, and rating if necessary
@@ -299,7 +328,7 @@ def run(target, overwrite):
         if recompute_history and is_old_contest:
             print("Updating user rating with the result of {}".format(contest))
             rating_system.update(standings, contest_type)
-    print(f"Estimating time models of {len(target)} contests.")
+    print(f"Estimating time models of {len(dataset_by_problem)} problems.")
     results = current_models
     for problem, data_points in dataset_by_problem.items():
         model = fit_problem_model(data_points, problem)
@@ -308,13 +337,36 @@ def run(target, overwrite):
     return results
 
 
+def login(user_id, password):
+    session = requests.Session()
+    get_response = session.get("https://atcoder.jp/login")
+    extractor = AtCoderCSRFExtractor()
+    csrf = extractor.extract(get_response.text)
+    form_values = {
+        "username": user_id,
+        "password": password,
+        "csrf_token": csrf
+    }
+    post_response = session.post("https://atcoder.jp/login", data=form_values)
+    if post_response.status_code != 200:
+        raise Exception(str(post_response))
+    return session
+
+
 def handler(event, context):
     target = event.get("target")
     overwrite = event.get("overwrite", False)
     bucket = event.get("bucket", "kenkoooo.com")
     object_key = event.get("object_key", "resources/problem-models.json")
+    atcoder_user = event.get("atcoder_user")
+    atcoder_pass = event.get("atcoder_pass")
 
-    results = run(target, overwrite)
+    if atcoder_user is None or atcoder_pass is None:
+        raise ValueError("AtCoder credential is required.")
+    print("Using AtCoder account {} to fetch standings data.".format(atcoder_user))
+
+    session = login(atcoder_user, atcoder_pass)
+    results = run(target, overwrite, session)
     print("Estimation completed. Saving results in S3")
     s3 = boto3.resource('s3')
     s3.Object(bucket, object_key).put(Body=json.dumps(
