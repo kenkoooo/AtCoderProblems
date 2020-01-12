@@ -1,7 +1,7 @@
 import moment from "moment";
 
 const DATE_FORMAT = "YYYY-MM-DD";
-const DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
+const DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss (ddd)";
 
 export const parseSecond = (epochSecond: number) => moment.unix(epochSecond);
 
