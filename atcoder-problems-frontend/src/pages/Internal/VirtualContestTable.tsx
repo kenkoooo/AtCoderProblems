@@ -36,7 +36,7 @@ export default (props: { contests: VirtualContest[] }) => {
         Start
       </TableHeaderColumn>
       <TableHeaderColumn
-        dataField="duration_second"
+        dataField="end_epoch_second"
         dataFormat={(_: number, contest: VirtualContest) => {
           const time = DateUtil.parseSecond(
             contest.start_epoch_second + contest.duration_second
@@ -45,6 +45,17 @@ export default (props: { contests: VirtualContest[] }) => {
         }}
       >
         End
+      </TableHeaderColumn>
+      <TableHeaderColumn
+        dataField="duration"
+        dataFormat={(_: number, contest: VirtualContest) => {
+          const durationMinute = Math.floor(contest.duration_second / 60);
+          const hour = `0${Math.floor(durationMinute / 60)}`.slice(-2);
+          const minute = `0${durationMinute % 60}`.slice(-2);
+          return hour + ":" + minute;
+        }}
+      >
+        Duration
       </TableHeaderColumn>
     </BootstrapTable>
   );
