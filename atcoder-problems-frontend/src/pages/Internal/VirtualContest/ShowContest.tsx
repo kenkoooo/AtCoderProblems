@@ -364,13 +364,17 @@ const ScoreCell = (props: {
 const Timer = (props: { remain: number }) => {
   const [timeLeft, setTimeLeft] = useState(props.remain);
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+      return;
+    }
     const intervalId = setInterval(() => {
       setTimeLeft(timeLeft - 1);
     }, 1000);
     return () => clearInterval(intervalId);
   }, [timeLeft]);
-  if (timeLeft <= 0) return null;
+  if (timeLeft <= 0) {
+    return null;
+  }
   return <span>{formatDuration(timeLeft)}</span>;
 };
 
