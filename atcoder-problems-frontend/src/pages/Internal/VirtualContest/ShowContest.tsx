@@ -167,7 +167,8 @@ const InnerShowContest = (props: InnerProps) => {
           <h5>Mode: {formatMode(contestInfo.mode)}</h5>
           <h5>
             Time: {formatMomentDateTime(parseSecond(start))} -{" "}
-            {formatMomentDateTime(parseSecond(end))}
+            {formatMomentDateTime(parseSecond(end))} (
+            {Math.floor(contestInfo.duration_second / 60)} minutes)
           </h5>
           {end - now > 0 ? (
             <h5>
