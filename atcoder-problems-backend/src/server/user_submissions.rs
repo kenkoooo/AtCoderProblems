@@ -22,6 +22,9 @@ pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Res
         let submissions = conn.get_submissions(SubmissionRequest::UserAll { user_id })?;
         let heavy_count = submissions.len();
         let heavy_etag = utils::calc_etag_for_user(user_id, heavy_count);
+        if heavy_etag.as_str() != lite_etag.as_str() {
+            let _ = conn.update_user_submission_count(user_id);
+        }
         if heavy_etag.as_str() == etag {
             Ok(Response::not_modified())
         } else {
