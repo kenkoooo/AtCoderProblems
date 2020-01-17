@@ -7,6 +7,8 @@ use diesel::dsl::insert_into;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
 use diesel::PgConnection;
+use diesel::{sql_query};
+use diesel::sql_types::{Text};
 use std::collections::BTreeMap;
 
 pub enum SubmissionRequest<'a> {
@@ -25,6 +27,7 @@ pub trait SubmissionClient {
     fn get_submission_by_ids(&self, ids: &[i64]) -> Result<Vec<Submission>>;
     fn update_submissions(&self, values: &[Submission]) -> Result<usize>;
     fn update_submission_count(&self) -> Result<()>;
+    fn update_user_submission_count(&self, user_id: &str) -> Result<()>;
     fn update_delta_submission_count(&self, values: &[Submission]) -> Result<()>;
 
     fn count_stored_submissions(&self, ids: &[i64]) -> Result<usize> {
@@ -108,6 +111,17 @@ impl SubmissionClient for PgConnection {
             SELECT user_id, count(*) FROM submissions GROUP BY user_id
             ON CONFLICT (user_id) DO UPDATE SET count=EXCLUDED.count",
         )?;
+        Ok(())
+    }
+
+    fn update_user_submission_count(&self, user_id: &str) -> Result<()> {
+        sql_query(r"
+                INSERT INTO submission_count (user_id, count)
+                SELECT user_id, count(*) FROM submissions GROUP BY user_id WHERE user_id = ?
+                ON CONFLICT (user_id) DO UPDATE SET count=EXCLUDED.count",
+            )
+            .bind::<Text, _>(user_id)
+            .execute(self)?;
         Ok(())
     }
 
