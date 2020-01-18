@@ -117,7 +117,7 @@ impl SubmissionClient for PgConnection {
     fn update_user_submission_count(&self, user_id: &str) -> Result<()> {
         sql_query(r"
                 INSERT INTO submission_count (user_id, count)
-                SELECT user_id, count(*) FROM submissions GROUP BY user_id WHERE user_id = ?
+                SELECT user_id, count(*) FROM submissions WHERE user_id = ? GROUP BY user_id
                 ON CONFLICT (user_id) DO UPDATE SET count=EXCLUDED.count",
             )
             .bind::<Text, _>(user_id)
