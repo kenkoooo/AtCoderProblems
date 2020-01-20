@@ -52,7 +52,7 @@ interface OuterProps extends RouteComponentProps {
 }
 
 interface InnerProps extends OuterProps {
-  loginState: PromiseState<{} | null>;
+  loginState: PromiseState<{atcoder_user_id: string} | null>;
 }
 
 interface LocalState {
@@ -108,8 +108,8 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
 
   render() {
     const { userId, rivalIdString, isOpen, pageKind } = this.state;
-    const loggedIn =
-      this.props.loginState.fulfilled && this.props.loginState.value;
+    const loggedInUserId =
+      this.props.loginState.fulfilled && this.props.loginState.value ? this.props.loginState.value.atcoder_user_id : "";
     return (
       <Navbar color="light" light expand="lg" fixed="top">
         <NavbarBrand>AtCoder Problems</NavbarBrand>
@@ -129,7 +129,7 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
                   type="text"
                   name="user_id"
                   id="user_id"
-                  placeholder="User ID"
+                  placeholder={loggedInUserId ? loggedInUserId : "User ID"}
                   onChange={e => this.setState({ userId: e.target.value })}
                 />
               </FormGroup>
@@ -154,7 +154,7 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
                 tag={RouterLink}
-                to={generatePath("table", userId, rivalIdString)}
+                to={generatePath("table", userId ? userId : loggedInUserId, rivalIdString)}
                 onClick={() => {
                   this.submit("table");
                 }}
@@ -164,7 +164,7 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
                 tag={RouterLink}
-                to={generatePath("list", userId, rivalIdString)}
+                to={generatePath("list", userId ? userId : loggedInUserId, rivalIdString)}
                 onClick={() => {
                   this.submit("list");
                 }}
@@ -173,9 +173,9 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
               </Button>
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
-                disabled={userId.length === 0}
+                disabled={userId.length === 0 && loggedInUserId.length === 0}
                 tag={RouterLink}
-                to={generatePath("user", userId, rivalIdString)}
+                to={generatePath("user", userId ? userId : loggedInUserId, rivalIdString)}
                 onClick={() => {
                   this.submit("user");
                 }}
@@ -221,9 +221,9 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
             </NavItem>
 
             <NavItem>
-              {loggedIn ? (
+              {loggedInUserId ? (
                 <NavLink tag={RouterLink} to="/login/user">
-                  Account
+                  Account ({loggedInUserId})
                 </NavLink>
               ) : (
                 <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
