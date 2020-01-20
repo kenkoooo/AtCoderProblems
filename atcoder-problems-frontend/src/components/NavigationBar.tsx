@@ -22,6 +22,7 @@ import { extractRivalsParam, normalizeUserId } from "../utils";
 import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import { USER_GET } from "../pages/Internal/ApiUrl";
+import { UserResponse } from "../pages/Internal/types";
 
 type PageKind = "table" | "list" | "user";
 
@@ -52,7 +53,7 @@ interface OuterProps extends RouteComponentProps {
 }
 
 interface InnerProps extends OuterProps {
-  loginState: PromiseState<{atcoder_user_id: string} | null>;
+  loginState: PromiseState<UserResponse | null>;
 }
 
 interface LocalState {
@@ -83,7 +84,14 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
   }
 
   submit(nextKind: PageKind) {
-    const { userId, rivalIdString } = this.state;
+    const loggedInUserId =
+      this.props.loginState.fulfilled &&
+      this.props.loginState.value &&
+      this.props.loginState.value.atcoder_user_id
+        ? this.props.loginState.value.atcoder_user_id
+        : "";
+    const { rivalIdString } = this.state;
+    const userId = this.state.userId ? this.state.userId : loggedInUserId;
     const path = generatePath(nextKind, userId, rivalIdString);
     this.props.updateUserIds(
       normalizeUserId(userId),
@@ -109,7 +117,11 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
   render() {
     const { userId, rivalIdString, isOpen, pageKind } = this.state;
     const loggedInUserId =
-      this.props.loginState.fulfilled && this.props.loginState.value ? this.props.loginState.value.atcoder_user_id : "";
+      this.props.loginState.fulfilled &&
+      this.props.loginState.value &&
+      this.props.loginState.value.atcoder_user_id
+        ? this.props.loginState.value.atcoder_user_id
+        : "";
     return (
       <Navbar color="light" light expand="lg" fixed="top">
         <NavbarBrand>AtCoder Problems</NavbarBrand>
@@ -154,7 +166,11 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
                 tag={RouterLink}
-                to={generatePath("table", userId ? userId : loggedInUserId, rivalIdString)}
+                to={generatePath(
+                  "table",
+                  userId ? userId : loggedInUserId,
+                  rivalIdString
+                )}
                 onClick={() => {
                   this.submit("table");
                 }}
@@ -164,7 +180,11 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
               <Button
                 className="mb-2 mr-sm-2 mb-sm-0"
                 tag={RouterLink}
-                to={generatePath("list", userId ? userId : loggedInUserId, rivalIdString)}
+                to={generatePath(
+                  "list",
+                  userId ? userId : loggedInUserId,
+                  rivalIdString
+                )}
                 onClick={() => {
                   this.submit("list");
                 }}
@@ -175,7 +195,11 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
                 className="mb-2 mr-sm-2 mb-sm-0"
                 disabled={userId.length === 0 && loggedInUserId.length === 0}
                 tag={RouterLink}
-                to={generatePath("user", userId ? userId : loggedInUserId, rivalIdString)}
+                to={generatePath(
+                  "user",
+                  userId ? userId : loggedInUserId,
+                  rivalIdString
+                )}
                 onClick={() => {
                   this.submit("user");
                 }}
