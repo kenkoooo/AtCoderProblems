@@ -12,7 +12,6 @@ import {
   parseDateLabel,
   parseSecond
 } from "../../utils/DateUtil";
-
 import ClimbingLineChart from "./ClimbingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
 import SmallPieChart from "./SmallPieChart";
@@ -29,6 +28,7 @@ import ProblemModel from "../../interfaces/ProblemModel";
 import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import Problem from "../../interfaces/Problem";
 import { connect, PromiseState } from "react-refetch";
+import { useParams } from "react-router-dom";
 
 interface OuterProps {
   userId: string;
@@ -242,8 +242,8 @@ const UserPage = (props: InnerProps) => {
       }
     );
 
-  const yesterDayLabel = formatMomentDate(getToday().add(-1, "day"));
-  const isIncreasing = prevDateLabel >= yesterDayLabel;
+  const yesterdayLabel = formatMomentDate(getToday().add(-1, "day"));
+  const isIncreasing = prevDateLabel >= yesterdayLabel;
 
   const abcSolved = solvedCountForPieChart(
     contestToProblems.filter((value, key) => key.substring(0, 3) === "abc"),
@@ -411,7 +411,7 @@ const PieCharts = ({
   </div>
 );
 
-export default connect<OuterProps, InnerProps>(props => ({
+const InnerUserPage = connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: props.userId,
     value: () => CachedApiClient.cachedUsersSubmissionMap(List([props.userId]))
@@ -453,3 +453,9 @@ export default connect<OuterProps, InnerProps>(props => ({
     value: () => CachedApiClient.cachedFirstRanking()
   }
 }))(UserPage);
+
+export default () => {
+  const { userIds } = useParams();
+  const userId: string = (userIds ?? "").split("/")[0];
+  return <InnerUserPage userId={userId} />;
+};

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   HashRouter as Router,
   Route,
@@ -18,7 +18,6 @@ import UserPage from "./pages/UserPage";
 import TablePage from "./pages/TablePage";
 import NavigationBar from "./components/NavigationBar";
 import StreakRanking from "./pages/StreakRanking";
-import { List } from "immutable";
 import ContestCreatePage from "./pages/Internal/VirtualContest/ContestCreatePage";
 import ShowContest from "./pages/Internal/VirtualContest/ShowContest";
 import UserConfigPage from "./pages/Internal/MyAccountPage";
@@ -27,17 +26,10 @@ import ContestUpdatePage from "./pages/Internal/VirtualContest/ContestUpdatePage
 import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
 
 const App = () => {
-  const [userId, setUserId] = useState("");
-  const [rivals, setRivals] = useState(List<string>());
   return (
     <Router>
       <div>
-        <NavigationBar
-          updateUserIds={(id, list) => {
-            setUserId(id);
-            setRivals(list);
-          }}
-        />
+        <NavigationBar />
         <Container style={{ width: "100%", maxWidth: "90%" }}>
           <Switch>
             <Route exact path="/ac" component={() => <ACRanking />} />
@@ -47,18 +39,12 @@ const App = () => {
             <Route exact path="/sum" component={() => <SumRanking />} />
             <Route exact path="/streak" component={() => <StreakRanking />} />
             <Route exact path="/lang" component={() => <LanguageOwners />} />
+            <Route path="/user/:userIds([a-zA-Z0-9_]+)+" component={UserPage} />
             <Route
-              path="/user/([a-zA-Z0-9_]+)+"
-              component={() => <UserPage userId={userId} />}
+              path="/table/:userIds([a-zA-Z0-9_]*)*"
+              component={TablePage}
             />
-            <Route
-              path="/table/([a-zA-Z0-9_]*)*"
-              component={() => <TablePage userId={userId} rivals={rivals} />}
-            />
-            <Route
-              path="/list/([a-zA-Z0-9_]*)*"
-              component={() => <ListPage userId={userId} rivals={rivals} />}
-            />
+            <Route path="/list/:userIds([a-zA-Z0-9_]*)*" component={ListPage} />
 
             {/*Virtual Contests*/}
             <Route
