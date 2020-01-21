@@ -25,7 +25,7 @@ import { UserResponse } from "../pages/Internal/types";
 
 type PageKind = "table" | "list" | "user";
 
-const extractPageKind = (pathname: string): PageKind | null => {
+const extractPageKind = (pathname: string): PageKind | undefined => {
   if (pathname.match(/^\/user/)) {
     return "user";
   } else if (pathname.match(/^\/list/)) {
@@ -33,7 +33,7 @@ const extractPageKind = (pathname: string): PageKind | null => {
   } else if (pathname.match(/^\/table/)) {
     return "table";
   } else {
-    return null;
+    return undefined;
   }
 };
 
@@ -63,7 +63,7 @@ const generatePath = (
 
 const NavigationBar2 = (props: InnerProps) => {
   const { pathname } = props.location;
-  const initialPageKind = extractPageKind(pathname) ?? "table";
+  const initialPageKind = extractPageKind(pathname);
   const initialState = extractUserIds(pathname);
   const loggedInUserId =
     props.loginState.fulfilled &&
@@ -72,13 +72,18 @@ const NavigationBar2 = (props: InnerProps) => {
       ? props.loginState.value.atcoder_user_id
       : "";
 
+  const initialUserId = initialPageKind ? initialState.userId : "";
+  const initialRivalIdString = initialPageKind
+    ? initialState.rivalIdString
+    : "";
+
   const history = useHistory();
-  const [pageKind, setPageKind] = useState<PageKind>(initialPageKind);
-  const [isOpen, setIsOpen] = useState(false);
-  const [userId, setUserId] = useState(initialState.userId);
-  const [rivalIdString, setRivalIdString] = useState(
-    initialState.rivalIdString
+  const [pageKind, setPageKind] = useState<PageKind>(
+    initialPageKind ?? "table"
   );
+  const [isOpen, setIsOpen] = useState(false);
+  const [userId, setUserId] = useState(initialUserId);
+  const [rivalIdString, setRivalIdString] = useState(initialRivalIdString);
 
   const submit = (
     nextKind: PageKind,
