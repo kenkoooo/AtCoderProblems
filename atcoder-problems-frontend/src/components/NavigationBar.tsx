@@ -19,7 +19,6 @@ import {
   NavLink
 } from "reactstrap";
 import { extractRivalsParam, normalizeUserId } from "../utils";
-import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import { USER_GET } from "../pages/Internal/ApiUrl";
 import { UserResponse } from "../pages/Internal/types";
@@ -49,7 +48,6 @@ const extractUserIds = (pathname: string) => {
 };
 
 interface OuterProps extends RouteComponentProps {
-  updateUserIds: (userId: string, rivals: List<string>) => void;
 }
 
 interface InnerProps extends OuterProps {
@@ -93,10 +91,6 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
     const { rivalIdString } = this.state;
     const userId = this.state.userId ? this.state.userId : loggedInUserId;
     const path = generatePath(nextKind, userId, rivalIdString);
-    this.props.updateUserIds(
-      normalizeUserId(userId),
-      List(extractRivalsParam(rivalIdString))
-    );
     this.props.history.push({ pathname: path });
     this.setState({ pageKind: nextKind });
   }
@@ -107,10 +101,6 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
     const { userId, rivalIdString } = extractUserIds(pathname);
     if (pageKind !== null) {
       this.setState({ userId, rivalIdString, pageKind });
-      this.props.updateUserIds(
-        normalizeUserId(userId),
-        List(extractRivalsParam(rivalIdString))
-      );
     }
   }
 
@@ -125,7 +115,7 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
     return (
       <Navbar color="light" light expand="lg" fixed="top">
         <NavbarBrand>AtCoder Problems</NavbarBrand>
-        <NavbarToggler onClick={() => this.setState({ isOpen: !isOpen })} />
+        <NavbarToggler onClick={() => this.setState({ isOpen: !isOpen })}/>
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
             <Form inline>
@@ -250,7 +240,8 @@ class NavigationBar extends React.Component<InnerProps, LocalState> {
                   Account ({loggedInUserId})
                 </NavLink>
               ) : (
-                <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
+                <NavLink
+                  href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
                   Login
                 </NavLink>
               )}
