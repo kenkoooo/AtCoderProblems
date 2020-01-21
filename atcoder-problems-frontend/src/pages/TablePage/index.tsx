@@ -15,6 +15,7 @@ import Options from "./Options";
 import TableTabButtons, { TableTab } from "./TableTab";
 import ProblemModel from "../../interfaces/ProblemModel";
 import * as CachedApiClient from "../../utils/CachedApiClient";
+import { useParams } from "react-router-dom";
 
 const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
   return (
@@ -155,7 +156,7 @@ const TablePage: React.FC<InnerProps> = props => {
   );
 };
 
-export default connect<OuterProps, InnerProps>(props => ({
+const InnerTablePage = connect<OuterProps, InnerProps>(props => ({
   problemModelsFetch: {
     comparison: null,
     value: () => CachedApiClient.cachedProblemModels()
@@ -178,3 +179,13 @@ export default connect<OuterProps, InnerProps>(props => ({
       CachedApiClient.cachedStatusLabelMap(props.userId, props.rivals)
   }
 }))(TablePage);
+
+export default () => {
+  const { userIds } = useParams();
+  const userId = (userIds ?? "").split("/")[0];
+  const rivals = (userIds ?? "/").split("/");
+  const rivalList = List(rivals)
+    .skip(1)
+    .filter(x => x.length > 0);
+  return <InnerTablePage userId={userId} rivals={rivalList} />;
+};
