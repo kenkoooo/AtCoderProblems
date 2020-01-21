@@ -157,7 +157,7 @@ const InnerShowContest = (props: InnerProps) => {
       }
       return a.totalResult.wrongAnswers - b.totalResult.wrongAnswers;
     });
-
+  const showProblems = start < now;
   return (
     <>
       <Row className="my-2">
@@ -170,7 +170,7 @@ const InnerShowContest = (props: InnerProps) => {
             {formatMomentDateTime(parseSecond(end))} (
             {Math.floor(contestInfo.duration_second / 60)} minutes)
           </h5>
-          {end - now > 0 ? (
+          {start < now && now < end ? (
             <h5>
               Remain: <Timer remain={end - now} />
             </h5>
@@ -206,24 +206,26 @@ const InnerShowContest = (props: InnerProps) => {
             <thead>
               <tr>
                 <th>Participant</th>
-                {problems.sort(compareProblem).map(p => {
-                  const problemId = p.id;
-                  const problem = problemMap.get(problemId, null);
-                  return (
-                    <th key={problemId}>
-                      {problem ? (
-                        <ProblemLink
-                          problemId={problem.id}
-                          contestId={problem.contest_id}
-                          problemTitle={problem.title}
-                        />
-                      ) : (
-                        problemId
-                      )}
-                      {p.point !== null ? ` (${p.point})` : null}
-                    </th>
-                  );
-                })}
+                {showProblems
+                  ? problems.sort(compareProblem).map(p => {
+                      const problemId = p.id;
+                      const problem = problemMap.get(problemId, null);
+                      return (
+                        <th key={problemId}>
+                          {problem ? (
+                            <ProblemLink
+                              problemId={problem.id}
+                              contestId={problem.contest_id}
+                              problemTitle={problem.title}
+                            />
+                          ) : (
+                            problemId
+                          )}
+                          {p.point !== null ? ` (${p.point})` : null}
+                        </th>
+                      );
+                    })
+                  : null}
                 <th style={{ textAlign: "center" }}>Score</th>
                 {contestInfo.mode !== "lockout" ? (
                   <th style={{ textAlign: "center" }}>Estimated Performance</th>
@@ -240,29 +242,34 @@ const InnerShowContest = (props: InnerProps) => {
                 }) => (
                   <tr key={userId}>
                     <th>{userId}</th>
-                    {problemResults.sort(compareProblem).map(result => {
-                      if (result.submissionCount === 0) {
-                        return (
-                          <td key={result.id} style={{ textAlign: "center" }}>
-                            -
-                          </td>
-                        );
-                      }
+                    {showProblems
+                      ? problemResults.sort(compareProblem).map(result => {
+                          if (result.submissionCount === 0) {
+                            return (
+                              <td
+                                key={result.id}
+                                style={{ textAlign: "center" }}
+                              >
+                                -
+                              </td>
+                            );
+                          }
 
-                      const trials =
-                        result.maxPoint === 0
-                          ? result.submissionCount
-                          : result.trialsBeforeMax;
-                      return (
-                        <td key={result.id}>
-                          <ScoreCell
-                            maxPoint={result.maxPoint}
-                            trials={trials}
-                            time={result.maxPointSubmissionTime}
-                          />
-                        </td>
-                      );
-                    })}
+                          const trials =
+                            result.maxPoint === 0
+                              ? result.submissionCount
+                              : result.trialsBeforeMax;
+                          return (
+                            <td key={result.id}>
+                              <ScoreCell
+                                maxPoint={result.maxPoint}
+                                trials={trials}
+                                time={result.maxPointSubmissionTime}
+                              />
+                            </td>
+                          );
+                        })
+                      : null}
                     <td>
                       <ScoreCell
                         maxPoint={totalResult.pointSum}
