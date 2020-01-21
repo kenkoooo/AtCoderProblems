@@ -1,5 +1,5 @@
-import React from "react";
-import { NavLink as RouterLink } from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink as RouterLink, useHistory } from "react-router-dom";
 import { withRouter, RouteComponentProps } from "react-router";
 import {
   Collapse,
@@ -47,20 +47,11 @@ const extractUserIds = (pathname: string) => {
   return { userId, rivalIdString };
 };
 
-interface OuterProps extends RouteComponentProps {
-}
+interface OuterProps extends RouteComponentProps {}
 
 interface InnerProps extends OuterProps {
   loginState: PromiseState<UserResponse | null>;
 }
-
-interface LocalState {
-  isOpen: boolean;
-  userId: string;
-  rivalIdString: string;
-  pageKind: PageKind | null;
-}
-
 const generatePath = (
   kind: PageKind,
   userId: string,
@@ -70,229 +61,208 @@ const generatePath = (
   return "/" + kind + "/" + users.join("/");
 };
 
-class NavigationBar extends React.Component<InnerProps, LocalState> {
-  constructor(props: InnerProps) {
-    super(props);
-    this.state = {
-      isOpen: false,
-      userId: "",
-      rivalIdString: "",
-      pageKind: "table"
-    };
-  }
+const NavigationBar2 = (props: InnerProps) => {
+  const { pathname } = props.location;
+  const initialPageKind = extractPageKind(pathname) ?? "table";
+  const initialState = extractUserIds(pathname);
+  const loggedInUserId =
+    props.loginState.fulfilled &&
+    props.loginState.value &&
+    props.loginState.value.atcoder_user_id
+      ? props.loginState.value.atcoder_user_id
+      : "";
 
-  submit(nextKind: PageKind) {
-    const loggedInUserId =
-      this.props.loginState.fulfilled &&
-      this.props.loginState.value &&
-      this.props.loginState.value.atcoder_user_id
-        ? this.props.loginState.value.atcoder_user_id
-        : "";
-    const { rivalIdString } = this.state;
-    const userId = this.state.userId ? this.state.userId : loggedInUserId;
-    const path = generatePath(nextKind, userId, rivalIdString);
-    this.props.history.push({ pathname: path });
-    this.setState({ pageKind: nextKind });
-  }
+  const history = useHistory();
+  const [pageKind, setPageKind] = useState<PageKind>(initialPageKind);
+  const [isOpen, setIsOpen] = useState(false);
+  const [userId, setUserId] = useState(initialState.userId);
+  const [rivalIdString, setRivalIdString] = useState(
+    initialState.rivalIdString
+  );
 
-  componentDidMount() {
-    const { pathname } = this.props.location;
-    const pageKind = extractPageKind(pathname);
-    const { userId, rivalIdString } = extractUserIds(pathname);
-    if (pageKind !== null) {
-      this.setState({ userId, rivalIdString, pageKind });
-    }
-  }
+  const submit = (
+    nextKind: PageKind,
+    currentUserId: string,
+    submitRivalIdString: string
+  ) => {
+    const submitUserId = currentUserId ? currentUserId : loggedInUserId;
+    const path = generatePath(nextKind, submitUserId, submitRivalIdString);
+    history.push({ pathname: path });
+    setPageKind(nextKind);
+  };
 
-  render() {
-    const { userId, rivalIdString, isOpen, pageKind } = this.state;
-    const loggedInUserId =
-      this.props.loginState.fulfilled &&
-      this.props.loginState.value &&
-      this.props.loginState.value.atcoder_user_id
-        ? this.props.loginState.value.atcoder_user_id
-        : "";
-    return (
-      <Navbar color="light" light expand="lg" fixed="top">
-        <NavbarBrand>AtCoder Problems</NavbarBrand>
-        <NavbarToggler onClick={() => this.setState({ isOpen: !isOpen })}/>
-        <Collapse isOpen={isOpen} navbar>
-          <Nav className="ml-auto" navbar>
-            <Form inline>
-              <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                <Input
-                  style={{ width: "120px" }}
-                  onKeyPress={e => {
-                    if (e.key === "Enter" && pageKind !== null) {
-                      this.submit(pageKind);
-                    }
-                  }}
-                  value={userId}
-                  type="text"
-                  name="user_id"
-                  id="user_id"
-                  placeholder={loggedInUserId ? loggedInUserId : "User ID"}
-                  onChange={e => this.setState({ userId: e.target.value })}
-                />
-              </FormGroup>
-              <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                <Input
-                  style={{ width: "120px" }}
-                  onKeyPress={e => {
-                    if (e.key === "Enter" && pageKind !== null) {
-                      this.submit(pageKind);
-                    }
-                  }}
-                  value={rivalIdString}
-                  type="text"
-                  name="rival_id"
-                  id="rival_id"
-                  placeholder="Rival ID, ..."
-                  onChange={e =>
-                    this.setState({ rivalIdString: e.target.value })
+  return (
+    <Navbar color="light" light expand="lg" fixed="top">
+      <NavbarBrand>AtCoder Problems</NavbarBrand>
+      <NavbarToggler onClick={() => setIsOpen(!isOpen)} />
+      <Collapse isOpen={isOpen} navbar>
+        <Nav className="ml-auto" navbar>
+          <Form inline>
+            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+              <Input
+                style={{ width: "120px" }}
+                onKeyPress={e => {
+                  if (e.key === "Enter" && pageKind !== null) {
+                    submit(pageKind, userId, rivalIdString);
                   }
-                />
-              </FormGroup>
-              <Button
-                className="mb-2 mr-sm-2 mb-sm-0"
-                tag={RouterLink}
-                to={generatePath(
-                  "table",
-                  userId ? userId : loggedInUserId,
-                  rivalIdString
-                )}
-                onClick={() => {
-                  this.submit("table");
                 }}
-              >
-                Table
-              </Button>
-              <Button
-                className="mb-2 mr-sm-2 mb-sm-0"
-                tag={RouterLink}
-                to={generatePath(
-                  "list",
-                  userId ? userId : loggedInUserId,
-                  rivalIdString
-                )}
-                onClick={() => {
-                  this.submit("list");
+                value={userId}
+                type="text"
+                name="user_id"
+                id="user_id"
+                placeholder={loggedInUserId ? loggedInUserId : "User ID"}
+                onChange={e => setUserId(e.target.value)}
+              />
+            </FormGroup>
+            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+              <Input
+                style={{ width: "120px" }}
+                onKeyPress={e => {
+                  if (e.key === "Enter" && pageKind !== null) {
+                    submit(pageKind, userId, rivalIdString);
+                  }
                 }}
-              >
-                List
-              </Button>
-              <Button
-                className="mb-2 mr-sm-2 mb-sm-0"
-                disabled={userId.length === 0 && loggedInUserId.length === 0}
-                tag={RouterLink}
-                to={generatePath(
-                  "user",
-                  userId ? userId : loggedInUserId,
-                  rivalIdString
-                )}
-                onClick={() => {
-                  this.submit("user");
-                }}
-              >
-                User Page
-              </Button>
-            </Form>
-          </Nav>
-          <Nav className="ml-auto" navbar>
-            <UncontrolledDropdown nav inNavbar>
-              <DropdownToggle nav caret>
-                Rankings
-              </DropdownToggle>
-              <DropdownMenu right>
-                <DropdownItem tag={RouterLink} to="/ac">
-                  AC Count
-                </DropdownItem>
-                <DropdownItem tag={RouterLink} to="/fast">
-                  Fastest Submissions
-                </DropdownItem>
-                <DropdownItem tag={RouterLink} to="/short">
-                  Shortest Submissions
-                </DropdownItem>
-                <DropdownItem tag={RouterLink} to="/first">
-                  First AC
-                </DropdownItem>
-                <DropdownItem tag={RouterLink} to="/sum">
-                  Rated Point Ranking
-                </DropdownItem>
-                <DropdownItem tag={RouterLink} to="/streak">
-                  Streak Ranking
-                </DropdownItem>
-                <DropdownItem tag={RouterLink} to="/lang">
-                  Language Owners
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-
-            <NavItem>
-              <NavLink tag={RouterLink} to="/contest/recent">
-                Virtual Contests
-              </NavLink>
-            </NavItem>
-
-            <NavItem>
-              {loggedInUserId ? (
-                <NavLink tag={RouterLink} to="/login/user">
-                  Account ({loggedInUserId})
-                </NavLink>
-              ) : (
-                <NavLink
-                  href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
-                  Login
-                </NavLink>
+                value={rivalIdString}
+                type="text"
+                name="rival_id"
+                id="rival_id"
+                placeholder="Rival ID, ..."
+                onChange={e => setRivalIdString(e.target.value)}
+              />
+            </FormGroup>
+            <Button
+              className="mb-2 mr-sm-2 mb-sm-0"
+              tag={RouterLink}
+              to={generatePath(
+                "table",
+                userId ? userId : loggedInUserId,
+                rivalIdString
               )}
-            </NavItem>
+              onClick={() => {
+                submit("table", userId, rivalIdString);
+              }}
+            >
+              Table
+            </Button>
+            <Button
+              className="mb-2 mr-sm-2 mb-sm-0"
+              tag={RouterLink}
+              to={generatePath(
+                "list",
+                userId ? userId : loggedInUserId,
+                rivalIdString
+              )}
+              onClick={() => {
+                submit("list", userId, rivalIdString);
+              }}
+            >
+              List
+            </Button>
+            <Button
+              className="mb-2 mr-sm-2 mb-sm-0"
+              disabled={userId.length === 0 && loggedInUserId.length === 0}
+              tag={RouterLink}
+              to={generatePath(
+                "user",
+                userId ? userId : loggedInUserId,
+                rivalIdString
+              )}
+              onClick={() => {
+                submit("user", userId, rivalIdString);
+              }}
+            >
+              User Page
+            </Button>
+          </Form>
+        </Nav>
+        <Nav className="ml-auto" navbar>
+          <UncontrolledDropdown nav inNavbar>
+            <DropdownToggle nav caret>
+              Rankings
+            </DropdownToggle>
+            <DropdownMenu right>
+              <DropdownItem tag={RouterLink} to="/ac">
+                AC Count
+              </DropdownItem>
+              <DropdownItem tag={RouterLink} to="/fast">
+                Fastest Submissions
+              </DropdownItem>
+              <DropdownItem tag={RouterLink} to="/short">
+                Shortest Submissions
+              </DropdownItem>
+              <DropdownItem tag={RouterLink} to="/first">
+                First AC
+              </DropdownItem>
+              <DropdownItem tag={RouterLink} to="/sum">
+                Rated Point Ranking
+              </DropdownItem>
+              <DropdownItem tag={RouterLink} to="/streak">
+                Streak Ranking
+              </DropdownItem>
+              <DropdownItem tag={RouterLink} to="/lang">
+                Language Owners
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
 
-            <UncontrolledDropdown nav inNavbar>
-              <DropdownToggle nav caret>
-                Links
-              </DropdownToggle>
-              <DropdownMenu right>
-                <DropdownItem
-                  tag="a"
-                  href="https://atcoder.jp/"
-                  target="_blank"
-                >
-                  AtCoder
-                </DropdownItem>
-                <DropdownItem
-                  tag="a"
-                  href="http://aoj-icpc.ichyo.jp/"
-                  target="_blank"
-                >
-                  AOJ-ICPC
-                </DropdownItem>
-                <DropdownItem
-                  tag="a"
-                  href="https://github.com/kenkoooo/AtCoderProblems"
-                  target="_blank"
-                >
-                  GitHub
-                </DropdownItem>
-                <DropdownItem
-                  tag="a"
-                  href="https://twitter.com/kenkoooo"
-                  target="_blank"
-                >
-                  @kenkoooo
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-          </Nav>{" "}
-        </Collapse>
-      </Navbar>
-    );
-  }
-}
+          <NavItem>
+            <NavLink tag={RouterLink} to="/contest/recent">
+              Virtual Contests
+            </NavLink>
+          </NavItem>
 
+          <NavItem>
+            {loggedInUserId ? (
+              <NavLink tag={RouterLink} to="/login/user">
+                Account ({loggedInUserId})
+              </NavLink>
+            ) : (
+              <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
+                Login
+              </NavLink>
+            )}
+          </NavItem>
+
+          <UncontrolledDropdown nav inNavbar>
+            <DropdownToggle nav caret>
+              Links
+            </DropdownToggle>
+            <DropdownMenu right>
+              <DropdownItem tag="a" href="https://atcoder.jp/" target="_blank">
+                AtCoder
+              </DropdownItem>
+              <DropdownItem
+                tag="a"
+                href="http://aoj-icpc.ichyo.jp/"
+                target="_blank"
+              >
+                AOJ-ICPC
+              </DropdownItem>
+              <DropdownItem
+                tag="a"
+                href="https://github.com/kenkoooo/AtCoderProblems"
+                target="_blank"
+              >
+                GitHub
+              </DropdownItem>
+              <DropdownItem
+                tag="a"
+                href="https://twitter.com/kenkoooo"
+                target="_blank"
+              >
+                @kenkoooo
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </Nav>
+      </Collapse>
+    </Navbar>
+  );
+};
 export default withRouter(
   connect<OuterProps, InnerProps>(() => ({
     loginState: {
       url: USER_GET
     }
-  }))(NavigationBar)
+  }))(NavigationBar2)
 );
