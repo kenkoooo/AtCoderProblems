@@ -212,8 +212,9 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
         const rivalsList = list
           .filter(s => rivals.contains(s.user_id))
           .filter(s => isAccepted(s.result));
-        if (userList.find(s => isAccepted(s.result))) {
-          return successStatus();
+        const col = userList.find(s => isAccepted(s.result));
+        if (col) {
+          return successStatus(col.epoch_second);
         } else if (!rivalsList.isEmpty()) {
           return failedStatus(
             rivalsList
@@ -223,7 +224,9 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
           );
         } else {
           const last = userList.maxBy(s => s.epoch_second);
-          return last ? warningStatus(last.result) : noneStatus();
+          return last
+            ? warningStatus(last.result, last.epoch_second)
+            : noneStatus();
         }
       })
     );

@@ -57,3 +57,33 @@ span.difficulty-circle {
   color: #808080;
 }
 
+.table-problem {
+  position: relative;
+}
+
+.table-success-intime, .table-success-intime>td, .table-success-intime>th {
+  background-color: #9AD59E;
+}
+
+.table-success-before-contest, .table-success-before-contest>td, .table-success-before-contest>th {
+  background-color: #99CCFF;
+}
+
+.table-warning-intime {
+  background-color: #FFDD99;
+}
+
+.table-problem-timespan {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  color: #888888;
+  font-size: x-small;
+}
+
+.list-table tbody tr td, .list-table thead th {
+  font-size: small;
+  padding: 0.3rem;
+  line-height: 1.0;
+  white-space: normal;
+}
