@@ -5,8 +5,7 @@ import Problem from "../../interfaces/Problem";
 import {
   ContestId,
   ProblemId,
-  ProblemStatus,
-  StatusLabel
+  ProblemStatus
 } from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
 import ContestTable from "./ContestTable";
@@ -21,21 +20,6 @@ const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
   return (
     <div style={{ display: props.display ? "" : "none" }}>{props.children}</div>
   );
-};
-
-export const statusLabelToTableColor = (label: StatusLabel) => {
-  switch (label) {
-    case StatusLabel.Success:
-      return "table-success";
-    case StatusLabel.Failed:
-      return "table-danger";
-    case StatusLabel.Warning:
-      return "table-warning";
-    case StatusLabel.None:
-      return "";
-    default:
-      return "";
-  }
 };
 
 interface OuterProps {
