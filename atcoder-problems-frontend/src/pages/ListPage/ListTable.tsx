@@ -317,6 +317,7 @@ export const ListTable = (props: Props) => {
       hover
       striped
       search
+      tableContainerClass="list-table"
       trClassName={(row: ProblemRowData) => {
         const { status, contest } = row;
         return statusToTableColor(status, contest);

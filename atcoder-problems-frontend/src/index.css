@@ -80,3 +80,10 @@ span.difficulty-circle {
   color: #888888;
   font-size: x-small;
 }
+
+.list-table tbody tr td, .list-table thead th {
+  font-size: small;
+  padding: 0.3rem;
+  line-height: 1.0;
+  white-space: normal;
+}
