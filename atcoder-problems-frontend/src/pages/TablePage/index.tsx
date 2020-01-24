@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
-import {
-  ContestId,
-  ProblemId,
-  ProblemStatus,
-  StatusLabel
-} from "../../interfaces/Status";
+import { ContestId, ProblemId, ProblemStatus } from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
 import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
@@ -21,21 +16,6 @@ const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
   return (
     <div style={{ display: props.display ? "" : "none" }}>{props.children}</div>
   );
-};
-
-export const statusLabelToTableColor = (label: StatusLabel) => {
-  switch (label) {
-    case StatusLabel.Success:
-      return "table-success";
-    case StatusLabel.Failed:
-      return "table-danger";
-    case StatusLabel.Warning:
-      return "table-warning";
-    case StatusLabel.None:
-      return "";
-    default:
-      return "";
-  }
 };
 
 interface OuterProps {

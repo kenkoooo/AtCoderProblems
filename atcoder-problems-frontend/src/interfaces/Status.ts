@@ -9,16 +9,18 @@ export enum StatusLabel {
   None
 }
 
-export const successStatus = () => ({
-  label: StatusLabel.Success as typeof StatusLabel.Success
+export const successStatus = (epoch: number) => ({
+  label: StatusLabel.Success as typeof StatusLabel.Success,
+  epoch
 });
 export const failedStatus = (solvedRivals: List<string>) => ({
   label: StatusLabel.Failed as typeof StatusLabel.Failed,
   solvedRivals
 });
-export const warningStatus = (result: string) => ({
+export const warningStatus = (result: string, epoch: number) => ({
   label: StatusLabel.Warning as typeof StatusLabel.Warning,
-  result
+  result,
+  epoch
 });
 export const noneStatus = () => ({
   label: StatusLabel.None as typeof StatusLabel.None

@@ -4,10 +4,11 @@ import Problem from "../../interfaces/Problem";
 import { Table, Row } from "reactstrap";
 import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
-import { statusLabelToTableColor } from "./index";
+import { statusToTableColor } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
+import SubmitTimespan from "../../components/SubmitTimespan";
 
 interface Props {
   contests: Seq.Indexed<Contest>;
@@ -74,10 +75,15 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                     <tr>
                       {problemInfo.map(({ problem, status, model }) => {
                         const color = status
-                          ? statusLabelToTableColor(status.label)
+                          ? statusToTableColor(status, contest)
                           : "";
                         return (
-                          <td key={problem.id} className={color}>
+                          <td
+                            key={problem.id}
+                            className={["table-problem", color]
+                              .filter(nm => nm)
+                              .join(" ")}
+                          >
                             <ProblemLink
                               difficulty={
                                 model && model.difficulty
@@ -91,6 +97,10 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                               problemId={problem.id}
                               problemTitle={problem.title}
                               contestId={problem.contest_id}
+                            />
+                            <SubmitTimespan
+                              contest={contest}
+                              problemStatus={status}
                             />
                           </td>
                         );

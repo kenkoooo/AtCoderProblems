@@ -10,10 +10,11 @@ import {
   ProblemStatus,
   StatusLabel
 } from "../../interfaces/Status";
-import { statusLabelToTableColor } from "./index";
+import { statusToTableColor } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
+import SubmitTimespan from "../../components/SubmitTimespan";
 
 interface Props {
   contests: Seq.Indexed<Contest>;
@@ -40,7 +41,28 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
       const solvedAll = problemStatus.every(
         ({ status }) => status.label === StatusLabel.Success
       );
-      return { contest, problemStatus, solvedAll, id: contest.id };
+      const solvedAllIntime =
+        solvedAll &&
+        problemStatus.every(
+          ({ status }) =>
+            status.label === StatusLabel.Success &&
+            status.epoch <= contest.start_epoch_second + contest.duration_second
+        );
+      const solvedAllBeforeContest =
+        solvedAllIntime &&
+        problemStatus.every(
+          ({ status }) =>
+            status.label === StatusLabel.Success &&
+            status.epoch < contest.start_epoch_second
+        );
+      return {
+        contest,
+        problemStatus,
+        solvedAll,
+        solvedAllIntime,
+        solvedAllBeforeContest,
+        id: contest.id
+      };
     })
     .filter(({ solvedAll }) => props.showSolved || !solvedAll)
     .sort((a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second)
@@ -54,6 +76,8 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
       model: ProblemModel | undefined;
     }>;
     solvedAll: boolean;
+    solvedAllIntime: boolean;
+    solvedAllBeforeContest: boolean;
   }
 
   const maxProblemCount = contests.reduce(
@@ -69,8 +93,17 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         <TableHeaderColumn
           isKey
           dataField="id"
-          columnClassName={(_: string, { solvedAll }: OneContest) =>
-            solvedAll ? "table-success" : ""
+          columnClassName={(
+            _: string,
+            { solvedAll, solvedAllIntime, solvedAllBeforeContest }: OneContest
+          ) =>
+            solvedAllBeforeContest
+              ? "table-success-before-contest"
+              : solvedAllIntime
+              ? "table-success-intime"
+              : solvedAll
+              ? "table-success"
+              : ""
           }
           dataFormat={(_: any, { contest }: OneContest) => (
             <ContestLink contest={contest} title={contest.id.toUpperCase()} />
@@ -82,29 +115,43 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
           <TableHeaderColumn
             dataField={c}
             key={c}
-            columnClassName={(_: any, { problemStatus }: OneContest) => {
+            columnClassName={(
+              _: any,
+              { contest, problemStatus }: OneContest
+            ) => {
               const problem = problemStatus.get(i);
-              return problem
-                ? statusLabelToTableColor(problem.status.label)
-                : "";
+              return [
+                "table-problem",
+                problem ? statusToTableColor(problem.status, contest) : ""
+              ]
+                .filter(nm => nm)
+                .join(" ");
             }}
             dataFormat={(_: any, { contest, problemStatus }: OneContest) => {
               const problem = problemStatus.get(i);
               const model = problem ? problem.model : undefined;
               if (problem) {
                 return (
-                  <ProblemLink
-                    difficulty={
-                      model && model.difficulty !== undefined
-                        ? model.difficulty
-                        : null
-                    }
-                    isExperimentalDifficulty={!!model && model.is_experimental}
-                    showDifficulty={props.showDifficulty}
-                    contestId={contest.id}
-                    problemId={problem.problem.id}
-                    problemTitle={problem.problem.title}
-                  />
+                  <>
+                    <ProblemLink
+                      difficulty={
+                        model && model.difficulty !== undefined
+                          ? model.difficulty
+                          : null
+                      }
+                      isExperimentalDifficulty={
+                        !!model && model.is_experimental
+                      }
+                      showDifficulty={props.showDifficulty}
+                      contestId={contest.id}
+                      problemId={problem.problem.id}
+                      problemTitle={problem.problem.title}
+                    />
+                    <SubmitTimespan
+                      contest={contest}
+                      problemStatus={problem.status}
+                    />
+                  </>
                 );
               } else {
                 return "";
