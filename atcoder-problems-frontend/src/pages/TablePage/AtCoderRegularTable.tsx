@@ -41,13 +41,28 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
       const solvedAll = problemStatus.every(
         ({ status }) => status.label === StatusLabel.Success
       );
-      const solvedAllIntime = solvedAll && problemStatus.every(
-        ({ status }) => status.label === StatusLabel.Success && status.epoch <= contest.start_epoch_second + contest.duration_second
-      );
-      const solvedAllBeforeContest = solvedAllIntime && problemStatus.every(
-        ({ status }) => status.label === StatusLabel.Success && status.epoch < contest.start_epoch_second
-      );
-      return { contest, problemStatus, solvedAll, solvedAllIntime, solvedAllBeforeContest, id: contest.id };
+      const solvedAllIntime =
+        solvedAll &&
+        problemStatus.every(
+          ({ status }) =>
+            status.label === StatusLabel.Success &&
+            status.epoch <= contest.start_epoch_second + contest.duration_second
+        );
+      const solvedAllBeforeContest =
+        solvedAllIntime &&
+        problemStatus.every(
+          ({ status }) =>
+            status.label === StatusLabel.Success &&
+            status.epoch < contest.start_epoch_second
+        );
+      return {
+        contest,
+        problemStatus,
+        solvedAll,
+        solvedAllIntime,
+        solvedAllBeforeContest,
+        id: contest.id
+      };
     })
     .filter(({ solvedAll }) => props.showSolved || !solvedAll)
     .sort((a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second)
@@ -78,10 +93,17 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         <TableHeaderColumn
           isKey
           dataField="id"
-          columnClassName={(_: string, { solvedAll, solvedAllIntime, solvedAllBeforeContest }: OneContest) =>
-            solvedAllBeforeContest ? "table-success-before-contest" :
-              solvedAllIntime ? "table-success-intime" :
-                solvedAll ? "table-success" : ""
+          columnClassName={(
+            _: string,
+            { solvedAll, solvedAllIntime, solvedAllBeforeContest }: OneContest
+          ) =>
+            solvedAllBeforeContest
+              ? "table-success-before-contest"
+              : solvedAllIntime
+              ? "table-success-intime"
+              : solvedAll
+              ? "table-success"
+              : ""
           }
           dataFormat={(_: any, { contest }: OneContest) => (
             <ContestLink contest={contest} title={contest.id.toUpperCase()} />
@@ -93,14 +115,17 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
           <TableHeaderColumn
             dataField={c}
             key={c}
-            columnClassName={(_: any, { contest, problemStatus }: OneContest) => {
+            columnClassName={(
+              _: any,
+              { contest, problemStatus }: OneContest
+            ) => {
               const problem = problemStatus.get(i);
               return [
                 "table-problem",
-                problem
-                  ? statusToTableColor(problem.status, contest)
-                  : ""
-              ].filter(nm => nm).join(" ");
+                problem ? statusToTableColor(problem.status, contest) : ""
+              ]
+                .filter(nm => nm)
+                .join(" ");
             }}
             dataFormat={(_: any, { contest, problemStatus }: OneContest) => {
               const problem = problemStatus.get(i);
@@ -114,7 +139,9 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
                           ? model.difficulty
                           : null
                       }
-                      isExperimentalDifficulty={!!model && model.is_experimental}
+                      isExperimentalDifficulty={
+                        !!model && model.is_experimental
+                      }
                       showDifficulty={props.showDifficulty}
                       contestId={contest.id}
                       problemId={problem.problem.id}
