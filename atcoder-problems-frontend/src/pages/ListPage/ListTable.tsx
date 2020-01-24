@@ -15,6 +15,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel
 } from "../../interfaces/ProblemModel";
+import { statusToTableColor } from "../../utils/TableColor";
 
 interface Props {
   fromPoint: number;
@@ -65,248 +66,248 @@ export const ListTable = (props: Props) => {
       order: "asc" | "desc"
     ) => number;
   }[] = [
-    {
-      header: "Date",
-      dataField: "contestDate",
-      dataSort: true
-    },
-    {
-      header: "Problem",
-      dataField: "title",
-      dataSort: true,
-      dataFormat: (_, row) => (
-        <ProblemLink
-          showDifficulty={true}
-          difficulty={
-            isProblemModelWithDifficultyModel(row.problemModel)
-              ? row.problemModel.difficulty
-              : null
+      {
+        header: "Date",
+        dataField: "contestDate",
+        dataSort: true
+      },
+      {
+        header: "Problem",
+        dataField: "title",
+        dataSort: true,
+        dataFormat: (_, row) => (
+          <ProblemLink
+            showDifficulty={true}
+            difficulty={
+              isProblemModelWithDifficultyModel(row.problemModel)
+                ? row.problemModel.difficulty
+                : null
+            }
+            isExperimentalDifficulty={row.problemModel?.is_experimental}
+            problemId={row.mergedProblem.id}
+            problemTitle={row.title}
+            contestId={row.mergedProblem.contest_id}
+          />
+        )
+      },
+      {
+        header: "Contest",
+        dataField: "contest",
+        dataSort: true,
+        dataFormat: (contest, row) =>
+          contest ? (
+            <ContestLink contest={contest} />
+          ) : (
+              <a
+                href={Url.formatContestUrl(row.mergedProblem.contest_id)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {row.contestTitle}
+              </a>
+            )
+      },
+      {
+        header: "Result",
+        dataField: "a",
+        dataAlign: "center",
+        dataFormat: (_: string, row) => {
+          const { status } = row;
+          switch (status.label) {
+            case StatusLabel.Success: {
+              return <Badge color="success">AC</Badge>;
+            }
+            case StatusLabel.Failed: {
+              return (
+                <div>
+                  {status.solvedRivals.map(rivalId => (
+                    <Badge key={rivalId} color="danger">
+                      {rivalId}
+                    </Badge>
+                  ))}
+                </div>
+              );
+            }
+            case StatusLabel.Warning: {
+              return <Badge color="warning">{status.result}</Badge>;
+            }
+            case StatusLabel.None: {
+              return "";
+            }
           }
-          isExperimentalDifficulty={row.problemModel?.is_experimental}
-          problemId={row.mergedProblem.id}
-          problemTitle={row.title}
-          contestId={row.mergedProblem.contest_id}
-        />
-      )
-    },
-    {
-      header: "Contest",
-      dataField: "contest",
-      dataSort: true,
-      dataFormat: (contest, row) =>
-        contest ? (
-          <ContestLink contest={contest} />
-        ) : (
+        }
+      },
+      {
+        header: "Last AC Date",
+        dataField: "lastAcceptedDate",
+        dataSort: true
+      },
+      {
+        header: "Solvers",
+        dataField: "solverCount",
+        dataSort: true,
+        dataFormat: (solverCount: number, row) => (
           <a
-            href={Url.formatContestUrl(row.mergedProblem.contest_id)}
+            href={Url.formatSolversUrl(
+              row.mergedProblem.contest_id,
+              row.mergedProblem.id
+            )}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {row.contestTitle}
+            {solverCount}
           </a>
         )
-    },
-    {
-      header: "Result",
-      dataField: "a",
-      dataAlign: "center",
-      dataFormat: (_: string, row) => {
-        const { status } = row;
-        switch (status.label) {
-          case StatusLabel.Success: {
-            return <Badge color="success">AC</Badge>;
-          }
-          case StatusLabel.Failed: {
-            return (
-              <div>
-                {status.solvedRivals.map(rivalId => (
-                  <Badge key={rivalId} color="danger">
-                    {rivalId}
-                  </Badge>
-                ))}
-              </div>
-            );
-          }
-          case StatusLabel.Warning: {
-            return <Badge color="warning">{status.result}</Badge>;
-          }
-          case StatusLabel.None: {
-            return "";
-          }
-        }
-      }
-    },
-    {
-      header: "Last AC Date",
-      dataField: "lastAcceptedDate",
-      dataSort: true
-    },
-    {
-      header: "Solvers",
-      dataField: "solverCount",
-      dataSort: true,
-      dataFormat: (solverCount: number, row) => (
-        <a
-          href={Url.formatSolversUrl(
-            row.mergedProblem.contest_id,
-            row.mergedProblem.id
-          )}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {solverCount}
-        </a>
-      )
-    },
-    {
-      header: "Point",
-      dataField: "point",
-      dataSort: true,
-      dataFormat: (point: number) => {
-        if (point >= INF_POINT) {
-          return <p>-</p>;
-        } else {
-          if (point % 100 === 0) {
-            return <p>{point}</p>;
+      },
+      {
+        header: "Point",
+        dataField: "point",
+        dataSort: true,
+        dataFormat: (point: number) => {
+          if (point >= INF_POINT) {
+            return <p>-</p>;
           } else {
-            return <p>{point.toFixed(2)}</p>;
+            if (point % 100 === 0) {
+              return <p>{point}</p>;
+            } else {
+              return <p>{point.toFixed(2)}</p>;
+            }
           }
         }
-      }
-    },
-    {
-      header: "Difficulty",
-      dataField: "problemModel",
-      dataSort: true,
-      sortFunc: (a, b, order) => {
-        const delta = readDifficultyAsNumber(a) - readDifficultyAsNumber(b);
-        const sign = order === "asc" ? 1 : -1;
-        return delta * sign;
       },
-      dataFormat: (problemModel: ProblemModel) => {
-        if (!isProblemModelWithDifficultyModel(problemModel)) {
-          return <p>-</p>;
-        } else {
-          return <p>{problemModel.difficulty}</p>;
+      {
+        header: "Difficulty",
+        dataField: "problemModel",
+        dataSort: true,
+        sortFunc: (a, b, order) => {
+          const delta = readDifficultyAsNumber(a) - readDifficultyAsNumber(b);
+          const sign = order === "asc" ? 1 : -1;
+          return delta * sign;
+        },
+        dataFormat: (problemModel: ProblemModel) => {
+          if (!isProblemModelWithDifficultyModel(problemModel)) {
+            return <p>-</p>;
+          } else {
+            return <p>{problemModel.difficulty}</p>;
+          }
         }
-      }
-    },
-    {
-      header: "Time",
-      dataField: "a",
-      dataSort: true,
-      sortFunc: (a, b, order) => {
-        const aPred = predictSolveTimeOfRow(a);
-        const bPred = predictSolveTimeOfRow(b);
-        const aV = aPred === null ? -1 : aPred;
-        const bV = bPred === null ? -1 : bPred;
-        const delta = aV - bV;
-        const sign = order === "asc" ? 1 : -1;
-        return delta * sign;
       },
-      dataFormat: (_: string, row) => {
-        const solveTime = predictSolveTimeOfRow(row);
-        if (solveTime === null) {
-          return <p>-</p>;
+      {
+        header: "Time",
+        dataField: "a",
+        dataSort: true,
+        sortFunc: (a, b, order) => {
+          const aPred = predictSolveTimeOfRow(a);
+          const bPred = predictSolveTimeOfRow(b);
+          const aV = aPred === null ? -1 : aPred;
+          const bV = bPred === null ? -1 : bPred;
+          const delta = aV - bV;
+          const sign = order === "asc" ? 1 : -1;
+          return delta * sign;
+        },
+        dataFormat: (_: string, row) => {
+          const solveTime = predictSolveTimeOfRow(row);
+          if (solveTime === null) {
+            return <p>-</p>;
+          }
+          return <p>{formatPredictedSolveTime(solveTime)}</p>;
         }
-        return <p>{formatPredictedSolveTime(solveTime)}</p>;
-      }
-    },
-    {
-      header: "Fastest",
-      dataField: "executionTime",
-      dataSort: true,
-      dataFormat: (executionTime: number, row) => {
-        const {
-          fastest_submission_id,
-          fastest_contest_id,
-          fastest_user_id
-        } = row.mergedProblem;
-        if (fastest_submission_id && fastest_contest_id && fastest_user_id) {
-          return (
-            <a
-              href={Url.formatSubmissionUrl(
-                fastest_submission_id,
-                fastest_contest_id
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {fastest_user_id} ({executionTime} ms)
+      },
+      {
+        header: "Fastest",
+        dataField: "executionTime",
+        dataSort: true,
+        dataFormat: (executionTime: number, row) => {
+          const {
+            fastest_submission_id,
+            fastest_contest_id,
+            fastest_user_id
+          } = row.mergedProblem;
+          if (fastest_submission_id && fastest_contest_id && fastest_user_id) {
+            return (
+              <a
+                href={Url.formatSubmissionUrl(
+                  fastest_submission_id,
+                  fastest_contest_id
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {fastest_user_id} ({executionTime} ms)
             </a>
-          );
-        } else {
-          return <p />;
+            );
+          } else {
+            return <p />;
+          }
         }
-      }
-    },
-    {
-      header: "Shortest",
-      dataField: "codeLength",
-      dataSort: true,
-      dataFormat: (codeLength: number, row) => {
-        const {
-          shortest_submission_id,
-          shortest_contest_id,
-          shortest_user_id
-        } = row.mergedProblem;
-        if (shortest_contest_id && shortest_submission_id && shortest_user_id) {
-          return (
-            <a
-              href={Url.formatSubmissionUrl(
-                shortest_submission_id,
-                shortest_contest_id
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {shortest_user_id} ({codeLength} Bytes)
+      },
+      {
+        header: "Shortest",
+        dataField: "codeLength",
+        dataSort: true,
+        dataFormat: (codeLength: number, row) => {
+          const {
+            shortest_submission_id,
+            shortest_contest_id,
+            shortest_user_id
+          } = row.mergedProblem;
+          if (shortest_contest_id && shortest_submission_id && shortest_user_id) {
+            return (
+              <a
+                href={Url.formatSubmissionUrl(
+                  shortest_submission_id,
+                  shortest_contest_id
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {shortest_user_id} ({codeLength} Bytes)
             </a>
-          );
-        } else {
-          return <p />;
+            );
+          } else {
+            return <p />;
+          }
         }
-      }
-    },
-    {
-      header: "First",
-      dataField: "firstUserId",
-      dataSort: true,
-      dataFormat: (_: string, row) => {
-        const {
-          first_submission_id,
-          first_contest_id,
-          first_user_id
-        } = row.mergedProblem;
-        if (first_submission_id && first_contest_id && first_user_id) {
-          return (
-            <a
-              href={Url.formatSubmissionUrl(
-                first_submission_id,
-                first_contest_id
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {first_user_id}
-            </a>
-          );
-        } else {
-          return <p />;
+      },
+      {
+        header: "First",
+        dataField: "firstUserId",
+        dataSort: true,
+        dataFormat: (_: string, row) => {
+          const {
+            first_submission_id,
+            first_contest_id,
+            first_user_id
+          } = row.mergedProblem;
+          if (first_submission_id && first_contest_id && first_user_id) {
+            return (
+              <a
+                href={Url.formatSubmissionUrl(
+                  first_submission_id,
+                  first_contest_id
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {first_user_id}
+              </a>
+            );
+          } else {
+            return <p />;
+          }
         }
+      },
+      {
+        header: "Shortest User for Search",
+        dataField: "shortestUserId",
+        hidden: true
+      },
+      {
+        header: "Fastest User for Search",
+        dataField: "fastestUserId",
+        hidden: true
       }
-    },
-    {
-      header: "Shortest User for Search",
-      dataField: "shortestUserId",
-      hidden: true
-    },
-    {
-      header: "Fastest User for Search",
-      dataField: "fastestUserId",
-      hidden: true
-    }
-  ];
+    ];
 
   return (
     <BootstrapTable
@@ -317,21 +318,8 @@ export const ListTable = (props: Props) => {
       striped
       search
       trClassName={(row: ProblemRowData) => {
-        const { status } = row;
-        switch (status.label) {
-          case StatusLabel.Success: {
-            return "table-success";
-          }
-          case StatusLabel.Failed: {
-            return "table-danger";
-          }
-          case StatusLabel.Warning: {
-            return "table-warning";
-          }
-          case StatusLabel.None: {
-            return "";
-          }
-        }
+        const { status, contest } = row;
+        return statusToTableColor(status, contest);
       }}
       data={props.rowData
         .filter(

@@ -212,8 +212,9 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
         const rivalsList = list
           .filter(s => rivals.contains(s.user_id))
           .filter(s => isAccepted(s.result));
-        if (userList.find(s => isAccepted(s.result))) {
-          return successStatus();
+        const col = userList.find(s => isAccepted(s.result));
+        if (col) {
+          return successStatus(col.epoch_second);
         } else if (!rivalsList.isEmpty()) {
           return failedStatus(
             rivalsList
@@ -223,7 +224,7 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
           );
         } else {
           const last = userList.maxBy(s => s.epoch_second);
-          return last ? warningStatus(last.result) : noneStatus();
+          return last ? warningStatus(last.result, last.epoch_second) : noneStatus();
         }
       })
     );
@@ -316,12 +317,12 @@ const fetchProblemModels = () =>
 const fetchSubmissions = (user: string) =>
   user.length > 0
     ? fetchTypedList(
-        `${BASE_URL}/atcoder-api/results?user=${user}`,
-        isSubmission
-      )
+      `${BASE_URL}/atcoder-api/results?user=${user}`,
+      isSubmission
+    )
     : Promise.resolve(List<Submission>()).then(submissions =>
-        submissions.filter(s => isValidResult(s.result))
-      );
+      submissions.filter(s => isValidResult(s.result))
+    );
 
 export const fetchSubmissionsFrom = (epochSecond: number) =>
   fetchTypedList(
@@ -333,9 +334,9 @@ const fetchRatingInfo = async (user: string) => {
   const history =
     user.length > 0
       ? await fetchTypedList(
-          `${BASE_URL}/proxy/users/${user}/history/json`,
-          isContestParticipation
-        ).catch(() => List<ContestParticipation>())
+        `${BASE_URL}/proxy/users/${user}/history/json`,
+        isContestParticipation
+      ).catch(() => List<ContestParticipation>())
       : List<ContestParticipation>();
   return ratingInfoOf(history);
 };
