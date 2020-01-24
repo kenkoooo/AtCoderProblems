@@ -78,7 +78,12 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                           ? statusToTableColor(status, contest)
                           : "";
                         return (
-                          <td key={problem.id} className={["table-problem", color].filter(nm => nm).join(" ")}>
+                          <td
+                            key={problem.id}
+                            className={["table-problem", color]
+                              .filter(nm => nm)
+                              .join(" ")}
+                          >
                             <ProblemLink
                               difficulty={
                                 model && model.difficulty

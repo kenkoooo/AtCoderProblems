@@ -2,11 +2,7 @@ import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
-import {
-  ContestId,
-  ProblemId,
-  ProblemStatus
-} from "../../interfaces/Status";
+import { ContestId, ProblemId, ProblemStatus } from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
 import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
