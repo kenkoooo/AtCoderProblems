@@ -27,7 +27,7 @@ export const statusToTableColor = (
   }
 };
 
-const statusLabelToTableColor = (label: StatusLabel) => {
+export const statusLabelToTableColor = (label: StatusLabel) => {
   switch (label) {
     case StatusLabel.Success:
       return "table-success";

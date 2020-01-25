@@ -7,6 +7,8 @@ interface Props {
   toggleShowAccepted: () => void;
   showDifficulties: boolean;
   toggleShowDifficulties: () => void;
+  enableColorfulMode: boolean;
+  toggleEnableColorfulMode: () => void;
 }
 
 const Options: React.FC<Props> = props => {
@@ -33,6 +35,16 @@ const Options: React.FC<Props> = props => {
           <HelpBadgeTooltip id="difficulty">
             Internal rating to have 50% Solve Probability
           </HelpBadgeTooltip>
+        </Label>
+      </FormGroup>
+      <FormGroup check inline>
+        <Label check>
+          <Input
+            type="checkbox"
+            checked={props.enableColorfulMode}
+            onChange={props.toggleEnableColorfulMode}
+          />
+          Colorful Mode
         </Label>
       </FormGroup>
     </Row>

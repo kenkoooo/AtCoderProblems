@@ -10,7 +10,10 @@ import {
   ProblemStatus,
   StatusLabel
 } from "../../interfaces/Status";
-import { statusToTableColor } from "../../utils/TableColor";
+import {
+  statusToTableColor,
+  statusLabelToTableColor
+} from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -21,6 +24,7 @@ interface Props {
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
+  enableColorfulMode: boolean;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   problemModels: Map<ProblemId, ProblemModel>;
@@ -99,10 +103,14 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
             _: string,
             { solvedAll, solvedAllIntime, solvedAllBeforeContest }: OneContest
           ) =>
-            solvedAllBeforeContest
-              ? "table-success-before-contest"
-              : solvedAllIntime
-              ? "table-success-intime"
+            props.enableColorfulMode
+              ? solvedAllBeforeContest
+                ? "table-success-before-contest"
+                : solvedAllIntime
+                ? "table-success-intime"
+                : solvedAll
+                ? "table-success"
+                : ""
               : solvedAll
               ? "table-success"
               : ""
@@ -124,7 +132,11 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
               const problem = problemStatus.get(i);
               return [
                 "table-problem",
-                problem ? statusToTableColor(problem.status, contest) : ""
+                !problem
+                  ? ""
+                  : props.enableColorfulMode
+                  ? statusToTableColor(problem.status, contest)
+                  : statusLabelToTableColor(problem.status.label)
               ]
                 .filter(nm => nm)
                 .join(" ");
@@ -152,6 +164,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
                     <SubmitTimespan
                       contest={contest}
                       problemStatus={problem.status}
+                      enableColorfulMode={props.enableColorfulMode}
                     />
                   </>
                 );
