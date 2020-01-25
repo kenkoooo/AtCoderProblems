@@ -5,6 +5,7 @@ import { ProblemStatus, StatusLabel } from "../interfaces/Status";
 interface Props {
   contest: Contest;
   problemStatus?: ProblemStatus;
+  enableColorfulMode: boolean;
 }
 
 const formatTimespan = (sec: number) => {
@@ -19,7 +20,10 @@ const formatTimespan = (sec: number) => {
 };
 
 const SubmitTimespan: React.FC<Props> = props => {
-  const { contest, problemStatus } = props;
+  const { contest, problemStatus, enableColorfulMode } = props;
+  if (!enableColorfulMode) {
+    return null;
+  }
 
   return (
     <div className="table-problem-timespan">
