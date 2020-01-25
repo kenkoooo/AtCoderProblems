@@ -4,7 +4,7 @@ import { ProblemStatus, StatusLabel } from "../interfaces/Status";
 
 interface Props {
   contest: Contest;
-  problemStatus: ProblemStatus | undefined;
+  problemStatus?: ProblemStatus;
 }
 
 const formatTimespan = (sec: number) => {
@@ -24,8 +24,8 @@ const SubmitTimespan: React.FC<Props> = props => {
   return (
     <div className="table-problem-timespan">
       {!problemStatus ||
-      (problemStatus.label !== StatusLabel.Success &&
-        problemStatus.label !== StatusLabel.Warning) ||
+      problemStatus.label !== StatusLabel.Success ||
+      problemStatus.epoch === void 0 ||
       problemStatus.epoch > contest.start_epoch_second + contest.duration_second
         ? ""
         : formatTimespan(problemStatus.epoch - contest.start_epoch_second)}
