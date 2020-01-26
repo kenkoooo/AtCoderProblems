@@ -42,7 +42,7 @@ const TablePage: React.FC<InnerProps> = props => {
 
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
   const [showAccepted, setShowAccepted] = useLocalStorage("showAccepted", true);
-  const [showDifficulty, setShowDifficulties] = useLocalStorage(
+  const [showDifficulty, setShowDifficulty] = useLocalStorage(
     "showDifficulty",
     true
   );
@@ -82,7 +82,7 @@ const TablePage: React.FC<InnerProps> = props => {
         showAccepted={showAccepted}
         toggleShowAccepted={() => setShowAccepted(!showAccepted)}
         showDifficulties={showDifficulty}
-        toggleShowDifficulties={() => setShowDifficulties(!showDifficulty)}
+        toggleShowDifficulties={() => setShowDifficulty(!showDifficulty)}
         enableColorfulMode={enableColorfulMode}
         toggleEnableColorfulMode={() =>
           setEnableColorfulMode(!enableColorfulMode)
