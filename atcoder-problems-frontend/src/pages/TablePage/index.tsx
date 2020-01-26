@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
@@ -40,7 +40,7 @@ const TablePage: React.FC<InnerProps> = props => {
     statusLabelMapFetch
   } = props;
 
-  const [activeTab, setActiveTab] = useState(TableTab.ABC);
+  const [activeTab, setActiveTab] = useLocalStorage("activeTab", TableTab.ABC);
   const [showAccepted, setShowAccepted] = useLocalStorage("showAccepted", true);
   const [showDifficulty, setShowDifficulty] = useLocalStorage(
     "showDifficulty",
