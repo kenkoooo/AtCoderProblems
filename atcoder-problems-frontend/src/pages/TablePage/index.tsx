@@ -40,8 +40,27 @@ const TablePage: React.FC<InnerProps> = props => {
   } = props;
 
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
-  const [showAccepted, setShowAccepted] = useState(true);
-  const [showDifficulty, setShowDifficulties] = useState(true);
+  const [showAccepted, setShowAccepted_] = useState(
+    JSON.parse(localStorage.getItem("showAccepted") || "true") as boolean
+  );
+  const [showDifficulty, setShowDifficulties_] = useState(
+    JSON.parse(localStorage.getItem("showDifficulty") || "true") as boolean
+  );
+  const [enableColorfulMode, setEnableColorfulMode_] = useState(
+    JSON.parse(localStorage.getItem("enableColorfulMode") || "true") as boolean
+  );
+  const setShowAccepted = (value: boolean) => {
+    localStorage.setItem("showAccepted", JSON.stringify(value));
+    setShowAccepted_(value);
+  };
+  const setShowDifficulties = (value: boolean) => {
+    localStorage.setItem("showDifficulty", JSON.stringify(value));
+    setShowDifficulties_(value);
+  };
+  const setEnableColorfulMode = (value: boolean) => {
+    localStorage.setItem("enableColorfulMode", JSON.stringify(value));
+    setEnableColorfulMode_(value);
+  };
 
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
@@ -75,6 +94,10 @@ const TablePage: React.FC<InnerProps> = props => {
         toggleShowAccepted={() => setShowAccepted(!showAccepted)}
         showDifficulties={showDifficulty}
         toggleShowDifficulties={() => setShowDifficulties(!showDifficulty)}
+        enableColorfulMode={enableColorfulMode}
+        toggleEnableColorfulMode={() =>
+          setEnableColorfulMode(!enableColorfulMode)
+        }
       />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
       <ContestWrapper display={activeTab === TableTab.ABC}>
@@ -82,6 +105,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           contests={abc.valueSeq()}
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
@@ -93,6 +117,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           contests={arc.valueSeq()}
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
@@ -104,6 +129,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           contests={agc.valueSeq()}
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
@@ -118,6 +144,7 @@ const TablePage: React.FC<InnerProps> = props => {
           title="Other Rated Contests"
           contestToProblems={contestToProblems}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>
@@ -129,6 +156,7 @@ const TablePage: React.FC<InnerProps> = props => {
           title="Other Contests"
           contestToProblems={contestToProblems}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>
