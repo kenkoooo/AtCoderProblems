@@ -61,11 +61,7 @@ span.difficulty-circle {
   position: relative;
 }
 
-/*
-.table-hover .table-success:hover>td, .table-hover .table-success:hover>th
 
-, table.table-striped>tbody>tr.table-warning-intime
-*/
 .table-success-intime, .table-success-intime>td, .table-success-intime>th {
   background-color: #9AD59E;
 }
