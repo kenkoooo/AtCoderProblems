@@ -11,6 +11,7 @@ export const statusToTableColor = (
 
   if (
     status.label === StatusLabel.Success &&
+    status.epoch !== void 0 &&
     status.epoch <= contest.start_epoch_second + contest.duration_second
   ) {
     return status.epoch < contest.start_epoch_second
@@ -26,7 +27,7 @@ export const statusToTableColor = (
   }
 };
 
-const statusLabelToTableColor = (label: StatusLabel) => {
+export const statusLabelToTableColor = (label: StatusLabel) => {
   switch (label) {
     case StatusLabel.Success:
       return "table-success";

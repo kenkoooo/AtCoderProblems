@@ -4,7 +4,10 @@ import Problem from "../../interfaces/Problem";
 import { Table, Row } from "reactstrap";
 import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
-import { statusToTableColor } from "../../utils/TableColor";
+import {
+  statusToTableColor,
+  statusLabelToTableColor
+} from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -15,6 +18,7 @@ interface Props {
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
+  enableColorfulMode: boolean;
   problemModels: Map<ProblemId, ProblemModel>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   title: string;
@@ -26,6 +30,7 @@ const ContestTable: React.FC<Props> = (props: Props) => {
     contestToProblems,
     showSolved,
     statusLabelMap,
+    enableColorfulMode,
     problemModels
   } = props;
   const mergedContests = contests
@@ -75,7 +80,9 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                     <tr>
                       {problemInfo.map(({ problem, status, model }) => {
                         const color = status
-                          ? statusToTableColor(status, contest)
+                          ? enableColorfulMode
+                            ? statusToTableColor(status, contest)
+                            : statusLabelToTableColor(status.label)
                           : "";
                         return (
                           <td
@@ -101,6 +108,7 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                             <SubmitTimespan
                               contest={contest}
                               problemStatus={status}
+                              enableColorfulMode={props.enableColorfulMode}
                             />
                           </td>
                         );

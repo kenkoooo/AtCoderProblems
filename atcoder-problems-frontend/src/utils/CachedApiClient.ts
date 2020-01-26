@@ -212,9 +212,9 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
         const rivalsList = list
           .filter(s => rivals.contains(s.user_id))
           .filter(s => isAccepted(s.result));
-        const col = userList.find(s => isAccepted(s.result));
-        if (col) {
-          return successStatus(col.epoch_second);
+        const accepted = userList.filter(s => isAccepted(s.result));
+        if (!accepted.isEmpty()) {
+          return successStatus(accepted.map(s => s.epoch_second).min());
         } else if (!rivalsList.isEmpty()) {
           return failedStatus(
             rivalsList
