@@ -67,11 +67,11 @@ const TablePage: React.FC<InnerProps> = props => {
     JSON.parse(localStorage.getItem("showDifficulty") || "true") as boolean
   );
   const setShowAccepted = (value: boolean) => {
-    window.localStorage.setItem("showAccepted", JSON.stringify(value));
+    localStorage.setItem("showAccepted", JSON.stringify(value));
     setShowAccepted_(value);
   };
   const setShowDifficulties = (value: boolean) => {
-    window.localStorage.setItem("showDifficulty", JSON.stringify(value));
+    localStorage.setItem("showDifficulty", JSON.stringify(value));
     setShowDifficulties_(value);
   };
 
