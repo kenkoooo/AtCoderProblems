@@ -11,6 +11,7 @@ import TableTabButtons, { TableTab } from "./TableTab";
 import ProblemModel from "../../interfaces/ProblemModel";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { useParams } from "react-router-dom";
+import { useLocalStorage } from "../../utils/LocalStorage";
 
 const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
   return (
@@ -40,27 +41,15 @@ const TablePage: React.FC<InnerProps> = props => {
   } = props;
 
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
-  const [showAccepted, setShowAccepted_] = useState(
-    JSON.parse(localStorage.getItem("showAccepted") || "true") as boolean
+  const [showAccepted, setShowAccepted] = useLocalStorage("showAccepted", true);
+  const [showDifficulty, setShowDifficulties] = useLocalStorage(
+    "showDifficulty",
+    true
   );
-  const [showDifficulty, setShowDifficulties_] = useState(
-    JSON.parse(localStorage.getItem("showDifficulty") || "true") as boolean
+  const [enableColorfulMode, setEnableColorfulMode] = useLocalStorage(
+    "enableColorfulMode",
+    true
   );
-  const [enableColorfulMode, setEnableColorfulMode_] = useState(
-    JSON.parse(localStorage.getItem("enableColorfulMode") || "true") as boolean
-  );
-  const setShowAccepted = (value: boolean) => {
-    localStorage.setItem("showAccepted", JSON.stringify(value));
-    setShowAccepted_(value);
-  };
-  const setShowDifficulties = (value: boolean) => {
-    localStorage.setItem("showDifficulty", JSON.stringify(value));
-    setShowDifficulties_(value);
-  };
-  const setEnableColorfulMode = (value: boolean) => {
-    localStorage.setItem("enableColorfulMode", JSON.stringify(value));
-    setEnableColorfulMode_(value);
-  };
 
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
