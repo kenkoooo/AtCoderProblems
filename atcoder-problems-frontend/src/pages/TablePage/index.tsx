@@ -60,8 +60,20 @@ const TablePage: React.FC<InnerProps> = props => {
   } = props;
 
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
-  const [showAccepted, setShowAccepted] = useState(true);
-  const [showDifficulty, setShowDifficulties] = useState(true);
+  const [showAccepted, setShowAccepted_] = useState(
+    JSON.parse(localStorage.getItem("showAccepted") || "true") as boolean
+  );
+  const [showDifficulty, setShowDifficulties_] = useState(
+    JSON.parse(localStorage.getItem("showDifficulty") || "true") as boolean
+  );
+  const setShowAccepted = (value: boolean) => {
+    window.localStorage.setItem("showAccepted", JSON.stringify(value));
+    setShowAccepted_(value);
+  };
+  const setShowDifficulties = (value: boolean) => {
+    window.localStorage.setItem("showDifficulty", JSON.stringify(value));
+    setShowDifficulties_(value);
+  };
 
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
