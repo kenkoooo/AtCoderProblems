@@ -15,6 +15,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel
 } from "../../interfaces/ProblemModel";
+import { statusToTableColor } from "../../utils/TableColor";
 
 interface Props {
   fromPoint: number;
@@ -316,22 +317,10 @@ export const ListTable = (props: Props) => {
       hover
       striped
       search
+      tableContainerClass="list-table"
       trClassName={(row: ProblemRowData) => {
-        const { status } = row;
-        switch (status.label) {
-          case StatusLabel.Success: {
-            return "table-success";
-          }
-          case StatusLabel.Failed: {
-            return "table-danger";
-          }
-          case StatusLabel.Warning: {
-            return "table-warning";
-          }
-          case StatusLabel.None: {
-            return "";
-          }
-        }
+        const { status, contest } = row;
+        return statusToTableColor(status, contest);
       }}
       data={props.rowData
         .filter(
