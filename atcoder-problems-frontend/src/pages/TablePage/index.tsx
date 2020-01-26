@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
-import {
-  ContestId,
-  ProblemId,
-  ProblemStatus,
-  StatusLabel
-} from "../../interfaces/Status";
+import { ContestId, ProblemId, ProblemStatus } from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
 import ContestTable from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
@@ -21,21 +16,6 @@ const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
   return (
     <div style={{ display: props.display ? "" : "none" }}>{props.children}</div>
   );
-};
-
-export const statusLabelToTableColor = (label: StatusLabel) => {
-  switch (label) {
-    case StatusLabel.Success:
-      return "table-success";
-    case StatusLabel.Failed:
-      return "table-danger";
-    case StatusLabel.Warning:
-      return "table-warning";
-    case StatusLabel.None:
-      return "";
-    default:
-      return "";
-  }
 };
 
 interface OuterProps {
@@ -66,6 +46,9 @@ const TablePage: React.FC<InnerProps> = props => {
   const [showDifficulty, setShowDifficulties_] = useState(
     JSON.parse(localStorage.getItem("showDifficulty") || "true") as boolean
   );
+  const [enableColorfulMode, setEnableColorfulMode_] = useState(
+    JSON.parse(localStorage.getItem("enableColorfulMode") || "true") as boolean
+  );
   const setShowAccepted = (value: boolean) => {
     localStorage.setItem("showAccepted", JSON.stringify(value));
     setShowAccepted_(value);
@@ -73,6 +56,10 @@ const TablePage: React.FC<InnerProps> = props => {
   const setShowDifficulties = (value: boolean) => {
     localStorage.setItem("showDifficulty", JSON.stringify(value));
     setShowDifficulties_(value);
+  };
+  const setEnableColorfulMode = (value: boolean) => {
+    localStorage.setItem("enableColorfulMode", JSON.stringify(value));
+    setEnableColorfulMode_(value);
   };
 
   const problemModels = problemModelsFetch.fulfilled
@@ -107,6 +94,10 @@ const TablePage: React.FC<InnerProps> = props => {
         toggleShowAccepted={() => setShowAccepted(!showAccepted)}
         showDifficulties={showDifficulty}
         toggleShowDifficulties={() => setShowDifficulties(!showDifficulty)}
+        enableColorfulMode={enableColorfulMode}
+        toggleEnableColorfulMode={() =>
+          setEnableColorfulMode(!enableColorfulMode)
+        }
       />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
       <ContestWrapper display={activeTab === TableTab.ABC}>
@@ -114,6 +105,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           contests={abc.valueSeq()}
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
@@ -125,6 +117,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           contests={arc.valueSeq()}
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
@@ -136,6 +129,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           contests={agc.valueSeq()}
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
@@ -150,6 +144,7 @@ const TablePage: React.FC<InnerProps> = props => {
           title="Other Rated Contests"
           contestToProblems={contestToProblems}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>
@@ -161,6 +156,7 @@ const TablePage: React.FC<InnerProps> = props => {
           title="Other Contests"
           contestToProblems={contestToProblems}
           showSolved={showAccepted}
+          enableColorfulMode={enableColorfulMode}
           statusLabelMap={statusLabelMap}
         />
       </ContestWrapper>

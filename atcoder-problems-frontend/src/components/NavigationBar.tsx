@@ -47,7 +47,7 @@ const extractUserIds = (pathname: string) => {
   return { userId, rivalIdString };
 };
 
-interface OuterProps extends RouteComponentProps {}
+type OuterProps = RouteComponentProps;
 
 interface InnerProps extends OuterProps {
   loginState: PromiseState<UserResponse | null>;

@@ -4,16 +4,21 @@ import Problem from "../../interfaces/Problem";
 import { Table, Row } from "reactstrap";
 import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
-import { statusLabelToTableColor } from "./index";
+import {
+  statusToTableColor,
+  statusLabelToTableColor
+} from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
+import SubmitTimespan from "../../components/SubmitTimespan";
 
 interface Props {
   contests: Seq.Indexed<Contest>;
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
+  enableColorfulMode: boolean;
   problemModels: Map<ProblemId, ProblemModel>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   title: string;
@@ -25,6 +30,7 @@ const ContestTable: React.FC<Props> = (props: Props) => {
     contestToProblems,
     showSolved,
     statusLabelMap,
+    enableColorfulMode,
     problemModels
   } = props;
   const mergedContests = contests
@@ -74,10 +80,17 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                     <tr>
                       {problemInfo.map(({ problem, status, model }) => {
                         const color = status
-                          ? statusLabelToTableColor(status.label)
+                          ? enableColorfulMode
+                            ? statusToTableColor(status, contest)
+                            : statusLabelToTableColor(status.label)
                           : "";
                         return (
-                          <td key={problem.id} className={color}>
+                          <td
+                            key={problem.id}
+                            className={["table-problem", color]
+                              .filter(nm => nm)
+                              .join(" ")}
+                          >
                             <ProblemLink
                               difficulty={
                                 model && model.difficulty
@@ -91,6 +104,11 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                               problemId={problem.id}
                               problemTitle={problem.title}
                               contestId={problem.contest_id}
+                            />
+                            <SubmitTimespan
+                              contest={contest}
+                              problemStatus={status}
+                              enableColorfulMode={props.enableColorfulMode}
                             />
                           </td>
                         );
