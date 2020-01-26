@@ -61,16 +61,33 @@ span.difficulty-circle {
   position: relative;
 }
 
+/*
+.table-hover .table-success:hover>td, .table-hover .table-success:hover>th
+
+, table.table-striped>tbody>tr.table-warning-intime
+*/
 .table-success-intime, .table-success-intime>td, .table-success-intime>th {
   background-color: #9AD59E;
+}
+
+.table-warning-intime, .table-warning-intime>td, .table-warning-intime>th {
+  background-color: #FFDD99;
 }
 
 .table-success-before-contest, .table-success-before-contest>td, .table-success-before-contest>th {
   background-color: #99CCFF;
 }
 
-.table-warning-intime {
-  background-color: #FFDD99;
+.table-hover .table-success-intime:hover, .table-hover .table-success-intime:hover>td, .table-hover .table-success-intime:hover>th {
+  background-color: #88CC88;
+}
+
+.table-hover .table-warning-intime:hover, .table-hover .table-warning-intime:hover>td, .table-hover .table-warning-intime:hover>th {
+  background-color: #F0CC99;
+}
+
+.table-hover .table-success-before-contest:hover, .table-hover .table-success-before-contest:hover>td, .table-hover .table-success-before-contest:hover>th {
+  background-color: #88BBFF;
 }
 
 .table-problem-timespan {
