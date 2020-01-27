@@ -7,7 +7,9 @@ const LanguageCount = ({ submissions }: { submissions: Submission[] }) => {
   const languageMap = submissions
     .filter(s => isAccepted(s.result))
     .reduce((map, submission) => {
-      const language = /^Perl6/.test(submission.language) ? "Perl6" : submission.language.replace(/\d* \(.*\)$/, "");
+      const language = /^Perl6/.test(submission.language)
+        ? "Perl6"
+        : submission.language.replace(/\d* \(.*\)$/, "");
       const problems = map.get(language);
       if (problems) {
         problems.add(submission.problem_id);
