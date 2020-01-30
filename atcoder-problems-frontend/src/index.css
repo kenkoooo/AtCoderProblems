@@ -100,3 +100,49 @@ span.difficulty-circle {
   line-height: 1.0;
   white-space: normal;
 }
+
+@media only screen and (max-width: 480px) {
+  .contest-table-responsive table,
+  .contest-table-responsive thead,
+  .contest-table-responsive tbody,
+  .contest-table-responsive th,
+  .contest-table-responsive td,
+  .contest-table-responsive tr {
+      display: block;
+  }
+  .contest-table-responsive td.table-problem-empty {
+      display: none;
+  }
+
+  .contest-table-responsive thead tr {
+      display: none;
+  }
+
+  .contest-table-responsive tr {
+      border: 1px solid #ccc;
+  }
+
+  .contest-table-responsive td {
+      position: relative;
+      padding-left: .75rem;
+      padding-top: 6px;
+      padding-bottom: 6px;
+  }
+  .contest-table-responsive.contest-regular-table-responsive td:not(:first-child) {
+      padding-left: 2.5rem;
+  }
+  
+  div.btn-group {
+      display: block;
+  }
+  div.btn-group > button.btn:not(:last-child):not(.dropdown-toggle),
+  div.btn-group > button.btn:not(:first-child) {
+      border-radius: .25rem;
+      margin-left: 0.1rem;
+  }
+  
+  div.btn-group > button.btn {
+      margin: 0.1rem;
+      padding: 0.4rem;
+  }
+}
