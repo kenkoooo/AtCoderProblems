@@ -385,7 +385,11 @@ export const ListTable = (props: Props) => {
       }}
     >
       {columns.map(c => (
-        <TableHeaderColumn key={c.header} {...c}>
+        <TableHeaderColumn
+          key={c.header}
+          tdAttr={{ "data-col-name": c.header }}
+          {...c}
+        >
           {c.header}
         </TableHeaderColumn>
       ))}
