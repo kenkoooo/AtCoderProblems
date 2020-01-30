@@ -91,9 +91,12 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
   );
   const header = ["A", "B", "C", "D", "E", "F", "F2"].slice(0, maxProblemCount);
   return (
-    <Row className="my-4 contest-table-responsive contest-regular-table-responsive">
+    <Row className="my-4">
       <h2>{props.title}</h2>
-      <BootstrapTable data={contests}>
+      <BootstrapTable
+        data={contests}
+        tableContainerClass="contest-table-responsive contest-regular-table-responsive"
+      >
         <TableHeaderColumn
           isKey
           dataField="id"
