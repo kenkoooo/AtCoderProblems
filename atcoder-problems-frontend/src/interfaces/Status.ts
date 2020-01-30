@@ -9,7 +9,7 @@ export enum StatusLabel {
   None
 }
 
-export const successStatus = (epoch?: number) => ({
+export const successStatus = (epoch: number) => ({
   label: StatusLabel.Success as typeof StatusLabel.Success,
   epoch
 });

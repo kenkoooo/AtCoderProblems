@@ -50,7 +50,6 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         problemStatus.every(
           ({ status }) =>
             status.label === StatusLabel.Success &&
-            status.epoch !== void 0 &&
             status.epoch <= contest.start_epoch_second + contest.duration_second
         );
       const solvedAllBeforeContest =
@@ -58,7 +57,6 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         problemStatus.every(
           ({ status }) =>
             status.label === StatusLabel.Success &&
-            status.epoch !== void 0 &&
             status.epoch < contest.start_epoch_second
         );
       return {
