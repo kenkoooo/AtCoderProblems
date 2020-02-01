@@ -119,7 +119,6 @@ fn convert_problem(p: AtCoderProblem) -> Problem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use futures::executor::block_on;
 
     #[test]
     fn test_convert_problem() {
