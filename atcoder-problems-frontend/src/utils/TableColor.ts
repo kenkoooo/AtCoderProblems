@@ -11,7 +11,6 @@ export const statusToTableColor = (
 
   if (
     status.label === StatusLabel.Success &&
-    status.epoch !== void 0 &&
     status.epoch <= contest.start_epoch_second + contest.duration_second
   ) {
     return status.epoch < contest.start_epoch_second

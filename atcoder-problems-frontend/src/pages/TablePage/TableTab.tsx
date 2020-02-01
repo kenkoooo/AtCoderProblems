@@ -18,7 +18,7 @@ const TableTabButtons: React.FC<Props> = props => {
   const { active, setActive } = props;
   return (
     <Row>
-      <ButtonGroup>
+      <ButtonGroup className="table-tab">
         <Button
           color="secondary"
           onClick={() => {
