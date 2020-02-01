@@ -71,7 +71,7 @@ const ContestTable: React.FC<Props> = (props: Props) => {
         {mergedContests
           .map(({ contest, problemInfo }) => {
             return (
-              <div key={contest.id}>
+              <div key={contest.id} className="contest-table-responsive">
                 <strong>
                   <ContestLink contest={contest} />
                 </strong>

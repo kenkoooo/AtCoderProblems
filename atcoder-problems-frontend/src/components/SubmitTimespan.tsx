@@ -29,7 +29,6 @@ const SubmitTimespan: React.FC<Props> = props => {
     <div className="table-problem-timespan">
       {!problemStatus ||
       problemStatus.label !== StatusLabel.Success ||
-      problemStatus.epoch === void 0 ||
       problemStatus.epoch > contest.start_epoch_second + contest.duration_second
         ? ""
         : formatTimespan(problemStatus.epoch - contest.start_epoch_second)}

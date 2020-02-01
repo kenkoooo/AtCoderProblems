@@ -50,7 +50,6 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         problemStatus.every(
           ({ status }) =>
             status.label === StatusLabel.Success &&
-            status.epoch !== void 0 &&
             status.epoch <= contest.start_epoch_second + contest.duration_second
         );
       const solvedAllBeforeContest =
@@ -58,7 +57,6 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         problemStatus.every(
           ({ status }) =>
             status.label === StatusLabel.Success &&
-            status.epoch !== void 0 &&
             status.epoch < contest.start_epoch_second
         );
       return {
@@ -95,7 +93,10 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
   return (
     <Row className="my-4">
       <h2>{props.title}</h2>
-      <BootstrapTable data={contests}>
+      <BootstrapTable
+        data={contests}
+        tableContainerClass="contest-table-responsive contest-regular-table-responsive"
+      >
         <TableHeaderColumn
           isKey
           dataField="id"
@@ -133,7 +134,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
               return [
                 "table-problem",
                 !problem
-                  ? ""
+                  ? "table-problem-empty"
                   : props.enableColorfulMode
                   ? statusToTableColor(problem.status, contest)
                   : statusLabelToTableColor(problem.status.label)
