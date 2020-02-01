@@ -1,4 +1,3 @@
-use crate::server::{utils, CommonRequest};
 use crate::server::{AppData, CommonResponse};
 use crate::sql::{SubmissionClient, SubmissionRequest};
 use tide::{Request, Response};
@@ -14,14 +13,7 @@ pub(crate) async fn get_time_submissions<A>(request: Request<AppData<A>>) -> Res
                 from_second: from_epoch_second,
                 count: 1000,
             })?;
-            let etag = request.extract_etag();
-            let max_id = submissions.iter().map(|s| s.id).max().unwrap_or(0);
-            let new_etag = utils::calc_etag_for_time(from_epoch_second, max_id);
-            if new_etag.as_str() == etag {
-                Ok(Response::not_modified())
-            } else {
-                Ok(Response::etagged(&new_etag).body_json(&submissions)?)
-            }
+            Ok(Response::new_cors().body_json(&submissions)?)
         })
     } else {
         Response::internal_error()
