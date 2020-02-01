@@ -104,6 +104,23 @@ fn test_submission_client() {
 }
 
 #[test]
+fn test_update_submission_count() {
+    let conn = utils::connect_to_test_sql();
+    conn.batch_execute(
+        r#"
+        INSERT INTO submissions
+            (id, epoch_second, problem_id, contest_id, user_id, language, point, length, result)
+        VALUES
+            (1, 100, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'AC');
+    "#,
+    )
+    .unwrap();
+    assert!(conn.get_user_submission_count("user1").is_err());
+    conn.update_user_submission_count("user1").unwrap();
+    assert_eq!(conn.get_user_submission_count("user1").unwrap(), 1);
+}
+
+#[test]
 fn test_update_submissions() {
     let conn = utils::connect_to_test_sql();
     conn.update_submissions(&[Submission {
