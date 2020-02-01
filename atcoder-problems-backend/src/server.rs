@@ -12,6 +12,7 @@ use crate::server::problem_list::{
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use cookie::Cookie;
+use std::time::Duration;
 
 pub(crate) mod internal_user;
 pub(crate) mod middleware;
@@ -83,7 +84,10 @@ where
 
 pub fn initialize_pool<S: Into<String>>(database_url: S) -> Result<Pool> {
     let manager = diesel::r2d2::ConnectionManager::<diesel::PgConnection>::new(database_url);
-    let pool = diesel::r2d2::Pool::builder().build(manager)?;
+    let pool = diesel::r2d2::Pool::builder()
+        .max_lifetime(Some(Duration::from_secs(60 * 5)))
+        .max_size(15)
+        .build(manager)?;
     Ok(pool)
 }
 
@@ -174,9 +178,12 @@ impl<A> AppData<A> {
         F: FnOnce(&diesel::PgConnection) -> Result<tide::Response>,
     {
         match self.pool.get() {
-            Ok(conn) => f(&conn).unwrap_or_else(|_| tide::Response::bad_request()),
-            Err(e) => {
+            Ok(conn) => f(&conn).unwrap_or_else(|e| {
                 log::error!("{:?}", e);
+                tide::Response::bad_request()
+            }),
+            Err(e) => {
+                log::error!("SQL Connection Failed {:?}", e);
                 tide::Response::internal_error()
             }
         }
