@@ -53,7 +53,7 @@ const TablePage: React.FC<InnerProps> = props => {
 
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
-    : Map<ProblemId, ProblemModel>();
+    : CachedApiClient.oldProblemModels();
   const contestToProblems = contestToProblemsFetch.fulfilled
     ? contestToProblemsFetch.value
     : Map<ContestId, List<Problem>>();
@@ -62,7 +62,7 @@ const TablePage: React.FC<InnerProps> = props => {
     : Map<ContestId, Contest>();
   const statusLabelMap = statusLabelMapFetch.fulfilled
     ? statusLabelMapFetch.value
-    : Map<ProblemId, ProblemStatus>();
+    : CachedApiClient.oldStatusLabelMap();
   const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
   const arc = contests.filter((v, k) => k.match(/^arc\d{3}$/));
   const agc = contests.filter((v, k) => k.match(/^agc\d{3}$/));
