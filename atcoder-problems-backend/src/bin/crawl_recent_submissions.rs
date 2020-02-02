@@ -2,9 +2,7 @@ use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler::RecentCrawler;
 use atcoder_problems_backend::error::Result;
 use atcoder_problems_backend::sql::connect;
-use diesel::{Connection, PgConnection};
 use futures::executor::block_on;
-use log::{error, info};
 use std::{env, thread, time};
 
 async fn crawl(url: &str) -> Result<()> {
@@ -15,11 +13,11 @@ async fn crawl(url: &str) -> Result<()> {
 
 fn main() {
     simple_logger::init_with_level(log::Level::Info).unwrap();
-    info!("Started");
+    log::info!("Started");
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
 
     loop {
-        info!("Start new loop");
+        log::info!("Start new loop");
         if let Err(e) = block_on(crawl(&url)) {
             log::error!("{:?}", e);
             thread::sleep(time::Duration::from_millis(1000));
