@@ -58,13 +58,20 @@ export const cachedProblemModels = () => {
   if (CACHED_PROBLEM_MODELS === undefined) {
     CACHED_PROBLEM_MODELS = fetchProblemModels();
     CACHED_PROBLEM_MODELS.then(value =>
-      localStorage.setItem("problemModels", JSON.stringify(Array.from(value.entries())))
+      localStorage.setItem(
+        "problemModels",
+        JSON.stringify(Array.from(value.entries()))
+      )
     );
   }
   return CACHED_PROBLEM_MODELS;
 };
 export const oldProblemModels = () => {
-  return Map<ProblemId, ProblemModel>(JSON.parse(localStorage.getItem("problemModels") || "{}") as Array<[ProblemId, ProblemModel]>);
+  return Map<ProblemId, ProblemModel>(
+    JSON.parse(localStorage.getItem("problemModels") || "[]") as Array<
+      [ProblemId, ProblemModel]
+    >
+  );
 };
 
 let CACHED_CONTESTS: undefined | Promise<Map<ContestId, Contest>>;
@@ -238,13 +245,20 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
       })
     );
     STATUS_LABEL_MAP.statusLabelMap.then(value =>
-      localStorage.setItem("statusLabelMap", JSON.stringify(Array.from(value.entries())))
+      localStorage.setItem(
+        "statusLabelMap",
+        JSON.stringify(Array.from(value.entries()))
+      )
     );
   }
   return STATUS_LABEL_MAP.statusLabelMap;
 };
 export const oldStatusLabelMap = () => {
-  return Map<ProblemId, ProblemStatus>(JSON.parse(localStorage.getItem("statusLabelMap") || "{}") as Array<[string, ProblemStatus]>);
+  return Map<ProblemId, ProblemStatus>(
+    JSON.parse(localStorage.getItem("statusLabelMap") || "[]") as Array<
+      [string, ProblemStatus]
+    >
+  );
 };
 
 let SUM_RANKING: undefined | Promise<List<RankingEntry>>;
