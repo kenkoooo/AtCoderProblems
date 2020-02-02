@@ -30,6 +30,5 @@ matrix:
         - npm install yarn -g
         - yarn
         - yarn build
-        - yarn test --coverage
-        - npx codecov
+        - yarn test
         - yarn lint
