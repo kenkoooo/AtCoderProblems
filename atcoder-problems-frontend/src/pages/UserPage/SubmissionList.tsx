@@ -1,5 +1,9 @@
 import React from "react";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import {
+  BootstrapTable,
+  TableHeaderColumn,
+  PaginationPanelProps
+} from "react-bootstrap-table";
 
 import Submission from "../../interfaces/Submission";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
@@ -10,6 +14,7 @@ import ProblemLink from "../../components/ProblemLink";
 import { Map } from "immutable";
 import { ProblemId } from "../../interfaces/Status";
 import ProblemModel from "../../interfaces/ProblemModel";
+import { ListPaginationPanel } from "../../components/ListPaginationPanel";
 
 interface Props {
   submissions: Submission[];
@@ -65,7 +70,15 @@ const SubmissionList = (props: Props) => {
             text: "All",
             value: submissions.length
           }
-        ]
+        ],
+        paginationPanel: (paginationPanelProps: PaginationPanelProps) => {
+          return (
+            <ListPaginationPanel
+              paginationPanelProps={paginationPanelProps}
+              dataSize={submissions.length}
+            />
+          );
+        }
       }}
     >
       <TableHeaderColumn
