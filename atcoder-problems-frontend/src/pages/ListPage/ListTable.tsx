@@ -1,4 +1,8 @@
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import {
+  BootstrapTable,
+  TableHeaderColumn,
+  PaginationPanelProps
+} from "react-bootstrap-table";
 import { StatusLabel } from "../../interfaces/Status";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
@@ -16,6 +20,7 @@ import ProblemModel, {
   isProblemModelWithTimeModel
 } from "../../interfaces/ProblemModel";
 import { statusToTableColor } from "../../utils/TableColor";
+import { ListPaginationPanel } from "../../components/ListPaginationPanel";
 
 interface Props {
   fromPoint: number;
@@ -381,7 +386,15 @@ export const ListTable = (props: Props) => {
             text: "All",
             value: props.rowData.size
           }
-        ]
+        ],
+        paginationPanel: (paginationPanelProps: PaginationPanelProps) => {
+          return (
+            <ListPaginationPanel
+              paginationPanelProps={paginationPanelProps}
+              dataSize={props.rowData.size}
+            />
+          );
+        }
       }}
     >
       {columns.map(c => (
