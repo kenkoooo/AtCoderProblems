@@ -37,13 +37,12 @@ const SubmissionList = (props: Props) => {
     .forEach((verdict, index) => {
       verdictOptions[index] = verdict;
     });
-  const data = submissions
-    .sort((a, b) => b.epoch_second - a.epoch_second)
-    .map(s => ({ title: titleMap.get(s.problem_id), ...s }));
 
   return (
     <BootstrapTable
-      data={data}
+      data={submissions
+        .sort((a, b) => b.epoch_second - a.epoch_second)
+        .map(s => ({ title: titleMap.get(s.problem_id), ...s }))}
       keyField="id"
       height="auto"
       hover
@@ -85,7 +84,10 @@ const SubmissionList = (props: Props) => {
         },
         afterSearch: (search: string, result: ReadonlyArray<any>) => {
           setDataSize(result.length);
-          setSearchText(search);
+          search = search || "";
+          if (searchText !== search) {
+            setSearchText(search);
+          }
         }
       }}
     >
