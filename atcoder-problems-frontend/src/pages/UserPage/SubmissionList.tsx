@@ -24,6 +24,7 @@ interface Props {
 
 const SubmissionList = (props: Props) => {
   const [dataSize, setDataSize] = useState(0);
+  const [searchText, setSearchText] = useState("");
   const { submissions, problems, problemModels } = props;
   const titleMap = problems.reduce(
     (map, p) => map.set(p.id, p.title),
@@ -84,6 +85,7 @@ const SubmissionList = (props: Props) => {
         },
         afterSearch: (search: string, result: ReadonlyArray<any>) => {
           setDataSize(result.length);
+          setSearchText(search);
         }
       }}
     >
