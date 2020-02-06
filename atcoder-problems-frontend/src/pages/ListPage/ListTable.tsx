@@ -35,6 +35,7 @@ interface Props {
 
 export const ListTable = (props: Props) => {
   const [dataSize, setDataSize] = useState(0);
+  const [searchText, setSearchText] = useState("");
   const readDifficultyAsNumber: (row: ProblemRowData) => number = row => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
@@ -397,6 +398,7 @@ export const ListTable = (props: Props) => {
         },
         afterSearch: (search: string, result: ReadonlyArray<any>) => {
           setDataSize(result.length);
+          setSearchText(search);
         }
       }}
     >
