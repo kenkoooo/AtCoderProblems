@@ -5,7 +5,7 @@ import {
 } from "react-bootstrap-table";
 import { StatusLabel } from "../../interfaces/Status";
 import { Badge } from "reactstrap";
-import React, { ReactElement } from "react";
+import React, { ReactElement, useState } from "react";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import * as Url from "../../utils/Url";
@@ -34,6 +34,7 @@ interface Props {
 }
 
 export const ListTable = (props: Props) => {
+  const [dataSize, setDataSize] = useState(0);
   const readDifficultyAsNumber: (row: ProblemRowData) => number = row => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
@@ -314,6 +315,39 @@ export const ListTable = (props: Props) => {
     }
   ];
 
+  const data: ProblemRowData[] = props.rowData
+    .filter(row => props.fromPoint <= row.point && row.point <= props.toPoint) // eslint-disable-next-line
+    .filter(row => {
+      switch (props.statusFilterState) {
+        case "All":
+          return true;
+        case "Only AC":
+          return row.status.label === StatusLabel.Success;
+        case "Only Trying":
+          return row.status.label !== StatusLabel.Success;
+      }
+    }) // eslint-disable-next-line
+    .filter(row => {
+      const isRated = !!row.mergedProblem.point;
+      switch (props.ratedFilterState) {
+        case "All":
+          return true;
+        case "Only Rated":
+          return isRated;
+        case "Only Unrated":
+          return !isRated;
+      }
+    })
+    .filter(row => {
+      const difficulty = isProblemModelWithDifficultyModel(row.problemModel)
+        ? row.problemModel.difficulty
+        : -1;
+      return (
+        props.fromDifficulty <= difficulty && difficulty <= props.toDifficulty
+      );
+    })
+    .toArray();
+
   return (
     <BootstrapTable
       pagination
@@ -327,41 +361,7 @@ export const ListTable = (props: Props) => {
         const { status, contest } = row;
         return statusToTableColor(status, contest);
       }}
-      data={props.rowData
-        .filter(
-          row => props.fromPoint <= row.point && row.point <= props.toPoint
-        ) // eslint-disable-next-line
-        .filter(row => {
-          switch (props.statusFilterState) {
-            case "All":
-              return true;
-            case "Only AC":
-              return row.status.label === StatusLabel.Success;
-            case "Only Trying":
-              return row.status.label !== StatusLabel.Success;
-          }
-        }) // eslint-disable-next-line
-        .filter(row => {
-          const isRated = !!row.mergedProblem.point;
-          switch (props.ratedFilterState) {
-            case "All":
-              return true;
-            case "Only Rated":
-              return isRated;
-            case "Only Unrated":
-              return !isRated;
-          }
-        })
-        .filter(row => {
-          const difficulty = isProblemModelWithDifficultyModel(row.problemModel)
-            ? row.problemModel.difficulty
-            : -1;
-          return (
-            props.fromDifficulty <= difficulty &&
-            difficulty <= props.toDifficulty
-          );
-        })
-        .toArray()}
+      data={data}
       options={{
         paginationPosition: "top",
         sizePerPage: 20,
@@ -391,9 +391,12 @@ export const ListTable = (props: Props) => {
           return (
             <ListPaginationPanel
               paginationPanelProps={paginationPanelProps}
-              dataSize={props.rowData.size}
+              dataSize={dataSize}
             />
           );
+        },
+        afterSearch: (search: string, result: ReadonlyArray<any>) => {
+          setDataSize(result.length);
         }
       }}
     >

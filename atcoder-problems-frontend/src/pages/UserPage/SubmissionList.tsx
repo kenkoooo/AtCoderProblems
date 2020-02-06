@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BootstrapTable,
   TableHeaderColumn,
@@ -23,6 +23,7 @@ interface Props {
 }
 
 const SubmissionList = (props: Props) => {
+  const [dataSize, setDataSize] = useState(0);
   const { submissions, problems, problemModels } = props;
   const titleMap = problems.reduce(
     (map, p) => map.set(p.id, p.title),
@@ -35,11 +36,13 @@ const SubmissionList = (props: Props) => {
     .forEach((verdict, index) => {
       verdictOptions[index] = verdict;
     });
+  const data = submissions
+    .sort((a, b) => b.epoch_second - a.epoch_second)
+    .map(s => ({ title: titleMap.get(s.problem_id), ...s }));
+
   return (
     <BootstrapTable
-      data={submissions
-        .sort((a, b) => b.epoch_second - a.epoch_second)
-        .map(s => ({ title: titleMap.get(s.problem_id), ...s }))}
+      data={data}
       keyField="id"
       height="auto"
       hover
@@ -75,9 +78,12 @@ const SubmissionList = (props: Props) => {
           return (
             <ListPaginationPanel
               paginationPanelProps={paginationPanelProps}
-              dataSize={submissions.length}
+              dataSize={dataSize}
             />
           );
+        },
+        afterSearch: (search: string, result: ReadonlyArray<any>) => {
+          setDataSize(result.length);
         }
       }}
     >
