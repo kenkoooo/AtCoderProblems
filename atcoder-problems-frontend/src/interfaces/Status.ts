@@ -1,4 +1,4 @@
-import { List } from "immutable";
+import { List, Set } from "immutable";
 export type ContestId = string;
 export type ProblemId = string;
 
@@ -9,8 +9,12 @@ export enum StatusLabel {
   None
 }
 
-export const successStatus = (epoch?: number) => ({
+export const successStatus = (
+  solvedLanguages: Set<string>,
+  epoch?: number
+) => ({
   label: StatusLabel.Success as typeof StatusLabel.Success,
+  solvedLanguages,
   epoch
 });
 export const failedStatus = (solvedRivals: List<string>) => ({

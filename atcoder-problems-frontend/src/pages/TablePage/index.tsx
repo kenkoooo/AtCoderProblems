@@ -30,6 +30,7 @@ interface InnerProps extends OuterProps {
   problemsFetch: PromiseState<Map<ProblemId, Problem>>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   statusLabelMapFetch: PromiseState<Map<ProblemId, ProblemStatus>>;
+  selectableLanguagesFetch: PromiseState<Set<string>>;
 }
 
 const TablePage: React.FC<InnerProps> = props => {
@@ -37,7 +38,8 @@ const TablePage: React.FC<InnerProps> = props => {
     contestsFetch,
     contestToProblemsFetch,
     problemModelsFetch,
-    statusLabelMapFetch
+    statusLabelMapFetch,
+    selectableLanguagesFetch
   } = props;
 
   const [activeTab, setActiveTab] = useState(TableTab.ABC);
@@ -50,6 +52,7 @@ const TablePage: React.FC<InnerProps> = props => {
     "enableColorfulMode",
     true
   );
+  const [selectedLanguages, setSelectedLanguages] = useState(Set<string>());
 
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
@@ -63,6 +66,9 @@ const TablePage: React.FC<InnerProps> = props => {
   const statusLabelMap = statusLabelMapFetch.fulfilled
     ? statusLabelMapFetch.value
     : Map<ProblemId, ProblemStatus>();
+  const selectableLanguages = selectableLanguagesFetch.fulfilled
+    ? selectableLanguagesFetch.value
+    : Set<string>();
   const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
   const arc = contests.filter((v, k) => k.match(/^arc\d{3}$/));
   const agc = contests.filter((v, k) => k.match(/^agc\d{3}$/));
@@ -87,6 +93,15 @@ const TablePage: React.FC<InnerProps> = props => {
         toggleEnableColorfulMode={() =>
           setEnableColorfulMode(!enableColorfulMode)
         }
+        selectableLanguages={selectableLanguages}
+        selectedLanguages={selectedLanguages}
+        toggleLanguage={language =>
+          setSelectedLanguages(
+            selectedLanguages.has(language)
+              ? selectedLanguages.delete(language)
+              : selectedLanguages.add(language)
+          )
+        }
       />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
       <ContestWrapper display={activeTab === TableTab.ABC}>
@@ -99,6 +114,7 @@ const TablePage: React.FC<InnerProps> = props => {
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          selectedLanguages={selectedLanguages}
         />
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.ARC}>
@@ -111,6 +127,7 @@ const TablePage: React.FC<InnerProps> = props => {
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          selectedLanguages={selectedLanguages}
         />
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.AGC}>
@@ -123,6 +140,7 @@ const TablePage: React.FC<InnerProps> = props => {
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          selectedLanguages={selectedLanguages}
         />
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.OtherRatedContests}>
@@ -135,6 +153,7 @@ const TablePage: React.FC<InnerProps> = props => {
           showSolved={showAccepted}
           enableColorfulMode={enableColorfulMode}
           statusLabelMap={statusLabelMap}
+          selectedLanguages={selectedLanguages}
         />
       </ContestWrapper>
       <ContestWrapper display={activeTab === TableTab.OtherContests}>
@@ -147,6 +166,7 @@ const TablePage: React.FC<InnerProps> = props => {
           showSolved={showAccepted}
           enableColorfulMode={enableColorfulMode}
           statusLabelMap={statusLabelMap}
+          selectedLanguages={selectedLanguages}
         />
       </ContestWrapper>
     </div>
@@ -174,6 +194,10 @@ const InnerTablePage = connect<OuterProps, InnerProps>(props => ({
     comparison: [props.userId, props.rivals],
     value: () =>
       CachedApiClient.cachedStatusLabelMap(props.userId, props.rivals)
+  },
+  selectableLanguagesFetch: {
+    comparison: props.userId,
+    value: () => CachedApiClient.cachedSelectableLanguages(props.userId)
   }
 }))(TablePage);
 

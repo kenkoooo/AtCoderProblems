@@ -320,7 +320,7 @@ export const ListTable = (props: Props) => {
       tableContainerClass="list-table"
       trClassName={(row: ProblemRowData) => {
         const { status, contest } = row;
-        return statusToTableColor(status, contest);
+        return statusToTableColor({ status, contest });
       }}
       data={props.rowData
         .filter(

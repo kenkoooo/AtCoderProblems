@@ -1,13 +1,10 @@
-import { List, Map, Seq } from "immutable";
+import { List, Map, Set, Seq } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Table, Row } from "reactstrap";
 import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
-import {
-  statusToTableColor,
-  statusLabelToTableColor
-} from "../../utils/TableColor";
+import { statusToTableColor } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -21,6 +18,7 @@ interface Props {
   enableColorfulMode: boolean;
   problemModels: Map<ProblemId, ProblemModel>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
+  selectedLanguages: Set<string>;
   title: string;
 }
 
@@ -31,7 +29,8 @@ const ContestTable: React.FC<Props> = (props: Props) => {
     showSolved,
     statusLabelMap,
     enableColorfulMode,
-    problemModels
+    problemModels,
+    selectedLanguages
   } = props;
   const mergedContests = contests
     .sort((a, b) => b.start_epoch_second - a.start_epoch_second)
@@ -80,9 +79,12 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                     <tr>
                       {problemInfo.map(({ problem, status, model }) => {
                         const color = status
-                          ? enableColorfulMode
-                            ? statusToTableColor(status, contest)
-                            : statusLabelToTableColor(status.label)
+                          ? statusToTableColor({
+                              status,
+                              contest,
+                              enableColorfulMode,
+                              selectedLanguages
+                            })
                           : "";
                         return (
                           <td
