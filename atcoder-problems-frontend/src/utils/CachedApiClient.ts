@@ -8,7 +8,7 @@ import {
   warningStatus
 } from "../interfaces/Status";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
-import { List, Map } from "immutable";
+import { List, Map, Set } from "immutable";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import Contest, { isContest } from "../interfaces/Contest";
 import Problem, { isProblem } from "../interfaces/Problem";
@@ -214,7 +214,10 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
           .filter(s => isAccepted(s.result));
         const accepted = userList.filter(s => isAccepted(s.result));
         if (!accepted.isEmpty()) {
-          return successStatus(accepted.map(s => s.epoch_second).min());
+          return successStatus(
+            accepted.map(s => s.language).toSet(),
+            accepted.map(s => s.epoch_second).min()
+          );
         } else if (!rivalsList.isEmpty()) {
           return failedStatus(
             rivalsList
@@ -232,6 +235,23 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
     );
   }
   return STATUS_LABEL_MAP.statusLabelMap;
+};
+
+const SELECTABLE_LANGUAGES: {
+  userId: string;
+  selectableLanguages: Promise<Set<string>> | undefined;
+} = { userId: "", selectableLanguages: undefined };
+export const cachedSelectableLanguages = (userId: string) => {
+  if (
+    SELECTABLE_LANGUAGES.selectableLanguages === undefined ||
+    SELECTABLE_LANGUAGES.userId !== userId
+  ) {
+    SELECTABLE_LANGUAGES.userId = userId;
+    SELECTABLE_LANGUAGES.selectableLanguages = cachedSubmissions(userId).then(
+      submissions => submissions.map(s => s.language).toSet()
+    );
+  }
+  return SELECTABLE_LANGUAGES.selectableLanguages;
 };
 
 let SUM_RANKING: undefined | Promise<List<RankingEntry>>;

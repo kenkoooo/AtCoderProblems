@@ -1,11 +1,31 @@
 import Contest from "../interfaces/Contest";
 import { ProblemStatus, StatusLabel } from "../interfaces/Status";
+import { Set } from "immutable";
 
-export const statusToTableColor = (
-  status: ProblemStatus,
-  contest: Contest | undefined
-) => {
+export const statusToTableColor = ({
+  status,
+  contest,
+  enableColorfulMode,
+  selectedLanguages
+}: {
+  status: ProblemStatus;
+  contest: Contest | undefined;
+  enableColorfulMode?: boolean;
+  selectedLanguages?: Set<string>;
+}) => {
   if (!contest) {
+    return statusLabelToTableColor(status.label);
+  }
+
+  if (
+    status.label === StatusLabel.Success &&
+    selectedLanguages &&
+    !status.solvedLanguages.intersect(selectedLanguages).isEmpty()
+  ) {
+    return "table-info";
+  }
+
+  if (enableColorfulMode === false) {
     return statusLabelToTableColor(status.label);
   }
 
@@ -27,7 +47,7 @@ export const statusToTableColor = (
   }
 };
 
-export const statusLabelToTableColor = (label: StatusLabel) => {
+const statusLabelToTableColor = (label: StatusLabel) => {
   switch (label) {
     case StatusLabel.Success:
       return "table-success";

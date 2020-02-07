@@ -1,4 +1,4 @@
-import { List, Map, Seq } from "immutable";
+import { List, Map, Set, Seq } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Row } from "reactstrap";
@@ -10,10 +10,7 @@ import {
   ProblemStatus,
   StatusLabel
 } from "../../interfaces/Status";
-import {
-  statusToTableColor,
-  statusLabelToTableColor
-} from "../../utils/TableColor";
+import { statusToTableColor } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -28,6 +25,7 @@ interface Props {
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   problemModels: Map<ProblemId, ProblemModel>;
+  selectedLanguages: Set<string>;
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = props => {
@@ -61,12 +59,20 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
             status.epoch !== void 0 &&
             status.epoch < contest.start_epoch_second
         );
+      const solvedAllInSelectedLanguages =
+        solvedAll &&
+        problemStatus.every(
+          ({ status }) =>
+            status.label === StatusLabel.Success &&
+            !status.solvedLanguages.intersect(props.selectedLanguages).isEmpty()
+        );
       return {
         contest,
         problemStatus,
         solvedAll,
         solvedAllIntime,
         solvedAllBeforeContest,
+        solvedAllInSelectedLanguages,
         id: contest.id
       };
     })
@@ -84,6 +90,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
     solvedAll: boolean;
     solvedAllIntime: boolean;
     solvedAllBeforeContest: boolean;
+    solvedAllInSelectedLanguages: boolean;
   }
 
   const maxProblemCount = contests.reduce(
@@ -101,9 +108,16 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
           dataField="id"
           columnClassName={(
             _: string,
-            { solvedAll, solvedAllIntime, solvedAllBeforeContest }: OneContest
+            {
+              solvedAll,
+              solvedAllIntime,
+              solvedAllBeforeContest,
+              solvedAllInSelectedLanguages
+            }: OneContest
           ) =>
-            props.enableColorfulMode
+            solvedAllInSelectedLanguages
+              ? "table-info"
+              : props.enableColorfulMode
               ? solvedAllBeforeContest
                 ? "table-success-before-contest"
                 : solvedAllIntime
@@ -134,9 +148,12 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
                 "table-problem",
                 !problem
                   ? ""
-                  : props.enableColorfulMode
-                  ? statusToTableColor(problem.status, contest)
-                  : statusLabelToTableColor(problem.status.label)
+                  : statusToTableColor({
+                      status: problem.status,
+                      contest,
+                      enableColorfulMode: props.enableColorfulMode,
+                      selectedLanguages: props.selectedLanguages
+                    })
               ]
                 .filter(nm => nm)
                 .join(" ");
