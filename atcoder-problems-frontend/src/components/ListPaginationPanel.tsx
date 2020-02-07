@@ -13,6 +13,8 @@ interface Props {
   dataSize: number;
 }
 
+const range = (start: number, end: number) =>
+  Array.from({ length: end - start + 1 }, (v, k) => k + start);
 const pageList = (
   currPage: number,
   pageStartIndex: number,
@@ -21,6 +23,10 @@ const pageList = (
 ) => {
   if (dataSize === 0) {
     return [];
+  }
+  const maxPage = Math.ceil(dataSize / sizePerPage);
+  if (maxPage <= 10) {
+    return range(1, maxPage);
   }
 
   const pageNumbers: number[] = [currPage];
@@ -38,7 +44,6 @@ const pageList = (
   }
 
   tmpExp = 1;
-  const maxPage = Math.ceil(dataSize / sizePerPage);
   while (true) {
     tmpExp *= 2;
     const tmpPageNumber = currPage + tmpExp - 1;
