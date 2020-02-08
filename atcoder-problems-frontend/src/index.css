@@ -62,7 +62,8 @@ span.difficulty-circle {
 }
 
 
-.table-success-intime, .table-success-intime>td, .table-success-intime>th {
+.table-success-intime, .table-success-intime>td, .table-success-intime>th,
+.table-success-language, .table-success-language>td, .table-success-language>th {
   background-color: #9AD59E;
 }
 

@@ -12,6 +12,7 @@ import ProblemModel from "../../interfaces/ProblemModel";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "../../utils/LocalStorage";
+import { ColorMode } from "../../utils/TableColor";
 
 const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
   return (
@@ -48,9 +49,9 @@ const TablePage: React.FC<InnerProps> = props => {
     "showDifficulty",
     true
   );
-  const [enableColorfulMode, setEnableColorfulMode] = useLocalStorage(
-    "enableColorfulMode",
-    true
+  const [colorMode, setColorMode] = useLocalStorage(
+    "colorMode",
+    ColorMode.None
   );
   const [selectedLanguages, setSelectedLanguages] = useState(Set<string>());
 
@@ -89,10 +90,8 @@ const TablePage: React.FC<InnerProps> = props => {
         toggleShowAccepted={() => setShowAccepted(!showAccepted)}
         showDifficulties={showDifficulty}
         toggleShowDifficulties={() => setShowDifficulty(!showDifficulty)}
-        enableColorfulMode={enableColorfulMode}
-        toggleEnableColorfulMode={() =>
-          setEnableColorfulMode(!enableColorfulMode)
-        }
+        colorMode={colorMode}
+        setColorMode={setColorMode}
         selectableLanguages={selectableLanguages}
         selectedLanguages={selectedLanguages}
         toggleLanguage={language =>
@@ -109,7 +108,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
-          enableColorfulMode={enableColorfulMode}
+          colorMode={colorMode}
           contests={abc.valueSeq()}
           title="AtCoder Beginner Contest"
           contestToProblems={contestToProblems}
@@ -122,7 +121,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
-          enableColorfulMode={enableColorfulMode}
+          colorMode={colorMode}
           contests={arc.valueSeq()}
           title="AtCoder Regular Contest"
           contestToProblems={contestToProblems}
@@ -135,7 +134,7 @@ const TablePage: React.FC<InnerProps> = props => {
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
-          enableColorfulMode={enableColorfulMode}
+          colorMode={colorMode}
           contests={agc.valueSeq()}
           title="AtCoder Grand Contest"
           contestToProblems={contestToProblems}
@@ -151,7 +150,7 @@ const TablePage: React.FC<InnerProps> = props => {
           title="Other Rated Contests"
           contestToProblems={contestToProblems}
           showSolved={showAccepted}
-          enableColorfulMode={enableColorfulMode}
+          colorMode={colorMode}
           statusLabelMap={statusLabelMap}
           selectedLanguages={selectedLanguages}
         />
@@ -164,7 +163,7 @@ const TablePage: React.FC<InnerProps> = props => {
           title="Other Contests"
           contestToProblems={contestToProblems}
           showSolved={showAccepted}
-          enableColorfulMode={enableColorfulMode}
+          colorMode={colorMode}
           statusLabelMap={statusLabelMap}
           selectedLanguages={selectedLanguages}
         />

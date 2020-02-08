@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FormGroup,
   Input,
@@ -6,29 +6,29 @@ import {
   Container,
   Row,
   Col,
-  Card,
-  CardHeader,
-  CardBody,
-  Collapse
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Card
 } from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import { Set } from "immutable";
+import { ColorMode } from "../../utils/TableColor";
 
 interface Props {
   showAccepted: boolean;
   toggleShowAccepted: () => void;
   showDifficulties: boolean;
   toggleShowDifficulties: () => void;
-  enableColorfulMode: boolean;
-  toggleEnableColorfulMode: () => void;
+  colorMode: ColorMode;
+  setColorMode: (colorMode: ColorMode) => void;
   selectableLanguages: Set<string>;
   selectedLanguages: Set<string>;
   toggleLanguage: (language: string) => void;
 }
 
 const Options: React.FC<Props> = props => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <Container>
       <Row className="my-4">
@@ -55,54 +55,62 @@ const Options: React.FC<Props> = props => {
             </HelpBadgeTooltip>
           </Label>
         </FormGroup>
-        <FormGroup check inline>
-          <Label check>
-            <Input
-              type="checkbox"
-              checked={props.enableColorfulMode}
-              onChange={props.toggleEnableColorfulMode}
-            />
-            Colorful Mode
-          </Label>
-        </FormGroup>
+        <UncontrolledDropdown>
+          <DropdownToggle caret>
+            {
+              {
+                [ColorMode.None]: "Color By",
+                [ColorMode.ContestResult]: "Contest Result",
+                [ColorMode.Language]: "Language"
+              }[props.colorMode]
+            }
+          </DropdownToggle>
+          <DropdownMenu>
+            <DropdownItem header>Color By</DropdownItem>
+            <DropdownItem onClick={() => props.setColorMode(ColorMode.None)}>
+              None
+            </DropdownItem>
+            <DropdownItem
+              onClick={() => props.setColorMode(ColorMode.ContestResult)}
+            >
+              Contest Result
+            </DropdownItem>
+            <DropdownItem
+              onClick={() => props.setColorMode(ColorMode.Language)}
+            >
+              Language
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
       </Row>
-      {props.selectableLanguages.isEmpty() || (
-        <Row className="my-4">
-          <Col className="px-0">
-            <Card>
-              <CardHeader
-                className="dropdown-toggle"
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                Languages
-              </CardHeader>
-              <Collapse isOpen={isOpen}>
-                <CardBody>
-                  <FormGroup check className="m-0 p-0">
-                    {props.selectableLanguages
-                      .toArray()
-                      .sort()
-                      .map(language => (
-                        <Label
-                          check
-                          key={language}
-                          style={{ marginLeft: "2rem" }}
-                        >
-                          <Input
-                            type="checkbox"
-                            checked={props.selectedLanguages.has(language)}
-                            onChange={() => props.toggleLanguage(language)}
-                          />
-                          {language}
-                        </Label>
-                      ))}
-                  </FormGroup>
-                </CardBody>
-              </Collapse>
-            </Card>
-          </Col>
-        </Row>
-      )}
+      {props.colorMode === ColorMode.Language &&
+        !props.selectableLanguages.isEmpty() && (
+          <Row className="my-4">
+            <Col className="px-0">
+              <Card body>
+                <FormGroup check className="m-0 p-0">
+                  {props.selectableLanguages
+                    .toArray()
+                    .sort()
+                    .map(language => (
+                      <Label
+                        check
+                        key={language}
+                        style={{ marginLeft: "2rem" }}
+                      >
+                        <Input
+                          type="checkbox"
+                          checked={props.selectedLanguages.has(language)}
+                          onChange={() => props.toggleLanguage(language)}
+                        />
+                        {language}
+                      </Label>
+                    ))}
+                </FormGroup>
+              </Card>
+            </Col>
+          </Row>
+        )}
     </Container>
   );
 };
