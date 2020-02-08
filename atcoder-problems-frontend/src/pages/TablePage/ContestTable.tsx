@@ -4,7 +4,7 @@ import Problem from "../../interfaces/Problem";
 import { Table, Row } from "reactstrap";
 import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
-import { statusToTableColor } from "../../utils/TableColor";
+import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -15,7 +15,7 @@ interface Props {
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
-  enableColorfulMode: boolean;
+  colorMode: ColorMode;
   problemModels: Map<ProblemId, ProblemModel>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   selectedLanguages: Set<string>;
@@ -28,7 +28,7 @@ const ContestTable: React.FC<Props> = (props: Props) => {
     contestToProblems,
     showSolved,
     statusLabelMap,
-    enableColorfulMode,
+    colorMode,
     problemModels,
     selectedLanguages
   } = props;
@@ -80,9 +80,9 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                       {problemInfo.map(({ problem, status, model }) => {
                         const color = status
                           ? statusToTableColor({
+                              colorMode,
                               status,
                               contest,
-                              enableColorfulMode,
                               selectedLanguages
                             })
                           : "";
@@ -110,7 +110,9 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                             <SubmitTimespan
                               contest={contest}
                               problemStatus={status}
-                              enableColorfulMode={props.enableColorfulMode}
+                              enableColorfulMode={
+                                props.colorMode === ColorMode.ContestResult
+                              }
                             />
                           </td>
                         );
