@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   BootstrapTable,
   TableHeaderColumn,
+  FilterData,
   PaginationPanelProps
 } from "react-bootstrap-table";
 
@@ -82,6 +83,12 @@ const SubmissionList = (props: Props) => {
           );
         },
         afterSearch: (search: string, result: ReadonlyArray<any>) => {
+          setDataSize(result.length);
+        },
+        afterColumnFilter: (
+          filterConds: ReadonlyArray<FilterData>,
+          result: ReadonlyArray<any>
+        ) => {
           setDataSize(result.length);
         }
       }}
