@@ -25,6 +25,7 @@ interface Props {
 
 const SubmissionList = (props: Props) => {
   const [dataSize, setDataSize] = useState(0);
+  let dataSizeTmp: number = dataSize;
   const { submissions, problems, problemModels } = props;
   const titleMap = problems.reduce(
     (map, p) => map.set(p.id, p.title),
@@ -89,7 +90,14 @@ const SubmissionList = (props: Props) => {
           filterConds: ReadonlyArray<FilterData>,
           result: ReadonlyArray<any>
         ) => {
-          setDataSize(result.length);
+          if (dataSize !== result.length) {
+            dataSizeTmp = result.length;
+          }
+        },
+        afterTableComplete: () => {
+          if (dataSizeTmp !== dataSize) {
+            setDataSize(dataSizeTmp);
+          }
         }
       }}
     >
