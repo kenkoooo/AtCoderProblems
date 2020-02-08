@@ -96,7 +96,10 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
   return (
     <Row className="my-4">
       <h2>{props.title}</h2>
-      <BootstrapTable data={contests}>
+      <BootstrapTable
+        data={contests}
+        tableContainerClass="contest-table-responsive contest-regular-table-responsive"
+      >
         <TableHeaderColumn
           isKey
           dataField="id"
@@ -111,9 +114,18 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
           <TableHeaderColumn
             dataField={c}
             key={c}
-            columnClassName={(_: any, { cellColorList }: OneContest) => {
+            columnClassName={(
+              _: any,
+              { problemStatus, cellColorList }: OneContest
+            ) => {
+              const problem = problemStatus.get(i);
               const cellColor = cellColorList.get(i, TableColor.None);
-              return ["table-problem", cellColor].filter(nm => nm).join(" ");
+              return [
+                "table-problem",
+                !problem ? "table-problem-empty" : cellColor
+              ]
+                .filter(nm => nm)
+                .join(" ");
             }}
             dataFormat={(_: any, { contest, problemStatus }: OneContest) => {
               const problem = problemStatus.get(i);

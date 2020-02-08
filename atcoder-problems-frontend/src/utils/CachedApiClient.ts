@@ -57,8 +57,21 @@ let CACHED_PROBLEM_MODELS: undefined | Promise<Map<ProblemId, ProblemModel>>;
 export const cachedProblemModels = () => {
   if (CACHED_PROBLEM_MODELS === undefined) {
     CACHED_PROBLEM_MODELS = fetchProblemModels();
+    CACHED_PROBLEM_MODELS.then(value =>
+      localStorage.setItem(
+        "problemModels",
+        JSON.stringify(Array.from(value.entries()))
+      )
+    );
   }
   return CACHED_PROBLEM_MODELS;
+};
+export const oldProblemModels = () => {
+  return Map<ProblemId, ProblemModel>(
+    JSON.parse(localStorage.getItem("problemModels") || "[]") as Array<
+      [ProblemId, ProblemModel]
+    >
+  );
 };
 
 let CACHED_CONTESTS: undefined | Promise<Map<ContestId, Contest>>;
@@ -213,11 +226,10 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
           .filter(s => rivals.contains(s.user_id))
           .filter(s => isAccepted(s.result));
         const accepted = userList.filter(s => isAccepted(s.result));
-        if (!accepted.isEmpty()) {
-          return successStatus(
-            accepted.map(s => s.language).toSet(),
-            accepted.map(s => s.epoch_second).min()
-          );
+        const epoch = accepted.map(s => s.epoch_second).min();
+        if (epoch !== undefined) {
+          const selectableLanguages = accepted.map(s => s.language).toSet();
+          return successStatus(selectableLanguages, epoch);
         } else if (!rivalsList.isEmpty()) {
           return failedStatus(
             rivalsList
@@ -233,8 +245,21 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
         }
       })
     );
+    STATUS_LABEL_MAP.statusLabelMap.then(value =>
+      localStorage.setItem(
+        "statusLabelMap",
+        JSON.stringify(Array.from(value.entries()))
+      )
+    );
   }
   return STATUS_LABEL_MAP.statusLabelMap;
+};
+export const oldStatusLabelMap = () => {
+  return Map<ProblemId, ProblemStatus>(
+    JSON.parse(localStorage.getItem("statusLabelMap") || "[]") as Array<
+      [string, ProblemStatus]
+    >
+  );
 };
 
 const SELECTABLE_LANGUAGES: {
@@ -339,12 +364,12 @@ const fetchProblemModels = () =>
 const fetchSubmissions = (user: string) =>
   user.length > 0
     ? fetchTypedList(
-        `${BASE_URL}/atcoder-api/results?user=${user}`,
-        isSubmission
-      )
+      `${BASE_URL}/atcoder-api/results?user=${user}`,
+      isSubmission
+    )
     : Promise.resolve(List<Submission>()).then(submissions =>
-        submissions.filter(s => isValidResult(s.result))
-      );
+      submissions.filter(s => isValidResult(s.result))
+    );
 
 export const fetchSubmissionsFrom = (epochSecond: number) =>
   fetchTypedList(
@@ -356,9 +381,9 @@ const fetchRatingInfo = async (user: string) => {
   const history =
     user.length > 0
       ? await fetchTypedList(
-          `${BASE_URL}/proxy/users/${user}/history/json`,
-          isContestParticipation
-        ).catch(() => List<ContestParticipation>())
+        `${BASE_URL}/proxy/users/${user}/history/json`,
+        isContestParticipation
+      ).catch(() => List<ContestParticipation>())
       : List<ContestParticipation>();
   return ratingInfoOf(history);
 };

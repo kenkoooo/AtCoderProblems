@@ -1,7 +1,11 @@
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import {
+  BootstrapTable,
+  TableHeaderColumn,
+  PaginationPanelProps
+} from "react-bootstrap-table";
 import { StatusLabel } from "../../interfaces/Status";
 import { Badge } from "reactstrap";
-import React, { ReactElement } from "react";
+import React, { ReactElement, useState } from "react";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import * as Url from "../../utils/Url";
@@ -16,6 +20,7 @@ import ProblemModel, {
   isProblemModelWithTimeModel
 } from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
+import { ListPaginationPanel } from "../../components/ListPaginationPanel";
 
 interface Props {
   fromPoint: number;
@@ -29,6 +34,7 @@ interface Props {
 }
 
 export const ListTable = (props: Props) => {
+  const [dataSize, setDataSize] = useState(0);
   const readDifficultyAsNumber: (row: ProblemRowData) => number = row => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
@@ -385,11 +391,26 @@ export const ListTable = (props: Props) => {
             text: "All",
             value: props.rowData.size
           }
-        ]
+        ],
+        paginationPanel: (paginationPanelProps: PaginationPanelProps) => {
+          return (
+            <ListPaginationPanel
+              paginationPanelProps={paginationPanelProps}
+              dataSize={dataSize}
+            />
+          );
+        },
+        afterSearch: (search: string, result: ReadonlyArray<any>) => {
+          setDataSize(result.length);
+        }
       }}
     >
       {columns.map(c => (
-        <TableHeaderColumn key={c.header} {...c}>
+        <TableHeaderColumn
+          key={c.header}
+          tdAttr={{ "data-col-name": c.header }}
+          {...c}
+        >
           {c.header}
         </TableHeaderColumn>
       ))}

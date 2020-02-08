@@ -101,3 +101,103 @@ span.difficulty-circle {
   line-height: 1.0;
   white-space: normal;
 }
+
+@media only screen and (max-width: 480px) {
+  .contest-table-responsive table,
+  .contest-table-responsive thead,
+  .contest-table-responsive tbody,
+  .contest-table-responsive th,
+  .contest-table-responsive td,
+  .contest-table-responsive tr {
+      display: block;
+  }
+
+  .contest-table-responsive td.table-problem-empty {
+      display: none;
+  }
+
+  .contest-table-responsive thead tr {
+      display: none;
+  }
+
+  .contest-table-responsive tr {
+      border: 1px solid #ccc;
+  }
+
+  .contest-table-responsive td {
+      position: relative;
+      padding-left: .75rem;
+      padding-top: 6px;
+      padding-bottom: 6px;
+  }
+
+  .contest-table-responsive.contest-regular-table-responsive td:not(:first-child) {
+      padding-left: 2.5rem;
+  }
+  
+  div.btn-group.table-tab {
+      display: block;
+  }
+
+  div.btn-group.table-tab > button.btn:not(:last-child):not(.dropdown-toggle),
+  div.btn-group.table-tab > button.btn:not(:first-child) {
+      border-radius: .25rem;
+      margin-left: 0.1rem;
+  }
+
+  div.btn-group.table-tab > button.btn {
+      margin: 0.1rem;
+      padding: 0.4rem;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .list-table table,
+  .list-table thead,
+  .list-table tbody,
+  .list-table th,
+  .list-table td,
+  .list-table tr {
+      display: block;
+  }
+
+  .list-table thead tr {
+      display: none;
+  }
+
+  .list-table tbody tr {
+      border: 1px solid #ccc;
+      margin-top: 0.5rem;
+  }
+
+  .list-table tbody tr td {
+      position: relative;
+      padding-left: 32%;
+      padding-top: 6px;
+      padding-bottom: 6px;
+      min-height: calc(1rem + 12px);
+  }
+
+  .list-table tbody td:before {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 32%;
+    padding-right: 10px;
+    text-align: left;
+    font-weight: bold;
+    content: attr(data-col-name);
+  }
+
+  .list-table td p {
+    margin-bottom: 0;
+  }
+
+  .react-bs-table-bordered {
+    border: none;
+  }
+
+  .react-bs-table .table-bordered>tbody>tr>td:first-child {
+    border-left-width: 1px;
+  }
+}
