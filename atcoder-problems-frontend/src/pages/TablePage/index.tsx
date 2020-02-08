@@ -43,7 +43,7 @@ const TablePage: React.FC<InnerProps> = props => {
     selectableLanguagesFetch
   } = props;
 
-  const [activeTab, setActiveTab] = useState(TableTab.ABC);
+  const [activeTab, setActiveTab] = useLocalStorage("activeTab", TableTab.ABC);
   const [showAccepted, setShowAccepted] = useLocalStorage("showAccepted", true);
   const [showDifficulty, setShowDifficulty] = useLocalStorage(
     "showDifficulty",
@@ -57,7 +57,7 @@ const TablePage: React.FC<InnerProps> = props => {
 
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
-    : Map<ProblemId, ProblemModel>();
+    : CachedApiClient.oldProblemModels();
   const contestToProblems = contestToProblemsFetch.fulfilled
     ? contestToProblemsFetch.value
     : Map<ContestId, List<Problem>>();
@@ -66,7 +66,7 @@ const TablePage: React.FC<InnerProps> = props => {
     : Map<ContestId, Contest>();
   const statusLabelMap = statusLabelMapFetch.fulfilled
     ? statusLabelMapFetch.value
-    : Map<ProblemId, ProblemStatus>();
+    : CachedApiClient.oldStatusLabelMap();
   const selectableLanguages = selectableLanguagesFetch.fulfilled
     ? selectableLanguagesFetch.value
     : Set<string>();

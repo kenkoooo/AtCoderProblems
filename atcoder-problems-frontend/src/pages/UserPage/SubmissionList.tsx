@@ -1,5 +1,9 @@
-import React from "react";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import React, { useState } from "react";
+import {
+  BootstrapTable,
+  TableHeaderColumn,
+  PaginationPanelProps
+} from "react-bootstrap-table";
 
 import Submission from "../../interfaces/Submission";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
@@ -10,6 +14,7 @@ import ProblemLink from "../../components/ProblemLink";
 import { Map } from "immutable";
 import { ProblemId } from "../../interfaces/Status";
 import ProblemModel from "../../interfaces/ProblemModel";
+import { ListPaginationPanel } from "../../components/ListPaginationPanel";
 
 interface Props {
   submissions: Submission[];
@@ -18,6 +23,7 @@ interface Props {
 }
 
 const SubmissionList = (props: Props) => {
+  const [dataSize, setDataSize] = useState(0);
   const { submissions, problems, problemModels } = props;
   const titleMap = problems.reduce(
     (map, p) => map.set(p.id, p.title),
@@ -30,6 +36,7 @@ const SubmissionList = (props: Props) => {
     .forEach((verdict, index) => {
       verdictOptions[index] = verdict;
     });
+
   return (
     <BootstrapTable
       data={submissions
@@ -65,7 +72,18 @@ const SubmissionList = (props: Props) => {
             text: "All",
             value: submissions.length
           }
-        ]
+        ],
+        paginationPanel: (paginationPanelProps: PaginationPanelProps) => {
+          return (
+            <ListPaginationPanel
+              paginationPanelProps={paginationPanelProps}
+              dataSize={dataSize}
+            />
+          );
+        },
+        afterSearch: (search: string, result: ReadonlyArray<any>) => {
+          setDataSize(result.length);
+        }
       }}
     >
       <TableHeaderColumn

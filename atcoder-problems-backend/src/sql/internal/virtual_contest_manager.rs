@@ -13,8 +13,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
-const MAX_CONTEST_NUM: i64 = 1024;
-const MAX_PROBLEM_NUM_PER_CONTEST: usize = 16;
+const MAX_PROBLEM_NUM_PER_CONTEST: usize = 100;
 const RECENT_CONTEST_NUM: i64 = 500;
 
 type VirtualContestTuple = (
@@ -96,14 +95,6 @@ impl VirtualContestManager for PgConnection {
         duration_second: i64,
         mode: Option<&str>,
     ) -> Result<String> {
-        let count = v_contests::table
-            .filter(v_contests::internal_user_id.eq(internal_user_id))
-            .select(count_star())
-            .first::<i64>(self)?;
-        if count >= MAX_CONTEST_NUM {
-            return Err(Error::InvalidPostRequest);
-        }
-
         let uuid = Uuid::new_v4().to_string();
         insert_into(v_contests::table)
             .values(vec![(
@@ -269,7 +260,7 @@ impl VirtualContestManager for PgConnection {
         problems: &[VirtualContestItem],
         user_id: &str,
     ) -> Result<()> {
-        if problems.len() >= MAX_PROBLEM_NUM_PER_CONTEST {
+        if problems.len() > MAX_PROBLEM_NUM_PER_CONTEST {
             return Err(Error::InvalidPostRequest);
         }
         v_contests::table
