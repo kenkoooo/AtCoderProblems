@@ -272,9 +272,9 @@ export const cachedSelectableLanguages = (userId: string) => {
     SELECTABLE_LANGUAGES.userId !== userId
   ) {
     SELECTABLE_LANGUAGES.userId = userId;
-    SELECTABLE_LANGUAGES.selectableLanguages = cachedSubmissions(userId).then(
-      submissions => submissions.map(s => s.language).toSet()
-    );
+    SELECTABLE_LANGUAGES.selectableLanguages = cachedSubmissions(
+      userId
+    ).then(submissions => submissions.map(s => s.language).toSet());
   }
   return SELECTABLE_LANGUAGES.selectableLanguages;
 };
