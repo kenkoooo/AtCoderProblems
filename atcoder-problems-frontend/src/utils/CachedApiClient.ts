@@ -364,12 +364,12 @@ const fetchProblemModels = () =>
 const fetchSubmissions = (user: string) =>
   user.length > 0
     ? fetchTypedList(
-      `${BASE_URL}/atcoder-api/results?user=${user}`,
-      isSubmission
-    )
+        `${BASE_URL}/atcoder-api/results?user=${user}`,
+        isSubmission
+      )
     : Promise.resolve(List<Submission>()).then(submissions =>
-      submissions.filter(s => isValidResult(s.result))
-    );
+        submissions.filter(s => isValidResult(s.result))
+      );
 
 export const fetchSubmissionsFrom = (epochSecond: number) =>
   fetchTypedList(
@@ -381,9 +381,9 @@ const fetchRatingInfo = async (user: string) => {
   const history =
     user.length > 0
       ? await fetchTypedList(
-        `${BASE_URL}/proxy/users/${user}/history/json`,
-        isContestParticipation
-      ).catch(() => List<ContestParticipation>())
+          `${BASE_URL}/proxy/users/${user}/history/json`,
+          isContestParticipation
+        ).catch(() => List<ContestParticipation>())
       : List<ContestParticipation>();
   return ratingInfoOf(history);
 };
