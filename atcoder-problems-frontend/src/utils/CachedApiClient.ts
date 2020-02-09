@@ -1,12 +1,12 @@
 import {
   ContestId,
-  StatusLabel,
   failedStatus,
   noneStatus,
   ProblemId,
   ProblemStatus,
   successStatus,
-  warningStatus
+  warningStatus,
+  deserializeProblemStatus
 } from "../interfaces/Status";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import { List, Map, Set } from "immutable";
@@ -256,15 +256,28 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
   return STATUS_LABEL_MAP.statusLabelMap;
 };
 export const oldStatusLabelMap = () => {
-  return Map<ProblemId, ProblemStatus>(
-    JSON.parse(localStorage.getItem("statusLabelMap") || "[]") as Array<
-      [string, ProblemStatus]
-    >
-  ).map(status =>
-    status.label === StatusLabel.Success
-      ? successStatus(status.epoch, Set(status.solvedLanguages))
-      : status
-  );
+  const storedArray = JSON.parse(
+    localStorage.getItem("statusLabelMap") || "[]"
+  ) as Array<[string, any]>;
+
+  const deserializedArray: Array<[ProblemId, ProblemStatus]> = storedArray
+    .map(([problemId, status]) => {
+      const problemStatus: ProblemStatus | undefined = deserializeProblemStatus(
+        status
+      );
+      return { problemId, problemStatus };
+    })
+    .filter(
+      (
+        e
+      ): e is {
+        problemId: ProblemId;
+        problemStatus: ProblemStatus;
+      } => e.problemStatus !== undefined
+    )
+    .map(({ problemId, problemStatus }) => [problemId, problemStatus]);
+
+  return Map<ProblemId, ProblemStatus>(deserializedArray);
 };
 
 const SELECTABLE_LANGUAGES: {

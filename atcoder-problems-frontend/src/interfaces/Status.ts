@@ -31,3 +31,46 @@ export type ProblemStatus =
   | ReturnType<typeof failedStatus>
   | ReturnType<typeof warningStatus>
   | ReturnType<typeof noneStatus>;
+
+export const deserializeProblemStatus = (
+  problemStatus: any
+): ProblemStatus | undefined => {
+  switch (problemStatus.label) {
+    case StatusLabel.Success: {
+      if (
+        typeof problemStatus.epoch !== "number" ||
+        !Array.isArray(problemStatus.solvedLanguages)
+      ) {
+        return undefined;
+      }
+      const solvedLanguages: string[] = problemStatus.solvedLanguages.filter(
+        (e: any): e is string => typeof e === "string"
+      );
+
+      return successStatus(problemStatus.epoch, Set(solvedLanguages));
+    }
+    case StatusLabel.Failed: {
+      if (!Array.isArray(problemStatus.solvedRivals)) {
+        return undefined;
+      }
+      const solvedRivals: string[] = problemStatus.solvedRivals.filter(
+        (e: any): e is string => typeof e === "string"
+      );
+      return failedStatus(List(solvedRivals));
+    }
+    case StatusLabel.Warning: {
+      if (
+        typeof problemStatus.epoch !== "number" ||
+        typeof problemStatus.result !== "string"
+      ) {
+        return undefined;
+      }
+      return warningStatus(problemStatus.result, problemStatus.epoch);
+    }
+    case StatusLabel.None: {
+      return noneStatus();
+    }
+    default:
+      return undefined;
+  }
+};
