@@ -260,7 +260,7 @@ export const oldStatusLabelMap = () => {
     JSON.parse(localStorage.getItem("statusLabelMap") || "[]") as Array<
       [string, ProblemStatus]
     >
-  ).map((status) =>
+  ).map(status =>
     status.label === StatusLabel.Success
       ? successStatus(status.epoch, Set(status.solvedLanguages))
       : status
