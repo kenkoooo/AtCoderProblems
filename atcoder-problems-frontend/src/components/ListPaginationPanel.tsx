@@ -62,7 +62,6 @@ export const ListPaginationPanel: React.FC<Props> = props => {
     props.pageStartIndex,
     props.totalPages
   );
-  console.log(props);
 
   return (
     <>
