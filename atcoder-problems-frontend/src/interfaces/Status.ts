@@ -9,10 +9,10 @@ export enum StatusLabel {
   None
 }
 
-export const successStatus = (solvedLanguages: Set<string>, epoch: number) => ({
+export const successStatus = (epoch: number, solvedLanguages: Set<string>) => ({
   label: StatusLabel.Success as typeof StatusLabel.Success,
-  solvedLanguages,
-  epoch
+  epoch,
+  solvedLanguages
 });
 export const failedStatus = (solvedRivals: List<string>) => ({
   label: StatusLabel.Failed as typeof StatusLabel.Failed,
