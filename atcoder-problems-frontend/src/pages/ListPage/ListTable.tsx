@@ -1,11 +1,7 @@
-import {
-  BootstrapTable,
-  TableHeaderColumn,
-  PaginationPanelProps
-} from "react-bootstrap-table";
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { StatusLabel } from "../../interfaces/Status";
 import { Badge } from "reactstrap";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement } from "react";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import * as Url from "../../utils/Url";
@@ -34,7 +30,6 @@ interface Props {
 }
 
 export const ListTable = (props: Props) => {
-  const [dataSize, setDataSize] = useState(0);
   const readDifficultyAsNumber: (row: ProblemRowData) => number = row => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
@@ -392,16 +387,8 @@ export const ListTable = (props: Props) => {
             value: props.rowData.size
           }
         ],
-        paginationPanel: (paginationPanelProps: PaginationPanelProps) => {
-          return (
-            <ListPaginationPanel
-              paginationPanelProps={paginationPanelProps}
-              dataSize={dataSize}
-            />
-          );
-        },
-        afterSearch: (search: string, result: ReadonlyArray<any>) => {
-          setDataSize(result.length);
+        paginationPanel: (paginationPanelProps: any) => {
+          return <ListPaginationPanel {...paginationPanelProps} />;
         }
       }}
     >
