@@ -1,5 +1,6 @@
 import {
   ContestId,
+  StatusLabel,
   failedStatus,
   noneStatus,
   ProblemId,
@@ -228,8 +229,8 @@ export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
         const accepted = userList.filter(s => isAccepted(s.result));
         const epoch = accepted.map(s => s.epoch_second).min();
         if (epoch !== undefined) {
-          const selectableLanguages = accepted.map(s => s.language).toSet();
-          return successStatus(selectableLanguages, epoch);
+          const solvedLanguages = accepted.map(s => s.language).toSet();
+          return successStatus(epoch, solvedLanguages);
         } else if (!rivalsList.isEmpty()) {
           return failedStatus(
             rivalsList
@@ -259,6 +260,10 @@ export const oldStatusLabelMap = () => {
     JSON.parse(localStorage.getItem("statusLabelMap") || "[]") as Array<
       [string, ProblemStatus]
     >
+  ).map((status) =>
+    status.label === StatusLabel.Success
+      ? successStatus(status.epoch, Set(status.solvedLanguages))
+      : status
   );
 };
 
