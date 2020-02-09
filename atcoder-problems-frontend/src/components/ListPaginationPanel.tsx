@@ -8,9 +8,8 @@ import {
 } from "reactstrap";
 import { NavLink } from "react-router-dom";
 
-interface Props {
-  paginationPanelProps: PaginationPanelProps;
-  dataSize: number;
+interface Props extends PaginationPanelProps {
+  totalPages: number;
 }
 
 const range = (start: number, end: number) =>
@@ -18,15 +17,13 @@ const range = (start: number, end: number) =>
 const pageList = (
   currPage: number,
   pageStartIndex: number,
-  sizePerPage: number,
-  dataSize: number
+  totalPage: number
 ) => {
-  if (dataSize === 0) {
+  if (totalPage === 0) {
     return [];
   }
-  const maxPage = Math.ceil(dataSize / sizePerPage);
-  if (maxPage <= 10) {
-    return range(1, maxPage);
+  if (totalPage <= 10) {
+    return range(1, totalPage);
   }
 
   const pageNumbers: number[] = [currPage];
@@ -47,43 +44,39 @@ const pageList = (
   while (true) {
     tmpExp *= 2;
     const tmpPageNumber = currPage + tmpExp - 1;
-    if (tmpPageNumber > maxPage) {
+    if (tmpPageNumber > totalPage) {
       break;
     }
     pageNumbers.push(tmpPageNumber);
   }
-  if (pageNumbers.slice(-1)[0] !== maxPage) {
-    pageNumbers.push(maxPage);
+  if (pageNumbers.slice(-1)[0] !== totalPage) {
+    pageNumbers.push(totalPage);
   }
 
   return pageNumbers;
 };
 
 export const ListPaginationPanel: React.FC<Props> = props => {
-  const { paginationPanelProps, dataSize } = props;
-
   const pageNumbers = pageList(
-    paginationPanelProps.currPage,
-    paginationPanelProps.pageStartIndex,
-    paginationPanelProps.sizePerPage,
-    dataSize
+    props.currPage,
+    props.pageStartIndex,
+    props.totalPages
   );
+  console.log(props);
 
   return (
     <>
       <div className="col-md-2 col-xs-2 col-sm-2 col-lg-2">
         <UncontrolledDropdown className="react-bs-table-sizePerPage-dropdown">
-          <DropdownToggle caret>
-            {paginationPanelProps.sizePerPage}
-          </DropdownToggle>
+          <DropdownToggle caret>{props.sizePerPage}</DropdownToggle>
           <DropdownMenu>
-            {(paginationPanelProps.sizePerPageList as Array<{
+            {(props.sizePerPageList as Array<{
               text: string;
               value: number;
             }>).map(p => (
               <DropdownItem
                 key={p.text}
-                onClick={() => paginationPanelProps.changeSizePerPage(p.value)}
+                onClick={() => props.changeSizePerPage(p.value)}
               >
                 {p.text}
               </DropdownItem>
@@ -101,8 +94,7 @@ export const ListPaginationPanel: React.FC<Props> = props => {
         >
           {pageNumbers.map((pageNumber: number) => {
             const className =
-              (pageNumber === paginationPanelProps.currPage ? "active " : "") +
-              "page-item";
+              (pageNumber === props.currPage ? "active " : "") + "page-item";
             return (
               <li
                 className={className}
@@ -112,7 +104,7 @@ export const ListPaginationPanel: React.FC<Props> = props => {
                 <NavLink
                   to="#"
                   className="page-link"
-                  onClick={() => paginationPanelProps.changePage(pageNumber)}
+                  onClick={() => props.changePage(pageNumber)}
                 >
                   {pageNumber}
                 </NavLink>
