@@ -1,4 +1,4 @@
-import { List, Map, Seq } from "immutable";
+import { List, Map, Set, Seq } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Row } from "reactstrap";
@@ -11,8 +11,10 @@ import {
   StatusLabel
 } from "../../interfaces/Status";
 import {
+  ColorMode,
+  TableColor,
   statusToTableColor,
-  statusLabelToTableColor
+  combineTableColorList
 } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
@@ -24,13 +26,15 @@ interface Props {
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
-  enableColorfulMode: boolean;
+  colorMode: ColorMode;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   problemModels: Map<ProblemId, ProblemModel>;
+  selectedLanguages: Set<string>;
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = props => {
+  const { colorMode, selectedLanguages } = props;
   const contests = props.contests
     .valueSeq()
     .map(contest => {
@@ -42,30 +46,29 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         status: props.statusLabelMap.get(problem.id, noneStatus()),
         model: props.problemModels.get(problem.id)
       }));
+      const cellColorList = problems.map(problem => {
+        const status = props.statusLabelMap.get(problem.id, noneStatus());
+        return statusToTableColor({
+          colorMode,
+          status,
+          contest,
+          selectedLanguages
+        });
+      });
+      const rowColor = combineTableColorList({
+        colorMode,
+        colorList: cellColorList
+      });
       const solvedAll = problemStatus.every(
         ({ status }) => status.label === StatusLabel.Success
       );
-      const solvedAllIntime =
-        solvedAll &&
-        problemStatus.every(
-          ({ status }) =>
-            status.label === StatusLabel.Success &&
-            status.epoch <= contest.start_epoch_second + contest.duration_second
-        );
-      const solvedAllBeforeContest =
-        solvedAllIntime &&
-        problemStatus.every(
-          ({ status }) =>
-            status.label === StatusLabel.Success &&
-            status.epoch < contest.start_epoch_second
-        );
       return {
         contest,
+        id: contest.id,
         problemStatus,
         solvedAll,
-        solvedAllIntime,
-        solvedAllBeforeContest,
-        id: contest.id
+        rowColor,
+        cellColorList
       };
     })
     .filter(({ solvedAll }) => props.showSolved || !solvedAll)
@@ -80,8 +83,8 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
       model: ProblemModel | undefined;
     }>;
     solvedAll: boolean;
-    solvedAllIntime: boolean;
-    solvedAllBeforeContest: boolean;
+    rowColor: TableColor;
+    cellColorList: List<TableColor>;
   }
 
   const maxProblemCount = contests.reduce(
@@ -100,22 +103,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         <TableHeaderColumn
           isKey
           dataField="id"
-          columnClassName={(
-            _: string,
-            { solvedAll, solvedAllIntime, solvedAllBeforeContest }: OneContest
-          ) =>
-            props.enableColorfulMode
-              ? solvedAllBeforeContest
-                ? "table-success-before-contest"
-                : solvedAllIntime
-                ? "table-success-intime"
-                : solvedAll
-                ? "table-success"
-                : ""
-              : solvedAll
-              ? "table-success"
-              : ""
-          }
+          columnClassName={(_: string, { rowColor }: OneContest) => rowColor}
           dataFormat={(_: any, { contest }: OneContest) => (
             <ContestLink contest={contest} title={contest.id.toUpperCase()} />
           )}
@@ -128,16 +116,13 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
             key={c}
             columnClassName={(
               _: any,
-              { contest, problemStatus }: OneContest
+              { problemStatus, cellColorList }: OneContest
             ) => {
               const problem = problemStatus.get(i);
+              const cellColor = cellColorList.get(i, TableColor.None);
               return [
                 "table-problem",
-                !problem
-                  ? "table-problem-empty"
-                  : props.enableColorfulMode
-                  ? statusToTableColor(problem.status, contest)
-                  : statusLabelToTableColor(problem.status.label)
+                !problem ? "table-problem-empty" : cellColor
               ]
                 .filter(nm => nm)
                 .join(" ");
@@ -165,7 +150,9 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
                     <SubmitTimespan
                       contest={contest}
                       problemStatus={problem.status}
-                      enableColorfulMode={props.enableColorfulMode}
+                      enableColorfulMode={
+                        props.colorMode === ColorMode.ContestResult
+                      }
                     />
                   </>
                 );

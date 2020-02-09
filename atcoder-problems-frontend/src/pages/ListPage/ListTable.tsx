@@ -19,7 +19,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel
 } from "../../interfaces/ProblemModel";
-import { statusToTableColor } from "../../utils/TableColor";
+import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ListPaginationPanel } from "../../components/ListPaginationPanel";
 
 interface Props {
@@ -326,7 +326,11 @@ export const ListTable = (props: Props) => {
       tableContainerClass="list-table"
       trClassName={(row: ProblemRowData) => {
         const { status, contest } = row;
-        return statusToTableColor(status, contest);
+        return statusToTableColor({
+          colorMode: ColorMode.ContestResult,
+          status,
+          contest
+        });
       }}
       data={props.rowData
         .filter(
