@@ -1,13 +1,10 @@
-import { List, Map, Seq } from "immutable";
+import { List, Map, Set, Seq } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Table, Row } from "reactstrap";
 import React from "react";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
-import {
-  statusToTableColor,
-  statusLabelToTableColor
-} from "../../utils/TableColor";
+import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -18,9 +15,10 @@ interface Props {
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
-  enableColorfulMode: boolean;
+  colorMode: ColorMode;
   problemModels: Map<ProblemId, ProblemModel>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
+  selectedLanguages: Set<string>;
   title: string;
 }
 
@@ -30,8 +28,9 @@ const ContestTable: React.FC<Props> = (props: Props) => {
     contestToProblems,
     showSolved,
     statusLabelMap,
-    enableColorfulMode,
-    problemModels
+    colorMode,
+    problemModels,
+    selectedLanguages
   } = props;
   const mergedContests = contests
     .sort((a, b) => b.start_epoch_second - a.start_epoch_second)
@@ -80,9 +79,12 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                     <tr>
                       {problemInfo.map(({ problem, status, model }) => {
                         const color = status
-                          ? enableColorfulMode
-                            ? statusToTableColor(status, contest)
-                            : statusLabelToTableColor(status.label)
+                          ? statusToTableColor({
+                              colorMode,
+                              status,
+                              contest,
+                              selectedLanguages
+                            })
                           : "";
                         return (
                           <td
@@ -108,7 +110,9 @@ const ContestTable: React.FC<Props> = (props: Props) => {
                             <SubmitTimespan
                               contest={contest}
                               problemStatus={status}
-                              enableColorfulMode={props.enableColorfulMode}
+                              enableColorfulMode={
+                                props.colorMode === ColorMode.ContestResult
+                              }
                             />
                           </td>
                         );
