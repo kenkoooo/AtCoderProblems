@@ -15,7 +15,7 @@ import {
 import ClimbingLineChart from "./ClimbingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
 import SmallPieChart from "./SmallPieChart";
-import FilteringHeatmap from "./FilteringHeatmap";
+import FilteringHeatmapX from "./FilteringHeatmap";
 import SubmissionList from "./SubmissionList";
 import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
@@ -348,7 +348,7 @@ const UserPage = (props: InnerProps) => {
       <Row className="my-2 border-bottom">
         <h1>Heatmap</h1>
       </Row>
-      <FilteringHeatmap submissions={userSubmissions.toArray()} />
+      <FilteringHeatmapX submissions={userSubmissions.toArray()} />
 
       <Row className="my-2 border-bottom">
         <h1>Submissions</h1>

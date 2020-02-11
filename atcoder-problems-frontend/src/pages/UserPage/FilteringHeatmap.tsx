@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ButtonGroup, Button, Row } from "reactstrap";
 
 import CalendarHeatmap from "../../components/CalendarHeatmap";
@@ -12,10 +12,6 @@ type FilterStatus = "AC" | "Submissions" | "Unique AC";
 
 interface Props {
   submissions: Submission[];
-}
-
-interface State {
-  filterStatus: FilterStatus;
 }
 
 export const filterSubmissions = (
@@ -40,56 +36,59 @@ export const filterSubmissions = (
   }
 };
 
-class FilteringHeatmap extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      filterStatus: "Submissions"
-    };
+const formatTooltip = (date: string, count: number, filter: FilterStatus) => {
+  if (filter === "Submissions") {
+    if (count <= 1) {
+      return `${date} ${count} submission`;
+    } else {
+      return `${date} ${count} submissions`;
+    }
+  } else {
+    return `${date} ${count} ${filter}`;
   }
+};
 
-  render() {
-    const { submissions } = this.props;
-    const { filterStatus } = this.state;
-    const filteredSubmissions = filterSubmissions(submissions, filterStatus);
+const FilteringHeatmap = (props: Props) => {
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("Submissions");
+  const { submissions } = props;
+  const filteredSubmissions = filterSubmissions(submissions, filterStatus);
 
-    return (
-      <div>
-        <Row className="my-3">
-          <ButtonGroup>
-            <Button
-              onClick={() => this.setState({ filterStatus: "Submissions" })}
-              active={filterStatus === "Submissions"}
-            >
-              All Submissions
-            </Button>
-            <Button
-              onClick={() => this.setState({ filterStatus: "AC" })}
-              active={filterStatus === "AC"}
-            >
-              All AC
-            </Button>
-            <Button
-              onClick={() => this.setState({ filterStatus: "Unique AC" })}
-              active={filterStatus === "Unique AC"}
-            >
-              Unique AC
-            </Button>
-          </ButtonGroup>
-        </Row>
-        <Row className="my-5">
-          <CalendarHeatmap
-            dateLabels={filteredSubmissions.map(s =>
-              formatMomentDate(parseSecond(s.epoch_second))
-            )}
-            formatTooltip={(date: string, count: number) =>
-              `${date} ${count} ${filterStatus}`
-            }
-          />
-        </Row>
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <Row className="my-3">
+        <ButtonGroup>
+          <Button
+            onClick={() => setFilterStatus("Submissions")}
+            active={filterStatus === "Submissions"}
+          >
+            All Submissions
+          </Button>
+          <Button
+            onClick={() => setFilterStatus("AC")}
+            active={filterStatus === "AC"}
+          >
+            All AC
+          </Button>
+          <Button
+            onClick={() => setFilterStatus("Unique AC")}
+            active={filterStatus === "Unique AC"}
+          >
+            Unique AC
+          </Button>
+        </ButtonGroup>
+      </Row>
+      <Row className="my-5">
+        <CalendarHeatmap
+          dateLabels={filteredSubmissions.map(s =>
+            formatMomentDate(parseSecond(s.epoch_second))
+          )}
+          formatTooltip={(date: string, count: number) =>
+            formatTooltip(date, count, filterStatus)
+          }
+        />
+      </Row>
+    </div>
+  );
+};
 
 export default FilteringHeatmap;
