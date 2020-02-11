@@ -307,6 +307,11 @@ export const ListTable = (props: Props) => {
       header: "Fastest User for Search",
       dataField: "fastestUserId",
       hidden: true
+    },
+    {
+      header: "Contest name for Search",
+      dataField: "contestTitle",
+      hidden: true
     }
   ];
 

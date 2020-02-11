@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useHistory, Redirect } from "react-router-dom";
+import { useParams, useHistory, Redirect, NavLink } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import {
   Button,
@@ -36,6 +36,7 @@ import {
 import { compareProblem } from "./util";
 import ProblemLink from "../../../components/ProblemLink";
 import TweetButton from "../../../components/TweetButton";
+import { GITHUB_LOGIN_LINK } from "../../../utils/Url";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: Map<ProblemId, List<Submission>> | undefined;
@@ -73,7 +74,7 @@ const InnerShowContest = (props: InnerProps) => {
     ? problemMapFetch.value
     : Map<ProblemId, MergedProblem>();
   const contestInfo = contestInfoFetch.value;
-  const atcoderUserId =
+  const rawAtCoderUserId =
     userInfoGet.fulfilled && userInfoGet.value
       ? userInfoGet.value.atcoder_user_id
       : null;
@@ -87,12 +88,17 @@ const InnerShowContest = (props: InnerProps) => {
   const modelMap = problemModelGet.fulfilled
     ? problemModelGet.value
     : Map<ProblemId, ProblemModel>();
+
+  const atCoderUserId = rawAtCoderUserId ? rawAtCoderUserId : "";
+  const isLoggedIn = internalUserId !== null;
+  const userIdIsSet = atCoderUserId !== "";
+
   const start = contestInfo.start_epoch_second;
   const end = contestInfo.start_epoch_second + contestInfo.duration_second;
   const alreadyJoined =
-    atcoderUserId != null && contestInfo.participants.includes(atcoderUserId);
+    userIdIsSet && contestInfo.participants.includes(atCoderUserId);
   const now = Math.floor(Date.now() / 1000);
-  const canJoin = !alreadyJoined && atcoderUserId !== null && now < end;
+  const canJoin = !alreadyJoined && userIdIsSet && now < end;
   const isOwner = contestInfo.owner_user_id === internalUserId;
   const problems = contestInfo.problems;
 
@@ -175,9 +181,16 @@ const InnerShowContest = (props: InnerProps) => {
               Remain: <Timer remain={end - now} />
             </h5>
           ) : null}
-          {atcoderUserId === null ? (
+          {!isLoggedIn ? (
             <Alert color="warning">
-              Please set the AtCoder ID, before you join the contest.
+              Please <a href={GITHUB_LOGIN_LINK}>Login</a> before you join the
+              contest.
+            </Alert>
+          ) : !userIdIsSet ? (
+            <Alert color="warning">
+              Please set the AtCoder ID from{" "}
+              <NavLink to="/login/user">here</NavLink>, before you join the
+              contest.
             </Alert>
           ) : null}
           <ButtonGroup>
