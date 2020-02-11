@@ -11,3 +11,6 @@ export const formatProblemUrl = (problem: string, contest: string) =>
 
 export const formatSolversUrl = (contest: string, problem: string) =>
   `${formatContestUrl(contest)}/submissions?f.Task=${problem}&f.Status=AC`;
+
+export const GITHUB_LOGIN_LINK =
+  "https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7";
