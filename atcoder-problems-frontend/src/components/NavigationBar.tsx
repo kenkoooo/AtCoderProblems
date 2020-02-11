@@ -22,6 +22,7 @@ import { extractRivalsParam, normalizeUserId } from "../utils";
 import { connect, PromiseState } from "react-refetch";
 import { USER_GET } from "../pages/Internal/ApiUrl";
 import { UserResponse } from "../pages/Internal/types";
+import { GITHUB_LOGIN_LINK } from "../utils/Url";
 
 type PageKind = "table" | "list" | "user";
 
@@ -65,6 +66,10 @@ const NavigationBar2 = (props: InnerProps) => {
   const { pathname } = props.location;
   const initialPageKind = extractPageKind(pathname);
   const initialState = extractUserIds(pathname);
+  const isLoggedIn =
+    props.loginState.fulfilled &&
+    props.loginState.value &&
+    props.loginState.value.internal_user_id.length > 0;
   const loggedInUserId =
     props.loginState.fulfilled &&
     props.loginState.value &&
@@ -217,14 +222,12 @@ const NavigationBar2 = (props: InnerProps) => {
           </NavItem>
 
           <NavItem>
-            {loggedInUserId ? (
+            {isLoggedIn ? (
               <NavLink tag={RouterLink} to="/login/user">
                 Account ({loggedInUserId})
               </NavLink>
             ) : (
-              <NavLink href="https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7">
-                Login
-              </NavLink>
+              <NavLink href={GITHUB_LOGIN_LINK}>Login</NavLink>
             )}
           </NavItem>
 
