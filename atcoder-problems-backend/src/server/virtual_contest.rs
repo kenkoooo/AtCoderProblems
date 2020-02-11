@@ -26,7 +26,7 @@ pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'st
                 &user_id,
                 q.start_epoch_second,
                 q.duration_second,
-                q.mode.as_ref().map(|s| s.as_str()),
+                q.mode.as_deref(),
             )?;
             Ok(contest_id)
         })
@@ -61,7 +61,7 @@ pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'st
                 &q.memo,
                 q.start_epoch_second,
                 q.duration_second,
-                q.mode.as_ref().map(|s| s.as_str()),
+                q.mode.as_deref(),
             )
         })
         .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
