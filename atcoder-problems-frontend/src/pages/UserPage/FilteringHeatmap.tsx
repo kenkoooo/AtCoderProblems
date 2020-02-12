@@ -38,7 +38,7 @@ export const filterSubmissions = (
 
 const formatTooltip = (date: string, count: number, filter: FilterStatus) => {
   if (filter === "Submissions") {
-    if (count <= 1) {
+    if (count === 1) {
       return `${date} ${count} submission`;
     } else {
       return `${date} ${count} submissions`;
