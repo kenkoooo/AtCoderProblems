@@ -12,26 +12,46 @@ use diesel::PgConnection;
 use std::collections::BTreeMap;
 
 pub enum SubmissionRequest<'a> {
-    UserAll { user_id: &'a str },
-    UsersAccepted { user_ids: &'a [&'a str] },
-    FromTime { from_second: i64, count: i64 },
-    RecentAccepted { count: i64 },
-    RecentAll { count: i64 },
-    InvalidResult { from_second: i64 },
+    UserAll {
+        user_id: &'a str,
+    },
+    UsersAccepted {
+        user_ids: &'a [&'a str],
+    },
+    FromTime {
+        from_second: i64,
+        count: i64,
+    },
+    RecentAccepted {
+        count: i64,
+    },
+    RecentAll {
+        count: i64,
+    },
+    InvalidResult {
+        from_second: i64,
+    },
     AllAccepted,
+    ByIds {
+        ids: &'a [i64],
+    },
+    UsersAndTime {
+        user_ids: &'a [&'a str],
+        from_second: i64,
+        to_second: i64,
+    },
 }
 
 pub trait SubmissionClient {
     fn get_submissions(&self, request: SubmissionRequest) -> Result<Vec<Submission>>;
     fn get_user_submission_count(&self, user_id: &str) -> Result<i64>;
-    fn get_submission_by_ids(&self, ids: &[i64]) -> Result<Vec<Submission>>;
     fn update_submissions(&self, values: &[Submission]) -> Result<usize>;
     fn update_submission_count(&self) -> Result<()>;
     fn update_user_submission_count(&self, user_id: &str) -> Result<()>;
     fn update_delta_submission_count(&self, values: &[Submission]) -> Result<()>;
 
     fn count_stored_submissions(&self, ids: &[i64]) -> Result<usize> {
-        let submissions = self.get_submission_by_ids(ids)?;
+        let submissions = self.get_submissions(SubmissionRequest::ByIds { ids })?;
         Ok(submissions.len())
     }
 }
@@ -70,6 +90,19 @@ impl SubmissionClient for PgConnection {
                 .filter(submissions::epoch_second.ge(from_second))
                 .order_by(submissions::id.desc())
                 .load(self),
+            SubmissionRequest::ByIds { ids } => submissions::table
+                .filter(submissions::id.eq_any(ids))
+                .load::<Submission>(self),
+            SubmissionRequest::UsersAndTime {
+                user_ids,
+                from_second,
+                to_second,
+            } => submissions::table
+                .filter(submissions::user_id.eq_any(user_ids))
+                .filter(submissions::epoch_second.ge(from_second))
+                .filter(submissions::epoch_second.le(to_second))
+                .limit(2000)
+                .load::<Submission>(self),
         }?;
         Ok(submissions)
     }
@@ -80,13 +113,6 @@ impl SubmissionClient for PgConnection {
             .select(submission_count::count)
             .first(self)?;
         Ok(count)
-    }
-
-    fn get_submission_by_ids(&self, ids: &[i64]) -> Result<Vec<Submission>> {
-        let submissions: Vec<Submission> = submissions::table
-            .filter(submissions::id.eq_any(ids))
-            .load::<Submission>(self)?;
-        Ok(submissions)
     }
 
     fn update_submissions(&self, values: &[Submission]) -> Result<usize> {
