@@ -95,9 +95,6 @@ mod tests {
         fn get_user_submission_count(&self, _: &str) -> Result<i64> {
             unimplemented!()
         }
-        fn get_submission_by_ids(&self, _: &[i64]) -> Result<Vec<Submission>> {
-            unimplemented!()
-        }
         fn update_submissions(&self, _: &[Submission]) -> Result<usize> {
             Ok(0)
         }
@@ -107,7 +104,6 @@ mod tests {
         fn update_user_submission_count(&self, _: &str) -> Result<()> {
             unimplemented!()
         }
-
         fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
             unimplemented!()
         }

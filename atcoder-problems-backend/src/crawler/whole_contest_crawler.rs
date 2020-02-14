@@ -60,10 +60,6 @@ mod tests {
             unimplemented!()
         }
 
-        fn get_submission_by_ids(&self, _: &[i64]) -> Result<Vec<Submission>> {
-            unimplemented!()
-        }
-
         fn update_submissions(&self, _: &[Submission]) -> Result<usize> {
             Ok(1)
         }
