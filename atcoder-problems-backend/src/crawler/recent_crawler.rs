@@ -75,18 +75,21 @@ mod tests {
 
         struct MockDB;
         impl SubmissionClient for MockDB {
-            fn get_submissions(&self, _: SubmissionRequest) -> Result<Vec<Submission>> {
-                unimplemented!()
+            fn get_submissions(&self, request: SubmissionRequest) -> Result<Vec<Submission>> {
+                match request {
+                    SubmissionRequest::ByIds { ids } => {
+                        assert_eq!(ids, &[0]);
+                        Ok(vec![Submission {
+                            ..Default::default()
+                        }])
+                    }
+                    _ => unimplemented!(),
+                }
             }
             fn get_user_submission_count(&self, _: &str) -> Result<i64> {
                 unimplemented!()
             }
-            fn get_submission_by_ids(&self, ids: &[i64]) -> Result<Vec<Submission>> {
-                assert_eq!(ids, &[0]);
-                Ok(vec![Submission {
-                    ..Default::default()
-                }])
-            }
+
             fn update_submissions(&self, submissions: &[Submission]) -> Result<usize> {
                 assert_eq!(submissions.len(), 2);
                 Ok(2)

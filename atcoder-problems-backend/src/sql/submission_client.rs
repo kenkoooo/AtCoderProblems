@@ -19,19 +19,19 @@ pub enum SubmissionRequest<'a> {
     RecentAll { count: i64 },
     InvalidResult { from_second: i64 },
     AllAccepted,
+    ByIds { ids: &'a [i64] },
 }
 
 pub trait SubmissionClient {
     fn get_submissions(&self, request: SubmissionRequest) -> Result<Vec<Submission>>;
     fn get_user_submission_count(&self, user_id: &str) -> Result<i64>;
-    fn get_submission_by_ids(&self, ids: &[i64]) -> Result<Vec<Submission>>;
     fn update_submissions(&self, values: &[Submission]) -> Result<usize>;
     fn update_submission_count(&self) -> Result<()>;
     fn update_user_submission_count(&self, user_id: &str) -> Result<()>;
     fn update_delta_submission_count(&self, values: &[Submission]) -> Result<()>;
 
     fn count_stored_submissions(&self, ids: &[i64]) -> Result<usize> {
-        let submissions = self.get_submission_by_ids(ids)?;
+        let submissions = self.get_submissions(SubmissionRequest::ByIds { ids })?;
         Ok(submissions.len())
     }
 }
@@ -70,6 +70,9 @@ impl SubmissionClient for PgConnection {
                 .filter(submissions::epoch_second.ge(from_second))
                 .order_by(submissions::id.desc())
                 .load(self),
+            SubmissionRequest::ByIds { ids } => submissions::table
+                .filter(submissions::id.eq_any(ids))
+                .load::<Submission>(self),
         }?;
         Ok(submissions)
     }
@@ -80,13 +83,6 @@ impl SubmissionClient for PgConnection {
             .select(submission_count::count)
             .first(self)?;
         Ok(count)
-    }
-
-    fn get_submission_by_ids(&self, ids: &[i64]) -> Result<Vec<Submission>> {
-        let submissions: Vec<Submission> = submissions::table
-            .filter(submissions::id.eq_any(ids))
-            .load::<Submission>(self)?;
-        Ok(submissions)
     }
 
     fn update_submissions(&self, values: &[Submission]) -> Result<usize> {
