@@ -106,8 +106,10 @@ async fn test_user_submissions(port: u16) {
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
 
-    let mut response = surf::get(url("/atcoder-api/results?user=u2", port)).await?;
-    let submissions: Vec<Submission> = response.body_json().await?;
+    let mut response = surf::get(url("/atcoder-api/results?user=u2", port))
+        .await
+        .unwrap();
+    let submissions: Vec<Submission> = response.body_json().await.unwrap();
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
 }
