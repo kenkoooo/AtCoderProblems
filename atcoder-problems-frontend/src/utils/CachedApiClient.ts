@@ -324,8 +324,8 @@ export const cachedRatingInfo = (user: string) => {
   return p;
 };
 
-const BASE_URL = "https://kenkoooo.com/atcoder";
-const STATIC_API_BASE_URL = BASE_URL + "/resources";
+const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
+const ATCODER_API_URL = process.env.REACT_APP_ATCODER_API_URL;
 
 function fetchTypedList<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
   return fetch(url)
@@ -381,25 +381,16 @@ const fetchProblemModels = () =>
 
 const fetchSubmissions = (user: string) =>
   user.length > 0
-    ? fetchTypedList(
-        `${BASE_URL}/atcoder-api/results?user=${user}`,
-        isSubmission
-      )
+    ? fetchTypedList(`${ATCODER_API_URL}/results?user=${user}`, isSubmission)
     : Promise.resolve(List<Submission>()).then(submissions =>
         submissions.filter(s => isValidResult(s.result))
       );
-
-export const fetchSubmissionsFrom = (epochSecond: number) =>
-  fetchTypedList(
-    `${BASE_URL}/atcoder-api/v3/from/${epochSecond}`,
-    isSubmission
-  ).then(submissions => submissions.filter(s => isValidResult(s.result)));
 
 const fetchRatingInfo = async (user: string) => {
   const history =
     user.length > 0
       ? await fetchTypedList(
-          `${BASE_URL}/proxy/users/${user}/history/json`,
+          `${ATCODER_API_URL}/users/${user}/history/json`,
           isContestParticipation
         ).catch(() => List<ContestParticipation>())
       : List<ContestParticipation>();
@@ -446,6 +437,6 @@ export const fetchVirtualContestSubmission = (
   }
 
   const userList = users.join(",");
-  const url = `${BASE_URL}/atcoder-api/v3/users_and_time?users=${userList}&from=${from_second}&to=${to_second}`;
+  const url = `${ATCODER_API_URL}/v3/users_and_time?users=${userList}&from=${from_second}&to=${to_second}`;
   return fetchTypedList(url, isSubmission);
 };

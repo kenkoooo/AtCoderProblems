@@ -1,11 +1,10 @@
 import { isUserInfo } from "../interfaces/UserInfo";
 
-const BASE_URL = "https://kenkoooo.com/atcoder";
-const DYNAMIC_API_BASE_URL = BASE_URL + "/atcoder-api";
+const ATCODER_API_URL = process.env.REACT_APP_ATCODER_API_URL;
 
 export const fetchUserInfo = (user: string) =>
   user.length > 0
-    ? fetch(`${DYNAMIC_API_BASE_URL}/v2/user_info?user=${user}`)
+    ? fetch(`${ATCODER_API_URL}/v2/user_info?user=${user}`)
         .then(r => r.json())
         .then(r => {
           if (isUserInfo(r)) {
