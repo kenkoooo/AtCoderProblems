@@ -429,14 +429,14 @@ const fetchContestToProblemMap = async () => {
 
 export const fetchVirtualContestSubmission = (
   users: string[],
-  from_second: number,
-  to_second: number
+  fromSecond: number,
+  toSecond: number
 ): Promise<List<Submission>> => {
   if (users.length === 0) {
     return Promise.resolve(List());
   }
 
   const userList = users.join(",");
-  const url = `${ATCODER_API_URL}/v3/users_and_time?users=${userList}&from=${from_second}&to=${to_second}`;
+  const url = `${ATCODER_API_URL}/v3/users_and_time?users=${userList}&from=${fromSecond}&to=${toSecond}`;
   return fetchTypedList(url, isSubmission);
 };
