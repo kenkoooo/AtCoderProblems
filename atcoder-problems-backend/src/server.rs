@@ -2,7 +2,9 @@ use crate::error::{Error, Result};
 use crate::server::middleware::RequestLogger;
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
-use crate::server::user_submissions::get_user_submissions;
+use crate::server::user_submissions::{
+    get_recent_submissions, get_user_submissions, get_users_time_submissions,
+};
 
 pub(crate) mod auth;
 use crate::server::problem_list::{
@@ -75,6 +77,8 @@ where
         });
         api.at("/v3").nest(|api| {
             api.at("/from/:from").get(get_time_submissions);
+            api.at("/recent").get(get_recent_submissions);
+            api.at("/users_and_time").get(get_users_time_submissions);
         });
     });
     api.at("/healthcheck").get(|_| async move { "" });

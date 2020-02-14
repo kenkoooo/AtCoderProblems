@@ -12,14 +12,34 @@ use diesel::PgConnection;
 use std::collections::BTreeMap;
 
 pub enum SubmissionRequest<'a> {
-    UserAll { user_id: &'a str },
-    UsersAccepted { user_ids: &'a [&'a str] },
-    FromTime { from_second: i64, count: i64 },
-    RecentAccepted { count: i64 },
-    RecentAll { count: i64 },
-    InvalidResult { from_second: i64 },
+    UserAll {
+        user_id: &'a str,
+    },
+    UsersAccepted {
+        user_ids: &'a [&'a str],
+    },
+    FromTime {
+        from_second: i64,
+        count: i64,
+    },
+    RecentAccepted {
+        count: i64,
+    },
+    RecentAll {
+        count: i64,
+    },
+    InvalidResult {
+        from_second: i64,
+    },
     AllAccepted,
-    ByIds { ids: &'a [i64] },
+    ByIds {
+        ids: &'a [i64],
+    },
+    UsersAndTime {
+        user_ids: &'a [&'a str],
+        from_second: i64,
+        to_second: i64,
+    },
 }
 
 pub trait SubmissionClient {
@@ -72,6 +92,16 @@ impl SubmissionClient for PgConnection {
                 .load(self),
             SubmissionRequest::ByIds { ids } => submissions::table
                 .filter(submissions::id.eq_any(ids))
+                .load::<Submission>(self),
+            SubmissionRequest::UsersAndTime {
+                user_ids,
+                from_second,
+                to_second,
+            } => submissions::table
+                .filter(submissions::user_id.eq_any(user_ids))
+                .filter(submissions::epoch_second.ge(from_second))
+                .filter(submissions::epoch_second.le(to_second))
+                .limit(2000)
                 .load::<Submission>(self),
         }?;
         Ok(submissions)
