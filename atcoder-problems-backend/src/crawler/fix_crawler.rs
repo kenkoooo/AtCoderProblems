@@ -104,7 +104,6 @@ mod tests {
         fn update_user_submission_count(&self, _: &str) -> Result<()> {
             unimplemented!()
         }
-
         fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
             unimplemented!()
         }
