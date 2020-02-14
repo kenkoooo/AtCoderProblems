@@ -435,3 +435,17 @@ const fetchContestToProblemMap = async () => {
       }
     }, Map<ContestId, List<Problem>>());
 };
+
+export const fetchVirtualContestSubmission = (
+  users: string[],
+  from_second: number,
+  to_second: number
+): Promise<List<Submission>> => {
+  if (users.length === 0) {
+    return Promise.resolve(List());
+  }
+
+  const userList = users.join(",");
+  const url = `${BASE_URL}/atcoder-api/v3/users_and_time?users=${userList}&from=${from_second}&to=${to_second}`;
+  return fetchTypedList(url, isSubmission);
+};
