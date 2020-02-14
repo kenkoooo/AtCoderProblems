@@ -11,12 +11,12 @@ import {
   ButtonGroup
 } from "reactstrap";
 import * as CachedApi from "../../../utils/CachedApiClient";
-import { List, Map, Set } from "immutable";
+import { List, Map } from "immutable";
 import { ProblemId } from "../../../interfaces/Status";
 import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../ApiUrl";
 import Submission from "../../../interfaces/Submission";
 import MergedProblem from "../../../interfaces/MergedProblem";
-import { fetchSubmissionsFrom } from "../../../utils/CachedApiClient";
+import { fetchVirtualContestSubmission } from "../../../utils/CachedApiClient";
 import ProblemModel, {
   isProblemModelWithDifficultyModel
 } from "../../../interfaces/ProblemModel";
@@ -462,47 +462,7 @@ const fetchSubmissions = async (
   end: number,
   users: string[]
 ) => {
-  let result = List<Submission>();
-  const submissionsArray = await Promise.all(
-    users.map(user =>
-      CachedApi.cachedSubmissions(user).catch(() => List<Submission>())
-    )
-  );
-  submissionsArray.forEach(submissions => {
-    result = result.concat(submissions);
-  });
-
-  let cur = Math.max(Math.floor(Date.now() / 1000) - 600, start);
-  let fetchCount = 0;
-  while (cur <= end) {
-    const submissions = await fetchSubmissionsFrom(cur).catch(() =>
-      List<Submission>()
-    );
-    fetchCount += 1;
-    result = result.concat(submissions);
-    const maxSecond = submissions.map(s => s.epoch_second).max();
-    if (!maxSecond || maxSecond > end || fetchCount > 15) {
-      break;
-    }
-    cur = maxSecond + 1;
-  }
-
-  result = result
-    .filter(s => start <= s.epoch_second && s.epoch_second < end)
-    .reduce(
-      ({ set, list }, s) => {
-        if (set.contains(s.id)) {
-          return { set, list };
-        } else {
-          return { set: set.add(s.id), list: list.push(s) };
-        }
-      },
-      {
-        set: Set<number>(),
-        list: List<Submission>()
-      }
-    ).list;
-
+  const result = await fetchVirtualContestSubmission(users, start, end);
   return result.reduce((map, s) => {
     const list = map.get(s.problem_id, List<Submission>());
     return map.set(s.problem_id, list.push(s));
