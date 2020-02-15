@@ -15,16 +15,19 @@ export interface ProblemListItem {
   memo: string;
 }
 
-export interface VirtualContest {
+export interface VirtualContestInfo {
   readonly id: string;
   readonly title: string;
   readonly memo: string;
   readonly owner_user_id: string;
   readonly start_epoch_second: number;
   readonly duration_second: number;
+  readonly mode: VirtualContestMode;
+}
+
+export interface VirtualContest extends VirtualContestInfo {
   readonly problems: VirtualContestItem[];
   readonly participants: string[];
-  readonly mode: VirtualContestMode;
 }
 
 export interface VirtualContestItem {
