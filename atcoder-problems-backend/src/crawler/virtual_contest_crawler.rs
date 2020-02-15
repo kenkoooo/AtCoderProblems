@@ -25,20 +25,15 @@ where
     pub async fn crawl(&self) -> Result<()> {
         let now = Utc::now().timestamp();
         let pairs = self.db.load_contest_problem()?;
-        let recent_contests = self.db.get_recent_contests()?;
+        let mut problem_ids = self.db.get_running_contest_problems(now)?;
+        let past_problems = self.db.get_running_contest_problems(now - 120)?;
+        problem_ids.extend(past_problems);
+        problem_ids.sort();
+        problem_ids.dedup();
 
-        let problem_set = recent_contests
-            .into_iter()
-            .filter(|contest| {
-                let end = contest.start_epoch_second + contest.duration_second;
-                end + 120 > now
-            })
-            .flat_map(|c| c.problems)
-            .map(|problem| problem.id)
-            .collect::<BTreeSet<_>>();
         let contest_set = pairs
             .into_iter()
-            .filter(|pair| problem_set.contains(&pair.problem_id))
+            .filter(|pair| problem_ids.binary_search(&pair.problem_id).is_ok())
             .map(|pair| pair.contest_id)
             .collect::<BTreeSet<_>>();
 
