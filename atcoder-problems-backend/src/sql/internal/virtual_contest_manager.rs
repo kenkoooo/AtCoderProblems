@@ -1,14 +1,15 @@
 use crate::error::{Error, Result};
 use crate::sql::schema::*;
 
+use diesel::expression::dsl::count_star;
+use diesel::prelude::*;
+use diesel::sql_types::*;
+use diesel::Queryable;
+use diesel::{delete, insert_into, update, PgConnection};
 use internal_users as i_users;
 use internal_virtual_contest_items as v_items;
 use internal_virtual_contest_participants as v_participants;
 use internal_virtual_contests as v_contests;
-
-use diesel::expression::dsl::count_star;
-use diesel::prelude::*;
-use diesel::{delete, insert_into, update, PgConnection};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
@@ -30,6 +31,20 @@ type VirtualContestTuple = (
     Option<i64>,    //order
 );
 
+#[derive(Serialize, Queryable)]
+pub struct VirtualContestInfo {
+    pub(crate) id: String,
+    pub(crate) title: String,
+    pub(crate) memo: String,
+
+    #[column_name = "internal_user_id"]
+    pub(crate) owner_user_id: String,
+    pub(crate) start_epoch_second: i64,
+    pub(crate) duration_second: i64,
+    pub(crate) mode: Option<String>,
+}
+
+#[deprecated(note = "want to migrate to VirtualContestInfo")]
 #[derive(Serialize)]
 pub struct VirtualContest {
     id: String,
@@ -74,6 +89,7 @@ pub trait VirtualContestManager {
     fn get_participated_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
     fn get_recent_contests(&self) -> Result<Vec<VirtualContest>>;
     fn get_single_contest(&self, contest_id: &str) -> Result<VirtualContest>;
+    fn get_recent_contest_info(&self) -> Result<Vec<VirtualContestInfo>>;
 
     fn update_items(
         &self,
@@ -190,6 +206,14 @@ impl VirtualContestManager for PgConnection {
             .load::<VirtualContestTuple>(self)?;
         let virtual_contests = construct_virtual_contests(data);
         Ok(virtual_contests)
+    }
+
+    fn get_recent_contest_info(&self) -> Result<Vec<VirtualContestInfo>> {
+        let data = v_contests::table
+            .order_by(v_contests::start_epoch_second.desc())
+            .limit(RECENT_CONTEST_NUM)
+            .load::<VirtualContestInfo>(self)?;
+        todo!()
     }
 
     fn get_recent_contests(&self) -> Result<Vec<VirtualContest>> {
