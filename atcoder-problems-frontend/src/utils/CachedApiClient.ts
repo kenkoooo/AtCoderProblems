@@ -325,6 +325,7 @@ export const cachedRatingInfo = (user: string) => {
 };
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
+const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
 const ATCODER_API_URL = process.env.REACT_APP_ATCODER_API_URL;
 
 function fetchTypedList<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
@@ -390,7 +391,7 @@ const fetchRatingInfo = async (user: string) => {
   const history =
     user.length > 0
       ? await fetchTypedList(
-          `${ATCODER_API_URL}/users/${user}/history/json`,
+          `${PROXY_API_URL}/users/${user}/history/json`,
           isContestParticipation
         ).catch(() => List<ContestParticipation>())
       : List<ContestParticipation>();
