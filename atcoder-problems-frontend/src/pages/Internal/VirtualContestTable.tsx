@@ -50,7 +50,7 @@ export default (props: { contests: VirtualContestInfo[] }) => {
         dataField="duration"
         dataFormat={(_: number, contest: VirtualContestInfo) => {
           const durationMinute = Math.floor(contest.duration_second / 60);
-          const hour = `0${Math.floor(durationMinute / 60)}`.slice(-2);
+          const hour = `${Math.floor(durationMinute / 60)}`;
           const minute = `0${durationMinute % 60}`.slice(-2);
           return hour + ":" + minute;
         }}
