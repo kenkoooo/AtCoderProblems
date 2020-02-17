@@ -4,10 +4,10 @@ import { Button, Col, Row } from "reactstrap";
 import VirtualContestTable from "../VirtualContestTable";
 import { CONTEST_RECENT, USER_GET } from "../ApiUrl";
 import { useHistory } from "react-router-dom";
-import { VirtualContest } from "../types";
+import { VirtualContestInfo } from "../types";
 
 interface InnerProps {
-  contestListGet: PromiseState<VirtualContest[]>;
+  contestListGet: PromiseState<VirtualContestInfo[]>;
   userInfoGet: PromiseState<{} | null>;
 }
 

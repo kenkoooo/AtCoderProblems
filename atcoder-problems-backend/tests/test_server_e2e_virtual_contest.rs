@@ -214,6 +214,24 @@ fn test_virtual_contest() {
                 })
             );
 
+            let response = surf::get(url("/internal-api/contest/recent", port))
+                .recv_json::<Value>()
+                .await?;
+            assert_eq!(
+                response,
+                json!([
+                    {
+                        "owner_user_id": "0",
+                        "duration_second": 2,
+                        "start_epoch_second": 1,
+                        "memo": "contest memo",
+                        "title": "contest title",
+                        "id": format!("{}", contest_id),
+                        "mode": null
+                    }
+                ])
+            );
+
             Ok(())
         });
         server.race(client).await.unwrap();

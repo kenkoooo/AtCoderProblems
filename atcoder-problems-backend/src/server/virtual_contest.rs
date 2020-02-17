@@ -118,7 +118,7 @@ pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> Respo
 }
 pub(crate) async fn get_recent_contests<A>(request: Request<AppData<A>>) -> Response {
     request.state().respond(|conn| {
-        let contest = conn.get_recent_contests()?;
+        let contest = conn.get_recent_contest_info()?;
         let response = Response::ok().body_json(&contest)?;
         Ok(response)
     })
