@@ -2,9 +2,9 @@ import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { Link } from "react-router-dom";
 import * as DateUtil from "../../utils/DateUtil";
 import React from "react";
-import { VirtualContest } from "./types";
+import { VirtualContestInfo } from "./types";
 
-export default (props: { contests: VirtualContest[] }) => {
+export default (props: { contests: VirtualContestInfo[] }) => {
   return (
     <BootstrapTable
       data={props.contests.sort(
@@ -19,7 +19,7 @@ export default (props: { contests: VirtualContest[] }) => {
     >
       <TableHeaderColumn
         dataField="title"
-        dataFormat={(title: string, contest: VirtualContest) => (
+        dataFormat={(title: string, contest: VirtualContestInfo) => (
           <Link to={`/contest/show/${contest.id}`}>{title}</Link>
         )}
       >
@@ -28,7 +28,7 @@ export default (props: { contests: VirtualContest[] }) => {
       <TableHeaderColumn dataField="memo">Description</TableHeaderColumn>
       <TableHeaderColumn
         dataField="start_epoch_second"
-        dataFormat={(_: number, contest: VirtualContest) => {
+        dataFormat={(_: number, contest: VirtualContestInfo) => {
           const time = DateUtil.parseSecond(contest.start_epoch_second);
           return DateUtil.formatMomentDateTime(time);
         }}
@@ -37,7 +37,7 @@ export default (props: { contests: VirtualContest[] }) => {
       </TableHeaderColumn>
       <TableHeaderColumn
         dataField="end_epoch_second"
-        dataFormat={(_: number, contest: VirtualContest) => {
+        dataFormat={(_: number, contest: VirtualContestInfo) => {
           const time = DateUtil.parseSecond(
             contest.start_epoch_second + contest.duration_second
           );
@@ -48,9 +48,9 @@ export default (props: { contests: VirtualContest[] }) => {
       </TableHeaderColumn>
       <TableHeaderColumn
         dataField="duration"
-        dataFormat={(_: number, contest: VirtualContest) => {
+        dataFormat={(_: number, contest: VirtualContestInfo) => {
           const durationMinute = Math.floor(contest.duration_second / 60);
-          const hour = `0${Math.floor(durationMinute / 60)}`.slice(-2);
+          const hour = `${Math.floor(durationMinute / 60)}`;
           const minute = `0${durationMinute % 60}`.slice(-2);
           return hour + ":" + minute;
         }}
