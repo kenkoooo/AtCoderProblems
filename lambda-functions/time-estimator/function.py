@@ -291,7 +291,8 @@ def run(target, overwrite, session):
     if target is None:
         target = all_rated_contests()
     else:
-        target = [(target_id, None) for target_id in target]
+        all_contests = all_rated_contests()
+        target = [contest for contest in all_contests if contest[0] in target]
     current_models = get_current_models()
     existing_problems = current_models.keys() if not overwrite else set()
     contest_problems = all_contest_problems()
