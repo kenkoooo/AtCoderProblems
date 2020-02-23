@@ -4,9 +4,9 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  UncontrolledDropdown
+  UncontrolledDropdown,
+  PaginationLink
 } from "reactstrap";
-import { NavLink } from "react-router-dom";
 
 interface Props extends PaginationPanelProps {
   totalPages: number;
@@ -100,13 +100,9 @@ export const ListPaginationPanel: React.FC<Props> = props => {
                 key={pageNumber}
                 title={pageNumber.toString()}
               >
-                <NavLink
-                  to="#"
-                  className="page-link"
-                  onClick={() => props.changePage(pageNumber)}
-                >
+                <PaginationLink onClick={() => props.changePage(pageNumber)}>
                   {pageNumber}
-                </NavLink>
+                </PaginationLink>
               </li>
             );
           })}
