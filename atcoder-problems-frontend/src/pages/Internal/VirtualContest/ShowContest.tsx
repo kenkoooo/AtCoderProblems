@@ -327,8 +327,11 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
         const start = contest.start_epoch_second;
         const end = contest.start_epoch_second + contest.duration_second;
         const users = contest.participants;
+        const problems = contest.problems.map(
+          (item: VirtualContestItem) => item.id
+        );
         return {
-          value: fetchSubmissions(start, end, users).then(map => ({
+          value: fetchSubmissions(start, end, users, problems).then(map => ({
             map,
             ...contest
           }))
@@ -460,9 +463,15 @@ const formatDuration = (durationSecond: number) => {
 const fetchSubmissions = async (
   start: number,
   end: number,
-  users: string[]
+  users: string[],
+  problems: string[]
 ) => {
-  const result = await fetchVirtualContestSubmission(users, start, end);
+  const result = await fetchVirtualContestSubmission(
+    users,
+    problems,
+    start,
+    end
+  );
   return result.reduce((map, s) => {
     const list = map.get(s.problem_id, List<Submission>());
     return map.set(s.problem_id, list.push(s));

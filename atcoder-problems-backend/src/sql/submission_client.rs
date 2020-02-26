@@ -35,8 +35,9 @@ pub enum SubmissionRequest<'a> {
     ByIds {
         ids: &'a [i64],
     },
-    UsersAndTime {
+    UsersProblemsTime {
         user_ids: &'a [&'a str],
+        problem_ids: &'a [&'a str],
         from_second: i64,
         to_second: i64,
     },
@@ -93,12 +94,14 @@ impl SubmissionClient for PgConnection {
             SubmissionRequest::ByIds { ids } => submissions::table
                 .filter(submissions::id.eq_any(ids))
                 .load::<Submission>(self),
-            SubmissionRequest::UsersAndTime {
+            SubmissionRequest::UsersProblemsTime {
                 user_ids,
+                problem_ids,
                 from_second,
                 to_second,
             } => submissions::table
                 .filter(submissions::user_id.eq_any(user_ids))
+                .filter(submissions::problem_id.eq_any(problem_ids))
                 .filter(submissions::epoch_second.ge(from_second))
                 .filter(submissions::epoch_second.le(to_second))
                 .limit(2000)
