@@ -45,14 +45,21 @@ pub(crate) async fn get_users_time_submissions<A>(request: Request<AppData<A>>) 
     #[derive(Deserialize, Debug)]
     struct Query {
         users: String,
+        problems: String,
         from: i64,
         to: i64,
     }
     request.state().respond(|conn| {
         let query = request.query::<Query>()?;
         let user_ids = query.users.split(",").map(|s| s.trim()).collect::<Vec<_>>();
-        let submissions = conn.get_submissions(SubmissionRequest::UsersAndTime {
+        let problem_ids = query
+            .problems
+            .split(",")
+            .map(|s| s.trim())
+            .collect::<Vec<_>>();
+        let submissions = conn.get_submissions(SubmissionRequest::UsersProblemsTime {
             user_ids: &user_ids,
+            problem_ids: &problem_ids,
             from_second: query.from,
             to_second: query.to,
         })?;
