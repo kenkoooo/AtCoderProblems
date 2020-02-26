@@ -205,13 +205,13 @@ fn test_server_e2e_submissions() {
         let port = setup();
         let server = utils::start_server_handle(MockAuth, port);
         let client = utils::run_client_handle(async move {
-            test_user_submissions(port);
-            test_etag(port);
-            test_time_submissions(port);
-            test_invalid_path(port);
-            test_health_check(port);
-            test_cors(port);
-            test_users_and_time(port);
+            test_user_submissions(port).await;
+            test_etag(port).await;
+            test_time_submissions(port).await;
+            test_invalid_path(port).await;
+            test_health_check(port).await;
+            test_cors(port).await;
+            test_users_and_time(port).await;
             Ok(())
         });
         server.race(client).await.unwrap();
