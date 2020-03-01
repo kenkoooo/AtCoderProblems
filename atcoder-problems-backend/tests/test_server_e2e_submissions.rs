@@ -123,7 +123,7 @@ async fn test_etag(port: u16) {
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
 
-    let response = surf::get(url("/atcoder-api/results.unwrap()user=u2", port))
+    let response = surf::get(url("/atcoder-api/results?user=u2", port))
         .set_header("If-None-Match", etag)
         .await
         .unwrap();
@@ -186,7 +186,7 @@ async fn test_cors(port: u16) {
 
 async fn test_users_and_time(port: u16) {
     let submissions: Vec<Submission> = surf::get(url(
-        "/atcoder-api/v3/users_and_time?users=u1,u2&from=100&to=200",
+        "/atcoder-api/v3/users_and_time?users=u1,u2&problems=p1&from=100&to=200",
         port,
     ))
     .await
