@@ -1,4 +1,6 @@
-import ProblemModel, { isProblemModelWithDifficultyModel } from "../../../../interfaces/ProblemModel";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel
+} from "../../../../interfaces/ProblemModel";
 import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
 import { List, Map as ImmutableMap } from "immutable";
 import { ProblemId } from "../../../../interfaces/Status";
