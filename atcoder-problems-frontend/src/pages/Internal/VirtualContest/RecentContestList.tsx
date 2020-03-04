@@ -35,6 +35,7 @@ export default connect<{}, InnerProps>(() => ({
   const past = contests.filter(
     c => c.start_epoch_second + c.duration_second <= now
   );
+
   return (
     <>
       {props.userInfoGet.fulfilled && props.userInfoGet.value ? (
@@ -59,7 +60,14 @@ export default connect<{}, InnerProps>(() => ({
       </Row>
       <Row className="my-2">
         <Col sm="12">
-          <VirtualContestTable contests={current} />
+          <VirtualContestTable
+            contests={current.sort(
+              (a, b) =>
+                a.start_epoch_second +
+                a.duration_second -
+                (b.start_epoch_second + b.duration_second)
+            )}
+          />
         </Col>
       </Row>
 
@@ -70,7 +78,11 @@ export default connect<{}, InnerProps>(() => ({
       </Row>
       <Row className="my-2">
         <Col sm="12">
-          <VirtualContestTable contests={future} />
+          <VirtualContestTable
+            contests={future.sort(
+              (a, b) => a.start_epoch_second - b.start_epoch_second
+            )}
+          />
         </Col>
       </Row>
 
@@ -81,7 +93,14 @@ export default connect<{}, InnerProps>(() => ({
       </Row>
       <Row className="my-2">
         <Col sm="12">
-          <VirtualContestTable contests={past} />
+          <VirtualContestTable
+            contests={past.sort(
+              (a, b) =>
+                b.start_epoch_second +
+                b.duration_second -
+                (a.start_epoch_second + a.duration_second)
+            )}
+          />
         </Col>
       </Row>
     </>
