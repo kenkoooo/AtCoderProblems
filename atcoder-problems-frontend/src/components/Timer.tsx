@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { formatDuration } from "./util";
+import { formatDuration } from "../utils/DateUtil";
 
 export default (props: { remain: number }) => {
   const [timeLeft, setTimeLeft] = useState(props.remain);

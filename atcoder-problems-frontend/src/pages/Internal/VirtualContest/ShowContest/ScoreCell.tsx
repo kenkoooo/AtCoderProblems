@@ -1,5 +1,5 @@
 import React from "react";
-import { formatDuration } from "./util";
+import { formatDuration } from "../../../../utils/DateUtil";
 
 export default (props: { maxPoint: number; trials: number; time: number }) => (
   <>

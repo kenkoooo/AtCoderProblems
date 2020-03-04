@@ -19,3 +19,12 @@ export const getNextSunday = (t: moment.Moment) => {
 };
 
 export const getToday = () => moment();
+export const formatDuration = (durationSecond: number) => {
+  const hours = Math.floor(durationSecond / 3600);
+  const minutes = Math.floor(durationSecond / 60) - hours * 60;
+  const seconds = durationSecond - hours * 3600 - minutes * 60;
+
+  const mm = minutes < 10 ? "0" + minutes : "" + minutes;
+  const ss = seconds < 10 ? "0" + seconds : "" + seconds;
+  return `${hours}:${mm}:${ss}`;
+};
