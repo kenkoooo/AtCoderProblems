@@ -1,22 +1,10 @@
-import ProblemModel, {
-  isProblemModelWithDifficultyModel
-} from "../../../../interfaces/ProblemModel";
+import ProblemModel, { isProblemModelWithDifficultyModel } from "../../../../interfaces/ProblemModel";
 import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
 import { List, Map as ImmutableMap } from "immutable";
 import { ProblemId } from "../../../../interfaces/Status";
 import { clipDifficulty, isAccepted } from "../../../../utils";
 import Submission from "../../../../interfaces/Submission";
 import { VirtualContestItem, VirtualContestMode } from "../../types";
-
-export const formatDuration = (durationSecond: number) => {
-  const hours = Math.floor(durationSecond / 3600);
-  const minutes = Math.floor(durationSecond / 60) - hours * 60;
-  const seconds = durationSecond - hours * 3600 - minutes * 60;
-
-  const mm = minutes < 10 ? "0" + minutes : "" + minutes;
-  const ss = seconds < 10 ? "0" + seconds : "" + seconds;
-  return `${hours}:${mm}:${ss}`;
-};
 
 export const calcPerformance = (
   solvedData: List<{ problemId: string; time: number; solved: boolean }>,

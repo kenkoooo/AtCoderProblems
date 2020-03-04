@@ -20,9 +20,9 @@ import {
 } from "../../types";
 import TweetButton from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
-import Timer from "./Timer";
 import { calcPerformance, extractBestSubmissions } from "./util";
 import ContestTable from "./ContestTable";
+import Timer from "../../../../components/Timer";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: ImmutableMap<ProblemId, List<Submission>> | undefined;

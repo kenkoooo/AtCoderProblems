@@ -3,13 +3,12 @@ import { Link } from "react-router-dom";
 import * as DateUtil from "../../utils/DateUtil";
 import React from "react";
 import { VirtualContestInfo } from "./types";
+import Timer from "../../components/Timer";
 
 export default (props: { contests: VirtualContestInfo[] }) => {
   return (
     <BootstrapTable
-      data={props.contests.sort(
-        (a, b) => b.start_epoch_second - a.start_epoch_second
-      )}
+      data={props.contests}
       pagination
       keyField="id"
       height="auto"
@@ -49,14 +48,27 @@ export default (props: { contests: VirtualContestInfo[] }) => {
       <TableHeaderColumn
         dataField="duration"
         dataFormat={(_: number, contest: VirtualContestInfo) => {
-          const durationMinute = Math.floor(contest.duration_second / 60);
-          const hour = `${Math.floor(durationMinute / 60)}`;
-          const minute = `0${durationMinute % 60}`.slice(-2);
-          return hour + ":" + minute;
+          return formatContestDuration(
+            contest.start_epoch_second,
+            contest.duration_second
+          );
         }}
       >
         Duration
       </TableHeaderColumn>
     </BootstrapTable>
   );
+};
+
+const formatContestDuration = (start: number, durationSecond: number) => {
+  const now = Math.floor(Date.now() / 1000);
+  if (start + durationSecond <= now || now < start) {
+    const durationMinute = Math.floor(durationSecond / 60);
+    const hour = `${Math.floor(durationMinute / 60)}`;
+    const minute = `0${durationMinute % 60}`.slice(-2);
+    return hour + ":" + minute;
+  } else {
+    const remain = durationSecond - (now - start);
+    return <Timer remain={remain} />;
+  }
 };
