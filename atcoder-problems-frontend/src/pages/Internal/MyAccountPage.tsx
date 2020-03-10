@@ -173,7 +173,17 @@ export default connect<{}, InnerProps>(() => ({
             <Row className="my-2">
               <Col sm="12">
                 <VirtualContestTable
-                  contests={ownedContests ? ownedContests : []}
+                  contests={
+                    ownedContests
+                      ? ownedContests.sort(
+                          (a, b) =>
+                            b.start_epoch_second +
+                            b.duration_second -
+                            a.start_epoch_second -
+                            a.duration_second
+                        )
+                      : []
+                  }
                 />
               </Col>
             </Row>
@@ -186,7 +196,17 @@ export default connect<{}, InnerProps>(() => ({
             <Row className="my-2">
               <Col sm="12">
                 <VirtualContestTable
-                  contests={joinedContests ? joinedContests : []}
+                  contests={
+                    joinedContests
+                      ? joinedContests.sort(
+                          (a, b) =>
+                            b.start_epoch_second +
+                            b.duration_second -
+                            a.start_epoch_second -
+                            a.duration_second
+                        )
+                      : []
+                  }
                 />
               </Col>
             </Row>
