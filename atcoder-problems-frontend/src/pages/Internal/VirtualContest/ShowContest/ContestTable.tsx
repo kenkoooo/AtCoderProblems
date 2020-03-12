@@ -66,11 +66,13 @@ export default ({
     <Table striped>
       <thead>
         <tr>
+          <th>#</th>
           <th>Participant</th>
           {showProblems
-            ? items.sort(compareProblem).map(p => {
+            ? items.sort(compareProblem).map((p, i) => {
                 return (
-                  <th key={p.id}>
+                  <th key={i}>
+                    {`${i + 1}. `}
                     {p.contestId && p.title ? (
                       <ProblemLink
                         problemId={p.id}
@@ -92,7 +94,7 @@ export default ({
         </tr>
       </thead>
       <tbody>
-        {sortedUserIds.map(userId => {
+        {sortedUserIds.map((userId, i) => {
           const totalResult = calcTotalResult(
             userId,
             problems.map(p => p.item),
@@ -100,7 +102,8 @@ export default ({
             bestSubmissions
           );
           return (
-            <tr key={userId}>
+            <tr key={i}>
+              <th>{i + 1}</th>
               <th>{userId}</th>
               {!showProblems
                 ? null
