@@ -12,6 +12,21 @@ import requests
 from rating import RatingSystem, ContestType
 
 
+old_sponsored_contests = {"code-festival-2014-exhibition", "code-festival-2014-final",
+                          "code-festival-2014-morning-easy", "code-festival-2014-morning-hard",
+                          "code-festival-2014-morning-middle", "code-festival-2014-quala", "code-festival-2014-qualb",
+                          "code-festival-2015-exhibition", "code-festival-2015-morning-easy",
+                          "code-festival-2015-morning-hard", "code-festival-2015-morning-middle",
+                          "code-festival-2015-quala", "code-festival-2015-qualb", "code-formula-2014-final",
+                          "code-formula-2014-quala", "code-formula-2014-qualb", "digitalarts2012",
+                          "discovery2016-final", "discovery2016-qual", "donuts-2015", "dwango2015-finals",
+                          "dwango2015-prelims", "dwango2016-finals", "dwango2016-prelims", "indeednow-quala",
+                          "indeednow-qualb", "mujin-pc-2016", "tenka1-2012-final", "tenka1-2012-qualA",
+                          "tenka1-2012-qualB", "tenka1-2012-qualC", "tenka1-2013-final", "tenka1-2013-quala",
+                          "tenka1-2013-qualb", "tenka1-2014-final", "tenka1-2014-quala", "tenka1-2014-qualb",
+                          "tenka1-2015-final", "tenka1-2015-quala", "tenka1-2015-qualb"}
+
+
 class AtCoderCSRFExtractor(HTMLParser):
     def __init__(self):
         super(AtCoderCSRFExtractor, self).__init__()
@@ -267,6 +282,8 @@ def infer_contest_type(contest) -> ContestType:
         return ContestType.OLD_UNRATED_ARC
     elif contest["id"].startswith("abc"):
         return ContestType.OLD_UNRATED_ABC
+    elif contest["id"] in old_sponsored_contests:
+        return ContestType.OLD_UNRATED_ARC
     else:
         return ContestType.UNRATED
 
