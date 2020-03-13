@@ -6,7 +6,7 @@ import enum
 
 class ContestType(enum.Enum):
     OLD_UNRATED_ABC = 1199, 1600, 800, False   # 4 problems ABC before official rating system
-    OLD_UNRATED_ARC = 9999, 9999, 1600, False  # ARC before official rating system
+    OLD_UNRATED_ARC = 9999, 9999, 1200, False  # ARC *AND* sponsored contests before official rating system
 
     OLD_ABC = 1199, 1600, 800, True   # 4 problems ABC
     NEW_ABC = 1999, 2400, 800, True   # 6 problems ABC
