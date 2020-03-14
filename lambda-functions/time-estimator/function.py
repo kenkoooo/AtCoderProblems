@@ -131,7 +131,7 @@ def fit_problem_model(user_results, task_screen_name):
         print(f"The problem {task_screen_name} is not solved by any competitors. skipping.")
         return {}
     for task_result in user_results:
-        task_result[task_screen_name + ".ac"] = float(task_result[task_screen_name + ".score"] == max_score)
+        task_result[task_screen_name + ".ac"] *= float(task_result[task_screen_name + ".score"] == max_score)
     elapsed = [task_result[task_screen_name + ".elapsed"]
                for task_result in user_results]
     first_ac = min(elapsed)
@@ -232,6 +232,7 @@ def fetch_dataset_for_contest(contest_name, existing_problem, session):
             user_row[task_name + ".score"] = 0.
             user_row[task_name + ".time"] = -1.
             user_row[task_name + ".elapsed"] = 10 ** 200
+            user_row[task_name + ".ac"] = 0.
 
         prev_accepted_times = [0] + [task_result["Elapsed"]
                                      for task_result in result_row["TaskResults"].values() if task_result["Score"] > 0]
@@ -244,6 +245,7 @@ def fetch_dataset_for_contest(contest_name, existing_problem, session):
                 user_row[task_screen_name + ".elapsed"] = elapsed
                 user_row[task_screen_name + ".time"] = penalty + elapsed - \
                     max(t for t in prev_accepted_times if t < elapsed)
+                user_row[task_screen_name + ".ac"] = float(task_result["Status"] == 1)
         user_results.append(user_row)
 
     if len(user_results) == 0:
