@@ -13,7 +13,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 pub trait RatedPointSumClient {
     fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> Result<()>;
-    fn get_users_rated_point_sum(&self, user_id: &str) -> Result<f64>;
+    fn get_users_rated_point_sum(&self, user_id: &str) -> Option<f64>;
     fn get_rated_point_sum_rank(&self, point: f64) -> Result<i64>;
 }
 
@@ -61,12 +61,13 @@ impl RatedPointSumClient for PgConnection {
         Ok(())
     }
 
-    fn get_users_rated_point_sum(&self, user_id: &str) -> Result<f64> {
+    fn get_users_rated_point_sum(&self, user_id: &str) -> Option<f64> {
         let sum = rated_point_sum::table
             .filter(rated_point_sum::user_id.eq(user_id))
             .select(rated_point_sum::point_sum)
-            .first::<f64>(self)?;
-        Ok(sum)
+            .first::<f64>(self)
+            .ok()?;
+        Some(sum)
     }
 
     fn get_rated_point_sum_rank(&self, rated_point_sum: f64) -> Result<i64> {
