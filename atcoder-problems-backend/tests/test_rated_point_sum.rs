@@ -95,4 +95,8 @@ fn test_update_rated_point_sum() {
     assert_eq!(sums[0].point_sum, 200.0);
     assert_eq!(conn.get_users_rated_point_sum(user_id).unwrap(), 200.0);
     assert_eq!(conn.get_rated_point_sum_rank(200.0).unwrap(), 0);
+
+    assert!(conn
+        .get_users_rated_point_sum("non_existing_user")
+        .is_none());
 }

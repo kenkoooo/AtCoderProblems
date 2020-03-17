@@ -21,9 +21,9 @@ pub(crate) async fn get_user_info<A>(request: Request<AppData<A>>) -> Response {
     request.state().respond(|conn| {
         let query = request.query::<Query>()?;
         let user_id = query.user;
-        let accepted_count = conn.get_users_accepted_count(&user_id)?;
+        let accepted_count = conn.get_users_accepted_count(&user_id).unwrap_or(0);
         let accepted_count_rank = conn.get_accepted_count_rank(accepted_count)?;
-        let rated_point_sum = conn.get_users_rated_point_sum(&user_id)?;
+        let rated_point_sum = conn.get_users_rated_point_sum(&user_id).unwrap_or(0.0);
         let rated_point_sum_rank = conn.get_rated_point_sum_rank(rated_point_sum)?;
 
         let user_info = UserInfo {
