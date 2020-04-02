@@ -11,7 +11,10 @@ import Submission from "../../../../interfaces/Submission";
 import MergedProblem from "../../../../interfaces/MergedProblem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 import { isAccepted } from "../../../../utils";
-import { formatMomentDateTime, parseSecond } from "../../../../utils/DateUtil";
+import {
+  formatMomentDateTimeDay,
+  parseSecond
+} from "../../../../utils/DateUtil";
 import {
   formatMode,
   UserResponse,
@@ -151,8 +154,8 @@ const InnerShowContest = (props: InnerProps) => {
           <h4>{contestInfo.memo}</h4>
           <h5>Mode: {formatMode(contestInfo.mode)}</h5>
           <h5>
-            Time: {formatMomentDateTime(parseSecond(start))} -{" "}
-            {formatMomentDateTime(parseSecond(end))} (
+            Time: {formatMomentDateTimeDay(parseSecond(start))} -{" "}
+            {formatMomentDateTimeDay(parseSecond(end))} (
             {Math.floor(contestInfo.duration_second / 60)} minutes)
           </h5>
           {start < now && now < end ? (

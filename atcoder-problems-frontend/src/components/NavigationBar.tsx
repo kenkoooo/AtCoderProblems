@@ -216,6 +216,12 @@ const NavigationBar2 = (props: InnerProps) => {
           </UncontrolledDropdown>
 
           <NavItem>
+            <NavLink tag={RouterLink} to="/submissions/recent">
+              Recent Submissions
+            </NavLink>
+          </NavItem>
+
+          <NavItem>
             <NavLink tag={RouterLink} to="/contest/recent">
               Virtual Contests
             </NavLink>
@@ -236,13 +242,27 @@ const NavigationBar2 = (props: InnerProps) => {
               Links
             </DropdownToggle>
             <DropdownMenu right>
-              <DropdownItem tag="a" href="https://atcoder.jp/" target="_blank">
+              <DropdownItem
+                tag="a"
+                href="https://github.com/kenkoooo/AtCoderProblems/tree/master/doc"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                FAQ
+              </DropdownItem>
+              <DropdownItem
+                tag="a"
+                href="https://atcoder.jp/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 AtCoder
               </DropdownItem>
               <DropdownItem
                 tag="a"
                 href="http://aoj-icpc.ichyo.jp/"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 AOJ-ICPC
               </DropdownItem>
@@ -250,6 +270,7 @@ const NavigationBar2 = (props: InnerProps) => {
                 tag="a"
                 href="https://github.com/kenkoooo/AtCoderProblems"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 GitHub
               </DropdownItem>
@@ -257,6 +278,7 @@ const NavigationBar2 = (props: InnerProps) => {
                 tag="a"
                 href="https://twitter.com/kenkoooo"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 @kenkoooo
               </DropdownItem>

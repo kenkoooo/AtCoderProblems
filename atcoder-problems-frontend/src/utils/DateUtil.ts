@@ -1,7 +1,8 @@
 import moment from "moment";
 
 const DATE_FORMAT = "YYYY-MM-DD";
-const DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss (ddd)";
+const DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
+const DATETIME_DAY_FORMAT = "YYYY-MM-DD HH:mm:ss (ddd)";
 
 export const parseSecond = (epochSecond: number) => moment.unix(epochSecond);
 
@@ -11,6 +12,8 @@ export const parseDateLabel = (dateLabel: string) =>
 export const formatMomentDate = (t: moment.Moment) => t.format(DATE_FORMAT);
 export const formatMomentDateTime = (t: moment.Moment) =>
   t.format(DATETIME_FORMAT);
+export const formatMomentDateTimeDay = (t: moment.Moment) =>
+  t.format(DATETIME_DAY_FORMAT);
 
 export const getNextSunday = (t: moment.Moment) => {
   const date = t.date();
