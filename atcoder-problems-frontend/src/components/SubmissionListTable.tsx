@@ -23,12 +23,29 @@ export const SubmissionListTable = (props: Props) => {
     return map;
   }, new Map<string, string>());
 
-  const verdictOptions: any = {};
-  submissions
-    .reduce((set, s) => set.add(s.result), new Set<string>())
-    .forEach((verdict, index) => {
-      verdictOptions[index] = verdict;
-    });
+  const verdictOptions: { [_: string]: string } = Array.from(
+    submissions.reduce((set, s) => {
+      set.add(s.result);
+      return set;
+    }, new Set<string>())
+  )
+    .sort()
+    .reduce((options, s) => {
+      options[s] = s;
+      return options;
+    }, {} as { [_: string]: string });
+
+  const languageOptions: { [_: string]: string } = Array.from(
+    submissions.reduce((set, s) => {
+      set.add(s.language);
+      return set;
+    }, new Set<string>())
+  )
+    .sort()
+    .reduce((options, s) => {
+      options[s] = s;
+      return options;
+    }, {} as { [_: string]: string });
 
   return (
     <BootstrapTable
@@ -83,8 +100,11 @@ export const SubmissionListTable = (props: Props) => {
       <TableHeaderColumn
         filterFormatted
         dataSort
-        dataField="problem_id"
-        dataFormat={(_: string, { problem_id, contest_id }: Submission) => (
+        dataField="title"
+        dataFormat={(
+          title: string | undefined,
+          { problem_id, contest_id }: Submission
+        ) => (
           <ProblemLink
             difficulty={problemModels.get(problem_id)?.difficulty}
             isExperimentalDifficulty={
@@ -92,12 +112,27 @@ export const SubmissionListTable = (props: Props) => {
             }
             showDifficulty={true}
             problemId={problem_id}
-            problemTitle={titleMap.get(problem_id) || ""}
+            problemTitle={title || ""}
             contestId={contest_id}
           />
         )}
       >
         Problem
+      </TableHeaderColumn>
+      <TableHeaderColumn
+        dataSort
+        dataField="user_id"
+        dataFormat={(userId: string) => (
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={Url.formatUserUrl(userId)}
+          >
+            {userId}
+          </a>
+        )}
+      >
+        User
       </TableHeaderColumn>
       <TableHeaderColumn
         dataSort
@@ -114,7 +149,11 @@ export const SubmissionListTable = (props: Props) => {
       >
         Status
       </TableHeaderColumn>
-      <TableHeaderColumn dataSort dataField="language">
+      <TableHeaderColumn
+        dataSort
+        dataField="language"
+        filter={{ type: "SelectFilter", options: languageOptions }}
+      >
         Language
       </TableHeaderColumn>
       <TableHeaderColumn
