@@ -29,7 +29,7 @@ export default (props: { contests: VirtualContestInfo[] }) => {
         dataField="start_epoch_second"
         dataFormat={(_: number, contest: VirtualContestInfo) => {
           const time = DateUtil.parseSecond(contest.start_epoch_second);
-          return DateUtil.formatMomentDateTime(time);
+          return DateUtil.formatMomentDateTimeDay(time);
         }}
       >
         Start
@@ -40,7 +40,7 @@ export default (props: { contests: VirtualContestInfo[] }) => {
           const time = DateUtil.parseSecond(
             contest.start_epoch_second + contest.duration_second
           );
-          return DateUtil.formatMomentDateTime(time);
+          return DateUtil.formatMomentDateTimeDay(time);
         }}
       >
         End

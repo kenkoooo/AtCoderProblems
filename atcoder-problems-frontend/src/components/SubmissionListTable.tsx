@@ -1,16 +1,14 @@
-import React from "react";
+import Submission from "../interfaces/Submission";
+import ProblemModel from "../interfaces/ProblemModel";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-
-import Submission from "../../interfaces/Submission";
-import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
-import * as Url from "../../utils/Url";
-import { isAccepted } from "../../utils";
+import { ListPaginationPanel } from "./ListPaginationPanel";
+import { formatMomentDateTime, parseSecond } from "../utils/DateUtil";
+import ProblemLink from "./ProblemLink";
+import { isAccepted } from "../utils";
 import { Badge } from "reactstrap";
-import ProblemLink from "../../components/ProblemLink";
-import { Map } from "immutable";
-import { ProblemId } from "../../interfaces/Status";
-import ProblemModel from "../../interfaces/ProblemModel";
-import { ListPaginationPanel } from "../../components/ListPaginationPanel";
+import * as Url from "../utils/Url";
+import React from "react";
+import { ProblemId } from "../interfaces/Status";
 
 interface Props {
   submissions: Submission[];
@@ -18,19 +16,36 @@ interface Props {
   problemModels: Map<ProblemId, ProblemModel>;
 }
 
-const SubmissionList = (props: Props) => {
+export const SubmissionListTable = (props: Props) => {
   const { submissions, problems, problemModels } = props;
-  const titleMap = problems.reduce(
-    (map, p) => map.set(p.id, p.title),
-    Map<string, string>()
-  );
+  const titleMap = problems.reduce((map, p) => {
+    map.set(p.id, p.title);
+    return map;
+  }, new Map<string, string>());
 
-  const verdictOptions: any = {};
-  submissions
-    .reduce((set, s) => set.add(s.result), new Set<string>())
-    .forEach((verdict, index) => {
-      verdictOptions[index] = verdict;
-    });
+  const verdictOptions: { [_: string]: string } = Array.from(
+    submissions.reduce((set, s) => {
+      set.add(s.result);
+      return set;
+    }, new Set<string>())
+  )
+    .sort()
+    .reduce((options, s) => {
+      options[s] = s;
+      return options;
+    }, {} as { [_: string]: string });
+
+  const languageOptions: { [_: string]: string } = Array.from(
+    submissions.reduce((set, s) => {
+      set.add(s.language);
+      return set;
+    }, new Set<string>())
+  )
+    .sort()
+    .reduce((options, s) => {
+      options[s] = s;
+      return options;
+    }, {} as { [_: string]: string });
 
   return (
     <BootstrapTable
@@ -76,29 +91,48 @@ const SubmissionList = (props: Props) => {
       <TableHeaderColumn
         dataSort
         dataField="epoch_second"
-        dataFormat={(second: number) => formatMomentDate(parseSecond(second))}
+        dataFormat={(second: number) =>
+          formatMomentDateTime(parseSecond(second))
+        }
       >
         Date
       </TableHeaderColumn>
       <TableHeaderColumn
         filterFormatted
         dataSort
-        dataField="problem_id"
-        dataFormat={(_: string, { problem_id, contest_id }: Submission) => (
+        dataField="title"
+        dataFormat={(
+          title: string | undefined,
+          { problem_id, contest_id }: Submission
+        ) => (
           <ProblemLink
-            difficulty={problemModels.getIn([problem_id, "difficulty"], null)}
-            isExperimentalDifficulty={problemModels.getIn(
-              [problem_id, "is_experimental"],
-              false
-            )}
+            difficulty={problemModels.get(problem_id)?.difficulty}
+            isExperimentalDifficulty={
+              problemModels.get(problem_id)?.is_experimental
+            }
             showDifficulty={true}
             problemId={problem_id}
-            problemTitle={titleMap.get(problem_id) || ""}
+            problemTitle={title || ""}
             contestId={contest_id}
           />
         )}
       >
         Problem
+      </TableHeaderColumn>
+      <TableHeaderColumn
+        dataSort
+        dataField="user_id"
+        dataFormat={(userId: string) => (
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={Url.formatUserUrl(userId)}
+          >
+            {userId}
+          </a>
+        )}
+      >
+        User
       </TableHeaderColumn>
       <TableHeaderColumn
         dataSort
@@ -115,7 +149,11 @@ const SubmissionList = (props: Props) => {
       >
         Status
       </TableHeaderColumn>
-      <TableHeaderColumn dataSort dataField="language">
+      <TableHeaderColumn
+        dataSort
+        dataField="language"
+        filter={{ type: "SelectFilter", options: languageOptions }}
+      >
         Language
       </TableHeaderColumn>
       <TableHeaderColumn
@@ -137,5 +175,3 @@ const SubmissionList = (props: Props) => {
     </BootstrapTable>
   );
 };
-
-export default SubmissionList;
