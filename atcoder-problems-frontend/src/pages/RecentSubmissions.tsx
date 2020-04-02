@@ -1,13 +1,11 @@
 import React from "react";
 import { Alert, Row, Spinner } from "reactstrap";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import Submission from "../interfaces/Submission";
 import { connect, PromiseState } from "react-refetch";
 import { fetchRecentSubmissions } from "../utils/Api";
 import { ProblemId } from "../interfaces/Status";
 import ProblemModel from "../interfaces/ProblemModel";
 import {
-  cachedMergedProblemMap,
   cachedProblemMap,
   cachedProblemModels
 } from "../utils/CachedApiClient";
