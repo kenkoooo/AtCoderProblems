@@ -11,7 +11,10 @@ import Submission from "../../../../interfaces/Submission";
 import MergedProblem from "../../../../interfaces/MergedProblem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 import { isAccepted } from "../../../../utils";
-import { formatMomentDateTimeDay, parseSecond } from "../../../../utils/DateUtil";
+import {
+  formatMomentDateTimeDay,
+  parseSecond
+} from "../../../../utils/DateUtil";
 import {
   formatMode,
   UserResponse,
