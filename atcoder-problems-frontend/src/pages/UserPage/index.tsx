@@ -16,11 +16,10 @@ import ClimbingLineChart from "./ClimbingLineChart";
 import DailyEffortBarChart from "./DailyEffortBarChart";
 import SmallPieChart from "./SmallPieChart";
 import FilteringHeatmapX from "./FilteringHeatmap";
-import SubmissionList from "./SubmissionList";
 import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
 import { ContestId, ProblemId } from "../../interfaces/Status";
-import { List, Map } from "immutable";
+import { List, Map as ImmutableMap } from "immutable";
 import * as Api from "../../utils/Api";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { RankingEntry } from "../../interfaces/RankingEntry";
@@ -29,6 +28,8 @@ import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import Problem from "../../interfaces/Problem";
 import { connect, PromiseState } from "react-refetch";
 import { useParams } from "react-router-dom";
+import { SubmissionListTable } from "../../components/SubmissionListTable";
+import { convertMap } from "../../utils/ImmutableMigration";
 
 interface OuterProps {
   userId: string;
@@ -37,19 +38,19 @@ interface OuterProps {
 interface InnerProps extends OuterProps {
   userInfoFetch: PromiseState<UserInfo | undefined>;
   userRatingInfoFetch: PromiseState<RatingInfo>;
-  mergedProblemsFetch: PromiseState<Map<ProblemId, MergedProblem>>;
-  submissionsFetch: PromiseState<Map<ProblemId, List<Submission>>>;
-  contestsFetch: PromiseState<Map<ContestId, Contest>>;
-  contestToProblemsFetch: PromiseState<Map<ContestId, List<Problem>>>;
-  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
+  mergedProblemsFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
+  submissionsFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
+  contestsFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
+  contestToProblemsFetch: PromiseState<ImmutableMap<ContestId, List<Problem>>>;
+  problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
   shortRankingFetch: PromiseState<List<RankingEntry>>;
   fastRankingFetch: PromiseState<List<RankingEntry>>;
   firstRankingFetch: PromiseState<List<RankingEntry>>;
 }
 
 const solvedCountForPieChart = (
-  contestToProblems: Map<string, List<Problem>>,
-  submissions: Map<string, List<Submission>>,
+  contestToProblems: ImmutableMap<string, List<Problem>>,
+  submissions: ImmutableMap<string, List<Submission>>,
   userId: string
 ) => {
   const mapProblemPosition = (contestId: string, problemId: string) => {
@@ -157,19 +158,19 @@ const UserPage = (props: InnerProps) => {
     : ratingInfoOf(List());
   const mergedProblems = mergedProblemsFetch.fulfilled
     ? mergedProblemsFetch.value
-    : Map<ProblemId, MergedProblem>();
+    : ImmutableMap<ProblemId, MergedProblem>();
   const contests = contestsFetch.fulfilled
     ? contestsFetch.value
-    : Map<string, Contest>();
+    : ImmutableMap<string, Contest>();
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
-    : Map<ProblemId, ProblemModel>();
+    : ImmutableMap<ProblemId, ProblemModel>();
   const submissions = submissionsFetch.fulfilled
     ? submissionsFetch.value
-    : Map<ProblemId, List<Submission>>();
+    : ImmutableMap<ProblemId, List<Submission>>();
   const contestToProblems = contestToProblemsFetch.fulfilled
     ? contestToProblemsFetch.value
-    : Map<ContestId, List<Problem>>();
+    : ImmutableMap<ContestId, List<Problem>>();
 
   if (userId.length === 0 || submissions.isEmpty() || userInfo === undefined) {
     return null;
@@ -207,7 +208,7 @@ const UserPage = (props: InnerProps) => {
     .map(second => formatMomentDate(parseSecond(second)))
     .reduce(
       (map, date) => map.update(date, 0, count => count + 1),
-      Map<string, number>()
+      ImmutableMap<string, number>()
     )
     .entrySeq()
     .map(([dateLabel, count]) => ({ dateLabel, count }))
@@ -353,8 +354,8 @@ const UserPage = (props: InnerProps) => {
       <Row className="my-2 border-bottom">
         <h1>Submissions</h1>
       </Row>
-      <SubmissionList
-        problemModels={problemModels}
+      <SubmissionListTable
+        problemModels={convertMap(problemModels)}
         problems={mergedProblems.valueSeq().toArray()}
         submissions={userSubmissions.toArray()}
       />
