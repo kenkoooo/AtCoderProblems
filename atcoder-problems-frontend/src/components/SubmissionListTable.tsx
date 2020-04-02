@@ -1,16 +1,14 @@
-import React from "react";
+import Submission from "../interfaces/Submission";
+import ProblemModel from "../interfaces/ProblemModel";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-
-import Submission from "../../interfaces/Submission";
-import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
-import * as Url from "../../utils/Url";
-import { isAccepted } from "../../utils";
+import { ListPaginationPanel } from "./ListPaginationPanel";
+import { formatMomentDateTime, parseSecond } from "../utils/DateUtil";
+import ProblemLink from "./ProblemLink";
+import { isAccepted } from "../utils";
 import { Badge } from "reactstrap";
-import ProblemLink from "../../components/ProblemLink";
-import { Map } from "immutable";
-import { ProblemId } from "../../interfaces/Status";
-import ProblemModel from "../../interfaces/ProblemModel";
-import { ListPaginationPanel } from "../../components/ListPaginationPanel";
+import * as Url from "../utils/Url";
+import React from "react";
+import { ProblemId } from "../interfaces/Status";
 
 interface Props {
   submissions: Submission[];
@@ -18,12 +16,12 @@ interface Props {
   problemModels: Map<ProblemId, ProblemModel>;
 }
 
-const SubmissionList = (props: Props) => {
+export const SubmissionListTable = (props: Props) => {
   const { submissions, problems, problemModels } = props;
-  const titleMap = problems.reduce(
-    (map, p) => map.set(p.id, p.title),
-    Map<string, string>()
-  );
+  const titleMap = problems.reduce((map, p) => {
+    map.set(p.id, p.title);
+    return map;
+  }, new Map<string, string>());
 
   const verdictOptions: any = {};
   submissions
@@ -76,7 +74,9 @@ const SubmissionList = (props: Props) => {
       <TableHeaderColumn
         dataSort
         dataField="epoch_second"
-        dataFormat={(second: number) => formatMomentDate(parseSecond(second))}
+        dataFormat={(second: number) =>
+          formatMomentDateTime(parseSecond(second))
+        }
       >
         Date
       </TableHeaderColumn>
@@ -86,11 +86,10 @@ const SubmissionList = (props: Props) => {
         dataField="problem_id"
         dataFormat={(_: string, { problem_id, contest_id }: Submission) => (
           <ProblemLink
-            difficulty={problemModels.getIn([problem_id, "difficulty"], null)}
-            isExperimentalDifficulty={problemModels.getIn(
-              [problem_id, "is_experimental"],
-              false
-            )}
+            difficulty={problemModels.get(problem_id)?.difficulty}
+            isExperimentalDifficulty={
+              problemModels.get(problem_id)?.is_experimental
+            }
             showDifficulty={true}
             problemId={problem_id}
             problemTitle={titleMap.get(problem_id) || ""}
@@ -137,5 +136,3 @@ const SubmissionList = (props: Props) => {
     </BootstrapTable>
   );
 };
-
-export default SubmissionList;

@@ -24,6 +24,7 @@ import UserConfigPage from "./pages/Internal/MyAccountPage";
 import RecentContestList from "./pages/Internal/VirtualContest/RecentContestList";
 import ContestUpdatePage from "./pages/Internal/VirtualContest/ContestUpdatePage";
 import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
+import { RecentSubmissions } from "./pages/RecentSubmissions";
 
 const App = () => {
   return (
@@ -66,6 +67,7 @@ const App = () => {
               path="/problemlist/:listId([a-zA-Z0-9_-]+)"
               component={SingleProblemList}
             />
+            <Route path="/submissions/recent" component={RecentSubmissions} />
 
             <Redirect path="/" to="/table/" />
           </Switch>
