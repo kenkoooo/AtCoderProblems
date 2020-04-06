@@ -30,6 +30,7 @@ import {
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
+import { NewTabLink } from "../../components/NewTabLink";
 
 const RECOMMEND_NUM_OPTIONS = [
   {
@@ -300,13 +301,9 @@ class Recommendations extends React.Component<Props, LocalState> {
                 return contest ? (
                   <ContestLink contest={contest} />
                 ) : (
-                  <a
-                    href={Url.formatContestUrl(problem.contest_id)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <NewTabLink href={Url.formatContestUrl(problem.contest_id)}>
                     {contestId}
-                  </a>
+                  </NewTabLink>
                 );
               }}
             >

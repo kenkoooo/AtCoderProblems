@@ -3,6 +3,7 @@ import * as Url from "../utils/Url";
 import { DifficultyCircle } from "./DifficultyCircle";
 import { Tooltip } from "reactstrap";
 import { getRatingColorClass } from "../utils";
+import { NewTabLink } from "./NewTabLink";
 
 interface Props {
   problemId: string;
@@ -25,13 +26,9 @@ const ProblemLink = (props: Props) => {
     isExperimentalDifficulty
   } = props;
   const link = (
-    <a
-      href={Url.formatProblemUrl(problemId, contestId)}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <NewTabLink href={Url.formatProblemUrl(problemId, contestId)}>
       {problemTitle}
-    </a>
+    </NewTabLink>
   );
   if (!showDifficulty || difficulty === null || difficulty === undefined) {
     return link;
@@ -59,8 +56,8 @@ const ProblemLink = (props: Props) => {
       ) : null}
       <a
         href={Url.formatProblemUrl(problemId, contestId)}
-        target="_blank"
-        rel="noopener noreferrer"
+        target="_blank" // eslint-disable-line react/jsx-no-target-blank
+        rel="noopener"
         className={getRatingColorClass(difficulty)}
       >
         {problemTitle}
