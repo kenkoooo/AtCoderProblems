@@ -1,6 +1,7 @@
 import React from "react";
 import * as Url from "../utils/Url";
 import Contest from "../interfaces/Contest";
+import { NewTabLink } from "./NewTabLink";
 
 interface Props {
   contest: Contest;
@@ -71,15 +72,10 @@ const ContestLink: React.FC<Props> = props => {
 
   return (
     <>
-      <span className={getColorClass(target)}>◉</span>
-      <> </>
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href={Url.formatContestUrl(contest.id)}
-      >
+      <span className={getColorClass(target)}>◉</span>{" "}
+      <NewTabLink href={Url.formatContestUrl(contest.id)}>
         {title !== undefined ? title : contest.title}
-      </a>
+      </NewTabLink>
     </>
   );
 };

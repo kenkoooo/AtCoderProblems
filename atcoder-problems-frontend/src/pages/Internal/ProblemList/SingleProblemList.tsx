@@ -29,6 +29,7 @@ import { ProblemId } from "../../../interfaces/Status";
 import ProblemSearchBox from "../../../components/ProblemSearchBox";
 import { formatProblemUrl } from "../../../utils/Url";
 import { ProblemList, ProblemListItem, UserResponse } from "../types";
+import { NewTabLink } from "../../../components/NewTabLink";
 
 interface OuterProps {
   listId: string;
@@ -209,13 +210,9 @@ const ProblemEntry = (props: {
       ) : null}
       <ListGroupItemHeading>
         {problem ? (
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href={formatProblemUrl(problem.id, problem.contest_id)}
-          >
+          <NewTabLink href={formatProblemUrl(problem.id, problem.contest_id)}>
             {problem.title}
-          </a>
+          </NewTabLink>
         ) : (
           item.problem_id
         )}

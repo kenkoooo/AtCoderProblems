@@ -9,6 +9,7 @@ import { Badge } from "reactstrap";
 import * as Url from "../utils/Url";
 import React from "react";
 import { ProblemId } from "../interfaces/Status";
+import { NewTabLink } from "./NewTabLink";
 
 interface Props {
   submissions: Submission[];
@@ -123,13 +124,7 @@ export const SubmissionListTable = (props: Props) => {
         dataSort
         dataField="user_id"
         dataFormat={(userId: string) => (
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href={Url.formatUserUrl(userId)}
-          >
-            {userId}
-          </a>
+          <NewTabLink href={Url.formatUserUrl(userId)}>{userId}</NewTabLink>
         )}
       >
         User
@@ -160,13 +155,9 @@ export const SubmissionListTable = (props: Props) => {
         dataSort
         dataField="id"
         dataFormat={(_: number, { id, contest_id }: Submission) => (
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href={Url.formatSubmissionUrl(id, contest_id)}
-          >
+          <NewTabLink href={Url.formatSubmissionUrl(id, contest_id)}>
             Detail
-          </a>
+          </NewTabLink>
         )}
       >
         Detail
