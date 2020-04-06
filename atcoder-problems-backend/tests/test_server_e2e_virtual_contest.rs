@@ -37,7 +37,7 @@ fn url(path: &str, port: u16) -> String {
 }
 
 fn setup() -> u16 {
-    utils::connect_to_test_sql();
+    utils::initialize_and_connect_to_test_sql();
     let mut rng = rand::thread_rng();
     rng.gen::<u16>() % 30000 + 30000
 }

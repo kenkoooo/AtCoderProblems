@@ -11,7 +11,7 @@ const UNRATED_STATE: &str = "-";
 
 #[test]
 fn test_update_rated_point_sum() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
 
     let user_id = "user";
     let rated_contest = "rated_contest";
