@@ -47,7 +47,7 @@ fn test_problem_info_aggregator() {
     use diesel::connection::SimpleConnection;
 
     fn setup_contests() -> PgConnection {
-        let conn = utils::connect_to_test_sql();
+        let conn = utils::initialize_and_connect_to_test_sql();
         conn.batch_execute(
             r#"
                 INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change) VALUES

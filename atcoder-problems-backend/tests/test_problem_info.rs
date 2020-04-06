@@ -23,7 +23,7 @@ fn get_points(conn: &PgConnection) -> Vec<(String, Option<f64>)> {
 
 #[test]
 fn test_update_problem_solver_count() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
 
     assert!(get_solver(&conn).is_empty());
 
@@ -71,7 +71,7 @@ fn test_update_problem_points() {
     let contest_id = "contest";
     let problem_id = "problem";
 
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     conn.insert_contests(&[Contest {
         id: contest_id.to_string(),
         start_epoch_second: 1468670400,
