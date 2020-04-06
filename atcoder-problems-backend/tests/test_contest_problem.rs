@@ -5,7 +5,7 @@ mod utils;
 
 #[test]
 fn test_contest_problem() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     assert!(conn.load_contest_problem().unwrap().is_empty());
 
     conn.insert_contest_problem(&vec![ContestProblem {

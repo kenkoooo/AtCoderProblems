@@ -5,7 +5,7 @@ pub mod utils;
 
 #[test]
 fn test_insert_contests() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     assert!(conn.load_contests().unwrap().is_empty());
     conn.insert_contests(&vec![Contest {
         id: "contest1".to_string(),
@@ -31,7 +31,7 @@ fn test_insert_contests() {
 
 #[test]
 fn test_insert_problems() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     assert!(conn.load_problems().unwrap().is_empty());
     conn.insert_problems(&vec![Problem {
         id: "problem1".to_string(),

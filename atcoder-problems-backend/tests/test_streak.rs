@@ -8,7 +8,7 @@ pub mod utils;
 
 #[test]
 fn test_update_streak_ranking() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     conn.batch_execute(
         r"
     INSERT INTO submissions (id, epoch_second, problem_id, contest_id, user_id, language, point, length, result) VALUES 

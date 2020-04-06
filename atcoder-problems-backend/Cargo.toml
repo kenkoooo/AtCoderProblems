@@ -38,7 +38,7 @@ uuid = { version = "0.8", features = ["serde", "v4"] }
 
 async-trait = "0.1"
 
-async-std = "1.2.0"
+async-std = { version = "1.5.0", features = ["attributes"] }
 
 [dev-dependencies]
 rand = "0.7.2"

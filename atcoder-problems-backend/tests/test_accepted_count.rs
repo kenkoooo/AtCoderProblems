@@ -5,7 +5,7 @@ mod utils;
 
 #[test]
 fn test_accepted_count() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     let submissions = [
         Submission {
             id: 1,

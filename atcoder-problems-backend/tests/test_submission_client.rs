@@ -5,7 +5,7 @@ pub mod utils;
 
 #[test]
 fn test_submission_client() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     conn.batch_execute(
         r#"
         INSERT INTO submissions
@@ -105,7 +105,7 @@ fn test_submission_client() {
 
 #[test]
 fn test_update_submission_count() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     conn.batch_execute(
         r#"
         INSERT INTO submissions
@@ -122,7 +122,7 @@ fn test_update_submission_count() {
 
 #[test]
 fn test_update_submissions() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     conn.update_submissions(&[Submission {
         id: 0,
         user_id: "old_user_name".to_owned(),

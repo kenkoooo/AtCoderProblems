@@ -13,7 +13,7 @@ const SQL_FILE: &str = "../config/database-definition.sql";
 pub const SQL_URL: &str = "postgresql://kenkoooo:pass@localhost/test";
 
 #[cfg(test)]
-pub fn connect_to_test_sql() -> PgConnection {
+pub fn initialize_and_connect_to_test_sql() -> PgConnection {
     let conn = PgConnection::establish(SQL_URL).unwrap();
     initialize(&conn);
     conn
