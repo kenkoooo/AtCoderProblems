@@ -5,7 +5,7 @@ pub mod utils;
 
 #[test]
 fn test_update_streak_ranking() {
-    let conn = utils::connect_to_test_sql();
+    let conn = utils::initialize_and_connect_to_test_sql();
     conn.batch_execute(
         r"
         INSERT INTO internal_users (internal_user_id) VALUES ('user');
