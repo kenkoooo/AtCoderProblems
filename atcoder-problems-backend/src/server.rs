@@ -142,7 +142,7 @@ impl CommonResponse for tide::Response {
         Self::new(503)
     }
     fn not_modified() -> Self {
-        Self::new(304)
+        Self::new(304).set_header("Cache-Control", "max-age=300")
     }
     fn etagged(etag: &str) -> Self {
         Self::new_cors().set_header("etag", etag)
