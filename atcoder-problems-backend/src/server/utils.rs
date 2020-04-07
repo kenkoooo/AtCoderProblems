@@ -6,14 +6,6 @@ use md5::{Digest, Md5};
 use serde::de::DeserializeOwned;
 use tide::{Request, Response};
 
-pub(crate) fn calc_etag_for_user(user_id: &str, count: usize) -> String {
-    let mut hasher = Md5::new();
-    hasher.input(user_id.as_bytes());
-    hasher.input(b" ");
-    hasher.input(count.to_be_bytes());
-    hex::encode(hasher.result())
-}
-
 #[async_trait]
 pub(crate) trait RequestUnpack {
     async fn get_unpack(self) -> Result<(PooledConnection, String)>;
