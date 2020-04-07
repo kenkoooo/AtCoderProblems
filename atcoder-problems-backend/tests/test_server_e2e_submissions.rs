@@ -141,6 +141,7 @@ async fn test_etag() -> Result<()> {
         .set_header("If-None-Match", etag)
         .await?;
     assert_eq!(response.status(), 304);
+    assert_eq!(response.header("Cache-Control"), Some("max-age=300"));
 
     server.race(ready(())).await;
     Ok(())

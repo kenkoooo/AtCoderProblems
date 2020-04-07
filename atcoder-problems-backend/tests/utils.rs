@@ -1,12 +1,8 @@
-use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
-
-use async_std::task;
 use diesel::connection::SimpleConnection;
 use diesel::prelude::*;
 use diesel::PgConnection;
 
 use std::fs::File;
-use std::future::Future;
 use std::io::prelude::*;
 
 const SQL_FILE: &str = "../config/database-definition.sql";
