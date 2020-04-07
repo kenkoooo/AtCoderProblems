@@ -121,8 +121,6 @@ pub(crate) trait CommonResponse {
     fn new_cors() -> Self;
     fn bad_request() -> Self;
     fn internal_error() -> Self;
-    fn not_modified() -> Self;
-    fn etagged(etag: &str) -> Self;
     fn redirect(location: &str) -> Self;
 
     fn set_cookie(self, cookie: cookie::Cookie) -> Self;
@@ -140,12 +138,6 @@ impl CommonResponse for tide::Response {
     }
     fn internal_error() -> Self {
         Self::new(503)
-    }
-    fn not_modified() -> Self {
-        Self::new(304).set_header("Cache-Control", "max-age=300")
-    }
-    fn etagged(etag: &str) -> Self {
-        Self::new_cors().set_header("etag", etag)
     }
     fn redirect(location: &str) -> Self {
         Self::new(302).set_header("location", location)

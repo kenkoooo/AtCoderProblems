@@ -123,31 +123,6 @@ async fn test_user_submissions() -> Result<()> {
 }
 
 #[async_std::test]
-async fn test_etag() -> Result<()> {
-    let port = setup();
-    let server = task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
-        run_server(pool, MockAuth, port).await.unwrap();
-    });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
-
-    let mut response = surf::get(url("/atcoder-api/results?user=u2", port)).await?;
-    let etag = response.header("Etag").unwrap().to_string();
-    let submissions: Vec<Submission> = response.body_json().await?;
-    assert_eq!(submissions.len(), 5);
-    assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
-
-    let response = surf::get(url("/atcoder-api/results?user=u2", port))
-        .set_header("If-None-Match", etag)
-        .await?;
-    assert_eq!(response.status(), 304);
-    assert_eq!(response.header("Cache-Control"), Some("max-age=300"));
-
-    server.race(ready(())).await;
-    Ok(())
-}
-
-#[async_std::test]
 async fn test_time_submissions() -> Result<()> {
     let port = setup();
     let server = task::spawn(async move {
