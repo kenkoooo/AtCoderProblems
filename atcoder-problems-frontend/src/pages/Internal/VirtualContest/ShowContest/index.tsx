@@ -23,7 +23,11 @@ import {
 } from "../../types";
 import TweetButton from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
-import { calcPerformance, extractBestSubmissions } from "./util";
+import {
+  BestSubmissionEntry,
+  calcPerformance,
+  extractBestSubmissions
+} from "./util";
 import ContestTable from "./ContestTable";
 import Timer from "../../../../components/Timer";
 
@@ -42,6 +46,54 @@ interface InnerProps extends OuterProps {
   joinContestPost: PromiseState<{} | null>;
   problemMapFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
   problemModelGet: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
+}
+
+function getEstimatedPerformances(
+  contestInfo: ShowingVirtualContest,
+  bestSubmissions: BestSubmissionEntry[],
+  start: number,
+  problems: VirtualContestItem[],
+  modelMap: ImmutableMap<ProblemId, ProblemModel>
+) {
+  return contestInfo.participants.map(userId => {
+    const onlySolvedData = bestSubmissions
+      .filter(b => b.userId === userId)
+      .filter(b => {
+        const result = b.bestSubmissionInfo?.bestSubmission.result;
+        return result && isAccepted(result);
+      })
+      .map(b =>
+        b.bestSubmissionInfo
+          ? {
+              time: b.bestSubmissionInfo.bestSubmission.epoch_second,
+              id: b.problemId
+            }
+          : undefined
+      )
+      .filter((obj): obj is { time: number; id: string } => obj !== undefined)
+      .sort((a, b) => a.time - b.time)
+      .reduce(
+        ({ prev, list }, entry) => ({
+          list: list.push({
+            problemId: entry.id,
+            solved: true,
+            time: entry.time - prev
+          }),
+          prev: entry.time
+        }),
+        {
+          list: List<{ problemId: string; time: number; solved: boolean }>(),
+          prev: start
+        }
+      ).list;
+    const solvedData = problems.map(p => {
+      const problemId = p.id;
+      const entry = onlySolvedData.find(e => e.problemId === problemId);
+      return entry ? entry : { problemId: p.id, time: 0, solved: false };
+    });
+    const performance = calcPerformance(solvedData, modelMap);
+    return { performance, userId };
+  });
 }
 
 const InnerShowContest = (props: InnerProps) => {
@@ -105,45 +157,18 @@ const InnerShowContest = (props: InnerProps) => {
     problems.map(item => item.id)
   );
 
-  const estimatedPerformances = contestInfo.participants.map(userId => {
-    const onlySolvedData = bestSubmissions
-      .filter(b => b.userId === userId)
-      .filter(b => {
-        const result = b.bestSubmissionInfo?.bestSubmission.result;
-        return result && isAccepted(result);
-      })
-      .map(b =>
-        b.bestSubmissionInfo
-          ? {
-              time: b.bestSubmissionInfo.bestSubmission.epoch_second,
-              id: b.problemId
-            }
-          : undefined
+  const enableEstimatedPerformances =
+    contestInfo.participants.length * contestInfo.problems.length <= 100;
+
+  const estimatedPerformances = enableEstimatedPerformances
+    ? getEstimatedPerformances(
+        contestInfo,
+        bestSubmissions,
+        start,
+        problems,
+        modelMap
       )
-      .filter((obj): obj is { time: number; id: string } => obj !== undefined)
-      .sort((a, b) => a.time - b.time)
-      .reduce(
-        ({ prev, list }, entry) => ({
-          list: list.push({
-            problemId: entry.id,
-            solved: true,
-            time: entry.time - prev
-          }),
-          prev: entry.time
-        }),
-        {
-          list: List<{ problemId: string; time: number; solved: boolean }>(),
-          prev: start
-        }
-      ).list;
-    const solvedData = problems.map(p => {
-      const problemId = p.id;
-      const entry = onlySolvedData.find(e => e.problemId === problemId);
-      return entry ? entry : { problemId: p.id, time: 0, solved: false };
-    });
-    const performance = calcPerformance(List(solvedData), modelMap);
-    return { performance, userId };
-  });
+    : [];
 
   const showProblems = start < now;
   return (
@@ -152,7 +177,12 @@ const InnerShowContest = (props: InnerProps) => {
         <Col sm="12">
           <h1>{contestInfo.title}</h1>
           <h4>{contestInfo.memo}</h4>
-          <h5>Mode: {formatMode(contestInfo.mode)}</h5>
+          <h5>
+            Mode: {formatMode(contestInfo.mode)}{" "}
+            {enableEstimatedPerformances
+              ? null
+              : "(Performance estimation is disabled.)"}
+          </h5>
           <h5>
             Time: {formatMomentDateTimeDay(parseSecond(start))} -{" "}
             {formatMomentDateTimeDay(parseSecond(end))} (

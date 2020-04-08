@@ -2,14 +2,14 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel
 } from "../../../../interfaces/ProblemModel";
 import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
-import { List, Map as ImmutableMap } from "immutable";
+import { Map as ImmutableMap } from "immutable";
 import { ProblemId } from "../../../../interfaces/Status";
 import { clipDifficulty, isAccepted } from "../../../../utils";
 import Submission from "../../../../interfaces/Submission";
 import { VirtualContestItem, VirtualContestMode } from "../../types";
 
 export const calcPerformance = (
-  solvedData: List<{ problemId: string; time: number; solved: boolean }>,
+  solvedData: { problemId: string; time: number; solved: boolean }[],
   modelMap: ImmutableMap<ProblemId, ProblemModel>
 ) => {
   let internalRating = 0;
@@ -20,7 +20,7 @@ export const calcPerformance = (
         const model = modelMap.get(problemId);
         return calcProbability(model, candidateRating, time, solved);
       })
-      .reduce((prev, cur) => (cur ? prev * cur : prev), 1.0);
+      .reduce((prev: number, cur) => (cur ? prev * cur : prev), 1.0);
     if (probability < p) {
       probability = p;
       internalRating = candidateRating;

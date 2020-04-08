@@ -62,6 +62,9 @@ export default ({
     title: p.title,
     ...p.item
   }));
+
+  const showEstimatedPerformances =
+    mode !== "lockout" && estimatedPerformances.length > 0;
   return (
     <Table striped>
       <thead>
@@ -88,7 +91,7 @@ export default ({
               })
             : null}
           <th style={{ textAlign: "center" }}>Score</th>
-          {mode !== "lockout" ? (
+          {showEstimatedPerformances ? (
             <th style={{ textAlign: "center" }}>Estimated Performance</th>
           ) : null}
         </tr>
@@ -160,7 +163,7 @@ export default ({
                   time={totalResult.lastBestSubmissionTime - start}
                 />
               </td>
-              {mode === "lockout" ? null : (
+              {showEstimatedPerformances ? (
                 <td>
                   <EstimatedPerformance
                     estimatedPerformance={
@@ -169,7 +172,7 @@ export default ({
                     }
                   />
                 </td>
-              )}
+              ) : null}
             </tr>
           );
         })}
