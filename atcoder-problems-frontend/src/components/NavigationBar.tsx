@@ -103,7 +103,9 @@ const NavigationBar2 = (props: InnerProps) => {
 
   return (
     <Navbar color="light" light expand="lg" fixed="top">
-      <NavbarBrand>AtCoder Problems</NavbarBrand>
+      <NavbarBrand tag={RouterLink} to="/">
+        AtCoder Problems
+      </NavbarBrand>
       <NavbarToggler onClick={() => setIsOpen(!isOpen)} />
       <Collapse isOpen={isOpen} navbar>
         <Nav className="ml-auto" navbar>
