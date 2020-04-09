@@ -1,72 +1,30 @@
 import React from "react";
 import { Row, ButtonGroup, Button } from "reactstrap";
-
-export enum TableTab {
-  ABC,
-  ARC,
-  AGC,
-  OtherRatedContests,
-  OtherContests
-}
+import { ContestCategories, ContestCategory } from "./ContestClassifier";
 
 interface Props {
-  active: TableTab;
-  setActive: (next: TableTab) => void;
+  active: ContestCategory;
+  setActive: (next: ContestCategory) => void;
 }
 
-const TableTabButtons: React.FC<Props> = props => {
+export const TableTabButtons: React.FC<Props> = props => {
   const { active, setActive } = props;
   return (
     <Row>
       <ButtonGroup className="table-tab">
-        <Button
-          color="secondary"
-          onClick={() => {
-            setActive(TableTab.ABC);
-          }}
-          active={active === TableTab.ABC}
-        >
-          ABC
-        </Button>
-        <Button
-          color="secondary"
-          onClick={() => {
-            setActive(TableTab.ARC);
-          }}
-          active={active === TableTab.ARC}
-        >
-          ARC
-        </Button>
-        <Button
-          color="secondary"
-          onClick={() => {
-            setActive(TableTab.AGC);
-          }}
-          active={active === TableTab.AGC}
-        >
-          AGC
-        </Button>
-        <Button
-          color="secondary"
-          onClick={() => {
-            setActive(TableTab.OtherRatedContests);
-          }}
-          active={active === TableTab.OtherRatedContests}
-        >
-          Other Rated Contests
-        </Button>
-        <Button
-          color="secondary"
-          onClick={() => {
-            setActive(TableTab.OtherContests);
-          }}
-          active={active === TableTab.OtherContests}
-        >
-          Other Contests
-        </Button>
+        {ContestCategories.map((category, i) => (
+          <Button
+            key={i}
+            color="secondary"
+            onClick={() => {
+              setActive(category);
+            }}
+            active={active === category}
+          >
+            {category}
+          </Button>
+        ))}
       </ButtonGroup>
     </Row>
   );
 };
-
-export default TableTabButtons;

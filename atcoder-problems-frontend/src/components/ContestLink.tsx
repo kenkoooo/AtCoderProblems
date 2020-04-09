@@ -2,6 +2,7 @@ import React from "react";
 import * as Url from "../utils/Url";
 import Contest from "../interfaces/Contest";
 import { NewTabLink } from "./NewTabLink";
+import { AGC_001_START } from "../pages/TablePage/ContestClassifier";
 
 interface Props {
   contest: Contest;
@@ -16,8 +17,7 @@ enum RatedTargetType {
 type RatedTarget = number | RatedTargetType;
 
 function getRatedTarget(contest: Contest): RatedTarget {
-  const agc001date = 1468670400;
-  if (agc001date > contest.start_epoch_second) {
+  if (AGC_001_START > contest.start_epoch_second) {
     return RatedTargetType.Unrated;
   }
   switch (contest.rate_change) {
