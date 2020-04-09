@@ -29,7 +29,7 @@ import { GITHUB_LOGIN_LINK } from "../utils/Url";
 
 type PageKind = "table" | "list" | "user";
 
-const extractPageKind = (pathname: string): PageKind => {
+const extractPageKind = (pathname: string): PageKind | undefined => {
   if (pathname.match(/^\/user/)) {
     return "user";
   } else if (pathname.match(/^\/list/)) {
@@ -37,7 +37,7 @@ const extractPageKind = (pathname: string): PageKind => {
   } else if (pathname.match(/^\/table/)) {
     return "table";
   } else {
-    return "table";
+    return undefined;
   }
 };
 
@@ -67,7 +67,7 @@ const InnerNavigationBar = (props: InnerProps) => {
   const { pathname } = useLocation();
   const pageKind = extractPageKind(pathname);
 
-  const initialState = extractUserIds(pathname);
+  const initialState = pageKind ? extractUserIds(pathname) : undefined;
   const isLoggedIn =
     props.loginState.fulfilled &&
     props.loginState.value &&
@@ -79,17 +79,16 @@ const InnerNavigationBar = (props: InnerProps) => {
       ? props.loginState.value.atcoder_user_id
       : "";
 
-  const initialUserId = initialState.userId;
-  const initialRivalIdString = initialState.rivalIdString;
-
   const [isOpen, setIsOpen] = useState(false);
-  const [userId, setUserId] = useState(initialUserId);
-  const [rivalIdString, setRivalIdString] = useState(initialRivalIdString);
+  const [userId, setUserId] = useState(initialState?.userId ?? "");
+  const [rivalIdString, setRivalIdString] = useState(
+    initialState?.rivalIdString ?? ""
+  );
 
   const history = useHistory();
   const pushHistory = () => {
     const p = generatePath(
-      pageKind,
+      pageKind ?? "table",
       userId ? userId : loggedInUserId,
       rivalIdString
     );
