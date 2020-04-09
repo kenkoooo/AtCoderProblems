@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   NavLink as RouterLink,
   useLocation,
@@ -67,7 +67,7 @@ const InnerNavigationBar = (props: InnerProps) => {
   const { pathname } = useLocation();
   const pageKind = extractPageKind(pathname);
 
-  const initialState = pageKind ? extractUserIds(pathname) : undefined;
+  const pathState = pageKind ? extractUserIds(pathname) : undefined;
   const isLoggedIn =
     props.loginState.fulfilled &&
     props.loginState.value &&
@@ -80,9 +80,9 @@ const InnerNavigationBar = (props: InnerProps) => {
       : "";
 
   const [isOpen, setIsOpen] = useState(false);
-  const [userId, setUserId] = useState(initialState?.userId ?? "");
+  const [userId, setUserId] = useState(pathState?.userId ?? "");
   const [rivalIdString, setRivalIdString] = useState(
-    initialState?.rivalIdString ?? ""
+    pathState?.rivalIdString ?? ""
   );
 
   const history = useHistory();
@@ -94,6 +94,13 @@ const InnerNavigationBar = (props: InnerProps) => {
     );
     history.push({ pathname: p });
   };
+
+  useEffect(() => {
+    if (pathState) {
+      setUserId(pathState.userId);
+      setRivalIdString(pathState.rivalIdString);
+    }
+  }, [pathState]);
 
   return (
     <Navbar color="light" light expand="lg" fixed="top">
