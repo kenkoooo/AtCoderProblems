@@ -38,7 +38,7 @@ const InnerTablePage: React.FC<InnerProps> = props => {
   } = props;
 
   const [activeTab, setActiveTab] = useLocalStorage<ContestCategory>(
-    "activeTab",
+    "contestTableTab",
     "ABC"
   );
   const [showAccepted, setShowAccepted] = useLocalStorage("showAccepted", true);
