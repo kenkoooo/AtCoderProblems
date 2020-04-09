@@ -1,7 +1,7 @@
 import { List, Map, Set } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
-import { Row, Table } from "reactstrap";
+import { Row } from "reactstrap";
 import React from "react";
 import {
   noneStatus,
@@ -19,6 +19,7 @@ import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 
 interface Props {
   contests: Contest[];
@@ -73,7 +74,18 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
     .sort(
       (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
     );
-
+  interface OneContest {
+    contest: Contest;
+    id: string;
+    problemStatus: List<{
+      problem: Problem;
+      status: ProblemStatus;
+      model: ProblemModel | undefined;
+    }>;
+    solvedAll: boolean;
+    rowColor: TableColor;
+    cellColorList: List<TableColor>;
+  }
   const maxProblemCount = contests.reduce(
     (currentCount, { problemStatus }) =>
       Math.max(problemStatus.size, currentCount),
@@ -83,69 +95,75 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
   return (
     <Row className="my-4">
       <h2>{props.title}</h2>
-      <Table>
-        <thead>
-          <tr>
-            <th>Contest</th>
-            {header.map((c, i) => (
-              <th key={i}>{c}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {contests.map(({ contest, problemStatus, cellColorList }, i) => (
-            <tr key={i}>
-              <th scope="row">
-                <ContestLink
-                  contest={contest}
-                  title={contest.id.toUpperCase()}
-                />
-              </th>
-              {header.map((c, j) => {
-                const problem = problemStatus.get(j);
-                const cellColor = cellColorList.get(j, TableColor.None);
-                const className = [
-                  "table-problem",
-                  !problem ? "table-problem-empty" : cellColor
-                ]
-                  .filter(nm => nm)
-                  .join(" ");
-
-                const model = problem ? problem.model : undefined;
-                if (problem) {
-                  return (
-                    <td key={j} className={className}>
-                      <ProblemLink
-                        difficulty={
-                          model && model.difficulty !== undefined
-                            ? model.difficulty
-                            : null
-                        }
-                        isExperimentalDifficulty={
-                          !!model && model.is_experimental
-                        }
-                        showDifficulty={props.showDifficulty}
-                        contestId={contest.id}
-                        problemId={problem.problem.id}
-                        problemTitle={problem.problem.title}
-                      />
-                      <SubmitTimespan
-                        contest={contest}
-                        problemStatus={problem.status}
-                        enableColorfulMode={
-                          props.colorMode === ColorMode.ContestResult
-                        }
-                      />
-                    </td>
-                  );
-                } else {
-                  return <td key={j} className={className} />;
-                }
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <BootstrapTable
+        data={contests}
+        tableContainerClass="contest-table-responsive contest-regular-table-responsive"
+      >
+        <TableHeaderColumn
+          isKey
+          dataField="id"
+          columnClassName={(_: string, { rowColor }: OneContest) => rowColor}
+          dataFormat={(_: any, { contest }: OneContest) => (
+            <ContestLink contest={contest} title={contest.id.toUpperCase()} />
+          )}
+        >
+          Contest
+        </TableHeaderColumn>
+        {header.map((c, i) => (
+          <TableHeaderColumn
+            dataField={c}
+            key={c}
+            columnClassName={(
+              _: any,
+              { problemStatus, cellColorList }: OneContest
+            ) => {
+              const problem = problemStatus.get(i);
+              const cellColor = cellColorList.get(i, TableColor.None);
+              return [
+                "table-problem",
+                !problem ? "table-problem-empty" : cellColor
+              ]
+                .filter(nm => nm)
+                .join(" ");
+            }}
+            dataFormat={(_: any, { contest, problemStatus }: OneContest) => {
+              const problem = problemStatus.get(i);
+              const model = problem ? problem.model : undefined;
+              if (problem) {
+                return (
+                  <>
+                    <ProblemLink
+                      difficulty={
+                        model && model.difficulty !== undefined
+                          ? model.difficulty
+                          : null
+                      }
+                      isExperimentalDifficulty={
+                        !!model && model.is_experimental
+                      }
+                      showDifficulty={props.showDifficulty}
+                      contestId={contest.id}
+                      problemId={problem.problem.id}
+                      problemTitle={problem.problem.title}
+                    />
+                    <SubmitTimespan
+                      contest={contest}
+                      problemStatus={problem.status}
+                      enableColorfulMode={
+                        props.colorMode === ColorMode.ContestResult
+                      }
+                    />
+                  </>
+                );
+              } else {
+                return "";
+              }
+            }}
+          >
+            {c}
+          </TableHeaderColumn>
+        ))}
+      </BootstrapTable>
     </Row>
   );
 };
