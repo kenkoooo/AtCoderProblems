@@ -27,21 +27,8 @@ import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
 import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { List } from "immutable";
 import { TabFrame } from "./components/TabFrame";
-import { connect, PromiseState } from "react-refetch";
-import { UserResponse } from "./pages/Internal/types";
-import { USER_GET } from "./pages/Internal/ApiUrl";
 
-interface Props {
-  loginState: PromiseState<UserResponse | null>;
-}
-
-const App = (props: Props) => {
-  const loggedInUserId =
-    props.loginState.fulfilled &&
-    props.loginState.value &&
-    props.loginState.value.atcoder_user_id
-      ? props.loginState.value.atcoder_user_id
-      : undefined;
+const App = () => {
   return (
     <Router>
       <div>
@@ -52,7 +39,7 @@ const App = (props: Props) => {
               exact
               path="/ac"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <ACRanking />
                 </TabFrame>
               )}
@@ -61,7 +48,7 @@ const App = (props: Props) => {
               exact
               path="/fast"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <FastestRanking />
                 </TabFrame>
               )}
@@ -70,7 +57,7 @@ const App = (props: Props) => {
               exact
               path="/short"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <ShortRanking />
                 </TabFrame>
               )}
@@ -79,7 +66,7 @@ const App = (props: Props) => {
               exact
               path="/first"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <FirstRanking />
                 </TabFrame>
               )}
@@ -88,7 +75,7 @@ const App = (props: Props) => {
               exact
               path="/sum"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <SumRanking />
                 </TabFrame>
               )}
@@ -97,7 +84,7 @@ const App = (props: Props) => {
               exact
               path="/streak"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <StreakRanking />
                 </TabFrame>
               )}
@@ -106,7 +93,7 @@ const App = (props: Props) => {
               exact
               path="/lang"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <LanguageOwners />
                 </TabFrame>
               )}
@@ -117,7 +104,7 @@ const App = (props: Props) => {
                 const userIds: string | undefined = match.params.userIds;
                 const userId: string = (userIds ?? "").split("/")[0];
                 return (
-                  <TabFrame loggedInUserId={loggedInUserId}>
+                  <TabFrame>
                     <UserPage userId={userId} />
                   </TabFrame>
                 );
@@ -133,7 +120,7 @@ const App = (props: Props) => {
                   .skip(1)
                   .filter(x => x.length > 0);
                 return (
-                  <TabFrame loggedInUserId={loggedInUserId}>
+                  <TabFrame>
                     <TablePage userId={userId} rivals={rivalList} />
                   </TabFrame>
                 );
@@ -149,7 +136,7 @@ const App = (props: Props) => {
                   .skip(1)
                   .filter(x => x.length > 0);
                 return (
-                  <TabFrame loggedInUserId={loggedInUserId}>
+                  <TabFrame>
                     <ListPage userId={userId} rivals={rivalList} />
                   </TabFrame>
                 );
@@ -160,7 +147,7 @@ const App = (props: Props) => {
             <Route
               path="/contest/show/:contestId([a-zA-Z0-9_-]+)"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <ShowContest />
                 </TabFrame>
               )}
@@ -168,7 +155,7 @@ const App = (props: Props) => {
             <Route
               path="/contest/create"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <ContestCreatePage />
                 </TabFrame>
               )}
@@ -176,7 +163,7 @@ const App = (props: Props) => {
             <Route
               path="/contest/update/:contestId([a-zA-Z0-9_-]+)"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <ContestUpdatePage />
                 </TabFrame>
               )}
@@ -184,7 +171,7 @@ const App = (props: Props) => {
             <Route
               path="/contest/recent"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <RecentContestList />
                 </TabFrame>
               )}
@@ -194,7 +181,7 @@ const App = (props: Props) => {
             <Route
               path="/login/user"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <UserConfigPage />
                 </TabFrame>
               )}
@@ -204,7 +191,7 @@ const App = (props: Props) => {
             <Route
               path="/problemlist/:listId([a-zA-Z0-9_-]+)"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <SingleProblemList />
                 </TabFrame>
               )}
@@ -212,7 +199,7 @@ const App = (props: Props) => {
             <Route
               path="/submissions/recent"
               component={() => (
-                <TabFrame loggedInUserId={loggedInUserId}>
+                <TabFrame>
                   <RecentSubmissions />
                 </TabFrame>
               )}
@@ -226,6 +213,4 @@ const App = (props: Props) => {
   );
 };
 
-export default connect<{}, Props>(() => ({
-  loginState: USER_GET
-}))(App);
+export default App;
