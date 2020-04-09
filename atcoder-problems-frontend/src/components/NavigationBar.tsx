@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { NavLink as RouterLink, useLocation } from "react-router-dom";
+import {
+  NavLink as RouterLink,
+  useLocation,
+  useHistory
+} from "react-router-dom";
 import {
   Collapse,
   Navbar,
@@ -25,7 +29,7 @@ import { GITHUB_LOGIN_LINK } from "../utils/Url";
 
 type PageKind = "table" | "list" | "user";
 
-const extractPageKind = (pathname: string): PageKind | undefined => {
+const extractPageKind = (pathname: string): PageKind => {
   if (pathname.match(/^\/user/)) {
     return "user";
   } else if (pathname.match(/^\/list/)) {
@@ -33,7 +37,7 @@ const extractPageKind = (pathname: string): PageKind | undefined => {
   } else if (pathname.match(/^\/table/)) {
     return "table";
   } else {
-    return undefined;
+    return "table";
   }
 };
 
@@ -61,7 +65,7 @@ const generatePath = (
 
 const InnerNavigationBar = (props: InnerProps) => {
   const { pathname } = useLocation();
-  const initialPageKind = extractPageKind(pathname);
+  const pageKind = extractPageKind(pathname);
 
   const initialState = extractUserIds(pathname);
   const isLoggedIn =
@@ -75,20 +79,21 @@ const InnerNavigationBar = (props: InnerProps) => {
       ? props.loginState.value.atcoder_user_id
       : "";
 
-  const initialUserId = initialPageKind ? initialState.userId : "";
-  const initialRivalIdString = initialPageKind
-    ? initialState.rivalIdString
-    : "";
+  const initialUserId = initialState.userId;
+  const initialRivalIdString = initialState.rivalIdString;
 
-  const [pageKind, setPageKind] = useState<PageKind>(
-    initialPageKind ?? "table"
-  );
   const [isOpen, setIsOpen] = useState(false);
   const [userId, setUserId] = useState(initialUserId);
   const [rivalIdString, setRivalIdString] = useState(initialRivalIdString);
 
-  const submit = (nextKind: PageKind) => {
-    setPageKind(nextKind);
+  const history = useHistory();
+  const pushHistory = () => {
+    const p = generatePath(
+      pageKind,
+      userId ? userId : loggedInUserId,
+      rivalIdString
+    );
+    history.push({ pathname: p });
   };
 
   return (
@@ -104,8 +109,8 @@ const InnerNavigationBar = (props: InnerProps) => {
               <Input
                 style={{ width: "120px" }}
                 onKeyPress={e => {
-                  if (e.key === "Enter" && pageKind !== null) {
-                    submit(pageKind);
+                  if (e.key === "Enter") {
+                    pushHistory();
                   }
                 }}
                 value={userId}
@@ -120,8 +125,8 @@ const InnerNavigationBar = (props: InnerProps) => {
               <Input
                 style={{ width: "120px" }}
                 onKeyPress={e => {
-                  if (e.key === "Enter" && pageKind !== null) {
-                    submit(pageKind);
+                  if (e.key === "Enter") {
+                    pushHistory();
                   }
                 }}
                 value={rivalIdString}
@@ -140,9 +145,6 @@ const InnerNavigationBar = (props: InnerProps) => {
                 userId ? userId : loggedInUserId,
                 rivalIdString
               )}
-              onClick={() => {
-                submit("table");
-              }}
             >
               Table
             </Button>
@@ -154,9 +156,6 @@ const InnerNavigationBar = (props: InnerProps) => {
                 userId ? userId : loggedInUserId,
                 rivalIdString
               )}
-              onClick={() => {
-                submit("list");
-              }}
             >
               List
             </Button>
@@ -169,9 +168,6 @@ const InnerNavigationBar = (props: InnerProps) => {
                 userId ? userId : loggedInUserId,
                 rivalIdString
               )}
-              onClick={() => {
-                submit("user");
-              }}
             >
               User Page
             </Button>

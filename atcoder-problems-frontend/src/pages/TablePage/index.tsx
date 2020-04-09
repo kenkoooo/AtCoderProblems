@@ -1,26 +1,18 @@
-import React, { ReactNode, useState } from "react";
+import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { ContestId, ProblemId, ProblemStatus } from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
-import ContestTable from "./ContestTable";
+import { ContestTable } from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
 import Options from "./Options";
-import TableTabButtons, { TableTab } from "./TableTab";
+import { TableTabButtons } from "./TableTab";
 import ProblemModel from "../../interfaces/ProblemModel";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
-
-const ContestWrapper: React.FC<{
-  display: boolean;
-  children: ReactNode;
-}> = props => {
-  return (
-    <div style={{ display: props.display ? "" : "none" }}>{props.children}</div>
-  );
-};
+import { classifyContest, ContestCategory } from "./ContestClassifier";
 
 interface OuterProps {
   userId: string;
@@ -45,7 +37,10 @@ const InnerTablePage: React.FC<InnerProps> = props => {
     selectableLanguagesFetch
   } = props;
 
-  const [activeTab, setActiveTab] = useLocalStorage("activeTab", TableTab.ABC);
+  const [activeTab, setActiveTab] = useLocalStorage<ContestCategory>(
+    "activeTab",
+    "ABC"
+  );
   const [showAccepted, setShowAccepted] = useLocalStorage("showAccepted", true);
   const [showDifficulty, setShowDifficulty] = useLocalStorage(
     "showDifficulty",
@@ -72,18 +67,11 @@ const InnerTablePage: React.FC<InnerProps> = props => {
   const selectableLanguages = selectableLanguagesFetch.fulfilled
     ? selectableLanguagesFetch.value
     : Set<string>();
-  const abc = contests.filter((v, k) => k.match(/^abc\d{3}$/));
-  const arc = contests.filter((v, k) => k.match(/^arc\d{3}$/));
-  const agc = contests.filter((v, k) => k.match(/^agc\d{3}$/));
-  const atcoderContestIds = [abc, arc, agc]
-    .map(s => s.keySeq())
-    .reduce((set, keys) => set.concat(keys), Set<ContestId>());
-  const othersRated = contests
-    .filter(contest => !atcoderContestIds.has(contest.id))
-    .filter(contest => contest.rate_change !== "-")
-    .filter(contest => contest.start_epoch_second >= 1468670400); // agc001
-  const ratedContestIds = atcoderContestIds.concat(othersRated.keySeq());
-  const others = contests.filter(c => !ratedContestIds.has(c.id));
+
+  const filteredContests = contests
+    .valueSeq()
+    .toArray()
+    .filter(c => classifyContest(c) === activeTab);
 
   return (
     <div>
@@ -105,71 +93,37 @@ const InnerTablePage: React.FC<InnerProps> = props => {
         }
       />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
-      <ContestWrapper display={activeTab === TableTab.ABC}>
+      {["ABC", "ARC", "AGC"].includes(activeTab) ? (
         <AtCoderRegularTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
           showSolved={showAccepted}
           colorMode={colorMode}
-          contests={abc.valueSeq()}
-          title="AtCoder Beginner Contest"
+          contests={filteredContests}
+          title={
+            activeTab === "ABC"
+              ? "AtCoder Beginner Contest"
+              : activeTab === "ARC"
+              ? "AtCoder Regular Contest"
+              : "AtCoder Grand Contest"
+          }
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
           selectedLanguages={selectedLanguages}
         />
-      </ContestWrapper>
-      <ContestWrapper display={activeTab === TableTab.ARC}>
-        <AtCoderRegularTable
-          problemModels={problemModels}
-          showDifficulty={showDifficulty}
-          showSolved={showAccepted}
-          colorMode={colorMode}
-          contests={arc.valueSeq()}
-          title="AtCoder Regular Contest"
-          contestToProblems={contestToProblems}
-          statusLabelMap={statusLabelMap}
-          selectedLanguages={selectedLanguages}
-        />
-      </ContestWrapper>
-      <ContestWrapper display={activeTab === TableTab.AGC}>
-        <AtCoderRegularTable
-          problemModels={problemModels}
-          showDifficulty={showDifficulty}
-          showSolved={showAccepted}
-          colorMode={colorMode}
-          contests={agc.valueSeq()}
-          title="AtCoder Grand Contest"
-          contestToProblems={contestToProblems}
-          statusLabelMap={statusLabelMap}
-          selectedLanguages={selectedLanguages}
-        />
-      </ContestWrapper>
-      <ContestWrapper display={activeTab === TableTab.OtherRatedContests}>
+      ) : (
         <ContestTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
-          contests={othersRated.valueSeq()}
-          title="Other Rated Contests"
+          contests={filteredContests}
+          title={activeTab}
           contestToProblems={contestToProblems}
           showSolved={showAccepted}
           colorMode={colorMode}
           statusLabelMap={statusLabelMap}
           selectedLanguages={selectedLanguages}
         />
-      </ContestWrapper>
-      <ContestWrapper display={activeTab === TableTab.OtherContests}>
-        <ContestTable
-          problemModels={problemModels}
-          showDifficulty={showDifficulty}
-          contests={others.valueSeq()}
-          title="Other Contests"
-          contestToProblems={contestToProblems}
-          showSolved={showAccepted}
-          colorMode={colorMode}
-          statusLabelMap={statusLabelMap}
-          selectedLanguages={selectedLanguages}
-        />
-      </ContestWrapper>
+      )}
     </div>
   );
 };

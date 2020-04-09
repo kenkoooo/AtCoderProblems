@@ -1,4 +1,4 @@
-import { List, Map, Set, Seq } from "immutable";
+import { List, Map, Set } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Row, Table } from "reactstrap";
@@ -21,7 +21,7 @@ import ProblemModel from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
 
 interface Props {
-  contests: Seq.Indexed<Contest>;
+  contests: Contest[];
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
@@ -35,7 +35,6 @@ interface Props {
 const AtCoderRegularTableSFC: React.FC<Props> = props => {
   const { colorMode, selectedLanguages } = props;
   const contests = props.contests
-    .valueSeq()
     .map(contest => {
       const problems = props.contestToProblems
         .get(contest.id, List<Problem>())
@@ -71,8 +70,9 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
       };
     })
     .filter(({ solvedAll }) => props.showSolved || !solvedAll)
-    .sort((a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second)
-    .toArray();
+    .sort(
+      (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
+    );
 
   const maxProblemCount = contests.reduce(
     (currentCount, { problemStatus }) =>
@@ -86,7 +86,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
       <Table>
         <thead>
           <tr>
-            <th>Contest</th>
+            <th className="col-1">Contest</th>
             {header.map((c, i) => (
               <th key={i}>{c}</th>
             ))}
@@ -95,7 +95,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         <tbody>
           {contests.map(({ contest, problemStatus, cellColorList }, i) => (
             <tr key={i}>
-              <th>
+              <th scope="row">
                 <ContestLink
                   contest={contest}
                   title={contest.id.toUpperCase()}
