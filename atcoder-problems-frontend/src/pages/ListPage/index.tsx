@@ -25,7 +25,6 @@ import { ListTable } from "./ListTable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { RatingInfo } from "../../utils/RatingInfo";
-import { useParams } from "react-router-dom";
 
 export const INF_POINT = 1e18;
 
@@ -48,7 +47,7 @@ export interface ProblemRowData {
   readonly status: ProblemStatus;
 }
 
-const ListPage = (props: InnerProps) => {
+const InnerListPage = (props: InnerProps) => {
   const [fromPoint, setFromPoint] = useState(0);
   const [toPoint, setToPoint] = useState(INF_POINT);
   const [statusFilterState, setStatusFilterState] = useState<
@@ -347,7 +346,7 @@ interface InnerProps extends OuterProps {
   readonly userRatingInfoFetch: PromiseState<RatingInfo>;
 }
 
-const InnerListPage = connect<OuterProps, InnerProps>(props => ({
+export const ListPage = connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: [props.userId, props.rivals],
     value: () =>
@@ -374,13 +373,4 @@ const InnerListPage = connect<OuterProps, InnerProps>(props => ({
     comparison: props.userId,
     value: () => CachedApiClient.cachedRatingInfo(props.userId)
   }
-}))(ListPage);
-export default () => {
-  const { userIds } = useParams();
-  const userId = (userIds ?? "").split("/")[0];
-  const rivals = (userIds ?? "/").split("/");
-  const rivalList = List(rivals)
-    .skip(1)
-    .filter(x => x.length > 0);
-  return <InnerListPage userId={userId} rivals={rivalList} />;
-};
+}))(InnerListPage);
