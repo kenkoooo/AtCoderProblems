@@ -1,21 +1,28 @@
-import React, { ReactNode } from "react";
+import React, { FC } from "react";
 import { Nav, NavItem, NavLink } from "reactstrap";
 import { useParams, NavLink as RouterLink } from "react-router-dom";
+import { UserResponse } from "../pages/Internal/types";
+import { connect, PromiseState } from "react-refetch";
+import { USER_GET } from "../pages/Internal/ApiUrl";
 
 interface Props {
-  children?: ReactNode;
-  loggedInUserId: string | undefined;
+  loginState: PromiseState<UserResponse | null>;
 }
 
-export const TabFrame = (props: Props) => {
+const InnerTabFrame: FC<Props> = props => {
   const { userIds } = useParams();
-  const loggedInUserId = props?.loggedInUserId ?? "";
+  const loggedInUserId =
+    props.loginState.fulfilled &&
+    props.loginState.value &&
+    props.loginState.value.atcoder_user_id
+      ? props.loginState.value.atcoder_user_id
+      : "";
 
   const userIdsPath = userIds
-    ? userIds.startsWith("/")
+    ? userIds.startsWith("/") || userIds === ""
       ? loggedInUserId + userIds
       : userIds
-    : "";
+    : loggedInUserId;
 
   return (
     <>
@@ -50,7 +57,11 @@ export const TabFrame = (props: Props) => {
           </NavLink>
         </NavItem>
       </Nav>
-      {props.children}
+      <div>{props.children}</div>
     </>
   );
 };
+
+export const TabFrame = connect<{}, Props>(() => ({
+  loginState: USER_GET
+}))(InnerTabFrame);
