@@ -1,4 +1,4 @@
-import { List, Map, Set, Seq } from "immutable";
+import { List, Map, Set } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Table, Row } from "reactstrap";
@@ -11,7 +11,7 @@ import ProblemModel from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
 
 interface Props {
-  contests: Seq.Indexed<Contest>;
+  contests: Contest[];
   contestToProblems: Map<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
@@ -22,7 +22,7 @@ interface Props {
   title: string;
 }
 
-const ContestTable: React.FC<Props> = (props: Props) => {
+export const ContestTable: React.FC<Props> = (props: Props) => {
   const {
     contests,
     contestToProblems,
@@ -67,66 +67,62 @@ const ContestTable: React.FC<Props> = (props: Props) => {
         <h2>{props.title}</h2>
       </Row>
       <div>
-        {mergedContests
-          .map(({ contest, problemInfo }) => {
-            return (
-              <div key={contest.id} className="contest-table-responsive">
-                <strong>
-                  <ContestLink contest={contest} />
-                </strong>
-                <Table striped bordered hover responsive>
-                  <tbody>
-                    <tr>
-                      {problemInfo.map(({ problem, status, model }) => {
-                        const color = status
-                          ? statusToTableColor({
-                              colorMode,
-                              status,
-                              contest,
-                              selectedLanguages
-                            })
-                          : "";
-                        return (
-                          <td
-                            key={problem.id}
-                            className={["table-problem", color]
-                              .filter(nm => nm)
-                              .join(" ")}
-                          >
-                            <ProblemLink
-                              difficulty={
-                                model && model.difficulty
-                                  ? model.difficulty
-                                  : null
-                              }
-                              isExperimentalDifficulty={
-                                model ? model.is_experimental : false
-                              }
-                              showDifficulty={props.showDifficulty}
-                              problemId={problem.id}
-                              problemTitle={problem.title}
-                              contestId={problem.contest_id}
-                            />
-                            <SubmitTimespan
-                              contest={contest}
-                              problemStatus={status}
-                              enableColorfulMode={
-                                props.colorMode === ColorMode.ContestResult
-                              }
-                            />
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  </tbody>
-                </Table>
-              </div>
-            );
-          })
-          .toArray()}
+        {mergedContests.map(({ contest, problemInfo }) => {
+          return (
+            <div key={contest.id} className="contest-table-responsive">
+              <strong>
+                <ContestLink contest={contest} />
+              </strong>
+              <Table striped bordered hover responsive>
+                <tbody>
+                  <tr>
+                    {problemInfo.map(({ problem, status, model }) => {
+                      const color = status
+                        ? statusToTableColor({
+                            colorMode,
+                            status,
+                            contest,
+                            selectedLanguages
+                          })
+                        : "";
+                      return (
+                        <td
+                          key={problem.id}
+                          className={["table-problem", color]
+                            .filter(nm => nm)
+                            .join(" ")}
+                        >
+                          <ProblemLink
+                            difficulty={
+                              model && model.difficulty
+                                ? model.difficulty
+                                : null
+                            }
+                            isExperimentalDifficulty={
+                              model ? model.is_experimental : false
+                            }
+                            showDifficulty={props.showDifficulty}
+                            problemId={problem.id}
+                            problemTitle={problem.title}
+                            contestId={problem.contest_id}
+                          />
+                          <SubmitTimespan
+                            contest={contest}
+                            problemStatus={status}
+                            enableColorfulMode={
+                              props.colorMode === ColorMode.ContestResult
+                            }
+                          />
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
+          );
+        })}
       </div>
     </>
   );
 };
-
-export default React.memo(ContestTable);
