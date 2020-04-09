@@ -68,6 +68,9 @@ const InnerNavigationBar = (props: InnerProps) => {
   const pageKind = extractPageKind(pathname);
 
   const pathState = pageKind ? extractUserIds(pathname) : undefined;
+  const pathUserId = pathState?.userId;
+  const pathRivalIdString = pathState?.rivalIdString;
+
   const isLoggedIn =
     props.loginState.fulfilled &&
     props.loginState.value &&
@@ -80,10 +83,8 @@ const InnerNavigationBar = (props: InnerProps) => {
       : "";
 
   const [isOpen, setIsOpen] = useState(false);
-  const [userId, setUserId] = useState(pathState?.userId ?? "");
-  const [rivalIdString, setRivalIdString] = useState(
-    pathState?.rivalIdString ?? ""
-  );
+  const [userId, setUserId] = useState(pathUserId ?? "");
+  const [rivalIdString, setRivalIdString] = useState(pathRivalIdString ?? "");
 
   const history = useHistory();
   const pushHistory = () => {
@@ -96,11 +97,13 @@ const InnerNavigationBar = (props: InnerProps) => {
   };
 
   useEffect(() => {
-    if (pathState) {
-      setUserId(pathState.userId);
-      setRivalIdString(pathState.rivalIdString);
+    if (pathUserId) {
+      setUserId(pathUserId);
     }
-  }, [pathState]);
+    if (pathRivalIdString) {
+      setRivalIdString(pathRivalIdString);
+    }
+  }, [pathUserId, pathRivalIdString]);
 
   return (
     <Navbar color="light" light expand="lg" fixed="top">
