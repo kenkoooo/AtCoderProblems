@@ -86,7 +86,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
       <Table>
         <thead>
           <tr>
-            <th className="col-1">Contest</th>
+            <th>Contest</th>
             {header.map((c, i) => (
               <th key={i}>{c}</th>
             ))}
