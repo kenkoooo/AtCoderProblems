@@ -27,8 +27,21 @@ import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
 import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { List } from "immutable";
 import { TabFrame } from "./components/TabFrame";
+import { connect, PromiseState } from "react-refetch";
+import { UserResponse } from "./pages/Internal/types";
+import { USER_GET } from "./pages/Internal/ApiUrl";
 
-const App = () => {
+interface Props {
+  loginState: PromiseState<UserResponse | null>;
+}
+
+const App = (props: Props) => {
+  const loggedInUserId =
+    props.loginState.fulfilled &&
+    props.loginState.value &&
+    props.loginState.value.atcoder_user_id
+      ? props.loginState.value.atcoder_user_id
+      : undefined;
   return (
     <Router>
       <div>
@@ -39,7 +52,7 @@ const App = () => {
               exact
               path="/ac"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <ACRanking />
                 </TabFrame>
               )}
@@ -48,7 +61,7 @@ const App = () => {
               exact
               path="/fast"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <FastestRanking />
                 </TabFrame>
               )}
@@ -57,7 +70,7 @@ const App = () => {
               exact
               path="/short"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <ShortRanking />
                 </TabFrame>
               )}
@@ -66,7 +79,7 @@ const App = () => {
               exact
               path="/first"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <FirstRanking />
                 </TabFrame>
               )}
@@ -75,7 +88,7 @@ const App = () => {
               exact
               path="/sum"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <SumRanking />
                 </TabFrame>
               )}
@@ -84,7 +97,7 @@ const App = () => {
               exact
               path="/streak"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <StreakRanking />
                 </TabFrame>
               )}
@@ -93,7 +106,7 @@ const App = () => {
               exact
               path="/lang"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <LanguageOwners />
                 </TabFrame>
               )}
@@ -104,7 +117,7 @@ const App = () => {
                 const userIds: string | undefined = match.params.userIds;
                 const userId: string = (userIds ?? "").split("/")[0];
                 return (
-                  <TabFrame>
+                  <TabFrame loggedInUserId={loggedInUserId}>
                     <UserPage userId={userId} />
                   </TabFrame>
                 );
@@ -120,7 +133,7 @@ const App = () => {
                   .skip(1)
                   .filter(x => x.length > 0);
                 return (
-                  <TabFrame>
+                  <TabFrame loggedInUserId={loggedInUserId}>
                     <TablePage userId={userId} rivals={rivalList} />
                   </TabFrame>
                 );
@@ -136,7 +149,7 @@ const App = () => {
                   .skip(1)
                   .filter(x => x.length > 0);
                 return (
-                  <TabFrame>
+                  <TabFrame loggedInUserId={loggedInUserId}>
                     <ListPage userId={userId} rivals={rivalList} />
                   </TabFrame>
                 );
@@ -147,7 +160,7 @@ const App = () => {
             <Route
               path="/contest/show/:contestId([a-zA-Z0-9_-]+)"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <ShowContest />
                 </TabFrame>
               )}
@@ -155,7 +168,7 @@ const App = () => {
             <Route
               path="/contest/create"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <ContestCreatePage />
                 </TabFrame>
               )}
@@ -163,7 +176,7 @@ const App = () => {
             <Route
               path="/contest/update/:contestId([a-zA-Z0-9_-]+)"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <ContestUpdatePage />
                 </TabFrame>
               )}
@@ -171,7 +184,7 @@ const App = () => {
             <Route
               path="/contest/recent"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <RecentContestList />
                 </TabFrame>
               )}
@@ -181,7 +194,7 @@ const App = () => {
             <Route
               path="/login/user"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <UserConfigPage />
                 </TabFrame>
               )}
@@ -191,7 +204,7 @@ const App = () => {
             <Route
               path="/problemlist/:listId([a-zA-Z0-9_-]+)"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <SingleProblemList />
                 </TabFrame>
               )}
@@ -199,7 +212,7 @@ const App = () => {
             <Route
               path="/submissions/recent"
               component={() => (
-                <TabFrame>
+                <TabFrame loggedInUserId={loggedInUserId}>
                   <RecentSubmissions />
                 </TabFrame>
               )}
@@ -213,4 +226,6 @@ const App = () => {
   );
 };
 
-export default App;
+export default connect<{}, Props>(() => ({
+  loginState: USER_GET
+}))(App);

@@ -4,28 +4,37 @@ import { useParams, NavLink as RouterLink } from "react-router-dom";
 
 interface Props {
   children?: ReactNode;
+  loggedInUserId: string | undefined;
 }
 
 export const TabFrame = (props: Props) => {
   const { userIds } = useParams();
+  const loggedInUserId = props?.loggedInUserId ?? "";
+
+  const userIdsPath = userIds
+    ? userIds.startsWith("/")
+      ? loggedInUserId + userIds
+      : userIds
+    : "";
+
   return (
     <>
       <Nav tabs className="my-2">
         <NavItem>
-          <NavLink tag={RouterLink} to={`/table/${userIds ?? ""}`}>
+          <NavLink tag={RouterLink} to={`/table/${userIdsPath}`}>
             Table
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink tag={RouterLink} to={`/list/${userIds ?? ""}`}>
+          <NavLink tag={RouterLink} to={`/list/${userIdsPath}`}>
             List
           </NavLink>
         </NavItem>
         <NavItem>
           <NavLink
             tag={RouterLink}
-            to={`/user/${userIds ?? ""}`}
-            disabled={!userIds || userIds.startsWith("/")}
+            to={`/user/${userIdsPath}`}
+            disabled={userIdsPath.startsWith("/") || userIdsPath.length === 0}
           >
             UserPage
           </NavLink>
