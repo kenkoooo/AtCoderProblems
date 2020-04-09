@@ -11,7 +11,7 @@ interface InnerProps {
   userInfoGet: PromiseState<{} | null>;
 }
 
-export default connect<{}, InnerProps>(() => ({
+export const RecentContestList = connect<{}, InnerProps>(() => ({
   contestListGet: {
     url: CONTEST_RECENT
   },

@@ -203,18 +203,6 @@ const InnerNavigationBar = (props: InnerProps) => {
           </UncontrolledDropdown>
 
           <NavItem>
-            <NavLink tag={RouterLink} to="/submissions/recent">
-              Recent Submissions
-            </NavLink>
-          </NavItem>
-
-          <NavItem>
-            <NavLink tag={RouterLink} to="/contest/recent">
-              Virtual Contests
-            </NavLink>
-          </NavItem>
-
-          <NavItem>
             {isLoggedIn ? (
               <NavLink tag={RouterLink} to="/login/user">
                 Account ({loggedInUserId})
