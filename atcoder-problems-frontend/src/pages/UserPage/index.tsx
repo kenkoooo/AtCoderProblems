@@ -27,7 +27,6 @@ import ProblemModel from "../../interfaces/ProblemModel";
 import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import Problem from "../../interfaces/Problem";
 import { connect, PromiseState } from "react-refetch";
-import { useParams } from "react-router-dom";
 import { SubmissionListTable } from "../../components/SubmissionListTable";
 import { convertMap } from "../../utils/ImmutableMigration";
 
@@ -138,7 +137,8 @@ const findFromRanking = (ranking: List<RankingEntry>, userId: string) => {
     return { rank: ranking.size, count: 0 };
   }
 };
-const UserPage = (props: InnerProps) => {
+
+const InnerUserPage = (props: InnerProps) => {
   const {
     userId,
     userInfoFetch,
@@ -412,7 +412,7 @@ const PieCharts = ({
   </div>
 );
 
-const InnerUserPage = connect<OuterProps, InnerProps>(props => ({
+export const UserPage = connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: props.userId,
     value: () => CachedApiClient.cachedUsersSubmissionMap(List([props.userId]))
@@ -453,10 +453,4 @@ const InnerUserPage = connect<OuterProps, InnerProps>(props => ({
     comparison: null,
     value: () => CachedApiClient.cachedFirstRanking()
   }
-}))(UserPage);
-
-export default () => {
-  const { userIds } = useParams();
-  const userId: string = (userIds ?? "").split("/")[0];
-  return <InnerUserPage userId={userId} />;
-};
+}))(InnerUserPage);

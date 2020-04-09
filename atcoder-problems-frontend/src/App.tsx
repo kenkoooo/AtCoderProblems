@@ -13,10 +13,10 @@ import FirstRanking from "./pages/FirstRanking";
 import ShortRanking from "./pages/ShortRanking";
 import SumRanking from "./pages/SumRanking";
 import LanguageOwners from "./pages/LanguageOwners";
-import ListPage from "./pages/ListPage";
-import UserPage from "./pages/UserPage";
-import TablePage from "./pages/TablePage";
-import NavigationBar from "./components/NavigationBar";
+import { ListPage } from "./pages/ListPage";
+import { UserPage } from "./pages/UserPage";
+import { TablePage } from "./pages/TablePage";
+import { NavigationBar } from "./components/NavigationBar";
 import StreakRanking from "./pages/StreakRanking";
 import ContestCreatePage from "./pages/Internal/VirtualContest/ContestCreatePage";
 import ShowContest from "./pages/Internal/VirtualContest/ShowContest";
@@ -25,6 +25,7 @@ import RecentContestList from "./pages/Internal/VirtualContest/RecentContestList
 import ContestUpdatePage from "./pages/Internal/VirtualContest/ContestUpdatePage";
 import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
 import { RecentSubmissions } from "./pages/RecentSubmissions";
+import { List } from "immutable";
 
 const App = () => {
   return (
@@ -40,12 +41,38 @@ const App = () => {
             <Route exact path="/sum" component={() => <SumRanking />} />
             <Route exact path="/streak" component={() => <StreakRanking />} />
             <Route exact path="/lang" component={() => <LanguageOwners />} />
-            <Route path="/user/:userIds([a-zA-Z0-9_]+)+" component={UserPage} />
+            <Route
+              path="/user/:userIds([a-zA-Z0-9_]+)+"
+              render={({ match }) => {
+                const userIds: string | undefined = match.params.userIds;
+                const userId: string = (userIds ?? "").split("/")[0];
+                return <UserPage userId={userId} />;
+              }}
+            />
             <Route
               path="/table/:userIds([a-zA-Z0-9_]*)*"
-              component={TablePage}
+              render={({ match }) => {
+                const userIds: string | undefined = match.params.userIds;
+                const userId = (userIds ?? "").split("/")[0];
+                const rivals = (userIds ?? "/").split("/");
+                const rivalList = List(rivals)
+                  .skip(1)
+                  .filter(x => x.length > 0);
+                return <TablePage userId={userId} rivals={rivalList} />;
+              }}
             />
-            <Route path="/list/:userIds([a-zA-Z0-9_]*)*" component={ListPage} />
+            <Route
+              path="/list/:userIds([a-zA-Z0-9_]*)*"
+              render={({ match }) => {
+                const userIds: string | undefined = match.params.userIds;
+                const userId = (userIds ?? "").split("/")[0];
+                const rivals = (userIds ?? "/").split("/");
+                const rivalList = List(rivals)
+                  .skip(1)
+                  .filter(x => x.length > 0);
+                return <ListPage userId={userId} rivals={rivalList} />;
+              }}
+            />
 
             {/*Virtual Contests*/}
             <Route

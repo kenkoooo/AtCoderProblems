@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { connect, PromiseState } from "react-refetch";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
@@ -10,11 +10,13 @@ import Options from "./Options";
 import TableTabButtons, { TableTab } from "./TableTab";
 import ProblemModel from "../../interfaces/ProblemModel";
 import * as CachedApiClient from "../../utils/CachedApiClient";
-import { useParams } from "react-router-dom";
 import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
 
-const ContestWrapper: React.FC<{ display: boolean; children: any }> = props => {
+const ContestWrapper: React.FC<{
+  display: boolean;
+  children: ReactNode;
+}> = props => {
   return (
     <div style={{ display: props.display ? "" : "none" }}>{props.children}</div>
   );
@@ -34,7 +36,7 @@ interface InnerProps extends OuterProps {
   selectableLanguagesFetch: PromiseState<Set<string>>;
 }
 
-const TablePage: React.FC<InnerProps> = props => {
+const InnerTablePage: React.FC<InnerProps> = props => {
   const {
     contestsFetch,
     contestToProblemsFetch,
@@ -172,7 +174,7 @@ const TablePage: React.FC<InnerProps> = props => {
   );
 };
 
-const InnerTablePage = connect<OuterProps, InnerProps>(props => ({
+export const TablePage = connect<OuterProps, InnerProps>(props => ({
   problemModelsFetch: {
     comparison: null,
     value: () => CachedApiClient.cachedProblemModels()
@@ -198,14 +200,4 @@ const InnerTablePage = connect<OuterProps, InnerProps>(props => ({
     comparison: props.userId,
     value: () => CachedApiClient.cachedSelectableLanguages(props.userId)
   }
-}))(TablePage);
-
-export default () => {
-  const { userIds } = useParams();
-  const userId = (userIds ?? "").split("/")[0];
-  const rivals = (userIds ?? "/").split("/");
-  const rivalList = List(rivals)
-    .skip(1)
-    .filter(x => x.length > 0);
-  return <InnerTablePage userId={userId} rivals={rivalList} />;
-};
+}))(InnerTablePage);

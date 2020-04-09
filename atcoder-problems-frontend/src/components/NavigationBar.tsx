@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { NavLink as RouterLink, useHistory } from "react-router-dom";
-import { withRouter, RouteComponentProps } from "react-router";
+import { NavLink as RouterLink, useLocation } from "react-router-dom";
 import {
   Collapse,
   Navbar,
@@ -48,9 +47,7 @@ const extractUserIds = (pathname: string) => {
   return { userId, rivalIdString };
 };
 
-type OuterProps = RouteComponentProps;
-
-interface InnerProps extends OuterProps {
+interface InnerProps {
   loginState: PromiseState<UserResponse | null>;
 }
 const generatePath = (
@@ -62,9 +59,10 @@ const generatePath = (
   return "/" + kind + "/" + users.join("/");
 };
 
-const NavigationBar2 = (props: InnerProps) => {
-  const { pathname } = props.location;
+const InnerNavigationBar = (props: InnerProps) => {
+  const { pathname } = useLocation();
   const initialPageKind = extractPageKind(pathname);
+
   const initialState = extractUserIds(pathname);
   const isLoggedIn =
     props.loginState.fulfilled &&
@@ -82,7 +80,6 @@ const NavigationBar2 = (props: InnerProps) => {
     ? initialState.rivalIdString
     : "";
 
-  const history = useHistory();
   const [pageKind, setPageKind] = useState<PageKind>(
     initialPageKind ?? "table"
   );
@@ -90,14 +87,7 @@ const NavigationBar2 = (props: InnerProps) => {
   const [userId, setUserId] = useState(initialUserId);
   const [rivalIdString, setRivalIdString] = useState(initialRivalIdString);
 
-  const submit = (
-    nextKind: PageKind,
-    currentUserId: string,
-    submitRivalIdString: string
-  ) => {
-    const submitUserId = currentUserId ? currentUserId : loggedInUserId;
-    const path = generatePath(nextKind, submitUserId, submitRivalIdString);
-    history.push({ pathname: path });
+  const submit = (nextKind: PageKind) => {
     setPageKind(nextKind);
   };
 
@@ -115,7 +105,7 @@ const NavigationBar2 = (props: InnerProps) => {
                 style={{ width: "120px" }}
                 onKeyPress={e => {
                   if (e.key === "Enter" && pageKind !== null) {
-                    submit(pageKind, userId, rivalIdString);
+                    submit(pageKind);
                   }
                 }}
                 value={userId}
@@ -131,7 +121,7 @@ const NavigationBar2 = (props: InnerProps) => {
                 style={{ width: "120px" }}
                 onKeyPress={e => {
                   if (e.key === "Enter" && pageKind !== null) {
-                    submit(pageKind, userId, rivalIdString);
+                    submit(pageKind);
                   }
                 }}
                 value={rivalIdString}
@@ -151,7 +141,7 @@ const NavigationBar2 = (props: InnerProps) => {
                 rivalIdString
               )}
               onClick={() => {
-                submit("table", userId, rivalIdString);
+                submit("table");
               }}
             >
               Table
@@ -165,7 +155,7 @@ const NavigationBar2 = (props: InnerProps) => {
                 rivalIdString
               )}
               onClick={() => {
-                submit("list", userId, rivalIdString);
+                submit("list");
               }}
             >
               List
@@ -180,7 +170,7 @@ const NavigationBar2 = (props: InnerProps) => {
                 rivalIdString
               )}
               onClick={() => {
-                submit("user", userId, rivalIdString);
+                submit("user");
               }}
             >
               User Page
@@ -291,10 +281,9 @@ const NavigationBar2 = (props: InnerProps) => {
     </Navbar>
   );
 };
-export default withRouter(
-  connect<OuterProps, InnerProps>(() => ({
-    loginState: {
-      url: USER_GET
-    }
-  }))(NavigationBar2)
-);
+
+export const NavigationBar = connect<{}, InnerProps>(() => ({
+  loginState: {
+    url: USER_GET
+  }
+}))(InnerNavigationBar);
