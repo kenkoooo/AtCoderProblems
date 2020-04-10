@@ -1,19 +1,6 @@
 import React from "react";
 import { Course } from "../../interfaces/Course";
-import {
-  CardFooter,
-  Container,
-  Row,
-  Table,
-  Card,
-  Button,
-  CardText,
-  CardTitle,
-  CardBody,
-  CardHeader,
-  Jumbotron,
-  Badge
-} from "reactstrap";
+import { Container, Row, Button, Jumbotron, Badge } from "reactstrap";
 import { Link, useRouteMatch } from "react-router-dom";
 
 interface Props {
@@ -32,6 +19,7 @@ export const TrainingList = (props: Props) => {
           <Container fluid>
             <h3 className="display-4">{course.title}</h3>
             <p className="lead">
+              {course.set_list.length} sets /{" "}
               {course.set_list
                 .map(s => s.problems.length)
                 .reduceRight((a, b) => a + b)}{" "}
