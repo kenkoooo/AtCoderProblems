@@ -4,14 +4,14 @@ import { connect, PromiseState } from "react-refetch";
 import { Course } from "../../interfaces/Course";
 import { Alert, Spinner } from "reactstrap";
 import { useRouteMatch, Switch, Route } from "react-router-dom";
-import { CourseList } from "./CourseList";
+import { TrainingList } from "./TrainingList";
 import { SingleCourseView } from "./SingleCourseView";
 
 interface Props {
   courses: PromiseState<Course[]>;
 }
 
-const InnerCourseList = (props: Props) => {
+const InnerTrainingList = (props: Props) => {
   const { path } = useRouteMatch();
 
   if (props.courses.pending) {
@@ -25,7 +25,7 @@ const InnerCourseList = (props: Props) => {
   return (
     <Switch>
       <Route exact path={path}>
-        <CourseList courses={courses} />
+        <TrainingList courses={courses} />
       </Route>
       <Route
         path={`${path}/:courseTitle`}
@@ -39,9 +39,9 @@ const InnerCourseList = (props: Props) => {
   );
 };
 
-export const Courses = connect<{}, Props>(() => ({
+export const TrainingPage = connect<{}, Props>(() => ({
   courses: {
     comparison: null,
     value: () => loadCourses()
   }
-}))(InnerCourseList);
+}))(InnerTrainingList);
