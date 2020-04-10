@@ -56,6 +56,11 @@ const InnerTabFrame: FC<Props> = props => {
             Virtual Contests
           </NavLink>
         </NavItem>
+        <NavItem>
+          <NavLink tag={RouterLink} to="/training">
+            Training (beta)
+          </NavLink>
+        </NavItem>
       </Nav>
       <div>{props.children}</div>
     </>

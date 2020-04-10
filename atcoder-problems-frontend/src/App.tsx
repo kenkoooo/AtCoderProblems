@@ -27,6 +27,7 @@ import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
 import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { List } from "immutable";
 import { TabFrame } from "./components/TabFrame";
+import { TrainingPage } from "./pages/TrainingPage";
 
 const App = () => {
   return (
@@ -205,6 +206,15 @@ const App = () => {
               )}
             />
 
+            {/*Training*/}
+            <Route
+              path="/training"
+              component={() => (
+                <TabFrame>
+                  <TrainingPage />
+                </TabFrame>
+              )}
+            />
             <Redirect path="/" to="/table/" />
           </Switch>
         </Container>
