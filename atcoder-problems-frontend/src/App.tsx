@@ -27,7 +27,7 @@ import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
 import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { List } from "immutable";
 import { TabFrame } from "./components/TabFrame";
-import { Courses } from "./pages/Courses";
+import { TrainingPage } from "./pages/TrainingPage";
 
 const App = () => {
   return (
@@ -206,12 +206,12 @@ const App = () => {
               )}
             />
 
-            {/*Courses*/}
+            {/*Training*/}
             <Route
-              path="/courses"
+              path="/training"
               component={() => (
                 <TabFrame>
-                  <Courses />
+                  <TrainingPage />
                 </TabFrame>
               )}
             />
