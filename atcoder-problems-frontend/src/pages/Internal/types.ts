@@ -1,6 +1,6 @@
 export interface UserResponse {
-  internal_user_id: string;
-  atcoder_user_id: string | null;
+readonly  internal_user_id: string;
+readonly  atcoder_user_id: string | null;
 }
 
 export interface ProblemList {

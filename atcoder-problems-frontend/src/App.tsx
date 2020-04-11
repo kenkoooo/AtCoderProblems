@@ -28,6 +28,7 @@ import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { List } from "immutable";
 import { TabFrame } from "./components/TabFrame";
 import { TrainingPage } from "./pages/TrainingPage";
+import { ACCOUNT_INFO } from "./utils/RouterPath";
 
 const App = () => {
   return (
@@ -180,7 +181,7 @@ const App = () => {
 
             {/*User Settings*/}
             <Route
-              path="/login/user"
+              path={ACCOUNT_INFO}
               component={() => (
                 <TabFrame>
                   <UserConfigPage />
