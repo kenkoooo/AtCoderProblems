@@ -1,6 +1,6 @@
 import { UserResponse } from "../Internal/types";
 import React from "react";
-import { Alert, Badge } from "reactstrap";
+import { Alert } from "reactstrap";
 import { Link } from "react-router-dom";
 import { ACCOUNT_INFO } from "../../utils/RouterPath";
 import { GITHUB_LOGIN_LINK } from "../../utils/Url";
