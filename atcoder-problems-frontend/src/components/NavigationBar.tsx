@@ -26,6 +26,7 @@ import { connect, PromiseState } from "react-refetch";
 import { USER_GET } from "../pages/Internal/ApiUrl";
 import { UserResponse } from "../pages/Internal/types";
 import { GITHUB_LOGIN_LINK } from "../utils/Url";
+import { ACCOUNT_INFO } from "../utils/RouterPath";
 
 type PageKind = "table" | "list" | "user";
 
@@ -214,7 +215,7 @@ const InnerNavigationBar = (props: InnerProps) => {
 
           <NavItem>
             {isLoggedIn ? (
-              <NavLink tag={RouterLink} to="/login/user">
+              <NavLink tag={RouterLink} to={ACCOUNT_INFO}>
                 Account ({loggedInUserId})
               </NavLink>
             ) : (
