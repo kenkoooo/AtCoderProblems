@@ -30,6 +30,7 @@ import {
 } from "./util";
 import ContestTable from "./ContestTable";
 import Timer from "../../../../components/Timer";
+import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 
 interface ShowingVirtualContest extends VirtualContest {
   map: ImmutableMap<ProblemId, List<Submission>> | undefined;
@@ -201,7 +202,7 @@ const InnerShowContest = (props: InnerProps) => {
           ) : !userIdIsSet ? (
             <Alert color="warning">
               Please set the AtCoder ID from{" "}
-              <NavLink to="/login/user">here</NavLink>, before you join the
+              <NavLink to={ACCOUNT_INFO}>here</NavLink>, before you join the
               contest.
             </Alert>
           ) : null}
