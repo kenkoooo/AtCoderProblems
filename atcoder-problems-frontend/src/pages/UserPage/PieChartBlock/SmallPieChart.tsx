@@ -13,7 +13,7 @@ const COLORS = {
   Trying: "#58616a"
 };
 
-const SmallPieChart = ({
+export const SmallPieChart = ({
   title,
   trying,
   accepted
@@ -44,5 +44,3 @@ const SmallPieChart = ({
     </div>
   );
 };
-
-export default SmallPieChart;
