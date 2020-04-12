@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { ButtonGroup, Button, Row } from "reactstrap";
 
-import CalendarHeatmap from "../../components/CalendarHeatmap";
-import Submission from "../../interfaces/Submission";
-import { isAccepted } from "../../utils";
-import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import { Map } from "immutable";
-import { ProblemId } from "../../interfaces/Status";
+import { ProblemId } from "../../../interfaces/Status";
+import Submission from "../../../interfaces/Submission";
+import { isAccepted } from "../../../utils";
+import CalendarHeatmap from "../../../components/CalendarHeatmap";
+import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 
 type FilterStatus = "AC" | "Submissions" | "Unique AC";
 
@@ -48,7 +48,7 @@ const formatTooltip = (date: string, count: number, filter: FilterStatus) => {
   }
 };
 
-const FilteringHeatmap = (props: Props) => {
+export const FilteringHeatmap = (props: Props) => {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("Submissions");
   const { submissions } = props;
   const filteredSubmissions = filterSubmissions(submissions, filterStatus);
@@ -90,5 +90,3 @@ const FilteringHeatmap = (props: Props) => {
     </div>
   );
 };
-
-export default FilteringHeatmap;

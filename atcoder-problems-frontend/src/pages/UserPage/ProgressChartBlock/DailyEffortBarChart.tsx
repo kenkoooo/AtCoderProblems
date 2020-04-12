@@ -9,13 +9,13 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts";
-import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
+import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 
 interface Props {
   dailyData: { dateSecond: number; count: number }[];
 }
 
-const DailyEffortBarChart = (props: Props) => (
+export const DailyEffortBarChart = (props: Props) => (
   <Row className="my-3">
     <ResponsiveContainer width="100%" height={300}>
       <BarChart
@@ -47,5 +47,3 @@ const DailyEffortBarChart = (props: Props) => (
     </ResponsiveContainer>
   </Row>
 );
-
-export default DailyEffortBarChart;
