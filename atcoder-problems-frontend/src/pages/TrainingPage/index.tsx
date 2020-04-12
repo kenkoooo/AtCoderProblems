@@ -6,9 +6,18 @@ import { Alert, Spinner } from "reactstrap";
 import { useRouteMatch, Switch, Route } from "react-router-dom";
 import { TrainingList } from "./TrainingList";
 import { SingleCourseView } from "./SingleCourseView";
+import { UserResponse } from "../Internal/types";
+import { USER_GET } from "../Internal/ApiUrl";
+import Submission from "../../interfaces/Submission";
+import { cachedSubmissions } from "../../utils/CachedApiClient";
+import { LoginAdvice } from "./LoginAdvice";
 
 interface Props {
   courses: PromiseState<Course[]>;
+  progress: PromiseState<{
+    user: UserResponse | undefined;
+    submissions: Submission[];
+  }>;
 }
 
 const InnerTrainingList = (props: Props) => {
@@ -21,21 +30,31 @@ const InnerTrainingList = (props: Props) => {
     return <Alert color="danger">Failed to fetch course info.</Alert>;
   }
 
+  const { user, submissions } = props.progress.fulfilled
+    ? props.progress.value
+    : { user: undefined, submissions: [] };
+  const loading = props.progress.pending;
+
   const courses = props.courses.value;
   return (
-    <Switch>
-      <Route exact path={path}>
-        <TrainingList courses={courses} />
-      </Route>
-      <Route
-        path={`${path}/:courseTitle`}
-        render={({ match }) => {
-          const courseTitle = match.params.courseTitle;
-          const course = courses.find(c => c.title === courseTitle);
-          return course ? <SingleCourseView course={course} /> : null;
-        }}
-      />
-    </Switch>
+    <>
+      <LoginAdvice user={user} loading={loading} />
+      <Switch>
+        <Route exact path={path}>
+          <TrainingList submissions={submissions} courses={courses} />
+        </Route>
+        <Route
+          path={`${path}/:courseTitle`}
+          render={({ match }) => {
+            const courseTitle = match.params.courseTitle;
+            const course = courses.find(c => c.title === courseTitle);
+            return course ? (
+              <SingleCourseView submissions={submissions} course={course} />
+            ) : null;
+          }}
+        />
+      </Switch>
+    </>
   );
 };
 
@@ -43,5 +62,28 @@ export const TrainingPage = connect<{}, Props>(() => ({
   courses: {
     comparison: null,
     value: () => loadCourses()
+  },
+  progress: {
+    comparison: null,
+    value: () =>
+      fetch(USER_GET)
+        .then(response => response.json())
+        .then((user: UserResponse | null) => {
+          if (user && user.atcoder_user_id) {
+            return cachedSubmissions(user.atcoder_user_id)
+              .then(list => list.toArray())
+              .then(submissions => ({
+                submissions,
+                user
+              }));
+          } else if (user) {
+            return { user, submissions: [] as Submission[] };
+          } else {
+            return {
+              user: undefined,
+              submissions: [] as Submission[]
+            };
+          }
+        })
   }
 }))(InnerTrainingList);

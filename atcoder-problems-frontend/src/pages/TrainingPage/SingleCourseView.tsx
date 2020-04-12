@@ -3,15 +3,10 @@ import { Course } from "../../interfaces/Course";
 import { connect, PromiseState } from "react-refetch";
 import Problem from "../../interfaces/Problem";
 import { ProblemId } from "../../interfaces/Status";
-import {
-  cachedProblemMap,
-  cachedSubmissions
-} from "../../utils/CachedApiClient";
+import { cachedProblemMap } from "../../utils/CachedApiClient";
 import { Container, Row, Table, Nav, NavItem, NavLink, Col } from "reactstrap";
 import { convertMap } from "../../utils/ImmutableMigration";
 import Submission from "../../interfaces/Submission";
-import { USER_GET } from "../Internal/ApiUrl";
-import { UserResponse } from "../Internal/types";
 import { isAccepted } from "../../utils";
 import { NewTabLink } from "../../components/NewTabLink";
 import * as Url from "../../utils/Url";
@@ -114,11 +109,11 @@ const SetPieChart = (props: {
 
 interface OuterProps {
   course: Course;
+  submissions: Submission[];
 }
 
 interface InnerProps extends OuterProps {
   problems: PromiseState<Map<ProblemId, Problem>>;
-  submissions: PromiseState<Submission[]>;
 }
 
 const InnerSingleCourseView = (props: InnerProps) => {
@@ -132,9 +127,7 @@ const InnerSingleCourseView = (props: InnerProps) => {
     problemSet.find(set => set.order === selectedSet)?.problems ?? [];
   currentSelectedSet.sort((a, b) => a.order - b.order);
 
-  const submissions = props.submissions.fulfilled
-    ? props.submissions.value
-    : [];
+  const submissions = props.submissions;
   const acceptedProblemIds = submissions
     .filter(s => isAccepted(s.result))
     .reduce((set, s) => {
@@ -199,18 +192,5 @@ export const SingleCourseView = connect<OuterProps, InnerProps>(() => ({
   problems: {
     comparison: null,
     value: () => cachedProblemMap().then(map => convertMap(map))
-  },
-  submissions: {
-    comparison: null,
-    value: () =>
-      fetch(USER_GET)
-        .then(response => response.json())
-        .then((user: UserResponse) =>
-          user.atcoder_user_id
-            ? cachedSubmissions(user.atcoder_user_id).then(list =>
-                list.toArray()
-              )
-            : []
-        )
   }
 }))(InnerSingleCourseView);
