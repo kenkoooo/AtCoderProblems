@@ -1,5 +1,5 @@
 import React from "react";
-import { Row } from "reactstrap";
+import { Nav, NavItem, NavLink, Row } from "reactstrap";
 
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
@@ -20,6 +20,18 @@ import { convertMap } from "../../utils/ImmutableMigration";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
+import { useLocalStorage } from "../../utils/LocalStorage";
+
+const userPageTabs = [
+  "Achievement",
+  "AtCoder Pie Charts",
+  "Progress Charts",
+  "Submissions",
+  "Recommendation",
+  "Languages"
+];
+
+type UserPageTab = typeof userPageTabs[number];
 
 interface OuterProps {
   userId: string;
@@ -35,6 +47,11 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerUserPage = (props: InnerProps) => {
+  const [userPageTab, setUserPageTab] = useLocalStorage<UserPageTab>(
+    "UserPageTab",
+    "Achievement"
+  );
+
   const {
     userId,
     userRatingInfoFetch,
@@ -96,46 +113,65 @@ const InnerUserPage = (props: InnerProps) => {
       <Row className="my-2 border-bottom">
         <h1>{userId}</h1>
       </Row>
-
-      <AchievementBlock userId={userId} dailyCount={dailyCount.toArray()} />
-
-      <PieChartBlock
-        contestToProblems={convertMap(
-          contestToProblems.map(list => list.toArray())
-        )}
-        userId={userId}
-        submissions={convertMap(submissions.map(list => list.toArray()))}
-      />
-
-      <ProgressChartBlock
-        dailyCount={dailyCount.toArray()}
-        userSubmissions={userSubmissions.toArray()}
-      />
-
-      <Row className="my-2 border-bottom">
-        <h1>Submissions</h1>
-      </Row>
-      <SubmissionListTable
-        problemModels={convertMap(problemModels)}
-        problems={mergedProblems.valueSeq().toArray()}
-        submissions={userSubmissions.toArray()}
-      />
-
-      <Row className="my-2 border-bottom">
-        <h1>Languages</h1>
-      </Row>
-      <LanguageCount submissions={userSubmissions.toArray()} />
-
-      <Row className="my-2 border-bottom">
-        <h1>Recommendations</h1>
-      </Row>
-      <Recommendations
-        userSubmissions={userSubmissions.toList()}
-        problems={mergedProblems.valueSeq().toList()}
-        contests={contests}
-        problemModels={problemModels}
-        userRatingInfo={userRatingInfo}
-      />
+      <Nav tabs>
+        {userPageTabs.map((tab, i) => (
+          <NavItem key={i}>
+            <NavLink
+              active={userPageTab === tab}
+              onClick={() => setUserPageTab(tab)}
+            >
+              {tab}
+            </NavLink>
+          </NavItem>
+        ))}
+      </Nav>
+      {userPageTab === "Achievement" ? (
+        <AchievementBlock userId={userId} dailyCount={dailyCount.toArray()} />
+      ) : userPageTab === "AtCoder Pie Charts" ? (
+        <PieChartBlock
+          contestToProblems={convertMap(
+            contestToProblems.map(list => list.toArray())
+          )}
+          userId={userId}
+          submissions={convertMap(submissions.map(list => list.toArray()))}
+        />
+      ) : userPageTab === "Progress Charts" ? (
+        <ProgressChartBlock
+          dailyCount={dailyCount.toArray()}
+          userSubmissions={userSubmissions.toArray()}
+        />
+      ) : userPageTab === "Submissions" ? (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Submissions</h1>
+          </Row>
+          <SubmissionListTable
+            problemModels={convertMap(problemModels)}
+            problems={mergedProblems.valueSeq().toArray()}
+            submissions={userSubmissions.toArray()}
+          />
+        </>
+      ) : userPageTab === "Languages" ? (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Languages</h1>
+          </Row>
+          <LanguageCount submissions={userSubmissions.toArray()} />
+        </>
+      ) : (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Recommendation</h1>
+          </Row>
+          <Recommendations
+            userSubmissions={userSubmissions.toList()}
+            problems={mergedProblems.valueSeq().toList()}
+            contests={contests}
+            problemModels={problemModels}
+            userRatingInfo={userRatingInfo}
+          />
+        </>
+      )}
     </div>
   );
 };
