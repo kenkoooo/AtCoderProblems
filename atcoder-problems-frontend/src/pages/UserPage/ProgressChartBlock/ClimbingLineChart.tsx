@@ -9,9 +9,9 @@ import {
   Line,
   ResponsiveContainer
 } from "recharts";
-import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
+import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 
-const ClimbingLineChart = (props: {
+export const ClimbingLineChart = (props: {
   climbingData: { dateSecond: number; count: number }[];
 }) => (
   <Row className="my-3">
@@ -45,4 +45,3 @@ const ClimbingLineChart = (props: {
     </ResponsiveContainer>
   </Row>
 );
-export default ClimbingLineChart;

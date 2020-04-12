@@ -5,14 +5,7 @@ import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import { isAccepted } from "../../utils";
-import {
-  formatMomentDate,
-  parseDateLabel,
-  parseSecond
-} from "../../utils/DateUtil";
-import ClimbingLineChart from "./ClimbingLineChart";
-import DailyEffortBarChart from "./DailyEffortBarChart";
-import FilteringHeatmapX from "./FilteringHeatmap";
+import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import LanguageCount from "./LanguageCount";
 import Recommendations from "./Recommendations";
 import { ContestId, ProblemId } from "../../interfaces/Status";
@@ -26,6 +19,7 @@ import { SubmissionListTable } from "../../components/SubmissionListTable";
 import { convertMap } from "../../utils/ImmutableMigration";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
+import { ProgressChartBlock } from "./ProgressChartBlock";
 
 interface OuterProps {
   userId: string;
@@ -97,14 +91,6 @@ const InnerUserPage = (props: InnerProps) => {
     .map(([dateLabel, count]) => ({ dateLabel, count }))
     .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
 
-  const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
-    const dateSecond = parseDateLabel(dateLabel).unix();
-    const last = list.last(undefined);
-    return last
-      ? list.push({ dateSecond, count: last.count + count })
-      : list.push({ dateSecond, count });
-  }, List<{ dateSecond: number; count: number }>());
-
   return (
     <div>
       <Row className="my-2 border-bottom">
@@ -121,27 +107,10 @@ const InnerUserPage = (props: InnerProps) => {
         submissions={convertMap(submissions.map(list => list.toArray()))}
       />
 
-      <Row className="my-2 border-bottom">
-        <h1>Daily Effort</h1>
-      </Row>
-      <DailyEffortBarChart
-        dailyData={dailyCount
-          .map(({ dateLabel, count }) => ({
-            dateSecond: parseDateLabel(dateLabel).unix(),
-            count
-          }))
-          .toArray()}
+      <ProgressChartBlock
+        dailyCount={dailyCount.toArray()}
+        userSubmissions={userSubmissions.toArray()}
       />
-
-      <Row className="my-2 border-bottom">
-        <h1>Climbing</h1>
-      </Row>
-      <ClimbingLineChart climbingData={climbing.toArray()} />
-
-      <Row className="my-2 border-bottom">
-        <h1>Heatmap</h1>
-      </Row>
-      <FilteringHeatmapX submissions={userSubmissions.toArray()} />
 
       <Row className="my-2 border-bottom">
         <h1>Submissions</h1>
