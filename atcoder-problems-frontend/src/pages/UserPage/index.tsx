@@ -1,5 +1,5 @@
 import React from "react";
-import { Nav, NavItem, NavLink, Row } from "reactstrap";
+import { Alert, Nav, NavItem, NavLink, Row, Spinner } from "reactstrap";
 
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
@@ -61,6 +61,11 @@ const InnerUserPage = (props: InnerProps) => {
     contestsFetch,
     problemModelsFetch
   } = props;
+
+  if (submissionsFetch.pending) {
+    return <Spinner style={{ width: "3rem", height: "3rem" }} />;
+  }
+
   const userRatingInfo = userRatingInfoFetch.fulfilled
     ? userRatingInfoFetch.value
     : ratingInfoOf(List());
@@ -81,7 +86,7 @@ const InnerUserPage = (props: InnerProps) => {
     : ImmutableMap<ContestId, List<Problem>>();
 
   if (userId.length === 0 || submissions.isEmpty()) {
-    return null;
+    return <Alert color="danger">User not found!</Alert>;
   }
 
   const userSubmissions = submissions
