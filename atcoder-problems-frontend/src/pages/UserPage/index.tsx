@@ -1,5 +1,6 @@
 import React from "react";
 import { Alert, Nav, NavItem, NavLink, Row, Spinner } from "reactstrap";
+import { NavLink as RouterLink, useLocation } from "react-router-dom";
 
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
@@ -20,7 +21,6 @@ import { convertMap } from "../../utils/ImmutableMigration";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
-import { useLocalStorage } from "../../utils/LocalStorage";
 
 const userPageTabs = [
   "Achievement",
@@ -30,6 +30,8 @@ const userPageTabs = [
   "Recommendation",
   "Languages"
 ];
+
+const TAB_PARAM = "userPageTab";
 
 type UserPageTab = typeof userPageTabs[number];
 
@@ -47,10 +49,9 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerUserPage = (props: InnerProps) => {
-  const [userPageTab, setUserPageTab] = useLocalStorage<UserPageTab>(
-    "UserPageTab",
-    "Achievement"
-  );
+  const location = useLocation();
+  const userPageTab: UserPageTab =
+    new URLSearchParams(location.search).get(TAB_PARAM) || "Achievement";
 
   const {
     userId,
@@ -119,16 +120,22 @@ const InnerUserPage = (props: InnerProps) => {
         <h1>{userId}</h1>
       </Row>
       <Nav tabs>
-        {userPageTabs.map((tab, i) => (
-          <NavItem key={i}>
-            <NavLink
-              active={userPageTab === tab}
-              onClick={() => setUserPageTab(tab)}
-            >
-              {tab}
-            </NavLink>
-          </NavItem>
-        ))}
+        {userPageTabs.map(tab => {
+          const params = new URLSearchParams();
+          params.set(TAB_PARAM, tab);
+
+          return (
+            <NavItem key={tab}>
+              <NavLink
+                tag={RouterLink}
+                isActive={() => tab === userPageTab}
+                to={`${location.pathname}?${params.toString()}`}
+              >
+                {tab}
+              </NavLink>
+            </NavItem>
+          );
+        })}
       </Nav>
       {userPageTab === "Achievement" ? (
         <AchievementBlock userId={userId} dailyCount={dailyCount.toArray()} />
