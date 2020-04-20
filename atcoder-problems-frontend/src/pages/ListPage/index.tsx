@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   DropdownItem,
   DropdownMenu,
@@ -8,6 +8,7 @@ import {
   UncontrolledDropdown,
   Button
 } from "reactstrap";
+import { Link, useHistory, useLocation } from "react-router-dom";
 
 import { isAccepted } from "../../utils";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
@@ -25,6 +26,7 @@ import { ListTable } from "./ListTable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { RatingInfo } from "../../utils/RatingInfo";
+import { generatePathWithParams } from "../../utils/QueryString";
 
 export const INF_POINT = 1e18;
 
@@ -47,17 +49,79 @@ export interface ProblemRowData {
   readonly status: ProblemStatus;
 }
 
+const statusFilters = ["All", "Only Trying", "Only AC"] as const;
+type StatusFilter = typeof statusFilters[number];
+const convertToValidStatusFilterState = (
+  value: string | null
+): StatusFilter => {
+  for (const filter of statusFilters) {
+    if (value === filter) {
+      return value;
+    }
+  }
+
+  return "All";
+};
+
+const RATED_FILTERS = ["All", "Only Rated", "Only Unrated"] as const;
+type RatedFilter = typeof RATED_FILTERS[number];
+const convertToValidRatedFilter = (value: string | null): RatedFilter => {
+  for (const filter of RATED_FILTERS) {
+    if (value === filter) {
+      return value;
+    }
+  }
+
+  return "All";
+};
+const FilterParams = {
+  FromPoint: "fromPo",
+  ToPoint: "toPo",
+  Status: "status",
+  Rated: "rated",
+  FromDifficulty: "fromDiff",
+  ToDifficulty: "toDiff"
+} as const;
+
 const InnerListPage = (props: InnerProps) => {
-  const [fromPoint, setFromPoint] = useState(0);
-  const [toPoint, setToPoint] = useState(INF_POINT);
-  const [statusFilterState, setStatusFilterState] = useState<
-    "All" | "Only Trying" | "Only AC"
-  >("All");
-  const [ratedFilterState, setRatedFilterState] = useState<
-    "All" | "Only Rated" | "Only Unrated"
-  >("All");
-  const [fromDifficulty, setFromDifficulty] = useState(-1);
-  const [toDifficulty, setToDifficulty] = useState(INF_POINT);
+  const location = useLocation();
+  const history = useHistory();
+  const searchParams = new URLSearchParams(location.search);
+
+  const fromPoint = parseInt(
+    searchParams.get(FilterParams.FromPoint) || "0",
+    10
+  );
+  const toPoint = parseInt(
+    searchParams.get(FilterParams.ToPoint) || INF_POINT.toString(),
+    10
+  );
+  const setExactPointFilter = (point: number) => {
+    const params = new URLSearchParams(location.search);
+    params.set(FilterParams.FromPoint, point.toString());
+    params.set(FilterParams.ToPoint, point.toString());
+    history.push({ ...location, search: params.toString() });
+  };
+  const statusFilterState: StatusFilter = convertToValidStatusFilterState(
+    searchParams.get(FilterParams.Status)
+  );
+  const ratedFilterState: RatedFilter = convertToValidRatedFilter(
+    searchParams.get(FilterParams.Rated)
+  );
+  const fromDifficulty = parseInt(
+    searchParams.get(FilterParams.FromDifficulty) || "-1",
+    10
+  );
+  const toDifficulty: number = parseInt(
+    searchParams.get(FilterParams.ToDifficulty) || INF_POINT.toString(),
+    10
+  );
+  const setDifficultyFilter = (from: number, to: number) => {
+    const params = new URLSearchParams(location.search);
+    params.set(FilterParams.FromDifficulty, from.toString());
+    params.set(FilterParams.ToDifficulty, to.toString());
+    history.push({ ...location, search: params.toString() });
+  };
 
   const {
     mergedProblemsFetch,
@@ -166,10 +230,7 @@ const InnerListPage = (props: InnerProps) => {
           mergedProblems={mergedProblems}
           submissions={submissions}
           userIds={rivals.insert(0, userId)}
-          setFilterFunc={(point: number) => {
-            setFromPoint(point);
-            setToPoint(point);
-          }}
+          setFilterFunc={setExactPointFilter}
         />
       </Row>
 
@@ -182,10 +243,7 @@ const InnerListPage = (props: InnerProps) => {
           submissions={submissions}
           userIds={rivals.insert(0, userId)}
           problemModels={problemModels}
-          setFilterFunc={(from: number, to: number) => {
-            setFromDifficulty(from);
-            setToDifficulty(to);
-          }}
+          setFilterFunc={setDifficultyFilter}
         />
       </Row>
 
@@ -200,7 +258,13 @@ const InnerListPage = (props: InnerProps) => {
             </DropdownToggle>
             <DropdownMenu>
               {points.map(p => (
-                <DropdownItem key={p} onClick={() => setFromPoint(p)}>
+                <DropdownItem
+                  key={p}
+                  tag={Link}
+                  to={generatePathWithParams(location, {
+                    [FilterParams.FromPoint]: p.toString()
+                  })}
+                >
                   {p}
                 </DropdownItem>
               ))}
@@ -212,7 +276,13 @@ const InnerListPage = (props: InnerProps) => {
             </DropdownToggle>
             <DropdownMenu>
               {points.map(p => (
-                <DropdownItem key={p} onClick={() => setToPoint(p)}>
+                <DropdownItem
+                  key={p}
+                  tag={Link}
+                  to={generatePathWithParams(location, {
+                    [FilterParams.ToPoint]: p.toString()
+                  })}
+                >
                   {p}
                 </DropdownItem>
               ))}
@@ -223,15 +293,17 @@ const InnerListPage = (props: InnerProps) => {
           <UncontrolledDropdown>
             <DropdownToggle caret>{statusFilterState}</DropdownToggle>
             <DropdownMenu>
-              <DropdownItem onClick={() => setStatusFilterState("All")}>
-                All
-              </DropdownItem>
-              <DropdownItem onClick={() => setStatusFilterState("Only Trying")}>
-                Only Trying
-              </DropdownItem>
-              <DropdownItem onClick={() => setStatusFilterState("Only AC")}>
-                Only AC
-              </DropdownItem>
+              {statusFilters.map(status => (
+                <DropdownItem
+                  key={status}
+                  tag={Link}
+                  to={generatePathWithParams(location, {
+                    [FilterParams.Status]: status
+                  })}
+                >
+                  {status}
+                </DropdownItem>
+              ))}
             </DropdownMenu>
           </UncontrolledDropdown>
         </ButtonGroup>
@@ -239,15 +311,17 @@ const InnerListPage = (props: InnerProps) => {
           <UncontrolledDropdown>
             <DropdownToggle caret>{ratedFilterState}</DropdownToggle>
             <DropdownMenu>
-              <DropdownItem onClick={() => setRatedFilterState("All")}>
-                All
-              </DropdownItem>
-              <DropdownItem onClick={() => setRatedFilterState("Only Rated")}>
-                Only Rated
-              </DropdownItem>
-              <DropdownItem onClick={() => setRatedFilterState("Only Unrated")}>
-                Only Unrated
-              </DropdownItem>
+              {RATED_FILTERS.map(value => (
+                <DropdownItem
+                  key={value}
+                  tag={Link}
+                  to={generatePathWithParams(location, {
+                    [FilterParams.Rated]: value
+                  })}
+                >
+                  {value}
+                </DropdownItem>
+              ))}
             </DropdownMenu>
           </UncontrolledDropdown>
         </ButtonGroup>
@@ -263,7 +337,10 @@ const InnerListPage = (props: InnerProps) => {
               {difficulties.map(({ from, to }) => (
                 <DropdownItem
                   key={from}
-                  onClick={() => setFromDifficulty(from)}
+                  tag={Link}
+                  to={generatePathWithParams(location, {
+                    [FilterParams.FromDifficulty]: from.toString()
+                  })}
                 >
                   <DifficultyCircle
                     difficulty={to}
@@ -284,12 +361,12 @@ const InnerListPage = (props: InnerProps) => {
               {difficulties.map(({ to }) => (
                 <DropdownItem
                   key={to}
-                  onClick={() => {
-                    setFromDifficulty(
-                      fromDifficulty !== -1 ? fromDifficulty : 0
-                    );
-                    setToDifficulty(to);
-                  }}
+                  tag={Link}
+                  to={generatePathWithParams(location, {
+                    [FilterParams.FromDifficulty]:
+                      fromDifficulty !== -1 ? fromDifficulty.toString() : "0",
+                    [FilterParams.ToDifficulty]: to.toString()
+                  })}
                 >
                   <DifficultyCircle
                     difficulty={to}
@@ -304,14 +381,7 @@ const InnerListPage = (props: InnerProps) => {
         <Button
           outline
           color="danger"
-          onClick={() => {
-            setFromPoint(0);
-            setToPoint(INF_POINT);
-            setStatusFilterState("All");
-            setRatedFilterState("All");
-            setFromDifficulty(-1);
-            setToDifficulty(INF_POINT);
-          }}
+          onClick={() => history.push({ ...location, search: "" })}
         >
           Reset
         </Button>

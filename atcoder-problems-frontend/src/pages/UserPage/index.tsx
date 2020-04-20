@@ -21,6 +21,7 @@ import { convertMap } from "../../utils/ImmutableMigration";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
+import { generatePathWithParams } from "../../utils/QueryString";
 
 const userPageTabs = [
   "Achievement",
@@ -120,22 +121,17 @@ const InnerUserPage = (props: InnerProps) => {
         <h1>{userId}</h1>
       </Row>
       <Nav tabs>
-        {userPageTabs.map(tab => {
-          const params = new URLSearchParams();
-          params.set(TAB_PARAM, tab);
-
-          return (
-            <NavItem key={tab}>
-              <NavLink
-                tag={RouterLink}
-                isActive={() => tab === userPageTab}
-                to={`${location.pathname}?${params.toString()}`}
-              >
-                {tab}
-              </NavLink>
-            </NavItem>
-          );
-        })}
+        {userPageTabs.map(tab => (
+          <NavItem key={tab}>
+            <NavLink
+              tag={RouterLink}
+              isActive={() => tab === userPageTab}
+              to={generatePathWithParams(location, { [TAB_PARAM]: tab })}
+            >
+              {tab}
+            </NavLink>
+          </NavItem>
+        ))}
       </Nav>
       {userPageTab === "Achievement" ? (
         <AchievementBlock userId={userId} dailyCount={dailyCount.toArray()} />
