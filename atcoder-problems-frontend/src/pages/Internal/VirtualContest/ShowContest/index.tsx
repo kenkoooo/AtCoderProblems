@@ -317,10 +317,12 @@ const fetchSubmissions = async (
     start,
     end
   );
-  return result.reduce((map, s) => {
-    const list = map.get(s.problem_id, List<Submission>());
-    return map.set(s.problem_id, list.push(s));
-  }, ImmutableMap<ProblemId, List<Submission>>());
+  return result
+    .filter(s => s.result !== "CE")
+    .reduce((map, s) => {
+      const list = map.get(s.problem_id, List<Submission>());
+      return map.set(s.problem_id, list.push(s));
+    }, ImmutableMap<ProblemId, List<Submission>>());
 };
 
 export default () => {
