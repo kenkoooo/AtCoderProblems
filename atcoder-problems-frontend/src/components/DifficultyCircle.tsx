@@ -44,7 +44,7 @@ function getColor(difficulty: number): string {
   }
   // red
   else if (difficulty < 3600) {
-    return "#725a36";
+    return "#965C2C";
   }
   // bronze
   else if (difficulty < 4000) {
@@ -84,7 +84,7 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
               100}%, rgba(${r}, ${g}, ${b}, ${0.0}) ${fillRatio *
               100}%, rgba(${r}, ${g}, ${b}, ${0.0}) 100%)`
           : difficulty < 3600
-          ? `linear-gradient(to right, ${color}, #ffd10c, ${color})`
+          ? `linear-gradient(to right, ${color}, #FFDABD, ${color})`
           : `linear-gradient(to right, ${color}, white, ${color})`
     });
     const title: string = `Difficulty: ${difficulty}`;
