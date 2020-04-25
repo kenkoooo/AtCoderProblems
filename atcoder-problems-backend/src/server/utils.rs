@@ -2,7 +2,7 @@ use crate::error::Result;
 use crate::server::{AppData, Authentication, CommonRequest, CommonResponse, PooledConnection};
 
 use async_trait::async_trait;
-use md5::{Digest, Md5};
+use md5::Md5;
 use serde::de::DeserializeOwned;
 use tide::{Request, Response};
 

@@ -222,7 +222,7 @@ impl VirtualContestManager for PgConnection {
 
     fn get_recent_contest_info(&self) -> Result<Vec<VirtualContestInfo>> {
         let data = v_contests::table
-            .order_by(v_contests::start_epoch_second.desc())
+            .order_by((v_contests::start_epoch_second + v_contests::duration_second).desc())
             .limit(RECENT_CONTEST_NUM)
             .load::<VirtualContestInfo>(self)?;
         Ok(data)
