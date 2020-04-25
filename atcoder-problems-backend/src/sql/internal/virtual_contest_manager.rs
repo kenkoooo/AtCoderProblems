@@ -15,7 +15,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
 const MAX_PROBLEM_NUM_PER_CONTEST: usize = 100;
-const RECENT_CONTEST_NUM: i64 = 500;
+const RECENT_CONTEST_NUM: i64 = 1000;
 
 type VirtualContestTuple = (
     String,         //id
