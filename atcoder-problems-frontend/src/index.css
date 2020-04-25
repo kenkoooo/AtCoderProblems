@@ -13,6 +13,10 @@ code {
     monospace;
 }
 
+.tooltip {
+  pointer-events: none;
+}
+
 .nav-tabs .nav-link {
   cursor: pointer;
 }
