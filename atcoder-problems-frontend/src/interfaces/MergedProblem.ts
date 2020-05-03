@@ -22,8 +22,6 @@ export default interface MergedProblem {
   readonly source_code_length: number | null;
 
   readonly solver_count: number | null;
-
-  readonly predict?: number | null;
   readonly point?: number | null;
 }
 
@@ -49,9 +47,6 @@ export const isMergedProblem = (obj: any): obj is MergedProblem =>
   (typeof obj.source_code_length === "number" ||
     obj.source_code_length === null) &&
   (typeof obj.solver_count === "number" || obj.solver_count === null) &&
-  (typeof obj.predict === "number" ||
-    typeof obj.predict === "undefined" ||
-    obj.predict === null) &&
   (typeof obj.point === "number" ||
     typeof obj.point === "undefined" ||
     obj.point === null);
