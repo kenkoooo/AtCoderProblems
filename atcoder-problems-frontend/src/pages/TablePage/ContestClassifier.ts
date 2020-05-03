@@ -5,6 +5,10 @@ export const ContestCategories = [
   "ARC",
   "AGC",
   "Other Rated Contests",
+  "PAST",
+  "JOI",
+  "JAG",
+  "Marathon",
   "Other Contests"
 ] as const;
 export type ContestCategory = typeof ContestCategories[number];
@@ -27,5 +31,30 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   ) {
     return "Other Rated Contests";
   }
+
+  if (contest.id.startsWith("past")) {
+    return "PAST";
+  }
+  if (contest.id.startsWith("joi")) {
+    return "JOI";
+  }
+  if (contest.id.startsWith("jag")) {
+    return "JAG";
+  }
+  if (
+    contest.title.match(
+      /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova)/
+    ) ||
+    contest.id.match(/(^future-meets-you-contest|^hokudai-hitachi)/) ||
+    [
+      "caddi2019",
+      "pakencamp-2019-day2",
+      "kuronekoyamato-contest2019",
+      "wn2017_1"
+    ].includes(contest.id)
+  ) {
+    return "Marathon";
+  }
+
   return "Other Contests";
 };
