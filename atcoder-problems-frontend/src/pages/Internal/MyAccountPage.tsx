@@ -14,7 +14,7 @@ import {
   TabPane
 } from "reactstrap";
 import { Redirect, useHistory } from "react-router-dom";
-import VirtualContestTable from "./VirtualContestTable";
+import { VirtualContestTable } from "./VirtualContestTable";
 import { CONTEST_JOINED, CONTEST_MY, USER_GET, USER_UPDATE } from "./ApiUrl";
 import ListProblemList from "./UserProblemListPage";
 import { UserResponse, VirtualContest } from "./types";

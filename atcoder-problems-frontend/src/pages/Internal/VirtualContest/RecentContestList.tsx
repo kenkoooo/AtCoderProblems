@@ -1,7 +1,7 @@
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Button, Col, Row } from "reactstrap";
-import VirtualContestTable from "../VirtualContestTable";
+import { VirtualContestTable } from "../VirtualContestTable";
 import { CONTEST_RECENT, USER_GET } from "../ApiUrl";
 import { useHistory } from "react-router-dom";
 import { VirtualContestInfo } from "../types";
@@ -53,7 +53,7 @@ export const RecentContestList = connect<{}, InnerProps>(() => ({
         </Row>
       ) : null}
 
-      <Row className="my-2">
+      <Row className="my-2  border-bottom">
         <Col sm="12">
           <h2>Running Contests</h2>
         </Col>
@@ -71,7 +71,7 @@ export const RecentContestList = connect<{}, InnerProps>(() => ({
         </Col>
       </Row>
 
-      <Row className="my-2">
+      <Row className="mt-5 border-bottom">
         <Col sm="12">
           <h2>Upcoming Contests</h2>
         </Col>
@@ -86,7 +86,7 @@ export const RecentContestList = connect<{}, InnerProps>(() => ({
         </Col>
       </Row>
 
-      <Row className="my-2">
+      <Row className="mt-5 border-bottom">
         <Col sm="12">
           <h2>Recent Contests</h2>
         </Col>
