@@ -5,7 +5,9 @@ import React from "react";
 import { VirtualContestInfo } from "./types";
 import Timer from "../../components/Timer";
 
-export default (props: { contests: VirtualContestInfo[] }) => {
+export const VirtualContestTable = (props: {
+  contests: VirtualContestInfo[];
+}) => {
   return (
     <BootstrapTable
       data={props.contests}
@@ -14,7 +16,32 @@ export default (props: { contests: VirtualContestInfo[] }) => {
       height="auto"
       hover
       striped
-      search
+      options={{
+        paginationPosition: "top",
+        sizePerPage: 10,
+        sizePerPageList: [
+          {
+            text: "10",
+            value: 10
+          },
+          {
+            text: "20",
+            value: 20
+          },
+          {
+            text: "50",
+            value: 50
+          },
+          {
+            text: "200",
+            value: 200
+          },
+          {
+            text: "All",
+            value: props.contests.length
+          }
+        ]
+      }}
     >
       <TableHeaderColumn
         dataField="title"
