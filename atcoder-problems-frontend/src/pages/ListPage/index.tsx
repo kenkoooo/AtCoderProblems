@@ -172,7 +172,7 @@ const InnerListPage = (props: InnerProps) => {
         const lastAcceptedDate = lastSubmission
           ? formatMomentDate(parseSecond(lastSubmission.epoch_second))
           : "";
-        const point = p.point ? p.point : p.predict ? p.predict : INF_POINT;
+        const point = p.point ?? INF_POINT;
         const firstUserId = p.first_user_id ? p.first_user_id : "";
         const executionTime =
           p.execution_time != null ? p.execution_time : INF_POINT;
