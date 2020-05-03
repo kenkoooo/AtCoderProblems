@@ -134,13 +134,15 @@ const InnerContestTable = (props: InnerProps) => {
     mode,
     bestSubmissions
   );
-  const estimatedPerformances = getEstimatedPerformances(
-    users,
-    bestSubmissions,
-    start,
-    problems.map(p => p.item),
-    problemModels
-  );
+  const estimatedPerformances = props.enableEstimatedPerformances
+    ? getEstimatedPerformances(
+        users,
+        bestSubmissions,
+        start,
+        problems.map(p => p.item),
+        problemModels
+      )
+    : [];
 
   const items = problems.map(p => ({
     contestId: p.contestId,
