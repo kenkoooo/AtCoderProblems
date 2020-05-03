@@ -1,7 +1,15 @@
 import React from "react";
 import { NavLink, Redirect, useHistory, useParams } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
-import { Alert, Button, ButtonGroup, Col, Row, Spinner } from "reactstrap";
+import {
+  Alert,
+  Button,
+  ButtonGroup,
+  Col,
+  Row,
+  Spinner,
+  Table
+} from "reactstrap";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { fetchVirtualContestSubmission } from "../../../../utils/CachedApiClient";
 import { List, Map as ImmutableMap } from "immutable";
@@ -178,22 +186,44 @@ const InnerShowContest = (props: InnerProps) => {
         <Col sm="12">
           <h1>{contestInfo.title}</h1>
           <h4>{contestInfo.memo}</h4>
-          <h5>
-            Mode: {formatMode(contestInfo.mode)}{" "}
-            {enableEstimatedPerformances
-              ? null
-              : "(Performance estimation is disabled.)"}
-          </h5>
-          <h5>
-            Time: {formatMomentDateTimeDay(parseSecond(start))} -{" "}
-            {formatMomentDateTimeDay(parseSecond(end))} (
-            {Math.floor(contestInfo.duration_second / 60)} minutes)
-          </h5>
-          {start < now && now < end ? (
-            <h5>
-              Remain: <Timer remain={end - now} />
-            </h5>
-          ) : null}
+        </Col>
+      </Row>
+      <Row className="my-2">
+        <Col>
+          <Table>
+            <tbody>
+              <tr>
+                <th>Mode</th>
+                <td>
+                  {formatMode(contestInfo.mode)}{" "}
+                  {enableEstimatedPerformances
+                    ? null
+                    : "(Performance estimation is disabled)"}
+                </td>
+              </tr>
+              <tr>
+                <th>Time</th>
+                <td>
+                  {formatMomentDateTimeDay(parseSecond(start))} -{" "}
+                  {formatMomentDateTimeDay(parseSecond(end))} (
+                  {Math.floor(contestInfo.duration_second / 60)} minutes)
+                </td>
+              </tr>
+
+              {start < now && now < end ? (
+                <tr>
+                  <th>Remain</th>
+                  <td>
+                    <Timer remain={end - now} />
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </Table>
+        </Col>
+      </Row>
+      <Row className="my-2">
+        <Col sm="12">
           {!isLoggedIn ? (
             <Alert color="warning">
               Please <a href={GITHUB_LOGIN_LINK}>Login</a> before you join the
@@ -255,6 +285,22 @@ const InnerShowContest = (props: InnerProps) => {
 };
 
 const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
+  const fetchContestInfo = () =>
+    fetch(contestGetUrl(props.contestId))
+      .then(response => response.json())
+      .then(contest => {
+        const start = contest.start_epoch_second;
+        const end = contest.start_epoch_second + contest.duration_second;
+        const users = contest.participants;
+        const problems = contest.problems.map(
+          (item: VirtualContestItem) => item.id
+        );
+        return fetchSubmissions(start, end, users, problems).then(map => ({
+          map,
+          ...contest
+        }));
+      });
+
   return {
     problemModelGet: {
       comparison: null,
@@ -264,21 +310,9 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
       url: USER_GET
     },
     contestInfoFetch: {
-      url: contestGetUrl(props.contestId),
-      then: contest => {
-        const start = contest.start_epoch_second;
-        const end = contest.start_epoch_second + contest.duration_second;
-        const users = contest.participants;
-        const problems = contest.problems.map(
-          (item: VirtualContestItem) => item.id
-        );
-        return {
-          value: fetchSubmissions(start, end, users, problems).then(map => ({
-            map,
-            ...contest
-          }))
-        };
-      }
+      comparison: null,
+      force: true,
+      value: fetchContestInfo
     },
     problemMapFetch: {
       comparison: null,
@@ -294,9 +328,9 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
         body: JSON.stringify({ contest_id: props.contestId }),
         andThen: () => ({
           contestInfoFetch: {
-            url: contestGetUrl(props.contestId),
+            comparison: null,
             force: true,
-            refreshing: true
+            value: fetchContestInfo
           }
         })
       }
