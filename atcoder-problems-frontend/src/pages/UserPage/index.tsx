@@ -89,12 +89,23 @@ const InnerUserPage = (props: InnerProps) => {
     ? submissionsFetch.value
     : ImmutableMap<ProblemId, List<Submission>>();
   const contestToProblems = contestToProblemsFetch.fulfilled
-    ? contestToProblemsFetch.value
-    : ImmutableMap<ContestId, List<Problem>>();
+    ? convertMap(contestToProblemsFetch.value.map(list => list.toArray()))
+    : new Map<ContestId, Problem[]>();
 
   if (userId.length === 0 || submissions.isEmpty()) {
     return <Alert color="danger">User not found!</Alert>;
   }
+
+  const ratedProblemIds = new Set(
+    contests
+      .valueSeq()
+      .flatMap(contest => {
+        const isRated = isRatedContest(contest);
+        const contestProblems = contestToProblems.get(contest.id);
+        return isRated && contestProblems ? contestProblems : [];
+      })
+      .map(problem => problem.id)
+  );
 
   const userSubmissions = submissions
     .valueSeq()
@@ -129,23 +140,9 @@ const InnerUserPage = (props: InnerProps) => {
     )
     .map(([problemId]) => problemId)
     .toArray();
-  const ratedPointSum = submissions
-    .entrySeq()
-    .filter(
-      ([, submissionList]) =>
-        !!submissionList.find(submission => isAccepted(submission.result))
-    )
-    .map(([, submissionList]) => {
-      const isRated = !!submissionList.find(submission => {
-        const contest = contests.get(submission.contest_id);
-        return !!contest && isRatedContest(contest);
-      });
-      if (!isRated) {
-        return 0;
-      }
-      const point = submissionList.map(submission => submission.point).max();
-      return point ?? 0;
-    })
+  const ratedPointSum = solvedProblemIds
+    .filter(problemId => ratedProblemIds.has(problemId))
+    .map(problemId => mergedProblems.get(problemId)?.point ?? 0)
     .reduce((sum, point) => sum + point, 0);
 
   return (
@@ -177,9 +174,7 @@ const InnerUserPage = (props: InnerProps) => {
         />
       ) : userPageTab === "AtCoder Pie Charts" ? (
         <PieChartBlock
-          contestToProblems={convertMap(
-            contestToProblems.map(list => list.toArray())
-          )}
+          contestToProblems={contestToProblems}
           userId={userId}
           submissions={convertMap(submissions.map(list => list.toArray()))}
         />
