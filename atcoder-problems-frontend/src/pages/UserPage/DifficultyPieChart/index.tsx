@@ -1,7 +1,6 @@
 import React from "react";
 import { ProblemId } from "../../../interfaces/Status";
 import ProblemModel from "../../../interfaces/ProblemModel";
-import Submission from "../../../interfaces/Submission";
 import {
   getRatingColor,
   getRatingColorCode,

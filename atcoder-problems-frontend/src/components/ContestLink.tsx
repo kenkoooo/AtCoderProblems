@@ -3,7 +3,7 @@ import * as Url from "../utils/Url";
 import Contest from "../interfaces/Contest";
 import { NewTabLink } from "./NewTabLink";
 import { AGC_001_START } from "../pages/TablePage/ContestClassifier";
-import { getRatingColor, getRatingColorClass } from "../utils";
+import { getRatingColorClass } from "../utils";
 
 interface Props {
   contest: Contest;

@@ -1,7 +1,6 @@
 import React from "react";
 import Ranking from "../components/Ranking";
 import { RankingEntry } from "../interfaces/RankingEntry";
-import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../utils/CachedApiClient";
 

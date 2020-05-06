@@ -12,14 +12,6 @@ import { NewTabLink } from "../../components/NewTabLink";
 import * as Url from "../../utils/Url";
 import Octicon, { Check, Search } from "@primer/octicons-react";
 import ProblemLink from "../../components/ProblemLink";
-import {
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip
-} from "recharts";
 import { SinglePieChart } from "../../components/SinglePieChart";
 
 const ProblemTable = (props: {
