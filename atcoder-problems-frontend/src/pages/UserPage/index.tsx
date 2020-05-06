@@ -22,6 +22,7 @@ import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
 import { generatePathWithParams } from "../../utils/QueryString";
+import { isRatedContest } from "../TablePage/ContestClassifier";
 
 const userPageTabs = [
   "Achievement",
@@ -115,6 +116,32 @@ const InnerUserPage = (props: InnerProps) => {
     .map(([dateLabel, count]) => ({ dateLabel, count }))
     .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
 
+  const solvedCount = submissions
+    .entrySeq()
+    .filter(([, submissionList]) =>
+      submissionList.find(submission => isAccepted(submission.result))
+    )
+    .map(([problemId]) => problemId)
+    .toArray().length;
+  const ratedPointSum = submissions
+    .entrySeq()
+    .filter(
+      ([, submissionList]) =>
+        !!submissionList.find(submission => isAccepted(submission.result))
+    )
+    .map(([, submissionList]) => {
+      const isRated = !!submissionList.find(submission => {
+        const contest = contests.get(submission.contest_id);
+        return !!contest && isRatedContest(contest);
+      });
+      if (!isRated) {
+        return 0;
+      }
+      const point = submissionList.map(submission => submission.point).max();
+      return point ?? 0;
+    })
+    .reduce((sum, point) => sum + point, 0);
+
   return (
     <div>
       <Row className="my-2 border-bottom">
@@ -134,7 +161,12 @@ const InnerUserPage = (props: InnerProps) => {
         ))}
       </Nav>
       {userPageTab === "Achievement" ? (
-        <AchievementBlock userId={userId} dailyCount={dailyCount.toArray()} />
+        <AchievementBlock
+          userId={userId}
+          dailyCount={dailyCount.toArray()}
+          solvedCount={solvedCount}
+          ratedPointSum={ratedPointSum}
+        />
       ) : userPageTab === "AtCoder Pie Charts" ? (
         <PieChartBlock
           contestToProblems={convertMap(
