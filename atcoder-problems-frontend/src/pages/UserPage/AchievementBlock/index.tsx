@@ -1,11 +1,7 @@
 import React from "react";
 import { Col, Row } from "reactstrap";
 import { ordinalSuffixOf } from "../../../utils";
-import {
-  formatMomentDate,
-  getToday,
-  parseDateLabel
-} from "../../../utils/DateUtil";
+import { formatMomentDate, getToday } from "../../../utils/DateUtil";
 import { connect, PromiseState } from "react-refetch";
 import { RankingEntry } from "../../../interfaces/RankingEntry";
 import {
@@ -91,7 +87,7 @@ const InnerAchievementBlock = (props: InnerProps) => {
     },
     {
       key: "Longest Streak",
-      value: `${props.longestStreak} days`,
+      value: `${longestStreak} days`,
       rank: props.streakRank.fulfilled ? props.streakRank.value : undefined
     }
   ];
