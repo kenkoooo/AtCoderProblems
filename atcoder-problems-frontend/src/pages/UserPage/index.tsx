@@ -23,6 +23,7 @@ import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
 import { generatePathWithParams } from "../../utils/QueryString";
 import { isRatedContest } from "../TablePage/ContestClassifier";
+import { calcStreak } from "./AchievementBlock/StreakCount";
 
 const userPageTabs = [
   "Achievement",
@@ -115,7 +116,9 @@ const InnerUserPage = (props: InnerProps) => {
     .entrySeq()
     .map(([dateLabel, count]) => ({ dateLabel, count }))
     .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
-
+  const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
+    dailyCount.toArray()
+  );
   const solvedCount = submissions
     .entrySeq()
     .filter(([, submissionList]) =>
@@ -163,9 +166,11 @@ const InnerUserPage = (props: InnerProps) => {
       {userPageTab === "Achievement" ? (
         <AchievementBlock
           userId={userId}
-          dailyCount={dailyCount.toArray()}
           solvedCount={solvedCount}
           ratedPointSum={ratedPointSum}
+          longestStreak={longestStreak}
+          currentStreak={currentStreak}
+          prevDateLabel={prevDateLabel}
         />
       ) : userPageTab === "AtCoder Pie Charts" ? (
         <PieChartBlock

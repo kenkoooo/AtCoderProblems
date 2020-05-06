@@ -13,6 +13,7 @@ import {
   cachedFastRanking,
   cachedFirstRanking,
   cachedShortRanking,
+  cachedStreaksRanking,
   cachedSumRanking
 } from "../../../utils/CachedApiClient";
 
@@ -33,7 +34,9 @@ interface OuterProps {
   userId: string;
   solvedCount: number;
   ratedPointSum: number;
-  dailyCount: { dateLabel: string; count: number }[];
+  longestStreak: number;
+  currentStreak: number;
+  prevDateLabel: string;
 }
 
 interface InnerProps extends OuterProps {
@@ -42,30 +45,11 @@ interface InnerProps extends OuterProps {
   firstRanking: PromiseState<RankingEntry[]>;
   acRank: PromiseState<number>;
   sumRank: PromiseState<number>;
+  streakRank: PromiseState<number>;
 }
 
 const InnerAchievementBlock = (props: InnerProps) => {
-  const { longestStreak, currentStreak, prevDateLabel } = props.dailyCount
-    .map(e => e.dateLabel)
-    .reduce(
-      (state, dateLabel) => {
-        const nextDateLabel = formatMomentDate(
-          parseDateLabel(state.prevDateLabel).add(1, "day")
-        );
-        // tslint:disable-next-line
-        const currentStreak =
-          dateLabel === nextDateLabel ? state.currentStreak + 1 : 1;
-        // tslint:disable-next-line
-        const longestStreak = Math.max(state.longestStreak, currentStreak);
-        return { longestStreak, currentStreak, prevDateLabel: dateLabel };
-      },
-      {
-        longestStreak: 0,
-        currentStreak: 0,
-        prevDateLabel: ""
-      }
-    );
-
+  const { longestStreak, currentStreak, prevDateLabel } = props;
   const shortRanking = props.shortestRanking.fulfilled
     ? props.shortestRanking.value
     : ([] as RankingEntry[]);
@@ -104,6 +88,11 @@ const InnerAchievementBlock = (props: InnerProps) => {
       key: "Rated Point Sum",
       value: props.ratedPointSum,
       rank: props.sumRank.fulfilled ? props.sumRank.value : undefined
+    },
+    {
+      key: "Longest Streak",
+      value: `${props.longestStreak} days`,
+      rank: props.streakRank.fulfilled ? props.streakRank.value : undefined
     }
   ];
 
@@ -126,10 +115,6 @@ const InnerAchievementBlock = (props: InnerProps) => {
             </h6>
           </Col>
         ))}
-        <Col key="Longest Streak" className="text-center" xs="6" md="3">
-          <h6>Longest Streak</h6>
-          <h3>{longestStreak} days</h3>
-        </Col>
         <Col key="Current Streak" className="text-center" xs="6" md="3">
           <h6>Current Streak</h6>
           <h3>{isIncreasing ? currentStreak : 0} days</h3>
@@ -170,6 +155,13 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(props => ({
         ranking =>
           ranking.filter(entry => entry.problem_count > props.ratedPointSum)
             .length
+      )
+  },
+  streakRank: {
+    comparison: null,
+    value: () =>
+      cachedStreaksRanking().then(
+        r => r.filter(e => e.problem_count > props.longestStreak).length
       )
   }
 }))(InnerAchievementBlock);
