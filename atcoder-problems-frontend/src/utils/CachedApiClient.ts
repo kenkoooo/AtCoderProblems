@@ -23,7 +23,12 @@ import {
   RankingEntry
 } from "../interfaces/RankingEntry";
 import { RatingInfo, ratingInfoOf } from "./RatingInfo";
-import { clipDifficulty, isAccepted, isValidResult } from "./index";
+import {
+  clipDifficulty,
+  isAccepted,
+  isValidResult,
+  isVJudgeOrLuogu
+} from "./index";
 import ContestParticipation, {
   isContestParticipation
 } from "../interfaces/ContestParticipation";
@@ -146,13 +151,13 @@ export const cachedStreaksRanking = () => {
   return STREAK_RANKING;
 };
 
-let AC_RANKING: Promise<List<RankingEntry>> | undefined;
+let AC_RANKING: Promise<RankingEntry[]> | undefined;
 export const cachedACRanking = () => {
   if (AC_RANKING === undefined) {
-    AC_RANKING = fetchTypedList(
+    AC_RANKING = fetchTypedArray(
       STATIC_API_BASE_URL + "/ac.json",
       isRankingEntry
-    );
+    ).then(ranking => ranking.filter(entry => !isVJudgeOrLuogu(entry.user_id)));
   }
   return AC_RANKING;
 };
@@ -297,18 +302,22 @@ export const cachedSelectableLanguages = (userId: string) => {
   return SELECTABLE_LANGUAGES.selectableLanguages;
 };
 
-let SUM_RANKING: undefined | Promise<List<RankingEntry>>;
+let SUM_RANKING: undefined | Promise<RankingEntry[]>;
 export const cachedSumRanking = () => {
   if (SUM_RANKING === undefined) {
-    SUM_RANKING = fetchTypedList(
+    SUM_RANKING = fetchTypedArray(
       STATIC_API_BASE_URL + "/sums.json",
       isSumRankingEntry
-    ).then(ranking =>
-      ranking.map(r => ({
-        problem_count: r.point_sum,
-        user_id: r.user_id
-      }))
-    );
+    )
+      .then(ranking =>
+        ranking.map(r => ({
+          problem_count: r.point_sum,
+          user_id: r.user_id
+        }))
+      )
+      .then(ranking =>
+        ranking.filter(entry => !isVJudgeOrLuogu(entry.user_id))
+      );
   }
   return SUM_RANKING;
 };
@@ -333,6 +342,12 @@ function fetchTypedList<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
     .then(r => r.json())
     .then((array: any[]) => array.filter(typeGuardFn))
     .then(array => List(array));
+}
+
+function fetchTypedArray<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
+  return fetch(url)
+    .then(r => r.json())
+    .then((array: any[]) => array.filter(typeGuardFn));
 }
 
 function fetchTypedMap<V>(url: string, typeGuardFn: (obj: any) => obj is V) {

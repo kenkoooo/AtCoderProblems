@@ -12,7 +12,9 @@ interface Props {
 const StreakRanking = (props: Props) => (
   <Ranking
     title="Streak Ranking"
-    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : List()}
+    ranking={
+      props.rankingFetch.fulfilled ? props.rankingFetch.value.toArray() : []
+    }
   />
 );
 

@@ -6,13 +6,13 @@ import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../utils/CachedApiClient";
 
 interface InnerProps {
-  rankingFetch: PromiseState<List<RankingEntry>>;
+  rankingFetch: PromiseState<RankingEntry[]>;
 }
 
 const ACRanking = (props: InnerProps) => (
   <Ranking
     title="AC Count Ranking"
-    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : List()}
+    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : []}
   />
 );
 
