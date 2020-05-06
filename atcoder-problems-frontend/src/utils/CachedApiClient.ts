@@ -138,7 +138,7 @@ export const cachedSubmissions = (user: string) => {
   return submissions;
 };
 
-let STREAK_RANKING: Promise<List<RankingEntry>> | undefined;
+let STREAK_RANKING: Promise<RankingEntry[]> | undefined;
 export const cachedStreaksRanking = () => {
   if (STREAK_RANKING === undefined) {
     STREAK_RANKING = fetchStreaks().then(x =>
@@ -414,7 +414,7 @@ const fetchRatingInfo = async (user: string) => {
 };
 
 const fetchStreaks = () =>
-  fetchTypedList(STATIC_API_BASE_URL + "/streaks.json", isStreakRankingEntry);
+  fetchTypedArray(STATIC_API_BASE_URL + "/streaks.json", isStreakRankingEntry);
 
 const fetchContestMap = () =>
   fetchContests().then(contests =>
