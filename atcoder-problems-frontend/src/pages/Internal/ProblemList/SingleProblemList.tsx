@@ -249,31 +249,53 @@ const DoubleClickEdit = (props: {
   return (
     <>
       {isInput ? (
-        <Input
-          type="text"
-          value={text}
-          onChange={e => setText(e.target.value)}
-          onBlur={() => {
-            setIsInput(!isInput);
-            props.saveText(text);
-          }}
-          onKeyDown={e => {
-            if (e.key === "Enter") {
+        <>
+          <Input
+            type="text"
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onBlur={() => {
               setIsInput(!isInput);
               props.saveText(text);
-            }
-          }}
-        />
-      ) : (
-        <span
-          onDoubleClick={() => {
-            if (props.modifiable) {
+            }}
+            onKeyDown={e => {
+              if (e.key === "Enter") {
+                setIsInput(!isInput);
+                props.saveText(text);
+              }
+            }}
+          />
+          <Button
+            color="success"
+            onClick={() => {
               setIsInput(!isInput);
-            }
-          }}
-        >
-          {text.length > 0 ? text : "(empty)"}
-        </span>
+              props.saveText(text);
+            }}
+          >
+            Save
+          </Button>
+        </>
+      ) : (
+        <>
+          <span
+            onDoubleClick={() => {
+              if (props.modifiable) {
+                setIsInput(!isInput);
+              }
+            }}
+          >
+            {text.length > 0 ? text : "(empty)"}
+          </span>{" "}
+          <Button
+            onClick={() => {
+              if (props.modifiable) {
+                setIsInput(!isInput);
+              }
+            }}
+          >
+            Edit Title
+          </Button>
+        </>
       )}
     </>
   );
