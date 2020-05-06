@@ -12,7 +12,9 @@ interface Props {
 const FastestRanking = (props: Props) => (
   <Ranking
     title={"Fastest Submission Ranking"}
-    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : List()}
+    ranking={
+      props.rankingFetch.fulfilled ? props.rankingFetch.value.toArray() : []
+    }
   />
 );
 
