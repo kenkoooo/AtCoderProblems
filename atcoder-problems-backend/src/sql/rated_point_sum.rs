@@ -33,8 +33,8 @@ impl RatedPointSumClient for PgConnection {
             .map(|s| (s.user_id.as_str(), s.problem_id.as_str(), s.point))
             .fold(BTreeMap::new(), |mut map, (user_id, problem_id, point)| {
                 map.entry(user_id)
-                    .or_insert_with(BTreeSet::new)
-                    .insert((problem_id, point as u32));
+                    .or_insert_with(BTreeMap::new)
+                    .insert(problem_id, point as u32);
                 map
             })
             .into_iter()
