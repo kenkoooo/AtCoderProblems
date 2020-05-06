@@ -5,7 +5,7 @@ import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
 import Problem from "../../interfaces/Problem";
-import { List, Map } from "immutable";
+import { List, Map as ImmutableMap } from "immutable";
 import Contest from "../../interfaces/Contest";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
@@ -100,8 +100,8 @@ const getRecommendProbabilityRange = (
 interface Props {
   readonly userSubmissions: List<Submission>;
   readonly problems: List<Problem>;
-  readonly contests: Map<string, Contest>;
-  readonly problemModels: Map<string, ProblemModel>;
+  readonly contests: ImmutableMap<string, Contest>;
+  readonly problemModels: ImmutableMap<string, ProblemModel>;
   readonly userRatingInfo: RatingInfo;
 }
 

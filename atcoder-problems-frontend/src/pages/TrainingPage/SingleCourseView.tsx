@@ -20,6 +20,7 @@ import {
   ResponsiveContainer,
   Tooltip
 } from "recharts";
+import { SinglePieChart } from "../../components/SinglePieChart";
 
 const ProblemTable = (props: {
   problems: Problem[];
@@ -91,17 +92,7 @@ const SetPieChart = (props: {
   ];
   return (
     <div>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie dataKey="value" data={data} outerRadius="80%" fill="#ff0000">
-            {data.map(e => (
-              <Cell key={e.name} fill={e.color} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
+      <SinglePieChart data={data} />
       <h5>{props.title}</h5>
     </div>
   );

@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  PieChart,
-  Pie,
-  ResponsiveContainer,
-  Cell,
-  Tooltip,
-  Legend
-} from "recharts";
+import { SinglePieChart } from "../../../components/SinglePieChart";
 
 const COLORS = {
   Accepted: "#32cd32",
@@ -28,17 +21,7 @@ export const SmallPieChart = ({
   ];
   return (
     <div>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie dataKey="value" data={data} outerRadius="80%" fill="#ff0000">
-            {data.map(e => (
-              <Cell key={e.name} fill={e.color} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
+      <SinglePieChart data={data} />
       <h5>{title}</h5>
       <h5 className="text-muted">{`${accepted} / ${accepted + trying}`}</h5>
     </div>

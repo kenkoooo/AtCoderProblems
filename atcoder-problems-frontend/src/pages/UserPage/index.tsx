@@ -24,15 +24,17 @@ import { ProgressChartBlock } from "./ProgressChartBlock";
 import { generatePathWithParams } from "../../utils/QueryString";
 import { isRatedContest } from "../TablePage/ContestClassifier";
 import { calcStreak } from "./AchievementBlock/StreakCount";
+import { DifficultyPieChart } from "./DifficultyPieChart";
 
 const userPageTabs = [
   "Achievement",
   "AtCoder Pie Charts",
+  "Difficulty Pies",
   "Progress Charts",
   "Submissions",
   "Recommendation",
   "Languages"
-];
+] as const;
 
 const TAB_PARAM = "userPageTab";
 
@@ -53,8 +55,9 @@ interface InnerProps extends OuterProps {
 
 const InnerUserPage = (props: InnerProps) => {
   const location = useLocation();
+  const param = new URLSearchParams(location.search).get(TAB_PARAM);
   const userPageTab: UserPageTab =
-    new URLSearchParams(location.search).get(TAB_PARAM) || "Achievement";
+    userPageTabs.find(t => t === param) || "Achievement";
 
   const {
     userId,
@@ -119,13 +122,13 @@ const InnerUserPage = (props: InnerProps) => {
   const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
     dailyCount.toArray()
   );
-  const solvedCount = submissions
+  const solvedProblemIds = submissions
     .entrySeq()
     .filter(([, submissionList]) =>
       submissionList.find(submission => isAccepted(submission.result))
     )
     .map(([problemId]) => problemId)
-    .toArray().length;
+    .toArray();
   const ratedPointSum = submissions
     .entrySeq()
     .filter(
@@ -166,7 +169,7 @@ const InnerUserPage = (props: InnerProps) => {
       {userPageTab === "Achievement" ? (
         <AchievementBlock
           userId={userId}
-          solvedCount={solvedCount}
+          solvedCount={solvedProblemIds.length}
           ratedPointSum={ratedPointSum}
           longestStreak={longestStreak}
           currentStreak={currentStreak}
@@ -180,6 +183,16 @@ const InnerUserPage = (props: InnerProps) => {
           userId={userId}
           submissions={convertMap(submissions.map(list => list.toArray()))}
         />
+      ) : userPageTab === "Difficulty Pies" ? (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Difficulty Pies</h1>
+          </Row>
+          <DifficultyPieChart
+            problemModels={convertMap(problemModels)}
+            solvedProblemIds={solvedProblemIds}
+          />
+        </>
       ) : userPageTab === "Progress Charts" ? (
         <ProgressChartBlock
           dailyCount={dailyCount.toArray()}
