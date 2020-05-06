@@ -31,7 +31,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let request = SubmissionRequest::UsersAccepted {
         user_ids: &user_ids,
     };
-    let user_accepted_submissions = conn.get_submissions(request)?;
+    let mut user_accepted_submissions = conn.get_submissions(request)?;
+    info!("There are {} submissions.", user_accepted_submissions.len());
+
+    info!("Sorting by id ...");
+    user_accepted_submissions.sort_by_key(|s| s.id);
 
     info!("Executing update_rated_point_sum...");
     conn.update_rated_point_sum(&user_accepted_submissions)?;
