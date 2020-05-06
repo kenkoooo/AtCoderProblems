@@ -16,13 +16,11 @@ import {
   Row,
   Spinner
 } from "reactstrap";
-import { LIST_CREATE, LIST_DELETE, LIST_MY, USER_GET } from "./ApiUrl";
+import { LIST_CREATE, LIST_DELETE, LIST_MY } from "./ApiUrl";
 import { Link, Redirect } from "react-router-dom";
-import UserInfo from "../../interfaces/UserInfo";
 import { ProblemList } from "./types";
 
 interface Props {
-  userInfoFetch: PromiseState<UserInfo | null>;
   myListFetch: PromiseState<ProblemList[] | null>;
   createListFetch: PromiseState<{ internal_list_id: string } | null>;
   createNewList: () => void;
@@ -31,7 +29,6 @@ interface Props {
 }
 
 export default connect<{}, Props>(() => ({
-  userInfoFetch: USER_GET,
   myListFetch: LIST_MY,
   createListFetch: { value: null },
   createNewList: () => ({

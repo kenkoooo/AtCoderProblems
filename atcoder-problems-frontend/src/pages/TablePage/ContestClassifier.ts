@@ -25,10 +25,7 @@ export const classifyContest = (contest: Contest): ContestCategory => {
     return "AGC";
   }
 
-  if (
-    contest.rate_change !== "-" &&
-    contest.start_epoch_second >= AGC_001_START
-  ) {
+  if (isRatedContest(contest)) {
     return "Other Rated Contests";
   }
 
@@ -57,4 +54,10 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   }
 
   return "Other Contests";
+};
+
+export const isRatedContest = (contest: Contest) => {
+  return (
+    contest.rate_change !== "-" && contest.start_epoch_second >= AGC_001_START
+  );
 };
