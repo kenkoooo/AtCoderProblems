@@ -21,13 +21,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     let conn = connect(&url)?;
 
     info!("Loading submissions ...");
-    let all_accepted_submissions: Vec<Submission> =
+    let mut all_accepted_submissions: Vec<Submission> =
         conn.get_submissions(SubmissionRequest::AllAccepted)?;
 
     info!(
         "There are {} AC submissions.",
         all_accepted_submissions.len()
     );
+
+    info!("Sorting by id ...");
+    all_accepted_submissions.sort_by_key(|s| s.id);
 
     info!("Executing update_accepted_count...");
     conn.update_accepted_count(&all_accepted_submissions)?;
