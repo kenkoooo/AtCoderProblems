@@ -12,7 +12,9 @@ interface Props {
 const FirstRanking = (props: Props) => (
   <Ranking
     title={"Top Golfers"}
-    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : List()}
+    ranking={
+      props.rankingFetch.fulfilled ? props.rankingFetch.value.toArray() : []
+    }
   />
 );
 

@@ -6,13 +6,13 @@ import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../utils/CachedApiClient";
 
 interface Props {
-  rankingFetch: PromiseState<List<RankingEntry>>;
+  rankingFetch: PromiseState<RankingEntry[]>;
 }
 
 const SumRanking = (props: Props) => (
   <Ranking
     title="Rated Point Ranking"
-    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : List()}
+    ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : []}
   />
 );
 
