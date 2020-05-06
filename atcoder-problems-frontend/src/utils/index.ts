@@ -52,26 +52,61 @@ export const clipDifficulty = (difficulty: number) =>
     difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400)
   );
 
-export const getRatingColorClass = (rating: number | null) => {
-  if (rating === null) {
-    return "";
+export const RatingColors = [
+  "Grey",
+  "Brown",
+  "Green",
+  "Cyan",
+  "Blue",
+  "Yellow",
+  "Orange",
+  "Red"
+] as const;
+
+export type RatingColor = typeof RatingColors[number];
+export const getRatingColor = (rating: number): RatingColor => {
+  const index = Math.min(Math.floor(rating / 400), RatingColors.length - 1);
+  return RatingColors[index];
+};
+export const getRatingColorClass = (rating: number) => {
+  const ratingColor = getRatingColor(rating);
+  switch (ratingColor) {
+    case "Grey":
+      return "difficulty-grey";
+    case "Brown":
+      return "difficulty-brown";
+    case "Green":
+      return "difficulty-green";
+    case "Cyan":
+      return "difficulty-cyan";
+    case "Blue":
+      return "difficulty-blue";
+    case "Yellow":
+      return "difficulty-yellow";
+    case "Orange":
+      return "difficulty-orange";
+    case "Red":
+      return "difficulty-red";
   }
-  if (rating < 400) {
-    return "difficulty-grey";
-  } else if (rating < 800) {
-    return "difficulty-brown";
-  } else if (rating < 1200) {
-    return "difficulty-green";
-  } else if (rating < 1600) {
-    return "difficulty-cyan";
-  } else if (rating < 2000) {
-    return "difficulty-blue";
-  } else if (rating < 2400) {
-    return "difficulty-yellow";
-  } else if (rating < 2800) {
-    return "difficulty-orange";
-  } else {
-    return "difficulty-red";
+};
+export const getRatingColorCode = (ratingColor: RatingColor) => {
+  switch (ratingColor) {
+    case "Grey":
+      return "#808080";
+    case "Brown":
+      return "#804000";
+    case "Green":
+      return "#008000";
+    case "Cyan":
+      return "#00C0C0";
+    case "Blue":
+      return "#0000FF";
+    case "Yellow":
+      return "#C0C000";
+    case "Orange":
+      return "#FF8000";
+    case "Red":
+      return "#FF0000";
   }
 };
 

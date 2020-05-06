@@ -3,6 +3,7 @@ import * as Url from "../utils/Url";
 import Contest from "../interfaces/Contest";
 import { NewTabLink } from "./NewTabLink";
 import { AGC_001_START } from "../pages/TablePage/ContestClassifier";
+import { getRatingColor, getRatingColorClass } from "../utils";
 
 interface Props {
   contest: Contest;
@@ -46,24 +47,7 @@ function getColorClass(target: RatedTarget): string {
   if (target === RatedTargetType.Unrated) {
     return "";
   }
-
-  if (target < 400) {
-    return "difficulty-grey";
-  } else if (target < 800) {
-    return "difficulty-brown";
-  } else if (target < 1200) {
-    return "difficulty-green";
-  } else if (target < 1600) {
-    return "difficulty-cyan";
-  } else if (target < 2000) {
-    return "difficulty-blue";
-  } else if (target < 2400) {
-    return "difficulty-yellow";
-  } else if (target < 2800) {
-    return "difficulty-orange";
-  } else {
-    return "difficulty-red";
-  }
+  return getRatingColorClass(target);
 }
 
 const ContestLink: React.FC<Props> = props => {
