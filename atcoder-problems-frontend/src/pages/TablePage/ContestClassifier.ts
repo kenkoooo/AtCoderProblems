@@ -35,7 +35,7 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   if (contest.id.startsWith("joi")) {
     return "JOI";
   }
-  if (contest.id.startsWith("jag")) {
+  if (contest.id.match(/^(jag|JAG)/)) {
     return "JAG";
   }
   if (
