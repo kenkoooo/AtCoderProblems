@@ -136,7 +136,7 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(props => ({
     value: () => cachedFirstRanking().then(list => list.toArray())
   },
   acRank: {
-    comparison: null,
+    comparison: props.solvedCount,
     value: () =>
       cachedACRanking().then(
         ranking =>
@@ -145,7 +145,7 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(props => ({
       )
   },
   sumRank: {
-    comparison: null,
+    comparison: props.ratedPointSum,
     value: () =>
       cachedSumRanking().then(
         ranking =>
@@ -154,7 +154,7 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(props => ({
       )
   },
   streakRank: {
-    comparison: null,
+    comparison: props.longestStreak,
     value: () =>
       cachedStreaksRanking().then(
         r => r.filter(e => e.problem_count > props.longestStreak).length
