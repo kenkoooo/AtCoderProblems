@@ -32,6 +32,12 @@ import * as CachedApiClient from "../../utils/CachedApiClient";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { generatePathWithParams } from "../../utils/QueryString";
 import { fetchUserSubmissions } from "../../utils/Api";
+import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
+import {
+  filterResetProgress,
+  ProgressResetList,
+  UserResponse
+} from "../Internal/types";
 
 export const INF_POINT = 1e18;
 
@@ -146,7 +152,26 @@ const InnerListPage = (props: InnerProps) => {
     ? problemModelsFetch.value
     : Map<ProblemId, ProblemModel>();
   const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
-  const statusLabelMap = constructStatusLabelMap(submissions, props.userId);
+
+  const loginUserId =
+    props.loginState.fulfilled &&
+    props.loginState.value &&
+    props.loginState.value.atcoder_user_id
+      ? props.loginState.value.atcoder_user_id
+      : undefined;
+  const progressReset =
+    props.progressResetList.fulfilled && props.progressResetList.value
+      ? props.progressResetList.value
+      : undefined;
+  const filteredSubmissions =
+    progressReset && loginUserId
+      ? filterResetProgress(submissions, progressReset, loginUserId)
+      : submissions;
+
+  const statusLabelMap = constructStatusLabelMap(
+    filteredSubmissions,
+    props.userId
+  );
 
   const userInternalRating = userRatingInfoFetch.fulfilled
     ? userRatingInfoFetch.value.internalRating
@@ -223,7 +248,7 @@ const InnerListPage = (props: InnerProps) => {
       <Row>
         <SmallTable
           mergedProblems={mergedProblems}
-          submissions={submissions}
+          submissions={filteredSubmissions}
           setFilterFunc={setExactPointFilter}
         />
       </Row>
@@ -234,7 +259,7 @@ const InnerListPage = (props: InnerProps) => {
       <Row>
         <DifficultyTable
           mergedProblems={mergedProblems}
-          submissions={submissions}
+          submissions={filteredSubmissions}
           problemModels={problemModels}
           setFilterFunc={setDifficultyFilter}
         />
@@ -406,6 +431,9 @@ interface InnerProps extends OuterProps {
   readonly problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   readonly contestsFetch: PromiseState<Map<string, Contest>>;
   readonly userRatingInfoFetch: PromiseState<RatingInfo>;
+
+  readonly loginState: PromiseState<UserResponse | null>;
+  readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
 export const ListPage = connect<OuterProps, InnerProps>(props => ({
@@ -431,5 +459,7 @@ export const ListPage = connect<OuterProps, InnerProps>(props => ({
   userRatingInfoFetch: {
     comparison: props.userId,
     value: () => CachedApiClient.cachedRatingInfo(props.userId)
-  }
+  },
+  loginState: USER_GET,
+  progressResetList: PROGRESS_RESET_LIST
 }))(InnerListPage);
