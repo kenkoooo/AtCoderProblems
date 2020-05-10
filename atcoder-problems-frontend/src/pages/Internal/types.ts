@@ -66,9 +66,9 @@ export const filterResetProgress = (
     if (submission.user_id !== userId) {
       return true;
     }
-    const reset_epoch_second =
+    const resetEpochSecond =
       progressReset.items.find(
         item => item.problem_id === submission.problem_id
       )?.reset_epoch_second ?? 0;
-    return submission.epoch_second > reset_epoch_second;
+    return submission.epoch_second > resetEpochSecond;
   });
