@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
-import { ContestId, ProblemId, ProblemStatus } from "../../interfaces/Status";
+import {
+  constructStatusLabelMap,
+  ContestId,
+  ProblemId
+} from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
 import { ContestTable } from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
@@ -13,6 +17,14 @@ import * as CachedApiClient from "../../utils/CachedApiClient";
 import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
 import { classifyContest, ContestCategory } from "./ContestClassifier";
+import Submission from "../../interfaces/Submission";
+import { fetchUserSubmissions } from "../../utils/Api";
+import {
+  filterResetProgress,
+  ProgressResetList,
+  UserResponse
+} from "../Internal/types";
+import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
 
 interface OuterProps {
   userId: string;
@@ -20,12 +32,14 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  contestsFetch: PromiseState<Map<ContestId, Contest>>;
-  contestToProblemsFetch: PromiseState<Map<ContestId, List<Problem>>>;
-  problemsFetch: PromiseState<Map<ProblemId, Problem>>;
-  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-  statusLabelMapFetch: PromiseState<Map<ProblemId, ProblemStatus>>;
-  selectableLanguagesFetch: PromiseState<Set<string>>;
+  readonly contestsFetch: PromiseState<Map<ContestId, Contest>>;
+  readonly contestToProblemsFetch: PromiseState<Map<ContestId, List<Problem>>>;
+  readonly problemsFetch: PromiseState<Map<ProblemId, Problem>>;
+  readonly problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
+  readonly selectableLanguagesFetch: PromiseState<Set<string>>;
+  readonly submissions: PromiseState<Submission[]>;
+  readonly loginState: PromiseState<UserResponse | null>;
+  readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
 const InnerTablePage: React.FC<InnerProps> = props => {
@@ -33,7 +47,6 @@ const InnerTablePage: React.FC<InnerProps> = props => {
     contestsFetch,
     contestToProblemsFetch,
     problemModelsFetch,
-    statusLabelMapFetch,
     selectableLanguagesFetch
   } = props;
 
@@ -61,13 +74,33 @@ const InnerTablePage: React.FC<InnerProps> = props => {
   const contests = contestsFetch.fulfilled
     ? contestsFetch.value
     : Map<ContestId, Contest>();
-  const statusLabelMap = statusLabelMapFetch.fulfilled
-    ? statusLabelMapFetch.value
-    : CachedApiClient.oldStatusLabelMap();
   const selectableLanguages = selectableLanguagesFetch.fulfilled
     ? selectableLanguagesFetch.value
     : Set<string>();
+  const submissions = props.submissions.fulfilled
+    ? props.submissions.value
+    : [];
 
+  const loginUserId =
+    props.loginState.fulfilled &&
+    props.loginState.value &&
+    props.loginState.value.atcoder_user_id
+      ? props.loginState.value.atcoder_user_id
+      : undefined;
+  const progressReset =
+    props.progressResetList.fulfilled && props.progressResetList.value
+      ? props.progressResetList.value
+      : undefined;
+
+  const filteredSubmissions =
+    loginUserId && progressReset
+      ? filterResetProgress(submissions, progressReset, loginUserId)
+      : submissions;
+
+  const statusLabelMap = constructStatusLabelMap(
+    filteredSubmissions,
+    props.userId
+  );
   const filteredContests = contests
     .valueSeq()
     .toArray()
@@ -145,13 +178,17 @@ export const TablePage = connect<OuterProps, InnerProps>(props => ({
     comparison: null,
     value: () => CachedApiClient.cachedContestToProblemMap()
   },
-  statusLabelMapFetch: {
-    comparison: [props.userId, props.rivals],
-    value: () =>
-      CachedApiClient.cachedStatusLabelMap(props.userId, props.rivals)
-  },
   selectableLanguagesFetch: {
     comparison: props.userId,
     value: () => CachedApiClient.cachedSelectableLanguages(props.userId)
-  }
+  },
+  submissions: {
+    comparison: [props.userId, props.rivals],
+    value: () =>
+      Promise.all(
+        props.rivals.push(props.userId).map(id => fetchUserSubmissions(id))
+      ).then((arrays: Submission[][]) => arrays.flatMap(array => array))
+  },
+  loginState: USER_GET,
+  progressResetList: PROGRESS_RESET_LIST
 }))(InnerTablePage);

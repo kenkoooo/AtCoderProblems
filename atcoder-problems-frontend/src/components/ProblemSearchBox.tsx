@@ -8,7 +8,6 @@ import {
 import React, { useState } from "react";
 import { formatProblemUrl } from "../utils/Url";
 import Problem from "../interfaces/Problem";
-import { List } from "immutable";
 
 const problemMatch = (text: string, problem: Problem) => {
   return (
@@ -25,11 +24,11 @@ const problemMatch = (text: string, problem: Problem) => {
 };
 
 interface Props {
-  problems: List<Problem>;
+  problems: Problem[];
   selectProblem: (problem: Problem) => void;
 }
 
-export default (props: Props) => {
+export const ProblemSearchBox = (props: Props) => {
   const [problemSearch, setProblemSearch] = useState("");
   const [focusingId, setFocusingId] = useState(-1);
 
@@ -48,14 +47,17 @@ export default (props: Props) => {
         }}
         onKeyDown={e => {
           if (e.key === "Enter") {
-            const problem = filterProblems.get(focusingId);
+            const problem =
+              filterProblems.length > focusingId
+                ? filterProblems[focusingId]
+                : undefined;
             if (problem) {
               props.selectProblem(problem);
               setProblemSearch("");
               setFocusingId(-1);
             }
           } else if (e.key === "ArrowDown") {
-            setFocusingId(Math.min(filterProblems.size - 1, focusingId + 1));
+            setFocusingId(Math.min(filterProblems.length - 1, focusingId + 1));
           } else if (e.key === "ArrowUp") {
             setFocusingId(Math.max(-1, focusingId - 1));
           }

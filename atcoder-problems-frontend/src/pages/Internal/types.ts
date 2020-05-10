@@ -1,3 +1,5 @@
+import Submission from "../../interfaces/Submission";
+
 export interface UserResponse {
   readonly internal_user_id: string;
   readonly atcoder_user_id: string | null;
@@ -45,3 +47,28 @@ export const formatMode = (mode: VirtualContestMode) => {
       return "Normal";
   }
 };
+
+export interface ProgressResetList {
+  items: ProgressResetItem[];
+}
+
+export interface ProgressResetItem {
+  problem_id: string;
+  reset_epoch_second: number;
+}
+
+export const filterResetProgress = (
+  submissions: Submission[],
+  progressReset: ProgressResetList,
+  userId: string
+) =>
+  submissions.filter(submission => {
+    if (submission.user_id !== userId) {
+      return true;
+    }
+    const reset_epoch_second =
+      progressReset.items.find(
+        item => item.problem_id === submission.problem_id
+      )?.reset_epoch_second ?? 0;
+    return submission.epoch_second > reset_epoch_second;
+  });

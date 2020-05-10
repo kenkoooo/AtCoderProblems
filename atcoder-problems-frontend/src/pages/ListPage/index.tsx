@@ -9,16 +9,20 @@ import {
   Button
 } from "reactstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
-
-import { isAccepted } from "../../utils";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import Submission from "../../interfaces/Submission";
-import SmallTable from "./SmallTable";
-import DifficultyTable from "./DifficultyTable";
+import { SmallTable } from "./SmallTable";
+import { DifficultyTable } from "./DifficultyTable";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
-import { noneStatus, ProblemId, ProblemStatus } from "../../interfaces/Status";
+import {
+  constructStatusLabelMap,
+  noneStatus,
+  ProblemId,
+  ProblemStatus,
+  StatusLabel
+} from "../../interfaces/Status";
 import { List, Map, Range, Set } from "immutable";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
@@ -27,6 +31,13 @@ import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { generatePathWithParams } from "../../utils/QueryString";
+import { fetchUserSubmissions } from "../../utils/Api";
+import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
+import {
+  filterResetProgress,
+  ProgressResetList,
+  UserResponse
+} from "../Internal/types";
 
 export const INF_POINT = 1e18;
 
@@ -127,10 +138,7 @@ const InnerListPage = (props: InnerProps) => {
     mergedProblemsFetch,
     problemModelsFetch,
     submissionsFetch,
-    userId,
-    rivals,
     contestsFetch,
-    statusLabelMapFetch,
     userRatingInfoFetch
   } = props;
 
@@ -143,12 +151,27 @@ const InnerListPage = (props: InnerProps) => {
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
     : Map<ProblemId, ProblemModel>();
-  const submissions = submissionsFetch.fulfilled
-    ? submissionsFetch.value
-    : Map<ProblemId, List<Submission>>();
-  const statusLabelMap = statusLabelMapFetch.fulfilled
-    ? statusLabelMapFetch.value
-    : Map<ProblemId, ProblemStatus>();
+  const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
+
+  const loginUserId =
+    props.loginState.fulfilled &&
+    props.loginState.value &&
+    props.loginState.value.atcoder_user_id
+      ? props.loginState.value.atcoder_user_id
+      : undefined;
+  const progressReset =
+    props.progressResetList.fulfilled && props.progressResetList.value
+      ? props.progressResetList.value
+      : undefined;
+  const filteredSubmissions =
+    progressReset && loginUserId
+      ? filterResetProgress(submissions, progressReset, loginUserId)
+      : submissions;
+
+  const statusLabelMap = constructStatusLabelMap(
+    filteredSubmissions,
+    props.userId
+  );
 
   const userInternalRating = userRatingInfoFetch.fulfilled
     ? userRatingInfoFetch.value.internalRating
@@ -164,14 +187,11 @@ const InnerListPage = (props: InnerProps) => {
           : "";
         const contestTitle = contest ? contest.title : "";
 
-        const lastSubmission = submissions
-          .get(p.id, List<Submission>())
-          .filter(s => s.user_id === userId)
-          .filter(s => isAccepted(s.result))
-          .maxBy(s => s.epoch_second);
-        const lastAcceptedDate = lastSubmission
-          ? formatMomentDate(parseSecond(lastSubmission.epoch_second))
-          : "";
+        const status = statusLabelMap.get(p.id) ?? noneStatus();
+        const lastAcceptedDate =
+          status.label === StatusLabel.Success
+            ? formatMomentDate(parseSecond(status.lastAcceptedEpochSecond))
+            : "";
         const point = p.point ?? INF_POINT;
         const firstUserId = p.first_user_id ? p.first_user_id : "";
         const executionTime =
@@ -198,7 +218,7 @@ const InnerListPage = (props: InnerProps) => {
           mergedProblem: p,
           shortestUserId,
           fastestUserId,
-          status: statusLabelMap.get(p.id, noneStatus())
+          status
         };
       }
     )
@@ -228,8 +248,7 @@ const InnerListPage = (props: InnerProps) => {
       <Row>
         <SmallTable
           mergedProblems={mergedProblems}
-          submissions={submissions}
-          userIds={rivals.insert(0, userId)}
+          submissions={filteredSubmissions}
           setFilterFunc={setExactPointFilter}
         />
       </Row>
@@ -240,8 +259,7 @@ const InnerListPage = (props: InnerProps) => {
       <Row>
         <DifficultyTable
           mergedProblems={mergedProblems}
-          submissions={submissions}
-          userIds={rivals.insert(0, userId)}
+          submissions={filteredSubmissions}
           problemModels={problemModels}
           setFilterFunc={setDifficultyFilter}
         />
@@ -408,19 +426,23 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  readonly submissionsFetch: PromiseState<Map<ProblemId, List<Submission>>>;
+  readonly submissionsFetch: PromiseState<Submission[]>;
   readonly mergedProblemsFetch: PromiseState<Map<ProblemId, MergedProblem>>;
   readonly problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   readonly contestsFetch: PromiseState<Map<string, Contest>>;
-  readonly statusLabelMapFetch: PromiseState<Map<ProblemId, ProblemStatus>>;
   readonly userRatingInfoFetch: PromiseState<RatingInfo>;
+
+  readonly loginState: PromiseState<UserResponse | null>;
+  readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
 export const ListPage = connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: [props.userId, props.rivals],
     value: () =>
-      CachedApiClient.cachedUsersSubmissionMap(props.rivals.push(props.userId))
+      Promise.all(
+        props.rivals.push(props.userId).map(id => fetchUserSubmissions(id))
+      ).then((arrays: Submission[][]) => arrays.flatMap(array => array))
   },
   mergedProblemsFetch: {
     comparison: null,
@@ -434,13 +456,10 @@ export const ListPage = connect<OuterProps, InnerProps>(props => ({
     comparison: null,
     value: () => CachedApiClient.cachedContestMap()
   },
-  statusLabelMapFetch: {
-    comparison: [props.userId, props.rivals],
-    value: () =>
-      CachedApiClient.cachedStatusLabelMap(props.userId, props.rivals)
-  },
   userRatingInfoFetch: {
     comparison: props.userId,
     value: () => CachedApiClient.cachedRatingInfo(props.userId)
-  }
+  },
+  loginState: USER_GET,
+  progressResetList: PROGRESS_RESET_LIST
 }))(InnerListPage);

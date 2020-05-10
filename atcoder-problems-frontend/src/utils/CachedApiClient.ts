@@ -1,13 +1,4 @@
-import {
-  ContestId,
-  failedStatus,
-  noneStatus,
-  ProblemId,
-  ProblemStatus,
-  successStatus,
-  warningStatus,
-  deserializeProblemStatus
-} from "../interfaces/Status";
+import { ContestId, ProblemId } from "../interfaces/Status";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import { List, Map, Set } from "immutable";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
@@ -23,12 +14,7 @@ import {
   RankingEntry
 } from "../interfaces/RankingEntry";
 import { RatingInfo, ratingInfoOf } from "./RatingInfo";
-import {
-  clipDifficulty,
-  isAccepted,
-  isValidResult,
-  isVJudgeOrLuogu
-} from "./index";
+import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "./index";
 import ContestParticipation, {
   isContestParticipation
 } from "../interfaces/ContestParticipation";
@@ -114,7 +100,9 @@ export const cachedContestToProblemMap = () => {
 };
 
 let SUBMISSION_MAP = Map<string, Promise<List<Submission>>>();
-export const cachedUsersSubmissionMap = (users: List<string>) =>
+export const cachedUsersSubmissionMap = (
+  users: List<string>
+): Promise<Map<ProblemId, List<Submission>>> =>
   Promise.all(
     users.toArray().map(user => cachedSubmissions(user))
   ).then(lists =>
@@ -208,81 +196,6 @@ export const cachedLangRanking = () => {
     );
   }
   return LANGUAGE_RANKING;
-};
-
-const STATUS_LABEL_MAP: {
-  userId: string;
-  rivals: List<string>;
-  statusLabelMap: Promise<Map<ProblemId, ProblemStatus>> | undefined;
-} = { userId: "", rivals: List(), statusLabelMap: undefined };
-export const cachedStatusLabelMap = (userId: string, rivals: List<string>) => {
-  if (
-    STATUS_LABEL_MAP.statusLabelMap === undefined ||
-    STATUS_LABEL_MAP.userId !== userId ||
-    STATUS_LABEL_MAP.rivals !== rivals
-  ) {
-    STATUS_LABEL_MAP.userId = userId;
-    STATUS_LABEL_MAP.rivals = rivals;
-    STATUS_LABEL_MAP.statusLabelMap = cachedUsersSubmissionMap(
-      rivals.push(userId)
-    ).then(submissions =>
-      submissions.map(list => {
-        const userList = list.filter(s => s.user_id === userId);
-        const rivalsList = list
-          .filter(s => rivals.contains(s.user_id))
-          .filter(s => isAccepted(s.result));
-        const accepted = userList.filter(s => isAccepted(s.result));
-        const epoch = accepted.map(s => s.epoch_second).min();
-        if (epoch !== undefined) {
-          const solvedLanguages = accepted.map(s => s.language).toSet();
-          return successStatus(epoch, solvedLanguages);
-        } else if (!rivalsList.isEmpty()) {
-          return failedStatus(
-            rivalsList
-              .map(s => s.user_id)
-              .toSet()
-              .toList()
-          );
-        } else {
-          const last = userList.maxBy(s => s.epoch_second);
-          return last
-            ? warningStatus(last.result, last.epoch_second)
-            : noneStatus();
-        }
-      })
-    );
-    STATUS_LABEL_MAP.statusLabelMap.then(value =>
-      localStorage.setItem(
-        "statusLabelMap",
-        JSON.stringify(Array.from(value.entries()))
-      )
-    );
-  }
-  return STATUS_LABEL_MAP.statusLabelMap;
-};
-export const oldStatusLabelMap = () => {
-  const storedArray = JSON.parse(
-    localStorage.getItem("statusLabelMap") || "[]"
-  ) as Array<[string, any]>;
-
-  const deserializedArray: Array<[ProblemId, ProblemStatus]> = storedArray
-    .map(([problemId, status]) => {
-      const problemStatus: ProblemStatus | undefined = deserializeProblemStatus(
-        status
-      );
-      return { problemId, problemStatus };
-    })
-    .filter(
-      (
-        e
-      ): e is {
-        problemId: ProblemId;
-        problemStatus: ProblemStatus;
-      } => e.problemStatus !== undefined
-    )
-    .map(({ problemId, problemStatus }) => [problemId, problemStatus]);
-
-  return Map<ProblemId, ProblemStatus>(deserializedArray);
 };
 
 const SELECTABLE_LANGUAGES: {

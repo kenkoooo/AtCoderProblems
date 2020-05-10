@@ -2,9 +2,9 @@ use std::env;
 
 use atcoder_problems_backend::server::GitHubAuthentication;
 use atcoder_problems_backend::server::{initialize_pool, run_server};
-use futures::executor::block_on;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     simple_logger::init_with_level(log::Level::Info).unwrap();
     let database_url = env::var("SQL_URL").expect("SQL_URL is not set.");
     let port = 8080;
@@ -15,5 +15,7 @@ fn main() {
     let auth = GitHubAuthentication::new(&client_id, &client_secret);
 
     let pool = initialize_pool(database_url).expect("Failed to initialize the connection pool");
-    block_on(run_server(pool, auth, port)).expect("Failed to run server");
+    run_server(pool, auth, port)
+        .await
+        .expect("Failed to run server");
 }
