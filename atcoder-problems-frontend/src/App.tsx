@@ -20,7 +20,7 @@ import { NavigationBar } from "./components/NavigationBar";
 import StreakRanking from "./pages/StreakRanking";
 import ContestCreatePage from "./pages/Internal/VirtualContest/ContestCreatePage";
 import ShowContest from "./pages/Internal/VirtualContest/ShowContest";
-import UserConfigPage from "./pages/Internal/MyAccountPage";
+import { MyAccountPage } from "./pages/Internal/MyAccountPage";
 import { RecentContestList } from "./pages/Internal/VirtualContest/RecentContestList";
 import ContestUpdatePage from "./pages/Internal/VirtualContest/ContestUpdatePage";
 import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
@@ -184,7 +184,7 @@ const App = () => {
               path={ACCOUNT_INFO}
               component={() => (
                 <TabFrame>
-                  <UserConfigPage />
+                  <MyAccountPage />
                 </TabFrame>
               )}
             />

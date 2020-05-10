@@ -13,23 +13,26 @@ import {
   TabContent,
   TabPane
 } from "reactstrap";
-import { Redirect, useHistory } from "react-router-dom";
-import { VirtualContestTable } from "./VirtualContestTable";
-import { CONTEST_JOINED, CONTEST_MY, USER_GET, USER_UPDATE } from "./ApiUrl";
-import ListProblemList from "./UserProblemListPage";
-import { UserResponse, VirtualContest } from "./types";
+import { Redirect } from "react-router-dom";
+import { USER_GET, USER_UPDATE } from "../ApiUrl";
+import ListProblemList from "../UserProblemListPage";
+import { UserResponse } from "../types";
+import { MyContestList } from "./MyContestList";
+import { ResetProgress } from "./ResetProgress";
 
-type TabType = "Account Info" | "My Contests" | "Problem Lists";
+type TabType =
+  | "Account Info"
+  | "My Contests"
+  | "Problem Lists"
+  | "Reset Progress";
 
 interface InnerProps {
   userInfoGet: PromiseState<UserResponse | null>;
   updateUserInfo: (atcoderUser: string) => void;
   updateUserInfoResponse: PromiseState<{} | null>;
-  ownedContestsGet: PromiseState<VirtualContest[] | null>;
-  joinedContestsGet: PromiseState<VirtualContest[] | null>;
 }
 
-export default connect<{}, InnerProps>(() => ({
+export const MyAccountPage = connect<{}, InnerProps>(() => ({
   userInfoGet: {
     url: USER_GET
   },
@@ -44,21 +47,9 @@ export default connect<{}, InnerProps>(() => ({
   }),
   updateUserInfoResponse: {
     value: null
-  },
-  ownedContestsGet: {
-    url: CONTEST_MY
-  },
-  joinedContestsGet: {
-    url: CONTEST_JOINED
   }
 }))(props => {
-  const {
-    userInfoGet,
-    updateUserInfoResponse,
-    ownedContestsGet,
-    joinedContestsGet
-  } = props;
-  const history = useHistory();
+  const { userInfoGet, updateUserInfoResponse } = props;
   if (userInfoGet.rejected || updateUserInfoResponse.rejected) {
     return <Redirect to="/" />;
   } else if (userInfoGet.pending) {
@@ -75,12 +66,6 @@ export default connect<{}, InnerProps>(() => ({
       !updating &&
       updateUserInfoResponse.fulfilled &&
       updateUserInfoResponse.value !== null;
-    const joinedContests = joinedContestsGet.fulfilled
-      ? joinedContestsGet.value
-      : [];
-    const ownedContests = ownedContestsGet.fulfilled
-      ? ownedContestsGet.value
-      : [];
 
     return (
       <>
@@ -113,6 +98,16 @@ export default connect<{}, InnerProps>(() => ({
               }}
             >
               Problem Lists
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              active={activeTab === "Reset Progress"}
+              onClick={() => {
+                setActiveTab("Reset Progress");
+              }}
+            >
+              Reset Progress
             </NavLink>
           </NavItem>
         </Nav>
@@ -154,65 +149,13 @@ export default connect<{}, InnerProps>(() => ({
           </TabPane>
 
           <TabPane tabId="My Contests">
-            <Row className="my-2">
-              <Col sm="12">
-                <Button
-                  onClick={() => {
-                    history.push({ pathname: "/contest/create" });
-                  }}
-                >
-                  Create New Contest
-                </Button>
-              </Col>
-            </Row>
-            <Row className="my-2">
-              <Col sm="12">
-                <h2>My Contests</h2>
-              </Col>
-            </Row>
-            <Row className="my-2">
-              <Col sm="12">
-                <VirtualContestTable
-                  contests={
-                    ownedContests
-                      ? ownedContests.sort(
-                          (a, b) =>
-                            b.start_epoch_second +
-                            b.duration_second -
-                            a.start_epoch_second -
-                            a.duration_second
-                        )
-                      : []
-                  }
-                />
-              </Col>
-            </Row>
-
-            <Row className="my-2">
-              <Col sm="12">
-                <h2>Joined Contests</h2>
-              </Col>
-            </Row>
-            <Row className="my-2">
-              <Col sm="12">
-                <VirtualContestTable
-                  contests={
-                    joinedContests
-                      ? joinedContests.sort(
-                          (a, b) =>
-                            b.start_epoch_second +
-                            b.duration_second -
-                            a.start_epoch_second -
-                            a.duration_second
-                        )
-                      : []
-                  }
-                />
-              </Col>
-            </Row>
+            <MyContestList />
           </TabPane>
           <TabPane tabId="Problem Lists">
             <ListProblemList />
+          </TabPane>
+          <TabPane tabId="Reset Progress">
+            <ResetProgress />
           </TabPane>
         </TabContent>
       </>
