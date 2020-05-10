@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { useState } from "react";
 import { isAccepted } from "../../utils";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import * as Url from "../../utils/Url";
@@ -31,6 +30,62 @@ import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
+import { ProblemId } from "../../interfaces/Status";
+
+const ExcludeOptions = [
+  "Exclude",
+  "1 Week",
+  "2 Weeks",
+  "4 Weeks",
+  "6 Months",
+  "Don't exclude"
+] as const;
+type ExcludeOption = typeof ExcludeOptions[number];
+
+const formatExcludeOption = (excludeOption: ExcludeOption) => {
+  switch (excludeOption) {
+    case "1 Week":
+      return "Exclude problems solved in last 7 days.";
+    case "2 Weeks":
+      return "Exclude problems solved in last 2 weeks.";
+    case "4 Weeks":
+      return "Exclude problems solved in last 4 weeks";
+    case "6 Months":
+      return "Exclude problems solved in last 6 months";
+    case "Exclude":
+      return "Exclude all the solved problems";
+    case "Don't exclude":
+      return "Don't exclude solved problems.";
+  }
+};
+
+const isIncluded = (
+  problemId: string,
+  excludeOption: ExcludeOption,
+  currentSecond: number,
+  lastSolvedTimeMap: Map<ProblemId, number>
+) => {
+  const lastSolvedTime = lastSolvedTimeMap.get(problemId);
+  if (lastSolvedTime) {
+    const seconds = currentSecond - lastSolvedTime;
+    switch (excludeOption) {
+      case "Exclude":
+        return false;
+      case "1 Week":
+        return seconds > 3600 * 24 * 7;
+      case "2 Weeks":
+        return seconds > 3600 * 24 * 14;
+      case "4 Weeks":
+        return seconds > 3600 * 24 * 28;
+      case "6 Months":
+        return seconds > 3600 * 24 * 180;
+      case "Don't exclude":
+        return true;
+    }
+  } else {
+    return true;
+  }
+};
 
 const RECOMMEND_NUM_OPTIONS = [
   {
@@ -105,248 +160,255 @@ interface Props {
   readonly userRatingInfo: RatingInfo;
 }
 
-interface LocalState {
-  recommendNum: number;
-  recommendOption: RecommendOption;
-  recommendExperimental: boolean;
-}
+export const Recommendations = (props: Props) => {
+  const {
+    userSubmissions,
+    problems,
+    contests,
+    problemModels,
+    userRatingInfo
+  } = props;
 
-class Recommendations extends React.Component<Props, LocalState> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      recommendNum: 10,
-      recommendOption: "Moderate",
-      recommendExperimental: true
-    };
+  const [recommendNum, setRecommendNum] = useState(10);
+  const [recommendOption, setRecommendOption] = useState<RecommendOption>(
+    "Moderate"
+  );
+  const [recommendExperimental, setRecommendExperimental] = useState(true);
+  const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
+
+  if (userSubmissions.isEmpty()) {
+    return null;
   }
+  const lastSolvedTimeMap = new Map<ProblemId, number>();
+  userSubmissions
+    .filter(s => isAccepted(s.result))
+    .forEach(s => {
+      const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
+      lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
+    });
 
-  render(): React.ReactNode {
-    const {
-      userSubmissions,
-      problems,
-      contests,
-      problemModels,
-      userRatingInfo
-    } = this.props;
-    const { recommendNum, recommendOption, recommendExperimental } = this.state;
+  const recommendingProbability = getRecommendProbability(recommendOption);
+  const recommendingRange = getRecommendProbabilityRange(recommendOption);
 
-    if (userSubmissions.isEmpty()) {
-      return null;
-    }
-
-    const acProblemIdSet = userSubmissions
-      .filter(s => isAccepted(s.result))
-      .map(s => s.problem_id)
-      .toSet();
-    const recommendingProbability = getRecommendProbability(recommendOption);
-    const recommendingRange = getRecommendProbabilityRange(recommendOption);
-
-    const recommendedProblems = problems
-      .filter(p => !acProblemIdSet.has(p.id))
-      .filter(p => problemModels.has(p.id))
-      .map(p => ({
-        ...p,
-        difficulty: problemModels.getIn([p.id, "difficulty"], undefined),
-        is_experimental: problemModels.getIn([p.id, "is_experimental"], false)
-      }))
-      .filter(p => recommendExperimental || !p.is_experimental)
-      .filter(p => p.difficulty !== undefined)
-      .map(p => {
-        const internalRating = userRatingInfo.internalRating;
-        let predictedSolveTime: number | null;
-        let predictedSolveProbability: number;
-        if (internalRating === null) {
-          predictedSolveTime = null;
-          predictedSolveProbability = -1;
+  const currentSecond = Math.floor(new Date().getTime() / 1000);
+  const recommendedProblems = problems
+    .filter(p =>
+      isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
+    )
+    .filter(p => problemModels.has(p.id))
+    .map(p => ({
+      ...p,
+      difficulty: problemModels.getIn([p.id, "difficulty"], undefined),
+      is_experimental: problemModels.getIn([p.id, "is_experimental"], false)
+    }))
+    .filter(p => recommendExperimental || !p.is_experimental)
+    .filter(p => p.difficulty !== undefined)
+    .map(p => {
+      const internalRating = userRatingInfo.internalRating;
+      let predictedSolveTime: number | null;
+      let predictedSolveProbability: number;
+      if (internalRating === null) {
+        predictedSolveTime = null;
+        predictedSolveProbability = -1;
+      } else {
+        const problemModel: ProblemModel = problemModels.get(p.id, {
+          slope: undefined,
+          difficulty: undefined,
+          rawDifficulty: undefined,
+          intercept: undefined,
+          discrimination: undefined,
+          is_experimental: false,
+          variance: undefined
+        });
+        if (isProblemModelWithTimeModel(problemModel)) {
+          predictedSolveTime = predictSolveTime(problemModel, internalRating);
         } else {
-          const problemModel: ProblemModel = problemModels.get(p.id, {
-            slope: undefined,
-            difficulty: undefined,
-            rawDifficulty: undefined,
-            intercept: undefined,
-            discrimination: undefined,
-            is_experimental: false,
-            variance: undefined
-          });
-          if (isProblemModelWithTimeModel(problemModel)) {
-            predictedSolveTime = predictSolveTime(problemModel, internalRating);
-          } else {
-            predictedSolveTime = null;
-          }
-          if (isProblemModelWithDifficultyModel(problemModel)) {
-            predictedSolveProbability = predictSolveProbability(
-              problemModel,
-              internalRating
-            );
-          } else {
-            predictedSolveProbability = -1;
-          }
+          predictedSolveTime = null;
         }
-        return { ...p, predictedSolveTime, predictedSolveProbability };
-      })
-      .sort((a, b) => {
-        const da = Math.abs(
-          a.predictedSolveProbability - recommendingProbability
-        );
-        const db = Math.abs(
-          b.predictedSolveProbability - recommendingProbability
-        );
-        return da - db;
-      })
-      .filter(
-        p =>
-          recommendingRange.lowerBound <= p.predictedSolveProbability &&
-          p.predictedSolveProbability < recommendingRange.upperBound
-      )
-      .slice(0, recommendNum)
-      .sort((a, b) => b.difficulty - a.difficulty)
-      .toArray();
+        if (isProblemModelWithDifficultyModel(problemModel)) {
+          predictedSolveProbability = predictSolveProbability(
+            problemModel,
+            internalRating
+          );
+        } else {
+          predictedSolveProbability = -1;
+        }
+      }
+      return { ...p, predictedSolveTime, predictedSolveProbability };
+    })
+    .sort((a, b) => {
+      const da = Math.abs(
+        a.predictedSolveProbability - recommendingProbability
+      );
+      const db = Math.abs(
+        b.predictedSolveProbability - recommendingProbability
+      );
+      return da - db;
+    })
+    .filter(
+      p =>
+        recommendingRange.lowerBound <= p.predictedSolveProbability &&
+        p.predictedSolveProbability < recommendingRange.upperBound
+    )
+    .slice(0, recommendNum)
+    .sort((a, b) => b.difficulty - a.difficulty)
+    .toArray();
 
-    return (
-      <>
-        <Row className="my-3 d-flex justify-content-between">
-          <div>
-            <ButtonGroup>
-              <Button
-                onClick={() => this.setState({ recommendOption: "Easy" })}
-                active={recommendOption === "Easy"}
-              >
-                Easy
-              </Button>
-              <Button
-                onClick={() => this.setState({ recommendOption: "Moderate" })}
-                active={recommendOption === "Moderate"}
-              >
-                Moderate
-              </Button>
-              <Button
-                onClick={() => this.setState({ recommendOption: "Difficult" })}
-                active={recommendOption === "Difficult"}
-              >
-                Difficult
-              </Button>
-            </ButtonGroup>
-            <ButtonGroup className="mx-3">
-              <Button
-                onClick={() => this.setState({ recommendExperimental: true })}
-                active={recommendExperimental}
-              >
-                Show
-                <span role="img" aria-label="experimental">
-                  🧪
-                </span>
-              </Button>
-              <Button
-                onClick={() => this.setState({ recommendExperimental: false })}
-                active={!recommendExperimental}
-              >
-                Hide
-                <span role="img" aria-label="experimental">
-                  🧪
-                </span>
-              </Button>
-            </ButtonGroup>
-          </div>
-          <UncontrolledDropdown direction="left">
-            <DropdownToggle caret>
-              {recommendNum === Number.POSITIVE_INFINITY ? "All" : recommendNum}
-            </DropdownToggle>
-            <DropdownMenu>
-              {RECOMMEND_NUM_OPTIONS.map(({ text, value }) => (
-                <DropdownItem
-                  key={value}
-                  onClick={() => this.setState({ recommendNum: value })}
-                >
-                  {text}
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </UncontrolledDropdown>
-        </Row>
-        <Row className="my-3">
-          <BootstrapTable
-            data={recommendedProblems}
-            keyField="id"
-            height="auto"
-            hover
-            striped
+  return (
+    <>
+      <Row className="my-3 d-flex justify-content-between">
+        <div>
+          <ButtonGroup>
+            <Button
+              onClick={() => setRecommendOption("Easy")}
+              active={recommendOption === "Easy"}
+            >
+              Easy
+            </Button>
+            <Button
+              onClick={() => setRecommendOption("Moderate")}
+              active={recommendOption === "Moderate"}
+            >
+              Moderate
+            </Button>
+            <Button
+              onClick={() => setRecommendOption("Difficult")}
+              active={recommendOption === "Difficult"}
+            >
+              Difficult
+            </Button>
+          </ButtonGroup>
+          <ButtonGroup className="mx-3">
+            <Button
+              onClick={() => setRecommendExperimental(true)}
+              active={recommendExperimental}
+            >
+              Show
+              <span role="img" aria-label="experimental">
+                🧪
+              </span>
+            </Button>
+            <Button
+              onClick={() => setRecommendExperimental(false)}
+              active={!recommendExperimental}
+            >
+              Hide
+              <span role="img" aria-label="experimental">
+                🧪
+              </span>
+            </Button>
+          </ButtonGroup>
+          <ButtonGroup>
+            <UncontrolledDropdown>
+              <DropdownToggle caret>
+                {formatExcludeOption(excludeOption)}
+              </DropdownToggle>
+              <DropdownMenu>
+                {ExcludeOptions.map(option => (
+                  <DropdownItem
+                    key={option}
+                    onClick={() => setExcludeOption(option)}
+                  >
+                    {formatExcludeOption(option)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </ButtonGroup>
+        </div>
+        <UncontrolledDropdown direction="left">
+          <DropdownToggle caret>
+            {recommendNum === Number.POSITIVE_INFINITY ? "All" : recommendNum}
+          </DropdownToggle>
+          <DropdownMenu>
+            {RECOMMEND_NUM_OPTIONS.map(({ text, value }) => (
+              <DropdownItem key={value} onClick={() => setRecommendNum(value)}>
+                {text}
+              </DropdownItem>
+            ))}
+          </DropdownMenu>
+        </UncontrolledDropdown>
+      </Row>
+      <Row className="my-3">
+        <BootstrapTable
+          data={recommendedProblems}
+          keyField="id"
+          height="auto"
+          hover
+          striped
+        >
+          <TableHeaderColumn
+            dataField="title"
+            dataFormat={(
+              title: string,
+              {
+                id,
+                contest_id,
+                is_experimental
+              }: { id: string; contest_id: string; is_experimental: boolean }
+            ) => (
+              <ProblemLink
+                difficulty={problemModels.getIn([id, "difficulty"], null)}
+                isExperimentalDifficulty={is_experimental}
+                showDifficulty={true}
+                problemId={id}
+                problemTitle={title}
+                contestId={contest_id}
+              />
+            )}
           >
-            <TableHeaderColumn
-              dataField="title"
-              dataFormat={(
-                title: string,
-                {
-                  id,
-                  contest_id,
-                  is_experimental
-                }: { id: string; contest_id: string; is_experimental: boolean }
-              ) => (
-                <ProblemLink
-                  difficulty={problemModels.getIn([id, "difficulty"], null)}
-                  isExperimentalDifficulty={is_experimental}
-                  showDifficulty={true}
-                  problemId={id}
-                  problemTitle={title}
-                  contestId={contest_id}
-                />
-              )}
-            >
-              Problem
-            </TableHeaderColumn>
-            <TableHeaderColumn
-              dataField="contest_id"
-              dataFormat={(contestId: string, problem: Problem) => {
-                const contest = contests.get(contestId);
-                return contest ? (
-                  <ContestLink contest={contest} />
-                ) : (
-                  <NewTabLink href={Url.formatContestUrl(problem.contest_id)}>
-                    {contestId}
-                  </NewTabLink>
-                );
-              }}
-            >
-              Contest
-            </TableHeaderColumn>
-            <TableHeaderColumn
-              dataField="difficulty"
-              dataFormat={(difficulty: number | null) => {
-                if (difficulty === null) {
-                  return "-";
-                }
-                return String(difficulty);
-              }}
-            >
-              <span>Difficulty</span>
-              <HelpBadgeTooltip id="difficulty">
-                Internal rating to have 50% Solve Probability
-              </HelpBadgeTooltip>
-            </TableHeaderColumn>
-            <TableHeaderColumn
-              dataField="predictedSolveProbability"
-              dataFormat={formatPredictedSolveProbability}
-            >
-              <span>Solve Probability</span>
-              <HelpBadgeTooltip id="probability">
-                Estimated probability that you could solve this problem if you
-                competed in the contest.
-              </HelpBadgeTooltip>
-            </TableHeaderColumn>
-            <TableHeaderColumn
-              dataField="predictedSolveTime"
-              dataFormat={formatPredictedSolveTime}
-            >
-              <span>Median Solve Time</span>
-              <HelpBadgeTooltip id="solvetime">
-                Estimated time required to solve this problem.
-              </HelpBadgeTooltip>
-            </TableHeaderColumn>
-          </BootstrapTable>
-        </Row>
-      </>
-    );
-  }
-}
-
-export default Recommendations;
+            Problem
+          </TableHeaderColumn>
+          <TableHeaderColumn
+            dataField="contest_id"
+            dataFormat={(contestId: string, problem: Problem) => {
+              const contest = contests.get(contestId);
+              return contest ? (
+                <ContestLink contest={contest} />
+              ) : (
+                <NewTabLink href={Url.formatContestUrl(problem.contest_id)}>
+                  {contestId}
+                </NewTabLink>
+              );
+            }}
+          >
+            Contest
+          </TableHeaderColumn>
+          <TableHeaderColumn
+            dataField="difficulty"
+            dataFormat={(difficulty: number | null) => {
+              if (difficulty === null) {
+                return "-";
+              }
+              return String(difficulty);
+            }}
+          >
+            <span>Difficulty</span>
+            <HelpBadgeTooltip id="difficulty">
+              Internal rating to have 50% Solve Probability
+            </HelpBadgeTooltip>
+          </TableHeaderColumn>
+          <TableHeaderColumn
+            dataField="predictedSolveProbability"
+            dataFormat={formatPredictedSolveProbability}
+          >
+            <span>Solve Probability</span>
+            <HelpBadgeTooltip id="probability">
+              Estimated probability that you could solve this problem if you
+              competed in the contest.
+            </HelpBadgeTooltip>
+          </TableHeaderColumn>
+          <TableHeaderColumn
+            dataField="predictedSolveTime"
+            dataFormat={formatPredictedSolveTime}
+          >
+            <span>Median Solve Time</span>
+            <HelpBadgeTooltip id="solvetime">
+              Estimated time required to solve this problem.
+            </HelpBadgeTooltip>
+          </TableHeaderColumn>
+        </BootstrapTable>
+      </Row>
+    </>
+  );
+};
