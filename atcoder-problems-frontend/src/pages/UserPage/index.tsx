@@ -8,7 +8,7 @@ import Contest from "../../interfaces/Contest";
 import { isAccepted } from "../../utils";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import LanguageCount from "./LanguageCount";
-import Recommendations from "./Recommendations";
+import { Recommendations } from "./Recommendations";
 import { ContestId, ProblemId } from "../../interfaces/Status";
 import { List, Map as ImmutableMap } from "immutable";
 import * as CachedApiClient from "../../utils/CachedApiClient";
