@@ -198,3 +198,11 @@ table! {
         internal_user_id -> Varchar,
     }
 }
+
+table! {
+    internal_progress_reset (internal_user_id, problem_id) {
+        internal_user_id -> Varchar,
+        problem_id -> Varchar,
+        reset_epoch_second -> Int8,
+    }
+}

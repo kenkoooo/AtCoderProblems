@@ -1,4 +1,4 @@
-import { List, Map, Set } from "immutable";
+import { List, Map as ImmutableMap, Set } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Table, Row } from "reactstrap";
@@ -12,11 +12,11 @@ import SubmitTimespan from "../../components/SubmitTimespan";
 
 interface Props {
   contests: Contest[];
-  contestToProblems: Map<string, List<Problem>>;
+  contestToProblems: ImmutableMap<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
   colorMode: ColorMode;
-  problemModels: Map<ProblemId, ProblemModel>;
+  problemModels: ImmutableMap<ProblemId, ProblemModel>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   selectedLanguages: Set<string>;
   title: string;

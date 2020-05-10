@@ -19,6 +19,7 @@ use std::time::Duration;
 pub(crate) mod internal_user;
 pub(crate) mod middleware;
 pub(crate) mod problem_list;
+pub(crate) mod progress_reset;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
 pub(crate) mod user_submissions;
@@ -68,6 +69,13 @@ where
         api.at("/user").nest(|api| {
             api.at("/get").get(internal_user::get);
             api.at("/update").post(internal_user::update);
+        });
+
+        api.at("/progress_reset").nest(|api| {
+            api.at("/list").get(progress_reset::get_progress_reset_list);
+            api.at("/add").post(progress_reset::add_progress_reset_item);
+            api.at("/delete")
+                .post(progress_reset::delete_progress_reset_item);
         });
     });
     api.at("/atcoder-api").nest(|api| {

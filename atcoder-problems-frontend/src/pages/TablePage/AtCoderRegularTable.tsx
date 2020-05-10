@@ -1,4 +1,4 @@
-import { List, Map, Set } from "immutable";
+import { List, Map as ImmutableMap, Set } from "immutable";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { Row } from "reactstrap";
@@ -23,13 +23,13 @@ import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 
 interface Props {
   contests: Contest[];
-  contestToProblems: Map<string, List<Problem>>;
+  contestToProblems: ImmutableMap<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
   colorMode: ColorMode;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
-  problemModels: Map<ProblemId, ProblemModel>;
+  problemModels: ImmutableMap<ProblemId, ProblemModel>;
   selectedLanguages: Set<string>;
 }
 
@@ -42,11 +42,11 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         .sort((a, b) => a.id.localeCompare(b.id));
       const problemStatus = problems.map(problem => ({
         problem,
-        status: props.statusLabelMap.get(problem.id, noneStatus()),
+        status: props.statusLabelMap.get(problem.id) ?? noneStatus(),
         model: props.problemModels.get(problem.id)
       }));
       const cellColorList = problems.map(problem => {
-        const status = props.statusLabelMap.get(problem.id, noneStatus());
+        const status = props.statusLabelMap.get(problem.id) ?? noneStatus();
         return statusToTableColor({
           colorMode,
           status,

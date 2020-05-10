@@ -1,10 +1,11 @@
 use super::models::Submission;
-use super::schema::{contests, rated_point_sum};
+use super::schema::{contest_problem, contests, rated_point_sum};
 use super::MAX_INSERT_ROWS;
 use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 use crate::error::Result;
 use crate::utils::SplitToSegments;
 
+use crate::sql::models::ContestProblem;
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;
@@ -26,10 +27,16 @@ impl RatedPointSumClient for PgConnection {
             .load::<String>(self)?
             .into_iter()
             .collect::<BTreeSet<_>>();
+        let rated_problem_ids = contest_problem::table
+            .load::<ContestProblem>(self)?
+            .into_iter()
+            .filter(|p| rated_contest_ids.contains(&p.contest_id))
+            .map(|p| p.problem_id)
+            .collect::<BTreeSet<_>>();
 
         let rated_point_sum = ac_submissions
             .iter()
-            .filter(|s| rated_contest_ids.contains(&s.contest_id))
+            .filter(|s| rated_problem_ids.contains(&s.problem_id))
             .map(|s| (s.user_id.as_str(), s.problem_id.as_str(), s.point))
             .fold(BTreeMap::new(), |mut map, (user_id, problem_id, point)| {
                 map.entry(user_id)

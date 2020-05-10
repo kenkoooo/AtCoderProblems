@@ -121,7 +121,7 @@ export const ListTable = (props: Props) => {
           case StatusLabel.Failed: {
             return (
               <div>
-                {status.solvedRivals.map(rivalId => (
+                {Array.from(status.solvedRivals).map(rivalId => (
                   <Badge key={rivalId} color="danger">
                     {rivalId}
                   </Badge>

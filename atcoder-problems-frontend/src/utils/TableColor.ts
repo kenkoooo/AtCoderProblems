@@ -96,7 +96,9 @@ export const statusToTableColor = ({
       if (
         status.label === StatusLabel.Success &&
         selectedLanguages &&
-        !status.solvedLanguages.intersect(selectedLanguages).isEmpty()
+        Array.from(status.solvedLanguages).some(solvedLanguage =>
+          selectedLanguages.has(solvedLanguage)
+        )
       ) {
         return TableColor.SuccessLanguage;
       } else {
