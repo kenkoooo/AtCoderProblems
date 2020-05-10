@@ -10,7 +10,7 @@ import {
   USER_GET
 } from "../ApiUrl";
 import * as CachedApi from "../../../utils/CachedApiClient";
-import { Map, List } from "immutable";
+import { Map } from "immutable";
 import {
   Alert,
   Button,
@@ -26,7 +26,7 @@ import {
 } from "reactstrap";
 import Problem from "../../../interfaces/Problem";
 import { ProblemId } from "../../../interfaces/Status";
-import ProblemSearchBox from "../../../components/ProblemSearchBox";
+import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { formatProblemUrl } from "../../../utils/Url";
 import { ProblemList, ProblemListItem, UserResponse } from "../types";
 import { NewTabLink } from "../../../components/NewTabLink";
@@ -111,8 +111,8 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
   const modifiable = listInfo.internal_user_id === internalUserId;
   const [adding, setAdding] = useState(false);
   const problems = props.problems.fulfilled
-    ? props.problems.value.valueSeq().toList()
-    : List<Problem>();
+    ? props.problems.value.valueSeq().toArray()
+    : [];
 
   return (
     <>

@@ -19,7 +19,7 @@ import { ProblemId } from "../../../interfaces/Status";
 import Problem from "../../../interfaces/Problem";
 import moment from "moment";
 import { USER_GET } from "../ApiUrl";
-import ProblemSearchBox from "../../../components/ProblemSearchBox";
+import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import ProblemSetGenerator from "../../../components/ProblemSetGenerator";
@@ -244,7 +244,7 @@ const ContestConfig = (props: InnerProps) => {
       <Row className="my-2">
         <Col>
           <ProblemSearchBox
-            problems={problemMap.valueSeq().toList()}
+            problems={problemMap.valueSeq().toArray()}
             selectProblem={addProblemsIfNotSelected}
           />
         </Col>
