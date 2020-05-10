@@ -1,8 +1,9 @@
 import React, { ReactNode } from "react";
 
-interface Props {
+interface Props extends React.HTMLAttributes<HTMLElement> {
   href: string;
   children: ReactNode;
+  className?: string;
 }
 
 export const NewTabLink = (props: Props) => (
@@ -10,6 +11,7 @@ export const NewTabLink = (props: Props) => (
     href={props.href}
     target="_blank" // eslint-disable-line react/jsx-no-target-blank
     rel="noopener"
+    className={props.className}
   >
     {props.children}
   </a>

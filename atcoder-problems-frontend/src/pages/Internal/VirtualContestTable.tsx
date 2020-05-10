@@ -2,7 +2,7 @@ import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { Link } from "react-router-dom";
 import * as DateUtil from "../../utils/DateUtil";
 import React from "react";
-import { VirtualContestInfo } from "./types";
+import { formatMode, VirtualContestInfo, VirtualContestMode } from "./types";
 import Timer from "../../components/Timer";
 
 export const VirtualContestTable = (props: {
@@ -52,6 +52,14 @@ export const VirtualContestTable = (props: {
         Title
       </TableHeaderColumn>
       <TableHeaderColumn dataField="memo">Description</TableHeaderColumn>
+      <TableHeaderColumn
+        dataField="mode"
+        dataFormat={(mode: VirtualContestMode) => {
+          return formatMode(mode);
+        }}
+      >
+        Start
+      </TableHeaderColumn>
       <TableHeaderColumn
         dataField="start_epoch_second"
         dataFormat={(_: number, contest: VirtualContestInfo) => {
