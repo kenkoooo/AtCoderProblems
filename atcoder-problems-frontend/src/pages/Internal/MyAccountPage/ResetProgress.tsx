@@ -15,7 +15,7 @@ import Octicon, { Trashcan } from "@primer/octicons-react";
 import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
 
 interface Props {
-  progressResetList: PromiseState<ProgressResetList>;
+  progressResetList: PromiseState<ProgressResetList | null>;
   addResetProgress: (problemId: string) => void;
   addResetProgressResponse: PromiseState<{} | null>;
   deleteResetProgress: (problemId: string) => void;
@@ -25,9 +25,10 @@ interface Props {
 }
 
 const InnerResetProgress = (props: Props) => {
-  const progressResetList = props.progressResetList.fulfilled
-    ? props.progressResetList.value.items
-    : [];
+  const progressResetList =
+    props.progressResetList.fulfilled && props.progressResetList.value
+      ? props.progressResetList.value.items
+      : [];
   progressResetList.sort((a, b) => a.reset_epoch_second - b.reset_epoch_second);
   const problems = props.problems.fulfilled ? props.problems.value : [];
   return (

@@ -19,6 +19,12 @@ import { ColorMode } from "../../utils/TableColor";
 import { classifyContest, ContestCategory } from "./ContestClassifier";
 import Submission from "../../interfaces/Submission";
 import { fetchUserSubmissions } from "../../utils/Api";
+import {
+  filterResetProgress,
+  ProgressResetList,
+  UserResponse
+} from "../Internal/types";
+import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
 
 interface OuterProps {
   userId: string;
@@ -32,6 +38,8 @@ interface InnerProps extends OuterProps {
   readonly problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   readonly selectableLanguagesFetch: PromiseState<Set<string>>;
   readonly submissions: PromiseState<Submission[]>;
+  readonly loginState: PromiseState<UserResponse | null>;
+  readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
 const InnerTablePage: React.FC<InnerProps> = props => {
@@ -73,8 +81,26 @@ const InnerTablePage: React.FC<InnerProps> = props => {
     ? props.submissions.value
     : [];
 
-  const statusLabelMap = constructStatusLabelMap(submissions, props.userId);
+  const loginUserId =
+    props.loginState.fulfilled &&
+    props.loginState.value &&
+    props.loginState.value.atcoder_user_id
+      ? props.loginState.value.atcoder_user_id
+      : undefined;
+  const progressReset =
+    props.progressResetList.fulfilled && props.progressResetList.value
+      ? props.progressResetList.value
+      : undefined;
 
+  const filteredSubmissions =
+    loginUserId && progressReset
+      ? filterResetProgress(submissions, progressReset, loginUserId)
+      : submissions;
+
+  const statusLabelMap = constructStatusLabelMap(
+    filteredSubmissions,
+    props.userId
+  );
   const filteredContests = contests
     .valueSeq()
     .toArray()
@@ -162,5 +188,7 @@ export const TablePage = connect<OuterProps, InnerProps>(props => ({
       Promise.all(
         props.rivals.push(props.userId).map(id => fetchUserSubmissions(id))
       ).then((arrays: Submission[][]) => arrays.flatMap(array => array))
-  }
+  },
+  loginState: USER_GET,
+  progressResetList: PROGRESS_RESET_LIST
 }))(InnerTablePage);

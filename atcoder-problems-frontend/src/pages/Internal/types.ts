@@ -59,9 +59,13 @@ export interface ProgressResetItem {
 
 export const filterResetProgress = (
   submissions: Submission[],
-  progressReset: ProgressResetList
+  progressReset: ProgressResetList,
+  userId: string
 ) =>
   submissions.filter(submission => {
+    if (submission.user_id !== userId) {
+      return true;
+    }
     const reset_epoch_second =
       progressReset.items.find(
         item => item.problem_id === submission.problem_id
