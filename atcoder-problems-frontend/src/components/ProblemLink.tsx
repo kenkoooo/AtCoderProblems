@@ -6,6 +6,7 @@ import { getRatingColorClass } from "../utils";
 import { NewTabLink } from "./NewTabLink";
 
 interface Props {
+  className?: string;
   problemId: string;
   contestId: string;
   problemTitle: string;
@@ -26,7 +27,10 @@ const ProblemLink = (props: Props) => {
     isExperimentalDifficulty
   } = props;
   const link = (
-    <NewTabLink href={Url.formatProblemUrl(problemId, contestId)}>
+    <NewTabLink
+      href={Url.formatProblemUrl(problemId, contestId)}
+      className={props.className}
+    >
       {problemTitle}
     </NewTabLink>
   );
