@@ -1,4 +1,5 @@
-import { List, Set } from "immutable";
+import Submission from "./Submission";
+import { isAccepted } from "../utils";
 export type ContestId = string;
 export type ProblemId = string;
 
@@ -9,12 +10,17 @@ export enum StatusLabel {
   None
 }
 
-export const successStatus = (epoch: number, solvedLanguages: Set<string>) => ({
+export const successStatus = (
+  firstAcceptedEpochSecond: number,
+  lastAcceptedEpochSecond: number,
+  solvedLanguages: Set<string>
+) => ({
   label: StatusLabel.Success as typeof StatusLabel.Success,
-  epoch,
+  epoch: firstAcceptedEpochSecond,
+  lastAcceptedEpochSecond,
   solvedLanguages
 });
-export const failedStatus = (solvedRivals: List<string>) => ({
+export const failedStatus = (solvedRivals: Set<string>) => ({
   label: StatusLabel.Failed as typeof StatusLabel.Failed,
   solvedRivals
 });
@@ -32,45 +38,60 @@ export type ProblemStatus =
   | ReturnType<typeof warningStatus>
   | ReturnType<typeof noneStatus>;
 
-export const deserializeProblemStatus = (
-  problemStatus: any
-): ProblemStatus | undefined => {
-  switch (problemStatus.label) {
-    case StatusLabel.Success: {
-      if (
-        typeof problemStatus.epoch !== "number" ||
-        !Array.isArray(problemStatus.solvedLanguages)
-      ) {
-        return undefined;
-      }
-      const solvedLanguages: string[] = problemStatus.solvedLanguages.filter(
-        (e: any): e is string => typeof e === "string"
-      );
+export const constructStatusLabelMap = (
+  submissions: Submission[],
+  userId: string
+) => {
+  const submissionMap = new Map<ProblemId, Submission[]>();
+  submissions.forEach(submission => {
+    const array = submissionMap.get(submission.problem_id) ?? [];
+    array.push(submission);
+    submissionMap.set(submission.problem_id, array);
+  });
 
-      return successStatus(problemStatus.epoch, Set(solvedLanguages));
-    }
-    case StatusLabel.Failed: {
-      if (!Array.isArray(problemStatus.solvedRivals)) {
-        return undefined;
-      }
-      const solvedRivals: string[] = problemStatus.solvedRivals.filter(
-        (e: any): e is string => typeof e === "string"
+  const statusLabelMap = new Map<ProblemId, ProblemStatus>();
+  Array.from(submissionMap.keys()).forEach(problemId => {
+    const list = submissionMap.get(problemId) ?? [];
+    const userAccepted = list
+      .filter(s => s.user_id === userId)
+      .filter(s => isAccepted(s.result));
+    const userRejected = list
+      .filter(s => s.user_id === userId)
+      .filter(s => !isAccepted(s.result));
+    const rivalAccepted = list
+      .filter(s => s.user_id !== userId)
+      .filter(s => isAccepted(s.result));
+
+    if (userAccepted.length > 0) {
+      const languageSet = new Set(userAccepted.map(s => s.language));
+      const firstSolvedEpochSecond = userAccepted
+        .map(s => s.epoch_second)
+        .reduceRight((a, b) => Math.min(a, b));
+      const lastSolvedEpochSecond = userAccepted
+        .map(s => s.epoch_second)
+        .reduceRight((a, b) => Math.max(a, b));
+      statusLabelMap.set(
+        problemId,
+        successStatus(
+          firstSolvedEpochSecond,
+          lastSolvedEpochSecond,
+          languageSet
+        )
       );
-      return failedStatus(List(solvedRivals));
+    } else if (rivalAccepted.length > 0) {
+      const rivalSet = new Set(rivalAccepted.map(s => s.user_id));
+      statusLabelMap.set(problemId, failedStatus(rivalSet));
+    } else if (userRejected.length > 0) {
+      userRejected.sort((a, b) => b.id - a.id);
+      const last = userRejected[userRejected.length - 1];
+      statusLabelMap.set(
+        problemId,
+        warningStatus(last.result, last.epoch_second)
+      );
+    } else {
+      statusLabelMap.set(problemId, noneStatus());
     }
-    case StatusLabel.Warning: {
-      if (
-        typeof problemStatus.epoch !== "number" ||
-        typeof problemStatus.result !== "string"
-      ) {
-        return undefined;
-      }
-      return warningStatus(problemStatus.result, problemStatus.epoch);
-    }
-    case StatusLabel.None: {
-      return noneStatus();
-    }
-    default:
-      return undefined;
-  }
+  });
+
+  return statusLabelMap;
 };

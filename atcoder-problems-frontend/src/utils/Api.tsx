@@ -7,3 +7,8 @@ export const fetchRecentSubmissions = () => {
     .then(r => r.json())
     .then((r: any[]) => r.filter(isSubmission));
 };
+
+export const fetchUserSubmissions = (user: string) =>
+  fetch(`${ATCODER_API_URL}/results?user=${user}`)
+    .then(r => r.json())
+    .then((r: any[]) => r.filter(isSubmission));
