@@ -132,6 +132,8 @@ DROP TABLE IF EXISTS internal_virtual_contest_participants;
 DROP TABLE IF EXISTS internal_virtual_contest_items;
 DROP TABLE IF EXISTS internal_virtual_contests;
 
+DROP TABLE IF EXISTS internal_progress_reset;
+
 DROP TABLE IF EXISTS internal_users;
 
 CREATE TABLE internal_users (
@@ -185,3 +187,10 @@ CREATE TABLE internal_virtual_contest_participants (
 );
 CREATE INDEX ON internal_virtual_contest_participants (internal_user_id);
 
+CREATE TABLE internal_progress_reset (
+  internal_user_id    VARCHAR(255) REFERENCES internal_users ON DELETE CASCADE ON UPDATE CASCADE,
+  problem_id          VARCHAR(255) NOT NULL,
+  reset_epoch_second  BIGINT NOT NULL,
+  PRIMARY KEY (internal_user_id, problem_id)
+);
+CREATE INDEX ON internal_progress_reset (internal_user_id);
