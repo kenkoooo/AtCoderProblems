@@ -76,7 +76,7 @@ export const DifficultyTable = (props: Props) => {
           : undefined
       )
       .reduce((map, difficulty) => {
-        if (difficulty) {
+        if (difficulty !== undefined) {
           const count = map.get(difficulty) ?? 0;
           map.set(difficulty, count + 1);
         }
