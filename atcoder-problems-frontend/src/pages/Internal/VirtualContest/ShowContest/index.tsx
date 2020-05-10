@@ -27,6 +27,7 @@ import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { ContestTable } from "./ContestTable";
 import Timer from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
+import { LockoutContestTable } from "./LockoutContestTable";
 
 interface OuterProps {
   contestId: string;
@@ -80,6 +81,18 @@ const InnerShowContest = (props: InnerProps) => {
     contestInfo.participants.length * contestInfo.problems.length <= 100;
 
   const showProblems = start < now;
+  const problems = contestInfo.problems.map(item => {
+    const problem = problemMap.get(item.id);
+    if (problem) {
+      return {
+        item,
+        contestId: problem.contest_id,
+        title: problem.title
+      };
+    } else {
+      return { item };
+    }
+  });
   return (
     <>
       <Row className="my-2">
@@ -166,27 +179,27 @@ const InnerShowContest = (props: InnerProps) => {
 
       <Row className="my-2">
         <Col sm="12">
-          <ContestTable
-            showProblems={showProblems}
-            problems={contestInfo.problems.map(item => {
-              const problem = problemMap.get(item.id);
-              if (problem) {
-                return {
-                  item,
-                  contestId: problem.contest_id,
-                  title: problem.title
-                };
-              } else {
-                return { item };
-              }
-            })}
-            mode={contestInfo.mode}
-            users={contestInfo.participants}
-            enableEstimatedPerformances={enableEstimatedPerformances}
-            start={start}
-            end={end}
-            enableAutoRefresh={autoRefreshEnabled}
-          />
+          {contestInfo.mode === "lockout" ? (
+            <LockoutContestTable
+              showProblems={showProblems}
+              problems={problems}
+              participants={contestInfo.participants}
+              enableAutoRefresh={autoRefreshEnabled}
+              start={start}
+              end={end}
+            />
+          ) : (
+            <ContestTable
+              showProblems={showProblems}
+              problems={problems}
+              mode={contestInfo.mode}
+              users={contestInfo.participants}
+              enableEstimatedPerformances={enableEstimatedPerformances}
+              start={start}
+              end={end}
+              enableAutoRefresh={autoRefreshEnabled}
+            />
+          )}
         </Col>
       </Row>
     </>
