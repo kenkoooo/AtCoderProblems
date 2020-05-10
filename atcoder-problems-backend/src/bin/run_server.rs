@@ -2,7 +2,6 @@ use std::env;
 
 use atcoder_problems_backend::server::GitHubAuthentication;
 use atcoder_problems_backend::server::{initialize_pool, run_server};
-use futures::executor::block_on;
 
 #[tokio::main]
 async fn main() {

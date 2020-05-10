@@ -1,7 +1,7 @@
 use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
-use atcoder_problems_backend::error::{Error, Result};
+use atcoder_problems_backend::error::Result;
 use atcoder_problems_backend::server::{
     initialize_pool, run_server, Authentication, GitHubUserResponse,
 };
@@ -15,11 +15,11 @@ pub mod utils;
 struct MockAuth;
 #[async_trait]
 impl Authentication for MockAuth {
-    async fn get_token(&self, code: &str) -> Result<String> {
+    async fn get_token(&self, _: &str) -> Result<String> {
         Ok(String::new())
     }
 
-    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse> {
+    async fn get_user_id(&self, _: &str) -> Result<GitHubUserResponse> {
         Ok(GitHubUserResponse::default())
     }
 }
