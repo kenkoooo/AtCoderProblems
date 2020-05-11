@@ -3,6 +3,7 @@ import { Course } from "../../interfaces/Course";
 import { Container, Row, Button, Jumbotron, Badge, Progress } from "reactstrap";
 import { Link, useRouteMatch } from "react-router-dom";
 import Submission from "../../interfaces/Submission";
+import { isAccepted } from "../../utils";
 
 const formatPercent = (ratio: number) => {
   return Math.round(ratio * 10000) / 100;
@@ -14,10 +15,12 @@ interface Props {
 }
 
 export const TrainingList = (props: Props) => {
-  const solvedSet = props.submissions.reduce((set, s) => {
-    set.add(s.problem_id);
-    return set;
-  }, new Set<string>());
+  const solvedSet = props.submissions
+    .filter(s => isAccepted(s.result))
+    .reduce((set, s) => {
+      set.add(s.problem_id);
+      return set;
+    }, new Set<string>());
 
   const { url } = useRouteMatch();
   return (
