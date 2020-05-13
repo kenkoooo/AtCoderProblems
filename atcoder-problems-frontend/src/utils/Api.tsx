@@ -9,6 +9,8 @@ export const fetchRecentSubmissions = () => {
 };
 
 export const fetchUserSubmissions = (user: string) =>
-  fetch(`${ATCODER_API_URL}/results?user=${user}`)
-    .then(r => r.json())
-    .then((r: any[]) => r.filter(isSubmission));
+  user.length > 0
+    ? fetch(`${ATCODER_API_URL}/results?user=${user}`)
+        .then(r => r.json())
+        .then((r: any[]) => r.filter(isSubmission))
+    : Promise.resolve([]);
