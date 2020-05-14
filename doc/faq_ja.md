@@ -29,3 +29,6 @@ AtCoder の成長により提出数が爆発的に増えているので、全て
 大雑把に言うと、X色の問題は「X色の人の半分が解ける問題」という意味で「X色の人が解ける問題」という意味ではありません。
 
 参考: [AtCoder Problems の難易度推定について](http://pepsin-amylase.hatenablog.com/entry/atcoder-problems-difficulty)
+
+## Current Streak / Longest Streak とは何ですか？
+Current Streak 今まで解いていない問題を新たに解き続けた日数です。Longest Streak は Current Streak の最大値です。
