@@ -48,7 +48,7 @@ const InnerNavigationBar: React.FC<InnerProps> = props => {
       <Collapse isOpen={isOpen} navbar>
         <Nav navbar>
           <NavItem>
-            <NavLink tag={RouterLink} to="/">
+            <NavLink tag={RouterLink} to="/table/">
               Problems
             </NavLink>
           </NavItem>
