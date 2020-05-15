@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   NavLink as RouterLink,
   useLocation,
   useHistory
 } from "react-router-dom";
 import {
+  Button,
+  ButtonGroup,
   Collapse,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Form,
+  Input,
+  Nav,
+  NavItem,
+  NavLink,
   Navbar,
   NavbarBrand,
   NavbarToggler,
-  Nav,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  Form,
-  Input,
-  Button,
-  FormGroup,
-  NavItem,
-  NavLink
+  UncontrolledDropdown
 } from "reactstrap";
 import { extractRivalsParam, normalizeUserId } from "../utils";
 import { connect, PromiseState } from "react-refetch";
@@ -106,18 +106,149 @@ const InnerNavigationBar = (props: InnerProps) => {
     }
   }, [pathUserId, pathRivalIdString]);
 
+  const [tablePath, listPath, userPath] = useMemo(
+    () => [
+      generatePath("table", userId ? userId : loggedInUserId, rivalIdString),
+      generatePath("list", userId ? userId : loggedInUserId, rivalIdString),
+      generatePath("user", userId ? userId : loggedInUserId, rivalIdString)
+    ],
+    [userId, loggedInUserId, rivalIdString]
+  );
+
   return (
-    <Navbar color="light" light expand="lg" fixed="top">
-      <NavbarBrand tag={RouterLink} to="/">
-        AtCoder Problems
-      </NavbarBrand>
-      <NavbarToggler onClick={() => setIsOpen(!isOpen)} />
-      <Collapse isOpen={isOpen} navbar>
-        <Nav className="ml-auto" navbar>
-          <Form inline>
-            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+    <div className="sticky-top">
+      <Navbar color="dark" dark expand="lg">
+        <NavbarBrand tag={RouterLink} to="/" className="mb-0 h1">
+          AtCoder Problems
+        </NavbarBrand>
+
+        <NavbarToggler onClick={() => setIsOpen(!isOpen)} />
+
+        <Collapse isOpen={isOpen} navbar>
+          <Nav navbar>
+            <NavItem>
+              <NavLink tag={RouterLink} to={tablePath}>
+                Problems
+              </NavLink>
+            </NavItem>
+
+            <UncontrolledDropdown nav inNavbar>
+              <DropdownToggle nav caret>
+                Rankings
+              </DropdownToggle>
+              <DropdownMenu right>
+                <DropdownItem tag={RouterLink} to="/ac">
+                  AC Count
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/fast">
+                  Fastest Submissions
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/short">
+                  Shortest Submissions
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/first">
+                  First AC
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/sum">
+                  Rated Point Ranking
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/streak">
+                  Streak Ranking
+                </DropdownItem>
+                <DropdownItem tag={RouterLink} to="/lang">
+                  Language Owners
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
+
+            <NavItem>
+              <NavLink tag={RouterLink} to="/submissions/recent">
+                Submissions
+              </NavLink>
+            </NavItem>
+
+            <UncontrolledDropdown nav inNavbar>
+              <DropdownToggle nav caret>
+                Links
+              </DropdownToggle>
+              <DropdownMenu right>
+                <DropdownItem
+                  tag="a"
+                  href="https://github.com/kenkoooo/AtCoderProblems/tree/master/doc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  FAQ
+                </DropdownItem>
+                <DropdownItem
+                  tag="a"
+                  href="https://atcoder.jp/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  AtCoder
+                </DropdownItem>
+                <DropdownItem
+                  tag="a"
+                  href="http://aoj-icpc.ichyo.jp/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  AOJ-ICPC
+                </DropdownItem>
+                <DropdownItem
+                  tag="a"
+                  href="https://github.com/kenkoooo/AtCoderProblems"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GitHub
+                </DropdownItem>
+                <DropdownItem
+                  tag="a"
+                  href="https://twitter.com/kenkoooo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  @kenkoooo
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </Nav>
+
+          <Nav className="ml-auto" navbar>
+            <NavItem>
+              <NavLink tag={RouterLink} to="/contest/recent">
+                Virtual Contests
+              </NavLink>
+            </NavItem>
+
+            <NavItem>
+              <NavLink tag={RouterLink} to="/training">
+                Training (beta)
+              </NavLink>
+            </NavItem>
+
+            <NavItem>
+              {isLoggedIn ? (
+                <NavLink tag={RouterLink} to={ACCOUNT_INFO}>
+                  Account ({loggedInUserId})
+                </NavLink>
+              ) : (
+                <NavLink href={GITHUB_LOGIN_LINK}>Login</NavLink>
+              )}
+            </NavItem>
+          </Nav>
+        </Collapse>
+      </Navbar>
+
+      <Navbar color="light" light expand="lg" className="border-bottom">
+        <Collapse isOpen={isOpen} navbar>
+          <Nav navbar>
+            <Form inline>
               <Input
-                style={{ width: "120px" }}
+                className="mt-2 mr-2 mt-lg-0"
+                style={{ width: 160 }}
                 onKeyPress={e => {
                   if (e.key === "Enter") {
                     pushHistory();
@@ -130,10 +261,10 @@ const InnerNavigationBar = (props: InnerProps) => {
                 placeholder={loggedInUserId ? loggedInUserId : "User ID"}
                 onChange={e => setUserId(e.target.value)}
               />
-            </FormGroup>
-            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+
               <Input
-                style={{ width: "120px" }}
+                className="mt-2 mr-2 mt-lg-0"
+                style={{ width: 160 }}
                 onKeyPress={e => {
                   if (e.key === "Enter") {
                     pushHistory();
@@ -146,133 +277,30 @@ const InnerNavigationBar = (props: InnerProps) => {
                 placeholder="Rival ID, ..."
                 onChange={e => setRivalIdString(e.target.value)}
               />
-            </FormGroup>
-            <Button
-              className="mb-2 mr-sm-2 mb-sm-0"
-              tag={RouterLink}
-              to={generatePath(
-                "table",
-                userId ? userId : loggedInUserId,
-                rivalIdString
-              )}
-            >
-              Table
-            </Button>
-            <Button
-              className="mb-2 mr-sm-2 mb-sm-0"
-              tag={RouterLink}
-              to={generatePath(
-                "list",
-                userId ? userId : loggedInUserId,
-                rivalIdString
-              )}
-            >
-              List
-            </Button>
-            <Button
-              className="mb-2 mr-sm-2 mb-sm-0"
-              disabled={userId.length === 0 && loggedInUserId.length === 0}
-              tag={RouterLink}
-              to={generatePath(
-                "user",
-                userId ? userId : loggedInUserId,
-                rivalIdString
-              )}
-            >
-              User Page
-            </Button>
-          </Form>
-        </Nav>
-        <Nav className="ml-auto" navbar>
-          <UncontrolledDropdown nav inNavbar>
-            <DropdownToggle nav caret>
-              Rankings
-            </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem tag={RouterLink} to="/ac">
-                AC Count
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/fast">
-                Fastest Submissions
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/short">
-                Shortest Submissions
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/first">
-                First AC
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/sum">
-                Rated Point Ranking
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/streak">
-                Streak Ranking
-              </DropdownItem>
-              <DropdownItem tag={RouterLink} to="/lang">
-                Language Owners
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
 
-          <NavItem>
-            {isLoggedIn ? (
-              <NavLink tag={RouterLink} to={ACCOUNT_INFO}>
-                Account ({loggedInUserId})
-              </NavLink>
-            ) : (
-              <NavLink href={GITHUB_LOGIN_LINK}>Login</NavLink>
-            )}
-          </NavItem>
+              <ButtonGroup className="mt-2 mb-0 mt-lg-0">
+                <Button tag={RouterLink} to={tablePath} color="light">
+                  Table
+                </Button>
 
-          <UncontrolledDropdown nav inNavbar>
-            <DropdownToggle nav caret>
-              Links
-            </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem
-                tag="a"
-                href="https://github.com/kenkoooo/AtCoderProblems/tree/master/doc"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                FAQ
-              </DropdownItem>
-              <DropdownItem
-                tag="a"
-                href="https://atcoder.jp/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                AtCoder
-              </DropdownItem>
-              <DropdownItem
-                tag="a"
-                href="http://aoj-icpc.ichyo.jp/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                AOJ-ICPC
-              </DropdownItem>
-              <DropdownItem
-                tag="a"
-                href="https://github.com/kenkoooo/AtCoderProblems"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </DropdownItem>
-              <DropdownItem
-                tag="a"
-                href="https://twitter.com/kenkoooo"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                @kenkoooo
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
-        </Nav>
-      </Collapse>
-    </Navbar>
+                <Button tag={RouterLink} to={listPath} color="light">
+                  List
+                </Button>
+
+                <Button
+                  disabled={userId.length === 0 && loggedInUserId.length === 0}
+                  tag={RouterLink}
+                  to={userPath}
+                  color="light"
+                >
+                  User
+                </Button>
+              </ButtonGroup>
+            </Form>
+          </Nav>
+        </Collapse>
+      </Navbar>
+    </div>
   );
 };
 

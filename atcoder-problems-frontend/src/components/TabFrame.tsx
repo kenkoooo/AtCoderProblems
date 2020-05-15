@@ -24,44 +24,10 @@ const InnerTabFrame: FC<Props> = props => {
       : userIds
     : loggedInUserId;
 
+  // WIP (rdrgn): fix the style or remove
   return (
     <>
-      <Nav tabs className="my-2">
-        <NavItem>
-          <NavLink tag={RouterLink} to={`/table/${userIdsPath}`}>
-            Table
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink tag={RouterLink} to={`/list/${userIdsPath}`}>
-            List
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            tag={RouterLink}
-            to={`/user/${userIdsPath}`}
-            disabled={userIdsPath.startsWith("/") || userIdsPath.length === 0}
-          >
-            UserPage
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink tag={RouterLink} to="/submissions/recent">
-            Recent Submissions
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink tag={RouterLink} to="/contest/recent">
-            Virtual Contests
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink tag={RouterLink} to="/training">
-            Training (beta)
-          </NavLink>
-        </NavItem>
-      </Nav>
+      {userIds !== undefined && <h2>{userIds}</h2>}
       <div>{props.children}</div>
     </>
   );
