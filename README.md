@@ -98,9 +98,6 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
 - Accepted Count for each language
   - https://kenkoooo.com/atcoder/resources/lang.json
 
-## UserInfo API
-- https://kenkoooo.com/atcoder/atcoder-api/v2/user_info?user=kenkoooo
-
 ## Submission API
 - https://kenkoooo.com/atcoder/atcoder-api/results?user=wata
 
