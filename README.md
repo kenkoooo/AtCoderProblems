@@ -87,14 +87,14 @@ botの場合も1日に1000回以下程度のリクエストであればたいし
 - Pairs of contests and problems
   - https://kenkoooo.com/atcoder/resources/contest-problem.json
 
-(The API `info/*` are deprecated. Please use new API.)
-
 ## Statistics API
 
 - Accepted Count
   - https://kenkoooo.com/atcoder/resources/ac.json
 - Rated Point Sum
   - https://kenkoooo.com/atcoder/resources/sums.json
+- Longest Streak (JST) Count
+  - https://kenkoooo.com/atcoder/resources/streaks.json
 - Accepted Count for each language
   - https://kenkoooo.com/atcoder/resources/lang.json
 
