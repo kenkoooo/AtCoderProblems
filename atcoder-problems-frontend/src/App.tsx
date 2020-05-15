@@ -47,7 +47,7 @@ const App = () => {
           />
         </div>
 
-        <Container style={{ width: "100%", maxWidth: "90%" }}>
+        <Container className="my-5" style={{ width: "100%", maxWidth: "90%" }}>
           <Switch>
             <Route exact path="/ac" component={ACRanking} />
             <Route exact path="/fast" component={FastestRanking} />
