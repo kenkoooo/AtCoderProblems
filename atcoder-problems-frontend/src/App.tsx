@@ -17,6 +17,7 @@ import { ListPage } from "./pages/ListPage";
 import { UserPage } from "./pages/UserPage";
 import { TablePage } from "./pages/TablePage";
 import { NavigationBar } from "./components/NavigationBar";
+import { UserSearchBar } from "./components/UserSearchBar";
 import StreakRanking from "./pages/StreakRanking";
 import ContestCreatePage from "./pages/Internal/VirtualContest/ContestCreatePage";
 import ShowContest from "./pages/Internal/VirtualContest/ShowContest";
@@ -34,7 +35,19 @@ const App = () => {
   return (
     <Router>
       <div>
-        <NavigationBar />
+        <div className="sticky-top">
+          <NavigationBar />
+
+          <Route
+            path={[
+              "/user/:userIds([a-zA-Z0-9_]+)+",
+              "/table/:userIds([a-zA-Z0-9_]*)*",
+              "/list/:userIds([a-zA-Z0-9_]*)*"
+            ]}
+            component={UserSearchBar}
+          />
+        </div>
+
         <Container style={{ width: "100%", maxWidth: "90%" }}>
           <Switch>
             <Route
