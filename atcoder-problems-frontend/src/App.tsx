@@ -27,7 +27,6 @@ import ContestUpdatePage from "./pages/Internal/VirtualContest/ContestUpdatePage
 import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
 import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { List } from "immutable";
-import { TabFrame } from "./components/TabFrame";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
 
@@ -50,79 +49,19 @@ const App = () => {
 
         <Container style={{ width: "100%", maxWidth: "90%" }}>
           <Switch>
-            <Route
-              exact
-              path="/ac"
-              component={() => (
-                <TabFrame>
-                  <ACRanking />
-                </TabFrame>
-              )}
-            />
-            <Route
-              exact
-              path="/fast"
-              component={() => (
-                <TabFrame>
-                  <FastestRanking />
-                </TabFrame>
-              )}
-            />
-            <Route
-              exact
-              path="/short"
-              component={() => (
-                <TabFrame>
-                  <ShortRanking />
-                </TabFrame>
-              )}
-            />
-            <Route
-              exact
-              path="/first"
-              component={() => (
-                <TabFrame>
-                  <FirstRanking />
-                </TabFrame>
-              )}
-            />
-            <Route
-              exact
-              path="/sum"
-              component={() => (
-                <TabFrame>
-                  <SumRanking />
-                </TabFrame>
-              )}
-            />
-            <Route
-              exact
-              path="/streak"
-              component={() => (
-                <TabFrame>
-                  <StreakRanking />
-                </TabFrame>
-              )}
-            />
-            <Route
-              exact
-              path="/lang"
-              component={() => (
-                <TabFrame>
-                  <LanguageOwners />
-                </TabFrame>
-              )}
-            />
+            <Route exact path="/ac" component={ACRanking} />
+            <Route exact path="/fast" component={FastestRanking} />
+            <Route exact path="/short" component={ShortRanking} />
+            <Route exact path="/first" component={FirstRanking} />
+            <Route exact path="/sum" component={SumRanking} />
+            <Route exact path="/streak" component={StreakRanking} />
+            <Route exact path="/lang" component={LanguageOwners} />
             <Route
               path="/user/:userIds([a-zA-Z0-9_]+)+"
               render={({ match }) => {
                 const userIds: string | undefined = match.params.userIds;
                 const userId: string = (userIds ?? "").split("/")[0];
-                return (
-                  <TabFrame>
-                    <UserPage userId={userId} />
-                  </TabFrame>
-                );
+                return <UserPage userId={userId} />;
               }}
             />
             <Route
@@ -134,11 +73,7 @@ const App = () => {
                 const rivalList = List(rivals)
                   .skip(1)
                   .filter(x => x.length > 0);
-                return (
-                  <TabFrame>
-                    <TablePage userId={userId} rivals={rivalList} />
-                  </TabFrame>
-                );
+                return <TablePage userId={userId} rivals={rivalList} />;
               }}
             />
             <Route
@@ -150,85 +85,34 @@ const App = () => {
                 const rivalList = List(rivals)
                   .skip(1)
                   .filter(x => x.length > 0);
-                return (
-                  <TabFrame>
-                    <ListPage userId={userId} rivals={rivalList} />
-                  </TabFrame>
-                );
+                return <ListPage userId={userId} rivals={rivalList} />;
               }}
             />
 
             {/*Virtual Contests*/}
             <Route
               path="/contest/show/:contestId([a-zA-Z0-9_-]+)"
-              component={() => (
-                <TabFrame>
-                  <ShowContest />
-                </TabFrame>
-              )}
+              component={ShowContest}
             />
-            <Route
-              path="/contest/create"
-              component={() => (
-                <TabFrame>
-                  <ContestCreatePage />
-                </TabFrame>
-              )}
-            />
+            <Route path="/contest/create" component={ContestCreatePage} />
             <Route
               path="/contest/update/:contestId([a-zA-Z0-9_-]+)"
-              component={() => (
-                <TabFrame>
-                  <ContestUpdatePage />
-                </TabFrame>
-              )}
+              component={ContestUpdatePage}
             />
-            <Route
-              path="/contest/recent"
-              component={() => (
-                <TabFrame>
-                  <RecentContestList />
-                </TabFrame>
-              )}
-            />
+            <Route path="/contest/recent" component={RecentContestList} />
 
             {/*User Settings*/}
-            <Route
-              path={ACCOUNT_INFO}
-              component={() => (
-                <TabFrame>
-                  <MyAccountPage />
-                </TabFrame>
-              )}
-            />
+            <Route path={ACCOUNT_INFO} component={MyAccountPage} />
 
             {/*Problem List*/}
             <Route
               path="/problemlist/:listId([a-zA-Z0-9_-]+)"
-              component={() => (
-                <TabFrame>
-                  <SingleProblemList />
-                </TabFrame>
-              )}
+              component={SingleProblemList}
             />
-            <Route
-              path="/submissions/recent"
-              component={() => (
-                <TabFrame>
-                  <RecentSubmissions />
-                </TabFrame>
-              )}
-            />
+            <Route path="/submissions/recent" component={RecentSubmissions} />
 
             {/*Training*/}
-            <Route
-              path="/training"
-              component={() => (
-                <TabFrame>
-                  <TrainingPage />
-                </TabFrame>
-              )}
-            />
+            <Route path="/training" component={TrainingPage} />
             <Redirect path="/" to="/table/" />
           </Switch>
         </Container>
