@@ -57,7 +57,7 @@ const InnerNavigationBar: React.FC<InnerProps> = props => {
             <DropdownToggle nav caret>
               Rankings
             </DropdownToggle>
-            <DropdownMenu right>
+            <DropdownMenu>
               <DropdownItem tag={RouterLink} to="/ac">
                 AC Count
               </DropdownItem>
@@ -88,19 +88,21 @@ const InnerNavigationBar: React.FC<InnerProps> = props => {
             </NavLink>
           </NavItem>
 
+          <NavItem>
+            <NavLink
+              href="https://github.com/kenkoooo/AtCoderProblems/tree/master/doc"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              FAQ
+            </NavLink>
+          </NavItem>
+
           <UncontrolledDropdown nav inNavbar>
             <DropdownToggle nav caret>
               Links
             </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem
-                tag="a"
-                href="https://github.com/kenkoooo/AtCoderProblems/tree/master/doc"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                FAQ
-              </DropdownItem>
+            <DropdownMenu>
               <DropdownItem
                 tag="a"
                 href="https://atcoder.jp/"
