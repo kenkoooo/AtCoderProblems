@@ -23,9 +23,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint --ignore-path .gitignore 'src/**/*.{js,json,jsx,ts,tsx}'",
+    "lint": "eslint --ignore-path .gitignore '**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "yarn run lint --fix",
-    "format": "prettier --write --ignore-path .gitignore 'src/**/*.{css,html,js,json,jsx,md,ts,tsx}'"
+    "format": "prettier --write --ignore-path .gitignore '**/*.{css,html,js,json,jsx,md,ts,tsx}'"
   },
   "browserslist": [
     ">0.2%",
