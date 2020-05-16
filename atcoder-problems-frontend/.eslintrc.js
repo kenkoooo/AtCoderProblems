@@ -14,7 +14,7 @@ module.exports = {
     "plugin:import/typescript",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "prettier",
+    "plugin:prettier/recommended",
     "prettier/@typescript-eslint",
     "prettier/react"
   ],
@@ -24,7 +24,7 @@ module.exports = {
     sourceType: "module",
     tsconfigRootDir: __dirname
   },
-  plugins: ["@typescript-eslint", "react", "react-hooks"],
+  plugins: ["@typescript-eslint"],
   rules: {
     "react/prop-types": 0, // We will not employ 'prop-types'.
     "@typescript-eslint/camelcase": 0, // API responses contain snake_case variables.
