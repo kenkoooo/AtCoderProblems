@@ -29,7 +29,7 @@ interface Props {
   userInternalRating: number | null;
 }
 
-export const ListTable = (props: Props) => {
+export const ListTable: React.FC<Props> = props => {
   const readDifficultyAsNumber: (row: ProblemRowData) => number = row => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {

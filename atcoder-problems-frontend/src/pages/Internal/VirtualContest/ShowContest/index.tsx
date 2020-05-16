@@ -22,10 +22,10 @@ import {
   parseSecond
 } from "../../../../utils/DateUtil";
 import { formatMode, UserResponse, VirtualContest } from "../../types";
-import TweetButton from "../../../../components/TweetButton";
+import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { ContestTable } from "./ContestTable";
-import Timer from "../../../../components/Timer";
+import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { LockoutContestTable } from "./LockoutContestTable";
 
@@ -42,7 +42,7 @@ interface InnerProps extends OuterProps {
   problemModelGet: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
-const InnerShowContest = (props: InnerProps) => {
+const InnerShowContest: React.FC<InnerProps> = props => {
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;

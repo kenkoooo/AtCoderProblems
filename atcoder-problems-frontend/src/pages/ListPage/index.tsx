@@ -94,7 +94,7 @@ const FilterParams = {
   ToDifficulty: "toDiff"
 } as const;
 
-const InnerListPage = (props: InnerProps) => {
+const InnerListPage: React.FC<InnerProps> = props => {
   const location = useLocation();
   const history = useHistory();
   const searchParams = new URLSearchParams(location.search);

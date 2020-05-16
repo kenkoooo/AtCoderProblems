@@ -28,7 +28,7 @@ const pageList = (
 
   const pageNumbers: number[] = [currPage];
   let tmpExp = 1;
-  while (true) {
+  for (;;) {
     tmpExp *= 2;
     const tmpPageNumber = currPage - tmpExp + 1;
     if (tmpPageNumber < pageStartIndex) {
@@ -41,7 +41,7 @@ const pageList = (
   }
 
   tmpExp = 1;
-  while (true) {
+  for (;;) {
     tmpExp *= 2;
     const tmpPageNumber = currPage + tmpExp - 1;
     if (tmpPageNumber > totalPage) {

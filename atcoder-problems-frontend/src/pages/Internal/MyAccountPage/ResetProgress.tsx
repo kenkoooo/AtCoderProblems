@@ -24,7 +24,7 @@ interface Props {
   problems: PromiseState<Problem[]>;
 }
 
-const InnerResetProgress = (props: Props) => {
+const InnerResetProgress: React.FC<Props> = props => {
   const progressResetList =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value.items

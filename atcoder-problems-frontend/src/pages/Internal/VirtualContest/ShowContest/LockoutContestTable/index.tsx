@@ -34,7 +34,7 @@ interface InnerProps extends OuterProps {
   submissions: PromiseState<Submission[]>;
 }
 
-const InnerLockoutContestTable = (props: InnerProps) => {
+const InnerLockoutContestTable: React.FC<InnerProps> = props => {
   const submissions = props.submissions.fulfilled
     ? props.submissions.value
     : [];

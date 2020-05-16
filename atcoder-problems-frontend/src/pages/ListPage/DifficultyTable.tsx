@@ -39,7 +39,7 @@ const problemToDifficultyLevel = (
   }
 };
 
-export const DifficultyTable = (props: Props) => {
+export const DifficultyTable: React.FC<Props> = props => {
   const { submissions, mergedProblems, problemModels, setFilterFunc } = props;
   const [includingExperimental, setIncludingExperimental] = useState(true);
   const difficulties: List<{ from: number; to: number }> = Range(

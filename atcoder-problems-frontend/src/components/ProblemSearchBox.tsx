@@ -28,7 +28,7 @@ interface Props {
   selectProblem: (problem: Problem) => void;
 }
 
-export const ProblemSearchBox = (props: Props) => {
+export const ProblemSearchBox: React.FC<Props> = props => {
   const [problemSearch, setProblemSearch] = useState("");
   const [focusingId, setFocusingId] = useState(-1);
 
@@ -41,11 +41,11 @@ export const ProblemSearchBox = (props: Props) => {
         type="text"
         placeholder="Search Problems"
         value={problemSearch}
-        onChange={e => {
+        onChange={(e): void => {
           setProblemSearch(e.target.value);
           setFocusingId(-1);
         }}
-        onKeyDown={e => {
+        onKeyDown={(e): void => {
           if (e.key === "Enter") {
             const problem =
               filterProblems.length > focusingId
@@ -68,7 +68,7 @@ export const ProblemSearchBox = (props: Props) => {
           <ListGroupItem
             active={i === focusingId}
             key={problem.id}
-            onClick={() => {
+            onClick={(): void => {
               props.selectProblem(problem);
               setProblemSearch("");
               setFocusingId(-1);

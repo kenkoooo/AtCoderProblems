@@ -20,6 +20,113 @@ import ContestParticipation, {
 } from "../interfaces/ContestParticipation";
 import { isBlockedProblem } from "./BlockList";
 
+const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
+const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
+const ATCODER_API_URL = process.env.REACT_APP_ATCODER_API_URL;
+
+function fetchTypedList<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
+  return fetch(url)
+    .then(r => r.json())
+    .then((array: any[]) => array.filter(typeGuardFn))
+    .then(array => List(array));
+}
+
+function fetchTypedArray<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
+  return fetch(url)
+    .then(r => r.json())
+    .then((array: any[]) => array.filter(typeGuardFn));
+}
+
+function fetchTypedMap<V>(url: string, typeGuardFn: (obj: any) => obj is V) {
+  return fetch(url)
+    .then(r => r.json())
+    .then((obj: { [p: string]: any }) => Map(obj))
+    .then(m => m.filter(typeGuardFn));
+}
+
+const fetchContestProblemPairs = () =>
+  fetchTypedList(
+    STATIC_API_BASE_URL + "/contest-problem.json",
+    (obj: any): obj is { contest_id: string; problem_id: string } =>
+      typeof obj.contest_id === "string" && typeof obj.problem_id === "string"
+  );
+
+const fetchContests = () =>
+  fetchTypedList(STATIC_API_BASE_URL + "/contests.json", isContest);
+
+const fetchProblems = () =>
+  fetchTypedList(STATIC_API_BASE_URL + "/problems.json", isProblem);
+
+const fetchMergedProblems = () =>
+  fetchTypedList(
+    STATIC_API_BASE_URL + "/merged-problems.json",
+    isMergedProblem
+  );
+
+const fetchProblemModels = () =>
+  fetchTypedMap(
+    STATIC_API_BASE_URL + "/problem-models.json",
+    isProblemModel
+  ).then(map =>
+    map.map(
+      (model: ProblemModel): ProblemModel => {
+        if (model.difficulty === undefined) {
+          return model;
+        }
+        return {
+          ...model,
+          difficulty: clipDifficulty(model.difficulty),
+          rawDifficulty: model.difficulty
+        };
+      }
+    )
+  );
+
+const fetchSubmissions = (user: string) =>
+  user.length > 0
+    ? fetchTypedList(`${ATCODER_API_URL}/results?user=${user}`, isSubmission)
+    : Promise.resolve(List<Submission>()).then(submissions =>
+        submissions.filter(s => isValidResult(s.result))
+      );
+
+const fetchRatingInfo = async (user: string) => {
+  const history =
+    user.length > 0
+      ? await fetchTypedList(
+          `${PROXY_API_URL}/users/${user}/history/json`,
+          isContestParticipation
+        ).catch(() => List<ContestParticipation>())
+      : List<ContestParticipation>();
+  return ratingInfoOf(history);
+};
+
+const fetchStreaks = () =>
+  fetchTypedArray(STATIC_API_BASE_URL + "/streaks.json", isStreakRankingEntry);
+
+const fetchContestMap = () =>
+  fetchContests().then(contests =>
+    contests.reduce(
+      (map, contest) => map.set(contest.id, contest),
+      Map<string, Contest>()
+    )
+  );
+
+export const fetchVirtualContestSubmission = (
+  users: string[],
+  problems: string[],
+  fromSecond: number,
+  toSecond: number
+): Promise<List<Submission>> => {
+  if (users.length === 0) {
+    return Promise.resolve(List());
+  }
+
+  const userList = users.join(",");
+  const problemList = problems.join(",");
+  const url = `${ATCODER_API_URL}/v3/users_and_time?users=${userList}&problems=${problemList}&from=${fromSecond}&to=${toSecond}`;
+  return fetchTypedList(url, isSubmission);
+};
+
 let MERGED_PROBLEMS: Promise<List<MergedProblem>> | undefined;
 const cachedMergedProblems = () => {
   if (MERGED_PROBLEMS === undefined) {
@@ -89,6 +196,25 @@ export const cachedProblemMap = () => {
   return CACHED_PROBLEMS;
 };
 
+const fetchContestToProblemMap = async () => {
+  const pairs = await fetchContestProblemPairs();
+  const problems = await cachedProblemMap();
+  return pairs
+    .map(({ contest_id, problem_id }) => ({
+      contest_id,
+      problem: problems.get(problem_id)
+    }))
+    .reduce((map, { contest_id, problem }) => {
+      if (problem === undefined) {
+        return map;
+      } else {
+        return map.update(contest_id, List<Problem>(), list =>
+          list.push(problem)
+        );
+      }
+    }, Map<ContestId, List<Problem>>());
+};
+
 let CACHED_CONTEST_TO_PROBLEM:
   | undefined
   | Promise<Map<ContestId, List<Problem>>>;
@@ -100,6 +226,15 @@ export const cachedContestToProblemMap = () => {
 };
 
 let SUBMISSION_MAP = Map<string, Promise<List<Submission>>>();
+export const cachedSubmissions = (user: string) => {
+  const cache = SUBMISSION_MAP.get(user);
+  if (cache) {
+    return cache;
+  }
+  const submissions = fetchSubmissions(user);
+  SUBMISSION_MAP = SUBMISSION_MAP.set(user, submissions);
+  return submissions;
+};
 export const cachedUsersSubmissionMap = (
   users: List<string>
 ): Promise<Map<ProblemId, List<Submission>>> =>
@@ -116,15 +251,6 @@ export const cachedUsersSubmissionMap = (
       Map<ProblemId, List<Submission>>()
     )
   );
-export const cachedSubmissions = (user: string) => {
-  const cache = SUBMISSION_MAP.get(user);
-  if (cache) {
-    return cache;
-  }
-  const submissions = fetchSubmissions(user);
-  SUBMISSION_MAP = SUBMISSION_MAP.set(user, submissions);
-  return submissions;
-};
 
 let STREAK_RANKING: Promise<RankingEntry[]> | undefined;
 export const cachedStreaksRanking = () => {
@@ -244,130 +370,4 @@ export const cachedRatingInfo = (user: string) => {
   const p = fetchRatingInfo(user);
   RATING_INFO_MAP.set(user, p);
   return p;
-};
-
-const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
-const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
-const ATCODER_API_URL = process.env.REACT_APP_ATCODER_API_URL;
-
-function fetchTypedList<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
-  return fetch(url)
-    .then(r => r.json())
-    .then((array: any[]) => array.filter(typeGuardFn))
-    .then(array => List(array));
-}
-
-function fetchTypedArray<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
-  return fetch(url)
-    .then(r => r.json())
-    .then((array: any[]) => array.filter(typeGuardFn));
-}
-
-function fetchTypedMap<V>(url: string, typeGuardFn: (obj: any) => obj is V) {
-  return fetch(url)
-    .then(r => r.json())
-    .then((obj: { [p: string]: any }) => Map(obj))
-    .then(m => m.filter(typeGuardFn));
-}
-
-const fetchContestProblemPairs = () =>
-  fetchTypedList(
-    STATIC_API_BASE_URL + "/contest-problem.json",
-    (obj: any): obj is { contest_id: string; problem_id: string } =>
-      typeof obj.contest_id === "string" && typeof obj.problem_id === "string"
-  );
-
-const fetchContests = () =>
-  fetchTypedList(STATIC_API_BASE_URL + "/contests.json", isContest);
-
-const fetchProblems = () =>
-  fetchTypedList(STATIC_API_BASE_URL + "/problems.json", isProblem);
-
-const fetchMergedProblems = () =>
-  fetchTypedList(
-    STATIC_API_BASE_URL + "/merged-problems.json",
-    isMergedProblem
-  );
-
-const fetchProblemModels = () =>
-  fetchTypedMap(
-    STATIC_API_BASE_URL + "/problem-models.json",
-    isProblemModel
-  ).then(map =>
-    map.map(
-      (model: ProblemModel): ProblemModel => {
-        if (model.difficulty === undefined) {
-          return model;
-        }
-        return {
-          ...model,
-          difficulty: clipDifficulty(model.difficulty),
-          rawDifficulty: model.difficulty
-        };
-      }
-    )
-  );
-
-const fetchSubmissions = (user: string) =>
-  user.length > 0
-    ? fetchTypedList(`${ATCODER_API_URL}/results?user=${user}`, isSubmission)
-    : Promise.resolve(List<Submission>()).then(submissions =>
-        submissions.filter(s => isValidResult(s.result))
-      );
-
-const fetchRatingInfo = async (user: string) => {
-  const history =
-    user.length > 0
-      ? await fetchTypedList(
-          `${PROXY_API_URL}/users/${user}/history/json`,
-          isContestParticipation
-        ).catch(() => List<ContestParticipation>())
-      : List<ContestParticipation>();
-  return ratingInfoOf(history);
-};
-
-const fetchStreaks = () =>
-  fetchTypedArray(STATIC_API_BASE_URL + "/streaks.json", isStreakRankingEntry);
-
-const fetchContestMap = () =>
-  fetchContests().then(contests =>
-    contests.reduce(
-      (map, contest) => map.set(contest.id, contest),
-      Map<string, Contest>()
-    )
-  );
-
-const fetchContestToProblemMap = async () => {
-  const pairs = await fetchContestProblemPairs();
-  const problems = await cachedProblemMap();
-  return pairs
-    .map(({ contest_id, problem_id }) => ({
-      contest_id,
-      problem: problems.get(problem_id)
-    }))
-    .reduce((map, { contest_id, problem }) => {
-      if (problem === undefined) {
-        return map;
-      } else {
-        return map.update(contest_id, List<Problem>(), list =>
-          list.push(problem)
-        );
-      }
-    }, Map<ContestId, List<Problem>>());
-};
-
-export const fetchVirtualContestSubmission = (
-  users: string[],
-  problems: string[],
-  fromSecond: number,
-  toSecond: number
-): Promise<List<Submission>> => {
-  if (users.length === 0) {
-    return Promise.resolve(List());
-  }
-
-  const userList = users.join(",");
-  const problemList = problems.join(",");
-  const url = `${ATCODER_API_URL}/v3/users_and_time?users=${userList}&problems=${problemList}&from=${fromSecond}&to=${toSecond}`;
-  return fetchTypedList(url, isSubmission);
 };

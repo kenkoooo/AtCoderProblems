@@ -53,7 +53,7 @@ interface InnerProps extends OuterProps {
   problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
-const InnerUserPage = (props: InnerProps) => {
+const InnerUserPage: React.FC<InnerProps> = props => {
   const location = useLocation();
   const param = new URLSearchParams(location.search).get(TAB_PARAM);
   const userPageTab: UserPageTab =

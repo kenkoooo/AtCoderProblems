@@ -160,7 +160,7 @@ interface Props {
   readonly userRatingInfo: RatingInfo;
 }
 
-export const Recommendations = (props: Props) => {
+export const Recommendations: React.FC<Props> = props => {
   const {
     userSubmissions,
     problems,

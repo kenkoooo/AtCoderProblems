@@ -17,7 +17,7 @@ interface Props {
   data: Entry[];
 }
 
-export const SinglePieChart = ({ data }: Props) => {
+export const SinglePieChart: React.FC<Props> = ({ data }) => {
   return (
     <div>
       <ResponsiveContainer width="100%" height={300}>

@@ -2,7 +2,7 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
-    node: true,
+    node: true
   },
   extends: [
     "eslint:recommended",
@@ -16,13 +16,13 @@ module.exports = {
     "plugin:react-hooks/recommended",
     "prettier",
     "prettier/@typescript-eslint",
-    "prettier/react",
+    "prettier/react"
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: ["./tsconfig.json"],
     sourceType: "module",
-    tsconfigRootDir: __dirname,
+    tsconfigRootDir: __dirname
   },
   plugins: ["@typescript-eslint", "react", "react-hooks"],
   rules: {
@@ -31,9 +31,9 @@ module.exports = {
     // TODO: Remove following temporary rules.
     "react/display-name": 0,
     "@typescript-eslint/explicit-function-return-type": 0,
-    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-explicit-any": 0
   },
   settings: {
-    react: { version: "detect" },
-  },
+    react: { version: "detect" }
+  }
 };

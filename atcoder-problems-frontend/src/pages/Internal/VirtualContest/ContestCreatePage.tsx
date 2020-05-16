@@ -7,7 +7,7 @@ import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
 import { VirtualContestItem, VirtualContestMode } from "../types";
 
-const ContestCreatePage = (props: InnerProps) => {
+const ContestCreatePage: React.FC<InnerProps> = props => {
   const createResponse = props.createContestResponse.fulfilled
     ? props.createContestResponse.value
     : null;

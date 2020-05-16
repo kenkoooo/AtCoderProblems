@@ -3,7 +3,20 @@ import { Link } from "react-router-dom";
 import * as DateUtil from "../../utils/DateUtil";
 import React from "react";
 import { formatMode, VirtualContestInfo, VirtualContestMode } from "./types";
-import Timer from "../../components/Timer";
+import { Timer } from "../../components/Timer";
+
+const formatContestDuration = (start: number, durationSecond: number) => {
+  const now = Math.floor(Date.now() / 1000);
+  if (start + durationSecond <= now || now < start) {
+    const durationMinute = Math.floor(durationSecond / 60);
+    const hour = `${Math.floor(durationMinute / 60)}`;
+    const minute = `0${durationMinute % 60}`.slice(-2);
+    return hour + ":" + minute;
+  } else {
+    const remain = durationSecond - (now - start);
+    return <Timer remain={remain} />;
+  }
+};
 
 export const VirtualContestTable = (props: {
   contests: VirtualContestInfo[];
@@ -93,17 +106,4 @@ export const VirtualContestTable = (props: {
       </TableHeaderColumn>
     </BootstrapTable>
   );
-};
-
-const formatContestDuration = (start: number, durationSecond: number) => {
-  const now = Math.floor(Date.now() / 1000);
-  if (start + durationSecond <= now || now < start) {
-    const durationMinute = Math.floor(durationSecond / 60);
-    const hour = `${Math.floor(durationMinute / 60)}`;
-    const minute = `0${durationMinute % 60}`.slice(-2);
-    return hour + ":" + minute;
-  } else {
-    const remain = durationSecond - (now - start);
-    return <Timer remain={remain} />;
-  }
 };

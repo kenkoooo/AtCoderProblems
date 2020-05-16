@@ -14,14 +14,21 @@ export const ContestCategories = [
 export type ContestCategory = typeof ContestCategories[number];
 
 export const AGC_001_START = 1468670400;
+
+export const isRatedContest = (contest: Contest) => {
+  return (
+    contest.rate_change !== "-" && contest.start_epoch_second >= AGC_001_START
+  );
+};
+
 export const classifyContest = (contest: Contest): ContestCategory => {
-  if (contest.id.match(/^abc\d{3}$/)) {
+  if (/^abc\d{3}$/.exec(contest.id)) {
     return "ABC";
   }
-  if (contest.id.match(/^arc\d{3}$/)) {
+  if (/^arc\d{3}$/.exec(contest.id)) {
     return "ARC";
   }
-  if (contest.id.match(/^agc\d{3}$/)) {
+  if (/^agc\d{3}$/.exec(contest.id)) {
     return "AGC";
   }
 
@@ -35,14 +42,14 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   if (contest.id.startsWith("joi")) {
     return "JOI";
   }
-  if (contest.id.match(/^(jag|JAG)/)) {
+  if (/^(jag|JAG)/.exec(contest.id)) {
     return "JAG";
   }
   if (
-    contest.title.match(
-      /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova)/
+    /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova)/.exec(
+      contest.title
     ) ||
-    contest.id.match(/(^future-meets-you-contest|^hokudai-hitachi)/) ||
+    /(^future-meets-you-contest|^hokudai-hitachi)/.exec(contest.id) ||
     [
       "caddi2019",
       "pakencamp-2019-day2",
@@ -54,10 +61,4 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   }
 
   return "Other Contests";
-};
-
-export const isRatedContest = (contest: Contest) => {
-  return (
-    contest.rate_change !== "-" && contest.start_epoch_second >= AGC_001_START
-  );
 };

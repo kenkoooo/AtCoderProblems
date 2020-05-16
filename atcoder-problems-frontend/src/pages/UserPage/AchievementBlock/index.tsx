@@ -44,7 +44,7 @@ interface InnerProps extends OuterProps {
   streakRank: PromiseState<number>;
 }
 
-const InnerAchievementBlock = (props: InnerProps) => {
+const InnerAchievementBlock: React.FC<InnerProps> = props => {
   const { longestStreak, currentStreak, prevDateLabel } = props;
   const shortRanking = props.shortestRanking.fulfilled
     ? props.shortestRanking.value

@@ -35,7 +35,7 @@ const refineRanking = (ranking: RankingEntry[]) =>
       return array;
     }, [] as InternalRankEntry[]);
 
-const Ranking = (props: Props) => (
+const Ranking: React.FC<Props> = props => (
   <Row>
     <h2>{props.title}</h2>
     <BootstrapTable

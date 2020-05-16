@@ -100,25 +100,25 @@ interface Props {
   contestToProblems: Map<ContestId, Problem[]>;
 }
 
-export const PieChartBlock = (props: Props) => {
+export const PieChartBlock: React.FC<Props> = props => {
   const { contestToProblems } = props;
   const abcSolved = solvedCountForPieChart(
-    Array.from(contestToProblems).filter(
-      ([contestId]) => contestId.substring(0, 3) === "abc"
+    Array.from(contestToProblems).filter(([contestId]) =>
+      contestId.startsWith("abc")
     ),
     props.submissions,
     props.userId
   );
   const arcSolved = solvedCountForPieChart(
-    Array.from(contestToProblems).filter(
-      ([contestId]) => contestId.substring(0, 3) === "arc"
+    Array.from(contestToProblems).filter(([contestId]) =>
+      contestId.startsWith("arc")
     ),
     props.submissions,
     props.userId
   );
   const agcSolved = solvedCountForPieChart(
-    Array.from(contestToProblems).filter(
-      ([contestId]) => contestId.substring(0, 3) === "agc"
+    Array.from(contestToProblems).filter(([contestId]) =>
+      contestId.startsWith("agc")
     ),
     props.submissions,
     props.userId

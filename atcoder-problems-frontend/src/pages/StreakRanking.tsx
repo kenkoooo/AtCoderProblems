@@ -8,7 +8,7 @@ interface Props {
   rankingFetch: PromiseState<RankingEntry[]>;
 }
 
-const StreakRanking = (props: Props) => (
+const StreakRanking: React.FC<Props> = props => (
   <Ranking
     title="Streak Ranking"
     ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : []}

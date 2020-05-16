@@ -34,7 +34,7 @@ interface Props {
   rankingFetch: PromiseState<Map<string, List<LangRankingEntry>>>;
 }
 
-const LanguageOwners = (props: Props) => {
+const LanguageOwners: React.FC<Props> = props => {
   const [ownersNum, setOwnersNum] = useState(3);
 
   const ranking = props.rankingFetch.fulfilled

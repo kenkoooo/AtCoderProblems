@@ -59,7 +59,7 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
           ? `linear-gradient(to right, ${color}, #FFDABD, ${color})`
           : `linear-gradient(to right, ${color}, white, ${color})`
     });
-    const title: string = `Difficulty: ${difficulty}`;
+    const title = `Difficulty: ${difficulty}`;
     const circleId = "DifficultyCircle-" + id;
     return (
       <>

@@ -7,7 +7,7 @@ export const ATCODER_RIVALS_REGEXP = new RegExp(
 );
 
 export const extractRivalsParam = (rivalsParam: string): string[] => {
-  if (rivalsParam.match(ATCODER_RIVALS_REGEXP)) {
+  if (ATCODER_RIVALS_REGEXP.exec(rivalsParam)) {
     return rivalsParam
       .split(",")
       .map(rival => rival.trim())
@@ -19,7 +19,7 @@ export const extractRivalsParam = (rivalsParam: string): string[] => {
 
 export const normalizeUserId = (userId: string): string => {
   const trimmedUserId = userId.trim();
-  return trimmedUserId.match(ATCODER_USER_REGEXP) ? trimmedUserId : "";
+  return ATCODER_USER_REGEXP.exec(trimmedUserId) ? trimmedUserId : "";
 };
 
 export const isAccepted = (result: string) => result === "AC";
@@ -29,7 +29,7 @@ export const isValidResult = (result: string) =>
   );
 
 export const isVJudgeOrLuogu = (userId: string) => {
-  return !!userId.match(/^(vjudge\d|luogu_bot\d)$/);
+  return !!/^(vjudge\d|luogu_bot\d)$/.exec(userId);
 };
 
 export const ordinalSuffixOf = (i: number) => {

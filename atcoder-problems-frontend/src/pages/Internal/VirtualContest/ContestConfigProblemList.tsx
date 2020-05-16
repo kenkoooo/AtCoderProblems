@@ -16,7 +16,7 @@ import ProblemLink from "../../../components/ProblemLink";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { isAccepted } from "../../../utils";
 
-const ContestConfigProblemList = (props: InnerProps) => {
+const ContestConfigProblemList: React.FC<InnerProps> = props => {
   return (
     <ListGroup>
       {props.problemSet.valueSeq().map((p, i) => {
@@ -26,10 +26,10 @@ const ContestConfigProblemList = (props: InnerProps) => {
         const solvedUsers =
           problem && props.userSolvedProblemsMapFetch.fulfilled
             ? Object.entries(props.userSolvedProblemsMapFetch.value)
-                .filter(([user, solvedProblems]) =>
+                .filter(([, solvedProblems]) =>
                   solvedProblems.contains(problem.id)
                 )
-                .map(([user, ignored]) => user)
+                .map(([user]) => user)
             : [];
 
         return (

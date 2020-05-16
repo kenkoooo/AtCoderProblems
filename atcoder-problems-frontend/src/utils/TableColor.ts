@@ -56,6 +56,21 @@ export const combineTableColorList = ({
   }
 };
 
+const statusLabelToTableColor = (label: StatusLabel) => {
+  switch (label) {
+    case StatusLabel.Success:
+      return TableColor.Success;
+    case StatusLabel.Failed:
+      return TableColor.Danger;
+    case StatusLabel.Warning:
+      return TableColor.Warning;
+    case StatusLabel.None:
+      return TableColor.None;
+    default:
+      return TableColor.None;
+  }
+};
+
 export const statusToTableColor = ({
   colorMode,
   status,
@@ -105,20 +120,5 @@ export const statusToTableColor = ({
         return statusLabelToTableColor(status.label);
       }
     }
-  }
-};
-
-const statusLabelToTableColor = (label: StatusLabel) => {
-  switch (label) {
-    case StatusLabel.Success:
-      return TableColor.Success;
-    case StatusLabel.Failed:
-      return TableColor.Danger;
-    case StatusLabel.Warning:
-      return TableColor.Warning;
-    case StatusLabel.None:
-      return TableColor.None;
-    default:
-      return TableColor.None;
   }
 };

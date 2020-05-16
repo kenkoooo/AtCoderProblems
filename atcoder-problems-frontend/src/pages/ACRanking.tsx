@@ -8,7 +8,7 @@ interface InnerProps {
   rankingFetch: PromiseState<RankingEntry[]>;
 }
 
-const ACRanking = (props: InnerProps) => (
+const ACRanking: React.FC<InnerProps> = props => (
   <Ranking
     title="AC Count Ranking"
     ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : []}

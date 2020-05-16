@@ -106,7 +106,17 @@ const EstimatedPerformance = (props: {
   );
 };
 
-const InnerContestTable = (props: InnerProps) => {
+function compareProblem<T extends { id: string; order: number | null }>(
+  a: T,
+  b: T
+) {
+  if (a.order !== null && b.order !== null) {
+    return a.order - b.order;
+  }
+  return a.id.localeCompare(b.id);
+}
+
+const InnerContestTable: React.FC<InnerProps> = props => {
   const { showProblems, problems, mode, users, start } = props;
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
@@ -267,16 +277,6 @@ const InnerContestTable = (props: InnerProps) => {
     </Table>
   );
 };
-
-function compareProblem<T extends { id: string; order: number | null }>(
-  a: T,
-  b: T
-) {
-  if (a.order !== null && b.order !== null) {
-    return a.order - b.order;
-  }
-  return a.id.localeCompare(b.id);
-}
 
 export const ContestTable = connect<OuterProps, InnerProps>(props => ({
   submissions: {

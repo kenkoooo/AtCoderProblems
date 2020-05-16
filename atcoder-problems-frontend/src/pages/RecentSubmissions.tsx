@@ -19,7 +19,7 @@ interface Props {
   problems: PromiseState<Problem[]>;
 }
 
-const InnerRecentSubmissions = (props: Props) => {
+const InnerRecentSubmissions: React.FC<Props> = props => {
   if (props.submissions.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }

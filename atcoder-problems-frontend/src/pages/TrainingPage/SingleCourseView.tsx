@@ -99,7 +99,7 @@ interface InnerProps extends OuterProps {
   problems: PromiseState<Map<ProblemId, Problem>>;
 }
 
-const InnerSingleCourseView = (props: InnerProps) => {
+const InnerSingleCourseView: React.FC<InnerProps> = props => {
   const { course } = props;
   const [selectedSet, setSelectedSet] = useState(course.set_list[0].order);
 
