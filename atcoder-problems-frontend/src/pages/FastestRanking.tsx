@@ -9,7 +9,7 @@ interface Props {
   rankingFetch: PromiseState<List<RankingEntry>>;
 }
 
-const FastestRanking = (props: Props) => (
+const FastestRanking: React.FC<Props> = props => (
   <Ranking
     title={"Fastest Submission Ranking"}
     ranking={

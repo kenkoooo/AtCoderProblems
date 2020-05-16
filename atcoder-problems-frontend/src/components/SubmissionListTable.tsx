@@ -17,7 +17,7 @@ interface Props {
   problemModels: Map<ProblemId, ProblemModel>;
 }
 
-export const SubmissionListTable = (props: Props) => {
+export const SubmissionListTable: React.FC<Props> = props => {
   const { submissions, problems, problemModels } = props;
   const titleMap = problems.reduce((map, p) => {
     map.set(p.id, p.title);

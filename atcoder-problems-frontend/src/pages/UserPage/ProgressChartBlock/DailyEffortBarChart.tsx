@@ -15,7 +15,7 @@ interface Props {
   dailyData: { dateSecond: number; count: number }[];
 }
 
-export const DailyEffortBarChart = (props: Props) => (
+export const DailyEffortBarChart: React.FC<Props> = props => (
   <Row className="my-3">
     <ResponsiveContainer width="100%" height={300}>
       <BarChart

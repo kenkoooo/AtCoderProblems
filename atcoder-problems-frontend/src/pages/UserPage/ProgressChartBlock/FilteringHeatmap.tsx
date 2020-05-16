@@ -48,7 +48,7 @@ const formatTooltip = (date: string, count: number, filter: FilterStatus) => {
   }
 };
 
-export const FilteringHeatmap = (props: Props) => {
+export const FilteringHeatmap: React.FC<Props> = props => {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("Submissions");
   const { submissions } = props;
   const filteredSubmissions = filterSubmissions(submissions, filterStatus);

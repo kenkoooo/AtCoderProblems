@@ -20,7 +20,7 @@ interface Props {
   }>;
 }
 
-const InnerTrainingList = (props: Props) => {
+const InnerTrainingList: React.FC<Props> = props => {
   const { path } = useRouteMatch();
 
   if (props.courses.pending) {

@@ -8,28 +8,6 @@ import { clipDifficulty, isAccepted } from "../../../../utils";
 import Submission from "../../../../interfaces/Submission";
 import { VirtualContestItem, VirtualContestMode } from "../../types";
 
-export const calcPerformance = (
-  solvedData: { problemId: string; time: number; solved: boolean }[],
-  modelMap: ImmutableMap<ProblemId, ProblemModel>
-) => {
-  let internalRating = 0;
-  let probability = 0.0;
-  for (let candidateRating = -4000; candidateRating < 4000; candidateRating++) {
-    const p = solvedData
-      .map(({ problemId, time, solved }) => {
-        const model = modelMap.get(problemId);
-        return calcProbability(model, candidateRating, time, solved);
-      })
-      .reduce((prev: number, cur) => (cur ? prev * cur : prev), 1.0);
-    if (probability < p) {
-      probability = p;
-      internalRating = candidateRating;
-    }
-  }
-
-  return clipDifficulty(internalRating);
-};
-
 const calcProbability = (
   model: ProblemModel | undefined,
   rating: number,
@@ -54,6 +32,28 @@ const calcProbability = (
   } else {
     return undefined;
   }
+};
+
+export const calcPerformance = (
+  solvedData: { problemId: string; time: number; solved: boolean }[],
+  modelMap: ImmutableMap<ProblemId, ProblemModel>
+) => {
+  let internalRating = 0;
+  let probability = 0.0;
+  for (let candidateRating = -4000; candidateRating < 4000; candidateRating++) {
+    const p = solvedData
+      .map(({ problemId, time, solved }) => {
+        const model = modelMap.get(problemId);
+        return calcProbability(model, candidateRating, time, solved);
+      })
+      .reduce((prev: number, cur) => (cur ? prev * cur : prev), 1.0);
+    if (probability < p) {
+      probability = p;
+      internalRating = candidateRating;
+    }
+  }
+
+  return clipDifficulty(internalRating);
 };
 
 export interface BestSubmissionInfo {
@@ -134,6 +134,19 @@ export const extractBestSubmissions = (
   });
 };
 
+export const hasBetterSubmission = (
+  problemId: string,
+  userId: string,
+  best: Submission,
+  bestSubmissions: BestSubmissionEntry[]
+) => {
+  const betterSubmission = bestSubmissions
+    .filter(s => s.userId !== userId && s.problemId === problemId)
+    .map(s => s.bestSubmissionInfo?.bestSubmission)
+    .find(s => s && s.id < best.id && isAccepted(s.result));
+  return !!betterSubmission;
+};
+
 export const calcTotalResult = (
   userId: string,
   problems: VirtualContestItem[],
@@ -177,19 +190,6 @@ export const calcTotalResult = (
       point: 0
     }
   );
-};
-
-export const hasBetterSubmission = (
-  problemId: string,
-  userId: string,
-  best: Submission,
-  bestSubmissions: BestSubmissionEntry[]
-) => {
-  const betterSubmission = bestSubmissions
-    .filter(s => s.userId !== userId && s.problemId === problemId)
-    .map(s => s.bestSubmissionInfo?.bestSubmission)
-    .find(s => s && s.id < best.id && isAccepted(s.result));
-  return !!betterSubmission;
 };
 
 export const getSortedUserIds = (

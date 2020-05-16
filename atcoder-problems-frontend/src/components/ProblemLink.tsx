@@ -15,7 +15,7 @@ interface Props {
   isExperimentalDifficulty?: boolean;
 }
 
-const ProblemLink = (props: Props) => {
+const ProblemLink: React.FC<Props> = props => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const {

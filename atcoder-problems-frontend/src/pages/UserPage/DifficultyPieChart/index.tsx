@@ -15,7 +15,7 @@ interface Props {
   solvedProblemIds: ProblemId[];
 }
 
-export const DifficultyPieChart = (props: Props) => {
+export const DifficultyPieChart: React.FC<Props> = props => {
   const colorCount = new Map<RatingColor, number>();
   props.problemModels.forEach(model => {
     if (model.difficulty !== undefined) {

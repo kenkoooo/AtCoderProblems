@@ -7,29 +7,29 @@ import {
 
 describe("user regex", () => {
   it("should match", () => {
-    expect("user_1a".match(ATCODER_USER_REGEXP)).toBeTruthy();
+    expect(ATCODER_USER_REGEXP.exec("user_1a")).toBeTruthy();
   });
 
   it("should not match", () => {
-    expect("user;".match(ATCODER_USER_REGEXP)).toBeFalsy();
+    expect(ATCODER_USER_REGEXP.exec("user;")).toBeFalsy();
   });
 });
 
 describe("rival regex", () => {
   it("should match", () => {
-    expect(" user1 , USER2, user_3 ".match(ATCODER_RIVALS_REGEXP)).toBeTruthy();
+    expect(ATCODER_RIVALS_REGEXP.exec(" user1 , USER2, user_3 ")).toBeTruthy();
   });
 
   it("empty string should not match", () => {
-    expect("".match(ATCODER_RIVALS_REGEXP)).toBeFalsy();
+    expect(ATCODER_RIVALS_REGEXP.exec("")).toBeFalsy();
   });
 
   it("user names separated spaces should not match", () => {
-    expect("user1 user2".match(ATCODER_RIVALS_REGEXP)).toBeFalsy();
+    expect(ATCODER_RIVALS_REGEXP.exec("user1 user2")).toBeFalsy();
   });
 
   it("user names including invalid char should not match", () => {
-    expect("user^, user|".match(ATCODER_RIVALS_REGEXP)).toBeFalsy();
+    expect(ATCODER_RIVALS_REGEXP.exec("user^, user|")).toBeFalsy();
   });
 });
 

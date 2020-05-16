@@ -30,7 +30,7 @@ import { List } from "immutable";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <Router>
       <div>

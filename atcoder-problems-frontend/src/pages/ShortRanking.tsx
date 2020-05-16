@@ -9,7 +9,7 @@ interface Props {
   rankingFetch: PromiseState<List<RankingEntry>>;
 }
 
-const FirstRanking = (props: Props) => (
+const FirstRanking: React.FC<Props> = props => (
   <Ranking
     title={"Top Golfers"}
     ranking={

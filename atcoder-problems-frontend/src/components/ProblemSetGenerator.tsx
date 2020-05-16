@@ -74,7 +74,7 @@ const AGC_PRESET: ProblemSetSelectionPreset = {
     { minDifficulty: 2800, maxDifficulty: 9999 }
   ]
 };
-export default (props: Props) => {
+export const ProblemSetGenerator: React.FC<Props> = props => {
   const [problemSelectionParamsList, setProblemSelectionParamsList] = useState(
     ABC_PRESET.problemSelectionParams
   );

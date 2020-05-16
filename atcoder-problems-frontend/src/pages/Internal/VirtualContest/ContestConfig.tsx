@@ -22,12 +22,19 @@ import { USER_GET } from "../ApiUrl";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
 import ProblemModel from "../../../interfaces/ProblemModel";
-import ProblemSetGenerator from "../../../components/ProblemSetGenerator";
+import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import HelpBadgeTooltip from "../../../components/HelpBadgeTooltip";
 import { Redirect } from "react-router";
 import ContestConfigProblemList from "./ContestConfigProblemList";
 
-const ContestConfig = (props: InnerProps) => {
+const toUnixSecond = (date: string, hour: number, minute: number) => {
+  const hh = hour < 10 ? "0" + hour : "" + hour;
+  const mm = minute < 10 ? "0" + minute : "" + minute;
+  const s = `${date}T${hh}:${mm}:00+09:00`;
+  return moment(s).unix();
+};
+
+const ContestConfig: React.FC<InnerProps> = props => {
   const [title, setTitle] = useState(props.initialTitle);
   const [memo, setMemo] = useState(props.initialMemo);
 
@@ -343,10 +350,3 @@ export default connect<OuterProps, InnerProps>(() => ({
     url: USER_GET
   }
 }))(ContestConfig);
-
-const toUnixSecond = (date: string, hour: number, minute: number) => {
-  const hh = hour < 10 ? "0" + hour : "" + hour;
-  const mm = minute < 10 ? "0" + minute : "" + minute;
-  const s = `${date}T${hh}:${mm}:00+09:00`;
-  return moment(s).unix();
-};

@@ -13,7 +13,7 @@ interface Props {
   formatTooltip?: (date: string, count: number) => string;
 }
 
-const CalendarHeatmap = (props: Props) => {
+const CalendarHeatmap: React.FC<Props> = props => {
   const { dateLabels } = props;
 
   const today = getToday();

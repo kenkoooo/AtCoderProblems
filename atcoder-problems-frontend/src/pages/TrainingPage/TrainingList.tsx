@@ -14,7 +14,7 @@ interface Props {
   submissions: Submission[];
 }
 
-export const TrainingList = (props: Props) => {
+export const TrainingList: React.FC<Props> = props => {
   const solvedSet = props.submissions
     .filter(s => isAccepted(s.result))
     .reduce((set, s) => {

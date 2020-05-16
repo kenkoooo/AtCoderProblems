@@ -22,7 +22,7 @@ interface Props {
   title: string;
 }
 
-export const ContestTable: React.FC<Props> = (props: Props) => {
+export const ContestTable: React.FC<Props> = props => {
   const {
     contests,
     contestToProblems,
