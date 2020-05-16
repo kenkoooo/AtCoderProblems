@@ -12,6 +12,11 @@ code {
     monospace;
 }
 
+.dropdown-menu {
+  max-height: 256px;
+  overflow-y: auto;
+}
+
 .tooltip {
   pointer-events: none;
 }
