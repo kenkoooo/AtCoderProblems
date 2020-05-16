@@ -23,11 +23,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "tslint 'src/**/*.{ts,tsx}'",
-    "lint:fix": "tslint 'src/**/*.{ts,tsx}' --fix"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix"
   },
   "browserslist": [
     ">0.2%",
@@ -45,13 +42,17 @@
     "@types/react-router-dom": "^5.1.3",
     "@types/reactstrap": "^8.2.0",
     "@types/recharts": "^1.1.14",
+    "@typescript-eslint/eslint-plugin": "^2.33.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^2.33.0",
+    "@typescript-eslint/parser": "^2.33.0",
+    "eslint": "^7.0.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jsdoc": "^25.4.1",
+    "eslint-plugin-prefer-arrow": "^1.2.1",
     "http-proxy-middleware": "^0.20.0",
     "prettier": "^1.18.2",
-    "prettier-tslint": "^0.4.2",
-    "tslint": "^5.20.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "tslint-react": "^4.1.0",
+    "tslint": "^6.1.2",
     "typescript": "3.7.3"
   }
 }
