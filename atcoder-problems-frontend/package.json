@@ -23,8 +23,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix"
+    "lint": "eslint --ignore-path .gitignore 'src/**/*.{js,json,jsx,ts,tsx}'",
+    "lint:fix": "yarn run lint --fix",
+    "format": "prettier --write --ignore-path .gitignore 'src/**/*.{css,html,js,json,jsx,md,ts,tsx}'"
   },
   "browserslist": [
     ">0.2%",
@@ -43,16 +44,13 @@
     "@types/reactstrap": "^8.2.0",
     "@types/recharts": "^1.1.14",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
-    "@typescript-eslint/eslint-plugin-tslint": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-jsdoc": "^25.4.1",
-    "eslint-plugin-prefer-arrow": "^1.2.1",
+    "eslint-plugin-react-hooks": "^4.0.2",
     "http-proxy-middleware": "^0.20.0",
     "prettier": "^1.18.2",
-    "tslint": "^6.1.2",
     "typescript": "3.7.3"
   }
 }
