@@ -1,3 +1,4 @@
+import { List } from "immutable";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import Submission from "../../../../../interfaces/Submission";
@@ -152,7 +153,7 @@ const InnerLockoutContestTable: React.FC<InnerProps> = props => {
 export const LockoutContestTable = connect<OuterProps, InnerProps>(props => ({
   submissions: {
     comparison: null,
-    value: () =>
+    value: (): Promise<List<Submission>> =>
       fetchVirtualContestSubmission(
         props.participants,
         props.problems.map(p => p.item.id),

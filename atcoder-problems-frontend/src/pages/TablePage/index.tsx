@@ -110,14 +110,14 @@ const InnerTablePage: React.FC<InnerProps> = props => {
     <div>
       <Options
         showAccepted={showAccepted}
-        toggleShowAccepted={() => setShowAccepted(!showAccepted)}
+        toggleShowAccepted={(): void => setShowAccepted(!showAccepted)}
         showDifficulties={showDifficulty}
-        toggleShowDifficulties={() => setShowDifficulty(!showDifficulty)}
+        toggleShowDifficulties={(): void => setShowDifficulty(!showDifficulty)}
         colorMode={colorMode}
         setColorMode={setColorMode}
         selectableLanguages={selectableLanguages}
         selectedLanguages={selectedLanguages}
-        toggleLanguage={language =>
+        toggleLanguage={(language): void =>
           setSelectedLanguages(
             selectedLanguages.has(language)
               ? selectedLanguages.delete(language)
@@ -164,27 +164,32 @@ const InnerTablePage: React.FC<InnerProps> = props => {
 export const TablePage = connect<OuterProps, InnerProps>(props => ({
   problemModelsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedProblemModels()
+    value: (): Promise<Map<string, ProblemModel>> =>
+      CachedApiClient.cachedProblemModels()
   },
   contestsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedContestMap()
+    value: (): Promise<Map<string, Contest>> =>
+      CachedApiClient.cachedContestMap()
   },
   problemsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedProblemMap()
+    value: (): Promise<Map<string, Problem>> =>
+      CachedApiClient.cachedProblemMap()
   },
   contestToProblemsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedContestToProblemMap()
+    value: (): Promise<Map<string, List<Problem>>> =>
+      CachedApiClient.cachedContestToProblemMap()
   },
   selectableLanguagesFetch: {
     comparison: props.userId,
-    value: () => CachedApiClient.cachedSelectableLanguages(props.userId)
+    value: (): Promise<Set<string>> =>
+      CachedApiClient.cachedSelectableLanguages(props.userId)
   },
   submissions: {
     comparison: [props.userId, props.rivals],
-    value: () =>
+    value: (): Promise<Submission[]> =>
       Promise.all(
         props.rivals.push(props.userId).map(id => fetchUserSubmissions(id))
       ).then((arrays: Submission[][]) => arrays.flatMap(array => array))

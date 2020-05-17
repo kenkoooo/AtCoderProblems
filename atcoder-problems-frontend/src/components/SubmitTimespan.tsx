@@ -8,7 +8,7 @@ interface Props {
   enableColorfulMode: boolean;
 }
 
-const formatTimespan = (sec: number) => {
+const formatTimespan = (sec: number): string => {
   let sign;
   if (sec >= 0) {
     sign = "";

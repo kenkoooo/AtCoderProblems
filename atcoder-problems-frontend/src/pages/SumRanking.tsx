@@ -18,6 +18,6 @@ const SumRanking: React.FC<Props> = props => (
 export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedSumRanking()
+    value: CachedApiClient.cachedSumRanking
   }
 }))(SumRanking);

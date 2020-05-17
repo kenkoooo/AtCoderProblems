@@ -31,7 +31,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
   contestInfoFetch: {
     url: contestGetUrl(props.contestId)
   },
-  updateContest: (request: Request, problems: VirtualContestItem[]) => ({
+  updateContest: (request: Request, problems: VirtualContestItem[]): any => ({
     updateResponse: {
       url: CONTEST_UPDATE,
       method: "POST",
@@ -39,7 +39,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
         "Content-Type": "application/json"
       },
       body: JSON.stringify(request),
-      then: () => ({
+      then: (): any => ({
         url: CONTEST_ITEM_UPDATE,
         method: "POST",
         headers: {
@@ -103,7 +103,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
         endSecond,
         problems: ps,
         mode
-      }) => {
+      }): void => {
         props.updateContest(
           {
             id: contestId,
@@ -120,7 +120,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
   );
 });
 
-export default () => {
+export default (): React.ReactElement => {
   const { contestId } = useParams();
   if (contestId) {
     return <InnerComponent contestId={contestId} />;

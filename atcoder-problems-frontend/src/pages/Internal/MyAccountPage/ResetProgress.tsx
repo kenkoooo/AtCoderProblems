@@ -42,7 +42,7 @@ const InnerResetProgress: React.FC<Props> = props => {
         <Col sm="12">
           <ProblemSearchBox
             problems={problems}
-            selectProblem={problm => props.addResetProgress(problm.id)}
+            selectProblem={(problm): void => props.addResetProgress(problm.id)}
           />
         </Col>
       </Row>
@@ -80,7 +80,7 @@ const InnerResetProgress: React.FC<Props> = props => {
                     <td>
                       <Button
                         color="danger"
-                        onClick={() =>
+                        onClick={(): void =>
                           props.deleteResetProgress(item.problem_id)
                         }
                       >
@@ -104,10 +104,11 @@ export const ResetProgress = connect<{}, Props>(() => ({
   },
   problems: {
     comparison: null,
-    value: () => cachedProblemMap().then(map => map.valueSeq().toArray())
+    value: (): Promise<Problem[]> =>
+      cachedProblemMap().then(map => map.valueSeq().toArray())
   },
   addResetProgressResponse: { value: null },
-  addResetProgress: (problemId: string) => ({
+  addResetProgress: (problemId: string): any => ({
     addResetProgressResponse: {
       force: true,
       refreshing: true,
@@ -117,7 +118,7 @@ export const ResetProgress = connect<{}, Props>(() => ({
         problem_id: problemId,
         reset_epoch_second: Math.floor(new Date().getTime() / 1000)
       }),
-      andThen: () => ({
+      andThen: (): any => ({
         progressResetList: {
           force: true,
           url: PROGRESS_RESET_LIST
@@ -125,7 +126,7 @@ export const ResetProgress = connect<{}, Props>(() => ({
       })
     }
   }),
-  deleteResetProgress: (problemId: string) => ({
+  deleteResetProgress: (problemId: string): any => ({
     deleteResetProgressResponse: {
       force: true,
       refreshing: true,
@@ -134,7 +135,7 @@ export const ResetProgress = connect<{}, Props>(() => ({
       body: JSON.stringify({
         problem_id: problemId
       }),
-      andThen: () => ({
+      andThen: (): any => ({
         progressResetList: {
           force: true,
           url: PROGRESS_RESET_LIST

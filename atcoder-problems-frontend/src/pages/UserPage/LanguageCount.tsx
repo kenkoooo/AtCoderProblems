@@ -3,7 +3,11 @@ import { Row, Col } from "reactstrap";
 import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
 
-const LanguageCount = ({ submissions }: { submissions: Submission[] }) => {
+interface Props {
+  submissions: Submission[];
+}
+
+const LanguageCount: React.FC<Props> = ({ submissions }) => {
   const languageMap = submissions
     .filter(s => isAccepted(s.result))
     .reduce((map, submission) => {

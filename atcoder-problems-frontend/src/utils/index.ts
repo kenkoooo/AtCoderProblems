@@ -22,17 +22,17 @@ export const normalizeUserId = (userId: string): string => {
   return ATCODER_USER_REGEXP.exec(trimmedUserId) ? trimmedUserId : "";
 };
 
-export const isAccepted = (result: string) => result === "AC";
-export const isValidResult = (result: string) =>
+export const isAccepted = (result: string): boolean => result === "AC";
+export const isValidResult = (result: string): boolean =>
   ["AC", "WA", "TLE", "CE", "RE", "MLE", "OLE", "QLE", "IE", "NG"].includes(
     result
   );
 
-export const isVJudgeOrLuogu = (userId: string) => {
+export const isVJudgeOrLuogu = (userId: string): boolean => {
   return !!/^(vjudge\d|luogu_bot\d)$/.exec(userId);
 };
 
-export const ordinalSuffixOf = (i: number) => {
+export const ordinalSuffixOf = (i: number): "st" | "nd" | "rd" | "th" => {
   const j = i % 10;
   const k = i % 100;
   if (j === 1 && k !== 11) {
@@ -47,7 +47,7 @@ export const ordinalSuffixOf = (i: number) => {
   return "th";
 };
 
-export const clipDifficulty = (difficulty: number) =>
+export const clipDifficulty = (difficulty: number): number =>
   Math.round(
     difficulty >= 400 ? difficulty : 400 / Math.exp(1.0 - difficulty / 400)
   );
@@ -68,7 +68,16 @@ export const getRatingColor = (rating: number): RatingColor => {
   const index = Math.min(Math.floor(rating / 400), RatingColors.length - 1);
   return RatingColors[index];
 };
-export const getRatingColorClass = (rating: number) => {
+type RatingColorClassName =
+  | "difficulty-grey"
+  | "difficulty-brown"
+  | "difficulty-green"
+  | "difficulty-cyan"
+  | "difficulty-blue"
+  | "difficulty-yellow"
+  | "difficulty-orange"
+  | "difficulty-red";
+export const getRatingColorClass = (rating: number): RatingColorClassName => {
   const ratingColor = getRatingColor(rating);
   switch (ratingColor) {
     case "Grey":
@@ -89,7 +98,7 @@ export const getRatingColorClass = (rating: number) => {
       return "difficulty-red";
   }
 };
-export const getRatingColorCode = (ratingColor: RatingColor) => {
+export const getRatingColorCode = (ratingColor: RatingColor): string => {
   switch (ratingColor) {
     case "Grey":
       return "#808080";

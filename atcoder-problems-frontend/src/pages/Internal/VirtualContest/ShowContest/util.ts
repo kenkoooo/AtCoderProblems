@@ -13,7 +13,7 @@ const calcProbability = (
   rating: number,
   time: number,
   solved: boolean
-) => {
+): number | undefined => {
   const slope = model?.slope;
   const intercept = model?.intercept;
   const v = model?.variance;
@@ -37,7 +37,7 @@ const calcProbability = (
 export const calcPerformance = (
   solvedData: { problemId: string; time: number; solved: boolean }[],
   modelMap: ImmutableMap<ProblemId, ProblemModel>
-) => {
+): number => {
   let internalRating = 0;
   let probability = 0.0;
   for (let candidateRating = -4000; candidateRating < 4000; candidateRating++) {
@@ -139,7 +139,7 @@ export const hasBetterSubmission = (
   userId: string,
   best: Submission,
   bestSubmissions: BestSubmissionEntry[]
-) => {
+): boolean => {
   const betterSubmission = bestSubmissions
     .filter(s => s.userId !== userId && s.problemId === problemId)
     .map(s => s.bestSubmissionInfo?.bestSubmission)
@@ -152,7 +152,11 @@ export const calcTotalResult = (
   problems: VirtualContestItem[],
   mode: VirtualContestMode,
   bestSubmissions: BestSubmissionEntry[]
-) => {
+): {
+  trialsBeforeBest: number;
+  lastBestSubmissionTime: number;
+  point: number;
+} => {
   return problems.reduce(
     (state, item) => {
       const problemId = item.id;
@@ -197,7 +201,7 @@ export const getSortedUserIds = (
   problems: VirtualContestItem[],
   mode: VirtualContestMode,
   bestSubmissions: BestSubmissionEntry[]
-) => {
+): string[] => {
   return users
     .map(userId => {
       const result = calcTotalResult(userId, problems, mode, bestSubmissions);

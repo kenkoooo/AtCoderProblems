@@ -24,7 +24,7 @@ const problemToDifficultyLevel = (
   problem: MergedProblem,
   problemModels: ImmutableMap<ProblemId, ProblemModel>,
   showExperimental: boolean
-) => {
+): number | undefined => {
   const problemModel = problemModels.get(problem.id);
   if (problemModel === undefined) {
     return undefined;
@@ -104,7 +104,7 @@ export const DifficultyTable: React.FC<Props> = props => {
     <>
       <ButtonGroup className="mb-2">
         <Button
-          onClick={() => setIncludingExperimental(!includingExperimental)}
+          onClick={(): void => setIncludingExperimental(!includingExperimental)}
         >
           {includingExperimental ? "Including 🧪" : "Excluding 🧪"}
         </Button>
@@ -117,7 +117,7 @@ export const DifficultyTable: React.FC<Props> = props => {
               <th key={difficultyLevel} style={{ whiteSpace: "nowrap" }}>
                 <a
                   href={window.location.hash}
-                  onClick={() =>
+                  onClick={(): void =>
                     setFilterFunc(
                       difficulties.get(difficultyLevel, { from: 0 }).from,
                       difficulties.get(difficultyLevel, { to: INF_POINT }).to

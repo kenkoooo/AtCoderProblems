@@ -3,7 +3,7 @@ const BASE_URL = process.env.REACT_APP_INTERNAL_API_URL;
 export const USER_GET = `${BASE_URL}/user/get`;
 export const USER_UPDATE = `${BASE_URL}/user/update`;
 
-export const contestGetUrl = (contestId: string) =>
+export const contestGetUrl = (contestId: string): string =>
   `${BASE_URL}/contest/get/${contestId}`;
 export const CONTEST_MY = `${BASE_URL}/contest/my`;
 export const CONTEST_UPDATE = `${BASE_URL}/contest/update`;
@@ -20,7 +20,8 @@ export const LIST_UPDATE = `${BASE_URL}/list/update`;
 export const LIST_ITEM_UPDATE = `${BASE_URL}/list/item/update`;
 export const LIST_ITEM_DELETE = `${BASE_URL}/list/item/delete`;
 export const LIST_ITEM_ADD = `${BASE_URL}/list/item/add`;
-export const listGetUrl = (listId: string) => `${BASE_URL}/list/get/${listId}`;
+export const listGetUrl = (listId: string): string =>
+  `${BASE_URL}/list/get/${listId}`;
 
 export const PROGRESS_RESET_LIST = `${BASE_URL}/progress_reset/list`;
 export const PROGRESS_RESET_ADD = `${BASE_URL}/progress_reset/add`;

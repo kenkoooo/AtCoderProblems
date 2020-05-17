@@ -43,7 +43,7 @@ export const RecentContestList = connect<{}, InnerProps>(() => ({
           <Col sm="12">
             <Button
               color="success"
-              onClick={() => {
+              onClick={(): void => {
                 history.push({ pathname: "/contest/create" });
               }}
             >

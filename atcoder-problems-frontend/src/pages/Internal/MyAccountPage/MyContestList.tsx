@@ -24,7 +24,7 @@ const InnerMyContestList: React.FC<Props> = props => {
         <Col sm="12">
           <Button
             color="success"
-            onClick={() => {
+            onClick={(): void => {
               history.push({ pathname: "/contest/create" });
             }}
           >

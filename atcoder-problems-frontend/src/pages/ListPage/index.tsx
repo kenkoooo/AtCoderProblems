@@ -107,7 +107,7 @@ const InnerListPage: React.FC<InnerProps> = props => {
     searchParams.get(FilterParams.ToPoint) || INF_POINT.toString(),
     10
   );
-  const setExactPointFilter = (point: number) => {
+  const setExactPointFilter = (point: number): void => {
     const params = new URLSearchParams(location.search);
     params.set(FilterParams.FromPoint, point.toString());
     params.set(FilterParams.ToPoint, point.toString());
@@ -127,7 +127,7 @@ const InnerListPage: React.FC<InnerProps> = props => {
     searchParams.get(FilterParams.ToDifficulty) || INF_POINT.toString(),
     10
   );
-  const setDifficultyFilter = (from: number, to: number) => {
+  const setDifficultyFilter = (from: number, to: number): void => {
     const params = new URLSearchParams(location.search);
     params.set(FilterParams.FromDifficulty, from.toString());
     params.set(FilterParams.ToDifficulty, to.toString());
@@ -399,7 +399,7 @@ const InnerListPage: React.FC<InnerProps> = props => {
         <Button
           outline
           color="danger"
-          onClick={() => history.push({ ...location, search: "" })}
+          onClick={(): void => history.push({ ...location, search: "" })}
         >
           Reset
         </Button>
@@ -439,26 +439,30 @@ interface InnerProps extends OuterProps {
 export const ListPage = connect<OuterProps, InnerProps>(props => ({
   submissionsFetch: {
     comparison: [props.userId, props.rivals],
-    value: () =>
+    value: (): Promise<Submission[]> =>
       Promise.all(
         props.rivals.push(props.userId).map(id => fetchUserSubmissions(id))
       ).then((arrays: Submission[][]) => arrays.flatMap(array => array))
   },
   mergedProblemsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedMergedProblemMap()
+    value: (): Promise<Map<string, MergedProblem>> =>
+      CachedApiClient.cachedMergedProblemMap()
   },
   problemModelsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedProblemModels()
+    value: (): Promise<Map<string, ProblemModel>> =>
+      CachedApiClient.cachedProblemModels()
   },
   contestsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedContestMap()
+    value: (): Promise<Map<string, Contest>> =>
+      CachedApiClient.cachedContestMap()
   },
   userRatingInfoFetch: {
     comparison: props.userId,
-    value: () => CachedApiClient.cachedRatingInfo(props.userId)
+    value: (): Promise<RatingInfo> =>
+      CachedApiClient.cachedRatingInfo(props.userId)
   },
   loginState: USER_GET,
   progressResetList: PROGRESS_RESET_LIST

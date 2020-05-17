@@ -76,7 +76,7 @@ export const ListTable: React.FC<Props> = props => {
       header: "Problem",
       dataField: "title",
       dataSort: true,
-      dataFormat: (_, row) => (
+      dataFormat: (_, row): React.ReactElement => (
         <ProblemLink
           showDifficulty={true}
           difficulty={
@@ -95,7 +95,7 @@ export const ListTable: React.FC<Props> = props => {
       header: "Contest",
       dataField: "contest",
       dataSort: true,
-      dataFormat: (contest, row) =>
+      dataFormat: (contest, row): React.ReactElement =>
         contest ? (
           <ContestLink contest={contest} />
         ) : (
@@ -112,7 +112,7 @@ export const ListTable: React.FC<Props> = props => {
       header: "Result",
       dataField: "a",
       dataAlign: "center",
-      dataFormat: (_: string, row) => {
+      dataFormat: (_: string, row): string | React.ReactElement => {
         const { status } = row;
         switch (status.label) {
           case StatusLabel.Success: {
@@ -147,7 +147,7 @@ export const ListTable: React.FC<Props> = props => {
       header: "Solvers",
       dataField: "solverCount",
       dataSort: true,
-      dataFormat: (solverCount: number, row) => (
+      dataFormat: (solverCount: number, row): React.ReactElement => (
         <a
           href={Url.formatSolversUrl(
             row.mergedProblem.contest_id,
@@ -164,7 +164,7 @@ export const ListTable: React.FC<Props> = props => {
       header: "Point",
       dataField: "point",
       dataSort: true,
-      dataFormat: (point: number) => {
+      dataFormat: (point: number): React.ReactElement => {
         if (point >= INF_POINT) {
           return <p>-</p>;
         } else {
@@ -180,12 +180,12 @@ export const ListTable: React.FC<Props> = props => {
       header: "Difficulty",
       dataField: "problemModel",
       dataSort: true,
-      sortFunc: (a, b, order) => {
+      sortFunc: (a, b, order): number => {
         const delta = readDifficultyAsNumber(a) - readDifficultyAsNumber(b);
         const sign = order === "asc" ? 1 : -1;
         return delta * sign;
       },
-      dataFormat: (problemModel: ProblemModel) => {
+      dataFormat: (problemModel: ProblemModel): React.ReactElement => {
         if (!isProblemModelWithDifficultyModel(problemModel)) {
           return <p>-</p>;
         } else {
@@ -197,7 +197,7 @@ export const ListTable: React.FC<Props> = props => {
       header: "Time",
       dataField: "a",
       dataSort: true,
-      sortFunc: (a, b, order) => {
+      sortFunc: (a, b, order): number => {
         const aPred = predictSolveTimeOfRow(a);
         const bPred = predictSolveTimeOfRow(b);
         const aV = aPred === null ? -1 : aPred;
@@ -206,7 +206,7 @@ export const ListTable: React.FC<Props> = props => {
         const sign = order === "asc" ? 1 : -1;
         return delta * sign;
       },
-      dataFormat: (_: string, row) => {
+      dataFormat: (_: string, row): React.ReactElement => {
         const solveTime = predictSolveTimeOfRow(row);
         if (solveTime === null) {
           return <p>-</p>;
@@ -218,7 +218,7 @@ export const ListTable: React.FC<Props> = props => {
       header: "Fastest",
       dataField: "executionTime",
       dataSort: true,
-      dataFormat: (executionTime: number, row) => {
+      dataFormat: (executionTime: number, row): React.ReactElement => {
         const {
           fastest_submission_id,
           fastest_contest_id,
@@ -246,7 +246,7 @@ export const ListTable: React.FC<Props> = props => {
       header: "Shortest",
       dataField: "codeLength",
       dataSort: true,
-      dataFormat: (codeLength: number, row) => {
+      dataFormat: (codeLength: number, row): React.ReactElement => {
         const {
           shortest_submission_id,
           shortest_contest_id,
@@ -274,7 +274,7 @@ export const ListTable: React.FC<Props> = props => {
       header: "First",
       dataField: "firstUserId",
       dataSort: true,
-      dataFormat: (_: string, row) => {
+      dataFormat: (_: string, row): React.ReactElement => {
         const {
           first_submission_id,
           first_contest_id,
@@ -324,7 +324,7 @@ export const ListTable: React.FC<Props> = props => {
       striped
       search
       tableContainerClass="list-table"
-      trClassName={(row: ProblemRowData) => {
+      trClassName={(row: ProblemRowData): string => {
         const { status, contest } = row;
         return statusToTableColor({
           colorMode: ColorMode.ContestResult,
@@ -392,7 +392,7 @@ export const ListTable: React.FC<Props> = props => {
             value: props.rowData.size
           }
         ],
-        paginationPanel: (paginationPanelProps: any) => {
+        paginationPanel: (paginationPanelProps: any): React.ReactElement => {
           return <ListPaginationPanel {...paginationPanelProps} />;
         }
       }}

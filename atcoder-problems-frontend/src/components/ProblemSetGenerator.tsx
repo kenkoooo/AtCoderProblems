@@ -97,7 +97,7 @@ export const ProblemSetGenerator: React.FC<Props> = props => {
                   type="checkbox"
                   aria-label="Exclude experimental difficulty"
                   checked={excludeExperimental}
-                  onChange={event =>
+                  onChange={(event): void =>
                     setExcludeExperimental(event.target.checked)
                   }
                 />
@@ -117,7 +117,7 @@ export const ProblemSetGenerator: React.FC<Props> = props => {
                   type="checkbox"
                   aria-label="Exclude already solved problems by expected participants"
                   checked={excludeAlreadySolvedProblems}
-                  onChange={event =>
+                  onChange={(event): void =>
                     setExcludeAlreadySolvedProblems(event.target.checked)
                   }
                 />
@@ -141,7 +141,7 @@ export const ProblemSetGenerator: React.FC<Props> = props => {
                 {[ABC_PRESET, ARC_PRESET, AGC_PRESET].map(preset => {
                   return (
                     <DropdownItem
-                      onClick={() => {
+                      onClick={(): void => {
                         setSelectedPreset(preset);
                         setProblemSelectionParamsList(
                           preset.problemSelectionParams
@@ -165,7 +165,7 @@ export const ProblemSetGenerator: React.FC<Props> = props => {
             <Label> Problem {idx + 1}</Label>
             <Button
               close
-              onClick={() => {
+              onClick={(): void => {
                 const newParamsList = [...problemSelectionParamsList];
                 newParamsList.splice(idx, 1);
                 setProblemSelectionParamsList(newParamsList);
@@ -182,7 +182,7 @@ export const ProblemSetGenerator: React.FC<Props> = props => {
                 type="number"
                 value={problemSelectionParams.minDifficulty}
                 step={50}
-                onChange={event => {
+                onChange={(event): void => {
                   const newParamsList = [...problemSelectionParamsList];
                   newParamsList[idx] = {
                     ...problemSelectionParams,
@@ -201,7 +201,7 @@ export const ProblemSetGenerator: React.FC<Props> = props => {
                 type="number"
                 value={problemSelectionParams.maxDifficulty}
                 step={50}
-                onChange={event => {
+                onChange={(event): void => {
                   const newParamsList = [...problemSelectionParamsList];
                   newParamsList[idx] = {
                     ...problemSelectionParams,
@@ -217,7 +217,7 @@ export const ProblemSetGenerator: React.FC<Props> = props => {
       <div style={{ paddingBottom: 16 }}>
         <Button
           color={"link"}
-          onClick={() => {
+          onClick={(): void => {
             let addedElement;
             if (problemSelectionParamsList.length === 0) {
               addedElement = {
@@ -249,7 +249,7 @@ export const ProblemSetGenerator: React.FC<Props> = props => {
             disabled={
               problemSelectionParamsList.length === 0 || props.addButtonDisabled
             }
-            onClick={async () => {
+            onClick={async (): Promise<void> => {
               const nProblems = problemSelectionParamsList.length;
 
               let candidateProblems = props.problems.map(problem => ({

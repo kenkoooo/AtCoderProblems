@@ -26,7 +26,9 @@ export const predictSolveTime = (
   return Math.exp(logTime);
 };
 
-export const formatPredictedSolveTime = (predictedSolveTime: number | null) => {
+export const formatPredictedSolveTime = (
+  predictedSolveTime: number | null
+): string => {
   if (predictedSolveTime === null) {
     return "-";
   } else if (predictedSolveTime < 30) {
@@ -39,7 +41,7 @@ export const formatPredictedSolveTime = (predictedSolveTime: number | null) => {
 
 export const formatPredictedSolveProbability = (
   predictedSolveProbability: number | null
-) => {
+): string => {
   if (predictedSolveProbability === null) {
     return "-";
   } else if (predictedSolveProbability < 0.005) {

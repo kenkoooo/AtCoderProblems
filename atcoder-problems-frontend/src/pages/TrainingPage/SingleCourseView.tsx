@@ -14,10 +14,12 @@ import Octicon, { Check, Search } from "@primer/octicons-react";
 import ProblemLink from "../../components/ProblemLink";
 import { SinglePieChart } from "../../components/SinglePieChart";
 
-const ProblemTable = (props: {
+interface ProblemTableProps {
   problems: Problem[];
   submissions: Submission[];
-}) => {
+}
+
+const ProblemTable: React.FC<ProblemTableProps> = props => {
   const latestAcceptedSubmissionMap = props.submissions
     .filter(s => isAccepted(s.result))
     .reduce((map, s) => {
@@ -73,11 +75,13 @@ const ProblemTable = (props: {
   );
 };
 
-const SetPieChart = (props: {
+interface SetPieChartProps {
   title: string;
   solved: number;
   total: number;
-}) => {
+}
+
+const SetPieChart: React.FC<SetPieChartProps> = props => {
   const data = [
     { value: props.solved, color: "#32cd32", name: "Accepted" },
     { value: props.total - props.solved, color: "#58616a", name: "Trying" }
@@ -157,7 +161,7 @@ const InnerSingleCourseView: React.FC<InnerProps> = props => {
           <NavItem key={i}>
             <NavLink
               active={selectedSet === set.order}
-              onClick={() => setSelectedSet(set.order)}
+              onClick={(): void => setSelectedSet(set.order)}
             >
               <h3>{set.title}</h3>
             </NavLink>
@@ -174,6 +178,7 @@ const InnerSingleCourseView: React.FC<InnerProps> = props => {
 export const SingleCourseView = connect<OuterProps, InnerProps>(() => ({
   problems: {
     comparison: null,
-    value: () => cachedProblemMap().then(map => convertMap(map))
+    value: (): Promise<Map<string, Problem>> =>
+      cachedProblemMap().then(map => convertMap(map))
   }
 }))(InnerSingleCourseView);

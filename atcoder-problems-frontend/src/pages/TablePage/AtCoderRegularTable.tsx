@@ -102,8 +102,10 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         <TableHeaderColumn
           isKey
           dataField="id"
-          columnClassName={(_: string, { rowColor }: OneContest) => rowColor}
-          dataFormat={(_: any, { contest }: OneContest) => (
+          columnClassName={(_: string, { rowColor }: OneContest): TableColor =>
+            rowColor
+          }
+          dataFormat={(_: any, { contest }: OneContest): React.ReactElement => (
             <ContestLink contest={contest} title={contest.id.toUpperCase()} />
           )}
         >
@@ -116,7 +118,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
             columnClassName={(
               _: any,
               { problemStatus, cellColorList }: OneContest
-            ) => {
+            ): string => {
               const problem = problemStatus.get(i);
               const cellColor = cellColorList.get(i, TableColor.None);
               return [
@@ -126,7 +128,10 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
                 .filter(nm => nm)
                 .join(" ");
             }}
-            dataFormat={(_: any, { contest, problemStatus }: OneContest) => {
+            dataFormat={(
+              _: any,
+              { contest, problemStatus }: OneContest
+            ): string | React.ReactElement => {
               const problem = problemStatus.get(i);
               const model = problem ? problem.model : undefined;
               if (problem) {

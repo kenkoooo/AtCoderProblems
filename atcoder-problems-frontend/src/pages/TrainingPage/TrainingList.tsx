@@ -5,7 +5,7 @@ import { Link, useRouteMatch } from "react-router-dom";
 import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
 
-const formatPercent = (ratio: number) => {
+const formatPercent = (ratio: number): number => {
   return Math.round(ratio * 10000) / 100;
 };
 

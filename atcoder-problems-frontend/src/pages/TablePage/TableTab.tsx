@@ -16,7 +16,7 @@ export const TableTabButtons: React.FC<Props> = props => {
           <Button
             key={i}
             color="secondary"
-            onClick={() => {
+            onClick={(): void => {
               setActive(category);
             }}
             active={active === category}

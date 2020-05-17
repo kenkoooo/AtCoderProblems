@@ -12,13 +12,13 @@ interface Props extends PaginationPanelProps {
   totalPages: number;
 }
 
-const range = (start: number, end: number) =>
+const range = (start: number, end: number): number[] =>
   Array.from({ length: end - start + 1 }, (v, k) => k + start);
 const pageList = (
   currPage: number,
   pageStartIndex: number,
   totalPage: number
-) => {
+): number[] => {
   if (totalPage === 0) {
     return [];
   }
@@ -75,7 +75,7 @@ export const ListPaginationPanel: React.FC<Props> = props => {
             }>).map(p => (
               <DropdownItem
                 key={p.text}
-                onClick={() => props.changeSizePerPage(p.value)}
+                onClick={(): void => props.changeSizePerPage(p.value)}
               >
                 {p.text}
               </DropdownItem>
@@ -100,7 +100,9 @@ export const ListPaginationPanel: React.FC<Props> = props => {
                 key={pageNumber}
                 title={pageNumber.toString()}
               >
-                <PaginationLink onClick={() => props.changePage(pageNumber)}>
+                <PaginationLink
+                  onClick={(): void => props.changePage(pageNumber)}
+                >
                   {pageNumber}
                 </PaginationLink>
               </li>

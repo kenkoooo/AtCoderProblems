@@ -43,7 +43,7 @@ const InnerNavigationBar: React.FC<InnerProps> = props => {
         AtCoder Problems
       </NavbarBrand>
 
-      <NavbarToggler onClick={() => setIsOpen(!isOpen)} />
+      <NavbarToggler onClick={(): void => setIsOpen(!isOpen)} />
 
       <Collapse isOpen={isOpen} navbar>
         <Nav navbar>

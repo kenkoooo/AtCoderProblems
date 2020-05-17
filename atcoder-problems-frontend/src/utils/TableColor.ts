@@ -32,7 +32,7 @@ export const combineTableColorList = ({
 }: {
   colorMode: ColorMode;
   colorList: List<TableColor>;
-}) => {
+}): TableColor => {
   switch (colorMode) {
     case ColorMode.ContestResult: {
       if (colorList.every(color => color === TableColor.SuccessBeforeContest)) {
@@ -56,7 +56,7 @@ export const combineTableColorList = ({
   }
 };
 
-const statusLabelToTableColor = (label: StatusLabel) => {
+const statusLabelToTableColor = (label: StatusLabel): TableColor => {
   switch (label) {
     case StatusLabel.Success:
       return TableColor.Success;
@@ -81,7 +81,7 @@ export const statusToTableColor = ({
   status: ProblemStatus;
   contest: Contest | undefined;
   selectedLanguages?: Set<string>;
-}) => {
+}): TableColor => {
   switch (colorMode) {
     case ColorMode.None: {
       return statusLabelToTableColor(status.label);

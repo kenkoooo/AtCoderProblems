@@ -15,7 +15,7 @@ export type ContestCategory = typeof ContestCategories[number];
 
 export const AGC_001_START = 1468670400;
 
-export const isRatedContest = (contest: Contest) => {
+export const isRatedContest = (contest: Contest): boolean => {
   return (
     contest.rate_change !== "-" && contest.start_epoch_second >= AGC_001_START
   );

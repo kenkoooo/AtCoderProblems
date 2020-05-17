@@ -10,8 +10,11 @@ const solvedCountForPieChart = (
   contestToProblems: [string, Problem[]][],
   submissions: Map<string, Submission[]>,
   userId: string
-) => {
-  const mapProblemPosition = (contestId: string, problemId: string) => {
+): {
+  total: number;
+  solved: number;
+}[] => {
+  const mapProblemPosition = (contestId: string, problemId: string): number => {
     const contestPrefix = contestId.substring(0, 3);
     const problemPrefix = problemId.substring(0, 3);
     const shift = contestPrefix === "abc" && problemPrefix === "arc";
@@ -132,13 +135,12 @@ export const PieChartBlock: React.FC<Props> = props => {
   );
 };
 
-const PieCharts = ({
-  problems,
-  title
-}: {
+interface PieChartsProps {
   problems: { total: number; solved: number }[];
   title: string;
-}) => (
+}
+
+const PieCharts: React.FC<PieChartsProps> = ({ problems, title }) => (
   <div>
     <Row className="my-2 border-bottom">
       <h1>{title}</h1>

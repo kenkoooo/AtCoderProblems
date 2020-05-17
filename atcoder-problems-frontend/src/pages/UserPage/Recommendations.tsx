@@ -42,7 +42,7 @@ const ExcludeOptions = [
 ] as const;
 type ExcludeOption = typeof ExcludeOptions[number];
 
-const formatExcludeOption = (excludeOption: ExcludeOption) => {
+const formatExcludeOption = (excludeOption: ExcludeOption): string => {
   switch (excludeOption) {
     case "1 Week":
       return "Exclude problems solved in last 7 days.";
@@ -64,7 +64,7 @@ const isIncluded = (
   excludeOption: ExcludeOption,
   currentSecond: number,
   lastSolvedTimeMap: Map<ProblemId, number>
-) => {
+): boolean => {
   const lastSolvedTime = lastSolvedTimeMap.get(problemId);
   if (lastSolvedTime) {
     const seconds = currentSecond - lastSolvedTime;
@@ -260,19 +260,19 @@ export const Recommendations: React.FC<Props> = props => {
         <div>
           <ButtonGroup>
             <Button
-              onClick={() => setRecommendOption("Easy")}
+              onClick={(): void => setRecommendOption("Easy")}
               active={recommendOption === "Easy"}
             >
               Easy
             </Button>
             <Button
-              onClick={() => setRecommendOption("Moderate")}
+              onClick={(): void => setRecommendOption("Moderate")}
               active={recommendOption === "Moderate"}
             >
               Moderate
             </Button>
             <Button
-              onClick={() => setRecommendOption("Difficult")}
+              onClick={(): void => setRecommendOption("Difficult")}
               active={recommendOption === "Difficult"}
             >
               Difficult
@@ -280,7 +280,7 @@ export const Recommendations: React.FC<Props> = props => {
           </ButtonGroup>
           <ButtonGroup className="mx-3">
             <Button
-              onClick={() => setRecommendExperimental(true)}
+              onClick={(): void => setRecommendExperimental(true)}
               active={recommendExperimental}
             >
               Show
@@ -289,7 +289,7 @@ export const Recommendations: React.FC<Props> = props => {
               </span>
             </Button>
             <Button
-              onClick={() => setRecommendExperimental(false)}
+              onClick={(): void => setRecommendExperimental(false)}
               active={!recommendExperimental}
             >
               Hide
@@ -307,7 +307,7 @@ export const Recommendations: React.FC<Props> = props => {
                 {ExcludeOptions.map(option => (
                   <DropdownItem
                     key={option}
-                    onClick={() => setExcludeOption(option)}
+                    onClick={(): void => setExcludeOption(option)}
                   >
                     {formatExcludeOption(option)}
                   </DropdownItem>
@@ -322,7 +322,10 @@ export const Recommendations: React.FC<Props> = props => {
           </DropdownToggle>
           <DropdownMenu>
             {RECOMMEND_NUM_OPTIONS.map(({ text, value }) => (
-              <DropdownItem key={value} onClick={() => setRecommendNum(value)}>
+              <DropdownItem
+                key={value}
+                onClick={(): void => setRecommendNum(value)}
+              >
                 {text}
               </DropdownItem>
             ))}
@@ -346,7 +349,7 @@ export const Recommendations: React.FC<Props> = props => {
                 contest_id,
                 is_experimental
               }: { id: string; contest_id: string; is_experimental: boolean }
-            ) => (
+            ): React.ReactElement => (
               <ProblemLink
                 difficulty={problemModels.getIn([id, "difficulty"], null)}
                 isExperimentalDifficulty={is_experimental}
@@ -361,7 +364,10 @@ export const Recommendations: React.FC<Props> = props => {
           </TableHeaderColumn>
           <TableHeaderColumn
             dataField="contest_id"
-            dataFormat={(contestId: string, problem: Problem) => {
+            dataFormat={(
+              contestId: string,
+              problem: Problem
+            ): React.ReactElement => {
               const contest = contests.get(contestId);
               return contest ? (
                 <ContestLink contest={contest} />
@@ -376,7 +382,7 @@ export const Recommendations: React.FC<Props> = props => {
           </TableHeaderColumn>
           <TableHeaderColumn
             dataField="difficulty"
-            dataFormat={(difficulty: number | null) => {
+            dataFormat={(difficulty: number | null): string => {
               if (difficulty === null) {
                 return "-";
               }

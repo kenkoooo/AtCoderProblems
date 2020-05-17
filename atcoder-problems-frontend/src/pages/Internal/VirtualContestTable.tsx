@@ -5,7 +5,10 @@ import React from "react";
 import { formatMode, VirtualContestInfo, VirtualContestMode } from "./types";
 import { Timer } from "../../components/Timer";
 
-const formatContestDuration = (start: number, durationSecond: number) => {
+const formatContestDuration = (
+  start: number,
+  durationSecond: number
+): string | React.ReactElement => {
   const now = Math.floor(Date.now() / 1000);
   if (start + durationSecond <= now || now < start) {
     const durationMinute = Math.floor(durationSecond / 60);
@@ -18,9 +21,11 @@ const formatContestDuration = (start: number, durationSecond: number) => {
   }
 };
 
-export const VirtualContestTable = (props: {
+interface Props {
   contests: VirtualContestInfo[];
-}) => {
+}
+
+export const VirtualContestTable: React.FC<Props> = props => {
   return (
     <BootstrapTable
       data={props.contests}
@@ -58,7 +63,10 @@ export const VirtualContestTable = (props: {
     >
       <TableHeaderColumn
         dataField="title"
-        dataFormat={(title: string, contest: VirtualContestInfo) => (
+        dataFormat={(
+          title: string,
+          contest: VirtualContestInfo
+        ): React.ReactElement => (
           <Link to={`/contest/show/${contest.id}`}>{title}</Link>
         )}
       >
@@ -67,7 +75,7 @@ export const VirtualContestTable = (props: {
       <TableHeaderColumn dataField="memo">Description</TableHeaderColumn>
       <TableHeaderColumn
         dataField="mode"
-        dataFormat={(mode: VirtualContestMode) => {
+        dataFormat={(mode: VirtualContestMode): string => {
           return formatMode(mode);
         }}
       >
@@ -75,7 +83,7 @@ export const VirtualContestTable = (props: {
       </TableHeaderColumn>
       <TableHeaderColumn
         dataField="start_epoch_second"
-        dataFormat={(_: number, contest: VirtualContestInfo) => {
+        dataFormat={(_: number, contest: VirtualContestInfo): string => {
           const time = DateUtil.parseSecond(contest.start_epoch_second);
           return DateUtil.formatMomentDateTimeDay(time);
         }}
@@ -84,7 +92,7 @@ export const VirtualContestTable = (props: {
       </TableHeaderColumn>
       <TableHeaderColumn
         dataField="end_epoch_second"
-        dataFormat={(_: number, contest: VirtualContestInfo) => {
+        dataFormat={(_: number, contest: VirtualContestInfo): string => {
           const time = DateUtil.parseSecond(
             contest.start_epoch_second + contest.duration_second
           );
@@ -95,7 +103,10 @@ export const VirtualContestTable = (props: {
       </TableHeaderColumn>
       <TableHeaderColumn
         dataField="duration"
-        dataFormat={(_: number, contest: VirtualContestInfo) => {
+        dataFormat={(
+          _: number,
+          contest: VirtualContestInfo
+        ): string | React.ReactElement => {
           return formatContestDuration(
             contest.start_epoch_second,
             contest.duration_second

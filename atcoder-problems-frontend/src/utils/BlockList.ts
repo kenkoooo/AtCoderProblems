@@ -9,5 +9,5 @@ const BLOCK_LIST = [
   "future_contest_2020_final_b"
 ];
 
-export const isBlockedProblem = (problemId: ProblemId) =>
+export const isBlockedProblem = (problemId: ProblemId): boolean =>
   BLOCK_LIST.includes(problemId);

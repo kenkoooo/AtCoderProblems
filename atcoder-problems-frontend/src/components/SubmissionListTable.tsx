@@ -84,7 +84,7 @@ export const SubmissionListTable: React.FC<Props> = props => {
             value: submissions.length
           }
         ],
-        paginationPanel: (paginationPanelProps: any) => {
+        paginationPanel: (paginationPanelProps: any): React.ReactElement => {
           return <ListPaginationPanel {...paginationPanelProps} />;
         }
       }}
@@ -92,7 +92,7 @@ export const SubmissionListTable: React.FC<Props> = props => {
       <TableHeaderColumn
         dataSort
         dataField="epoch_second"
-        dataFormat={(second: number) =>
+        dataFormat={(second: number): string =>
           formatMomentDateTime(parseSecond(second))
         }
       >
@@ -105,7 +105,7 @@ export const SubmissionListTable: React.FC<Props> = props => {
         dataFormat={(
           title: string | undefined,
           { problem_id, contest_id }: Submission
-        ) => (
+        ): React.ReactElement => (
           <ProblemLink
             difficulty={problemModels.get(problem_id)?.difficulty}
             isExperimentalDifficulty={
@@ -123,7 +123,7 @@ export const SubmissionListTable: React.FC<Props> = props => {
       <TableHeaderColumn
         dataSort
         dataField="user_id"
-        dataFormat={(userId: string) => (
+        dataFormat={(userId: string): React.ReactElement => (
           <NewTabLink href={Url.formatUserUrl(userId)}>{userId}</NewTabLink>
         )}
       >
@@ -134,7 +134,7 @@ export const SubmissionListTable: React.FC<Props> = props => {
         filter={{ type: "SelectFilter", options: verdictOptions }}
         dataField="result"
         dataAlign="center"
-        dataFormat={result =>
+        dataFormat={(result): React.ReactElement =>
           isAccepted(result) ? (
             <Badge color="success">{result}</Badge>
           ) : (
@@ -154,7 +154,10 @@ export const SubmissionListTable: React.FC<Props> = props => {
       <TableHeaderColumn
         dataSort
         dataField="id"
-        dataFormat={(_: number, { id, contest_id }: Submission) => (
+        dataFormat={(
+          _: number,
+          { id, contest_id }: Submission
+        ): React.ReactElement => (
           <NewTabLink href={Url.formatSubmissionUrl(id, contest_id)}>
             Detail
           </NewTabLink>

@@ -13,7 +13,13 @@ import {
   cachedSumRanking
 } from "../../../utils/CachedApiClient";
 
-const findFromRanking = (ranking: RankingEntry[], userId: string) => {
+const findFromRanking = (
+  ranking: RankingEntry[],
+  userId: string
+): {
+  rank: number;
+  count: number;
+} => {
   const entry = ranking
     .sort((a, b) => b.problem_count - a.problem_count)
     .find(r => r.user_id === userId);
@@ -125,19 +131,22 @@ const InnerAchievementBlock: React.FC<InnerProps> = props => {
 export const AchievementBlock = connect<OuterProps, InnerProps>(props => ({
   shortestRanking: {
     comparison: null,
-    value: () => cachedShortRanking().then(list => list.toArray())
+    value: (): Promise<RankingEntry[]> =>
+      cachedShortRanking().then(list => list.toArray())
   },
   fastestRanking: {
     comparison: null,
-    value: () => cachedFastRanking().then(list => list.toArray())
+    value: (): Promise<RankingEntry[]> =>
+      cachedFastRanking().then(list => list.toArray())
   },
   firstRanking: {
     comparison: null,
-    value: () => cachedFirstRanking().then(list => list.toArray())
+    value: (): Promise<RankingEntry[]> =>
+      cachedFirstRanking().then(list => list.toArray())
   },
   acRank: {
     comparison: props.solvedCount,
-    value: () =>
+    value: (): Promise<number> =>
       cachedACRanking().then(
         ranking =>
           ranking.filter(entry => entry.problem_count > props.solvedCount)
@@ -146,7 +155,7 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(props => ({
   },
   sumRank: {
     comparison: props.ratedPointSum,
-    value: () =>
+    value: (): Promise<number> =>
       cachedSumRanking().then(
         ranking =>
           ranking.filter(entry => entry.problem_count > props.ratedPointSum)
@@ -155,7 +164,7 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(props => ({
   },
   streakRank: {
     comparison: props.longestStreak,
-    value: () =>
+    value: (): Promise<number> =>
       cachedStreaksRanking().then(
         r => r.filter(e => e.problem_count > props.longestStreak).length
       )

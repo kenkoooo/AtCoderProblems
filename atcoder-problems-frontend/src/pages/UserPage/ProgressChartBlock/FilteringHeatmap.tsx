@@ -17,7 +17,7 @@ interface Props {
 export const filterSubmissions = (
   submissions: Submission[],
   filterStatus: FilterStatus
-) => {
+): Submission[] => {
   switch (filterStatus) {
     case "Submissions":
       return submissions;
@@ -36,7 +36,11 @@ export const filterSubmissions = (
   }
 };
 
-const formatTooltip = (date: string, count: number, filter: FilterStatus) => {
+const formatTooltip = (
+  date: string,
+  count: number,
+  filter: FilterStatus
+): string => {
   if (filter === "Submissions") {
     if (count === 1) {
       return `${date} ${count} submission`;
@@ -58,19 +62,19 @@ export const FilteringHeatmap: React.FC<Props> = props => {
       <Row className="my-3">
         <ButtonGroup>
           <Button
-            onClick={() => setFilterStatus("Submissions")}
+            onClick={(): void => setFilterStatus("Submissions")}
             active={filterStatus === "Submissions"}
           >
             All Submissions
           </Button>
           <Button
-            onClick={() => setFilterStatus("AC")}
+            onClick={(): void => setFilterStatus("AC")}
             active={filterStatus === "AC"}
           >
             All AC
           </Button>
           <Button
-            onClick={() => setFilterStatus("Unique AC")}
+            onClick={(): void => setFilterStatus("Unique AC")}
             active={filterStatus === "Unique AC"}
           >
             Unique AC
@@ -82,7 +86,7 @@ export const FilteringHeatmap: React.FC<Props> = props => {
           dateLabels={filteredSubmissions.map(s =>
             formatMomentDate(parseSecond(s.epoch_second))
           )}
-          formatTooltip={(date: string, count: number) =>
+          formatTooltip={(date: string, count: number): string =>
             formatTooltip(date, count, filterStatus)
           }
         />

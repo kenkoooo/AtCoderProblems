@@ -18,6 +18,6 @@ const StreakRanking: React.FC<Props> = props => (
 export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedStreaksRanking()
+    value: CachedApiClient.cachedStreaksRanking
   }
 }))(StreakRanking);

@@ -155,7 +155,7 @@ const InnerUserPage: React.FC<InnerProps> = props => {
           <NavItem key={tab}>
             <NavLink
               tag={RouterLink}
-              isActive={() => tab === userPageTab}
+              isActive={(): boolean => tab === userPageTab}
               to={generatePathWithParams(location, { [TAB_PARAM]: tab })}
             >
               {tab}
@@ -232,26 +232,31 @@ const InnerUserPage: React.FC<InnerProps> = props => {
 export const UserPage = connect<OuterProps, InnerProps>(({ userId }) => ({
   submissionsFetch: {
     comparison: userId,
-    value: () => CachedApiClient.cachedUsersSubmissionMap(List([userId]))
+    value: (): Promise<ImmutableMap<string, List<Submission>>> =>
+      CachedApiClient.cachedUsersSubmissionMap(List([userId]))
   },
   mergedProblemsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedMergedProblemMap()
+    value: (): Promise<ImmutableMap<string, MergedProblem>> =>
+      CachedApiClient.cachedMergedProblemMap()
   },
   problemModelsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedProblemModels()
+    value: (): Promise<ImmutableMap<string, ProblemModel>> =>
+      CachedApiClient.cachedProblemModels()
   },
   contestsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedContestMap()
+    value: (): Promise<ImmutableMap<string, Contest>> =>
+      CachedApiClient.cachedContestMap()
   },
   userRatingInfoFetch: {
     comparison: userId,
-    value: () => CachedApiClient.cachedRatingInfo(userId)
+    value: (): Promise<RatingInfo> => CachedApiClient.cachedRatingInfo(userId)
   },
   contestToProblemsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedContestToProblemMap()
+    value: (): Promise<ImmutableMap<string, List<Problem>>> =>
+      CachedApiClient.cachedContestToProblemMap()
   }
 }))(InnerUserPage);
