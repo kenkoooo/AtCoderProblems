@@ -84,7 +84,9 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
             value: submissions.length,
           },
         ],
-        paginationPanel: (paginationPanelProps: any): React.ReactElement => {
+        paginationPanel: function DataFormat(
+          paginationPanelProps: any
+        ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;
         },
       }}

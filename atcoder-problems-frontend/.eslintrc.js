@@ -38,7 +38,6 @@ module.exports = {
     "react/prop-types": 0, // we do not employ 'prop-types'
     "@typescript-eslint/camelcase": 0, // API responses contain snake_case properties
     "@typescript-eslint/explicit-function-return-type": 0, // enable the rule in "overrides"
-    "react/display-name": 0, // TODO: enable the rule in the future
   },
   settings: {
     react: { version: "detect" },
