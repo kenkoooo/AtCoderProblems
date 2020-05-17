@@ -5,20 +5,20 @@ import {
   DropdownMenu,
   DropdownToggle,
   UncontrolledDropdown,
-  PaginationLink
+  PaginationLink,
 } from "reactstrap";
 
 interface Props extends PaginationPanelProps {
   totalPages: number;
 }
 
-const range = (start: number, end: number) =>
+const range = (start: number, end: number): number[] =>
   Array.from({ length: end - start + 1 }, (v, k) => k + start);
 const pageList = (
   currPage: number,
   pageStartIndex: number,
   totalPage: number
-) => {
+): number[] => {
   if (totalPage === 0) {
     return [];
   }
@@ -28,7 +28,7 @@ const pageList = (
 
   const pageNumbers: number[] = [currPage];
   let tmpExp = 1;
-  while (true) {
+  for (;;) {
     tmpExp *= 2;
     const tmpPageNumber = currPage - tmpExp + 1;
     if (tmpPageNumber < pageStartIndex) {
@@ -41,7 +41,7 @@ const pageList = (
   }
 
   tmpExp = 1;
-  while (true) {
+  for (;;) {
     tmpExp *= 2;
     const tmpPageNumber = currPage + tmpExp - 1;
     if (tmpPageNumber > totalPage) {
@@ -56,7 +56,7 @@ const pageList = (
   return pageNumbers;
 };
 
-export const ListPaginationPanel: React.FC<Props> = props => {
+export const ListPaginationPanel: React.FC<Props> = (props) => {
   const pageNumbers = pageList(
     props.currPage,
     props.pageStartIndex,
@@ -72,10 +72,10 @@ export const ListPaginationPanel: React.FC<Props> = props => {
             {(props.sizePerPageList as Array<{
               text: string;
               value: number;
-            }>).map(p => (
+            }>).map((p) => (
               <DropdownItem
                 key={p.text}
-                onClick={() => props.changeSizePerPage(p.value)}
+                onClick={(): void => props.changeSizePerPage(p.value)}
               >
                 {p.text}
               </DropdownItem>
@@ -100,7 +100,9 @@ export const ListPaginationPanel: React.FC<Props> = props => {
                 key={pageNumber}
                 title={pageNumber.toString()}
               >
-                <PaginationLink onClick={() => props.changePage(pageNumber)}>
+                <PaginationLink
+                  onClick={(): void => props.changePage(pageNumber)}
+                >
                   {pageNumber}
                 </PaginationLink>
               </li>

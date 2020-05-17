@@ -10,7 +10,7 @@ import {
   calcTotalResult,
   extractBestSubmissions,
   getSortedUserIds,
-  hasBetterSubmission
+  hasBetterSubmission,
 } from "./util";
 import { connect, PromiseState } from "react-refetch";
 import { List, Map as ImmutableMap } from "immutable";
@@ -19,7 +19,7 @@ import ProblemModel from "../../../../interfaces/ProblemModel";
 import Submission from "../../../../interfaces/Submission";
 import {
   cachedProblemModels,
-  fetchVirtualContestSubmission
+  fetchVirtualContestSubmission,
 } from "../../../../utils/CachedApiClient";
 
 function getEstimatedPerformances(
@@ -28,19 +28,22 @@ function getEstimatedPerformances(
   start: number,
   problems: VirtualContestItem[],
   modelMap: ImmutableMap<ProblemId, ProblemModel>
-) {
-  return participants.map(userId => {
+): {
+  performance: number;
+  userId: string;
+}[] {
+  return participants.map((userId) => {
     const onlySolvedData = bestSubmissions
-      .filter(b => b.userId === userId)
-      .filter(b => {
+      .filter((b) => b.userId === userId)
+      .filter((b) => {
         const result = b.bestSubmissionInfo?.bestSubmission.result;
         return result && isAccepted(result);
       })
-      .map(b =>
+      .map((b) =>
         b.bestSubmissionInfo
           ? {
               time: b.bestSubmissionInfo.bestSubmission.epoch_second,
-              id: b.problemId
+              id: b.problemId,
             }
           : undefined
       )
@@ -51,18 +54,18 @@ function getEstimatedPerformances(
           list: list.push({
             problemId: entry.id,
             solved: true,
-            time: entry.time - prev
+            time: entry.time - prev,
           }),
-          prev: entry.time
+          prev: entry.time,
         }),
         {
           list: List<{ problemId: string; time: number; solved: boolean }>(),
-          prev: start
+          prev: start,
         }
       ).list;
-    const solvedData = problems.map(p => {
+    const solvedData = problems.map((p) => {
       const problemId = p.id;
-      const entry = onlySolvedData.find(e => e.problemId === problemId);
+      const entry = onlySolvedData.find((e) => e.problemId === problemId);
       return entry ? entry : { problemId: p.id, time: 0, solved: false };
     });
     const performance = calcPerformance(solvedData, modelMap);
@@ -90,9 +93,9 @@ interface InnerProps extends OuterProps {
   problemModels: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
-const EstimatedPerformance = (props: {
+const EstimatedPerformance: React.FC<{
   estimatedPerformance: number | undefined;
-}) => {
+}> = (props) => {
   if (!props.estimatedPerformance) {
     return null;
   }
@@ -106,14 +109,24 @@ const EstimatedPerformance = (props: {
   );
 };
 
-const InnerContestTable = (props: InnerProps) => {
+function compareProblem<T extends { id: string; order: number | null }>(
+  a: T,
+  b: T
+): number {
+  if (a.order !== null && b.order !== null) {
+    return a.order - b.order;
+  }
+  return a.id.localeCompare(b.id);
+}
+
+const InnerContestTable: React.FC<InnerProps> = (props) => {
   const { showProblems, problems, mode, users, start } = props;
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
     : ImmutableMap<ProblemId, ProblemModel>();
   const submissionMap = props.submissions.fulfilled
     ? props.submissions.value
-        .filter(s => s.result !== "CE")
+        .filter((s) => s.result !== "CE")
         .reduce((map, s) => {
           const list = map.get(s.problem_id) ?? ([] as Submission[]);
           list.push(s);
@@ -121,7 +134,7 @@ const InnerContestTable = (props: InnerProps) => {
           return map;
         }, new Map<ProblemId, Submission[]>())
     : new Map<ProblemId, Submission[]>();
-  const problemIds = problems.map(p => p.item.id);
+  const problemIds = problems.map((p) => p.item.id);
 
   const bestSubmissions = extractBestSubmissions(
     submissionMap,
@@ -130,7 +143,7 @@ const InnerContestTable = (props: InnerProps) => {
   );
   const sortedUserIds = getSortedUserIds(
     users,
-    problems.map(p => p.item),
+    problems.map((p) => p.item),
     mode,
     bestSubmissions
   );
@@ -139,15 +152,15 @@ const InnerContestTable = (props: InnerProps) => {
         users,
         bestSubmissions,
         start,
-        problems.map(p => p.item),
+        problems.map((p) => p.item),
         problemModels
       )
     : [];
 
-  const items = problems.map(p => ({
+  const items = problems.map((p) => ({
     contestId: p.contestId,
     title: p.title,
-    ...p.item
+    ...p.item,
   }));
 
   const showEstimatedPerformances =
@@ -187,7 +200,7 @@ const InnerContestTable = (props: InnerProps) => {
         {sortedUserIds.map((userId, i) => {
           const totalResult = calcTotalResult(
             userId,
-            problems.map(p => p.item),
+            problems.map((p) => p.item),
             mode,
             bestSubmissions
           );
@@ -197,9 +210,9 @@ const InnerContestTable = (props: InnerProps) => {
               <th>{userId}</th>
               {!showProblems
                 ? null
-                : items.sort(compareProblem).map(problem => {
+                : items.sort(compareProblem).map((problem) => {
                     const info = bestSubmissions.find(
-                      e => e.userId === userId && e.problemId === problem.id
+                      (e) => e.userId === userId && e.problemId === problem.id
                     )?.bestSubmissionInfo;
                     if (!info) {
                       return (
@@ -254,7 +267,7 @@ const InnerContestTable = (props: InnerProps) => {
                 <td>
                   <EstimatedPerformance
                     estimatedPerformance={
-                      estimatedPerformances.find(e => e.userId === userId)
+                      estimatedPerformances.find((e) => e.userId === userId)
                         ?.performance
                     }
                   />
@@ -268,31 +281,21 @@ const InnerContestTable = (props: InnerProps) => {
   );
 };
 
-function compareProblem<T extends { id: string; order: number | null }>(
-  a: T,
-  b: T
-) {
-  if (a.order !== null && b.order !== null) {
-    return a.order - b.order;
-  }
-  return a.id.localeCompare(b.id);
-}
-
-export const ContestTable = connect<OuterProps, InnerProps>(props => ({
+export const ContestTable = connect<OuterProps, InnerProps>((props) => ({
   submissions: {
     comparison: null,
-    value: () =>
+    value: (): Promise<List<Submission>> =>
       fetchVirtualContestSubmission(
         props.users,
-        props.problems.map(p => p.item.id),
+        props.problems.map((p) => p.item.id),
         props.start,
         props.end
       ),
     refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
-    force: props.enableAutoRefresh
+    force: props.enableAutoRefresh,
   },
   problemModels: {
     comparison: null,
-    value: () => cachedProblemModels()
-  }
+    value: (): any => cachedProblemModels(),
+  },
 }))(InnerContestTable);

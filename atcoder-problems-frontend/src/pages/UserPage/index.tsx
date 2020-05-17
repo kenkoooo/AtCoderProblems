@@ -34,7 +34,7 @@ const userPageTabs = [
   "Submissions",
   "Recommendation",
   "Languages",
-  "All"
+  "All",
 ] as const;
 
 const TAB_PARAM = "userPageTab";
@@ -54,11 +54,11 @@ interface InnerProps extends OuterProps {
   problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
-const InnerUserPage = (props: InnerProps) => {
+const InnerUserPage: React.FC<InnerProps> = (props) => {
   const location = useLocation();
   const param = new URLSearchParams(location.search).get(TAB_PARAM);
   const userPageTab: UserPageTab =
-    userPageTabs.find(t => t === param) || "Achievement";
+    userPageTabs.find((t) => t === param) || "Achievement";
 
   const {
     userId,
@@ -67,7 +67,7 @@ const InnerUserPage = (props: InnerProps) => {
     mergedProblemsFetch,
     contestToProblemsFetch,
     contestsFetch,
-    problemModelsFetch
+    problemModelsFetch,
   } = props;
 
   if (submissionsFetch.pending) {
@@ -90,7 +90,7 @@ const InnerUserPage = (props: InnerProps) => {
     ? submissionsFetch.value
     : ImmutableMap<ProblemId, List<Submission>>();
   const contestToProblems = contestToProblemsFetch.fulfilled
-    ? convertMap(contestToProblemsFetch.value.map(list => list.toArray()))
+    ? convertMap(contestToProblemsFetch.value.map((list) => list.toArray()))
     : new Map<ContestId, Problem[]>();
 
   if (userId.length === 0 || submissions.isEmpty()) {
@@ -100,32 +100,32 @@ const InnerUserPage = (props: InnerProps) => {
   const ratedProblemIds = new Set(
     contests
       .valueSeq()
-      .flatMap(contest => {
+      .flatMap((contest) => {
         const isRated = isRatedContest(contest);
         const contestProblems = contestToProblems.get(contest.id);
         return isRated && contestProblems ? contestProblems : [];
       })
-      .map(problem => problem.id)
+      .map((problem) => problem.id)
   );
 
   const userSubmissions = submissions
     .valueSeq()
-    .flatMap(list => list)
-    .filter(s => s.user_id === userId);
+    .flatMap((list) => list)
+    .filter((s) => s.user_id === userId);
 
   const dailyCount = submissions
-    .map(submissionList =>
+    .map((submissionList) =>
       submissionList
-        .filter(s => s.user_id === userId && isAccepted(s.result))
-        .map(s => s.epoch_second)
+        .filter((s) => s.user_id === userId && isAccepted(s.result))
+        .map((s) => s.epoch_second)
         .min()
     )
     .filter(
       (second: number | undefined): second is number => second !== undefined
     )
-    .map(second => formatMomentDate(parseSecond(second)))
+    .map((second) => formatMomentDate(parseSecond(second)))
     .reduce(
-      (map, date) => map.update(date, 0, count => count + 1),
+      (map, date) => map.update(date, 0, (count) => count + 1),
       ImmutableMap<string, number>()
     )
     .entrySeq()
@@ -137,20 +137,19 @@ const InnerUserPage = (props: InnerProps) => {
   const solvedProblemIds = submissions
     .entrySeq()
     .filter(([, submissionList]) =>
-      submissionList.find(submission => isAccepted(submission.result))
+      submissionList.find((submission) => isAccepted(submission.result))
     )
     .map(([problemId]) => problemId)
     .toArray();
-
   const ratedPointMap = new Map<ProblemId, number>();
   const acceptedRatedSubmissions = submissions
     .valueSeq()
-    .flatMap(a => a)
-    .filter(s => isAccepted(s.result))
-    .filter(s => ratedProblemIds.has(s.problem_id))
+    .flatMap((a) => a)
+    .filter((s) => isAccepted(s.result))
+    .filter((s) => ratedProblemIds.has(s.problem_id))
     .toArray();
   acceptedRatedSubmissions.sort((a, b) => a.id - b.id);
-  acceptedRatedSubmissions.forEach(s => {
+  acceptedRatedSubmissions.forEach((s) => {
     ratedPointMap.set(s.problem_id, s.point);
   });
   const ratedPointSum = Array.from(ratedPointMap.values()).reduceRight(
@@ -163,11 +162,11 @@ const InnerUserPage = (props: InnerProps) => {
         <h1>{userId}</h1>
       </Row>
       <Nav tabs>
-        {userPageTabs.map(tab => (
+        {userPageTabs.map((tab) => (
           <NavItem key={tab}>
             <NavLink
               tag={RouterLink}
-              isActive={() => tab === userPageTab}
+              isActive={(): boolean => tab === userPageTab}
               to={generatePathWithParams(location, { [TAB_PARAM]: tab })}
             >
               {tab}
@@ -189,7 +188,7 @@ const InnerUserPage = (props: InnerProps) => {
         <PieChartBlock
           contestToProblems={contestToProblems}
           userId={userId}
-          submissions={convertMap(submissions.map(list => list.toArray()))}
+          submissions={convertMap(submissions.map((list) => list.toArray()))}
         />
       )}
       {(userPageTab === "All" || userPageTab === "Difficulty Pies") && (
@@ -250,26 +249,31 @@ const InnerUserPage = (props: InnerProps) => {
 export const UserPage = connect<OuterProps, InnerProps>(({ userId }) => ({
   submissionsFetch: {
     comparison: userId,
-    value: () => CachedApiClient.cachedUsersSubmissionMap(List([userId]))
+    value: (): Promise<ImmutableMap<string, List<Submission>>> =>
+      CachedApiClient.cachedUsersSubmissionMap(List([userId])),
   },
   mergedProblemsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedMergedProblemMap()
+    value: (): Promise<ImmutableMap<string, MergedProblem>> =>
+      CachedApiClient.cachedMergedProblemMap(),
   },
   problemModelsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedProblemModels()
+    value: (): Promise<ImmutableMap<string, ProblemModel>> =>
+      CachedApiClient.cachedProblemModels(),
   },
   contestsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedContestMap()
+    value: (): Promise<ImmutableMap<string, Contest>> =>
+      CachedApiClient.cachedContestMap(),
   },
   userRatingInfoFetch: {
     comparison: userId,
-    value: () => CachedApiClient.cachedRatingInfo(userId)
+    value: (): Promise<RatingInfo> => CachedApiClient.cachedRatingInfo(userId),
   },
   contestToProblemsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedContestToProblemMap()
-  }
+    value: (): Promise<ImmutableMap<string, List<Problem>>> =>
+      CachedApiClient.cachedContestToProblemMap(),
+  },
 }))(InnerUserPage);

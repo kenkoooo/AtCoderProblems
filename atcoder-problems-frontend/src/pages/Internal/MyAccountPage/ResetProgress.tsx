@@ -7,7 +7,7 @@ import Problem from "../../../interfaces/Problem";
 import {
   PROGRESS_RESET_ADD,
   PROGRESS_RESET_DELETE,
-  PROGRESS_RESET_LIST
+  PROGRESS_RESET_LIST,
 } from "../ApiUrl";
 import { cachedProblemMap } from "../../../utils/CachedApiClient";
 import ProblemLink from "../../../components/ProblemLink";
@@ -24,7 +24,7 @@ interface Props {
   problems: PromiseState<Problem[]>;
 }
 
-const InnerResetProgress = (props: Props) => {
+const InnerResetProgress: React.FC<Props> = (props) => {
   const progressResetList =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value.items
@@ -42,7 +42,7 @@ const InnerResetProgress = (props: Props) => {
         <Col sm="12">
           <ProblemSearchBox
             problems={problems}
-            selectProblem={problm => props.addResetProgress(problm.id)}
+            selectProblem={(problm): void => props.addResetProgress(problm.id)}
           />
         </Col>
       </Row>
@@ -57,8 +57,8 @@ const InnerResetProgress = (props: Props) => {
               </tr>
             </thead>
             <tbody>
-              {progressResetList.map(item => {
-                const problem = problems.find(p => p.id === item.problem_id);
+              {progressResetList.map((item) => {
+                const problem = problems.find((p) => p.id === item.problem_id);
                 return (
                   <tr key={item.problem_id}>
                     <td>
@@ -80,7 +80,7 @@ const InnerResetProgress = (props: Props) => {
                     <td>
                       <Button
                         color="danger"
-                        onClick={() =>
+                        onClick={(): void =>
                           props.deleteResetProgress(item.problem_id)
                         }
                       >
@@ -100,14 +100,15 @@ const InnerResetProgress = (props: Props) => {
 
 export const ResetProgress = connect<{}, Props>(() => ({
   progressResetList: {
-    url: PROGRESS_RESET_LIST
+    url: PROGRESS_RESET_LIST,
   },
   problems: {
     comparison: null,
-    value: () => cachedProblemMap().then(map => map.valueSeq().toArray())
+    value: (): Promise<Problem[]> =>
+      cachedProblemMap().then((map) => map.valueSeq().toArray()),
   },
   addResetProgressResponse: { value: null },
-  addResetProgress: (problemId: string) => ({
+  addResetProgress: (problemId: string): any => ({
     addResetProgressResponse: {
       force: true,
       refreshing: true,
@@ -115,32 +116,32 @@ export const ResetProgress = connect<{}, Props>(() => ({
       method: "POST",
       body: JSON.stringify({
         problem_id: problemId,
-        reset_epoch_second: Math.floor(new Date().getTime() / 1000)
+        reset_epoch_second: Math.floor(new Date().getTime() / 1000),
       }),
-      andThen: () => ({
+      andThen: (): any => ({
         progressResetList: {
           force: true,
-          url: PROGRESS_RESET_LIST
-        }
-      })
-    }
+          url: PROGRESS_RESET_LIST,
+        },
+      }),
+    },
   }),
-  deleteResetProgress: (problemId: string) => ({
+  deleteResetProgress: (problemId: string): any => ({
     deleteResetProgressResponse: {
       force: true,
       refreshing: true,
       url: PROGRESS_RESET_DELETE,
       method: "POST",
       body: JSON.stringify({
-        problem_id: problemId
+        problem_id: problemId,
       }),
-      andThen: () => ({
+      andThen: (): any => ({
         progressResetList: {
           force: true,
-          url: PROGRESS_RESET_LIST
-        }
-      })
-    }
+          url: PROGRESS_RESET_LIST,
+        },
+      }),
+    },
   }),
-  deleteResetProgressResponse: { value: null }
+  deleteResetProgressResponse: { value: null },
 }))(InnerResetProgress);

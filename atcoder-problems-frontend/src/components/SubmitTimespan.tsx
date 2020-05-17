@@ -8,7 +8,7 @@ interface Props {
   enableColorfulMode: boolean;
 }
 
-const formatTimespan = (sec: number) => {
+const formatTimespan = (sec: number): string => {
   let sign;
   if (sec >= 0) {
     sign = "";
@@ -19,7 +19,7 @@ const formatTimespan = (sec: number) => {
   return `${sign}${Math.floor(sec / 60)}:${("0" + (sec % 60)).slice(-2)}`;
 };
 
-const SubmitTimespan: React.FC<Props> = props => {
+const SubmitTimespan: React.FC<Props> = (props) => {
   const { contest, problemStatus, enableColorfulMode } = props;
   if (!enableColorfulMode) {
     return null;
