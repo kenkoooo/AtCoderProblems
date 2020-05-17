@@ -78,27 +78,29 @@ export const ListTable: React.FC<Props> = (props) => {
       header: "Problem",
       dataField: "title",
       dataSort: true,
-      dataFormat: (_, row): React.ReactElement => (
-        <ProblemLink
-          showDifficulty={true}
-          difficulty={
-            isProblemModelWithDifficultyModel(row.problemModel)
-              ? row.problemModel.difficulty
-              : null
-          }
-          isExperimentalDifficulty={row.problemModel?.is_experimental}
-          problemId={row.mergedProblem.id}
-          problemTitle={row.title}
-          contestId={row.mergedProblem.contest_id}
-        />
-      ),
+      dataFormat: function DataFormat(_, row): React.ReactElement {
+        return (
+          <ProblemLink
+            showDifficulty={true}
+            difficulty={
+              isProblemModelWithDifficultyModel(row.problemModel)
+                ? row.problemModel.difficulty
+                : null
+            }
+            isExperimentalDifficulty={row.problemModel?.is_experimental}
+            problemId={row.mergedProblem.id}
+            problemTitle={row.title}
+            contestId={row.mergedProblem.contest_id}
+          />
+        );
+      },
     },
     {
       header: "Contest",
       dataField: "contest",
       dataSort: true,
-      dataFormat: (contest, row): React.ReactElement =>
-        contest ? (
+      dataFormat: function DataFormat(contest, row): React.ReactElement {
+        return contest ? (
           <ContestLink contest={contest} />
         ) : (
           <a
@@ -108,7 +110,8 @@ export const ListTable: React.FC<Props> = (props) => {
           >
             {row.contestTitle}
           </a>
-        ),
+        );
+      },
     },
     {
       header: "Result",
@@ -149,18 +152,23 @@ export const ListTable: React.FC<Props> = (props) => {
       header: "Solvers",
       dataField: "solverCount",
       dataSort: true,
-      dataFormat: (solverCount: number, row): React.ReactElement => (
-        <a
-          href={Url.formatSolversUrl(
-            row.mergedProblem.contest_id,
-            row.mergedProblem.id
-          )}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {solverCount}
-        </a>
-      ),
+      dataFormat: function DataFormat(
+        solverCount: number,
+        row
+      ): React.ReactElement {
+        return (
+          <a
+            href={Url.formatSolversUrl(
+              row.mergedProblem.contest_id,
+              row.mergedProblem.id
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {solverCount}
+          </a>
+        );
+      },
     },
     {
       header: "Point",
@@ -208,7 +216,7 @@ export const ListTable: React.FC<Props> = (props) => {
         const sign = order === "asc" ? 1 : -1;
         return delta * sign;
       },
-      dataFormat: (_: string, row): React.ReactElement => {
+      dataFormat: function DataFormat(_: string, row): React.ReactElement {
         const solveTime = predictSolveTimeOfRow(row);
         if (solveTime === null) {
           return <p>-</p>;
@@ -394,7 +402,9 @@ export const ListTable: React.FC<Props> = (props) => {
             value: props.rowData.size,
           },
         ],
-        paginationPanel: (paginationPanelProps: any): React.ReactElement => {
+        paginationPanel: function DataFormat(
+          paginationPanelProps: any
+        ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;
         },
       }}
