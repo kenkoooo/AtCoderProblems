@@ -153,7 +153,8 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
     ratedPointMap.set(s.problem_id, s.point);
   });
   const ratedPointSum = Array.from(ratedPointMap.values()).reduceRight(
-    (s, p) => s + p
+    (s, p) => s + p,
+    0
   );
 
   return (
