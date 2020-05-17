@@ -14,9 +14,9 @@ interface Props {
   submissions: Submission[];
 }
 
-export const TrainingList: React.FC<Props> = props => {
+export const TrainingList: React.FC<Props> = (props) => {
   const solvedSet = props.submissions
-    .filter(s => isAccepted(s.result))
+    .filter((s) => isAccepted(s.result))
     .reduce((set, s) => {
       set.add(s.problem_id);
       return set;
@@ -30,11 +30,12 @@ export const TrainingList: React.FC<Props> = props => {
       </Row>
       {props.courses.map((course, i) => {
         const totalProblemCount = course.set_list
-          .map(set => set.problems.length)
+          .map((set) => set.problems.length)
           .reduceRight((a, b) => a + b);
         const totalSolvedCount = course.set_list
           .map(
-            set => set.problems.filter(p => solvedSet.has(p.problem_id)).length
+            (set) =>
+              set.problems.filter((p) => solvedSet.has(p.problem_id)).length
           )
           .reduceRight((a, b) => a + b);
         const totalProgressPercent = formatPercent(
@@ -51,13 +52,13 @@ export const TrainingList: React.FC<Props> = props => {
               <p className="lead">
                 {course.set_list.length} sets /{" "}
                 {course.set_list
-                  .map(s => s.problems.length)
+                  .map((s) => s.problems.length)
                   .reduceRight((a, b) => a + b)}{" "}
                 problems
               </p>
               <ul>
                 {course.set_list.map((set, j) => {
-                  const solved = set.problems.filter(p =>
+                  const solved = set.problems.filter((p) =>
                     solvedSet.has(p.problem_id)
                   ).length;
                   return (

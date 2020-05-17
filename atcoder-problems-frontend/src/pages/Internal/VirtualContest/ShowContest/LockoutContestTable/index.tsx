@@ -35,7 +35,7 @@ interface InnerProps extends OuterProps {
   submissions: PromiseState<Submission[]>;
 }
 
-const InnerLockoutContestTable: React.FC<InnerProps> = props => {
+const InnerLockoutContestTable: React.FC<InnerProps> = (props) => {
   const submissions = props.submissions.fulfilled
     ? props.submissions.value
     : [];
@@ -50,11 +50,11 @@ const InnerLockoutContestTable: React.FC<InnerProps> = props => {
   const statusMap = new Map<ProblemId, LockoutStatus>();
   const pointMap = new Map<string, number>();
   submissions
-    .filter(s => isAccepted(s.result))
-    .forEach(s => {
+    .filter((s) => isAccepted(s.result))
+    .forEach((s) => {
       if (!statusMap.has(s.problem_id)) {
         const point =
-          props.problems.find(p => p.item.id === s.problem_id)?.item?.point ??
+          props.problems.find((p) => p.item.id === s.problem_id)?.item?.point ??
           s.point;
         const userId = s.user_id;
         const epochSecond = s.epoch_second;
@@ -72,7 +72,7 @@ const InnerLockoutContestTable: React.FC<InnerProps> = props => {
       if (props.problems.length <= j) {
         row.push({
           problem: undefined,
-          status: undefined
+          status: undefined,
         });
       } else {
         const problem = props.problems[j];
@@ -83,9 +83,9 @@ const InnerLockoutContestTable: React.FC<InnerProps> = props => {
     table.push(row);
   }
 
-  const ranking = props.participants.map(userId => ({
+  const ranking = props.participants.map((userId) => ({
     userId,
-    point: pointMap.get(userId) ?? 0
+    point: pointMap.get(userId) ?? 0,
   }));
   ranking.sort((a, b) => b.point - a.point);
 
@@ -150,17 +150,17 @@ const InnerLockoutContestTable: React.FC<InnerProps> = props => {
   );
 };
 
-export const LockoutContestTable = connect<OuterProps, InnerProps>(props => ({
+export const LockoutContestTable = connect<OuterProps, InnerProps>((props) => ({
   submissions: {
     comparison: null,
     value: (): Promise<List<Submission>> =>
       fetchVirtualContestSubmission(
         props.participants,
-        props.problems.map(p => p.item.id),
+        props.problems.map((p) => p.item.id),
         props.start,
         props.end
       ),
     refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
-    force: props.enableAutoRefresh
-  }
+    force: props.enableAutoRefresh,
+  },
 }))(InnerLockoutContestTable);

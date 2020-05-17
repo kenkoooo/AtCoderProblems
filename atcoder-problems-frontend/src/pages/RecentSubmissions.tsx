@@ -7,7 +7,7 @@ import { ProblemId } from "../interfaces/Status";
 import ProblemModel from "../interfaces/ProblemModel";
 import {
   cachedProblemMap,
-  cachedProblemModels
+  cachedProblemModels,
 } from "../utils/CachedApiClient";
 import { convertMap } from "../utils/ImmutableMigration";
 import Problem from "../interfaces/Problem";
@@ -19,7 +19,7 @@ interface Props {
   problems: PromiseState<Problem[]>;
 }
 
-const InnerRecentSubmissions: React.FC<Props> = props => {
+const InnerRecentSubmissions: React.FC<Props> = (props) => {
   if (props.submissions.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }
@@ -50,16 +50,16 @@ const InnerRecentSubmissions: React.FC<Props> = props => {
 export const RecentSubmissions = connect<{}, Props>(() => ({
   submissions: {
     comparison: null,
-    value: fetchRecentSubmissions
+    value: fetchRecentSubmissions,
   },
   problemModels: {
     comparison: null,
     value: (): Promise<Map<string, ProblemModel>> =>
-      cachedProblemModels().then(map => convertMap(map))
+      cachedProblemModels().then((map) => convertMap(map)),
   },
   problems: {
     comparison: null,
     value: (): Promise<Problem[]> =>
-      cachedProblemMap().then(map => map.valueSeq().toArray())
-  }
+      cachedProblemMap().then((map) => map.valueSeq().toArray()),
+  },
 }))(InnerRecentSubmissions);

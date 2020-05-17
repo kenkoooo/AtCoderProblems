@@ -6,7 +6,7 @@ import {
   Row,
   UncontrolledButtonDropdown,
   UncontrolledDropdown,
-  Button
+  Button,
 } from "reactstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
@@ -21,7 +21,7 @@ import {
   noneStatus,
   ProblemId,
   ProblemStatus,
-  StatusLabel
+  StatusLabel,
 } from "../../interfaces/Status";
 import { List, Map, Range, Set } from "immutable";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -36,7 +36,7 @@ import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
 import {
   filterResetProgress,
   ProgressResetList,
-  UserResponse
+  UserResponse,
 } from "../Internal/types";
 
 export const INF_POINT = 1e18;
@@ -91,10 +91,10 @@ const FilterParams = {
   Status: "status",
   Rated: "rated",
   FromDifficulty: "fromDiff",
-  ToDifficulty: "toDiff"
+  ToDifficulty: "toDiff",
 } as const;
 
-const InnerListPage: React.FC<InnerProps> = props => {
+const InnerListPage: React.FC<InnerProps> = (props) => {
   const location = useLocation();
   const history = useHistory();
   const searchParams = new URLSearchParams(location.search);
@@ -139,7 +139,7 @@ const InnerListPage: React.FC<InnerProps> = props => {
     problemModelsFetch,
     submissionsFetch,
     contestsFetch,
-    userRatingInfoFetch
+    userRatingInfoFetch,
   } = props;
 
   const mergedProblems = mergedProblemsFetch.fulfilled
@@ -218,7 +218,7 @@ const InnerListPage: React.FC<InnerProps> = props => {
           mergedProblem: p,
           shortestUserId,
           fastestUserId,
-          status
+          status,
         };
       }
     )
@@ -229,14 +229,14 @@ const InnerListPage: React.FC<InnerProps> = props => {
     .toList();
   const points = mergedProblems
     .valueSeq()
-    .map(p => p.point)
+    .map((p) => p.point)
     .reduce((set, point) => (point ? set.add(point) : set), Set<number>())
     .toList()
     .sort();
   const difficulties = Range(0, 4400, 400)
-    .map(from => ({
+    .map((from) => ({
       from,
-      to: from === 4000 ? INF_POINT : from + 399
+      to: from === 4000 ? INF_POINT : from + 399,
     }))
     .toList();
 
@@ -275,12 +275,12 @@ const InnerListPage: React.FC<InnerProps> = props => {
               {fromPoint === 0 ? "Point From" : fromPoint}
             </DropdownToggle>
             <DropdownMenu>
-              {points.map(p => (
+              {points.map((p) => (
                 <DropdownItem
                   key={p}
                   tag={Link}
                   to={generatePathWithParams(location, {
-                    [FilterParams.FromPoint]: p.toString()
+                    [FilterParams.FromPoint]: p.toString(),
                   })}
                 >
                   {p}
@@ -293,12 +293,12 @@ const InnerListPage: React.FC<InnerProps> = props => {
               {toPoint === INF_POINT ? "Point To" : toPoint}
             </DropdownToggle>
             <DropdownMenu>
-              {points.map(p => (
+              {points.map((p) => (
                 <DropdownItem
                   key={p}
                   tag={Link}
                   to={generatePathWithParams(location, {
-                    [FilterParams.ToPoint]: p.toString()
+                    [FilterParams.ToPoint]: p.toString(),
                   })}
                 >
                   {p}
@@ -311,12 +311,12 @@ const InnerListPage: React.FC<InnerProps> = props => {
           <UncontrolledDropdown>
             <DropdownToggle caret>{statusFilterState}</DropdownToggle>
             <DropdownMenu>
-              {statusFilters.map(status => (
+              {statusFilters.map((status) => (
                 <DropdownItem
                   key={status}
                   tag={Link}
                   to={generatePathWithParams(location, {
-                    [FilterParams.Status]: status
+                    [FilterParams.Status]: status,
                   })}
                 >
                   {status}
@@ -329,12 +329,12 @@ const InnerListPage: React.FC<InnerProps> = props => {
           <UncontrolledDropdown>
             <DropdownToggle caret>{ratedFilterState}</DropdownToggle>
             <DropdownMenu>
-              {RATED_FILTERS.map(value => (
+              {RATED_FILTERS.map((value) => (
                 <DropdownItem
                   key={value}
                   tag={Link}
                   to={generatePathWithParams(location, {
-                    [FilterParams.Rated]: value
+                    [FilterParams.Rated]: value,
                   })}
                 >
                   {value}
@@ -357,7 +357,7 @@ const InnerListPage: React.FC<InnerProps> = props => {
                   key={from}
                   tag={Link}
                   to={generatePathWithParams(location, {
-                    [FilterParams.FromDifficulty]: from.toString()
+                    [FilterParams.FromDifficulty]: from.toString(),
                   })}
                 >
                   <DifficultyCircle
@@ -383,7 +383,7 @@ const InnerListPage: React.FC<InnerProps> = props => {
                   to={generatePathWithParams(location, {
                     [FilterParams.FromDifficulty]:
                       fromDifficulty !== -1 ? fromDifficulty.toString() : "0",
-                    [FilterParams.ToDifficulty]: to.toString()
+                    [FilterParams.ToDifficulty]: to.toString(),
                   })}
                 >
                   <DifficultyCircle
@@ -436,34 +436,34 @@ interface InnerProps extends OuterProps {
   readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
-export const ListPage = connect<OuterProps, InnerProps>(props => ({
+export const ListPage = connect<OuterProps, InnerProps>((props) => ({
   submissionsFetch: {
     comparison: [props.userId, props.rivals],
     value: (): Promise<Submission[]> =>
       Promise.all(
-        props.rivals.push(props.userId).map(id => fetchUserSubmissions(id))
-      ).then((arrays: Submission[][]) => arrays.flatMap(array => array))
+        props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
+      ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
   },
   mergedProblemsFetch: {
     comparison: null,
     value: (): Promise<Map<string, MergedProblem>> =>
-      CachedApiClient.cachedMergedProblemMap()
+      CachedApiClient.cachedMergedProblemMap(),
   },
   problemModelsFetch: {
     comparison: null,
     value: (): Promise<Map<string, ProblemModel>> =>
-      CachedApiClient.cachedProblemModels()
+      CachedApiClient.cachedProblemModels(),
   },
   contestsFetch: {
     comparison: null,
     value: (): Promise<Map<string, Contest>> =>
-      CachedApiClient.cachedContestMap()
+      CachedApiClient.cachedContestMap(),
   },
   userRatingInfoFetch: {
     comparison: props.userId,
     value: (): Promise<RatingInfo> =>
-      CachedApiClient.cachedRatingInfo(props.userId)
+      CachedApiClient.cachedRatingInfo(props.userId),
   },
   loginState: USER_GET,
-  progressResetList: PROGRESS_RESET_LIST
+  progressResetList: PROGRESS_RESET_LIST,
 }))(InnerListPage);

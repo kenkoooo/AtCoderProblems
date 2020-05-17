@@ -10,7 +10,7 @@ import {
   InputGroup,
   Label,
   Row,
-  UncontrolledDropdown
+  UncontrolledDropdown,
 } from "reactstrap";
 import { List, Map, Range } from "immutable";
 import { connect, PromiseState } from "react-refetch";
@@ -34,7 +34,7 @@ const toUnixSecond = (date: string, hour: number, minute: number): number => {
   return moment(s).unix();
 };
 
-const ContestConfig: React.FC<InnerProps> = props => {
+const ContestConfig: React.FC<InnerProps> = (props) => {
   const [title, setTitle] = useState(props.initialTitle);
   const [memo, setMemo] = useState(props.initialMemo);
 
@@ -48,11 +48,11 @@ const ContestConfig: React.FC<InnerProps> = props => {
   const [mode, setMode] = useState(props.initialMode);
   const [
     expectedParticipantUserIdsText,
-    setExpectedParticipantUserIdsText
+    setExpectedParticipantUserIdsText,
   ] = useState("");
   const [
     expectedParticipantsInputErrorMessage,
-    setExpectedParticipantsInputErrorMessage
+    setExpectedParticipantsInputErrorMessage,
   ] = useState("");
   const hasExpectedParticipantsInputError =
     expectedParticipantsInputErrorMessage.length > 0;
@@ -79,12 +79,12 @@ const ContestConfig: React.FC<InnerProps> = props => {
 
   const addProblemsIfNotSelected = (...problems: Problem[]): void => {
     let newProblemSet = problemSet;
-    problems.forEach(problem => {
-      if (problemSet.every(p => p.id !== problem.id)) {
+    problems.forEach((problem) => {
+      if (problemSet.every((p) => p.id !== problem.id)) {
         newProblemSet = newProblemSet.push({
           id: problem.id,
           point: null,
-          order: null
+          order: null,
         });
       }
     });
@@ -156,7 +156,7 @@ const ContestConfig: React.FC<InnerProps> = props => {
               value={startHour}
               onChange={(e): void => setStartHour(Number(e.target.value))}
             >
-              {Range(0, 24).map(i => (
+              {Range(0, 24).map((i) => (
                 <option key={i}>{i}</option>
               ))}
             </Input>
@@ -165,7 +165,7 @@ const ContestConfig: React.FC<InnerProps> = props => {
               value={startMinute}
               onChange={(e): void => setStartMinute(Number(e.target.value))}
             >
-              {Range(0, 60, 5).map(i => (
+              {Range(0, 60, 5).map((i) => (
                 <option key={i}>{i}</option>
               ))}
             </Input>
@@ -187,7 +187,7 @@ const ContestConfig: React.FC<InnerProps> = props => {
               value={endHour}
               onChange={(e): void => setEndHour(Number(e.target.value))}
             >
-              {Range(0, 24).map(i => (
+              {Range(0, 24).map((i) => (
                 <option key={i}>{i}</option>
               ))}
             </Input>
@@ -196,7 +196,7 @@ const ContestConfig: React.FC<InnerProps> = props => {
               value={endMinute}
               onChange={(e): void => setEndMinute(Number(e.target.value))}
             >
-              {Range(0, 60, 5).map(i => (
+              {Range(0, 60, 5).map((i) => (
                 <option key={i}>{i}</option>
               ))}
             </Input>
@@ -293,7 +293,7 @@ const ContestConfig: React.FC<InnerProps> = props => {
                 startSecond,
                 endSecond,
                 problems: problemSet,
-                mode
+                mode,
               })
             }
           >
@@ -341,14 +341,14 @@ export default connect<OuterProps, InnerProps>(() => ({
   problemMapFetch: {
     comparison: null,
     value: (): Promise<Map<string, Problem>> =>
-      CachedApiClient.cachedProblemMap()
+      CachedApiClient.cachedProblemMap(),
   },
   problemModelsFetch: {
     comparison: null,
     value: (): Promise<Map<string, ProblemModel>> =>
-      CachedApiClient.cachedProblemModels()
+      CachedApiClient.cachedProblemModels(),
   },
   loginState: {
-    url: USER_GET
-  }
+    url: USER_GET,
+  },
 }))(ContestConfig);

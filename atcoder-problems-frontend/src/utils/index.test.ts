@@ -2,7 +2,7 @@ import {
   ATCODER_RIVALS_REGEXP,
   ATCODER_USER_REGEXP,
   extractRivalsParam,
-  normalizeUserId
+  normalizeUserId,
 } from "./index";
 
 describe("user regex", () => {
@@ -37,7 +37,7 @@ it("extract rival params", () => {
   expect(extractRivalsParam(" user1 , USER2, user_3 ")).toMatchObject([
     "user1",
     "USER2",
-    "user_3"
+    "user_3",
   ]);
 });
 

@@ -10,8 +10,8 @@ export const extractRivalsParam = (rivalsParam: string): string[] => {
   if (ATCODER_RIVALS_REGEXP.exec(rivalsParam)) {
     return rivalsParam
       .split(",")
-      .map(rival => rival.trim())
-      .filter(rival => rival.length > 0);
+      .map((rival) => rival.trim())
+      .filter((rival) => rival.length > 0);
   } else {
     return [];
   }
@@ -60,7 +60,7 @@ export const RatingColors = [
   "Blue",
   "Yellow",
   "Orange",
-  "Red"
+  "Red",
 ] as const;
 
 export type RatingColor = typeof RatingColors[number];

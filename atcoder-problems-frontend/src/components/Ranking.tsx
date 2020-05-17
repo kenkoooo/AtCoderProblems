@@ -24,18 +24,18 @@ const refineRanking = (ranking: RankingEntry[]): InternalRankEntry[] =>
           ? {
               rank: last.rank,
               id: entry.user_id,
-              count: entry.problem_count
+              count: entry.problem_count,
             }
           : {
               rank: index + 1,
               id: entry.user_id,
-              count: entry.problem_count
+              count: entry.problem_count,
             };
       array.push(nextEntry);
       return array;
     }, [] as InternalRankEntry[]);
 
-const Ranking: React.FC<Props> = props => (
+const Ranking: React.FC<Props> = (props) => (
   <Row>
     <h2>{props.title}</h2>
     <BootstrapTable
@@ -51,25 +51,25 @@ const Ranking: React.FC<Props> = props => (
         sizePerPageList: [
           {
             text: "20",
-            value: 20
+            value: 20,
           },
           {
             text: "50",
-            value: 50
+            value: 50,
           },
           {
             text: "100",
-            value: 100
+            value: 100,
           },
           {
             text: "200",
-            value: 200
+            value: 200,
           },
           {
             text: "All",
-            value: props.ranking.length
-          }
-        ]
+            value: props.ranking.length,
+          },
+        ],
       }}
     >
       <TableHeaderColumn dataField="rank">#</TableHeaderColumn>

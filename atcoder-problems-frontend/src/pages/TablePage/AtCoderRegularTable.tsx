@@ -7,13 +7,13 @@ import {
   noneStatus,
   ProblemId,
   ProblemStatus,
-  StatusLabel
+  StatusLabel,
 } from "../../interfaces/Status";
 import {
   ColorMode,
   TableColor,
   statusToTableColor,
-  combineTableColorList
+  combineTableColorList,
 } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
@@ -33,30 +33,30 @@ interface Props {
   selectedLanguages: Set<string>;
 }
 
-const AtCoderRegularTableSFC: React.FC<Props> = props => {
+const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
   const { colorMode, selectedLanguages } = props;
   const contests = props.contests
-    .map(contest => {
+    .map((contest) => {
       const problems = props.contestToProblems
         .get(contest.id, List<Problem>())
         .sort((a, b) => a.id.localeCompare(b.id));
-      const problemStatus = problems.map(problem => ({
+      const problemStatus = problems.map((problem) => ({
         problem,
         status: props.statusLabelMap.get(problem.id) ?? noneStatus(),
-        model: props.problemModels.get(problem.id)
+        model: props.problemModels.get(problem.id),
       }));
-      const cellColorList = problems.map(problem => {
+      const cellColorList = problems.map((problem) => {
         const status = props.statusLabelMap.get(problem.id) ?? noneStatus();
         return statusToTableColor({
           colorMode,
           status,
           contest,
-          selectedLanguages
+          selectedLanguages,
         });
       });
       const rowColor = combineTableColorList({
         colorMode,
-        colorList: cellColorList
+        colorList: cellColorList,
       });
       const solvedAll = problemStatus.every(
         ({ status }) => status.label === StatusLabel.Success
@@ -67,7 +67,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
         problemStatus,
         solvedAll,
         rowColor,
-        cellColorList
+        cellColorList,
       };
     })
     .filter(({ solvedAll }) => props.showSolved || !solvedAll)
@@ -123,9 +123,9 @@ const AtCoderRegularTableSFC: React.FC<Props> = props => {
               const cellColor = cellColorList.get(i, TableColor.None);
               return [
                 "table-problem",
-                !problem ? "table-problem-empty" : cellColor
+                !problem ? "table-problem-empty" : cellColor,
               ]
-                .filter(nm => nm)
+                .filter((nm) => nm)
                 .join(" ");
             }}
             dataFormat={(

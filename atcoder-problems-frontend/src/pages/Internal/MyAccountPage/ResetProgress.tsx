@@ -7,7 +7,7 @@ import Problem from "../../../interfaces/Problem";
 import {
   PROGRESS_RESET_ADD,
   PROGRESS_RESET_DELETE,
-  PROGRESS_RESET_LIST
+  PROGRESS_RESET_LIST,
 } from "../ApiUrl";
 import { cachedProblemMap } from "../../../utils/CachedApiClient";
 import ProblemLink from "../../../components/ProblemLink";
@@ -24,7 +24,7 @@ interface Props {
   problems: PromiseState<Problem[]>;
 }
 
-const InnerResetProgress: React.FC<Props> = props => {
+const InnerResetProgress: React.FC<Props> = (props) => {
   const progressResetList =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value.items
@@ -57,8 +57,8 @@ const InnerResetProgress: React.FC<Props> = props => {
               </tr>
             </thead>
             <tbody>
-              {progressResetList.map(item => {
-                const problem = problems.find(p => p.id === item.problem_id);
+              {progressResetList.map((item) => {
+                const problem = problems.find((p) => p.id === item.problem_id);
                 return (
                   <tr key={item.problem_id}>
                     <td>
@@ -100,12 +100,12 @@ const InnerResetProgress: React.FC<Props> = props => {
 
 export const ResetProgress = connect<{}, Props>(() => ({
   progressResetList: {
-    url: PROGRESS_RESET_LIST
+    url: PROGRESS_RESET_LIST,
   },
   problems: {
     comparison: null,
     value: (): Promise<Problem[]> =>
-      cachedProblemMap().then(map => map.valueSeq().toArray())
+      cachedProblemMap().then((map) => map.valueSeq().toArray()),
   },
   addResetProgressResponse: { value: null },
   addResetProgress: (problemId: string): any => ({
@@ -116,15 +116,15 @@ export const ResetProgress = connect<{}, Props>(() => ({
       method: "POST",
       body: JSON.stringify({
         problem_id: problemId,
-        reset_epoch_second: Math.floor(new Date().getTime() / 1000)
+        reset_epoch_second: Math.floor(new Date().getTime() / 1000),
       }),
       andThen: (): any => ({
         progressResetList: {
           force: true,
-          url: PROGRESS_RESET_LIST
-        }
-      })
-    }
+          url: PROGRESS_RESET_LIST,
+        },
+      }),
+    },
   }),
   deleteResetProgress: (problemId: string): any => ({
     deleteResetProgressResponse: {
@@ -133,15 +133,15 @@ export const ResetProgress = connect<{}, Props>(() => ({
       url: PROGRESS_RESET_DELETE,
       method: "POST",
       body: JSON.stringify({
-        problem_id: problemId
+        problem_id: problemId,
       }),
       andThen: (): any => ({
         progressResetList: {
           force: true,
-          url: PROGRESS_RESET_LIST
-        }
-      })
-    }
+          url: PROGRESS_RESET_LIST,
+        },
+      }),
+    },
   }),
-  deleteResetProgressResponse: { value: null }
+  deleteResetProgressResponse: { value: null },
 }))(InnerResetProgress);

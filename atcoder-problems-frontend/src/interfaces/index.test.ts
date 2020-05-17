@@ -8,7 +8,7 @@ describe("Contest type guard", () => {
         rate_change: "",
         id: "",
         duration_second: 1,
-        title: ""
+        title: "",
       })
     ).toBeTruthy();
   });
@@ -18,7 +18,7 @@ describe("Contest type guard", () => {
         rate_change: "",
         id: "",
         duration_second: 1,
-        title: ""
+        title: "",
       })
     ).toBeFalsy();
     expect(
@@ -26,7 +26,7 @@ describe("Contest type guard", () => {
         start_epoch_second: 10,
         id: "",
         duration_second: 1,
-        title: ""
+        title: "",
       })
     ).toBeFalsy();
   });
@@ -37,7 +37,7 @@ describe("Contest type guard", () => {
         rate_change: "",
         id: "",
         duration_second: 1,
-        title: 0
+        title: 0,
       })
     ).toBeFalsy();
     expect(
@@ -46,7 +46,7 @@ describe("Contest type guard", () => {
         rate_change: "",
         id: 1,
         duration_second: 1,
-        title: ""
+        title: "",
       })
     ).toBeFalsy();
   });

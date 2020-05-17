@@ -62,13 +62,13 @@ export const filterResetProgress = (
   progressReset: ProgressResetList,
   userId: string
 ): Submission[] =>
-  submissions.filter(submission => {
+  submissions.filter((submission) => {
     if (submission.user_id !== userId) {
       return true;
     }
     const resetEpochSecond =
       progressReset.items.find(
-        item => item.problem_id === submission.problem_id
+        (item) => item.problem_id === submission.problem_id
       )?.reset_epoch_second ?? 0;
     return submission.epoch_second > resetEpochSecond;
   });

@@ -36,7 +36,7 @@ export const ratingInfoOf = (
 ): RatingInfo => {
   const latestRating = contestHistory.last({ NewRating: 0 }).NewRating;
   const ratedCount = contestHistory
-    .filter(participation => participation.IsRated)
+    .filter((participation) => participation.IsRated)
     .count();
   return new RatingInfo(latestRating, ratedCount);
 };

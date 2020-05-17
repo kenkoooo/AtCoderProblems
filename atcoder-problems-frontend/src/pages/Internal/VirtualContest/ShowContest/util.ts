@@ -1,5 +1,5 @@
 import ProblemModel, {
-  isProblemModelWithDifficultyModel
+  isProblemModelWithDifficultyModel,
 } from "../../../../interfaces/ProblemModel";
 import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
 import { Map as ImmutableMap } from "immutable";
@@ -88,7 +88,7 @@ const extractBestSubmission = (
     return undefined;
   }
   const trialsBeforeBest = problemSubmissions.filter(
-    s => s.id < bestSubmission.id
+    (s) => s.id < bestSubmission.id
   ).length;
   return { bestSubmission, trialsBeforeBest };
 };
@@ -108,7 +108,7 @@ const extractBestSubmissionOfProblemForEachUser = (
     return map;
   }, new Map<string, Submission[]>());
 
-  return users.map(userId => {
+  return users.map((userId) => {
     const userSubmissions = userSubmissionMap.get(userId);
     if (!userSubmissions) {
       return { userId };
@@ -124,13 +124,13 @@ export const extractBestSubmissions = (
   users: string[],
   problems: ProblemId[]
 ): BestSubmissionEntry[] => {
-  return problems.flatMap(problemId => {
+  return problems.flatMap((problemId) => {
     const problemSubmissions = submissions.get(problemId);
     const extractedSubmissions = extractBestSubmissionOfProblemForEachUser(
       problemSubmissions ? problemSubmissions : [],
       users
     );
-    return extractedSubmissions.map(entry => ({ problemId, ...entry }));
+    return extractedSubmissions.map((entry) => ({ problemId, ...entry }));
   });
 };
 
@@ -141,9 +141,9 @@ export const hasBetterSubmission = (
   bestSubmissions: BestSubmissionEntry[]
 ): boolean => {
   const betterSubmission = bestSubmissions
-    .filter(s => s.userId !== userId && s.problemId === problemId)
-    .map(s => s.bestSubmissionInfo?.bestSubmission)
-    .find(s => s && s.id < best.id && isAccepted(s.result));
+    .filter((s) => s.userId !== userId && s.problemId === problemId)
+    .map((s) => s.bestSubmissionInfo?.bestSubmission)
+    .find((s) => s && s.id < best.id && isAccepted(s.result));
   return !!betterSubmission;
 };
 
@@ -163,7 +163,7 @@ export const calcTotalResult = (
       const point = item.point;
 
       const info = bestSubmissions.find(
-        s => s.userId === userId && s.problemId === problemId
+        (s) => s.userId === userId && s.problemId === problemId
       )?.bestSubmissionInfo;
       if (!info || info.bestSubmission.point === 0) {
         return state;
@@ -185,13 +185,13 @@ export const calcTotalResult = (
           state.lastBestSubmissionTime,
           best.epoch_second
         ),
-        point: state.point + (point ? point : best.point)
+        point: state.point + (point ? point : best.point),
       };
     },
     {
       trialsBeforeBest: 0,
       lastBestSubmissionTime: 0,
-      point: 0
+      point: 0,
     }
   );
 };
@@ -203,7 +203,7 @@ export const getSortedUserIds = (
   bestSubmissions: BestSubmissionEntry[]
 ): string[] => {
   return users
-    .map(userId => {
+    .map((userId) => {
       const result = calcTotalResult(userId, problems, mode, bestSubmissions);
       return { userId, ...result };
     })
@@ -216,5 +216,5 @@ export const getSortedUserIds = (
       }
       return b.point - a.point;
     })
-    .map(e => e.userId);
+    .map((e) => e.userId);
 };

@@ -14,7 +14,7 @@ import {
   ModalFooter,
   ModalHeader,
   Row,
-  Spinner
+  Spinner,
 } from "reactstrap";
 import { LIST_CREATE, LIST_DELETE, LIST_MY } from "./ApiUrl";
 import { Link, Redirect } from "react-router-dom";
@@ -35,8 +35,8 @@ export default connect<{}, Props>(() => ({
     createListFetch: {
       url: LIST_CREATE,
       method: "POST",
-      body: JSON.stringify({ list_name: "New List" })
-    }
+      body: JSON.stringify({ list_name: "New List" }),
+    },
   }),
   deleteList: (internalListId: string): any => ({
     deleteResponse: {
@@ -47,13 +47,13 @@ export default connect<{}, Props>(() => ({
         myListFetch: {
           url: LIST_MY,
           refreshing: true,
-          force: true
-        }
-      })
-    }
+          force: true,
+        },
+      }),
+    },
   }),
-  deleteResponse: { value: null }
-}))(props => {
+  deleteResponse: { value: null },
+}))((props) => {
   const { createListFetch, myListFetch } = props;
   if (createListFetch.fulfilled && createListFetch.value !== null) {
     const listId = createListFetch.value.internal_list_id;
@@ -103,7 +103,7 @@ interface SingleListEntryProps {
   deleteList: (internalListId: string) => void;
 }
 
-const SingleListEntry: React.FC<SingleListEntryProps> = props => {
+const SingleListEntry: React.FC<SingleListEntryProps> = (props) => {
   const [modalOpen, setModalOpen] = useState(false);
   const toggle = (): void => setModalOpen(!modalOpen);
   return (

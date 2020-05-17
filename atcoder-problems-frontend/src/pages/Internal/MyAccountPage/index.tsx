@@ -11,7 +11,7 @@ import {
   NavLink,
   Row,
   TabContent,
-  TabPane
+  TabPane,
 } from "reactstrap";
 import { Redirect } from "react-router-dom";
 import { USER_GET, USER_UPDATE } from "../ApiUrl";
@@ -34,7 +34,7 @@ interface InnerProps {
 
 export const MyAccountPage = connect<{}, InnerProps>(() => ({
   userInfoGet: {
-    url: USER_GET
+    url: USER_GET,
   },
   updateUserInfo: (atcoderUser: string): any => ({
     updateUserInfoResponse: {
@@ -42,13 +42,13 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
       refreshing: true,
       url: USER_UPDATE,
       method: "POST",
-      body: JSON.stringify({ atcoder_user_id: atcoderUser })
-    }
+      body: JSON.stringify({ atcoder_user_id: atcoderUser }),
+    },
   }),
   updateUserInfoResponse: {
-    value: null
-  }
-}))(props => {
+    value: null,
+  },
+}))((props) => {
   const { userInfoGet, updateUserInfoResponse } = props;
   if (userInfoGet.rejected || updateUserInfoResponse.rejected) {
     return <Redirect to="/" />;

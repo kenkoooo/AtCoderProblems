@@ -8,14 +8,14 @@ import { List, Map as ImmutableMap } from "immutable";
 import Contest from "../../interfaces/Contest";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
-  isProblemModelWithTimeModel
+  isProblemModelWithTimeModel,
 } from "../../interfaces/ProblemModel";
 import { RatingInfo } from "../../utils/RatingInfo";
 import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
   predictSolveProbability,
-  predictSolveTime
+  predictSolveTime,
 } from "../../utils/ProblemModelUtil";
 import {
   Button,
@@ -24,7 +24,7 @@ import {
   DropdownMenu,
   DropdownToggle,
   Row,
-  UncontrolledDropdown
+  UncontrolledDropdown,
 } from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import ProblemLink from "../../components/ProblemLink";
@@ -38,7 +38,7 @@ const ExcludeOptions = [
   "2 Weeks",
   "4 Weeks",
   "6 Months",
-  "Don't exclude"
+  "Don't exclude",
 ] as const;
 type ExcludeOption = typeof ExcludeOptions[number];
 
@@ -90,24 +90,24 @@ const isIncluded = (
 const RECOMMEND_NUM_OPTIONS = [
   {
     text: "10",
-    value: 10
+    value: 10,
   },
   {
     text: "20",
-    value: 20
+    value: 20,
   },
   {
     text: "50",
-    value: 50
+    value: 50,
   },
   {
     text: "100",
-    value: 100
+    value: 100,
   },
   {
     text: "All",
-    value: Number.POSITIVE_INFINITY
-  }
+    value: Number.POSITIVE_INFINITY,
+  },
 ];
 
 type RecommendOption = "Easy" | "Moderate" | "Difficult";
@@ -132,22 +132,22 @@ const getRecommendProbabilityRange = (
     case "Easy":
       return {
         lowerBound: 0.5,
-        upperBound: Number.POSITIVE_INFINITY
+        upperBound: Number.POSITIVE_INFINITY,
       };
     case "Moderate":
       return {
         lowerBound: 0.2,
-        upperBound: 0.8
+        upperBound: 0.8,
       };
     case "Difficult":
       return {
         lowerBound: Number.NEGATIVE_INFINITY,
-        upperBound: 0.5
+        upperBound: 0.5,
       };
     default:
       return {
         lowerBound: Number.NEGATIVE_INFINITY,
-        upperBound: Number.POSITIVE_INFINITY
+        upperBound: Number.POSITIVE_INFINITY,
       };
   }
 };
@@ -160,13 +160,13 @@ interface Props {
   readonly userRatingInfo: RatingInfo;
 }
 
-export const Recommendations: React.FC<Props> = props => {
+export const Recommendations: React.FC<Props> = (props) => {
   const {
     userSubmissions,
     problems,
     contests,
     problemModels,
-    userRatingInfo
+    userRatingInfo,
   } = props;
 
   const [recommendNum, setRecommendNum] = useState(10);
@@ -181,8 +181,8 @@ export const Recommendations: React.FC<Props> = props => {
   }
   const lastSolvedTimeMap = new Map<ProblemId, number>();
   userSubmissions
-    .filter(s => isAccepted(s.result))
-    .forEach(s => {
+    .filter((s) => isAccepted(s.result))
+    .forEach((s) => {
       const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
       lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
     });
@@ -192,18 +192,18 @@ export const Recommendations: React.FC<Props> = props => {
 
   const currentSecond = Math.floor(new Date().getTime() / 1000);
   const recommendedProblems = problems
-    .filter(p =>
+    .filter((p) =>
       isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
     )
-    .filter(p => problemModels.has(p.id))
-    .map(p => ({
+    .filter((p) => problemModels.has(p.id))
+    .map((p) => ({
       ...p,
       difficulty: problemModels.getIn([p.id, "difficulty"], undefined),
-      is_experimental: problemModels.getIn([p.id, "is_experimental"], false)
+      is_experimental: problemModels.getIn([p.id, "is_experimental"], false),
     }))
-    .filter(p => recommendExperimental || !p.is_experimental)
-    .filter(p => p.difficulty !== undefined)
-    .map(p => {
+    .filter((p) => recommendExperimental || !p.is_experimental)
+    .filter((p) => p.difficulty !== undefined)
+    .map((p) => {
       const internalRating = userRatingInfo.internalRating;
       let predictedSolveTime: number | null;
       let predictedSolveProbability: number;
@@ -218,7 +218,7 @@ export const Recommendations: React.FC<Props> = props => {
           intercept: undefined,
           discrimination: undefined,
           is_experimental: false,
-          variance: undefined
+          variance: undefined,
         });
         if (isProblemModelWithTimeModel(problemModel)) {
           predictedSolveTime = predictSolveTime(problemModel, internalRating);
@@ -246,7 +246,7 @@ export const Recommendations: React.FC<Props> = props => {
       return da - db;
     })
     .filter(
-      p =>
+      (p) =>
         recommendingRange.lowerBound <= p.predictedSolveProbability &&
         p.predictedSolveProbability < recommendingRange.upperBound
     )
@@ -304,7 +304,7 @@ export const Recommendations: React.FC<Props> = props => {
                 {formatExcludeOption(excludeOption)}
               </DropdownToggle>
               <DropdownMenu>
-                {ExcludeOptions.map(option => (
+                {ExcludeOptions.map((option) => (
                   <DropdownItem
                     key={option}
                     onClick={(): void => setExcludeOption(option)}
@@ -347,7 +347,7 @@ export const Recommendations: React.FC<Props> = props => {
               {
                 id,
                 contest_id,
-                is_experimental
+                is_experimental,
               }: { id: string; contest_id: string; is_experimental: boolean }
             ): React.ReactElement => (
               <ProblemLink

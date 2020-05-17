@@ -27,37 +27,37 @@ interface InnerProps extends OuterProps {
   updateContest: (request: Request, problems: VirtualContestItem[]) => void;
 }
 
-const InnerComponent = connect<OuterProps, InnerProps>(props => ({
+const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
   contestInfoFetch: {
-    url: contestGetUrl(props.contestId)
+    url: contestGetUrl(props.contestId),
   },
   updateContest: (request: Request, problems: VirtualContestItem[]): any => ({
     updateResponse: {
       url: CONTEST_UPDATE,
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(request),
       then: (): any => ({
         url: CONTEST_ITEM_UPDATE,
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           contest_id: props.contestId,
           problems: problems.map((p, i) => ({
             ...p,
-            order: i
-          }))
-        })
-      })
-    }
+            order: i,
+          })),
+        }),
+      }),
+    },
   }),
   updateResponse: {
-    value: null
-  }
+    value: null,
+  },
 }))((props: InnerProps) => {
   const { contestId, contestInfoFetch, updateResponse } = props;
   if (contestInfoFetch.pending) {
@@ -102,7 +102,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
         startSecond,
         endSecond,
         problems: ps,
-        mode
+        mode,
       }): void => {
         props.updateContest(
           {
@@ -111,7 +111,7 @@ const InnerComponent = connect<OuterProps, InnerProps>(props => ({
             memo,
             start_epoch_second: startSecond,
             duration_second: endSecond - startSecond,
-            mode
+            mode,
           },
           ps.toArray()
         );

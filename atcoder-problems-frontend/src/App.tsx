@@ -3,7 +3,7 @@ import {
   HashRouter as Router,
   Route,
   Switch,
-  Redirect
+  Redirect,
 } from "react-router-dom";
 import { Container } from "reactstrap";
 
@@ -41,7 +41,7 @@ const App: React.FC = () => {
             path={[
               "/user/:userIds([a-zA-Z0-9_]+)+",
               "/table/:userIds([a-zA-Z0-9_]*)*",
-              "/list/:userIds([a-zA-Z0-9_]*)*"
+              "/list/:userIds([a-zA-Z0-9_]*)*",
             ]}
             component={UserSearchBar}
           />
@@ -72,7 +72,7 @@ const App: React.FC = () => {
                 const rivals = (userIds ?? "/").split("/");
                 const rivalList = List(rivals)
                   .skip(1)
-                  .filter(x => x.length > 0);
+                  .filter((x) => x.length > 0);
                 return <TablePage userId={userId} rivals={rivalList} />;
               }}
             />
@@ -84,7 +84,7 @@ const App: React.FC = () => {
                 const rivals = (userIds ?? "/").split("/");
                 const rivalList = List(rivals)
                   .skip(1)
-                  .filter(x => x.length > 0);
+                  .filter((x) => x.length > 0);
                 return <ListPage userId={userId} rivals={rivalList} />;
               }}
             />

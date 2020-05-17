@@ -3,7 +3,7 @@ import { SinglePieChart } from "../../../components/SinglePieChart";
 
 const COLORS = {
   Accepted: "#32cd32",
-  Trying: "#58616a"
+  Trying: "#58616a",
 };
 
 interface SmallPieChartProps {
@@ -15,11 +15,11 @@ interface SmallPieChartProps {
 export const SmallPieChart: React.FC<SmallPieChartProps> = ({
   title,
   trying,
-  accepted
+  accepted,
 }) => {
   const data = [
     { value: accepted, color: COLORS.Accepted, name: "Accepted" },
-    { value: trying, color: COLORS.Trying, name: "Trying" }
+    { value: trying, color: COLORS.Trying, name: "Trying" },
   ];
   return (
     <div>

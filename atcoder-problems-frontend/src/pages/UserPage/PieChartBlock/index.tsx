@@ -52,20 +52,20 @@ const solvedCountForPieChart = (
   const userCount = contestToProblems
     .map(([contestId, problems]) => {
       const problemIds = problems
-        .filter(problem => {
+        .filter((problem) => {
           const userAccepted = submissions
             .get(problem.id)
-            ?.filter(s => s.user_id === userId)
-            ?.find(s => isAccepted(s.result));
+            ?.filter((s) => s.user_id === userId)
+            ?.find((s) => isAccepted(s.result));
           return !!userAccepted;
         })
-        .map(problem => problem.id);
+        .map((problem) => problem.id);
       return { contestId, problemIds };
     })
     .map(({ problemIds, contestId }) =>
-      problemIds.map(problemId => mapProblemPosition(contestId, problemId))
+      problemIds.map((problemId) => mapProblemPosition(contestId, problemId))
     )
-    .flatMap(list => list)
+    .flatMap((list) => list)
     .reduce(
       (count, position) => {
         count[position] += 1;
@@ -75,13 +75,13 @@ const solvedCountForPieChart = (
     );
   const totalCount = contestToProblems
     .map(([contestId, problems]) => {
-      const problemIds = problems.map(problem => problem.id);
+      const problemIds = problems.map((problem) => problem.id);
       return { contestId, problemIds };
     })
     .map(({ problemIds, contestId }) =>
-      problemIds.map(problemId => mapProblemPosition(contestId, problemId))
+      problemIds.map((problemId) => mapProblemPosition(contestId, problemId))
     )
-    .flatMap(list => list)
+    .flatMap((list) => list)
     .reduce(
       (count, position) => {
         count[position] += 1;
@@ -92,9 +92,9 @@ const solvedCountForPieChart = (
   return totalCount
     .map((total, index) => ({
       total,
-      solved: userCount[index]
+      solved: userCount[index],
     }))
-    .filter(x => x.total > 0);
+    .filter((x) => x.total > 0);
 };
 
 interface Props {
@@ -103,7 +103,7 @@ interface Props {
   contestToProblems: Map<ContestId, Problem[]>;
 }
 
-export const PieChartBlock: React.FC<Props> = props => {
+export const PieChartBlock: React.FC<Props> = (props) => {
   const { contestToProblems } = props;
   const abcSolved = solvedCountForPieChart(
     Array.from(contestToProblems).filter(([contestId]) =>

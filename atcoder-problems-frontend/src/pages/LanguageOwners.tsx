@@ -13,7 +13,7 @@ interface OneOwnerProps {
   size: number;
 }
 
-const OneOwner: React.FC<OneOwnerProps> = props => (
+const OneOwner: React.FC<OneOwnerProps> = (props) => (
   <div>
     <Row className="justify-content-center my-2 border-bottom">
       <h1>{props.language}</h1>
@@ -36,7 +36,7 @@ interface Props {
   rankingFetch: PromiseState<Map<string, List<LangRankingEntry>>>;
 }
 
-const LanguageOwners: React.FC<Props> = props => {
+const LanguageOwners: React.FC<Props> = (props) => {
   const [ownersNum, setOwnersNum] = useState(3);
 
   const ranking = props.rankingFetch.fulfilled
@@ -46,7 +46,7 @@ const LanguageOwners: React.FC<Props> = props => {
     <>
       <div className="clearfix">
         <ButtonGroup className="float-right">
-          {OWNERS_NUM_OPTIONS.map(option => (
+          {OWNERS_NUM_OPTIONS.map((option) => (
             <Button
               key={option}
               color="secondary"
@@ -80,6 +80,6 @@ export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: (): Promise<Map<string, List<LangRankingEntry>>> =>
-      CachedApiClient.cachedLangRanking()
-  }
+      CachedApiClient.cachedLangRanking(),
+  },
 }))(LanguageOwners);

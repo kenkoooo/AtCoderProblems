@@ -22,7 +22,7 @@ interface Props {
   title: string;
 }
 
-export const ContestTable: React.FC<Props> = props => {
+export const ContestTable: React.FC<Props> = (props) => {
   const {
     contests,
     contestToProblems,
@@ -30,20 +30,20 @@ export const ContestTable: React.FC<Props> = props => {
     statusLabelMap,
     colorMode,
     problemModels,
-    selectedLanguages
+    selectedLanguages,
   } = props;
   const mergedContests = contests
     .sort((a, b) => b.start_epoch_second - a.start_epoch_second)
-    .map(contest => ({
+    .map((contest) => ({
       contest,
       problems: contestToProblems
         .get(contest.id, List<Problem>())
-        .sort((a, b) => a.title.localeCompare(b.title))
+        .sort((a, b) => a.title.localeCompare(b.title)),
     }))
     .map(({ contest, problems }) => {
-      const problemStatus = problems.map(p => ({
+      const problemStatus = problems.map((p) => ({
         problem: p,
-        status: statusLabelMap.get(p.id)
+        status: statusLabelMap.get(p.id),
       }));
       return { contest, problemStatus };
     })
@@ -82,14 +82,14 @@ export const ContestTable: React.FC<Props> = props => {
                             colorMode,
                             status,
                             contest,
-                            selectedLanguages
+                            selectedLanguages,
                           })
                         : "";
                       return (
                         <td
                           key={problem.id}
                           className={["table-problem", color]
-                            .filter(nm => nm)
+                            .filter((nm) => nm)
                             .join(" ")}
                         >
                           <ProblemLink

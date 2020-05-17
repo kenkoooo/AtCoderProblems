@@ -7,7 +7,7 @@ import {
   Tooltip,
   LineChart,
   Line,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
 import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 
@@ -15,7 +15,7 @@ interface Props {
   climbingData: { dateSecond: number; count: number }[];
 }
 
-export const ClimbingLineChart: React.FC<Props> = props => (
+export const ClimbingLineChart: React.FC<Props> = (props) => (
   <Row className="my-3">
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
@@ -24,7 +24,7 @@ export const ClimbingLineChart: React.FC<Props> = props => (
           top: 5,
           right: 30,
           left: 20,
-          bottom: 5
+          bottom: 5,
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />

@@ -14,34 +14,37 @@ interface Props {
 export const SmallTable: React.FC<Props> = ({
   submissions,
   mergedProblems,
-  setFilterFunc
+  setFilterFunc,
 }) => {
   const userProblemIdSet = new Map<string, Set<string>>();
   submissions
-    .filter(s => isAccepted(s.result))
-    .forEach(submission => {
+    .filter((s) => isAccepted(s.result))
+    .forEach((submission) => {
       const problemIdSet =
         userProblemIdSet.get(submission.user_id) ?? new Set<string>();
       problemIdSet.add(submission.problem_id);
       userProblemIdSet.set(submission.user_id, problemIdSet);
     });
 
-  const userPointCountMap = Array.from(userProblemIdSet.keys()).map(userId => {
-    const problemIdSet = userProblemIdSet.get(userId) ?? new Set<string>();
-    const pointCountMap = new Map<number, number>();
-    Array.from(problemIdSet).forEach(problemId => {
-      const point = mergedProblems.get(problemId)?.point;
-      if (point) {
-        const count = pointCountMap.get(point) ?? 0;
-        pointCountMap.set(point, count + 1);
-      }
-    });
-    return { userId, pointCountMap };
-  });
+  const userPointCountMap = Array.from(userProblemIdSet.keys()).map(
+    (userId) => {
+      const problemIdSet = userProblemIdSet.get(userId) ?? new Set<string>();
+      const pointCountMap = new Map<number, number>();
+      Array.from(problemIdSet).forEach((problemId) => {
+        const point = mergedProblems.get(problemId)?.point;
+        if (point) {
+          const count = pointCountMap.get(point) ?? 0;
+          pointCountMap.set(point, count + 1);
+        }
+      });
+      return { userId, pointCountMap };
+    }
+  );
 
   const totalCount = mergedProblems
     .reduce(
-      (map, p) => (p.point ? map.update(p.point, 0, count => count + 1) : map),
+      (map, p) =>
+        p.point ? map.update(p.point, 0, (count) => count + 1) : map,
       ImmutableMap<number, number>()
     )
     .entrySeq()

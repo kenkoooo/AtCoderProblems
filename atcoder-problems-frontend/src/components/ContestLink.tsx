@@ -12,7 +12,7 @@ interface Props {
 
 enum RatedTargetType {
   All,
-  Unrated
+  Unrated,
 }
 
 type RatedTarget = number | RatedTargetType;
@@ -51,7 +51,7 @@ function getColorClass(target: RatedTarget): string {
   return getRatingColorClass(target);
 }
 
-const ContestLink: React.FC<Props> = props => {
+const ContestLink: React.FC<Props> = (props) => {
   const { contest, title } = props;
   const target: RatedTarget = getRatedTarget(contest);
 
