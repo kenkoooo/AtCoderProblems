@@ -38,7 +38,7 @@ module.exports = {
     "react/prop-types": 0, // 'prop-types' will not be employed
     "@typescript-eslint/camelcase": 0, // API responses contain snake_case variables
     "@typescript-eslint/explicit-function-return-type": 0, // enable the rule in "overrides"
-    // TODO: Remove following temporary rules.
+    // TODO: remove following rules
     "react/display-name": 0,
     "@typescript-eslint/no-explicit-any": 0
   },
