@@ -3,7 +3,7 @@ import {
   HashRouter as Router,
   Route,
   Switch,
-  Redirect
+  Redirect,
 } from "react-router-dom";
 import { Container } from "reactstrap";
 
@@ -30,7 +30,7 @@ import { List } from "immutable";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <Router>
       <div>
@@ -41,7 +41,7 @@ const App = () => {
             path={[
               "/user/:userIds([a-zA-Z0-9_]+)+",
               "/table/:userIds([a-zA-Z0-9_]*)*",
-              "/list/:userIds([a-zA-Z0-9_]*)*"
+              "/list/:userIds([a-zA-Z0-9_]*)*",
             ]}
             component={UserSearchBar}
           />
@@ -58,7 +58,7 @@ const App = () => {
             <Route exact path="/lang" component={LanguageOwners} />
             <Route
               path="/user/:userIds([a-zA-Z0-9_]+)+"
-              render={({ match }) => {
+              render={({ match }): React.ReactElement => {
                 const userIds: string | undefined = match.params.userIds;
                 const userId: string = (userIds ?? "").split("/")[0];
                 return <UserPage userId={userId} />;
@@ -66,25 +66,25 @@ const App = () => {
             />
             <Route
               path="/table/:userIds([a-zA-Z0-9_]*)*"
-              render={({ match }) => {
+              render={({ match }): React.ReactElement => {
                 const userIds: string | undefined = match.params.userIds;
                 const userId = (userIds ?? "").split("/")[0];
                 const rivals = (userIds ?? "/").split("/");
                 const rivalList = List(rivals)
                   .skip(1)
-                  .filter(x => x.length > 0);
+                  .filter((x) => x.length > 0);
                 return <TablePage userId={userId} rivals={rivalList} />;
               }}
             />
             <Route
               path="/list/:userIds([a-zA-Z0-9_]*)*"
-              render={({ match }) => {
+              render={({ match }): React.ReactElement => {
                 const userIds: string | undefined = match.params.userIds;
                 const userId = (userIds ?? "").split("/")[0];
                 const rivals = (userIds ?? "/").split("/");
                 const rivalList = List(rivals)
                   .skip(1)
-                  .filter(x => x.length > 0);
+                  .filter((x) => x.length > 0);
                 return <ListPage userId={userId} rivals={rivalList} />;
               }}
             />

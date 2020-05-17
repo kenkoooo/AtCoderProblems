@@ -7,11 +7,13 @@ import { List, Map } from "immutable";
 import { ordinalSuffixOf } from "../utils";
 import * as CachedApiClient from "../utils/CachedApiClient";
 
-const OneOwner = (props: {
+interface OneOwnerProps {
   language: string;
   ranking: List<LangRankingEntry>;
   size: number;
-}) => (
+}
+
+const OneOwner: React.FC<OneOwnerProps> = (props) => (
   <div>
     <Row className="justify-content-center my-2 border-bottom">
       <h1>{props.language}</h1>
@@ -34,7 +36,7 @@ interface Props {
   rankingFetch: PromiseState<Map<string, List<LangRankingEntry>>>;
 }
 
-const LanguageOwners = (props: Props) => {
+const LanguageOwners: React.FC<Props> = (props) => {
   const [ownersNum, setOwnersNum] = useState(3);
 
   const ranking = props.rankingFetch.fulfilled
@@ -44,11 +46,11 @@ const LanguageOwners = (props: Props) => {
     <>
       <div className="clearfix">
         <ButtonGroup className="float-right">
-          {OWNERS_NUM_OPTIONS.map(option => (
+          {OWNERS_NUM_OPTIONS.map((option) => (
             <Button
               key={option}
               color="secondary"
-              onClick={() => setOwnersNum(option)}
+              onClick={(): void => setOwnersNum(option)}
               active={ownersNum === option}
             >
               {option}
@@ -77,6 +79,7 @@ const LanguageOwners = (props: Props) => {
 export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedLangRanking()
-  }
+    value: (): Promise<Map<string, List<LangRankingEntry>>> =>
+      CachedApiClient.cachedLangRanking(),
+  },
 }))(LanguageOwners);

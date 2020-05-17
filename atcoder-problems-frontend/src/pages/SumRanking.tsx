@@ -8,7 +8,7 @@ interface Props {
   rankingFetch: PromiseState<RankingEntry[]>;
 }
 
-const SumRanking = (props: Props) => (
+const SumRanking: React.FC<Props> = (props) => (
   <Ranking
     title="Rated Point Ranking"
     ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : []}
@@ -18,6 +18,6 @@ const SumRanking = (props: Props) => (
 export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedSumRanking()
-  }
+    value: CachedApiClient.cachedSumRanking,
+  },
 }))(SumRanking);

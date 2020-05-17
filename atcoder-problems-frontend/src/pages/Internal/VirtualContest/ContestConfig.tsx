@@ -10,7 +10,7 @@ import {
   InputGroup,
   Label,
   Row,
-  UncontrolledDropdown
+  UncontrolledDropdown,
 } from "reactstrap";
 import { List, Map, Range } from "immutable";
 import { connect, PromiseState } from "react-refetch";
@@ -22,12 +22,19 @@ import { USER_GET } from "../ApiUrl";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
 import ProblemModel from "../../../interfaces/ProblemModel";
-import ProblemSetGenerator from "../../../components/ProblemSetGenerator";
+import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import HelpBadgeTooltip from "../../../components/HelpBadgeTooltip";
 import { Redirect } from "react-router";
 import ContestConfigProblemList from "./ContestConfigProblemList";
 
-const ContestConfig = (props: InnerProps) => {
+const toUnixSecond = (date: string, hour: number, minute: number): number => {
+  const hh = hour < 10 ? "0" + hour : "" + hour;
+  const mm = minute < 10 ? "0" + minute : "" + minute;
+  const s = `${date}T${hh}:${mm}:00+09:00`;
+  return moment(s).unix();
+};
+
+const ContestConfig: React.FC<InnerProps> = (props) => {
   const [title, setTitle] = useState(props.initialTitle);
   const [memo, setMemo] = useState(props.initialMemo);
 
@@ -41,11 +48,11 @@ const ContestConfig = (props: InnerProps) => {
   const [mode, setMode] = useState(props.initialMode);
   const [
     expectedParticipantUserIdsText,
-    setExpectedParticipantUserIdsText
+    setExpectedParticipantUserIdsText,
   ] = useState("");
   const [
     expectedParticipantsInputErrorMessage,
-    setExpectedParticipantsInputErrorMessage
+    setExpectedParticipantsInputErrorMessage,
   ] = useState("");
   const hasExpectedParticipantsInputError =
     expectedParticipantsInputErrorMessage.length > 0;
@@ -72,12 +79,12 @@ const ContestConfig = (props: InnerProps) => {
 
   const addProblemsIfNotSelected = (...problems: Problem[]): void => {
     let newProblemSet = problemSet;
-    problems.forEach(problem => {
-      if (problemSet.every(p => p.id !== problem.id)) {
+    problems.forEach((problem) => {
+      if (problemSet.every((p) => p.id !== problem.id)) {
         newProblemSet = newProblemSet.push({
           id: problem.id,
           point: null,
-          order: null
+          order: null,
         });
       }
     });
@@ -99,7 +106,7 @@ const ContestConfig = (props: InnerProps) => {
             type="text"
             placeholder="Contest Title"
             value={title}
-            onChange={event => setTitle(event.target.value)}
+            onChange={(event): void => setTitle(event.target.value)}
           />
         </Col>
       </Row>
@@ -111,7 +118,7 @@ const ContestConfig = (props: InnerProps) => {
             type="text"
             placeholder="Description"
             value={memo}
-            onChange={event => setMemo(event.target.value)}
+            onChange={(event): void => setMemo(event.target.value)}
           />
         </Col>
       </Row>
@@ -123,10 +130,10 @@ const ContestConfig = (props: InnerProps) => {
             <UncontrolledDropdown>
               <DropdownToggle caret>{formatMode(mode)}</DropdownToggle>
               <DropdownMenu>
-                <DropdownItem onClick={() => setMode(null)}>
+                <DropdownItem onClick={(): void => setMode(null)}>
                   {formatMode(null)}
                 </DropdownItem>
-                <DropdownItem onClick={() => setMode("lockout")}>
+                <DropdownItem onClick={(): void => setMode("lockout")}>
                   {formatMode("lockout")}
                 </DropdownItem>
               </DropdownMenu>
@@ -142,23 +149,23 @@ const ContestConfig = (props: InnerProps) => {
             <Input
               type="date"
               value={startDate}
-              onChange={event => setStartDate(event.target.value)}
+              onChange={(event): void => setStartDate(event.target.value)}
             />
             <Input
               type="select"
               value={startHour}
-              onChange={e => setStartHour(Number(e.target.value))}
+              onChange={(e): void => setStartHour(Number(e.target.value))}
             >
-              {Range(0, 24).map(i => (
+              {Range(0, 24).map((i) => (
                 <option key={i}>{i}</option>
               ))}
             </Input>
             <Input
               type="select"
               value={startMinute}
-              onChange={e => setStartMinute(Number(e.target.value))}
+              onChange={(e): void => setStartMinute(Number(e.target.value))}
             >
-              {Range(0, 60, 5).map(i => (
+              {Range(0, 60, 5).map((i) => (
                 <option key={i}>{i}</option>
               ))}
             </Input>
@@ -173,23 +180,23 @@ const ContestConfig = (props: InnerProps) => {
             <Input
               type="date"
               value={endDate}
-              onChange={event => setEndDate(event.target.value)}
+              onChange={(event): void => setEndDate(event.target.value)}
             />
             <Input
               type="select"
               value={endHour}
-              onChange={e => setEndHour(Number(e.target.value))}
+              onChange={(e): void => setEndHour(Number(e.target.value))}
             >
-              {Range(0, 24).map(i => (
+              {Range(0, 24).map((i) => (
                 <option key={i}>{i}</option>
               ))}
             </Input>
             <Input
               type="select"
               value={endMinute}
-              onChange={e => setEndMinute(Number(e.target.value))}
+              onChange={(e): void => setEndMinute(Number(e.target.value))}
             >
-              {Range(0, 60, 5).map(i => (
+              {Range(0, 60, 5).map((i) => (
                 <option key={i}>{i}</option>
               ))}
             </Input>
@@ -210,7 +217,7 @@ const ContestConfig = (props: InnerProps) => {
             placeholder="AtCoder ID list separated by space"
             value={expectedParticipantUserIdsText}
             invalid={hasExpectedParticipantsInputError}
-            onChange={event => {
+            onChange={(event): void => {
               setExpectedParticipantUserIdsText(event.target.value);
             }}
           />
@@ -229,7 +236,7 @@ const ContestConfig = (props: InnerProps) => {
       <Row>
         <Col>
           <ContestConfigProblemList
-            onSolvedProblemsFetchFinished={errorMessage => {
+            onSolvedProblemsFetchFinished={(errorMessage): void => {
               setExpectedParticipantsInputErrorMessage(errorMessage || "");
             }}
             problemModelMap={problemModelMap}
@@ -279,14 +286,14 @@ const ContestConfig = (props: InnerProps) => {
           <Button
             disabled={!isValid}
             color={isValid ? "success" : "link"}
-            onClick={() =>
+            onClick={(): void =>
               props.buttonPush({
                 title,
                 memo,
                 startSecond,
                 endSecond,
                 problems: problemSet,
-                mode
+                mode,
               })
             }
           >
@@ -333,20 +340,15 @@ interface InnerProps extends OuterProps {
 export default connect<OuterProps, InnerProps>(() => ({
   problemMapFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedProblemMap()
+    value: (): Promise<Map<string, Problem>> =>
+      CachedApiClient.cachedProblemMap(),
   },
   problemModelsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedProblemModels()
+    value: (): Promise<Map<string, ProblemModel>> =>
+      CachedApiClient.cachedProblemModels(),
   },
   loginState: {
-    url: USER_GET
-  }
+    url: USER_GET,
+  },
 }))(ContestConfig);
-
-const toUnixSecond = (date: string, hour: number, minute: number) => {
-  const hh = hour < 10 ? "0" + hour : "" + hour;
-  const mm = minute < 10 ? "0" + minute : "" + minute;
-  const s = `${date}T${hh}:${mm}:00+09:00`;
-  return moment(s).unix();
-};

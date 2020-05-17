@@ -13,12 +13,12 @@ import {
   InputGroupAddon,
   InputGroupText,
   Label,
-  UncontrolledDropdown
+  UncontrolledDropdown,
 } from "reactstrap";
 import React, { useState } from "react";
 import { isAccepted, shuffleList } from "../utils";
 import ProblemModel, {
-  isProblemModelWithDifficultyModel
+  isProblemModelWithDifficultyModel,
 } from "../interfaces/ProblemModel";
 import { cachedSubmissions } from "../utils/CachedApiClient";
 
@@ -49,8 +49,8 @@ const ABC_PRESET: ProblemSetSelectionPreset = {
     { minDifficulty: 50, maxDifficulty: 800 },
     { minDifficulty: 800, maxDifficulty: 1200 },
     { minDifficulty: 1200, maxDifficulty: 1600 },
-    { minDifficulty: 2000, maxDifficulty: 2400 }
-  ]
+    { minDifficulty: 2000, maxDifficulty: 2400 },
+  ],
 };
 
 const ARC_PRESET: ProblemSetSelectionPreset = {
@@ -59,8 +59,8 @@ const ARC_PRESET: ProblemSetSelectionPreset = {
     { minDifficulty: 800, maxDifficulty: 1200 },
     { minDifficulty: 1200, maxDifficulty: 1800 },
     { minDifficulty: 2000, maxDifficulty: 2800 },
-    { minDifficulty: 2800, maxDifficulty: 4000 }
-  ]
+    { minDifficulty: 2800, maxDifficulty: 4000 },
+  ],
 };
 
 const AGC_PRESET: ProblemSetSelectionPreset = {
@@ -71,17 +71,17 @@ const AGC_PRESET: ProblemSetSelectionPreset = {
     { minDifficulty: 1600, maxDifficulty: 3200 },
     { minDifficulty: 2400, maxDifficulty: 9999 },
     { minDifficulty: 2800, maxDifficulty: 9999 },
-    { minDifficulty: 2800, maxDifficulty: 9999 }
-  ]
+    { minDifficulty: 2800, maxDifficulty: 9999 },
+  ],
 };
-export default (props: Props) => {
+export const ProblemSetGenerator: React.FC<Props> = (props) => {
   const [problemSelectionParamsList, setProblemSelectionParamsList] = useState(
     ABC_PRESET.problemSelectionParams
   );
   const [excludeExperimental, setExcludeExperimental] = useState(false);
   const [
     excludeAlreadySolvedProblems,
-    setExcludeAlreadySolvedProblems
+    setExcludeAlreadySolvedProblems,
   ] = useState(true);
   const [selectedPreset, setSelectedPreset] = useState(ABC_PRESET);
 
@@ -97,7 +97,7 @@ export default (props: Props) => {
                   type="checkbox"
                   aria-label="Exclude experimental difficulty"
                   checked={excludeExperimental}
-                  onChange={event =>
+                  onChange={(event): void =>
                     setExcludeExperimental(event.target.checked)
                   }
                 />
@@ -117,7 +117,7 @@ export default (props: Props) => {
                   type="checkbox"
                   aria-label="Exclude already solved problems by expected participants"
                   checked={excludeAlreadySolvedProblems}
-                  onChange={event =>
+                  onChange={(event): void =>
                     setExcludeAlreadySolvedProblems(event.target.checked)
                   }
                 />
@@ -138,10 +138,10 @@ export default (props: Props) => {
                 {selectedPreset.displayName}
               </DropdownToggle>
               <DropdownMenu>
-                {[ABC_PRESET, ARC_PRESET, AGC_PRESET].map(preset => {
+                {[ABC_PRESET, ARC_PRESET, AGC_PRESET].map((preset) => {
                   return (
                     <DropdownItem
-                      onClick={() => {
+                      onClick={(): void => {
                         setSelectedPreset(preset);
                         setProblemSelectionParamsList(
                           preset.problemSelectionParams
@@ -165,7 +165,7 @@ export default (props: Props) => {
             <Label> Problem {idx + 1}</Label>
             <Button
               close
-              onClick={() => {
+              onClick={(): void => {
                 const newParamsList = [...problemSelectionParamsList];
                 newParamsList.splice(idx, 1);
                 setProblemSelectionParamsList(newParamsList);
@@ -182,11 +182,11 @@ export default (props: Props) => {
                 type="number"
                 value={problemSelectionParams.minDifficulty}
                 step={50}
-                onChange={event => {
+                onChange={(event): void => {
                   const newParamsList = [...problemSelectionParamsList];
                   newParamsList[idx] = {
                     ...problemSelectionParams,
-                    minDifficulty: parseInt(event.target.value, 10)
+                    minDifficulty: parseInt(event.target.value, 10),
                   };
                   setProblemSelectionParamsList(newParamsList);
                 }}
@@ -201,11 +201,11 @@ export default (props: Props) => {
                 type="number"
                 value={problemSelectionParams.maxDifficulty}
                 step={50}
-                onChange={event => {
+                onChange={(event): void => {
                   const newParamsList = [...problemSelectionParamsList];
                   newParamsList[idx] = {
                     ...problemSelectionParams,
-                    maxDifficulty: parseInt(event.target.value, 10)
+                    maxDifficulty: parseInt(event.target.value, 10),
                   };
                   setProblemSelectionParamsList(newParamsList);
                 }}
@@ -217,24 +217,24 @@ export default (props: Props) => {
       <div style={{ paddingBottom: 16 }}>
         <Button
           color={"link"}
-          onClick={() => {
+          onClick={(): void => {
             let addedElement;
             if (problemSelectionParamsList.length === 0) {
               addedElement = {
                 minDifficulty: 0,
-                maxDifficulty: 10000
+                maxDifficulty: 10000,
               };
             } else {
               addedElement = {
                 ...problemSelectionParamsList[
                   problemSelectionParamsList.length - 1
-                ]
+                ],
               };
             }
 
             setProblemSelectionParamsList([
               ...problemSelectionParamsList,
-              addedElement
+              addedElement,
             ]);
           }}
         >
@@ -249,16 +249,16 @@ export default (props: Props) => {
             disabled={
               problemSelectionParamsList.length === 0 || props.addButtonDisabled
             }
-            onClick={async () => {
+            onClick={async (): Promise<void> => {
               const nProblems = problemSelectionParamsList.length;
 
-              let candidateProblems = props.problems.map(problem => ({
+              let candidateProblems = props.problems.map((problem) => ({
                 problem,
-                model: props.problemModels.get(problem.id)
+                model: props.problemModels.get(problem.id),
               }));
 
               if (excludeExperimental) {
-                candidateProblems = candidateProblems.filter(problem => {
+                candidateProblems = candidateProblems.filter((problem) => {
                   return (
                     problem.model !== undefined &&
                     !problem.model.is_experimental
@@ -270,15 +270,15 @@ export default (props: Props) => {
                 try {
                   const alreadySolvedProblems = await Promise.all(
                     props.expectedParticipantUserIds.map(cachedSubmissions)
-                  ).then(userSubmissions => {
+                  ).then((userSubmissions) => {
                     return List(userSubmissions)
                       .flatten(true)
-                      .filter(submission => isAccepted(submission.result))
-                      .map(submission => submission.problem_id)
+                      .filter((submission) => isAccepted(submission.result))
+                      .map((submission) => submission.problem_id)
                       .toSet();
                   });
                   candidateProblems = candidateProblems.filter(
-                    problem =>
+                    (problem) =>
                       !alreadySolvedProblems.contains(problem.problem.id)
                   );
                 } catch (e) {
@@ -297,7 +297,7 @@ export default (props: Props) => {
               problemSelectionParamsList.forEach(
                 (problemSelectionParams, idx) => {
                   let found = false;
-                  candidateProblems.forEach(problem => {
+                  candidateProblems.forEach((problem) => {
                     if (
                       found ||
                       alreadySelectedProblemIds.has(problem.problem.id)
@@ -329,7 +329,7 @@ export default (props: Props) => {
                   `Only ${
                     selectedProblems.length
                   } problems are prepared. (Failed to assign a problem for problem ${selectionFailedProblemNumbers
-                    .map(num => num + 1)
+                    .map((num) => num + 1)
                     .join(",")})`
                 );
               }

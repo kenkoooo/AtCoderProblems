@@ -12,7 +12,7 @@ interface Props {
 
 enum RatedTargetType {
   All,
-  Unrated
+  Unrated,
 }
 
 type RatedTarget = number | RatedTargetType;
@@ -28,13 +28,14 @@ function getRatedTarget(contest: Contest): RatedTarget {
       return RatedTargetType.Unrated;
     case "All":
       return RatedTargetType.All;
-    case /\d+/.test(contest.rate_change) ? contest.rate_change : false:
+    case /\d+/.test(contest.rate_change) ? contest.rate_change : false: {
       const tmp = /\d+/.exec(contest.rate_change);
       if (tmp !== null) {
         return parseInt(tmp[0], 10);
       } else {
         return RatedTargetType.Unrated;
       }
+    }
     default:
       return RatedTargetType.Unrated;
   }
@@ -50,7 +51,7 @@ function getColorClass(target: RatedTarget): string {
   return getRatingColorClass(target);
 }
 
-const ContestLink: React.FC<Props> = props => {
+const ContestLink: React.FC<Props> = (props) => {
   const { contest, title } = props;
   const target: RatedTarget = getRatedTarget(contest);
 

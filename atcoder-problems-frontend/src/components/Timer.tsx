@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { formatDuration } from "../utils/DateUtil";
 
-export default (props: { remain: number }) => {
+interface Props {
+  remain: number;
+}
+
+export const Timer: React.FC<Props> = (props) => {
   const [timeLeft, setTimeLeft] = useState(props.remain);
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -10,7 +14,7 @@ export default (props: { remain: number }) => {
     const intervalId = setInterval(() => {
       setTimeLeft(timeLeft - 1);
     }, 1000);
-    return () => clearInterval(intervalId);
+    return (): void => clearInterval(intervalId);
   }, [timeLeft]);
   if (timeLeft <= 0) {
     return null;

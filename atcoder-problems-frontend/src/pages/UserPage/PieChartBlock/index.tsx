@@ -10,8 +10,11 @@ const solvedCountForPieChart = (
   contestToProblems: [string, Problem[]][],
   submissions: Map<string, Submission[]>,
   userId: string
-) => {
-  const mapProblemPosition = (contestId: string, problemId: string) => {
+): {
+  total: number;
+  solved: number;
+}[] => {
+  const mapProblemPosition = (contestId: string, problemId: string): number => {
     const contestPrefix = contestId.substring(0, 3);
     const problemPrefix = problemId.substring(0, 3);
     const shift = contestPrefix === "abc" && problemPrefix === "arc";
@@ -49,20 +52,20 @@ const solvedCountForPieChart = (
   const userCount = contestToProblems
     .map(([contestId, problems]) => {
       const problemIds = problems
-        .filter(problem => {
+        .filter((problem) => {
           const userAccepted = submissions
             .get(problem.id)
-            ?.filter(s => s.user_id === userId)
-            ?.find(s => isAccepted(s.result));
+            ?.filter((s) => s.user_id === userId)
+            ?.find((s) => isAccepted(s.result));
           return !!userAccepted;
         })
-        .map(problem => problem.id);
+        .map((problem) => problem.id);
       return { contestId, problemIds };
     })
     .map(({ problemIds, contestId }) =>
-      problemIds.map(problemId => mapProblemPosition(contestId, problemId))
+      problemIds.map((problemId) => mapProblemPosition(contestId, problemId))
     )
-    .flatMap(list => list)
+    .flatMap((list) => list)
     .reduce(
       (count, position) => {
         count[position] += 1;
@@ -72,13 +75,13 @@ const solvedCountForPieChart = (
     );
   const totalCount = contestToProblems
     .map(([contestId, problems]) => {
-      const problemIds = problems.map(problem => problem.id);
+      const problemIds = problems.map((problem) => problem.id);
       return { contestId, problemIds };
     })
     .map(({ problemIds, contestId }) =>
-      problemIds.map(problemId => mapProblemPosition(contestId, problemId))
+      problemIds.map((problemId) => mapProblemPosition(contestId, problemId))
     )
-    .flatMap(list => list)
+    .flatMap((list) => list)
     .reduce(
       (count, position) => {
         count[position] += 1;
@@ -89,9 +92,9 @@ const solvedCountForPieChart = (
   return totalCount
     .map((total, index) => ({
       total,
-      solved: userCount[index]
+      solved: userCount[index],
     }))
-    .filter(x => x.total > 0);
+    .filter((x) => x.total > 0);
 };
 
 interface Props {
@@ -100,25 +103,25 @@ interface Props {
   contestToProblems: Map<ContestId, Problem[]>;
 }
 
-export const PieChartBlock = (props: Props) => {
+export const PieChartBlock: React.FC<Props> = (props) => {
   const { contestToProblems } = props;
   const abcSolved = solvedCountForPieChart(
-    Array.from(contestToProblems).filter(
-      ([contestId]) => contestId.substring(0, 3) === "abc"
+    Array.from(contestToProblems).filter(([contestId]) =>
+      contestId.startsWith("abc")
     ),
     props.submissions,
     props.userId
   );
   const arcSolved = solvedCountForPieChart(
-    Array.from(contestToProblems).filter(
-      ([contestId]) => contestId.substring(0, 3) === "arc"
+    Array.from(contestToProblems).filter(([contestId]) =>
+      contestId.startsWith("arc")
     ),
     props.submissions,
     props.userId
   );
   const agcSolved = solvedCountForPieChart(
-    Array.from(contestToProblems).filter(
-      ([contestId]) => contestId.substring(0, 3) === "agc"
+    Array.from(contestToProblems).filter(([contestId]) =>
+      contestId.startsWith("agc")
     ),
     props.submissions,
     props.userId
@@ -132,13 +135,12 @@ export const PieChartBlock = (props: Props) => {
   );
 };
 
-const PieCharts = ({
-  problems,
-  title
-}: {
+interface PieChartsProps {
   problems: { total: number; solved: number }[];
   title: string;
-}) => (
+}
+
+const PieCharts: React.FC<PieChartsProps> = ({ problems, title }) => (
   <div>
     <Row className="my-2 border-bottom">
       <h1>{title}</h1>

@@ -1,5 +1,5 @@
 import ProblemModel, {
-  isProblemModelWithDifficultyModel
+  isProblemModelWithDifficultyModel,
 } from "../../../../interfaces/ProblemModel";
 import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
 import { Map as ImmutableMap } from "immutable";
@@ -8,34 +8,12 @@ import { clipDifficulty, isAccepted } from "../../../../utils";
 import Submission from "../../../../interfaces/Submission";
 import { VirtualContestItem, VirtualContestMode } from "../../types";
 
-export const calcPerformance = (
-  solvedData: { problemId: string; time: number; solved: boolean }[],
-  modelMap: ImmutableMap<ProblemId, ProblemModel>
-) => {
-  let internalRating = 0;
-  let probability = 0.0;
-  for (let candidateRating = -4000; candidateRating < 4000; candidateRating++) {
-    const p = solvedData
-      .map(({ problemId, time, solved }) => {
-        const model = modelMap.get(problemId);
-        return calcProbability(model, candidateRating, time, solved);
-      })
-      .reduce((prev: number, cur) => (cur ? prev * cur : prev), 1.0);
-    if (probability < p) {
-      probability = p;
-      internalRating = candidateRating;
-    }
-  }
-
-  return clipDifficulty(internalRating);
-};
-
 const calcProbability = (
   model: ProblemModel | undefined,
   rating: number,
   time: number,
   solved: boolean
-) => {
+): number | undefined => {
   const slope = model?.slope;
   const intercept = model?.intercept;
   const v = model?.variance;
@@ -54,6 +32,28 @@ const calcProbability = (
   } else {
     return undefined;
   }
+};
+
+export const calcPerformance = (
+  solvedData: { problemId: string; time: number; solved: boolean }[],
+  modelMap: ImmutableMap<ProblemId, ProblemModel>
+): number => {
+  let internalRating = 0;
+  let probability = 0.0;
+  for (let candidateRating = -4000; candidateRating < 4000; candidateRating++) {
+    const p = solvedData
+      .map(({ problemId, time, solved }) => {
+        const model = modelMap.get(problemId);
+        return calcProbability(model, candidateRating, time, solved);
+      })
+      .reduce((prev: number, cur) => (cur ? prev * cur : prev), 1.0);
+    if (probability < p) {
+      probability = p;
+      internalRating = candidateRating;
+    }
+  }
+
+  return clipDifficulty(internalRating);
 };
 
 export interface BestSubmissionInfo {
@@ -88,7 +88,7 @@ const extractBestSubmission = (
     return undefined;
   }
   const trialsBeforeBest = problemSubmissions.filter(
-    s => s.id < bestSubmission.id
+    (s) => s.id < bestSubmission.id
   ).length;
   return { bestSubmission, trialsBeforeBest };
 };
@@ -108,7 +108,7 @@ const extractBestSubmissionOfProblemForEachUser = (
     return map;
   }, new Map<string, Submission[]>());
 
-  return users.map(userId => {
+  return users.map((userId) => {
     const userSubmissions = userSubmissionMap.get(userId);
     if (!userSubmissions) {
       return { userId };
@@ -124,14 +124,27 @@ export const extractBestSubmissions = (
   users: string[],
   problems: ProblemId[]
 ): BestSubmissionEntry[] => {
-  return problems.flatMap(problemId => {
+  return problems.flatMap((problemId) => {
     const problemSubmissions = submissions.get(problemId);
     const extractedSubmissions = extractBestSubmissionOfProblemForEachUser(
       problemSubmissions ? problemSubmissions : [],
       users
     );
-    return extractedSubmissions.map(entry => ({ problemId, ...entry }));
+    return extractedSubmissions.map((entry) => ({ problemId, ...entry }));
   });
+};
+
+export const hasBetterSubmission = (
+  problemId: string,
+  userId: string,
+  best: Submission,
+  bestSubmissions: BestSubmissionEntry[]
+): boolean => {
+  const betterSubmission = bestSubmissions
+    .filter((s) => s.userId !== userId && s.problemId === problemId)
+    .map((s) => s.bestSubmissionInfo?.bestSubmission)
+    .find((s) => s && s.id < best.id && isAccepted(s.result));
+  return !!betterSubmission;
 };
 
 export const calcTotalResult = (
@@ -139,14 +152,18 @@ export const calcTotalResult = (
   problems: VirtualContestItem[],
   mode: VirtualContestMode,
   bestSubmissions: BestSubmissionEntry[]
-) => {
+): {
+  trialsBeforeBest: number;
+  lastBestSubmissionTime: number;
+  point: number;
+} => {
   return problems.reduce(
     (state, item) => {
       const problemId = item.id;
       const point = item.point;
 
       const info = bestSubmissions.find(
-        s => s.userId === userId && s.problemId === problemId
+        (s) => s.userId === userId && s.problemId === problemId
       )?.bestSubmissionInfo;
       if (!info || info.bestSubmission.point === 0) {
         return state;
@@ -168,28 +185,15 @@ export const calcTotalResult = (
           state.lastBestSubmissionTime,
           best.epoch_second
         ),
-        point: state.point + (point ? point : best.point)
+        point: state.point + (point ? point : best.point),
       };
     },
     {
       trialsBeforeBest: 0,
       lastBestSubmissionTime: 0,
-      point: 0
+      point: 0,
     }
   );
-};
-
-export const hasBetterSubmission = (
-  problemId: string,
-  userId: string,
-  best: Submission,
-  bestSubmissions: BestSubmissionEntry[]
-) => {
-  const betterSubmission = bestSubmissions
-    .filter(s => s.userId !== userId && s.problemId === problemId)
-    .map(s => s.bestSubmissionInfo?.bestSubmission)
-    .find(s => s && s.id < best.id && isAccepted(s.result));
-  return !!betterSubmission;
 };
 
 export const getSortedUserIds = (
@@ -197,9 +201,9 @@ export const getSortedUserIds = (
   problems: VirtualContestItem[],
   mode: VirtualContestMode,
   bestSubmissions: BestSubmissionEntry[]
-) => {
+): string[] => {
   return users
-    .map(userId => {
+    .map((userId) => {
       const result = calcTotalResult(userId, problems, mode, bestSubmissions);
       return { userId, ...result };
     })
@@ -212,5 +216,5 @@ export const getSortedUserIds = (
       }
       return b.point - a.point;
     })
-    .map(e => e.userId);
+    .map((e) => e.userId);
 };

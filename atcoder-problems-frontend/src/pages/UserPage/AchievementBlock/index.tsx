@@ -10,16 +10,22 @@ import {
   cachedFirstRanking,
   cachedShortRanking,
   cachedStreaksRanking,
-  cachedSumRanking
+  cachedSumRanking,
 } from "../../../utils/CachedApiClient";
 
-const findFromRanking = (ranking: RankingEntry[], userId: string) => {
+const findFromRanking = (
+  ranking: RankingEntry[],
+  userId: string
+): {
+  rank: number;
+  count: number;
+} => {
   const entry = ranking
     .sort((a, b) => b.problem_count - a.problem_count)
-    .find(r => r.user_id === userId);
+    .find((r) => r.user_id === userId);
   if (entry) {
     const count = entry.problem_count;
-    const rank = ranking.filter(e => e.problem_count > count).length;
+    const rank = ranking.filter((e) => e.problem_count > count).length;
     return { rank, count };
   } else {
     return { rank: ranking.length, count: 0 };
@@ -44,7 +50,7 @@ interface InnerProps extends OuterProps {
   streakRank: PromiseState<number>;
 }
 
-const InnerAchievementBlock = (props: InnerProps) => {
+const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
   const { longestStreak, currentStreak, prevDateLabel } = props;
   const shortRanking = props.shortestRanking.fulfilled
     ? props.shortestRanking.value
@@ -63,33 +69,33 @@ const InnerAchievementBlock = (props: InnerProps) => {
     {
       key: "Accepted",
       value: props.solvedCount,
-      rank: props.acRank.fulfilled ? props.acRank.value : undefined
+      rank: props.acRank.fulfilled ? props.acRank.value : undefined,
     },
     {
       key: "Shortest Code",
       value: shortRank.count,
-      rank: shortRank.rank
+      rank: shortRank.rank,
     },
     {
       key: "Fastest Code",
       value: fastRank.count,
-      rank: fastRank.rank
+      rank: fastRank.rank,
     },
     {
       key: "First AC",
       value: firstRank.count,
-      rank: firstRank.rank
+      rank: firstRank.rank,
     },
     {
       key: "Rated Point Sum",
       value: props.ratedPointSum,
-      rank: props.sumRank.fulfilled ? props.sumRank.value : undefined
+      rank: props.sumRank.fulfilled ? props.sumRank.value : undefined,
     },
     {
       key: "Longest Streak",
       value: `${longestStreak} days`,
-      rank: props.streakRank.fulfilled ? props.streakRank.value : undefined
-    }
+      rank: props.streakRank.fulfilled ? props.streakRank.value : undefined,
+    },
   ];
 
   const yesterdayLabel = formatMomentDate(getToday().add(-1, "day"));
@@ -122,42 +128,45 @@ const InnerAchievementBlock = (props: InnerProps) => {
   );
 };
 
-export const AchievementBlock = connect<OuterProps, InnerProps>(props => ({
+export const AchievementBlock = connect<OuterProps, InnerProps>((props) => ({
   shortestRanking: {
     comparison: null,
-    value: () => cachedShortRanking().then(list => list.toArray())
+    value: (): Promise<RankingEntry[]> =>
+      cachedShortRanking().then((list) => list.toArray()),
   },
   fastestRanking: {
     comparison: null,
-    value: () => cachedFastRanking().then(list => list.toArray())
+    value: (): Promise<RankingEntry[]> =>
+      cachedFastRanking().then((list) => list.toArray()),
   },
   firstRanking: {
     comparison: null,
-    value: () => cachedFirstRanking().then(list => list.toArray())
+    value: (): Promise<RankingEntry[]> =>
+      cachedFirstRanking().then((list) => list.toArray()),
   },
   acRank: {
     comparison: props.solvedCount,
-    value: () =>
+    value: (): Promise<number> =>
       cachedACRanking().then(
-        ranking =>
-          ranking.filter(entry => entry.problem_count > props.solvedCount)
+        (ranking) =>
+          ranking.filter((entry) => entry.problem_count > props.solvedCount)
             .length
-      )
+      ),
   },
   sumRank: {
     comparison: props.ratedPointSum,
-    value: () =>
+    value: (): Promise<number> =>
       cachedSumRanking().then(
-        ranking =>
-          ranking.filter(entry => entry.problem_count > props.ratedPointSum)
+        (ranking) =>
+          ranking.filter((entry) => entry.problem_count > props.ratedPointSum)
             .length
-      )
+      ),
   },
   streakRank: {
     comparison: props.longestStreak,
-    value: () =>
+    value: (): Promise<number> =>
       cachedStreaksRanking().then(
-        r => r.filter(e => e.problem_count > props.longestStreak).length
-      )
-  }
+        (r) => r.filter((e) => e.problem_count > props.longestStreak).length
+      ),
+  },
 }))(InnerAchievementBlock);
