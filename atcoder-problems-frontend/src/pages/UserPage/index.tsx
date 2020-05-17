@@ -141,10 +141,21 @@ const InnerUserPage = (props: InnerProps) => {
     )
     .map(([problemId]) => problemId)
     .toArray();
-  const ratedPointSum = solvedProblemIds
-    .filter(problemId => ratedProblemIds.has(problemId))
-    .map(problemId => mergedProblems.get(problemId)?.point ?? 0)
-    .reduce((sum, point) => sum + point, 0);
+
+  const ratedPointMap = new Map<ProblemId, number>();
+  const acceptedRatedSubmissions = submissions
+    .valueSeq()
+    .flatMap(a => a)
+    .filter(s => isAccepted(s.result))
+    .filter(s => ratedProblemIds.has(s.problem_id))
+    .toArray();
+  acceptedRatedSubmissions.sort((a, b) => a.id - b.id);
+  acceptedRatedSubmissions.forEach(s => {
+    ratedPointMap.set(s.problem_id, s.point);
+  });
+  const ratedPointSum = Array.from(ratedPointMap.values()).reduceRight(
+    (s, p) => s + p
+  );
 
   return (
     <div>
