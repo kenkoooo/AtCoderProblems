@@ -8,7 +8,7 @@ export const calcStreak = (
   prevDateLabel: string;
 } => {
   return dailyCount
-    .map(e => e.dateLabel)
+    .map((e) => e.dateLabel)
     .reduce(
       (state, dateLabel) => {
         const nextDateLabel = formatMomentDate(
@@ -24,7 +24,7 @@ export const calcStreak = (
       {
         longestStreak: 0,
         currentStreak: 0,
-        prevDateLabel: ""
+        prevDateLabel: "",
       }
     );
 };

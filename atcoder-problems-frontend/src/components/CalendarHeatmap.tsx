@@ -13,7 +13,7 @@ interface Props {
   formatTooltip?: (date: string, count: number) => string;
 }
 
-const CalendarHeatmap: React.FC<Props> = props => {
+const CalendarHeatmap: React.FC<Props> = (props) => {
   const { dateLabels } = props;
 
   const today = getToday();
@@ -23,10 +23,10 @@ const CalendarHeatmap: React.FC<Props> = props => {
   const startLabel = formatMomentDate(startDate);
 
   const countMap = Range(0, WEEKS * WEEKDAY)
-    .map(i => moment(startDate).add(i, "day"))
-    .map(date => ({ label: formatMomentDate(date), count: 0 }))
+    .map((i) => moment(startDate).add(i, "day"))
+    .map((date) => ({ label: formatMomentDate(date), count: 0 }))
 
-    .concat(dateLabels.map(label => ({ label, count: 1 })))
+    .concat(dateLabels.map((label) => ({ label, count: 1 })))
     .filter(({ label }) => label >= startLabel)
     .reduce(
       (map, { label, count }) => map.set(label, map.get(label, 0) + count),

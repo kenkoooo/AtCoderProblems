@@ -9,7 +9,7 @@ interface Props {
   user: UserResponse | undefined;
   loading: boolean;
 }
-export const LoginAdvice: React.FC<Props> = props => {
+export const LoginAdvice: React.FC<Props> = (props) => {
   if (props.loading) {
     return <Alert color="primary">Loading user info...</Alert>;
   }

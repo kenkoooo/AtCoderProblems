@@ -10,7 +10,7 @@ interface Props {
   ownedContestsGet: PromiseState<VirtualContest[] | null>;
   joinedContestsGet: PromiseState<VirtualContest[] | null>;
 }
-const InnerMyContestList: React.FC<Props> = props => {
+const InnerMyContestList: React.FC<Props> = (props) => {
   const history = useHistory();
   const joinedContests = props.joinedContestsGet.fulfilled
     ? props.joinedContestsGet.value
@@ -83,9 +83,9 @@ const InnerMyContestList: React.FC<Props> = props => {
 
 export const MyContestList = connect<{}, Props>(() => ({
   ownedContestsGet: {
-    url: CONTEST_MY
+    url: CONTEST_MY,
   },
   joinedContestsGet: {
-    url: CONTEST_JOINED
-  }
+    url: CONTEST_JOINED,
+  },
 }))(InnerMyContestList);

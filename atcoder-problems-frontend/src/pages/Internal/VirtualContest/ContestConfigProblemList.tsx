@@ -5,7 +5,7 @@ import {
   InputGroup,
   InputGroupAddon,
   ListGroup,
-  ListGroupItem
+  ListGroupItem,
 } from "reactstrap";
 import { List, Map, Set } from "immutable";
 import { connect, PromiseState } from "react-refetch";
@@ -16,7 +16,7 @@ import ProblemLink from "../../../components/ProblemLink";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { isAccepted } from "../../../utils";
 
-const ContestConfigProblemList: React.FC<InnerProps> = props => {
+const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
   return (
     <ListGroup>
       {props.problemSet.valueSeq().map((p, i) => {
@@ -41,7 +41,7 @@ const ContestConfigProblemList: React.FC<InnerProps> = props => {
               close
               onClick={(): void => {
                 props.setProblemSet(
-                  props.problemSet.filter(x => x.id !== problemId)
+                  props.problemSet.filter((x) => x.id !== problemId)
                 );
               }}
             />
@@ -65,9 +65,9 @@ const ContestConfigProblemList: React.FC<InnerProps> = props => {
                 style={{ float: "right" }}
                 onClick={(): void => {
                   props.setProblemSet(
-                    props.problemSet.update(i, x => ({
+                    props.problemSet.update(i, (x) => ({
                       ...x,
-                      point: 0
+                      point: 0,
                     }))
                   );
                 }}
@@ -84,9 +84,9 @@ const ContestConfigProblemList: React.FC<InnerProps> = props => {
                     const parse = parseInt(e.target.value, 10);
                     const point = !isNaN(parse) ? parse : 0;
                     props.setProblemSet(
-                      props.problemSet.update(i, x => ({
+                      props.problemSet.update(i, (x) => ({
                         ...x,
-                        point
+                        point,
                       }))
                     );
                   }}
@@ -95,9 +95,9 @@ const ContestConfigProblemList: React.FC<InnerProps> = props => {
                   <Button
                     onClick={(): void => {
                       props.setProblemSet(
-                        props.problemSet.update(i, x => ({
+                        props.problemSet.update(i, (x) => ({
                           ...x,
-                          point: null
+                          point: null,
                         }))
                       );
                     }}
@@ -127,7 +127,7 @@ interface InnerProps extends OuterProps {
   userSolvedProblemsMapFetch: PromiseState<{ [user: string]: Set<string> }>;
 }
 
-export default connect<OuterProps, InnerProps>(props => ({
+export default connect<OuterProps, InnerProps>((props) => ({
   userSolvedProblemsMapFetch: {
     comparison: props.expectedParticipantUserIds,
     refreshing: true,
@@ -138,8 +138,8 @@ export default connect<OuterProps, InnerProps>(props => ({
         try {
           const submissions = await cachedSubmissions(userId);
           res[userId] = submissions
-            .filter(submission => isAccepted(submission.result))
-            .map(submission => submission.problem_id)
+            .filter((submission) => isAccepted(submission.result))
+            .map((submission) => submission.problem_id)
             .toSet();
         } catch (e) {
           failedUserIds.push(userId);
@@ -153,6 +153,6 @@ export default connect<OuterProps, InnerProps>(props => ({
         props.onSolvedProblemsFetchFinished();
       }
       return res;
-    }
-  }
+    },
+  },
 }))(ContestConfigProblemList);

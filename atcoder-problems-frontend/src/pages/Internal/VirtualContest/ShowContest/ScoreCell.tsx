@@ -7,7 +7,7 @@ interface Props {
   time: number;
 }
 
-const ScoreCell: React.FC<Props> = props => (
+const ScoreCell: React.FC<Props> = (props) => (
   <>
     <p style={{ textAlign: "center" }}>
       <span style={{ color: "limegreen", fontWeight: "bold" }}>

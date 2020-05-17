@@ -2,7 +2,7 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
-    node: true
+    node: true,
   },
   extends: [
     "eslint:recommended",
@@ -16,31 +16,31 @@ module.exports = {
     "plugin:react-hooks/recommended",
     "plugin:prettier/recommended",
     "prettier/@typescript-eslint",
-    "prettier/react"
+    "prettier/react",
   ],
   overrides: [
     {
       // enable the rule specifically for TypeScript files
       files: ["*.ts", "*.tsx"],
       rules: {
-        "@typescript-eslint/explicit-function-return-type": 2
-      }
-    }
+        "@typescript-eslint/explicit-function-return-type": 2,
+      },
+    },
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: ["./tsconfig.json"],
     sourceType: "module",
-    tsconfigRootDir: __dirname
+    tsconfigRootDir: __dirname,
   },
   plugins: ["@typescript-eslint"],
   rules: {
     "react/prop-types": 0, // we do not employ 'prop-types'
     "@typescript-eslint/camelcase": 0, // API responses contain snake_case properties
     "@typescript-eslint/explicit-function-return-type": 0, // enable the rule in "overrides"
-    "react/display-name": 0 // TODO: enable the rule in the future
+    "react/display-name": 0, // TODO: enable the rule in the future
   },
   settings: {
-    react: { version: "detect" }
-  }
+    react: { version: "detect" },
+  },
 };

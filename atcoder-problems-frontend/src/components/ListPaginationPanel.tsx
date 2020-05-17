@@ -5,7 +5,7 @@ import {
   DropdownMenu,
   DropdownToggle,
   UncontrolledDropdown,
-  PaginationLink
+  PaginationLink,
 } from "reactstrap";
 
 interface Props extends PaginationPanelProps {
@@ -56,7 +56,7 @@ const pageList = (
   return pageNumbers;
 };
 
-export const ListPaginationPanel: React.FC<Props> = props => {
+export const ListPaginationPanel: React.FC<Props> = (props) => {
   const pageNumbers = pageList(
     props.currPage,
     props.pageStartIndex,
@@ -72,7 +72,7 @@ export const ListPaginationPanel: React.FC<Props> = props => {
             {(props.sizePerPageList as Array<{
               text: string;
               value: number;
-            }>).map(p => (
+            }>).map((p) => (
               <DropdownItem
                 key={p.text}
                 onClick={(): void => props.changeSizePerPage(p.value)}

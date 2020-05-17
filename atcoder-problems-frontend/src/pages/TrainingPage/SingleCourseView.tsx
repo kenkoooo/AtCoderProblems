@@ -19,9 +19,9 @@ interface ProblemTableProps {
   submissions: Submission[];
 }
 
-const ProblemTable: React.FC<ProblemTableProps> = props => {
+const ProblemTable: React.FC<ProblemTableProps> = (props) => {
   const latestAcceptedSubmissionMap = props.submissions
-    .filter(s => isAccepted(s.result))
+    .filter((s) => isAccepted(s.result))
     .reduce((map, s) => {
       map.set(s.problem_id, s);
       return map;
@@ -81,10 +81,10 @@ interface SetPieChartProps {
   total: number;
 }
 
-const SetPieChart: React.FC<SetPieChartProps> = props => {
+const SetPieChart: React.FC<SetPieChartProps> = (props) => {
   const data = [
     { value: props.solved, color: "#32cd32", name: "Accepted" },
-    { value: props.total - props.solved, color: "#58616a", name: "Trying" }
+    { value: props.total - props.solved, color: "#58616a", name: "Trying" },
   ];
   return (
     <div>
@@ -103,7 +103,7 @@ interface InnerProps extends OuterProps {
   problems: PromiseState<Map<ProblemId, Problem>>;
 }
 
-const InnerSingleCourseView: React.FC<InnerProps> = props => {
+const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
   const { course } = props;
   const [selectedSet, setSelectedSet] = useState(course.set_list[0].order);
 
@@ -111,12 +111,12 @@ const InnerSingleCourseView: React.FC<InnerProps> = props => {
   problemSet.sort((a, b) => a.order - b.order);
 
   const currentSelectedSet =
-    problemSet.find(set => set.order === selectedSet)?.problems ?? [];
+    problemSet.find((set) => set.order === selectedSet)?.problems ?? [];
   currentSelectedSet.sort((a, b) => a.order - b.order);
 
   const submissions = props.submissions;
   const acceptedProblemIds = submissions
-    .filter(s => isAccepted(s.result))
+    .filter((s) => isAccepted(s.result))
     .reduce((set, s) => {
       set.add(s.problem_id);
       return set;
@@ -126,7 +126,7 @@ const InnerSingleCourseView: React.FC<InnerProps> = props => {
     ? props.problems.value
     : undefined;
   const problems = currentSelectedSet
-    .map(entry => problemMap?.get(entry.problem_id))
+    .map((entry) => problemMap?.get(entry.problem_id))
     .filter(
       (problem: Problem | undefined): problem is Problem =>
         problem !== undefined
@@ -148,7 +148,7 @@ const InnerSingleCourseView: React.FC<InnerProps> = props => {
             <SetPieChart
               title={set.title}
               solved={
-                set.problems.filter(p => acceptedProblemIds.has(p.problem_id))
+                set.problems.filter((p) => acceptedProblemIds.has(p.problem_id))
                   .length
               }
               total={set.problems.length}
@@ -179,6 +179,6 @@ export const SingleCourseView = connect<OuterProps, InnerProps>(() => ({
   problems: {
     comparison: null,
     value: (): Promise<Map<string, Problem>> =>
-      cachedProblemMap().then(map => convertMap(map))
-  }
+      cachedProblemMap().then((map) => convertMap(map)),
+  },
 }))(InnerSingleCourseView);

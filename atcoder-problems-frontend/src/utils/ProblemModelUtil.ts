@@ -1,6 +1,6 @@
 import {
   ProblemModelWithDifficultyModel,
-  ProblemModelWithTimeModel
+  ProblemModelWithTimeModel,
 } from "../interfaces/ProblemModel";
 
 export const predictSolveProbability = (

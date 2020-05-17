@@ -7,7 +7,7 @@ interface Props {
   setActive: (next: ContestCategory) => void;
 }
 
-export const TableTabButtons: React.FC<Props> = props => {
+export const TableTabButtons: React.FC<Props> = (props) => {
   const { active, setActive } = props;
   return (
     <Row>

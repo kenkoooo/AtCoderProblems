@@ -11,7 +11,7 @@ import {
   Navbar,
   NavbarBrand,
   NavbarToggler,
-  UncontrolledDropdown
+  UncontrolledDropdown,
 } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
 import { USER_GET } from "../pages/Internal/ApiUrl";
@@ -23,7 +23,7 @@ interface InnerProps {
   loginState: PromiseState<UserResponse | null>;
 }
 
-const InnerNavigationBar: React.FC<InnerProps> = props => {
+const InnerNavigationBar: React.FC<InnerProps> = (props) => {
   const isLoggedIn =
     props.loginState.fulfilled &&
     props.loginState.value &&
@@ -169,6 +169,6 @@ const InnerNavigationBar: React.FC<InnerProps> = props => {
 
 export const NavigationBar = connect<{}, InnerProps>(() => ({
   loginState: {
-    url: USER_GET
-  }
+    url: USER_GET,
+  },
 }))(InnerNavigationBar);

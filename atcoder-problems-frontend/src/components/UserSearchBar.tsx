@@ -2,7 +2,7 @@ import React from "react";
 import {
   NavLink as RouterLink,
   useLocation,
-  useHistory
+  useHistory,
 } from "react-router-dom";
 import { Button, ButtonGroup, Form, Input, Nav, Navbar } from "reactstrap";
 import { extractRivalsParam, normalizeUserId } from "../utils";
@@ -31,7 +31,7 @@ const extractUserIds = (
   const userId = params.length >= 3 ? params[2] : "";
   const rivalIdString = params
     .slice(3)
-    .filter(x => x.length > 0)
+    .filter((x) => x.length > 0)
     .join(",");
   return { userId, rivalIdString };
 };
@@ -49,7 +49,7 @@ const generatePath = (
   return "/" + kind + "/" + users.join("/");
 };
 
-const InnerUserSearchBar: React.FC<InnerProps> = props => {
+const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
   const { pathname } = useLocation();
   const pageKind = extractPageKind(pathname);
 
@@ -92,7 +92,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = props => {
     () => [
       generatePath("table", userId ? userId : loggedInUserId, rivalIdString),
       generatePath("list", userId ? userId : loggedInUserId, rivalIdString),
-      generatePath("user", userId ? userId : loggedInUserId, rivalIdString)
+      generatePath("user", userId ? userId : loggedInUserId, rivalIdString),
     ],
     [userId, loggedInUserId, rivalIdString]
   );
@@ -159,6 +159,6 @@ const InnerUserSearchBar: React.FC<InnerProps> = props => {
 
 export const UserSearchBar = connect<{}, InnerProps>(() => ({
   loginState: {
-    url: USER_GET
-  }
+    url: USER_GET,
+  },
 }))(InnerUserSearchBar);

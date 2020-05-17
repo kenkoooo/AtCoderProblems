@@ -5,7 +5,7 @@ interface Props {
   remain: number;
 }
 
-export const Timer: React.FC<Props> = props => {
+export const Timer: React.FC<Props> = (props) => {
   const [timeLeft, setTimeLeft] = useState(props.remain);
   useEffect(() => {
     if (timeLeft <= 0) {

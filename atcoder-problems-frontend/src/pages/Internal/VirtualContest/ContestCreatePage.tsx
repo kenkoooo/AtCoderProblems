@@ -7,7 +7,7 @@ import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
 import { VirtualContestItem, VirtualContestMode } from "../types";
 
-const ContestCreatePage: React.FC<InnerProps> = props => {
+const ContestCreatePage: React.FC<InnerProps> = (props) => {
   const createResponse = props.createContestResponse.fulfilled
     ? props.createContestResponse.value
     : null;
@@ -46,7 +46,7 @@ const ContestCreatePage: React.FC<InnerProps> = props => {
         startSecond,
         endSecond,
         problems,
-        mode
+        mode,
       }): void =>
         props.createContest(
           {
@@ -54,7 +54,7 @@ const ContestCreatePage: React.FC<InnerProps> = props => {
             memo,
             start_epoch_second: startSecond,
             duration_second: endSecond - startSecond,
-            mode
+            mode,
           },
           problems.toArray()
         )
@@ -88,7 +88,7 @@ const mapper = (): any => {
         url: CONTEST_CREATE,
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(request),
         andThen: (response: Response): any => ({
@@ -96,25 +96,25 @@ const mapper = (): any => {
             url: CONTEST_ITEM_UPDATE,
             method: "POST",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
               contest_id: response.contest_id,
               problems: problems.map((p, i) => ({
                 ...p,
-                order: i
-              }))
-            })
-          }
-        })
-      }
+                order: i,
+              })),
+            }),
+          },
+        }),
+      },
     }),
     createContestResponse: {
-      value: null
+      value: null,
     },
     updateResponse: {
-      value: null
-    }
+      value: null,
+    },
   };
 };
 

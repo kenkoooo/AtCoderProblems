@@ -7,7 +7,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
 import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 
@@ -15,7 +15,7 @@ interface Props {
   dailyData: { dateSecond: number; count: number }[];
 }
 
-export const DailyEffortBarChart: React.FC<Props> = props => (
+export const DailyEffortBarChart: React.FC<Props> = (props) => (
   <Row className="my-3">
     <ResponsiveContainer width="100%" height={300}>
       <BarChart
@@ -24,7 +24,7 @@ export const DailyEffortBarChart: React.FC<Props> = props => (
           top: 5,
           right: 30,
           left: 20,
-          bottom: 5
+          bottom: 5,
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />

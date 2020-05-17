@@ -5,7 +5,7 @@ export const generatePathWithParams = (
   params: Record<string, string>
 ): string => {
   const searchParams = new URLSearchParams(location.search);
-  Object.keys(params).forEach(key => searchParams.set(key, params[key]));
+  Object.keys(params).forEach((key) => searchParams.set(key, params[key]));
 
   return `${location.pathname}?${searchParams.toString()}`;
 };

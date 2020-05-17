@@ -17,7 +17,7 @@ interface Props {
   problemModels: Map<ProblemId, ProblemModel>;
 }
 
-export const SubmissionListTable: React.FC<Props> = props => {
+export const SubmissionListTable: React.FC<Props> = (props) => {
   const { submissions, problems, problemModels } = props;
   const titleMap = problems.reduce((map, p) => {
     map.set(p.id, p.title);
@@ -52,7 +52,7 @@ export const SubmissionListTable: React.FC<Props> = props => {
     <BootstrapTable
       data={submissions
         .sort((a, b) => b.epoch_second - a.epoch_second)
-        .map(s => ({ title: titleMap.get(s.problem_id), ...s }))}
+        .map((s) => ({ title: titleMap.get(s.problem_id), ...s }))}
       keyField="id"
       height="auto"
       hover
@@ -65,28 +65,28 @@ export const SubmissionListTable: React.FC<Props> = props => {
         sizePerPageList: [
           {
             text: "20",
-            value: 20
+            value: 20,
           },
           {
             text: "50",
-            value: 50
+            value: 50,
           },
           {
             text: "100",
-            value: 100
+            value: 100,
           },
           {
             text: "200",
-            value: 200
+            value: 200,
           },
           {
             text: "All",
-            value: submissions.length
-          }
+            value: submissions.length,
+          },
         ],
         paginationPanel: (paginationPanelProps: any): React.ReactElement => {
           return <ListPaginationPanel {...paginationPanelProps} />;
-        }
+        },
       }}
     >
       <TableHeaderColumn

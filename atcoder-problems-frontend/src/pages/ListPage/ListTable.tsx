@@ -9,11 +9,11 @@ import { INF_POINT, ProblemRowData } from "./index";
 import { List } from "immutable";
 import {
   formatPredictedSolveTime,
-  predictSolveTime
+  predictSolveTime,
 } from "../../utils/ProblemModelUtil";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
-  isProblemModelWithTimeModel
+  isProblemModelWithTimeModel,
 } from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ListPaginationPanel } from "../../components/ListPaginationPanel";
@@ -29,8 +29,8 @@ interface Props {
   userInternalRating: number | null;
 }
 
-export const ListTable: React.FC<Props> = props => {
-  const readDifficultyAsNumber: (row: ProblemRowData) => number = row => {
+export const ListTable: React.FC<Props> = (props) => {
+  const readDifficultyAsNumber: (row: ProblemRowData) => number = (row) => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
       return -1;
@@ -40,7 +40,9 @@ export const ListTable: React.FC<Props> = props => {
     }
     return problemModel.difficulty;
   };
-  const predictSolveTimeOfRow: (row: ProblemRowData) => number | null = row => {
+  const predictSolveTimeOfRow: (row: ProblemRowData) => number | null = (
+    row
+  ) => {
     if (props.userInternalRating === null) {
       return null;
     }
@@ -70,7 +72,7 @@ export const ListTable: React.FC<Props> = props => {
     {
       header: "Date",
       dataField: "contestDate",
-      dataSort: true
+      dataSort: true,
     },
     {
       header: "Problem",
@@ -89,7 +91,7 @@ export const ListTable: React.FC<Props> = props => {
           problemTitle={row.title}
           contestId={row.mergedProblem.contest_id}
         />
-      )
+      ),
     },
     {
       header: "Contest",
@@ -106,7 +108,7 @@ export const ListTable: React.FC<Props> = props => {
           >
             {row.contestTitle}
           </a>
-        )
+        ),
     },
     {
       header: "Result",
@@ -121,7 +123,7 @@ export const ListTable: React.FC<Props> = props => {
           case StatusLabel.Failed: {
             return (
               <div>
-                {Array.from(status.solvedRivals).map(rivalId => (
+                {Array.from(status.solvedRivals).map((rivalId) => (
                   <Badge key={rivalId} color="danger">
                     {rivalId}
                   </Badge>
@@ -136,12 +138,12 @@ export const ListTable: React.FC<Props> = props => {
             return "";
           }
         }
-      }
+      },
     },
     {
       header: "Last AC Date",
       dataField: "lastAcceptedDate",
-      dataSort: true
+      dataSort: true,
     },
     {
       header: "Solvers",
@@ -158,7 +160,7 @@ export const ListTable: React.FC<Props> = props => {
         >
           {solverCount}
         </a>
-      )
+      ),
     },
     {
       header: "Point",
@@ -174,7 +176,7 @@ export const ListTable: React.FC<Props> = props => {
             return <p>{point.toFixed(2)}</p>;
           }
         }
-      }
+      },
     },
     {
       header: "Difficulty",
@@ -191,7 +193,7 @@ export const ListTable: React.FC<Props> = props => {
         } else {
           return <p>{problemModel.difficulty}</p>;
         }
-      }
+      },
     },
     {
       header: "Time",
@@ -212,7 +214,7 @@ export const ListTable: React.FC<Props> = props => {
           return <p>-</p>;
         }
         return <p>{formatPredictedSolveTime(solveTime)}</p>;
-      }
+      },
     },
     {
       header: "Fastest",
@@ -222,7 +224,7 @@ export const ListTable: React.FC<Props> = props => {
         const {
           fastest_submission_id,
           fastest_contest_id,
-          fastest_user_id
+          fastest_user_id,
         } = row.mergedProblem;
         if (fastest_submission_id && fastest_contest_id && fastest_user_id) {
           return (
@@ -240,7 +242,7 @@ export const ListTable: React.FC<Props> = props => {
         } else {
           return <p />;
         }
-      }
+      },
     },
     {
       header: "Shortest",
@@ -250,7 +252,7 @@ export const ListTable: React.FC<Props> = props => {
         const {
           shortest_submission_id,
           shortest_contest_id,
-          shortest_user_id
+          shortest_user_id,
         } = row.mergedProblem;
         if (shortest_contest_id && shortest_submission_id && shortest_user_id) {
           return (
@@ -268,7 +270,7 @@ export const ListTable: React.FC<Props> = props => {
         } else {
           return <p />;
         }
-      }
+      },
     },
     {
       header: "First",
@@ -278,7 +280,7 @@ export const ListTable: React.FC<Props> = props => {
         const {
           first_submission_id,
           first_contest_id,
-          first_user_id
+          first_user_id,
         } = row.mergedProblem;
         if (first_submission_id && first_contest_id && first_user_id) {
           return (
@@ -296,23 +298,23 @@ export const ListTable: React.FC<Props> = props => {
         } else {
           return <p />;
         }
-      }
+      },
     },
     {
       header: "Shortest User for Search",
       dataField: "shortestUserId",
-      hidden: true
+      hidden: true,
     },
     {
       header: "Fastest User for Search",
       dataField: "fastestUserId",
-      hidden: true
+      hidden: true,
     },
     {
       header: "Contest name for Search",
       dataField: "contestTitle",
-      hidden: true
-    }
+      hidden: true,
+    },
   ];
 
   return (
@@ -329,14 +331,14 @@ export const ListTable: React.FC<Props> = props => {
         return statusToTableColor({
           colorMode: ColorMode.ContestResult,
           status,
-          contest
+          contest,
         });
       }}
       data={props.rowData
         .filter(
-          row => props.fromPoint <= row.point && row.point <= props.toPoint
+          (row) => props.fromPoint <= row.point && row.point <= props.toPoint
         ) // eslint-disable-next-line
-        .filter(row => {
+        .filter((row) => {
           switch (props.statusFilterState) {
             case "All":
               return true;
@@ -346,7 +348,7 @@ export const ListTable: React.FC<Props> = props => {
               return row.status.label !== StatusLabel.Success;
           }
         }) // eslint-disable-next-line
-        .filter(row => {
+        .filter((row) => {
           const isRated = !!row.mergedProblem.point;
           switch (props.ratedFilterState) {
             case "All":
@@ -357,7 +359,7 @@ export const ListTable: React.FC<Props> = props => {
               return !isRated;
           }
         })
-        .filter(row => {
+        .filter((row) => {
           const difficulty = isProblemModelWithDifficultyModel(row.problemModel)
             ? row.problemModel.difficulty
             : -1;
@@ -373,31 +375,31 @@ export const ListTable: React.FC<Props> = props => {
         sizePerPageList: [
           {
             text: "20",
-            value: 20
+            value: 20,
           },
           {
             text: "50",
-            value: 50
+            value: 50,
           },
           {
             text: "100",
-            value: 100
+            value: 100,
           },
           {
             text: "200",
-            value: 200
+            value: 200,
           },
           {
             text: "All",
-            value: props.rowData.size
-          }
+            value: props.rowData.size,
+          },
         ],
         paginationPanel: (paginationPanelProps: any): React.ReactElement => {
           return <ListPaginationPanel {...paginationPanelProps} />;
-        }
+        },
       }}
     >
-      {columns.map(c => (
+      {columns.map((c) => (
         <TableHeaderColumn
           key={c.header}
           tdAttr={{ "data-col-name": c.header }}

@@ -22,10 +22,10 @@ export const filterSubmissions = (
     case "Submissions":
       return submissions;
     case "AC":
-      return submissions.filter(s => isAccepted(s.result));
+      return submissions.filter((s) => isAccepted(s.result));
     case "Unique AC":
       return submissions
-        .filter(s => isAccepted(s.result))
+        .filter((s) => isAccepted(s.result))
         .sort((a, b) => a.epoch_second - b.epoch_second)
         .reduce(
           (map, s) => map.set(s.problem_id, map.get(s.problem_id, s)),
@@ -52,7 +52,7 @@ const formatTooltip = (
   }
 };
 
-export const FilteringHeatmap: React.FC<Props> = props => {
+export const FilteringHeatmap: React.FC<Props> = (props) => {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("Submissions");
   const { submissions } = props;
   const filteredSubmissions = filterSubmissions(submissions, filterStatus);
@@ -83,7 +83,7 @@ export const FilteringHeatmap: React.FC<Props> = props => {
       </Row>
       <Row className="my-5">
         <CalendarHeatmap
-          dateLabels={filteredSubmissions.map(s =>
+          dateLabels={filteredSubmissions.map((s) =>
             formatMomentDate(parseSecond(s.epoch_second))
           )}
           formatTooltip={(date: string, count: number): string =>

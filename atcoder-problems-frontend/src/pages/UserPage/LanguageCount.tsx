@@ -9,7 +9,7 @@ interface Props {
 
 const LanguageCount: React.FC<Props> = ({ submissions }) => {
   const languageMap = submissions
-    .filter(s => isAccepted(s.result))
+    .filter((s) => isAccepted(s.result))
     .reduce((map, submission) => {
       const language = submission.language.startsWith("Perl6")
         ? "Perl6"

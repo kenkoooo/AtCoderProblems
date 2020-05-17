@@ -25,7 +25,7 @@ interface Props {
   contests: VirtualContestInfo[];
 }
 
-export const VirtualContestTable: React.FC<Props> = props => {
+export const VirtualContestTable: React.FC<Props> = (props) => {
   return (
     <BootstrapTable
       data={props.contests}
@@ -40,25 +40,25 @@ export const VirtualContestTable: React.FC<Props> = props => {
         sizePerPageList: [
           {
             text: "10",
-            value: 10
+            value: 10,
           },
           {
             text: "20",
-            value: 20
+            value: 20,
           },
           {
             text: "50",
-            value: 50
+            value: 50,
           },
           {
             text: "200",
-            value: 200
+            value: 200,
           },
           {
             text: "All",
-            value: props.contests.length
-          }
-        ]
+            value: props.contests.length,
+          },
+        ],
       }}
     >
       <TableHeaderColumn

@@ -11,7 +11,7 @@ interface Props {
   userSubmissions: Submission[];
 }
 
-export const ProgressChartBlock: React.FC<Props> = props => {
+export const ProgressChartBlock: React.FC<Props> = (props) => {
   const { dailyCount, userSubmissions } = props;
   const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
     const dateSecond = parseDateLabel(dateLabel).unix();
@@ -32,7 +32,7 @@ export const ProgressChartBlock: React.FC<Props> = props => {
       <DailyEffortBarChart
         dailyData={dailyCount.map(({ dateLabel, count }) => ({
           dateSecond: parseDateLabel(dateLabel).unix(),
-          count
+          count,
         }))}
       />
 

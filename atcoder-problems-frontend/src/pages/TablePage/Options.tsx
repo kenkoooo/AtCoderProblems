@@ -10,7 +10,7 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  Card
+  Card,
 } from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import { Set } from "immutable";
@@ -28,7 +28,7 @@ interface Props {
   toggleLanguage: (language: string) => void;
 }
 
-const Options: React.FC<Props> = props => {
+const Options: React.FC<Props> = (props) => {
   return (
     <Container>
       <Row className="my-4">
@@ -61,7 +61,7 @@ const Options: React.FC<Props> = props => {
               {
                 [ColorMode.None]: "Color By",
                 [ColorMode.ContestResult]: "Contest Result",
-                [ColorMode.Language]: "Language"
+                [ColorMode.Language]: "Language",
               }[props.colorMode]
             }
           </DropdownToggle>
@@ -94,7 +94,7 @@ const Options: React.FC<Props> = props => {
                   {props.selectableLanguages
                     .toArray()
                     .sort()
-                    .map(language => (
+                    .map((language) => (
                       <Label
                         check
                         key={language}

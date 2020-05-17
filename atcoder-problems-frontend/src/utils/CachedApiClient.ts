@@ -12,12 +12,12 @@ import {
   isSumRankingEntry,
   LangRankingEntry,
   RankingEntry,
-  StreakRankingEntry
+  StreakRankingEntry,
 } from "../interfaces/RankingEntry";
 import { RatingInfo, ratingInfoOf } from "./RatingInfo";
 import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "./index";
 import ContestParticipation, {
-  isContestParticipation
+  isContestParticipation,
 } from "../interfaces/ContestParticipation";
 import { isBlockedProblem } from "./BlockList";
 
@@ -30,9 +30,9 @@ function fetchTypedList<T>(
   typeGuardFn: (obj: any) => obj is T
 ): Promise<List<T>> {
   return fetch(url)
-    .then(r => r.json())
+    .then((r) => r.json())
     .then((array: any[]) => array.filter(typeGuardFn))
-    .then(array => List(array));
+    .then((array) => List(array));
 }
 
 function fetchTypedArray<T>(
@@ -40,7 +40,7 @@ function fetchTypedArray<T>(
   typeGuardFn: (obj: any) => obj is T
 ): Promise<T[]> {
   return fetch(url)
-    .then(r => r.json())
+    .then((r) => r.json())
     .then((array: any[]) => array.filter(typeGuardFn));
 }
 
@@ -49,15 +49,17 @@ function fetchTypedMap<V>(
   typeGuardFn: (obj: any) => obj is V
 ): Promise<Map<string, V>> {
   return fetch(url)
-    .then(r => r.json())
+    .then((r) => r.json())
     .then((obj: { [p: string]: any }) => Map(obj))
-    .then(m => m.filter(typeGuardFn));
+    .then((m) => m.filter(typeGuardFn));
 }
 
-const fetchContestProblemPairs = (): Promise<List<{
-  contest_id: string;
-  problem_id: string;
-}>> =>
+const fetchContestProblemPairs = (): Promise<
+  List<{
+    contest_id: string;
+    problem_id: string;
+  }>
+> =>
   fetchTypedList(
     STATIC_API_BASE_URL + "/contest-problem.json",
     (obj: any): obj is { contest_id: string; problem_id: string } =>
@@ -80,7 +82,7 @@ const fetchProblemModels = (): Promise<Map<string, ProblemModel>> =>
   fetchTypedMap(
     STATIC_API_BASE_URL + "/problem-models.json",
     isProblemModel
-  ).then(map =>
+  ).then((map) =>
     map.map(
       (model: ProblemModel): ProblemModel => {
         if (model.difficulty === undefined) {
@@ -89,7 +91,7 @@ const fetchProblemModels = (): Promise<Map<string, ProblemModel>> =>
         return {
           ...model,
           difficulty: clipDifficulty(model.difficulty),
-          rawDifficulty: model.difficulty
+          rawDifficulty: model.difficulty,
         };
       }
     )
@@ -98,8 +100,8 @@ const fetchProblemModels = (): Promise<Map<string, ProblemModel>> =>
 const fetchSubmissions = (user: string): Promise<List<Submission>> =>
   user.length > 0
     ? fetchTypedList(`${ATCODER_API_URL}/results?user=${user}`, isSubmission)
-    : Promise.resolve(List<Submission>()).then(submissions =>
-        submissions.filter(s => isValidResult(s.result))
+    : Promise.resolve(List<Submission>()).then((submissions) =>
+        submissions.filter((s) => isValidResult(s.result))
       );
 
 const fetchRatingInfo = async (user: string): Promise<RatingInfo> => {
@@ -117,7 +119,7 @@ const fetchStreaks = (): Promise<StreakRankingEntry[]> =>
   fetchTypedArray(STATIC_API_BASE_URL + "/streaks.json", isStreakRankingEntry);
 
 const fetchContestMap = (): Promise<Map<string, Contest>> =>
-  fetchContests().then(contests =>
+  fetchContests().then((contests) =>
     contests.reduce(
       (map, contest) => map.set(contest.id, contest),
       Map<string, Contest>()
@@ -143,8 +145,8 @@ export const fetchVirtualContestSubmission = (
 let MERGED_PROBLEMS: Promise<List<MergedProblem>> | undefined;
 const cachedMergedProblems = (): Promise<List<MergedProblem>> => {
   if (MERGED_PROBLEMS === undefined) {
-    MERGED_PROBLEMS = fetchMergedProblems().then(problems =>
-      problems.filter(p => !isBlockedProblem(p.id))
+    MERGED_PROBLEMS = fetchMergedProblems().then((problems) =>
+      problems.filter((p) => !isBlockedProblem(p.id))
     );
   }
   return MERGED_PROBLEMS;
@@ -153,12 +155,11 @@ const cachedMergedProblems = (): Promise<List<MergedProblem>> => {
 let CACHED_MERGED_PROBLEM_MAP:
   | Promise<Map<ProblemId, MergedProblem>>
   | undefined;
-export const cachedMergedProblemMap = (): Promise<Map<
-  string,
-  MergedProblem
->> => {
+export const cachedMergedProblemMap = (): Promise<
+  Map<string, MergedProblem>
+> => {
   if (CACHED_MERGED_PROBLEM_MAP === undefined) {
-    CACHED_MERGED_PROBLEM_MAP = cachedMergedProblems().then(list =>
+    CACHED_MERGED_PROBLEM_MAP = cachedMergedProblems().then((list) =>
       list.reduce(
         (map, problem) => map.set(problem.id, problem),
         Map<string, MergedProblem>()
@@ -172,7 +173,7 @@ let CACHED_PROBLEM_MODELS: undefined | Promise<Map<ProblemId, ProblemModel>>;
 export const cachedProblemModels = (): Promise<Map<string, ProblemModel>> => {
   if (CACHED_PROBLEM_MODELS === undefined) {
     CACHED_PROBLEM_MODELS = fetchProblemModels();
-    CACHED_PROBLEM_MODELS.then(value =>
+    CACHED_PROBLEM_MODELS.then((value) =>
       localStorage.setItem(
         "problemModels",
         JSON.stringify(Array.from(value.entries()))
@@ -201,8 +202,8 @@ let CACHED_PROBLEMS: undefined | Promise<Map<ProblemId, Problem>>;
 export const cachedProblemMap = (): Promise<Map<string, Problem>> => {
   if (CACHED_PROBLEMS === undefined) {
     CACHED_PROBLEMS = fetchProblems()
-      .then(problems => problems.filter(p => !isBlockedProblem(p.id)))
-      .then(problems =>
+      .then((problems) => problems.filter((p) => !isBlockedProblem(p.id)))
+      .then((problems) =>
         problems.reduce(
           (map, problem) => map.set(problem.id, problem),
           Map<string, Problem>()
@@ -212,22 +213,21 @@ export const cachedProblemMap = (): Promise<Map<string, Problem>> => {
   return CACHED_PROBLEMS;
 };
 
-const fetchContestToProblemMap = async (): Promise<Map<
-  string,
-  List<Problem>
->> => {
+const fetchContestToProblemMap = async (): Promise<
+  Map<string, List<Problem>>
+> => {
   const pairs = await fetchContestProblemPairs();
   const problems = await cachedProblemMap();
   return pairs
     .map(({ contest_id, problem_id }) => ({
       contest_id,
-      problem: problems.get(problem_id)
+      problem: problems.get(problem_id),
     }))
     .reduce((map, { contest_id, problem }) => {
       if (problem === undefined) {
         return map;
       } else {
-        return map.update(contest_id, List<Problem>(), list =>
+        return map.update(contest_id, List<Problem>(), (list) =>
           list.push(problem)
         );
       }
@@ -237,10 +237,9 @@ const fetchContestToProblemMap = async (): Promise<Map<
 let CACHED_CONTEST_TO_PROBLEM:
   | undefined
   | Promise<Map<ContestId, List<Problem>>>;
-export const cachedContestToProblemMap = (): Promise<Map<
-  string,
-  List<Problem>
->> => {
+export const cachedContestToProblemMap = (): Promise<
+  Map<string, List<Problem>>
+> => {
   if (CACHED_CONTEST_TO_PROBLEM === undefined) {
     CACHED_CONTEST_TO_PROBLEM = fetchContestToProblemMap();
   }
@@ -261,13 +260,13 @@ export const cachedUsersSubmissionMap = (
   users: List<string>
 ): Promise<Map<ProblemId, List<Submission>>> =>
   Promise.all(
-    users.toArray().map(user => cachedSubmissions(user))
-  ).then(lists =>
+    users.toArray().map((user) => cachedSubmissions(user))
+  ).then((lists) =>
     lists.reduce(
       (map, submissions) =>
         submissions.reduce(
           (m, s) =>
-            m.update(s.problem_id, List<Submission>(), list => list.push(s)),
+            m.update(s.problem_id, List<Submission>(), (list) => list.push(s)),
           map
         ),
       Map<ProblemId, List<Submission>>()
@@ -277,10 +276,10 @@ export const cachedUsersSubmissionMap = (
 let STREAK_RANKING: Promise<RankingEntry[]> | undefined;
 export const cachedStreaksRanking = (): Promise<RankingEntry[]> => {
   if (STREAK_RANKING === undefined) {
-    STREAK_RANKING = fetchStreaks().then(x =>
-      x.map(r => ({
+    STREAK_RANKING = fetchStreaks().then((x) =>
+      x.map((r) => ({
         problem_count: r.streak,
-        user_id: r.user_id
+        user_id: r.user_id,
       }))
     );
   }
@@ -293,7 +292,9 @@ export const cachedACRanking = (): Promise<RankingEntry[]> => {
     AC_RANKING = fetchTypedArray(
       STATIC_API_BASE_URL + "/ac.json",
       isRankingEntry
-    ).then(ranking => ranking.filter(entry => !isVJudgeOrLuogu(entry.user_id)));
+    ).then((ranking) =>
+      ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
+    );
   }
   return AC_RANKING;
 };
@@ -303,9 +304,9 @@ const generateRanking = (
   property: "fastest_user_id" | "shortest_user_id" | "first_user_id"
 ): List<RankingEntry> =>
   problems
-    .map(problem => problem[property])
+    .map((problem) => problem[property])
     .reduce(
-      (map, userId) => (userId ? map.update(userId, 0, c => c + 1) : map),
+      (map, userId) => (userId ? map.update(userId, 0, (c) => c + 1) : map),
       Map<string, number>()
     )
     .entrySeq()
@@ -317,33 +318,34 @@ const generateRanking = (
     .toList();
 
 export const cachedShortRanking = (): Promise<List<RankingEntry>> =>
-  cachedMergedProblems().then(list =>
+  cachedMergedProblems().then((list) =>
     generateRanking(list, "shortest_user_id")
   );
 export const cachedFastRanking = (): Promise<List<RankingEntry>> =>
-  cachedMergedProblems().then(list => generateRanking(list, "fastest_user_id"));
+  cachedMergedProblems().then((list) =>
+    generateRanking(list, "fastest_user_id")
+  );
 export const cachedFirstRanking = (): Promise<List<RankingEntry>> =>
-  cachedMergedProblems().then(list => generateRanking(list, "first_user_id"));
+  cachedMergedProblems().then((list) => generateRanking(list, "first_user_id"));
 
 let LANGUAGE_RANKING: undefined | Promise<Map<string, List<LangRankingEntry>>>;
-export const cachedLangRanking = (): Promise<Map<
-  string,
-  List<LangRankingEntry>
->> => {
+export const cachedLangRanking = (): Promise<
+  Map<string, List<LangRankingEntry>>
+> => {
   if (LANGUAGE_RANKING === undefined) {
     LANGUAGE_RANKING = fetchTypedList(
       STATIC_API_BASE_URL + "/lang.json",
       isLangRankingEntry
-    ).then(ranking =>
+    ).then((ranking) =>
       ranking
         .reduce(
           (map, entry) =>
-            map.update(entry.language, List<LangRankingEntry>(), list =>
+            map.update(entry.language, List<LangRankingEntry>(), (list) =>
               list.push(entry)
             ),
           Map<string, List<LangRankingEntry>>()
         )
-        .map(list => list.sort((a, b) => b.count - a.count))
+        .map((list) => list.sort((a, b) => b.count - a.count))
     );
   }
   return LANGUAGE_RANKING;
@@ -363,7 +365,7 @@ export const cachedSelectableLanguages = (
     SELECTABLE_LANGUAGES.userId = userId;
     SELECTABLE_LANGUAGES.selectableLanguages = cachedSubmissions(
       userId
-    ).then(submissions => submissions.map(s => s.language).toSet());
+    ).then((submissions) => submissions.map((s) => s.language).toSet());
   }
   return SELECTABLE_LANGUAGES.selectableLanguages;
 };
@@ -375,14 +377,14 @@ export const cachedSumRanking = (): Promise<RankingEntry[]> => {
       STATIC_API_BASE_URL + "/sums.json",
       isSumRankingEntry
     )
-      .then(ranking =>
-        ranking.map(r => ({
+      .then((ranking) =>
+        ranking.map((r) => ({
           problem_count: r.point_sum,
-          user_id: r.user_id
+          user_id: r.user_id,
         }))
       )
-      .then(ranking =>
-        ranking.filter(entry => !isVJudgeOrLuogu(entry.user_id))
+      .then((ranking) =>
+        ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
       );
   }
   return SUM_RANKING;

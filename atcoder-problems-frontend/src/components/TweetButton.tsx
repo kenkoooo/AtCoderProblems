@@ -6,7 +6,7 @@ interface Props {
   id: string;
 }
 
-export const TweetButton: React.FC<Props> = props => {
+export const TweetButton: React.FC<Props> = (props) => {
   const internalUrl = `https://kenkoooo.com/atcoder/#/contest/show/${props.id}`;
   const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
     internalUrl

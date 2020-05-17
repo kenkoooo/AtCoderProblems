@@ -8,7 +8,7 @@ import {
   Col,
   Row,
   Spinner,
-  Table
+  Table,
 } from "reactstrap";
 import Octicon, { Check, Sync } from "@primer/octicons-react";
 import * as CachedApi from "../../../../utils/CachedApiClient";
@@ -19,7 +19,7 @@ import MergedProblem from "../../../../interfaces/MergedProblem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 import {
   formatMomentDateTimeDay,
-  parseSecond
+  parseSecond,
 } from "../../../../utils/DateUtil";
 import { formatMode, UserResponse, VirtualContest } from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
@@ -42,7 +42,7 @@ interface InnerProps extends OuterProps {
   problemModelGet: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
-const InnerShowContest: React.FC<InnerProps> = props => {
+const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
@@ -81,13 +81,13 @@ const InnerShowContest: React.FC<InnerProps> = props => {
     contestInfo.participants.length * contestInfo.problems.length <= 100;
 
   const showProblems = start < now;
-  const problems = contestInfo.problems.map(item => {
+  const problems = contestInfo.problems.map((item) => {
     const problem = problemMap.get(item.id);
     if (problem) {
       return {
         item,
         contestId: problem.contest_id,
-        title: problem.title
+        title: problem.title,
       };
     } else {
       return { item };
@@ -157,7 +157,7 @@ const InnerShowContest: React.FC<InnerProps> = props => {
               <Button
                 onClick={(): void =>
                   history.push({
-                    pathname: `/contest/update/${contestInfo.id}`
+                    pathname: `/contest/update/${contestInfo.id}`,
                   })
                 }
               >
@@ -211,37 +211,37 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
     problemModelGet: {
       comparison: null,
       value: (): Promise<ImmutableMap<string, ProblemModel>> =>
-        CachedApi.cachedProblemModels()
+        CachedApi.cachedProblemModels(),
     },
     userInfoGet: {
-      url: USER_GET
+      url: USER_GET,
     },
     contestInfoFetch: {
       force: true,
-      url: contestGetUrl(props.contestId)
+      url: contestGetUrl(props.contestId),
     },
     problemMapFetch: {
       comparison: null,
       value: (): Promise<ImmutableMap<string, MergedProblem>> =>
-        CachedApi.cachedMergedProblemMap()
+        CachedApi.cachedMergedProblemMap(),
     },
     joinContest: (): any => ({
       joinContestPost: {
         url: CONTEST_JOIN,
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ contest_id: props.contestId }),
         andThen: (): any => ({
           contestInfoFetch: {
             url: contestGetUrl(props.contestId),
-            force: true
-          }
-        })
-      }
+            force: true,
+          },
+        }),
+      },
     }),
-    joinContestPost: { value: null }
+    joinContestPost: { value: null },
   };
 })(InnerShowContest);
 

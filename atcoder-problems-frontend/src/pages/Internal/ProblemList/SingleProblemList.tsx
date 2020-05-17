@@ -7,7 +7,7 @@ import {
   LIST_ITEM_UPDATE,
   LIST_UPDATE,
   listGetUrl,
-  USER_GET
+  USER_GET,
 } from "../ApiUrl";
 import * as CachedApi from "../../../utils/CachedApiClient";
 import { Map } from "immutable";
@@ -22,7 +22,7 @@ import {
   ListGroupItemHeading,
   ListGroupItemText,
   Row,
-  Spinner
+  Spinner,
 } from "reactstrap";
 import Problem from "../../../interfaces/Problem";
 import { ProblemId } from "../../../interfaces/Status";
@@ -46,7 +46,7 @@ interface InnerProps extends OuterProps {
   updateItem: (problemId: string, memo: string) => void;
 }
 
-const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
+const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
   userInfoFetch: USER_GET,
   problemListFetch: listGetUrl(props.listId),
   updateList: (name: string): any => ({
@@ -54,13 +54,13 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
       url: LIST_UPDATE,
       method: "POST",
       body: JSON.stringify({ internal_list_id: props.listId, name }),
-      force: true
-    }
+      force: true,
+    },
   }),
   updateListResponse: { value: null },
   problems: {
     comparison: null,
-    value: (): any => CachedApi.cachedProblemMap()
+    value: (): any => CachedApi.cachedProblemMap(),
   },
   addItem: (problemId: string): any => ({
     problemListFetch: {
@@ -68,10 +68,10 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
       method: "POST",
       body: JSON.stringify({
         internal_list_id: props.listId,
-        problem_id: problemId
+        problem_id: problemId,
       }),
-      then: (): string => listGetUrl(props.listId)
-    }
+      then: (): string => listGetUrl(props.listId),
+    },
   }),
   deleteItem: (problemId: string): any => ({
     problemListFetch: {
@@ -79,10 +79,10 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
       method: "POST",
       body: JSON.stringify({
         internal_list_id: props.listId,
-        problem_id: problemId
+        problem_id: problemId,
       }),
-      then: (): string => listGetUrl(props.listId)
-    }
+      then: (): string => listGetUrl(props.listId),
+    },
   }),
   updateItem: (problemId: string, memo: string): any => ({
     problemListFetch: {
@@ -91,12 +91,12 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
       body: JSON.stringify({
         internal_list_id: props.listId,
         problem_id: problemId,
-        memo
+        memo,
       }),
-      then: (): string => listGetUrl(props.listId)
-    }
-  })
-}))(props => {
+      then: (): string => listGetUrl(props.listId),
+    },
+  }),
+}))((props) => {
   const { problemListFetch, userInfoFetch } = props;
   const internalUserId =
     userInfoFetch.fulfilled && userInfoFetch.value
@@ -146,8 +146,8 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
       <Row className="my-2">
         <Col sm="12">
           <ListGroup>
-            {listInfo.items.map(item => {
-              const problem = problems.find(p => p.id === item.problem_id);
+            {listInfo.items.map((item) => {
+              const problem = problems.find((p) => p.id === item.problem_id);
               return (
                 <ProblemEntry
                   modifiable={modifiable}
@@ -174,7 +174,7 @@ const ProblemEntry: React.FC<{
   saveText: (text: string) => void;
   deleteItem: () => void;
   modifiable: boolean;
-}> = props => {
+}> = (props) => {
   const { item, problem } = props;
   const [isEdit, setEdit] = useState(false);
   const [text, setText] = useState(item.memo);
@@ -242,7 +242,7 @@ const DoubleClickEdit: React.FC<{
   saveText: (text: string) => void;
   initialText: string;
   modifiable: boolean;
-}> = props => {
+}> = (props) => {
   const [text, setText] = useState(props.initialText);
   const [isInput, setIsInput] = useState(false);
 

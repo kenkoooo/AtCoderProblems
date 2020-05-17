@@ -13,7 +13,7 @@ class HelpBadgeTooltip extends React.Component<Props, LocalState> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      tooltipOpen: false
+      tooltipOpen: false,
     };
   }
 
