@@ -32,7 +32,7 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      tooltipOpen: false
+      tooltipOpen: false,
     };
   }
 
@@ -52,14 +52,16 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
       borderColor: color,
       background:
         difficulty < 3200
-          ? `linear-gradient(to top, rgba(${r}, ${g}, ${b}, ${1.0}) 0%, rgba(${r}, ${g}, ${b}, ${1.0}) ${fillRatio *
-              100}%, rgba(${r}, ${g}, ${b}, ${0.0}) ${fillRatio *
-              100}%, rgba(${r}, ${g}, ${b}, ${0.0}) 100%)`
+          ? `linear-gradient(to top, rgba(${r}, ${g}, ${b}, ${1.0}) 0%, rgba(${r}, ${g}, ${b}, ${1.0}) ${
+              fillRatio * 100
+            }%, rgba(${r}, ${g}, ${b}, ${0.0}) ${
+              fillRatio * 100
+            }%, rgba(${r}, ${g}, ${b}, ${0.0}) 100%)`
           : difficulty < 3600
           ? `linear-gradient(to right, ${color}, #FFDABD, ${color})`
-          : `linear-gradient(to right, ${color}, white, ${color})`
+          : `linear-gradient(to right, ${color}, white, ${color})`,
     });
-    const title: string = `Difficulty: ${difficulty}`;
+    const title = `Difficulty: ${difficulty}`;
     const circleId = "DifficultyCircle-" + id;
     return (
       <>
@@ -72,7 +74,7 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
           placement="top"
           target={circleId}
           isOpen={tooltipOpen}
-          toggle={() => this.setState({ tooltipOpen: !tooltipOpen })}
+          toggle={(): void => this.setState({ tooltipOpen: !tooltipOpen })}
         >
           {title}
         </Tooltip>

@@ -14,12 +14,14 @@ import Octicon, { Check, Search } from "@primer/octicons-react";
 import ProblemLink from "../../components/ProblemLink";
 import { SinglePieChart } from "../../components/SinglePieChart";
 
-const ProblemTable = (props: {
+interface ProblemTableProps {
   problems: Problem[];
   submissions: Submission[];
-}) => {
+}
+
+const ProblemTable: React.FC<ProblemTableProps> = (props) => {
   const latestAcceptedSubmissionMap = props.submissions
-    .filter(s => isAccepted(s.result))
+    .filter((s) => isAccepted(s.result))
     .reduce((map, s) => {
       map.set(s.problem_id, s);
       return map;
@@ -73,14 +75,16 @@ const ProblemTable = (props: {
   );
 };
 
-const SetPieChart = (props: {
+interface SetPieChartProps {
   title: string;
   solved: number;
   total: number;
-}) => {
+}
+
+const SetPieChart: React.FC<SetPieChartProps> = (props) => {
   const data = [
     { value: props.solved, color: "#32cd32", name: "Accepted" },
-    { value: props.total - props.solved, color: "#58616a", name: "Trying" }
+    { value: props.total - props.solved, color: "#58616a", name: "Trying" },
   ];
   return (
     <div>
@@ -99,7 +103,7 @@ interface InnerProps extends OuterProps {
   problems: PromiseState<Map<ProblemId, Problem>>;
 }
 
-const InnerSingleCourseView = (props: InnerProps) => {
+const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
   const { course } = props;
   const [selectedSet, setSelectedSet] = useState(course.set_list[0].order);
 
@@ -107,12 +111,12 @@ const InnerSingleCourseView = (props: InnerProps) => {
   problemSet.sort((a, b) => a.order - b.order);
 
   const currentSelectedSet =
-    problemSet.find(set => set.order === selectedSet)?.problems ?? [];
+    problemSet.find((set) => set.order === selectedSet)?.problems ?? [];
   currentSelectedSet.sort((a, b) => a.order - b.order);
 
   const submissions = props.submissions;
   const acceptedProblemIds = submissions
-    .filter(s => isAccepted(s.result))
+    .filter((s) => isAccepted(s.result))
     .reduce((set, s) => {
       set.add(s.problem_id);
       return set;
@@ -122,7 +126,7 @@ const InnerSingleCourseView = (props: InnerProps) => {
     ? props.problems.value
     : undefined;
   const problems = currentSelectedSet
-    .map(entry => problemMap?.get(entry.problem_id))
+    .map((entry) => problemMap?.get(entry.problem_id))
     .filter(
       (problem: Problem | undefined): problem is Problem =>
         problem !== undefined
@@ -144,7 +148,7 @@ const InnerSingleCourseView = (props: InnerProps) => {
             <SetPieChart
               title={set.title}
               solved={
-                set.problems.filter(p => acceptedProblemIds.has(p.problem_id))
+                set.problems.filter((p) => acceptedProblemIds.has(p.problem_id))
                   .length
               }
               total={set.problems.length}
@@ -157,7 +161,7 @@ const InnerSingleCourseView = (props: InnerProps) => {
           <NavItem key={i}>
             <NavLink
               active={selectedSet === set.order}
-              onClick={() => setSelectedSet(set.order)}
+              onClick={(): void => setSelectedSet(set.order)}
             >
               <h3>{set.title}</h3>
             </NavLink>
@@ -174,6 +178,7 @@ const InnerSingleCourseView = (props: InnerProps) => {
 export const SingleCourseView = connect<OuterProps, InnerProps>(() => ({
   problems: {
     comparison: null,
-    value: () => cachedProblemMap().then(map => convertMap(map))
-  }
+    value: (): Promise<Map<string, Problem>> =>
+      cachedProblemMap().then((map) => convertMap(map)),
+  },
 }))(InnerSingleCourseView);

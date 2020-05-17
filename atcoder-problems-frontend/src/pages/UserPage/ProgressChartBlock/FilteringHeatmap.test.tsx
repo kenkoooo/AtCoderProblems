@@ -11,21 +11,21 @@ const emptySubmission: Submission = {
   contest_id: "",
   id: 0,
   language: "",
-  length: 0
+  length: 0,
 };
 const submissions = [
   {
     ...emptySubmission,
     epoch_second: 1,
     result: "AC",
-    problem_id: "problem_1"
+    problem_id: "problem_1",
   },
   {
     ...emptySubmission,
     epoch_second: 2,
     result: "AC",
-    problem_id: "problem_1"
-  }
+    problem_id: "problem_1",
+  },
 ];
 
 describe("filter", () => {

@@ -20,7 +20,7 @@ interface Props {
   }>;
 }
 
-const InnerTrainingList = (props: Props) => {
+const InnerTrainingList: React.FC<Props> = (props) => {
   const { path } = useRouteMatch();
 
   if (props.courses.pending) {
@@ -45,9 +45,9 @@ const InnerTrainingList = (props: Props) => {
         </Route>
         <Route
           path={`${path}/:courseTitle`}
-          render={({ match }) => {
+          render={({ match }): React.ReactNode => {
             const courseTitle = match.params.courseTitle;
-            const course = courses.find(c => c.title === courseTitle);
+            const course = courses.find((c) => c.title === courseTitle);
             return course ? (
               <SingleCourseView submissions={submissions} course={course} />
             ) : null;
@@ -61,29 +61,32 @@ const InnerTrainingList = (props: Props) => {
 export const TrainingPage = connect<{}, Props>(() => ({
   courses: {
     comparison: null,
-    value: () => loadCourses()
+    value: (): Promise<Course[]> => loadCourses(),
   },
   progress: {
     comparison: null,
-    value: () =>
+    value: (): Promise<{
+      user?: UserResponse | null;
+      submissions: Submission[];
+    }> =>
       fetch(USER_GET)
-        .then(response => response.json())
+        .then((response) => response.json())
         .then((user: UserResponse | null) => {
           if (user && user.atcoder_user_id) {
             return cachedSubmissions(user.atcoder_user_id)
-              .then(list => list.toArray())
-              .then(submissions => ({
+              .then((list) => list.toArray())
+              .then((submissions) => ({
+                user,
                 submissions,
-                user
               }));
           } else if (user) {
             return { user, submissions: [] as Submission[] };
           } else {
             return {
               user: undefined,
-              submissions: [] as Submission[]
+              submissions: [] as Submission[],
             };
           }
-        })
-  }
+        }),
+  },
 }))(InnerTrainingList);

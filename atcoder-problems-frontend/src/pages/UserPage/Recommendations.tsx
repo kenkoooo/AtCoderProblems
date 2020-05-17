@@ -8,14 +8,14 @@ import { List, Map as ImmutableMap } from "immutable";
 import Contest from "../../interfaces/Contest";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
-  isProblemModelWithTimeModel
+  isProblemModelWithTimeModel,
 } from "../../interfaces/ProblemModel";
 import { RatingInfo } from "../../utils/RatingInfo";
 import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
   predictSolveProbability,
-  predictSolveTime
+  predictSolveTime,
 } from "../../utils/ProblemModelUtil";
 import {
   Button,
@@ -24,7 +24,7 @@ import {
   DropdownMenu,
   DropdownToggle,
   Row,
-  UncontrolledDropdown
+  UncontrolledDropdown,
 } from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import ProblemLink from "../../components/ProblemLink";
@@ -38,11 +38,11 @@ const ExcludeOptions = [
   "2 Weeks",
   "4 Weeks",
   "6 Months",
-  "Don't exclude"
+  "Don't exclude",
 ] as const;
 type ExcludeOption = typeof ExcludeOptions[number];
 
-const formatExcludeOption = (excludeOption: ExcludeOption) => {
+const formatExcludeOption = (excludeOption: ExcludeOption): string => {
   switch (excludeOption) {
     case "1 Week":
       return "Exclude problems solved in last 7 days.";
@@ -64,7 +64,7 @@ const isIncluded = (
   excludeOption: ExcludeOption,
   currentSecond: number,
   lastSolvedTimeMap: Map<ProblemId, number>
-) => {
+): boolean => {
   const lastSolvedTime = lastSolvedTimeMap.get(problemId);
   if (lastSolvedTime) {
     const seconds = currentSecond - lastSolvedTime;
@@ -90,24 +90,24 @@ const isIncluded = (
 const RECOMMEND_NUM_OPTIONS = [
   {
     text: "10",
-    value: 10
+    value: 10,
   },
   {
     text: "20",
-    value: 20
+    value: 20,
   },
   {
     text: "50",
-    value: 50
+    value: 50,
   },
   {
     text: "100",
-    value: 100
+    value: 100,
   },
   {
     text: "All",
-    value: Number.POSITIVE_INFINITY
-  }
+    value: Number.POSITIVE_INFINITY,
+  },
 ];
 
 type RecommendOption = "Easy" | "Moderate" | "Difficult";
@@ -132,22 +132,22 @@ const getRecommendProbabilityRange = (
     case "Easy":
       return {
         lowerBound: 0.5,
-        upperBound: Number.POSITIVE_INFINITY
+        upperBound: Number.POSITIVE_INFINITY,
       };
     case "Moderate":
       return {
         lowerBound: 0.2,
-        upperBound: 0.8
+        upperBound: 0.8,
       };
     case "Difficult":
       return {
         lowerBound: Number.NEGATIVE_INFINITY,
-        upperBound: 0.5
+        upperBound: 0.5,
       };
     default:
       return {
         lowerBound: Number.NEGATIVE_INFINITY,
-        upperBound: Number.POSITIVE_INFINITY
+        upperBound: Number.POSITIVE_INFINITY,
       };
   }
 };
@@ -160,13 +160,13 @@ interface Props {
   readonly userRatingInfo: RatingInfo;
 }
 
-export const Recommendations = (props: Props) => {
+export const Recommendations: React.FC<Props> = (props) => {
   const {
     userSubmissions,
     problems,
     contests,
     problemModels,
-    userRatingInfo
+    userRatingInfo,
   } = props;
 
   const [recommendNum, setRecommendNum] = useState(10);
@@ -181,8 +181,8 @@ export const Recommendations = (props: Props) => {
   }
   const lastSolvedTimeMap = new Map<ProblemId, number>();
   userSubmissions
-    .filter(s => isAccepted(s.result))
-    .forEach(s => {
+    .filter((s) => isAccepted(s.result))
+    .forEach((s) => {
       const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
       lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
     });
@@ -192,18 +192,18 @@ export const Recommendations = (props: Props) => {
 
   const currentSecond = Math.floor(new Date().getTime() / 1000);
   const recommendedProblems = problems
-    .filter(p =>
+    .filter((p) =>
       isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
     )
-    .filter(p => problemModels.has(p.id))
-    .map(p => ({
+    .filter((p) => problemModels.has(p.id))
+    .map((p) => ({
       ...p,
       difficulty: problemModels.getIn([p.id, "difficulty"], undefined),
-      is_experimental: problemModels.getIn([p.id, "is_experimental"], false)
+      is_experimental: problemModels.getIn([p.id, "is_experimental"], false),
     }))
-    .filter(p => recommendExperimental || !p.is_experimental)
-    .filter(p => p.difficulty !== undefined)
-    .map(p => {
+    .filter((p) => recommendExperimental || !p.is_experimental)
+    .filter((p) => p.difficulty !== undefined)
+    .map((p) => {
       const internalRating = userRatingInfo.internalRating;
       let predictedSolveTime: number | null;
       let predictedSolveProbability: number;
@@ -218,7 +218,7 @@ export const Recommendations = (props: Props) => {
           intercept: undefined,
           discrimination: undefined,
           is_experimental: false,
-          variance: undefined
+          variance: undefined,
         });
         if (isProblemModelWithTimeModel(problemModel)) {
           predictedSolveTime = predictSolveTime(problemModel, internalRating);
@@ -246,7 +246,7 @@ export const Recommendations = (props: Props) => {
       return da - db;
     })
     .filter(
-      p =>
+      (p) =>
         recommendingRange.lowerBound <= p.predictedSolveProbability &&
         p.predictedSolveProbability < recommendingRange.upperBound
     )
@@ -260,19 +260,19 @@ export const Recommendations = (props: Props) => {
         <div>
           <ButtonGroup>
             <Button
-              onClick={() => setRecommendOption("Easy")}
+              onClick={(): void => setRecommendOption("Easy")}
               active={recommendOption === "Easy"}
             >
               Easy
             </Button>
             <Button
-              onClick={() => setRecommendOption("Moderate")}
+              onClick={(): void => setRecommendOption("Moderate")}
               active={recommendOption === "Moderate"}
             >
               Moderate
             </Button>
             <Button
-              onClick={() => setRecommendOption("Difficult")}
+              onClick={(): void => setRecommendOption("Difficult")}
               active={recommendOption === "Difficult"}
             >
               Difficult
@@ -280,7 +280,7 @@ export const Recommendations = (props: Props) => {
           </ButtonGroup>
           <ButtonGroup className="mx-3">
             <Button
-              onClick={() => setRecommendExperimental(true)}
+              onClick={(): void => setRecommendExperimental(true)}
               active={recommendExperimental}
             >
               Show
@@ -289,7 +289,7 @@ export const Recommendations = (props: Props) => {
               </span>
             </Button>
             <Button
-              onClick={() => setRecommendExperimental(false)}
+              onClick={(): void => setRecommendExperimental(false)}
               active={!recommendExperimental}
             >
               Hide
@@ -304,10 +304,10 @@ export const Recommendations = (props: Props) => {
                 {formatExcludeOption(excludeOption)}
               </DropdownToggle>
               <DropdownMenu>
-                {ExcludeOptions.map(option => (
+                {ExcludeOptions.map((option) => (
                   <DropdownItem
                     key={option}
-                    onClick={() => setExcludeOption(option)}
+                    onClick={(): void => setExcludeOption(option)}
                   >
                     {formatExcludeOption(option)}
                   </DropdownItem>
@@ -322,7 +322,10 @@ export const Recommendations = (props: Props) => {
           </DropdownToggle>
           <DropdownMenu>
             {RECOMMEND_NUM_OPTIONS.map(({ text, value }) => (
-              <DropdownItem key={value} onClick={() => setRecommendNum(value)}>
+              <DropdownItem
+                key={value}
+                onClick={(): void => setRecommendNum(value)}
+              >
                 {text}
               </DropdownItem>
             ))}
@@ -344,9 +347,9 @@ export const Recommendations = (props: Props) => {
               {
                 id,
                 contest_id,
-                is_experimental
+                is_experimental,
               }: { id: string; contest_id: string; is_experimental: boolean }
-            ) => (
+            ): React.ReactElement => (
               <ProblemLink
                 difficulty={problemModels.getIn([id, "difficulty"], null)}
                 isExperimentalDifficulty={is_experimental}
@@ -361,7 +364,10 @@ export const Recommendations = (props: Props) => {
           </TableHeaderColumn>
           <TableHeaderColumn
             dataField="contest_id"
-            dataFormat={(contestId: string, problem: Problem) => {
+            dataFormat={(
+              contestId: string,
+              problem: Problem
+            ): React.ReactElement => {
               const contest = contests.get(contestId);
               return contest ? (
                 <ContestLink contest={contest} />
@@ -376,7 +382,7 @@ export const Recommendations = (props: Props) => {
           </TableHeaderColumn>
           <TableHeaderColumn
             dataField="difficulty"
-            dataFormat={(difficulty: number | null) => {
+            dataFormat={(difficulty: number | null): string => {
               if (difficulty === null) {
                 return "-";
               }

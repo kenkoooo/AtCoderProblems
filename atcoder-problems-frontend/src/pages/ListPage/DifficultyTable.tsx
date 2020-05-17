@@ -24,7 +24,7 @@ const problemToDifficultyLevel = (
   problem: MergedProblem,
   problemModels: ImmutableMap<ProblemId, ProblemModel>,
   showExperimental: boolean
-) => {
+): number | undefined => {
   const problemModel = problemModels.get(problem.id);
   if (problemModel === undefined) {
     return undefined;
@@ -39,7 +39,7 @@ const problemToDifficultyLevel = (
   }
 };
 
-export const DifficultyTable = (props: Props) => {
+export const DifficultyTable: React.FC<Props> = (props) => {
   const { submissions, mergedProblems, problemModels, setFilterFunc } = props;
   const [includingExperimental, setIncludingExperimental] = useState(true);
   const difficulties: List<{ from: number; to: number }> = Range(
@@ -47,26 +47,26 @@ export const DifficultyTable = (props: Props) => {
     4400,
     DIFF_WIDTH
   )
-    .map(from => ({
+    .map((from) => ({
       from,
-      to: from === DIFF_MAX ? INF_POINT : from + DIFF_WIDTH - 1
+      to: from === DIFF_MAX ? INF_POINT : from + DIFF_WIDTH - 1,
     }))
     .toList();
 
   const userProblemIds = submissions
-    .filter(s => isAccepted(s.result))
+    .filter((s) => isAccepted(s.result))
     .reduce((map, submission) => {
       const problemIds = map.get(submission.user_id) ?? new Set<string>();
       problemIds.add(submission.problem_id);
       map.set(submission.user_id, problemIds);
       return map;
     }, new Map<string, Set<string>>());
-  const userDiffCount = Array.from(userProblemIds.keys()).map(userId => {
+  const userDiffCount = Array.from(userProblemIds.keys()).map((userId) => {
     const diffCount = Array.from(
       userProblemIds.get(userId) ?? new Set<string>()
     )
-      .map(problemId => mergedProblems.get(problemId))
-      .map(problem =>
+      .map((problemId) => mergedProblems.get(problemId))
+      .map((problem) =>
         problem
           ? problemToDifficultyLevel(
               problem,
@@ -87,13 +87,13 @@ export const DifficultyTable = (props: Props) => {
   });
 
   const totalCount = mergedProblems
-    .map(problem =>
+    .map((problem) =>
       problemToDifficultyLevel(problem, problemModels, includingExperimental)
     )
     .filter((d): d is number => d !== undefined)
     .reduce(
       (countMap, difficultyLevel) =>
-        countMap.update(difficultyLevel, 0, count => count + 1),
+        countMap.update(difficultyLevel, 0, (count) => count + 1),
       ImmutableMap<number, number>()
     )
     .entrySeq()
@@ -104,7 +104,7 @@ export const DifficultyTable = (props: Props) => {
     <>
       <ButtonGroup className="mb-2">
         <Button
-          onClick={() => setIncludingExperimental(!includingExperimental)}
+          onClick={(): void => setIncludingExperimental(!includingExperimental)}
         >
           {includingExperimental ? "Including 🧪" : "Excluding 🧪"}
         </Button>
@@ -117,7 +117,7 @@ export const DifficultyTable = (props: Props) => {
               <th key={difficultyLevel} style={{ whiteSpace: "nowrap" }}>
                 <a
                   href={window.location.hash}
-                  onClick={() =>
+                  onClick={(): void =>
                     setFilterFunc(
                       difficulties.get(difficultyLevel, { from: 0 }).from,
                       difficulties.get(difficultyLevel, { to: INF_POINT }).to

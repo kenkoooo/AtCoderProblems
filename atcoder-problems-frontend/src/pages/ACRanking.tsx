@@ -8,7 +8,7 @@ interface InnerProps {
   rankingFetch: PromiseState<RankingEntry[]>;
 }
 
-const ACRanking = (props: InnerProps) => (
+const ACRanking: React.FC<InnerProps> = (props) => (
   <Ranking
     title="AC Count Ranking"
     ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : []}
@@ -18,6 +18,6 @@ const ACRanking = (props: InnerProps) => (
 export default connect<{}, InnerProps>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedACRanking()
-  }
+    value: (): Promise<RankingEntry[]> => CachedApiClient.cachedACRanking(),
+  },
 }))(ACRanking);

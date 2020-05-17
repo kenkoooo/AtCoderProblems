@@ -13,12 +13,12 @@ interface InnerProps {
 
 export const RecentContestList = connect<{}, InnerProps>(() => ({
   contestListGet: {
-    url: CONTEST_RECENT
+    url: CONTEST_RECENT,
   },
   userInfoGet: {
-    url: USER_GET
-  }
-}))(props => {
+    url: USER_GET,
+  },
+}))((props) => {
   const history = useHistory();
   const contests = props.contestListGet.fulfilled
     ? props.contestListGet.value.sort(
@@ -26,14 +26,14 @@ export const RecentContestList = connect<{}, InnerProps>(() => ({
       )
     : [];
   const now = Math.floor(Date.now() / 1000);
-  const future = contests.filter(c => c.start_epoch_second > now);
+  const future = contests.filter((c) => c.start_epoch_second > now);
   const current = contests.filter(
-    c =>
+    (c) =>
       c.start_epoch_second <= now &&
       now < c.start_epoch_second + c.duration_second
   );
   const past = contests.filter(
-    c => c.start_epoch_second + c.duration_second <= now
+    (c) => c.start_epoch_second + c.duration_second <= now
   );
 
   return (
@@ -43,7 +43,7 @@ export const RecentContestList = connect<{}, InnerProps>(() => ({
           <Col sm="12">
             <Button
               color="success"
-              onClick={() => {
+              onClick={(): void => {
                 history.push({ pathname: "/contest/create" });
               }}
             >

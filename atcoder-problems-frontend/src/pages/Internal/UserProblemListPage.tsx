@@ -14,7 +14,7 @@ import {
   ModalFooter,
   ModalHeader,
   Row,
-  Spinner
+  Spinner,
 } from "reactstrap";
 import { LIST_CREATE, LIST_DELETE, LIST_MY } from "./ApiUrl";
 import { Link, Redirect } from "react-router-dom";
@@ -31,29 +31,29 @@ interface Props {
 export default connect<{}, Props>(() => ({
   myListFetch: LIST_MY,
   createListFetch: { value: null },
-  createNewList: () => ({
+  createNewList: (): any => ({
     createListFetch: {
       url: LIST_CREATE,
       method: "POST",
-      body: JSON.stringify({ list_name: "New List" })
-    }
+      body: JSON.stringify({ list_name: "New List" }),
+    },
   }),
-  deleteList: (internalListId: string) => ({
+  deleteList: (internalListId: string): any => ({
     deleteResponse: {
       url: LIST_DELETE,
       method: "POST",
       body: JSON.stringify({ internal_list_id: internalListId }),
-      andThen: () => ({
+      andThen: (): any => ({
         myListFetch: {
           url: LIST_MY,
           refreshing: true,
-          force: true
-        }
-      })
-    }
+          force: true,
+        },
+      }),
+    },
   }),
-  deleteResponse: { value: null }
-}))(props => {
+  deleteResponse: { value: null },
+}))((props) => {
   const { createListFetch, myListFetch } = props;
   if (createListFetch.fulfilled && createListFetch.value !== null) {
     const listId = createListFetch.value.internal_list_id;
@@ -71,7 +71,7 @@ export default connect<{}, Props>(() => ({
     <>
       <Row className="my-2">
         <Col sm="12">
-          <Button color="success" onClick={() => props.createNewList()}>
+          <Button color="success" onClick={(): void => props.createNewList()}>
             Create New List
           </Button>
         </Col>
@@ -96,20 +96,22 @@ export default connect<{}, Props>(() => ({
   );
 });
 
-const SingleListEntry = (props: {
+interface SingleListEntryProps {
   internalListId: string;
   internalListName: string;
   listItemCount: number;
   deleteList: (internalListId: string) => void;
-}) => {
+}
+
+const SingleListEntry: React.FC<SingleListEntryProps> = (props) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const toggle = () => setModalOpen(!modalOpen);
+  const toggle = (): void => setModalOpen(!modalOpen);
   return (
     <ListGroupItem>
       <Button
         style={{ float: "right" }}
         color="danger"
-        onClick={() => setModalOpen(true)}
+        onClick={(): void => setModalOpen(true)}
       >
         Remove
       </Button>
@@ -123,7 +125,7 @@ const SingleListEntry = (props: {
         <ModalFooter>
           <Button
             color="danger"
-            onClick={() => {
+            onClick={(): void => {
               toggle();
               props.deleteList(props.internalListId);
             }}

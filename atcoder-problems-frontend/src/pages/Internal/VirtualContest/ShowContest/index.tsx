@@ -8,7 +8,7 @@ import {
   Col,
   Row,
   Spinner,
-  Table
+  Table,
 } from "reactstrap";
 import Octicon, { Check, Sync } from "@primer/octicons-react";
 import * as CachedApi from "../../../../utils/CachedApiClient";
@@ -19,13 +19,13 @@ import MergedProblem from "../../../../interfaces/MergedProblem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 import {
   formatMomentDateTimeDay,
-  parseSecond
+  parseSecond,
 } from "../../../../utils/DateUtil";
 import { formatMode, UserResponse, VirtualContest } from "../../types";
-import TweetButton from "../../../../components/TweetButton";
+import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { ContestTable } from "./ContestTable";
-import Timer from "../../../../components/Timer";
+import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { LockoutContestTable } from "./LockoutContestTable";
 
@@ -42,7 +42,7 @@ interface InnerProps extends OuterProps {
   problemModelGet: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
-const InnerShowContest = (props: InnerProps) => {
+const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
@@ -81,13 +81,13 @@ const InnerShowContest = (props: InnerProps) => {
     contestInfo.participants.length * contestInfo.problems.length <= 100;
 
   const showProblems = start < now;
-  const problems = contestInfo.problems.map(item => {
+  const problems = contestInfo.problems.map((item) => {
     const problem = problemMap.get(item.id);
     if (problem) {
       return {
         item,
         contestId: problem.contest_id,
-        title: problem.title
+        title: problem.title,
       };
     } else {
       return { item };
@@ -151,13 +151,13 @@ const InnerShowContest = (props: InnerProps) => {
           ) : null}
           <ButtonGroup>
             {canJoin ? (
-              <Button onClick={() => props.joinContest()}>Join</Button>
+              <Button onClick={(): void => props.joinContest()}>Join</Button>
             ) : null}
             {isOwner ? (
               <Button
-                onClick={() =>
+                onClick={(): void =>
                   history.push({
-                    pathname: `/contest/update/${contestInfo.id}`
+                    pathname: `/contest/update/${contestInfo.id}`,
                   })
                 }
               >
@@ -169,7 +169,7 @@ const InnerShowContest = (props: InnerProps) => {
           <Button
             outline={!autoRefreshEnabled}
             active={autoRefreshEnabled}
-            onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+            onClick={(): void => setAutoRefreshEnabled(!autoRefreshEnabled)}
           >
             <Octicon icon={autoRefreshEnabled ? Check : Sync} /> Auto Refresh{" "}
             {autoRefreshEnabled ? "Enabled" : "Disabled"}
@@ -210,40 +210,42 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   return {
     problemModelGet: {
       comparison: null,
-      value: () => CachedApi.cachedProblemModels()
+      value: (): Promise<ImmutableMap<string, ProblemModel>> =>
+        CachedApi.cachedProblemModels(),
     },
     userInfoGet: {
-      url: USER_GET
+      url: USER_GET,
     },
     contestInfoFetch: {
       force: true,
-      url: contestGetUrl(props.contestId)
+      url: contestGetUrl(props.contestId),
     },
     problemMapFetch: {
       comparison: null,
-      value: () => CachedApi.cachedMergedProblemMap()
+      value: (): Promise<ImmutableMap<string, MergedProblem>> =>
+        CachedApi.cachedMergedProblemMap(),
     },
-    joinContest: () => ({
+    joinContest: (): any => ({
       joinContestPost: {
         url: CONTEST_JOIN,
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ contest_id: props.contestId }),
-        andThen: () => ({
+        andThen: (): any => ({
           contestInfoFetch: {
             url: contestGetUrl(props.contestId),
-            force: true
-          }
-        })
-      }
+            force: true,
+          },
+        }),
+      },
     }),
-    joinContestPost: { value: null }
+    joinContestPost: { value: null },
   };
 })(InnerShowContest);
 
-export default () => {
+export default (): React.ReactElement => {
   const { contestId } = useParams();
   if (contestId) {
     return <ShowContest contestId={contestId} />;
