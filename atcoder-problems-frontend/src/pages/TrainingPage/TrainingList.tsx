@@ -31,13 +31,13 @@ export const TrainingList: React.FC<Props> = (props) => {
       {props.courses.map((course, i) => {
         const totalProblemCount = course.set_list
           .map((set) => set.problems.length)
-          .reduceRight((a, b) => a + b);
+          .reduce((a, b) => a + b, 0);
         const totalSolvedCount = course.set_list
           .map(
             (set) =>
               set.problems.filter((p) => solvedSet.has(p.problem_id)).length
           )
-          .reduceRight((a, b) => a + b);
+          .reduce((a, b) => a + b, 0);
         const totalProgressPercent = formatPercent(
           totalSolvedCount / totalProblemCount
         );
@@ -53,7 +53,7 @@ export const TrainingList: React.FC<Props> = (props) => {
                 {course.set_list.length} sets /{" "}
                 {course.set_list
                   .map((s) => s.problems.length)
-                  .reduceRight((a, b) => a + b)}{" "}
+                  .reduce((a, b) => a + b, 0)}{" "}
                 problems
               </p>
               <ul>
