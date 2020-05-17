@@ -35,11 +35,10 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   rules: {
-    "react/prop-types": 0, // 'prop-types' will not be employed
-    "@typescript-eslint/camelcase": 0, // API responses contain snake_case variables
+    "react/prop-types": 0, // we do not employ 'prop-types'
+    "@typescript-eslint/camelcase": 0, // API responses contain snake_case properties
     "@typescript-eslint/explicit-function-return-type": 0, // enable the rule in "overrides"
-    // TODO: remove following rules
-    "react/display-name": 0
+    "react/display-name": 0 // TODO: enable the rule in the future
   },
   settings: {
     react: { version: "detect" }
