@@ -34,6 +34,7 @@ const userPageTabs = [
   "Submissions",
   "Recommendation",
   "Languages",
+  "All",
 ] as const;
 
 const TAB_PARAM = "userPageTab";
@@ -163,7 +164,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           </NavItem>
         ))}
       </Nav>
-      {userPageTab === "Achievement" ? (
+      {(userPageTab === "All" || userPageTab === "Achievement") && (
         <AchievementBlock
           userId={userId}
           solvedCount={solvedProblemIds.length}
@@ -172,13 +173,15 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           currentStreak={currentStreak}
           prevDateLabel={prevDateLabel}
         />
-      ) : userPageTab === "AtCoder Pie Charts" ? (
+      )}
+      {(userPageTab === "All" || userPageTab === "AtCoder Pie Charts") && (
         <PieChartBlock
           contestToProblems={contestToProblems}
           userId={userId}
           submissions={convertMap(submissions.map((list) => list.toArray()))}
         />
-      ) : userPageTab === "Difficulty Pies" ? (
+      )}
+      {(userPageTab === "All" || userPageTab === "Difficulty Pies") && (
         <>
           <Row className="my-2 border-bottom">
             <h1>Difficulty Pies</h1>
@@ -188,12 +191,14 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             solvedProblemIds={solvedProblemIds}
           />
         </>
-      ) : userPageTab === "Progress Charts" ? (
+      )}
+      {(userPageTab === "All" || userPageTab === "Progress Charts") && (
         <ProgressChartBlock
           dailyCount={dailyCount.toArray()}
           userSubmissions={userSubmissions.toArray()}
         />
-      ) : userPageTab === "Submissions" ? (
+      )}
+      {(userPageTab === "All" || userPageTab === "Submissions") && (
         <>
           <Row className="my-2 border-bottom">
             <h1>Submissions</h1>
@@ -204,14 +209,16 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             submissions={userSubmissions.toArray()}
           />
         </>
-      ) : userPageTab === "Languages" ? (
+      )}
+      {(userPageTab === "All" || userPageTab === "Languages") && (
         <>
           <Row className="my-2 border-bottom">
             <h1>Languages</h1>
           </Row>
           <LanguageCount submissions={userSubmissions.toArray()} />
         </>
-      ) : (
+      )}
+      {(userPageTab === "All" || userPageTab === "Recommendation") && (
         <>
           <Row className="my-2 border-bottom">
             <h1>Recommendation</h1>
