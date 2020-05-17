@@ -1,7 +1,13 @@
 import React from "react";
 import { formatDuration } from "../../../../utils/DateUtil";
 
-export default (props: { maxPoint: number; trials: number; time: number }) => (
+interface Props {
+  maxPoint: number;
+  trials: number;
+  time: number;
+}
+
+const ScoreCell: React.FC<Props> = props => (
   <>
     <p style={{ textAlign: "center" }}>
       <span style={{ color: "limegreen", fontWeight: "bold" }}>
@@ -18,3 +24,5 @@ export default (props: { maxPoint: number; trials: number; time: number }) => (
     </p>
   </>
 );
+
+export default ScoreCell;

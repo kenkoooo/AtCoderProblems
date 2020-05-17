@@ -52,7 +52,7 @@ const ProblemLink: React.FC<Props> = props => {
             placement="top"
             target={experimentalIconId}
             isOpen={tooltipOpen}
-            toggle={() => setTooltipOpen(!tooltipOpen)}
+            toggle={(): void => setTooltipOpen(!tooltipOpen)}
           >
             This estimate is experimental.
           </Tooltip>

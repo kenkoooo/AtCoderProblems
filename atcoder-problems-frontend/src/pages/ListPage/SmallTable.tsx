@@ -11,11 +11,11 @@ interface Props {
   setFilterFunc: (point: number) => any;
 }
 
-export const SmallTable = ({
+export const SmallTable: React.FC<Props> = ({
   submissions,
   mergedProblems,
   setFilterFunc
-}: Props) => {
+}) => {
   const userProblemIdSet = new Map<string, Set<string>>();
   submissions
     .filter(s => isAccepted(s.result))
@@ -57,7 +57,7 @@ export const SmallTable = ({
             <th key={point}>
               <a
                 href={window.location.hash}
-                onClick={() => setFilterFunc(point)}
+                onClick={(): void => setFilterFunc(point)}
               >
                 {point}
               </a>

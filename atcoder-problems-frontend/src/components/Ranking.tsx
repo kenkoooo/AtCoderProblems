@@ -14,7 +14,7 @@ interface InternalRankEntry {
   readonly count: number;
 }
 
-const refineRanking = (ranking: RankingEntry[]) =>
+const refineRanking = (ranking: RankingEntry[]): InternalRankEntry[] =>
   ranking
     .sort((a, b) => b.problem_count - a.problem_count)
     .reduce((array, entry, index) => {

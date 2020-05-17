@@ -67,16 +67,18 @@ const Options: React.FC<Props> = props => {
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItem header>Color By</DropdownItem>
-            <DropdownItem onClick={() => props.setColorMode(ColorMode.None)}>
+            <DropdownItem
+              onClick={(): void => props.setColorMode(ColorMode.None)}
+            >
               None
             </DropdownItem>
             <DropdownItem
-              onClick={() => props.setColorMode(ColorMode.ContestResult)}
+              onClick={(): void => props.setColorMode(ColorMode.ContestResult)}
             >
               Contest Result
             </DropdownItem>
             <DropdownItem
-              onClick={() => props.setColorMode(ColorMode.Language)}
+              onClick={(): void => props.setColorMode(ColorMode.Language)}
             >
               Language
             </DropdownItem>
@@ -101,7 +103,7 @@ const Options: React.FC<Props> = props => {
                         <Input
                           type="checkbox"
                           checked={props.selectedLanguages.has(language)}
-                          onChange={() => props.toggleLanguage(language)}
+                          onChange={(): void => props.toggleLanguage(language)}
                         />
                         {language}
                       </Label>

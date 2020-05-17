@@ -39,7 +39,7 @@ export interface VirtualContestItem {
 }
 
 export type VirtualContestMode = null | "lockout";
-export const formatMode = (mode: VirtualContestMode) => {
+export const formatMode = (mode: VirtualContestMode): "Lockout" | "Normal" => {
   switch (mode) {
     case "lockout":
       return "Lockout";
@@ -61,7 +61,7 @@ export const filterResetProgress = (
   submissions: Submission[],
   progressReset: ProgressResetList,
   userId: string
-) =>
+): Submission[] =>
   submissions.filter(submission => {
     if (submission.user_id !== userId) {
       return true;

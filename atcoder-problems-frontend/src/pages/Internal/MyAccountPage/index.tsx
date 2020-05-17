@@ -36,7 +36,7 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
   userInfoGet: {
     url: USER_GET
   },
-  updateUserInfo: (atcoderUser: string) => ({
+  updateUserInfo: (atcoderUser: string): any => ({
     updateUserInfoResponse: {
       force: true,
       refreshing: true,
@@ -73,7 +73,7 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
           <NavItem>
             <NavLink
               active={activeTab === "Account Info"}
-              onClick={() => {
+              onClick={(): void => {
                 setActiveTab("Account Info");
               }}
             >
@@ -83,7 +83,7 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
           <NavItem>
             <NavLink
               active={activeTab === "My Contests"}
-              onClick={() => {
+              onClick={(): void => {
                 setActiveTab("My Contests");
               }}
             >
@@ -93,7 +93,7 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
           <NavItem>
             <NavLink
               active={activeTab === "Problem Lists"}
-              onClick={() => {
+              onClick={(): void => {
                 setActiveTab("Problem Lists");
               }}
             >
@@ -103,7 +103,7 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
           <NavItem>
             <NavLink
               active={activeTab === "Reset Progress"}
-              onClick={() => {
+              onClick={(): void => {
                 setActiveTab("Reset Progress");
               }}
             >
@@ -125,7 +125,7 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
                   type="text"
                   placeholder="AtCoder User ID"
                   value={userId}
-                  onChange={event => setUserId(event.target.value)}
+                  onChange={(event): void => setUserId(event.target.value)}
                 />
               </Col>
             </Row>
@@ -133,7 +133,7 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
               <Col sm="12">
                 <Button
                   disabled={updating}
-                  onClick={() => props.updateUserInfo(userId)}
+                  onClick={(): void => props.updateUserInfo(userId)}
                 >
                   {updating ? "Updating..." : "Update"}
                 </Button>

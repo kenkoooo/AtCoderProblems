@@ -58,7 +58,7 @@ const App: React.FC = () => {
             <Route exact path="/lang" component={LanguageOwners} />
             <Route
               path="/user/:userIds([a-zA-Z0-9_]+)+"
-              render={({ match }) => {
+              render={({ match }): React.ReactElement => {
                 const userIds: string | undefined = match.params.userIds;
                 const userId: string = (userIds ?? "").split("/")[0];
                 return <UserPage userId={userId} />;
@@ -66,7 +66,7 @@ const App: React.FC = () => {
             />
             <Route
               path="/table/:userIds([a-zA-Z0-9_]*)*"
-              render={({ match }) => {
+              render={({ match }): React.ReactElement => {
                 const userIds: string | undefined = match.params.userIds;
                 const userId = (userIds ?? "").split("/")[0];
                 const rivals = (userIds ?? "/").split("/");
@@ -78,7 +78,7 @@ const App: React.FC = () => {
             />
             <Route
               path="/list/:userIds([a-zA-Z0-9_]*)*"
-              render={({ match }) => {
+              render={({ match }): React.ReactElement => {
                 const userIds: string | undefined = match.params.userIds;
                 const userId = (userIds ?? "").split("/")[0];
                 const rivals = (userIds ?? "/").split("/");

@@ -39,7 +39,7 @@ const ContestConfigProblemList: React.FC<InnerProps> = props => {
           >
             <Button
               close
-              onClick={() => {
+              onClick={(): void => {
                 props.setProblemSet(
                   props.problemSet.filter(x => x.id !== problemId)
                 );
@@ -63,7 +63,7 @@ const ContestConfigProblemList: React.FC<InnerProps> = props => {
             {p.point === null ? (
               <Button
                 style={{ float: "right" }}
-                onClick={() => {
+                onClick={(): void => {
                   props.setProblemSet(
                     props.problemSet.update(i, x => ({
                       ...x,
@@ -80,7 +80,7 @@ const ContestConfigProblemList: React.FC<InnerProps> = props => {
                 <Input
                   type="number"
                   value={p.point}
-                  onChange={e => {
+                  onChange={(e): void => {
                     const parse = parseInt(e.target.value, 10);
                     const point = !isNaN(parse) ? parse : 0;
                     props.setProblemSet(
@@ -93,7 +93,7 @@ const ContestConfigProblemList: React.FC<InnerProps> = props => {
                 />
                 <InputGroupAddon addonType="append">
                   <Button
-                    onClick={() => {
+                    onClick={(): void => {
                       props.setProblemSet(
                         props.problemSet.update(i, x => ({
                           ...x,
@@ -131,7 +131,7 @@ export default connect<OuterProps, InnerProps>(props => ({
   userSolvedProblemsMapFetch: {
     comparison: props.expectedParticipantUserIds,
     refreshing: true,
-    value: async () => {
+    value: async (): Promise<{ [problem: string]: Set<string> }> => {
       const res: { [problem: string]: Set<string> } = {};
       const failedUserIds: string[] = [];
       for (const userId of props.expectedParticipantUserIds) {

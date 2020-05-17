@@ -72,7 +72,7 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
           placement="top"
           target={circleId}
           isOpen={tooltipOpen}
-          toggle={() => this.setState({ tooltipOpen: !tooltipOpen })}
+          toggle={(): void => this.setState({ tooltipOpen: !tooltipOpen })}
         >
           {title}
         </Tooltip>

@@ -8,6 +8,6 @@ const loadCourse = (jsonFilename: string): Promise<Course> => {
   );
 };
 
-export const loadCourses = () => {
+export const loadCourses = (): Promise<Course[]> => {
   return Promise.all([loadCourse("boot_camp_for_beginners.json")]);
 };

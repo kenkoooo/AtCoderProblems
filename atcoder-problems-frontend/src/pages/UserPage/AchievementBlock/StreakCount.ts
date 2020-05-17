@@ -2,7 +2,11 @@ import { formatMomentDate, parseDateLabel } from "../../../utils/DateUtil";
 
 export const calcStreak = (
   dailyCount: { dateLabel: string; count: number }[]
-) => {
+): {
+  longestStreak: number;
+  currentStreak: number;
+  prevDateLabel: string;
+} => {
   return dailyCount
     .map(e => e.dateLabel)
     .reduce(

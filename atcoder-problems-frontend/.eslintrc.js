@@ -18,6 +18,15 @@ module.exports = {
     "prettier/@typescript-eslint",
     "prettier/react"
   ],
+  overrides: [
+    {
+      // enable the rule specifically for TypeScript files
+      files: ["*.ts", "*.tsx"],
+      rules: {
+        "@typescript-eslint/explicit-function-return-type": 2
+      }
+    }
+  ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: ["./tsconfig.json"],
@@ -26,11 +35,11 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   rules: {
-    "react/prop-types": 0, // We will not employ 'prop-types'.
-    "@typescript-eslint/camelcase": 0, // API responses contain snake_case variables.
+    "react/prop-types": 0, // 'prop-types' will not be employed
+    "@typescript-eslint/camelcase": 0, // API responses contain snake_case variables
+    "@typescript-eslint/explicit-function-return-type": 0, // enable the rule in "overrides"
     // TODO: Remove following temporary rules.
     "react/display-name": 0,
-    "@typescript-eslint/explicit-function-return-type": 0,
     "@typescript-eslint/no-explicit-any": 0
   },
   settings: {

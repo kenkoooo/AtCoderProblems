@@ -54,10 +54,12 @@ export const RecentSubmissions = connect<{}, Props>(() => ({
   },
   problemModels: {
     comparison: null,
-    value: () => cachedProblemModels().then(map => convertMap(map))
+    value: (): Promise<Map<string, ProblemModel>> =>
+      cachedProblemModels().then(map => convertMap(map))
   },
   problems: {
     comparison: null,
-    value: () => cachedProblemMap().then(map => map.valueSeq().toArray())
+    value: (): Promise<Problem[]> =>
+      cachedProblemMap().then(map => map.valueSeq().toArray())
   }
 }))(InnerRecentSubmissions);

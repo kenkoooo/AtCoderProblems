@@ -14,23 +14,42 @@ export const successStatus = (
   firstAcceptedEpochSecond: number,
   lastAcceptedEpochSecond: number,
   solvedLanguages: Set<string>
-) => ({
+): {
+  label: StatusLabel.Success;
+  epoch: number;
+  lastAcceptedEpochSecond: number;
+  solvedLanguages: Set<string>;
+} => ({
   label: StatusLabel.Success as typeof StatusLabel.Success,
   epoch: firstAcceptedEpochSecond,
   lastAcceptedEpochSecond,
   solvedLanguages
 });
-export const failedStatus = (solvedRivals: Set<string>) => ({
+export const failedStatus = (
+  solvedRivals: Set<string>
+): {
+  label: StatusLabel.Failed;
+  solvedRivals: Set<string>;
+} => ({
   label: StatusLabel.Failed as typeof StatusLabel.Failed,
   solvedRivals
 });
-export const warningStatus = (result: string, epoch: number) => ({
-  label: StatusLabel.Warning as typeof StatusLabel.Warning,
+export const warningStatus = (
+  result: string,
+  epoch: number
+): {
+  label: StatusLabel.Warning;
+  result: string;
+  epoch: number;
+} => ({
+  label: StatusLabel.Warning,
   result,
   epoch
 });
-export const noneStatus = () => ({
-  label: StatusLabel.None as typeof StatusLabel.None
+export const noneStatus = (): {
+  label: StatusLabel.None;
+} => ({
+  label: StatusLabel.None
 });
 export type ProblemStatus =
   | ReturnType<typeof successStatus>
@@ -41,7 +60,7 @@ export type ProblemStatus =
 export const constructStatusLabelMap = (
   submissions: Submission[],
   userId: string
-) => {
+): Map<string, ProblemStatus> => {
   const submissionMap = new Map<ProblemId, Submission[]>();
   submissions.forEach(submission => {
     const array = submissionMap.get(submission.problem_id) ?? [];

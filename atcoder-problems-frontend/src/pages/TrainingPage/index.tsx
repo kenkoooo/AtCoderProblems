@@ -45,7 +45,7 @@ const InnerTrainingList: React.FC<Props> = props => {
         </Route>
         <Route
           path={`${path}/:courseTitle`}
-          render={({ match }) => {
+          render={({ match }): React.ReactNode => {
             const courseTitle = match.params.courseTitle;
             const course = courses.find(c => c.title === courseTitle);
             return course ? (
@@ -61,11 +61,14 @@ const InnerTrainingList: React.FC<Props> = props => {
 export const TrainingPage = connect<{}, Props>(() => ({
   courses: {
     comparison: null,
-    value: () => loadCourses()
+    value: (): Promise<Course[]> => loadCourses()
   },
   progress: {
     comparison: null,
-    value: () =>
+    value: (): Promise<{
+      user?: UserResponse | null;
+      submissions: Submission[];
+    }> =>
       fetch(USER_GET)
         .then(response => response.json())
         .then((user: UserResponse | null) => {
@@ -73,8 +76,8 @@ export const TrainingPage = connect<{}, Props>(() => ({
             return cachedSubmissions(user.atcoder_user_id)
               .then(list => list.toArray())
               .then(submissions => ({
-                submissions,
-                user
+                user,
+                submissions
               }));
           } else if (user) {
             return { user, submissions: [] as Submission[] };

@@ -28,7 +28,10 @@ function getEstimatedPerformances(
   start: number,
   problems: VirtualContestItem[],
   modelMap: ImmutableMap<ProblemId, ProblemModel>
-) {
+): {
+  performance: number;
+  userId: string;
+}[] {
   return participants.map(userId => {
     const onlySolvedData = bestSubmissions
       .filter(b => b.userId === userId)
@@ -90,9 +93,9 @@ interface InnerProps extends OuterProps {
   problemModels: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
-const EstimatedPerformance = (props: {
+const EstimatedPerformance: React.FC<{
   estimatedPerformance: number | undefined;
-}) => {
+}> = props => {
   if (!props.estimatedPerformance) {
     return null;
   }
@@ -109,7 +112,7 @@ const EstimatedPerformance = (props: {
 function compareProblem<T extends { id: string; order: number | null }>(
   a: T,
   b: T
-) {
+): number {
   if (a.order !== null && b.order !== null) {
     return a.order - b.order;
   }
@@ -281,7 +284,7 @@ const InnerContestTable: React.FC<InnerProps> = props => {
 export const ContestTable = connect<OuterProps, InnerProps>(props => ({
   submissions: {
     comparison: null,
-    value: () =>
+    value: (): Promise<List<Submission>> =>
       fetchVirtualContestSubmission(
         props.users,
         props.problems.map(p => p.item.id),
@@ -293,6 +296,6 @@ export const ContestTable = connect<OuterProps, InnerProps>(props => ({
   },
   problemModels: {
     comparison: null,
-    value: () => cachedProblemModels()
+    value: (): any => cachedProblemModels()
   }
 }))(InnerContestTable);

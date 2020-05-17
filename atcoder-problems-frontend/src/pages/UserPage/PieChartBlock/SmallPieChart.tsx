@@ -6,14 +6,16 @@ const COLORS = {
   Trying: "#58616a"
 };
 
-export const SmallPieChart = ({
-  title,
-  trying,
-  accepted
-}: {
+interface SmallPieChartProps {
   title: string;
   trying: number;
   accepted: number;
+}
+
+export const SmallPieChart: React.FC<SmallPieChartProps> = ({
+  title,
+  trying,
+  accepted
 }) => {
   const data = [
     { value: accepted, color: COLORS.Accepted, name: "Accepted" },

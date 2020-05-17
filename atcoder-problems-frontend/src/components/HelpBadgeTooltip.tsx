@@ -29,7 +29,7 @@ class HelpBadgeTooltip extends React.Component<Props, LocalState> {
           placement="top"
           target={badgeId}
           isOpen={tooltipOpen}
-          toggle={() => this.setState({ tooltipOpen: !tooltipOpen })}
+          toggle={(): void => this.setState({ tooltipOpen: !tooltipOpen })}
         >
           {this.props.children}
         </Tooltip>

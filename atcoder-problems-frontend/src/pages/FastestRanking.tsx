@@ -21,6 +21,6 @@ const FastestRanking: React.FC<Props> = props => (
 export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedFastRanking()
+    value: CachedApiClient.cachedFastRanking
   }
 }))(FastestRanking);

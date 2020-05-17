@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import { formatProblemUrl } from "../utils/Url";
 import Problem from "../interfaces/Problem";
 
-const problemMatch = (text: string, problem: Problem) => {
+const problemMatch = (text: string, problem: Problem): boolean => {
   return (
     text.length > 0 &&
     text.split(/\s/).every(

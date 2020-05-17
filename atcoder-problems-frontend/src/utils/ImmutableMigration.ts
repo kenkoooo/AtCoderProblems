@@ -5,7 +5,7 @@
 
 import { Map as ImmutableMap } from "immutable";
 
-export function convertMap<K, V>(immutableMap: ImmutableMap<K, V>) {
+export function convertMap<K, V>(immutableMap: ImmutableMap<K, V>): Map<K, V> {
   return immutableMap.entrySeq().reduce((map, [key, value]) => {
     map.set(key, value);
     return map;

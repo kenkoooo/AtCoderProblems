@@ -151,11 +151,11 @@ const InnerShowContest: React.FC<InnerProps> = props => {
           ) : null}
           <ButtonGroup>
             {canJoin ? (
-              <Button onClick={() => props.joinContest()}>Join</Button>
+              <Button onClick={(): void => props.joinContest()}>Join</Button>
             ) : null}
             {isOwner ? (
               <Button
-                onClick={() =>
+                onClick={(): void =>
                   history.push({
                     pathname: `/contest/update/${contestInfo.id}`
                   })
@@ -169,7 +169,7 @@ const InnerShowContest: React.FC<InnerProps> = props => {
           <Button
             outline={!autoRefreshEnabled}
             active={autoRefreshEnabled}
-            onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+            onClick={(): void => setAutoRefreshEnabled(!autoRefreshEnabled)}
           >
             <Octicon icon={autoRefreshEnabled ? Check : Sync} /> Auto Refresh{" "}
             {autoRefreshEnabled ? "Enabled" : "Disabled"}
@@ -210,7 +210,8 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   return {
     problemModelGet: {
       comparison: null,
-      value: () => CachedApi.cachedProblemModels()
+      value: (): Promise<ImmutableMap<string, ProblemModel>> =>
+        CachedApi.cachedProblemModels()
     },
     userInfoGet: {
       url: USER_GET
@@ -221,9 +222,10 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
     },
     problemMapFetch: {
       comparison: null,
-      value: () => CachedApi.cachedMergedProblemMap()
+      value: (): Promise<ImmutableMap<string, MergedProblem>> =>
+        CachedApi.cachedMergedProblemMap()
     },
-    joinContest: () => ({
+    joinContest: (): any => ({
       joinContestPost: {
         url: CONTEST_JOIN,
         method: "POST",
@@ -231,7 +233,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ contest_id: props.contestId }),
-        andThen: () => ({
+        andThen: (): any => ({
           contestInfoFetch: {
             url: contestGetUrl(props.contestId),
             force: true
@@ -243,7 +245,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
   };
 })(InnerShowContest);
 
-export default () => {
+export default (): React.ReactElement => {
   const { contestId } = useParams();
   if (contestId) {
     return <ShowContest contestId={contestId} />;

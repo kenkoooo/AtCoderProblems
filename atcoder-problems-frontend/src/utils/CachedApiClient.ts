@@ -11,7 +11,8 @@ import {
   isStreakRankingEntry,
   isSumRankingEntry,
   LangRankingEntry,
-  RankingEntry
+  RankingEntry,
+  StreakRankingEntry
 } from "../interfaces/RankingEntry";
 import { RatingInfo, ratingInfoOf } from "./RatingInfo";
 import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "./index";
@@ -24,46 +25,58 @@ const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
 const ATCODER_API_URL = process.env.REACT_APP_ATCODER_API_URL;
 
-function fetchTypedList<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
+function fetchTypedList<T>(
+  url: string,
+  typeGuardFn: (obj: any) => obj is T
+): Promise<List<T>> {
   return fetch(url)
     .then(r => r.json())
     .then((array: any[]) => array.filter(typeGuardFn))
     .then(array => List(array));
 }
 
-function fetchTypedArray<T>(url: string, typeGuardFn: (obj: any) => obj is T) {
+function fetchTypedArray<T>(
+  url: string,
+  typeGuardFn: (obj: any) => obj is T
+): Promise<T[]> {
   return fetch(url)
     .then(r => r.json())
     .then((array: any[]) => array.filter(typeGuardFn));
 }
 
-function fetchTypedMap<V>(url: string, typeGuardFn: (obj: any) => obj is V) {
+function fetchTypedMap<V>(
+  url: string,
+  typeGuardFn: (obj: any) => obj is V
+): Promise<Map<string, V>> {
   return fetch(url)
     .then(r => r.json())
     .then((obj: { [p: string]: any }) => Map(obj))
     .then(m => m.filter(typeGuardFn));
 }
 
-const fetchContestProblemPairs = () =>
+const fetchContestProblemPairs = (): Promise<List<{
+  contest_id: string;
+  problem_id: string;
+}>> =>
   fetchTypedList(
     STATIC_API_BASE_URL + "/contest-problem.json",
     (obj: any): obj is { contest_id: string; problem_id: string } =>
       typeof obj.contest_id === "string" && typeof obj.problem_id === "string"
   );
 
-const fetchContests = () =>
+const fetchContests = (): Promise<List<Contest>> =>
   fetchTypedList(STATIC_API_BASE_URL + "/contests.json", isContest);
 
-const fetchProblems = () =>
+const fetchProblems = (): Promise<List<Problem>> =>
   fetchTypedList(STATIC_API_BASE_URL + "/problems.json", isProblem);
 
-const fetchMergedProblems = () =>
+const fetchMergedProblems = (): Promise<List<MergedProblem>> =>
   fetchTypedList(
     STATIC_API_BASE_URL + "/merged-problems.json",
     isMergedProblem
   );
 
-const fetchProblemModels = () =>
+const fetchProblemModels = (): Promise<Map<string, ProblemModel>> =>
   fetchTypedMap(
     STATIC_API_BASE_URL + "/problem-models.json",
     isProblemModel
@@ -82,14 +95,14 @@ const fetchProblemModels = () =>
     )
   );
 
-const fetchSubmissions = (user: string) =>
+const fetchSubmissions = (user: string): Promise<List<Submission>> =>
   user.length > 0
     ? fetchTypedList(`${ATCODER_API_URL}/results?user=${user}`, isSubmission)
     : Promise.resolve(List<Submission>()).then(submissions =>
         submissions.filter(s => isValidResult(s.result))
       );
 
-const fetchRatingInfo = async (user: string) => {
+const fetchRatingInfo = async (user: string): Promise<RatingInfo> => {
   const history =
     user.length > 0
       ? await fetchTypedList(
@@ -100,10 +113,10 @@ const fetchRatingInfo = async (user: string) => {
   return ratingInfoOf(history);
 };
 
-const fetchStreaks = () =>
+const fetchStreaks = (): Promise<StreakRankingEntry[]> =>
   fetchTypedArray(STATIC_API_BASE_URL + "/streaks.json", isStreakRankingEntry);
 
-const fetchContestMap = () =>
+const fetchContestMap = (): Promise<Map<string, Contest>> =>
   fetchContests().then(contests =>
     contests.reduce(
       (map, contest) => map.set(contest.id, contest),
@@ -128,7 +141,7 @@ export const fetchVirtualContestSubmission = (
 };
 
 let MERGED_PROBLEMS: Promise<List<MergedProblem>> | undefined;
-const cachedMergedProblems = () => {
+const cachedMergedProblems = (): Promise<List<MergedProblem>> => {
   if (MERGED_PROBLEMS === undefined) {
     MERGED_PROBLEMS = fetchMergedProblems().then(problems =>
       problems.filter(p => !isBlockedProblem(p.id))
@@ -140,7 +153,10 @@ const cachedMergedProblems = () => {
 let CACHED_MERGED_PROBLEM_MAP:
   | Promise<Map<ProblemId, MergedProblem>>
   | undefined;
-export const cachedMergedProblemMap = () => {
+export const cachedMergedProblemMap = (): Promise<Map<
+  string,
+  MergedProblem
+>> => {
   if (CACHED_MERGED_PROBLEM_MAP === undefined) {
     CACHED_MERGED_PROBLEM_MAP = cachedMergedProblems().then(list =>
       list.reduce(
@@ -153,7 +169,7 @@ export const cachedMergedProblemMap = () => {
 };
 
 let CACHED_PROBLEM_MODELS: undefined | Promise<Map<ProblemId, ProblemModel>>;
-export const cachedProblemModels = () => {
+export const cachedProblemModels = (): Promise<Map<string, ProblemModel>> => {
   if (CACHED_PROBLEM_MODELS === undefined) {
     CACHED_PROBLEM_MODELS = fetchProblemModels();
     CACHED_PROBLEM_MODELS.then(value =>
@@ -165,7 +181,7 @@ export const cachedProblemModels = () => {
   }
   return CACHED_PROBLEM_MODELS;
 };
-export const oldProblemModels = () => {
+export const oldProblemModels = (): Map<string, ProblemModel> => {
   return Map<ProblemId, ProblemModel>(
     JSON.parse(localStorage.getItem("problemModels") || "[]") as Array<
       [ProblemId, ProblemModel]
@@ -174,7 +190,7 @@ export const oldProblemModels = () => {
 };
 
 let CACHED_CONTESTS: undefined | Promise<Map<ContestId, Contest>>;
-export const cachedContestMap = () => {
+export const cachedContestMap = (): Promise<Map<string, Contest>> => {
   if (CACHED_CONTESTS === undefined) {
     CACHED_CONTESTS = fetchContestMap();
   }
@@ -182,7 +198,7 @@ export const cachedContestMap = () => {
 };
 
 let CACHED_PROBLEMS: undefined | Promise<Map<ProblemId, Problem>>;
-export const cachedProblemMap = () => {
+export const cachedProblemMap = (): Promise<Map<string, Problem>> => {
   if (CACHED_PROBLEMS === undefined) {
     CACHED_PROBLEMS = fetchProblems()
       .then(problems => problems.filter(p => !isBlockedProblem(p.id)))
@@ -196,7 +212,10 @@ export const cachedProblemMap = () => {
   return CACHED_PROBLEMS;
 };
 
-const fetchContestToProblemMap = async () => {
+const fetchContestToProblemMap = async (): Promise<Map<
+  string,
+  List<Problem>
+>> => {
   const pairs = await fetchContestProblemPairs();
   const problems = await cachedProblemMap();
   return pairs
@@ -218,7 +237,10 @@ const fetchContestToProblemMap = async () => {
 let CACHED_CONTEST_TO_PROBLEM:
   | undefined
   | Promise<Map<ContestId, List<Problem>>>;
-export const cachedContestToProblemMap = () => {
+export const cachedContestToProblemMap = (): Promise<Map<
+  string,
+  List<Problem>
+>> => {
   if (CACHED_CONTEST_TO_PROBLEM === undefined) {
     CACHED_CONTEST_TO_PROBLEM = fetchContestToProblemMap();
   }
@@ -226,7 +248,7 @@ export const cachedContestToProblemMap = () => {
 };
 
 let SUBMISSION_MAP = Map<string, Promise<List<Submission>>>();
-export const cachedSubmissions = (user: string) => {
+export const cachedSubmissions = (user: string): Promise<List<Submission>> => {
   const cache = SUBMISSION_MAP.get(user);
   if (cache) {
     return cache;
@@ -253,7 +275,7 @@ export const cachedUsersSubmissionMap = (
   );
 
 let STREAK_RANKING: Promise<RankingEntry[]> | undefined;
-export const cachedStreaksRanking = () => {
+export const cachedStreaksRanking = (): Promise<RankingEntry[]> => {
   if (STREAK_RANKING === undefined) {
     STREAK_RANKING = fetchStreaks().then(x =>
       x.map(r => ({
@@ -266,7 +288,7 @@ export const cachedStreaksRanking = () => {
 };
 
 let AC_RANKING: Promise<RankingEntry[]> | undefined;
-export const cachedACRanking = () => {
+export const cachedACRanking = (): Promise<RankingEntry[]> => {
   if (AC_RANKING === undefined) {
     AC_RANKING = fetchTypedArray(
       STATIC_API_BASE_URL + "/ac.json",
@@ -279,7 +301,7 @@ export const cachedACRanking = () => {
 const generateRanking = (
   problems: List<MergedProblem>,
   property: "fastest_user_id" | "shortest_user_id" | "first_user_id"
-) =>
+): List<RankingEntry> =>
   problems
     .map(problem => problem[property])
     .reduce(
@@ -294,17 +316,20 @@ const generateRanking = (
     )
     .toList();
 
-export const cachedShortRanking = () =>
+export const cachedShortRanking = (): Promise<List<RankingEntry>> =>
   cachedMergedProblems().then(list =>
     generateRanking(list, "shortest_user_id")
   );
-export const cachedFastRanking = () =>
+export const cachedFastRanking = (): Promise<List<RankingEntry>> =>
   cachedMergedProblems().then(list => generateRanking(list, "fastest_user_id"));
-export const cachedFirstRanking = () =>
+export const cachedFirstRanking = (): Promise<List<RankingEntry>> =>
   cachedMergedProblems().then(list => generateRanking(list, "first_user_id"));
 
 let LANGUAGE_RANKING: undefined | Promise<Map<string, List<LangRankingEntry>>>;
-export const cachedLangRanking = () => {
+export const cachedLangRanking = (): Promise<Map<
+  string,
+  List<LangRankingEntry>
+>> => {
   if (LANGUAGE_RANKING === undefined) {
     LANGUAGE_RANKING = fetchTypedList(
       STATIC_API_BASE_URL + "/lang.json",
@@ -328,7 +353,9 @@ const SELECTABLE_LANGUAGES: {
   userId: string;
   selectableLanguages: Promise<Set<string>> | undefined;
 } = { userId: "", selectableLanguages: undefined };
-export const cachedSelectableLanguages = (userId: string) => {
+export const cachedSelectableLanguages = (
+  userId: string
+): Promise<Set<string>> => {
   if (
     SELECTABLE_LANGUAGES.selectableLanguages === undefined ||
     SELECTABLE_LANGUAGES.userId !== userId
@@ -342,7 +369,7 @@ export const cachedSelectableLanguages = (userId: string) => {
 };
 
 let SUM_RANKING: undefined | Promise<RankingEntry[]>;
-export const cachedSumRanking = () => {
+export const cachedSumRanking = (): Promise<RankingEntry[]> => {
   if (SUM_RANKING === undefined) {
     SUM_RANKING = fetchTypedArray(
       STATIC_API_BASE_URL + "/sums.json",
@@ -362,7 +389,7 @@ export const cachedSumRanking = () => {
 };
 
 const RATING_INFO_MAP = Map<string, Promise<RatingInfo>>();
-export const cachedRatingInfo = (user: string) => {
+export const cachedRatingInfo = (user: string): Promise<RatingInfo> => {
   const info = RATING_INFO_MAP.get(user);
   if (info) {
     return info;

@@ -49,7 +49,7 @@ interface InnerProps extends OuterProps {
 const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
   userInfoFetch: USER_GET,
   problemListFetch: listGetUrl(props.listId),
-  updateList: (name: string) => ({
+  updateList: (name: string): any => ({
     updateListResponse: {
       url: LIST_UPDATE,
       method: "POST",
@@ -60,9 +60,9 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
   updateListResponse: { value: null },
   problems: {
     comparison: null,
-    value: () => CachedApi.cachedProblemMap()
+    value: (): any => CachedApi.cachedProblemMap()
   },
-  addItem: (problemId: string) => ({
+  addItem: (problemId: string): any => ({
     problemListFetch: {
       url: LIST_ITEM_ADD,
       method: "POST",
@@ -70,10 +70,10 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
         internal_list_id: props.listId,
         problem_id: problemId
       }),
-      then: () => listGetUrl(props.listId)
+      then: (): string => listGetUrl(props.listId)
     }
   }),
-  deleteItem: (problemId: string) => ({
+  deleteItem: (problemId: string): any => ({
     problemListFetch: {
       url: LIST_ITEM_DELETE,
       method: "POST",
@@ -81,10 +81,10 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
         internal_list_id: props.listId,
         problem_id: problemId
       }),
-      then: () => listGetUrl(props.listId)
+      then: (): string => listGetUrl(props.listId)
     }
   }),
-  updateItem: (problemId: string, memo: string) => ({
+  updateItem: (problemId: string, memo: string): any => ({
     problemListFetch: {
       url: LIST_ITEM_UPDATE,
       method: "POST",
@@ -93,7 +93,7 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
         problem_id: problemId,
         memo
       }),
-      then: () => listGetUrl(props.listId)
+      then: (): string => listGetUrl(props.listId)
     }
   })
 }))(props => {
@@ -121,7 +121,7 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
           <h2>
             <DoubleClickEdit
               modifiable={modifiable}
-              saveText={name => props.updateList(name)}
+              saveText={(name): void => props.updateList(name)}
               initialText={listInfo.internal_list_name}
             />
           </h2>
@@ -132,12 +132,12 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
           {adding ? (
             <ProblemSearchBox
               problems={problems}
-              selectProblem={problem => {
+              selectProblem={(problem): void => {
                 props.addItem(problem.id);
               }}
             />
           ) : modifiable ? (
-            <Button color="success" onClick={() => setAdding(!adding)}>
+            <Button color="success" onClick={(): void => setAdding(!adding)}>
               Add
             </Button>
           ) : null}
@@ -154,10 +154,10 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
                   key={item.problem_id}
                   item={item}
                   problem={problem}
-                  saveText={(memo: string) =>
+                  saveText={(memo: string): void =>
                     props.updateItem(item.problem_id, memo)
                   }
-                  deleteItem={() => props.deleteItem(item.problem_id)}
+                  deleteItem={(): void => props.deleteItem(item.problem_id)}
                 />
               );
             })}
@@ -168,19 +168,19 @@ const SingleProblemList = connect<OuterProps, InnerProps>(props => ({
   );
 });
 
-const ProblemEntry = (props: {
+const ProblemEntry: React.FC<{
   item: ProblemListItem;
   problem: Problem | undefined;
   saveText: (text: string) => void;
   deleteItem: () => void;
   modifiable: boolean;
-}) => {
+}> = props => {
   const { item, problem } = props;
   const [isEdit, setEdit] = useState(false);
   const [text, setText] = useState(item.memo);
   return (
     <ListGroupItem
-      onDoubleClick={() => {
+      onDoubleClick={(): void => {
         if (props.modifiable) {
           setEdit(true);
         }
@@ -191,7 +191,7 @@ const ProblemEntry = (props: {
           {isEdit ? (
             <Button
               color="success"
-              onClick={() => {
+              onClick={(): void => {
                 setEdit(false);
                 props.saveText(text);
               }}
@@ -199,10 +199,10 @@ const ProblemEntry = (props: {
               Save
             </Button>
           ) : (
-            <Button onClick={() => setEdit(true)}>Edit</Button>
+            <Button onClick={(): void => setEdit(true)}>Edit</Button>
           )}
           {isEdit ? null : (
-            <Button color="danger" onClick={() => props.deleteItem()}>
+            <Button color="danger" onClick={(): void => props.deleteItem()}>
               Remove
             </Button>
           )}
@@ -222,8 +222,8 @@ const ProblemEntry = (props: {
           <Input
             type="textarea"
             value={text}
-            onChange={e => setText(e.target.value)}
-            onKeyDown={e => {
+            onChange={(e): void => setText(e.target.value)}
+            onKeyDown={(e): void => {
               if (e.ctrlKey && e.key === "Enter") {
                 setEdit(false);
                 props.saveText(text);
@@ -238,11 +238,11 @@ const ProblemEntry = (props: {
   );
 };
 
-const DoubleClickEdit = (props: {
+const DoubleClickEdit: React.FC<{
   saveText: (text: string) => void;
   initialText: string;
   modifiable: boolean;
-}) => {
+}> = props => {
   const [text, setText] = useState(props.initialText);
   const [isInput, setIsInput] = useState(false);
 
@@ -253,12 +253,12 @@ const DoubleClickEdit = (props: {
           <Input
             type="text"
             value={text}
-            onChange={e => setText(e.target.value)}
-            onBlur={() => {
+            onChange={(e): void => setText(e.target.value)}
+            onBlur={(): void => {
               setIsInput(!isInput);
               props.saveText(text);
             }}
-            onKeyDown={e => {
+            onKeyDown={(e): void => {
               if (e.key === "Enter") {
                 setIsInput(!isInput);
                 props.saveText(text);
@@ -267,7 +267,7 @@ const DoubleClickEdit = (props: {
           />
           <Button
             color="success"
-            onClick={() => {
+            onClick={(): void => {
               setIsInput(!isInput);
               props.saveText(text);
             }}
@@ -278,7 +278,7 @@ const DoubleClickEdit = (props: {
       ) : (
         <>
           <span
-            onDoubleClick={() => {
+            onDoubleClick={(): void => {
               if (props.modifiable) {
                 setIsInput(!isInput);
               }
@@ -287,7 +287,7 @@ const DoubleClickEdit = (props: {
             {text.length > 0 ? text : "(empty)"}
           </span>{" "}
           <Button
-            onClick={() => {
+            onClick={(): void => {
               if (props.modifiable) {
                 setIsInput(!isInput);
               }
@@ -301,7 +301,7 @@ const DoubleClickEdit = (props: {
   );
 };
 
-export default () => {
+export default (): React.ReactElement => {
   const { listId } = useParams();
   if (listId) {
     return <SingleProblemList listId={listId} />;
