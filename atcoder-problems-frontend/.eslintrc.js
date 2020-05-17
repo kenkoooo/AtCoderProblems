@@ -39,8 +39,7 @@ module.exports = {
     "@typescript-eslint/camelcase": 0, // API responses contain snake_case variables
     "@typescript-eslint/explicit-function-return-type": 0, // enable the rule in "overrides"
     // TODO: remove following rules
-    "react/display-name": 0,
-    "@typescript-eslint/no-explicit-any": 0
+    "react/display-name": 0
   },
   settings: {
     react: { version: "detect" }
