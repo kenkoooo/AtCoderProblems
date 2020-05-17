@@ -5,7 +5,7 @@ import {
   ResponsiveContainer,
   Cell,
   Tooltip,
-  Legend
+  Legend,
 } from "recharts";
 
 interface Entry {
@@ -17,13 +17,13 @@ interface Props {
   data: Entry[];
 }
 
-export const SinglePieChart = ({ data }: Props) => {
+export const SinglePieChart: React.FC<Props> = ({ data }) => {
   return (
     <div>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie dataKey="value" data={data} outerRadius="80%" fill="#ff0000">
-            {data.map(e => (
+            {data.map((e) => (
               <Cell key={e.name} fill={e.color} />
             ))}
           </Pie>

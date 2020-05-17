@@ -9,11 +9,11 @@ import { INF_POINT, ProblemRowData } from "./index";
 import { List } from "immutable";
 import {
   formatPredictedSolveTime,
-  predictSolveTime
+  predictSolveTime,
 } from "../../utils/ProblemModelUtil";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
-  isProblemModelWithTimeModel
+  isProblemModelWithTimeModel,
 } from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ListPaginationPanel } from "../../components/ListPaginationPanel";
@@ -29,8 +29,8 @@ interface Props {
   userInternalRating: number | null;
 }
 
-export const ListTable = (props: Props) => {
-  const readDifficultyAsNumber: (row: ProblemRowData) => number = row => {
+export const ListTable: React.FC<Props> = (props) => {
+  const readDifficultyAsNumber: (row: ProblemRowData) => number = (row) => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
       return -1;
@@ -40,7 +40,9 @@ export const ListTable = (props: Props) => {
     }
     return problemModel.difficulty;
   };
-  const predictSolveTimeOfRow: (row: ProblemRowData) => number | null = row => {
+  const predictSolveTimeOfRow: (row: ProblemRowData) => number | null = (
+    row
+  ) => {
     if (props.userInternalRating === null) {
       return null;
     }
@@ -70,33 +72,35 @@ export const ListTable = (props: Props) => {
     {
       header: "Date",
       dataField: "contestDate",
-      dataSort: true
+      dataSort: true,
     },
     {
       header: "Problem",
       dataField: "title",
       dataSort: true,
-      dataFormat: (_, row) => (
-        <ProblemLink
-          showDifficulty={true}
-          difficulty={
-            isProblemModelWithDifficultyModel(row.problemModel)
-              ? row.problemModel.difficulty
-              : null
-          }
-          isExperimentalDifficulty={row.problemModel?.is_experimental}
-          problemId={row.mergedProblem.id}
-          problemTitle={row.title}
-          contestId={row.mergedProblem.contest_id}
-        />
-      )
+      dataFormat: function DataFormat(_, row): React.ReactElement {
+        return (
+          <ProblemLink
+            showDifficulty={true}
+            difficulty={
+              isProblemModelWithDifficultyModel(row.problemModel)
+                ? row.problemModel.difficulty
+                : null
+            }
+            isExperimentalDifficulty={row.problemModel?.is_experimental}
+            problemId={row.mergedProblem.id}
+            problemTitle={row.title}
+            contestId={row.mergedProblem.contest_id}
+          />
+        );
+      },
     },
     {
       header: "Contest",
       dataField: "contest",
       dataSort: true,
-      dataFormat: (contest, row) =>
-        contest ? (
+      dataFormat: function DataFormat(contest, row): React.ReactElement {
+        return contest ? (
           <ContestLink contest={contest} />
         ) : (
           <a
@@ -106,13 +110,14 @@ export const ListTable = (props: Props) => {
           >
             {row.contestTitle}
           </a>
-        )
+        );
+      },
     },
     {
       header: "Result",
       dataField: "a",
       dataAlign: "center",
-      dataFormat: (_: string, row) => {
+      dataFormat: (_: string, row): string | React.ReactElement => {
         const { status } = row;
         switch (status.label) {
           case StatusLabel.Success: {
@@ -121,7 +126,7 @@ export const ListTable = (props: Props) => {
           case StatusLabel.Failed: {
             return (
               <div>
-                {Array.from(status.solvedRivals).map(rivalId => (
+                {Array.from(status.solvedRivals).map((rivalId) => (
                   <Badge key={rivalId} color="danger">
                     {rivalId}
                   </Badge>
@@ -136,35 +141,40 @@ export const ListTable = (props: Props) => {
             return "";
           }
         }
-      }
+      },
     },
     {
       header: "Last AC Date",
       dataField: "lastAcceptedDate",
-      dataSort: true
+      dataSort: true,
     },
     {
       header: "Solvers",
       dataField: "solverCount",
       dataSort: true,
-      dataFormat: (solverCount: number, row) => (
-        <a
-          href={Url.formatSolversUrl(
-            row.mergedProblem.contest_id,
-            row.mergedProblem.id
-          )}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {solverCount}
-        </a>
-      )
+      dataFormat: function DataFormat(
+        solverCount: number,
+        row
+      ): React.ReactElement {
+        return (
+          <a
+            href={Url.formatSolversUrl(
+              row.mergedProblem.contest_id,
+              row.mergedProblem.id
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {solverCount}
+          </a>
+        );
+      },
     },
     {
       header: "Point",
       dataField: "point",
       dataSort: true,
-      dataFormat: (point: number) => {
+      dataFormat: (point: number): React.ReactElement => {
         if (point >= INF_POINT) {
           return <p>-</p>;
         } else {
@@ -174,30 +184,30 @@ export const ListTable = (props: Props) => {
             return <p>{point.toFixed(2)}</p>;
           }
         }
-      }
+      },
     },
     {
       header: "Difficulty",
       dataField: "problemModel",
       dataSort: true,
-      sortFunc: (a, b, order) => {
+      sortFunc: (a, b, order): number => {
         const delta = readDifficultyAsNumber(a) - readDifficultyAsNumber(b);
         const sign = order === "asc" ? 1 : -1;
         return delta * sign;
       },
-      dataFormat: (problemModel: ProblemModel) => {
+      dataFormat: (problemModel: ProblemModel): React.ReactElement => {
         if (!isProblemModelWithDifficultyModel(problemModel)) {
           return <p>-</p>;
         } else {
           return <p>{problemModel.difficulty}</p>;
         }
-      }
+      },
     },
     {
       header: "Time",
       dataField: "a",
       dataSort: true,
-      sortFunc: (a, b, order) => {
+      sortFunc: (a, b, order): number => {
         const aPred = predictSolveTimeOfRow(a);
         const bPred = predictSolveTimeOfRow(b);
         const aV = aPred === null ? -1 : aPred;
@@ -206,23 +216,23 @@ export const ListTable = (props: Props) => {
         const sign = order === "asc" ? 1 : -1;
         return delta * sign;
       },
-      dataFormat: (_: string, row) => {
+      dataFormat: function DataFormat(_: string, row): React.ReactElement {
         const solveTime = predictSolveTimeOfRow(row);
         if (solveTime === null) {
           return <p>-</p>;
         }
         return <p>{formatPredictedSolveTime(solveTime)}</p>;
-      }
+      },
     },
     {
       header: "Fastest",
       dataField: "executionTime",
       dataSort: true,
-      dataFormat: (executionTime: number, row) => {
+      dataFormat: (executionTime: number, row): React.ReactElement => {
         const {
           fastest_submission_id,
           fastest_contest_id,
-          fastest_user_id
+          fastest_user_id,
         } = row.mergedProblem;
         if (fastest_submission_id && fastest_contest_id && fastest_user_id) {
           return (
@@ -240,17 +250,17 @@ export const ListTable = (props: Props) => {
         } else {
           return <p />;
         }
-      }
+      },
     },
     {
       header: "Shortest",
       dataField: "codeLength",
       dataSort: true,
-      dataFormat: (codeLength: number, row) => {
+      dataFormat: (codeLength: number, row): React.ReactElement => {
         const {
           shortest_submission_id,
           shortest_contest_id,
-          shortest_user_id
+          shortest_user_id,
         } = row.mergedProblem;
         if (shortest_contest_id && shortest_submission_id && shortest_user_id) {
           return (
@@ -268,17 +278,17 @@ export const ListTable = (props: Props) => {
         } else {
           return <p />;
         }
-      }
+      },
     },
     {
       header: "First",
       dataField: "firstUserId",
       dataSort: true,
-      dataFormat: (_: string, row) => {
+      dataFormat: (_: string, row): React.ReactElement => {
         const {
           first_submission_id,
           first_contest_id,
-          first_user_id
+          first_user_id,
         } = row.mergedProblem;
         if (first_submission_id && first_contest_id && first_user_id) {
           return (
@@ -296,23 +306,23 @@ export const ListTable = (props: Props) => {
         } else {
           return <p />;
         }
-      }
+      },
     },
     {
       header: "Shortest User for Search",
       dataField: "shortestUserId",
-      hidden: true
+      hidden: true,
     },
     {
       header: "Fastest User for Search",
       dataField: "fastestUserId",
-      hidden: true
+      hidden: true,
     },
     {
       header: "Contest name for Search",
       dataField: "contestTitle",
-      hidden: true
-    }
+      hidden: true,
+    },
   ];
 
   return (
@@ -324,19 +334,19 @@ export const ListTable = (props: Props) => {
       striped
       search
       tableContainerClass="list-table"
-      trClassName={(row: ProblemRowData) => {
+      trClassName={(row: ProblemRowData): string => {
         const { status, contest } = row;
         return statusToTableColor({
           colorMode: ColorMode.ContestResult,
           status,
-          contest
+          contest,
         });
       }}
       data={props.rowData
         .filter(
-          row => props.fromPoint <= row.point && row.point <= props.toPoint
+          (row) => props.fromPoint <= row.point && row.point <= props.toPoint
         ) // eslint-disable-next-line
-        .filter(row => {
+        .filter((row) => {
           switch (props.statusFilterState) {
             case "All":
               return true;
@@ -346,7 +356,7 @@ export const ListTable = (props: Props) => {
               return row.status.label !== StatusLabel.Success;
           }
         }) // eslint-disable-next-line
-        .filter(row => {
+        .filter((row) => {
           const isRated = !!row.mergedProblem.point;
           switch (props.ratedFilterState) {
             case "All":
@@ -357,7 +367,7 @@ export const ListTable = (props: Props) => {
               return !isRated;
           }
         })
-        .filter(row => {
+        .filter((row) => {
           const difficulty = isProblemModelWithDifficultyModel(row.problemModel)
             ? row.problemModel.difficulty
             : -1;
@@ -373,31 +383,33 @@ export const ListTable = (props: Props) => {
         sizePerPageList: [
           {
             text: "20",
-            value: 20
+            value: 20,
           },
           {
             text: "50",
-            value: 50
+            value: 50,
           },
           {
             text: "100",
-            value: 100
+            value: 100,
           },
           {
             text: "200",
-            value: 200
+            value: 200,
           },
           {
             text: "All",
-            value: props.rowData.size
-          }
+            value: props.rowData.size,
+          },
         ],
-        paginationPanel: (paginationPanelProps: any) => {
+        paginationPanel: function DataFormat(
+          paginationPanelProps: any
+        ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;
-        }
+        },
       }}
     >
-      {columns.map(c => (
+      {columns.map((c) => (
         <TableHeaderColumn
           key={c.header}
           tdAttr={{ "data-col-name": c.header }}

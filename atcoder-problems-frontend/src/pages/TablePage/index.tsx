@@ -5,7 +5,7 @@ import Problem from "../../interfaces/Problem";
 import {
   constructStatusLabelMap,
   ContestId,
-  ProblemId
+  ProblemId,
 } from "../../interfaces/Status";
 import { List, Map, Set } from "immutable";
 import { ContestTable } from "./ContestTable";
@@ -22,7 +22,7 @@ import { fetchUserSubmissions } from "../../utils/Api";
 import {
   filterResetProgress,
   ProgressResetList,
-  UserResponse
+  UserResponse,
 } from "../Internal/types";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
 
@@ -42,12 +42,12 @@ interface InnerProps extends OuterProps {
   readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
-const InnerTablePage: React.FC<InnerProps> = props => {
+const InnerTablePage: React.FC<InnerProps> = (props) => {
   const {
     contestsFetch,
     contestToProblemsFetch,
     problemModelsFetch,
-    selectableLanguagesFetch
+    selectableLanguagesFetch,
   } = props;
 
   const [activeTab, setActiveTab] = useLocalStorage<ContestCategory>(
@@ -104,20 +104,20 @@ const InnerTablePage: React.FC<InnerProps> = props => {
   const filteredContests = contests
     .valueSeq()
     .toArray()
-    .filter(c => classifyContest(c) === activeTab);
+    .filter((c) => classifyContest(c) === activeTab);
 
   return (
     <div>
       <Options
         showAccepted={showAccepted}
-        toggleShowAccepted={() => setShowAccepted(!showAccepted)}
+        toggleShowAccepted={(): void => setShowAccepted(!showAccepted)}
         showDifficulties={showDifficulty}
-        toggleShowDifficulties={() => setShowDifficulty(!showDifficulty)}
+        toggleShowDifficulties={(): void => setShowDifficulty(!showDifficulty)}
         colorMode={colorMode}
         setColorMode={setColorMode}
         selectableLanguages={selectableLanguages}
         selectedLanguages={selectedLanguages}
-        toggleLanguage={language =>
+        toggleLanguage={(language): void =>
           setSelectedLanguages(
             selectedLanguages.has(language)
               ? selectedLanguages.delete(language)
@@ -161,34 +161,39 @@ const InnerTablePage: React.FC<InnerProps> = props => {
   );
 };
 
-export const TablePage = connect<OuterProps, InnerProps>(props => ({
+export const TablePage = connect<OuterProps, InnerProps>((props) => ({
   problemModelsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedProblemModels()
+    value: (): Promise<Map<string, ProblemModel>> =>
+      CachedApiClient.cachedProblemModels(),
   },
   contestsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedContestMap()
+    value: (): Promise<Map<string, Contest>> =>
+      CachedApiClient.cachedContestMap(),
   },
   problemsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedProblemMap()
+    value: (): Promise<Map<string, Problem>> =>
+      CachedApiClient.cachedProblemMap(),
   },
   contestToProblemsFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedContestToProblemMap()
+    value: (): Promise<Map<string, List<Problem>>> =>
+      CachedApiClient.cachedContestToProblemMap(),
   },
   selectableLanguagesFetch: {
     comparison: props.userId,
-    value: () => CachedApiClient.cachedSelectableLanguages(props.userId)
+    value: (): Promise<Set<string>> =>
+      CachedApiClient.cachedSelectableLanguages(props.userId),
   },
   submissions: {
     comparison: [props.userId, props.rivals],
-    value: () =>
+    value: (): Promise<Submission[]> =>
       Promise.all(
-        props.rivals.push(props.userId).map(id => fetchUserSubmissions(id))
-      ).then((arrays: Submission[][]) => arrays.flatMap(array => array))
+        props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
+      ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
   },
   loginState: USER_GET,
-  progressResetList: PROGRESS_RESET_LIST
+  progressResetList: PROGRESS_RESET_LIST,
 }))(InnerTablePage);

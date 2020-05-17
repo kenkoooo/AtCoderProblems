@@ -17,7 +17,7 @@ interface Props {
   problemModels: Map<ProblemId, ProblemModel>;
 }
 
-export const SubmissionListTable = (props: Props) => {
+export const SubmissionListTable: React.FC<Props> = (props) => {
   const { submissions, problems, problemModels } = props;
   const titleMap = problems.reduce((map, p) => {
     map.set(p.id, p.title);
@@ -52,7 +52,7 @@ export const SubmissionListTable = (props: Props) => {
     <BootstrapTable
       data={submissions
         .sort((a, b) => b.epoch_second - a.epoch_second)
-        .map(s => ({ title: titleMap.get(s.problem_id), ...s }))}
+        .map((s) => ({ title: titleMap.get(s.problem_id), ...s }))}
       keyField="id"
       height="auto"
       hover
@@ -65,34 +65,36 @@ export const SubmissionListTable = (props: Props) => {
         sizePerPageList: [
           {
             text: "20",
-            value: 20
+            value: 20,
           },
           {
             text: "50",
-            value: 50
+            value: 50,
           },
           {
             text: "100",
-            value: 100
+            value: 100,
           },
           {
             text: "200",
-            value: 200
+            value: 200,
           },
           {
             text: "All",
-            value: submissions.length
-          }
+            value: submissions.length,
+          },
         ],
-        paginationPanel: (paginationPanelProps: any) => {
+        paginationPanel: function DataFormat(
+          paginationPanelProps: any
+        ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;
-        }
+        },
       }}
     >
       <TableHeaderColumn
         dataSort
         dataField="epoch_second"
-        dataFormat={(second: number) =>
+        dataFormat={(second: number): string =>
           formatMomentDateTime(parseSecond(second))
         }
       >
@@ -105,7 +107,7 @@ export const SubmissionListTable = (props: Props) => {
         dataFormat={(
           title: string | undefined,
           { problem_id, contest_id }: Submission
-        ) => (
+        ): React.ReactElement => (
           <ProblemLink
             difficulty={problemModels.get(problem_id)?.difficulty}
             isExperimentalDifficulty={
@@ -123,7 +125,7 @@ export const SubmissionListTable = (props: Props) => {
       <TableHeaderColumn
         dataSort
         dataField="user_id"
-        dataFormat={(userId: string) => (
+        dataFormat={(userId: string): React.ReactElement => (
           <NewTabLink href={Url.formatUserUrl(userId)}>{userId}</NewTabLink>
         )}
       >
@@ -134,7 +136,7 @@ export const SubmissionListTable = (props: Props) => {
         filter={{ type: "SelectFilter", options: verdictOptions }}
         dataField="result"
         dataAlign="center"
-        dataFormat={result =>
+        dataFormat={(result): React.ReactElement =>
           isAccepted(result) ? (
             <Badge color="success">{result}</Badge>
           ) : (
@@ -154,7 +156,10 @@ export const SubmissionListTable = (props: Props) => {
       <TableHeaderColumn
         dataSort
         dataField="id"
-        dataFormat={(_: number, { id, contest_id }: Submission) => (
+        dataFormat={(
+          _: number,
+          { id, contest_id }: Submission
+        ): React.ReactElement => (
           <NewTabLink href={Url.formatSubmissionUrl(id, contest_id)}>
             Detail
           </NewTabLink>

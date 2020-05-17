@@ -7,13 +7,15 @@ import {
   Tooltip,
   LineChart,
   Line,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
 import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 
-export const ClimbingLineChart = (props: {
+interface Props {
   climbingData: { dateSecond: number; count: number }[];
-}) => (
+}
+
+export const ClimbingLineChart: React.FC<Props> = (props) => (
   <Row className="my-3">
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
@@ -22,7 +24,7 @@ export const ClimbingLineChart = (props: {
           top: 5,
           right: 30,
           left: 20,
-          bottom: 5
+          bottom: 5,
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
@@ -30,13 +32,13 @@ export const ClimbingLineChart = (props: {
           dataKey="dateSecond"
           type="number"
           domain={["dataMin", "dataMax"]}
-          tickFormatter={(dateSecond: number) =>
+          tickFormatter={(dateSecond: number): string =>
             formatMomentDate(parseSecond(dateSecond))
           }
         />
         <YAxis />
         <Tooltip
-          labelFormatter={(dateSecond: any) =>
+          labelFormatter={(dateSecond: any): string =>
             formatMomentDate(parseSecond(dateSecond))
           }
         />

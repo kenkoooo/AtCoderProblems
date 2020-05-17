@@ -15,7 +15,7 @@ interface Props {
   isExperimentalDifficulty?: boolean;
 }
 
-const ProblemLink = (props: Props) => {
+const ProblemLink: React.FC<Props> = (props) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const {
@@ -24,7 +24,7 @@ const ProblemLink = (props: Props) => {
     problemTitle,
     difficulty,
     showDifficulty,
-    isExperimentalDifficulty
+    isExperimentalDifficulty,
   } = props;
   const link = (
     <NewTabLink
@@ -52,7 +52,7 @@ const ProblemLink = (props: Props) => {
             placement="top"
             target={experimentalIconId}
             isOpen={tooltipOpen}
-            toggle={() => setTooltipOpen(!tooltipOpen)}
+            toggle={(): void => setTooltipOpen(!tooltipOpen)}
           >
             This estimate is experimental.
           </Tooltip>

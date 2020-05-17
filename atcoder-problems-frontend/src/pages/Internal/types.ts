@@ -39,7 +39,7 @@ export interface VirtualContestItem {
 }
 
 export type VirtualContestMode = null | "lockout";
-export const formatMode = (mode: VirtualContestMode) => {
+export const formatMode = (mode: VirtualContestMode): "Lockout" | "Normal" => {
   switch (mode) {
     case "lockout":
       return "Lockout";
@@ -61,14 +61,14 @@ export const filterResetProgress = (
   submissions: Submission[],
   progressReset: ProgressResetList,
   userId: string
-) =>
-  submissions.filter(submission => {
+): Submission[] =>
+  submissions.filter((submission) => {
     if (submission.user_id !== userId) {
       return true;
     }
     const resetEpochSecond =
       progressReset.items.find(
-        item => item.problem_id === submission.problem_id
+        (item) => item.problem_id === submission.problem_id
       )?.reset_epoch_second ?? 0;
     return submission.epoch_second > resetEpochSecond;
   });

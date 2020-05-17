@@ -7,7 +7,7 @@ import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
 import { VirtualContestItem, VirtualContestMode } from "../types";
 
-const ContestCreatePage = (props: InnerProps) => {
+const ContestCreatePage: React.FC<InnerProps> = (props) => {
   const createResponse = props.createContestResponse.fulfilled
     ? props.createContestResponse.value
     : null;
@@ -40,14 +40,21 @@ const ContestCreatePage = (props: InnerProps) => {
       initialProblems={List()}
       initialMode={null}
       buttonTitle="Create Contest"
-      buttonPush={({ title, memo, startSecond, endSecond, problems, mode }) =>
+      buttonPush={({
+        title,
+        memo,
+        startSecond,
+        endSecond,
+        problems,
+        mode,
+      }): void =>
         props.createContest(
           {
             title,
             memo,
             start_epoch_second: startSecond,
             duration_second: endSecond - startSecond,
-            mode
+            mode,
           },
           problems.toArray()
         )
@@ -74,40 +81,40 @@ interface InnerProps {
   updateResponse: PromiseState<{} | null>;
 }
 
-const mapper = () => {
+const mapper = (): any => {
   return {
-    createContest: (request: Request, problems: VirtualContestItem[]) => ({
+    createContest: (request: Request, problems: VirtualContestItem[]): any => ({
       createContestResponse: {
         url: CONTEST_CREATE,
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(request),
-        andThen: (response: Response) => ({
+        andThen: (response: Response): any => ({
           updateResponse: {
             url: CONTEST_ITEM_UPDATE,
             method: "POST",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
               contest_id: response.contest_id,
               problems: problems.map((p, i) => ({
                 ...p,
-                order: i
-              }))
-            })
-          }
-        })
-      }
+                order: i,
+              })),
+            }),
+          },
+        }),
+      },
     }),
     createContestResponse: {
-      value: null
+      value: null,
     },
     updateResponse: {
-      value: null
-    }
+      value: null,
+    },
   };
 };
 

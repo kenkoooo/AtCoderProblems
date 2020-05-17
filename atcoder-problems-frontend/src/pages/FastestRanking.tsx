@@ -9,7 +9,7 @@ interface Props {
   rankingFetch: PromiseState<List<RankingEntry>>;
 }
 
-const FastestRanking = (props: Props) => (
+const FastestRanking: React.FC<Props> = (props) => (
   <Ranking
     title={"Fastest Submission Ranking"}
     ranking={
@@ -21,6 +21,6 @@ const FastestRanking = (props: Props) => (
 export default connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
-    value: () => CachedApiClient.cachedFastRanking()
-  }
+    value: CachedApiClient.cachedFastRanking,
+  },
 }))(FastestRanking);

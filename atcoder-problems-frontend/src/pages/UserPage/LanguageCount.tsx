@@ -3,11 +3,15 @@ import { Row, Col } from "reactstrap";
 import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
 
-const LanguageCount = ({ submissions }: { submissions: Submission[] }) => {
+interface Props {
+  submissions: Submission[];
+}
+
+const LanguageCount: React.FC<Props> = ({ submissions }) => {
   const languageMap = submissions
-    .filter(s => isAccepted(s.result))
+    .filter((s) => isAccepted(s.result))
     .reduce((map, submission) => {
-      const language = /^Perl6/.test(submission.language)
+      const language = submission.language.startsWith("Perl6")
         ? "Perl6"
         : submission.language.replace(/\d* \(.*\)$/, "");
       const problems = map.get(language);

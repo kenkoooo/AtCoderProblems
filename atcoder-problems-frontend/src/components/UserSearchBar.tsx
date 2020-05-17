@@ -2,7 +2,7 @@ import React from "react";
 import {
   NavLink as RouterLink,
   useLocation,
-  useHistory
+  useHistory,
 } from "react-router-dom";
 import { Button, ButtonGroup, Form, Input, Nav, Navbar } from "reactstrap";
 import { extractRivalsParam, normalizeUserId } from "../utils";
@@ -13,23 +13,25 @@ import { UserResponse } from "../pages/Internal/types";
 type PageKind = "table" | "list" | "user";
 
 const extractPageKind = (pathname: string): PageKind | undefined => {
-  if (pathname.match(/^\/user/)) {
+  if (/^\/user/.exec(pathname)) {
     return "user";
-  } else if (pathname.match(/^\/list/)) {
+  } else if (/^\/list/.exec(pathname)) {
     return "list";
-  } else if (pathname.match(/^\/table/)) {
+  } else if (/^\/table/.exec(pathname)) {
     return "table";
   } else {
     return undefined;
   }
 };
 
-const extractUserIds = (pathname: string) => {
+const extractUserIds = (
+  pathname: string
+): { userId: string; rivalIdString: string } => {
   const params = pathname.split("/");
   const userId = params.length >= 3 ? params[2] : "";
   const rivalIdString = params
     .slice(3)
-    .filter(x => x.length > 0)
+    .filter((x) => x.length > 0)
     .join(",");
   return { userId, rivalIdString };
 };
@@ -37,16 +39,17 @@ const extractUserIds = (pathname: string) => {
 interface InnerProps {
   loginState: PromiseState<UserResponse | null>;
 }
+
 const generatePath = (
   kind: PageKind,
   userId: string,
   rivalIdString: string
-) => {
+): string => {
   const users = [normalizeUserId(userId), ...extractRivalsParam(rivalIdString)];
   return "/" + kind + "/" + users.join("/");
 };
 
-const InnerUserSearchBar: React.FC<InnerProps> = props => {
+const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
   const { pathname } = useLocation();
   const pageKind = extractPageKind(pathname);
 
@@ -67,7 +70,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = props => {
   );
 
   const history = useHistory();
-  const pushHistory = () => {
+  const pushHistory = (): void => {
     const p = generatePath(
       pageKind ?? "table",
       userId ? userId : loggedInUserId,
@@ -89,7 +92,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = props => {
     () => [
       generatePath("table", userId ? userId : loggedInUserId, rivalIdString),
       generatePath("list", userId ? userId : loggedInUserId, rivalIdString),
-      generatePath("user", userId ? userId : loggedInUserId, rivalIdString)
+      generatePath("user", userId ? userId : loggedInUserId, rivalIdString),
     ],
     [userId, loggedInUserId, rivalIdString]
   );
@@ -101,7 +104,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = props => {
           <Input
             className="mt-2 mr-2 mt-lg-0"
             style={{ width: 160 }}
-            onKeyPress={e => {
+            onKeyPress={(e): void => {
               if (e.key === "Enter") {
                 pushHistory();
               }
@@ -111,13 +114,13 @@ const InnerUserSearchBar: React.FC<InnerProps> = props => {
             name="user_id"
             id="user_id"
             placeholder={loggedInUserId ? loggedInUserId : "User ID"}
-            onChange={e => setUserId(e.target.value)}
+            onChange={(e): void => setUserId(e.target.value)}
           />
 
           <Input
             className="mt-2 mr-2 mt-lg-0"
             style={{ width: 160 }}
-            onKeyPress={e => {
+            onKeyPress={(e): void => {
               if (e.key === "Enter") {
                 pushHistory();
               }
@@ -127,7 +130,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = props => {
             name="rival_id"
             id="rival_id"
             placeholder="Rival ID, ..."
-            onChange={e => setRivalIdString(e.target.value)}
+            onChange={(e): void => setRivalIdString(e.target.value)}
           />
 
           <ButtonGroup className="mt-2 mb-0 mt-lg-0">
@@ -156,6 +159,6 @@ const InnerUserSearchBar: React.FC<InnerProps> = props => {
 
 export const UserSearchBar = connect<{}, InnerProps>(() => ({
   loginState: {
-    url: USER_GET
-  }
+    url: USER_GET,
+  },
 }))(InnerUserSearchBar);
