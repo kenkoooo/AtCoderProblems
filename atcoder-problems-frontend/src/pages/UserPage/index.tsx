@@ -152,8 +152,8 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   acceptedRatedSubmissions.forEach((s) => {
     ratedPointMap.set(s.problem_id, s.point);
   });
-  const ratedPointSum = Array.from(ratedPointMap.values()).reduceRight(
-    (s, p) => s + p,
+  const ratedPointSum = Array.from(ratedPointMap.values()).reduce(
+    (sum, point) => sum + point,
     0
   );
 
