@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Row } from "reactstrap";
+import { Col, Row, UncontrolledTooltip } from "reactstrap";
 import { ordinalSuffixOf } from "../../../utils";
 import { formatMomentDate, getToday } from "../../../utils/DateUtil";
 import { connect, PromiseState } from "react-refetch";
@@ -108,7 +108,22 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
       <Row className="my-3">
         {achievements.map(({ key, value, rank }) => (
           <Col key={key} className="text-center" xs="6" md="3">
-            <h6>{key}</h6>
+            <h6>
+              {key}
+              {key === "Longest Streak" && (
+                <>
+                  {" "}
+                  <span id="longestStreakTooltip">(?)</span>
+                  <UncontrolledTooltip
+                    target="longestStreakTooltip"
+                    placement="right"
+                  >
+                    The longest streak is based on{" "}
+                    <strong>Japan Standard Time</strong> (JST, UTC+9).
+                  </UncontrolledTooltip>
+                </>
+              )}
+            </h6>
             <h3>{value}</h3>
             <h6 className="text-muted">
               {rank !== undefined
@@ -118,7 +133,15 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
           </Col>
         ))}
         <Col key="Current Streak" className="text-center" xs="6" md="3">
-          <h6>Current Streak</h6>
+          <h6>
+            Current Streak <span id="currentStreakTooltip">(?)</span>
+            <UncontrolledTooltip
+              target="currentStreakTooltip"
+              placement="right"
+            >
+              The current streak is based on <strong>Local Time</strong>.
+            </UncontrolledTooltip>
+          </h6>
           <h3>{isIncreasing ? currentStreak : 0} days</h3>
           <h6 className="text-muted">{`Last AC: ${prevDateLabel}`}</h6>
         </Col>
