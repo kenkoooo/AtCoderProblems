@@ -193,7 +193,6 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             <ContestTable
               showProblems={showProblems}
               problems={problems}
-              mode={contestInfo.mode}
               users={contestInfo.participants}
               enableEstimatedPerformances={enableEstimatedPerformances}
               start={start}
