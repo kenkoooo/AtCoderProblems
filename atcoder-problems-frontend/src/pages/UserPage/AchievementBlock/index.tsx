@@ -1,8 +1,8 @@
 import React from "react";
 import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
+import { connect, PromiseState } from "react-refetch";
 import { ordinalSuffixOf } from "../../../utils";
 import { formatMomentDate, getToday } from "../../../utils/DateUtil";
-import { connect, PromiseState } from "react-refetch";
 import { RankingEntry } from "../../../interfaces/RankingEntry";
 import {
   cachedACRanking,

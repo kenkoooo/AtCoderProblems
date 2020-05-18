@@ -1,10 +1,10 @@
 import { Col, Row } from "reactstrap";
 import React from "react";
-import { SmallPieChart } from "./SmallPieChart";
 import Problem from "../../../interfaces/Problem";
 import Submission from "../../../interfaces/Submission";
 import { isAccepted } from "../../../utils";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
+import { SmallPieChart } from "./SmallPieChart";
 
 const solvedCountForPieChart = (
   contestToProblems: [string, Problem[]][],

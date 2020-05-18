@@ -1,15 +1,15 @@
 import React from "react";
-import { loadCourses } from "../../utils/StaticDataStorage";
 import { connect, PromiseState } from "react-refetch";
-import { Course } from "../../interfaces/Course";
 import { Alert, Spinner } from "reactstrap";
 import { useRouteMatch, Switch, Route } from "react-router-dom";
-import { TrainingList } from "./TrainingList";
-import { SingleCourseView } from "./SingleCourseView";
+import { Course } from "../../interfaces/Course";
+import { loadCourses } from "../../utils/StaticDataStorage";
 import { UserResponse } from "../Internal/types";
 import { USER_GET } from "../Internal/ApiUrl";
 import Submission from "../../interfaces/Submission";
 import { cachedSubmissions } from "../../utils/CachedApiClient";
+import { TrainingList } from "./TrainingList";
+import { SingleCourseView } from "./SingleCourseView";
 import { LoginAdvice } from "./LoginAdvice";
 
 interface Props {

@@ -1,9 +1,9 @@
 import React from "react";
 import { Row } from "reactstrap";
-import { DailyEffortBarChart } from "./DailyEffortBarChart";
 import { parseDateLabel } from "../../../utils/DateUtil";
-import { ClimbingLineChart } from "./ClimbingLineChart";
 import Submission from "../../../interfaces/Submission";
+import { DailyEffortBarChart } from "./DailyEffortBarChart";
+import { ClimbingLineChart } from "./ClimbingLineChart";
 import { FilteringHeatmap } from "./FilteringHeatmap";
 
 interface Props {

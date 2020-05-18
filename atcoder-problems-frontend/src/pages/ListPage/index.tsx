@@ -9,13 +9,11 @@ import {
   Button,
 } from "reactstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
-import MergedProblem from "../../interfaces/MergedProblem";
-import Contest from "../../interfaces/Contest";
-import Submission from "../../interfaces/Submission";
-import { SmallTable } from "./SmallTable";
-import { DifficultyTable } from "./DifficultyTable";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
+import { List, Map, Range, Set } from "immutable";
+import { connect, PromiseState } from "react-refetch";
+import { DifficultyCircle } from "../../components/DifficultyCircle";
+import ProblemModel from "../../interfaces/ProblemModel";
 import {
   constructStatusLabelMap,
   noneStatus,
@@ -23,11 +21,10 @@ import {
   ProblemStatus,
   StatusLabel,
 } from "../../interfaces/Status";
-import { List, Map, Range, Set } from "immutable";
-import ProblemModel from "../../interfaces/ProblemModel";
-import { DifficultyCircle } from "../../components/DifficultyCircle";
-import { ListTable } from "./ListTable";
-import { connect, PromiseState } from "react-refetch";
+import Submission from "../../interfaces/Submission";
+import Contest from "../../interfaces/Contest";
+import MergedProblem from "../../interfaces/MergedProblem";
+import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { generatePathWithParams } from "../../utils/QueryString";
@@ -38,6 +35,9 @@ import {
   ProgressResetList,
   UserResponse,
 } from "../Internal/types";
+import { ListTable } from "./ListTable";
+import { DifficultyTable } from "./DifficultyTable";
+import { SmallTable } from "./SmallTable";
 
 export const INF_POINT = 1e18;
 

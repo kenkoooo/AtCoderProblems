@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Row, Col, ButtonGroup, Button } from "reactstrap";
 
 import { connect, PromiseState } from "react-refetch";
-import { LangRankingEntry } from "../interfaces/RankingEntry";
 import { List, Map } from "immutable";
+import { LangRankingEntry } from "../interfaces/RankingEntry";
 import { ordinalSuffixOf } from "../utils";
 import * as CachedApiClient from "../utils/CachedApiClient";
 

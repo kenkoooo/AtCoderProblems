@@ -1,12 +1,12 @@
 import React from "react";
 import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import ContestConfig from "./ContestConfig";
 import { Redirect, useParams } from "react-router-dom";
 import { Alert, Spinner } from "reactstrap";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_ITEM_UPDATE, CONTEST_UPDATE, contestGetUrl } from "../ApiUrl";
 import { VirtualContest, VirtualContestItem } from "../types";
+import ContestConfig from "./ContestConfig";
 
 interface Request {
   id: string;

@@ -1,8 +1,8 @@
 import React from "react";
-import { isAccepted } from "../../utils";
 import Table from "reactstrap/lib/Table";
-import Submission from "../../interfaces/Submission";
 import { Map as ImmutableMap } from "immutable";
+import { isAccepted } from "../../utils";
+import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 
 interface Props {

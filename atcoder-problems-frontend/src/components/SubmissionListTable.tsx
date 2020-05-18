@@ -1,14 +1,14 @@
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import { Badge } from "reactstrap";
+import React from "react";
 import Submission from "../interfaces/Submission";
 import ProblemModel from "../interfaces/ProblemModel";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { ListPaginationPanel } from "./ListPaginationPanel";
 import { formatMomentDateTime, parseSecond } from "../utils/DateUtil";
-import ProblemLink from "./ProblemLink";
 import { isAccepted } from "../utils";
-import { Badge } from "reactstrap";
 import * as Url from "../utils/Url";
-import React from "react";
 import { ProblemId } from "../interfaces/Status";
+import ProblemLink from "./ProblemLink";
+import { ListPaginationPanel } from "./ListPaginationPanel";
 import { NewTabLink } from "./NewTabLink";
 
 interface Props {
