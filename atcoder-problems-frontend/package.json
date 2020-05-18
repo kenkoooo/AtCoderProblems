@@ -20,7 +20,16 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --fix"
+    "*.{css,html,json,md}": "prettier --write",
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "../**/*.md": "prettier --write",
+    "package.json": [
+      "prettier --write",
+      "sort-package-json"
+    ]
   },
   "browserslist": [
     ">0.2%",
