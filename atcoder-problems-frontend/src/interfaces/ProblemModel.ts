@@ -42,6 +42,7 @@ export const isProblemModelWithDifficultyModel = (
 export interface ProblemModelWithTimeModel {
   readonly slope: number;
   readonly intercept: number;
+  readonly variance: number;
   readonly difficulty: number | undefined;
   readonly rawDifficulty: number | undefined;
   readonly discrimination: number | undefined;
@@ -53,6 +54,7 @@ export const isProblemModelWithTimeModel = (
 ): obj is ProblemModelWithTimeModel =>
   typeof obj.slope === "number" &&
   typeof obj.intercept === "number" &&
+  typeof obj.variance === "number" &&
   (typeof obj.difficulty === "number" ||
     typeof obj.difficulty === "undefined") &&
   (typeof obj.rawDifficulty === "number" ||
