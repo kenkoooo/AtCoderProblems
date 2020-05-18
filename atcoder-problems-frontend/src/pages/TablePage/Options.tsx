@@ -12,8 +12,8 @@ import {
   DropdownItem,
   Card,
 } from "reactstrap";
-import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import { Set } from "immutable";
+import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import { ColorMode } from "../../utils/TableColor";
 
 interface Props {

@@ -1,9 +1,9 @@
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Button, Col, Row } from "reactstrap";
+import { useHistory } from "react-router-dom";
 import { VirtualContestTable } from "../VirtualContestTable";
 import { CONTEST_RECENT, USER_GET } from "../ApiUrl";
-import { useHistory } from "react-router-dom";
 import { VirtualContestInfo } from "../types";
 
 interface InnerProps {

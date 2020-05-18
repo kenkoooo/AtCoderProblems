@@ -1,7 +1,7 @@
 import React from "react";
+import { connect, PromiseState } from "react-refetch";
 import Ranking from "../components/Ranking";
 import { RankingEntry } from "../interfaces/RankingEntry";
-import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../utils/CachedApiClient";
 
 interface InnerProps {

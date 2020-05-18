@@ -11,8 +11,8 @@ import {
   Table,
 } from "reactstrap";
 import Octicon, { Check, Sync } from "@primer/octicons-react";
-import * as CachedApi from "../../../../utils/CachedApiClient";
 import { Map as ImmutableMap } from "immutable";
+import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
 import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../../ApiUrl";
 import MergedProblem from "../../../../interfaces/MergedProblem";
@@ -24,9 +24,9 @@ import {
 import { formatMode, UserResponse, VirtualContest } from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
-import { ContestTable } from "./ContestTable";
 import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
+import { ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 
 interface OuterProps {

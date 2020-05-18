@@ -38,6 +38,7 @@ module.exports = {
     "react/prop-types": 0, // we do not employ 'prop-types'
     "@typescript-eslint/camelcase": 0, // API responses contain snake_case properties
     "@typescript-eslint/explicit-function-return-type": 0, // enable the rule in "overrides"
+    "import/order": 1, // sort import in files
     // TODO: enable the following rules in the future
     "require-atomic-updates": 0, // https://github.com/eslint/eslint/issues/11899
   },

@@ -1,8 +1,9 @@
 import { List, Map as ImmutableMap, Set } from "immutable";
-import Contest from "../../interfaces/Contest";
-import Problem from "../../interfaces/Problem";
 import { Row } from "reactstrap";
 import React from "react";
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import Contest from "../../interfaces/Contest";
+import Problem from "../../interfaces/Problem";
 import {
   noneStatus,
   ProblemId,
@@ -19,7 +20,6 @@ import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 
 interface Props {
   contests: Contest[];
