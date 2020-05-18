@@ -9,14 +9,8 @@ import {
   isAccepted,
 } from "../../../../utils";
 import React from "react";
-import { VirtualContestItem, VirtualContestMode } from "../../types";
-import {
-  BestSubmissionEntry,
-  calcTotalResult,
-  extractBestSubmissions,
-  getSortedUserIds,
-  hasBetterSubmission,
-} from "./util";
+import { VirtualContestItem } from "../../types";
+import { BestSubmissionEntry, extractBestSubmissions } from "./util";
 import { connect, PromiseState } from "react-refetch";
 import { List, Map as ImmutableMap } from "immutable";
 import { ProblemId } from "../../../../interfaces/Status";
@@ -33,6 +27,70 @@ import {
 } from "../../../../utils/CachedApiClient";
 import { calculatePerformances } from "../../../../utils/RatingSystem";
 import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
+
+const calcTotalResult = (
+  userId: string,
+  problems: VirtualContestItem[],
+  bestSubmissions: BestSubmissionEntry[]
+): {
+  trialsBeforeBest: number;
+  lastBestSubmissionTime: number;
+  point: number;
+} => {
+  return problems.reduce(
+    (state, item) => {
+      const problemId = item.id;
+      const point = item.point;
+
+      const info = bestSubmissions.find(
+        (s) => s.userId === userId && s.problemId === problemId
+      )?.bestSubmissionInfo;
+      if (!info || info.bestSubmission.point === 0) {
+        return state;
+      }
+
+      const best = info.bestSubmission;
+      if (point !== null && !isAccepted(best.result)) {
+        return state;
+      }
+
+      return {
+        trialsBeforeBest: state.trialsBeforeBest + info.trialsBeforeBest,
+        lastBestSubmissionTime: Math.max(
+          state.lastBestSubmissionTime,
+          best.epoch_second
+        ),
+        point: state.point + (point ? point : best.point),
+      };
+    },
+    {
+      trialsBeforeBest: 0,
+      lastBestSubmissionTime: 0,
+      point: 0,
+    }
+  );
+};
+const getSortedUserIds = (
+  users: string[],
+  problems: VirtualContestItem[],
+  bestSubmissions: BestSubmissionEntry[]
+): string[] => {
+  return users
+    .map((userId) => {
+      const result = calcTotalResult(userId, problems, bestSubmissions);
+      return { userId, ...result };
+    })
+    .sort((a, b) => {
+      if (a.point === b.point) {
+        if (a.lastBestSubmissionTime === b.lastBestSubmissionTime) {
+          return a.trialsBeforeBest - b.trialsBeforeBest;
+        }
+        return a.lastBestSubmissionTime - b.lastBestSubmissionTime;
+      }
+      return b.point - a.point;
+    })
+    .map((e) => e.userId);
+};
 
 function getEstimatedPerformances(
   participants: string[],
@@ -167,7 +225,6 @@ interface OuterProps {
     contestId?: string;
   }[];
   readonly enableEstimatedPerformances: boolean;
-  readonly mode: VirtualContestMode;
   readonly users: string[];
   readonly start: number;
   readonly end: number;
@@ -206,7 +263,7 @@ function compareProblem<T extends { id: string; order: number | null }>(
 }
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
-  const { showProblems, problems, mode, users, start, end } = props;
+  const { showProblems, problems, users, start, end } = props;
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
     : ImmutableMap<ProblemId, ProblemModel>();
@@ -230,7 +287,6 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   const sortedUserIds = getSortedUserIds(
     users,
     problems.map((p) => p.item),
-    mode,
     bestSubmissions
   );
   const estimatedPerformances = props.enableEstimatedPerformances
@@ -250,8 +306,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     ...p.item,
   }));
 
-  const showEstimatedPerformances =
-    mode !== "lockout" && estimatedPerformances.length > 0;
+  const showEstimatedPerformances = estimatedPerformances.length > 0;
   return (
     <Table striped>
       <thead>
@@ -288,7 +343,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
           const totalResult = calcTotalResult(
             userId,
             problems.map((p) => p.item),
-            mode,
+
             bestSubmissions
           );
           return (
@@ -309,21 +364,6 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
                       );
                     }
                     const best = info.bestSubmission;
-                    if (
-                      mode === "lockout" &&
-                      hasBetterSubmission(
-                        problem.id,
-                        userId,
-                        best,
-                        bestSubmissions
-                      )
-                    ) {
-                      return (
-                        <td key={problem.id} style={{ textAlign: "center" }}>
-                          -
-                        </td>
-                      );
-                    }
                     const trials =
                       info.trialsBeforeBest +
                       (isAccepted(info.bestSubmission.result) ? 0 : 1);
