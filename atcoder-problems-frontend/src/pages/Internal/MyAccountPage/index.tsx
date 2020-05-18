@@ -10,6 +10,7 @@ import {
   NavItem,
   NavLink,
   Row,
+  Spinner,
   TabContent,
   TabPane,
 } from "reactstrap";
@@ -53,7 +54,7 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
   if (userInfoGet.rejected || updateUserInfoResponse.rejected) {
     return <Redirect to="/" />;
   } else if (userInfoGet.pending) {
-    return <p>loading ...</p>;
+    return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else {
     const userInfo = userInfoGet.value;
     const [userId, setUserId] = useState(
