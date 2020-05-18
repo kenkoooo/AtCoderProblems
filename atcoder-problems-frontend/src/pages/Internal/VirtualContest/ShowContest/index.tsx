@@ -78,7 +78,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const canJoin = !alreadyJoined && userIdIsSet && now < end;
   const isOwner = contestInfo.owner_user_id === internalUserId;
   const enableEstimatedPerformances =
-    contestInfo.participants.length * contestInfo.problems.length <= 100;
+    contestInfo.participants.length * contestInfo.problems.length <= (now < end ? 100 : 500);
 
   const showProblems = start < now;
   const problems = contestInfo.problems.map((item) => {
