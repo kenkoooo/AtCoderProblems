@@ -25,6 +25,7 @@
     "bootstrap": "4.3.1",
     "immutable": "4.0.0-rc.12",
     "moment": "2.24.0",
+    "node-sass": "4.14.1",
     "random": "2.2.0",
     "react": "16.8.3",
     "react-bootstrap-table": "4.3.1",
