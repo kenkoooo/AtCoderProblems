@@ -1,7 +1,6 @@
 import React from "react";
-import { Row } from "reactstrap";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { RankingEntry } from "../interfaces/RankingEntry";
+import { ReactBootstrapTable } from "./ReactBootstrapTable";
 
 interface Props {
   title: React.ReactNode;
@@ -36,49 +35,35 @@ const refineRanking = (ranking: RankingEntry[]): InternalRankEntry[] =>
     }, [] as InternalRankEntry[]);
 
 const Ranking: React.FC<Props> = (props) => (
-  <Row>
+  <>
     <h2>{props.title}</h2>
-    <BootstrapTable
-      height="auto"
-      data={refineRanking(props.ranking)}
-      pagination
+    <ReactBootstrapTable
       striped
       hover
-      search
-      options={{
-        paginationPosition: "top",
-        sizePerPage: 20,
-        sizePerPageList: [
-          {
-            text: "20",
-            value: 20,
-          },
-          {
-            text: "50",
-            value: 50,
-          },
-          {
-            text: "100",
-            value: 100,
-          },
-          {
-            text: "200",
-            value: 200,
-          },
-          {
-            text: "All",
-            value: props.ranking.length,
-          },
-        ],
-      }}
-    >
-      <TableHeaderColumn dataField="rank">#</TableHeaderColumn>
-      <TableHeaderColumn dataField="id" isKey>
-        User
-      </TableHeaderColumn>
-      <TableHeaderColumn dataField="count">Count</TableHeaderColumn>
-    </BootstrapTable>
-  </Row>
+      useSearch
+      usePagination
+      sizePerPage={20}
+      keyField="id"
+      data={refineRanking(props.ranking)}
+      columns={[
+        {
+          dataField: "rank",
+          headerAlign: "left",
+          text: "#",
+        },
+        {
+          dataField: "id",
+          headerAlign: "left",
+          text: "User",
+        },
+        {
+          dataField: "count",
+          headerAlign: "left",
+          text: "Count",
+        },
+      ]}
+    />
+  </>
 );
 
 export default Ranking;

@@ -1,7 +1,6 @@
 import Submission from "../interfaces/Submission";
 import ProblemModel from "../interfaces/ProblemModel";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { ListPaginationPanel } from "./ListPaginationPanel";
+// import { ListPaginationPanel } from "./ListPaginationPanel";
 import { formatMomentDateTime, parseSecond } from "../utils/DateUtil";
 import ProblemLink from "./ProblemLink";
 import { isAccepted } from "../utils";
@@ -10,6 +9,8 @@ import * as Url from "../utils/Url";
 import React from "react";
 import { ProblemId } from "../interfaces/Status";
 import { NewTabLink } from "./NewTabLink";
+import { ReactBootstrapTable } from "./ReactBootstrapTable";
+import { selectFilter } from "react-bootstrap-table2-filter";
 
 interface Props {
   submissions: Submission[];
@@ -49,125 +50,105 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
     }, {} as { [_: string]: string });
 
   return (
-    <BootstrapTable
+    <ReactBootstrapTable
+      striped
+      hover
+      sizePerPage={20}
       data={submissions
         .sort((a, b) => b.epoch_second - a.epoch_second)
         .map((s) => ({ title: titleMap.get(s.problem_id), ...s }))}
       keyField="id"
-      height="auto"
-      hover
-      striped
-      search
-      pagination
-      options={{
-        paginationPosition: "top",
-        sizePerPage: 20,
-        sizePerPageList: [
-          {
-            text: "20",
-            value: 20,
-          },
-          {
-            text: "50",
-            value: 50,
-          },
-          {
-            text: "100",
-            value: 100,
-          },
-          {
-            text: "200",
-            value: 200,
-          },
-          {
-            text: "All",
-            value: submissions.length,
-          },
-        ],
-        paginationPanel: function DataFormat(
-          paginationPanelProps: any
-        ): React.ReactElement {
-          return <ListPaginationPanel {...paginationPanelProps} />;
+      useSearch
+      usePagination
+      useBinaryPagination
+      columns={[
+        {
+          dataField: "epoch_second",
+          headerAlign: "left",
+          sort: true,
+          text: "Date",
+          formatter: (second: number): string =>
+            formatMomentDateTime(parseSecond(second)),
         },
-      }}
-    >
-      <TableHeaderColumn
-        dataSort
-        dataField="epoch_second"
-        dataFormat={(second: number): string =>
-          formatMomentDateTime(parseSecond(second))
-        }
-      >
-        Date
-      </TableHeaderColumn>
-      <TableHeaderColumn
-        filterFormatted
-        dataSort
-        dataField="title"
-        dataFormat={(
-          title: string | undefined,
-          { problem_id, contest_id }: Submission
-        ): React.ReactElement => (
-          <ProblemLink
-            difficulty={problemModels.get(problem_id)?.difficulty}
-            isExperimentalDifficulty={
-              problemModels.get(problem_id)?.is_experimental
-            }
-            showDifficulty={true}
-            problemId={problem_id}
-            problemTitle={title || ""}
-            contestId={contest_id}
-          />
-        )}
-      >
-        Problem
-      </TableHeaderColumn>
-      <TableHeaderColumn
-        dataSort
-        dataField="user_id"
-        dataFormat={(userId: string): React.ReactElement => (
-          <NewTabLink href={Url.formatUserUrl(userId)}>{userId}</NewTabLink>
-        )}
-      >
-        User
-      </TableHeaderColumn>
-      <TableHeaderColumn
-        dataSort
-        filter={{ type: "SelectFilter", options: verdictOptions }}
-        dataField="result"
-        dataAlign="center"
-        dataFormat={(result): React.ReactElement =>
-          isAccepted(result) ? (
-            <Badge color="success">{result}</Badge>
-          ) : (
-            <Badge color="warning">{result}</Badge>
-          )
-        }
-      >
-        Status
-      </TableHeaderColumn>
-      <TableHeaderColumn
-        dataSort
-        dataField="language"
-        filter={{ type: "SelectFilter", options: languageOptions }}
-      >
-        Language
-      </TableHeaderColumn>
-      <TableHeaderColumn
-        dataSort
-        dataField="id"
-        dataFormat={(
-          _: number,
-          { id, contest_id }: Submission
-        ): React.ReactElement => (
-          <NewTabLink href={Url.formatSubmissionUrl(id, contest_id)}>
-            Detail
-          </NewTabLink>
-        )}
-      >
-        Detail
-      </TableHeaderColumn>
-      <TableHeaderColumn dataField="title" hidden />
-    </BootstrapTable>
+        {
+          dataField: "title",
+          headerAlign: "left",
+          sort: true,
+          text: "Problem",
+          formatter: function Formatter(
+            title: string | undefined,
+            { problem_id, contest_id }: Submission
+          ): React.ReactElement {
+            return (
+              <ProblemLink
+                difficulty={problemModels.get(problem_id)?.difficulty}
+                isExperimentalDifficulty={
+                  problemModels.get(problem_id)?.is_experimental
+                }
+                showDifficulty={true}
+                problemId={problem_id}
+                problemTitle={title || ""}
+                contestId={contest_id}
+              />
+            );
+          },
+        },
+        {
+          dataField: "user_id",
+          headerAlign: "left",
+          sort: true,
+          text: "User",
+          formatter: function Formatter(userId: string): React.ReactElement {
+            return (
+              <NewTabLink href={Url.formatUserUrl(userId)}>{userId}</NewTabLink>
+            );
+          },
+        },
+        {
+          dataField: "result",
+          headerAlign: "left",
+          sort: true,
+          align: "center",
+          text: "Status",
+          filter: selectFilter({ options: verdictOptions }),
+          formatter: function Formatter(result): React.ReactElement {
+            return isAccepted(result) ? (
+              <Badge color="success">{result}</Badge>
+            ) : (
+              <Badge color="warning">{result}</Badge>
+            );
+          },
+        },
+        {
+          dataField: "language",
+          headerAlign: "left",
+          sort: true,
+          text: "Language",
+          filter: selectFilter({ options: languageOptions }),
+        },
+        {
+          dataField: "id",
+          headerAlign: "left",
+          sort: true,
+          text: "Detail",
+          formatter: function Formatter(
+            _: number,
+            { id, contest_id }: Submission
+          ): React.ReactElement {
+            return (
+              <NewTabLink href={Url.formatSubmissionUrl(id, contest_id)}>
+                Detail
+              </NewTabLink>
+            );
+          },
+        },
+        {
+          dataField: "title",
+          headerAlign: "left",
+          hidden: true,
+          text: "Title",
+        },
+      ]}
+    />
   );
 };

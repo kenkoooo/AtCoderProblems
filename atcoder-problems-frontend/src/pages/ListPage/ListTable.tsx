@@ -1,4 +1,3 @@
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { StatusLabel } from "../../interfaces/Status";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
@@ -16,7 +15,9 @@ import ProblemModel, {
   isProblemModelWithTimeModel,
 } from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
-import { ListPaginationPanel } from "../../components/ListPaginationPanel";
+// import { ListPaginationPanel } from "../../components/ListPaginationPanel";
+import { ReactBootstrapTable } from "../../components/ReactBootstrapTable";
+import { ColumnDescription } from "react-bootstrap-table-next";
 
 interface Props {
   fromPoint: number;
@@ -56,29 +57,19 @@ export const ListTable: React.FC<Props> = (props) => {
     return predictSolveTime(problemModel, props.userInternalRating);
   };
 
-  const columns: {
-    header: string;
-    dataField: string;
-    dataSort?: boolean;
-    dataAlign?: "center";
-    dataFormat?: (cell: any, row: ProblemRowData) => ReactElement | string;
-    hidden?: boolean;
-    sortFunc?: (
-      fieldA: ProblemRowData,
-      fieldB: ProblemRowData,
-      order: "asc" | "desc"
-    ) => number;
-  }[] = [
+  const columns: ColumnDescription<ProblemRowData>[] = [
     {
-      header: "Date",
+      text: "Date",
+      headerAlign: "left",
       dataField: "contestDate",
-      dataSort: true,
+      sort: true,
     },
     {
-      header: "Problem",
+      text: "Problem",
+      headerAlign: "left",
       dataField: "title",
-      dataSort: true,
-      dataFormat: function DataFormat(_, row): React.ReactElement {
+      sort: true,
+      formatter: function DataFormat(_, row): React.ReactElement {
         return (
           <ProblemLink
             showDifficulty={true}
@@ -96,10 +87,11 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Contest",
+      text: "Contest",
+      headerAlign: "left",
       dataField: "contest",
-      dataSort: true,
-      dataFormat: function DataFormat(contest, row): React.ReactElement {
+      sort: true,
+      formatter: function DataFormat(contest, row): React.ReactElement {
         return contest ? (
           <ContestLink contest={contest} />
         ) : (
@@ -114,10 +106,11 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Result",
+      text: "Result",
+      headerAlign: "left",
       dataField: "a",
-      dataAlign: "center",
-      dataFormat: (_: string, row): string | React.ReactElement => {
+      align: "center",
+      formatter: (_: string, row): string | React.ReactElement => {
         const { status } = row;
         switch (status.label) {
           case StatusLabel.Success: {
@@ -144,15 +137,17 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Last AC Date",
+      text: "Last AC Date",
+      headerAlign: "left",
       dataField: "lastAcceptedDate",
-      dataSort: true,
+      sort: true,
     },
     {
-      header: "Solvers",
+      text: "Solvers",
+      headerAlign: "left",
       dataField: "solverCount",
-      dataSort: true,
-      dataFormat: function DataFormat(
+      sort: true,
+      formatter: function DataFormat(
         solverCount: number,
         row
       ): React.ReactElement {
@@ -171,10 +166,11 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Point",
+      text: "Point",
+      headerAlign: "left",
       dataField: "point",
-      dataSort: true,
-      dataFormat: (point: number): React.ReactElement => {
+      sort: true,
+      formatter: (point: number): React.ReactElement => {
         if (point >= INF_POINT) {
           return <p>-</p>;
         } else {
@@ -187,15 +183,16 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Difficulty",
+      text: "Difficulty",
+      headerAlign: "left",
       dataField: "problemModel",
-      dataSort: true,
+      sort: true,
       sortFunc: (a, b, order): number => {
         const delta = readDifficultyAsNumber(a) - readDifficultyAsNumber(b);
         const sign = order === "asc" ? 1 : -1;
         return delta * sign;
       },
-      dataFormat: (problemModel: ProblemModel): React.ReactElement => {
+      formatter: (problemModel: ProblemModel): React.ReactElement => {
         if (!isProblemModelWithDifficultyModel(problemModel)) {
           return <p>-</p>;
         } else {
@@ -204,9 +201,10 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Time",
-      dataField: "a",
-      dataSort: true,
+      text: "Time",
+      headerAlign: "left",
+      dataField: "time",
+      sort: true,
       sortFunc: (a, b, order): number => {
         const aPred = predictSolveTimeOfRow(a);
         const bPred = predictSolveTimeOfRow(b);
@@ -216,7 +214,7 @@ export const ListTable: React.FC<Props> = (props) => {
         const sign = order === "asc" ? 1 : -1;
         return delta * sign;
       },
-      dataFormat: function DataFormat(_: string, row): React.ReactElement {
+      formatter: function DataFormat(_: string, row): React.ReactElement {
         const solveTime = predictSolveTimeOfRow(row);
         if (solveTime === null) {
           return <p>-</p>;
@@ -225,10 +223,11 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Fastest",
+      text: "Fastest",
+      headerAlign: "left",
       dataField: "executionTime",
-      dataSort: true,
-      dataFormat: (executionTime: number, row): React.ReactElement => {
+      sort: true,
+      formatter: (executionTime: number, row): React.ReactElement => {
         const {
           fastest_submission_id,
           fastest_contest_id,
@@ -253,10 +252,11 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Shortest",
+      text: "Shortest",
+      headerAlign: "left",
       dataField: "codeLength",
-      dataSort: true,
-      dataFormat: (codeLength: number, row): React.ReactElement => {
+      sort: true,
+      formatter: (codeLength: number, row): React.ReactElement => {
         const {
           shortest_submission_id,
           shortest_contest_id,
@@ -281,10 +281,11 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "First",
+      text: "First",
+      headerAlign: "left",
       dataField: "firstUserId",
-      dataSort: true,
-      dataFormat: (_: string, row): React.ReactElement => {
+      sort: true,
+      formatter: (_: string, row): React.ReactElement => {
         const {
           first_submission_id,
           first_contest_id,
@@ -309,32 +310,34 @@ export const ListTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Shortest User for Search",
+      text: "Shortest User for Search",
       dataField: "shortestUserId",
       hidden: true,
     },
     {
-      header: "Fastest User for Search",
+      text: "Fastest User for Search",
       dataField: "fastestUserId",
       hidden: true,
     },
     {
-      header: "Contest name for Search",
+      text: "Contest name for Search",
       dataField: "contestTitle",
       hidden: true,
     },
   ];
 
   return (
-    <BootstrapTable
-      pagination
+    <ReactBootstrapTable
       keyField="id"
-      height="auto"
+      columns={columns}
       hover
       striped
-      search
-      tableContainerClass="list-table"
-      trClassName={(row: ProblemRowData): string => {
+      sizePerPage={20}
+      wrapperClasses="list-table"
+      useSearch
+      usePagination
+      useBinaryPagination
+      rowClasses={(row: ProblemRowData): string => {
         const { status, contest } = row;
         return statusToTableColor({
           colorMode: ColorMode.ContestResult,
@@ -377,47 +380,6 @@ export const ListTable: React.FC<Props> = (props) => {
           );
         })
         .toArray()}
-      options={{
-        paginationPosition: "top",
-        sizePerPage: 20,
-        sizePerPageList: [
-          {
-            text: "20",
-            value: 20,
-          },
-          {
-            text: "50",
-            value: 50,
-          },
-          {
-            text: "100",
-            value: 100,
-          },
-          {
-            text: "200",
-            value: 200,
-          },
-          {
-            text: "All",
-            value: props.rowData.size,
-          },
-        ],
-        paginationPanel: function DataFormat(
-          paginationPanelProps: any
-        ): React.ReactElement {
-          return <ListPaginationPanel {...paginationPanelProps} />;
-        },
-      }}
-    >
-      {columns.map((c) => (
-        <TableHeaderColumn
-          key={c.header}
-          tdAttr={{ "data-col-name": c.header }}
-          {...c}
-        >
-          {c.header}
-        </TableHeaderColumn>
-      ))}
-    </BootstrapTable>
+    />
   );
 };

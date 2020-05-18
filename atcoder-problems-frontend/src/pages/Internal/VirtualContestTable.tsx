@@ -1,9 +1,9 @@
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { Link } from "react-router-dom";
 import * as DateUtil from "../../utils/DateUtil";
 import React from "react";
 import { formatMode, VirtualContestInfo, VirtualContestMode } from "./types";
 import { Timer } from "../../components/Timer";
+import { ReactBootstrapTable } from "../../components/ReactBootstrapTable";
 
 const formatContestDuration = (
   start: number,
@@ -27,94 +27,74 @@ interface Props {
 
 export const VirtualContestTable: React.FC<Props> = (props) => {
   return (
-    <BootstrapTable
-      data={props.contests}
-      pagination
-      keyField="id"
-      height="auto"
-      hover
+    <ReactBootstrapTable
       striped
-      options={{
-        paginationPosition: "top",
-        sizePerPage: 10,
-        sizePerPageList: [
-          {
-            text: "10",
-            value: 10,
+      hover
+      data={props.contests}
+      keyField="id"
+      sizePerPage={10}
+      useSearch
+      usePagination
+      columns={[
+        {
+          dataField: "title",
+          headerAlign: "left",
+          formatter: function Formatter(
+            title: string,
+            contest: VirtualContestInfo
+          ): React.ReactElement {
+            return <Link to={`/contest/show/${contest.id}`}>{title}</Link>;
           },
-          {
-            text: "20",
-            value: 20,
+          text: "Title",
+        },
+        {
+          dataField: "memo",
+          headerAlign: "left",
+          text: "Description",
+        },
+        {
+          dataField: "mode",
+          headerAlign: "left",
+          text: "Mode",
+          formatter: (mode: VirtualContestMode): string => {
+            return formatMode(mode);
           },
-          {
-            text: "50",
-            value: 50,
+        },
+        {
+          dataField: "start_epoch_second",
+          headerAlign: "left",
+          formatter: (_: number, contest: VirtualContestInfo): string => {
+            const time = DateUtil.parseSecond(contest.start_epoch_second);
+            return DateUtil.formatMomentDateTimeDay(time);
           },
-          {
-            text: "200",
-            value: 200,
+          text: "Start",
+        },
+        {
+          dataField: "end_epoch_second",
+          headerAlign: "left",
+          formatter: (_: number, contest: VirtualContestInfo): string => {
+            const time = DateUtil.parseSecond(
+              contest.start_epoch_second + contest.duration_second
+            );
+            return DateUtil.formatMomentDateTimeDay(time);
           },
-          {
-            text: "All",
-            value: props.contests.length,
+          text: "End",
+        },
+        {
+          dataField: "duration",
+          headerAlign: "left",
+          formatter: (
+            _: number,
+            contest: VirtualContestInfo
+          ): string | React.ReactElement => {
+            return formatContestDuration(
+              contest.start_epoch_second,
+              contest.duration_second
+            );
           },
-        ],
-      }}
-    >
-      <TableHeaderColumn
-        dataField="title"
-        dataFormat={(
-          title: string,
-          contest: VirtualContestInfo
-        ): React.ReactElement => (
-          <Link to={`/contest/show/${contest.id}`}>{title}</Link>
-        )}
-      >
-        Title
-      </TableHeaderColumn>
-      <TableHeaderColumn dataField="memo">Description</TableHeaderColumn>
-      <TableHeaderColumn
-        dataField="mode"
-        dataFormat={(mode: VirtualContestMode): string => {
-          return formatMode(mode);
-        }}
-      >
-        Start
-      </TableHeaderColumn>
-      <TableHeaderColumn
-        dataField="start_epoch_second"
-        dataFormat={(_: number, contest: VirtualContestInfo): string => {
-          const time = DateUtil.parseSecond(contest.start_epoch_second);
-          return DateUtil.formatMomentDateTimeDay(time);
-        }}
-      >
-        Start
-      </TableHeaderColumn>
-      <TableHeaderColumn
-        dataField="end_epoch_second"
-        dataFormat={(_: number, contest: VirtualContestInfo): string => {
-          const time = DateUtil.parseSecond(
-            contest.start_epoch_second + contest.duration_second
-          );
-          return DateUtil.formatMomentDateTimeDay(time);
-        }}
-      >
-        End
-      </TableHeaderColumn>
-      <TableHeaderColumn
-        dataField="duration"
-        dataFormat={(
-          _: number,
-          contest: VirtualContestInfo
-        ): string | React.ReactElement => {
-          return formatContestDuration(
-            contest.start_epoch_second,
-            contest.duration_second
-          );
-        }}
-      >
-        Duration
-      </TableHeaderColumn>
-    </BootstrapTable>
+          text: "Duration",
+        },
+      ]}
+    />
   );
 };

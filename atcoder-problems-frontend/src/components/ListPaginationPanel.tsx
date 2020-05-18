@@ -1,16 +1,11 @@
-import React from "react";
-import { PaginationPanelProps } from "react-bootstrap-table";
+import * as React from "react";
 import {
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  UncontrolledDropdown,
   PaginationLink,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from "reactstrap";
-
-interface Props extends PaginationPanelProps {
-  totalPages: number;
-}
 
 const range = (start: number, end: number): number[] =>
   Array.from({ length: end - start + 1 }, (v, k) => k + start);
@@ -19,7 +14,7 @@ const pageList = (
   pageStartIndex: number,
   totalPage: number
 ): number[] => {
-  if (totalPage === 0) {
+  if (isNaN(totalPage) || totalPage <= 0) {
     return [];
   }
   if (totalPage <= 10) {
@@ -56,60 +51,67 @@ const pageList = (
   return pageNumbers;
 };
 
-export const ListPaginationPanel: React.FC<Props> = (props) => {
+// TODO: change the type of props. The official typing does not have enough
+// fields.
+export const CustomSizePerPageDropdownStandalone = (
+  props: any
+): JSX.Element => (
+  <UncontrolledDropdown
+    className="react-bs-table-sizePerPage-dropdown"
+    style={{ float: "left" }}
+  >
+    <DropdownToggle caret>{props.sizePerPage}</DropdownToggle>
+    <DropdownMenu>
+      {(props.sizePerPageList as Array<{
+        text: string;
+        value: number;
+      }>).map((p) => (
+        <DropdownItem
+          key={p.text}
+          // Change the page number to 1 when size of page is changed to prevent
+          // errors.
+          onClick={(): void => props.onSizePerPageChange?.(p.value, 1)}
+        >
+          {p.text}
+        </DropdownItem>
+      ))}
+    </DropdownMenu>
+  </UncontrolledDropdown>
+);
+
+// TODO: change the type of props. The official typing does not have enough
+// fields.
+export const BinaryPaginationListStandalone = (props: any): JSX.Element => {
   const pageNumbers = pageList(
-    props.currPage,
+    props.page,
     props.pageStartIndex,
-    props.totalPages
+    Math.ceil(props.dataSize / props.sizePerPage)
   );
 
   return (
     <>
-      <div className="col-md-2 col-xs-2 col-sm-2 col-lg-2">
-        <UncontrolledDropdown className="react-bs-table-sizePerPage-dropdown">
-          <DropdownToggle caret>{props.sizePerPage}</DropdownToggle>
-          <DropdownMenu>
-            {(props.sizePerPageList as Array<{
-              text: string;
-              value: number;
-            }>).map((p) => (
-              <DropdownItem
-                key={p.text}
-                onClick={(): void => props.changeSizePerPage(p.value)}
-              >
-                {p.text}
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </UncontrolledDropdown>
-      </div>
-      <div
-        className="col-md-10 col-xs-10 col-sm-10 col-lg-10"
-        style={{ display: "block" }}
+      <ul
+        className="react-bootstrap-table-page-btns-ul pagination"
+        style={{ flexWrap: "wrap", justifyContent: "flex-end" }}
       >
-        <ul
-          className="react-bootstrap-table-page-btns-ul pagination"
-          style={{ flexWrap: "wrap", justifyContent: "flex-end" }}
-        >
-          {pageNumbers.map((pageNumber: number) => {
-            const className =
-              (pageNumber === props.currPage ? "active " : "") + "page-item";
-            return (
-              <li
-                className={className}
-                key={pageNumber}
-                title={pageNumber.toString()}
+        {pageNumbers.map((pageNumber: number) => {
+          const className =
+            (pageNumber === props.page ? "active " : "") + "page-item";
+          return (
+            <li
+              className={className}
+              key={pageNumber}
+              title={pageNumber.toString()}
+            >
+              <PaginationLink
+                onClick={(): void => props.onPageChange(pageNumber)}
               >
-                <PaginationLink
-                  onClick={(): void => props.changePage(pageNumber)}
-                >
-                  {pageNumber}
-                </PaginationLink>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+                {pageNumber}
+              </PaginationLink>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
 };

@@ -227,3 +227,26 @@ span.difficulty-circle {
     border-left-width: 1px;
   }
 }
+
+/* react-bootstrap-table2 style */
+
+.react-bootstrap-table tbody td {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.react-bootstrap-table thead > tr > th {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.filter-label {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.react-bootstrap-table-page-btns-ul {
+  float: right;
+}

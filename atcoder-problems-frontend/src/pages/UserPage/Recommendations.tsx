@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { isAccepted } from "../../utils";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
 import Problem from "../../interfaces/Problem";
@@ -31,6 +30,7 @@ import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
 import { ProblemId } from "../../interfaces/Status";
+import { ReactBootstrapTable } from "../../components/ReactBootstrapTable";
 
 const ExcludeOptions = [
   "Exclude",
@@ -333,87 +333,114 @@ export const Recommendations: React.FC<Props> = (props) => {
         </UncontrolledDropdown>
       </Row>
       <Row className="my-3">
-        <BootstrapTable
+        <ReactBootstrapTable
           data={recommendedProblems}
           keyField="id"
-          height="auto"
           hover
           striped
-        >
-          <TableHeaderColumn
-            dataField="title"
-            dataFormat={(
-              title: string,
-              {
-                id,
-                contest_id,
-                is_experimental,
-              }: { id: string; contest_id: string; is_experimental: boolean }
-            ): React.ReactElement => (
-              <ProblemLink
-                difficulty={problemModels.getIn([id, "difficulty"], null)}
-                isExperimentalDifficulty={is_experimental}
-                showDifficulty={true}
-                problemId={id}
-                problemTitle={title}
-                contestId={contest_id}
-              />
-            )}
-          >
-            Problem
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="contest_id"
-            dataFormat={(
-              contestId: string,
-              problem: Problem
-            ): React.ReactElement => {
-              const contest = contests.get(contestId);
-              return contest ? (
-                <ContestLink contest={contest} />
-              ) : (
-                <NewTabLink href={Url.formatContestUrl(problem.contest_id)}>
-                  {contestId}
-                </NewTabLink>
-              );
-            }}
-          >
-            Contest
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="difficulty"
-            dataFormat={(difficulty: number | null): string => {
-              if (difficulty === null) {
-                return "-";
-              }
-              return String(difficulty);
-            }}
-          >
-            <span>Difficulty</span>
-            <HelpBadgeTooltip id="difficulty">
-              Internal rating to have 50% Solve Probability
-            </HelpBadgeTooltip>
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="predictedSolveProbability"
-            dataFormat={formatPredictedSolveProbability}
-          >
-            <span>Solve Probability</span>
-            <HelpBadgeTooltip id="probability">
-              Estimated probability that you could solve this problem if you
-              competed in the contest.
-            </HelpBadgeTooltip>
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="predictedSolveTime"
-            dataFormat={formatPredictedSolveTime}
-          >
-            <span>Median Solve Time</span>
-            <HelpBadgeTooltip id="solvetime">
-              Estimated time required to solve this problem.
-            </HelpBadgeTooltip>
-          </TableHeaderColumn>
-        </BootstrapTable>
+          columns={[
+            {
+              dataField: "title",
+              headerAlign: "left",
+              formatter: function Formatter(
+                title: string,
+                {
+                  id,
+                  contest_id,
+                  is_experimental,
+                }: { id: string; contest_id: string; is_experimental: boolean }
+              ): React.ReactElement {
+                return (
+                  <ProblemLink
+                    difficulty={problemModels.getIn([id, "difficulty"], null)}
+                    isExperimentalDifficulty={is_experimental}
+                    showDifficulty={true}
+                    problemId={id}
+                    problemTitle={title}
+                    contestId={contest_id}
+                  />
+                );
+              },
+              text: "Problem",
+            },
+            {
+              dataField: "contest_id",
+              headerAlign: "left",
+              text: "Contest",
+              formatter: function Formatter(
+                contestId: string,
+                problem: {
+                  id: string;
+                  contest_id: string;
+                  is_experimental: boolean;
+                }
+              ): React.ReactElement {
+                const contest = contests.get(contestId);
+                return contest ? (
+                  <ContestLink contest={contest} />
+                ) : (
+                  <NewTabLink href={Url.formatContestUrl(problem.contest_id)}>
+                    {contestId}
+                  </NewTabLink>
+                );
+              },
+            },
+            {
+              dataField: "difficulty",
+              headerAlign: "left",
+              formatter: (difficulty: number | null): string => {
+                if (difficulty === null) {
+                  return "-";
+                }
+                return String(difficulty);
+              },
+              text: "Difficulty",
+              headerFormatter: function HeaderFormatter({ text }): JSX.Element {
+                return (
+                  <>
+                    <span>{text}</span>{" "}
+                    <HelpBadgeTooltip id="difficulty">
+                      Internal rating to have 50% Solve Probability
+                    </HelpBadgeTooltip>
+                  </>
+                );
+              },
+            },
+            {
+              dataField: "predictedSolveProbability",
+              headerAlign: "left",
+              formatter: formatPredictedSolveProbability,
+              text: "Solve Probability",
+              headerFormatter: function HeaderFormatter({ text }): JSX.Element {
+                return (
+                  <>
+                    <span>{text}</span>{" "}
+                    <HelpBadgeTooltip id="probability">
+                      Estimated probability that you could solve this problem if
+                      you competed in the contest.
+                    </HelpBadgeTooltip>
+                  </>
+                );
+              },
+            },
+            {
+              dataField: "predictedSolveTime",
+              headerAlign: "left",
+              formatter: formatPredictedSolveTime,
+              text: "Median Solve Time",
+              headerFormatter: function HeaderFormatter({ text }): JSX.Element {
+                return (
+                  <>
+                    <span>{text}</span>{" "}
+                    <HelpBadgeTooltip id="solvetime">
+                      Estimated time required to solve this problem.
+                    </HelpBadgeTooltip>
+                  </>
+                );
+              },
+            },
+          ]}
+        />
       </Row>
     </>
   );

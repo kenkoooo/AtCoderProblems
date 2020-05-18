@@ -19,7 +19,7 @@ import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import { ReactBootstrapTable } from "../../components/ReactBootstrapTable";
 
 interface Props {
   contests: Contest[];
@@ -95,27 +95,34 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
   return (
     <Row className="my-4">
       <h2>{props.title}</h2>
-      <BootstrapTable
+      <ReactBootstrapTable
         data={contests}
-        tableContainerClass="contest-table-responsive contest-regular-table-responsive"
-      >
-        <TableHeaderColumn
-          isKey
-          dataField="id"
-          columnClassName={(_: string, { rowColor }: OneContest): TableColor =>
-            rowColor
-          }
-          dataFormat={(_: any, { contest }: OneContest): React.ReactElement => (
-            <ContestLink contest={contest} title={contest.id.toUpperCase()} />
-          )}
-        >
-          Contest
-        </TableHeaderColumn>
-        {header.map((c, i) => (
-          <TableHeaderColumn
-            dataField={c}
-            key={c}
-            columnClassName={(
+        keyField="id"
+        wrapperClasses="contest-table-responsive contest-regular-table-responsive"
+        columns={[
+          {
+            dataField: "id",
+            headerAlign: "left",
+            classes: (_: string, { rowColor }: OneContest): TableColor =>
+              rowColor,
+            formatter: function Formatter(
+              _: any,
+              { contest }: OneContest
+            ): React.ReactElement {
+              return (
+                <ContestLink
+                  contest={contest}
+                  title={contest.id.toUpperCase()}
+                />
+              );
+            },
+            text: "Contest",
+            // TODO: remove this escape hatch when the upstream typing is fixed
+          } as any,
+          ...header.map((c, i) => ({
+            dataField: c,
+            headerAlign: "left",
+            classes: (
               _: any,
               { problemStatus, cellColorList }: OneContest
             ): string => {
@@ -127,8 +134,8 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
               ]
                 .filter((nm) => nm)
                 .join(" ");
-            }}
-            dataFormat={(
+            },
+            formatter: (
               _: any,
               { contest, problemStatus }: OneContest
             ): string | React.ReactElement => {
@@ -163,12 +170,11 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
               } else {
                 return "";
               }
-            }}
-          >
-            {c}
-          </TableHeaderColumn>
-        ))}
-      </BootstrapTable>
+            },
+            text: c,
+          })),
+        ]}
+      />
     </Row>
   );
 };
