@@ -1,8 +1,8 @@
 import { List, Map as ImmutableMap, Set } from "immutable";
-import Contest from "../../interfaces/Contest";
-import Problem from "../../interfaces/Problem";
 import { Row } from "reactstrap";
 import React from "react";
+import Contest from "../../interfaces/Contest";
+import Problem from "../../interfaces/Problem";
 import {
   noneStatus,
   ProblemId,

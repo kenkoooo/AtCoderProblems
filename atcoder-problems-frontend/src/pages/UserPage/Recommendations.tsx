@@ -1,9 +1,18 @@
 import React, { useState } from "react";
+import { List, Map as ImmutableMap } from "immutable";
+import {
+  Button,
+  ButtonGroup,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Row,
+  UncontrolledDropdown,
+} from "reactstrap";
 import { isAccepted } from "../../utils";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
 import Problem from "../../interfaces/Problem";
-import { List, Map as ImmutableMap } from "immutable";
 import Contest from "../../interfaces/Contest";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
@@ -16,15 +25,6 @@ import {
   predictSolveProbability,
   predictSolveTime,
 } from "../../utils/ProblemModelUtil";
-import {
-  Button,
-  ButtonGroup,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  Row,
-  UncontrolledDropdown,
-} from "reactstrap";
 import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";

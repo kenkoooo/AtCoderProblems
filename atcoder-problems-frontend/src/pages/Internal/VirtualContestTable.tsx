@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import * as DateUtil from "../../utils/DateUtil";
 import React from "react";
-import { formatMode, VirtualContestInfo, VirtualContestMode } from "./types";
+import * as DateUtil from "../../utils/DateUtil";
 import { Timer } from "../../components/Timer";
 import { ReactBootstrapTable } from "../../components/ReactBootstrapTable";
+import { formatMode, VirtualContestInfo, VirtualContestMode } from "./types";
 
 const formatContestDuration = (
   start: number,
