@@ -32,8 +32,14 @@ const Options: React.FC<Props> = (props) => {
   return (
     <Container>
       <Row className="my-4">
-        <FormGroup check inline>
-          <Label check>
+        <FormGroup check inline className="btn-group-toggle">
+          <Label
+            check
+            className={[
+              "btn btn-secondary",
+              props.showAccepted ? "active" : "",
+            ].join(" ")}
+          >
             <Input
               type="checkbox"
               checked={props.showAccepted}
@@ -42,14 +48,20 @@ const Options: React.FC<Props> = (props) => {
             Show Accepted
           </Label>
         </FormGroup>
-        <FormGroup check inline>
-          <Label check>
+        <FormGroup check inline className="btn-group-toggle">
+          <Label
+            check
+            className={[
+              "btn btn-secondary",
+              props.showDifficulties ? "active" : "",
+            ].join(" ")}
+          >
             <Input
               type="checkbox"
               checked={props.showDifficulties}
               onChange={props.toggleShowDifficulties}
             />
-            Show Difficulty
+            Show Difficulty&nbsp;
             <HelpBadgeTooltip id="difficulty">
               Internal rating to have 50% Solve Probability
             </HelpBadgeTooltip>
