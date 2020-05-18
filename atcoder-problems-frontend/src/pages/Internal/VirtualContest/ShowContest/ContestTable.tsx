@@ -28,10 +28,7 @@ import {
   fetchVirtualContestSubmission,
 } from "../../../../utils/CachedApiClient";
 import { calculatePerformances } from "../../../../utils/RatingSystem";
-import {
-  predictSolveProbability,
-  predictSolveTime,
-} from "../../../../utils/ProblemModelUtil";
+import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
 
 function getEstimatedPerformances(
   participants: string[],
@@ -79,14 +76,19 @@ function getEstimatedPerformances(
     let remainingTime = end - start;
     for (const problem of problems) {
       const problemModel = validatedModelMap.get(problem.id)!;
-      const solveProbability = predictSolveProbability(
-        problemModel,
-        bootstrapRating
-      );
+      const solveProbability =
+        problemModel.rawDifficulty > -10000
+          ? predictSolveProbability(problemModel, bootstrapRating)
+          : 1;
       if (random.float() >= solveProbability) {
-        break;
+        continue;
       }
-      const solveTime = predictSolveTime(problemModel, bootstrapRating);
+      const logTimeMean =
+        problemModel.slope * bootstrapRating + problemModel.intercept;
+      const solveTime = random.logNormal(
+        logTimeMean,
+        Math.sqrt(problemModel.variance)
+      )();
       if (solveTime > remainingTime) {
         break;
       }
@@ -94,6 +96,7 @@ function getEstimatedPerformances(
       penalty += solveTime;
       remainingTime -= solveTime;
     }
+    console.log(bootstrapRating, score, penalty);
     bootstrapResults.push({ score, penalty });
   }
   const performances = calculatePerformances(bootstrapRatings);
