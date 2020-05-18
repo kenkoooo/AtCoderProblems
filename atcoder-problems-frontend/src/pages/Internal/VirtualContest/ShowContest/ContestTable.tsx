@@ -3,7 +3,11 @@ import seedrandom from "seedrandom";
 import { Table } from "reactstrap";
 import ProblemLink from "../../../../components/ProblemLink";
 import ScoreCell from "./ScoreCell";
-import { getRatingColorClass, isAccepted } from "../../../../utils";
+import {
+  clipDifficulty,
+  getRatingColorClass,
+  isAccepted,
+} from "../../../../utils";
 import React from "react";
 import { VirtualContestItem, VirtualContestMode } from "../../types";
 import {
@@ -178,7 +182,7 @@ interface InnerProps extends OuterProps {
 const EstimatedPerformance: React.FC<{
   estimatedPerformance: number | undefined;
 }> = (props) => {
-  if (!props.estimatedPerformance) {
+  if (props.estimatedPerformance === undefined) {
     return null;
   }
   return (
@@ -186,7 +190,7 @@ const EstimatedPerformance: React.FC<{
       className={getRatingColorClass(props.estimatedPerformance)}
       style={{ textAlign: "center", fontWeight: "bold" }}
     >
-      {props.estimatedPerformance}
+      {clipDifficulty(props.estimatedPerformance)}
     </p>
   );
 };
