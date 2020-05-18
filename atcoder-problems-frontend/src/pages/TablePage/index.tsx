@@ -1,22 +1,17 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
-import Contest from "../../interfaces/Contest";
-import Problem from "../../interfaces/Problem";
+import { List, Map, Set } from "immutable";
 import {
   constructStatusLabelMap,
   ContestId,
   ProblemId,
 } from "../../interfaces/Status";
-import { List, Map, Set } from "immutable";
-import { ContestTable } from "./ContestTable";
-import { AtCoderRegularTable } from "./AtCoderRegularTable";
-import Options from "./Options";
-import { TableTabButtons } from "./TableTab";
+import Problem from "../../interfaces/Problem";
+import Contest from "../../interfaces/Contest";
 import ProblemModel from "../../interfaces/ProblemModel";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
-import { classifyContest, ContestCategory } from "./ContestClassifier";
 import Submission from "../../interfaces/Submission";
 import { fetchUserSubmissions } from "../../utils/Api";
 import {
@@ -25,6 +20,11 @@ import {
   UserResponse,
 } from "../Internal/types";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
+import { classifyContest, ContestCategory } from "./ContestClassifier";
+import { TableTabButtons } from "./TableTab";
+import Options from "./Options";
+import { ContestTable } from "./ContestTable";
+import { AtCoderRegularTable } from "./AtCoderRegularTable";
 
 interface OuterProps {
   userId: string;

@@ -1,16 +1,15 @@
+import { Badge } from "reactstrap";
+import React from "react";
+import { selectFilter } from "react-bootstrap-table2-filter";
 import Submission from "../interfaces/Submission";
 import ProblemModel from "../interfaces/ProblemModel";
-// import { ListPaginationPanel } from "./ListPaginationPanel";
 import { formatMomentDateTime, parseSecond } from "../utils/DateUtil";
-import ProblemLink from "./ProblemLink";
 import { isAccepted } from "../utils";
-import { Badge } from "reactstrap";
 import * as Url from "../utils/Url";
-import React from "react";
 import { ProblemId } from "../interfaces/Status";
+import ProblemLink from "./ProblemLink";
 import { NewTabLink } from "./NewTabLink";
 import { ReactBootstrapTable } from "./ReactBootstrapTable";
-import { selectFilter } from "react-bootstrap-table2-filter";
 
 interface Props {
   submissions: Submission[];

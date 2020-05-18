@@ -1,4 +1,5 @@
 import React from "react";
+import { Row, Col } from "reactstrap";
 import { ProblemId } from "../../../interfaces/Status";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import {
@@ -7,7 +8,6 @@ import {
   RatingColor,
   RatingColors,
 } from "../../../utils";
-import { Row, Col } from "reactstrap";
 import { SinglePieChart } from "../../../components/SinglePieChart";
 
 interface Props {

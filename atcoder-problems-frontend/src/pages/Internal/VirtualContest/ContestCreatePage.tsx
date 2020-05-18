@@ -1,11 +1,11 @@
 import React from "react";
 import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import ContestConfig from "./ContestConfig";
 import { Redirect } from "react-router-dom";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
 import { VirtualContestItem, VirtualContestMode } from "../types";
+import ContestConfig from "./ContestConfig";
 
 const ContestCreatePage: React.FC<InnerProps> = (props) => {
   const createResponse = props.createContestResponse.fulfilled

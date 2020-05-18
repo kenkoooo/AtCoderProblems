@@ -1,18 +1,16 @@
 import random from "random";
 import seedrandom from "seedrandom";
 import { Table } from "reactstrap";
-import ProblemLink from "../../../../components/ProblemLink";
-import ScoreCell from "./ScoreCell";
+import React from "react";
+import { connect, PromiseState } from "react-refetch";
+import { List, Map as ImmutableMap } from "immutable";
+import { VirtualContestItem } from "../../types";
 import {
   clipDifficulty,
   getRatingColorClass,
   isAccepted,
 } from "../../../../utils";
-import React from "react";
-import { VirtualContestItem } from "../../types";
-import { BestSubmissionEntry, extractBestSubmissions } from "./util";
-import { connect, PromiseState } from "react-refetch";
-import { List, Map as ImmutableMap } from "immutable";
+import ProblemLink from "../../../../components/ProblemLink";
 import { ProblemId } from "../../../../interfaces/Status";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
@@ -27,6 +25,8 @@ import {
 } from "../../../../utils/CachedApiClient";
 import { calculatePerformances } from "../../../../utils/RatingSystem";
 import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
+import { BestSubmissionEntry, extractBestSubmissions } from "./util";
+import ScoreCell from "./ScoreCell";
 
 const calcTotalResult = (
   userId: string,

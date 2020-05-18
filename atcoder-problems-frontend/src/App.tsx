@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { Container } from "reactstrap";
 
+import { List } from "immutable";
 import ACRanking from "./pages/ACRanking";
 import FastestRanking from "./pages/FastestRanking";
 import FirstRanking from "./pages/FirstRanking";
@@ -26,7 +27,6 @@ import { RecentContestList } from "./pages/Internal/VirtualContest/RecentContest
 import ContestUpdatePage from "./pages/Internal/VirtualContest/ContestUpdatePage";
 import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
 import { RecentSubmissions } from "./pages/RecentSubmissions";
-import { List } from "immutable";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
 
