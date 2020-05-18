@@ -1,7 +1,6 @@
 import { ProblemId } from "../../../../interfaces/Status";
 import { isAccepted } from "../../../../utils";
 import Submission from "../../../../interfaces/Submission";
-import { VirtualContestItem, VirtualContestMode } from "../../types";
 
 export interface BestSubmissionInfo {
   trialsBeforeBest: number;
@@ -79,17 +78,4 @@ export const extractBestSubmissions = (
     );
     return extractedSubmissions.map((entry) => ({ problemId, ...entry }));
   });
-};
-
-export const hasBetterSubmission = (
-  problemId: string,
-  userId: string,
-  best: Submission,
-  bestSubmissions: BestSubmissionEntry[]
-): boolean => {
-  const betterSubmission = bestSubmissions
-    .filter((s) => s.userId !== userId && s.problemId === problemId)
-    .map((s) => s.bestSubmissionInfo?.bestSubmission)
-    .find((s) => s && s.id < best.id && isAccepted(s.result));
-  return !!betterSubmission;
 };
