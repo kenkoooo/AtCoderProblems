@@ -1,60 +1,7 @@
-import ProblemModel, {
-  isProblemModelWithDifficultyModel,
-} from "../../../../interfaces/ProblemModel";
-import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
-import { Map as ImmutableMap } from "immutable";
 import { ProblemId } from "../../../../interfaces/Status";
-import { clipDifficulty, isAccepted } from "../../../../utils";
+import { isAccepted } from "../../../../utils";
 import Submission from "../../../../interfaces/Submission";
 import { VirtualContestItem, VirtualContestMode } from "../../types";
-
-const calcProbability = (
-  model: ProblemModel | undefined,
-  rating: number,
-  time: number,
-  solved: boolean
-): number | undefined => {
-  const slope = model?.slope;
-  const intercept = model?.intercept;
-  const v = model?.variance;
-  if (isProblemModelWithDifficultyModel(model) && slope && intercept && v) {
-    const pSolved = predictSolveProbability(model, rating);
-    if (!solved) {
-      return 1.0 - pSolved;
-    }
-
-    const logTime = Math.log(time);
-    const mean = slope * rating + intercept;
-    const d = logTime - mean;
-    const pTime =
-      Math.exp((-d * d) / (2 * v * v)) / Math.sqrt(2 * Math.PI * v * v);
-    return pSolved * pTime;
-  } else {
-    return undefined;
-  }
-};
-
-export const calcPerformance = (
-  solvedData: { problemId: string; time: number; solved: boolean }[],
-  modelMap: ImmutableMap<ProblemId, ProblemModel>
-): number => {
-  let internalRating = 0;
-  let probability = 0.0;
-  for (let candidateRating = -4000; candidateRating < 4000; candidateRating++) {
-    const p = solvedData
-      .map(({ problemId, time, solved }) => {
-        const model = modelMap.get(problemId);
-        return calcProbability(model, candidateRating, time, solved);
-      })
-      .reduce((prev: number, cur) => (cur ? prev * cur : prev), 1.0);
-    if (probability < p) {
-      probability = p;
-      internalRating = candidateRating;
-    }
-  }
-
-  return clipDifficulty(internalRating);
-};
 
 export interface BestSubmissionInfo {
   trialsBeforeBest: number;

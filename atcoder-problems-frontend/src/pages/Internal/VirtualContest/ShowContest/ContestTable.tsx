@@ -1,3 +1,5 @@
+import random from "random";
+import seedrandom from "seedrandom";
 import { Table } from "reactstrap";
 import ProblemLink from "../../../../components/ProblemLink";
 import ScoreCell from "./ScoreCell";
@@ -6,7 +8,6 @@ import React from "react";
 import { VirtualContestItem, VirtualContestMode } from "../../types";
 import {
   BestSubmissionEntry,
-  calcPerformance,
   calcTotalResult,
   extractBestSubmissions,
   getSortedUserIds,
@@ -15,25 +16,90 @@ import {
 import { connect, PromiseState } from "react-refetch";
 import { List, Map as ImmutableMap } from "immutable";
 import { ProblemId } from "../../../../interfaces/Status";
-import ProblemModel from "../../../../interfaces/ProblemModel";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel,
+  isProblemModelWithTimeModel,
+  ProblemModelWithDifficultyModel,
+  ProblemModelWithTimeModel,
+} from "../../../../interfaces/ProblemModel";
 import Submission from "../../../../interfaces/Submission";
 import {
   cachedProblemModels,
   fetchVirtualContestSubmission,
 } from "../../../../utils/CachedApiClient";
+import { calculatePerformances } from "../../../../utils/RatingSystem";
+import {
+  predictSolveProbability,
+  predictSolveTime,
+} from "../../../../utils/ProblemModelUtil";
 
 function getEstimatedPerformances(
   participants: string[],
   bestSubmissions: BestSubmissionEntry[],
   start: number,
+  end: number,
   problems: VirtualContestItem[],
   modelMap: ImmutableMap<ProblemId, ProblemModel>
 ): {
   performance: number;
   userId: string;
 }[] {
+  random.use(seedrandom("atcoder-problems"));
+
+  const keyedProblems: Map<string, VirtualContestItem> = new Map();
+  const validatedModelMap: Map<
+    ProblemId,
+    ProblemModelWithDifficultyModel & ProblemModelWithTimeModel
+  > = new Map();
+  for (const problem of problems) {
+    keyedProblems.set(problem.id, problem);
+    const model = modelMap.get(problem.id);
+    if (!isProblemModelWithDifficultyModel(model)) {
+      return [];
+    }
+    if (!isProblemModelWithTimeModel(model)) {
+      return [];
+    }
+    validatedModelMap.set(problem.id, model);
+  }
+
+  const bootstrapRatings: number[] = [];
+  const bootstrapResults: { score: number; penalty: number }[] = [];
+  for (
+    let bootstrapRating = -1025;
+    bootstrapRating <= 4025;
+    bootstrapRating += 50
+  ) {
+    bootstrapRatings.push(bootstrapRating);
+
+    // generating bootstrap result assuming that participants solve problems in the listed order.
+    // potentially better to reorder it to maximize these performances.
+    let score = 0;
+    let penalty = 0;
+    let remainingTime = end - start;
+    for (const problem of problems) {
+      const problemModel = validatedModelMap.get(problem.id)!;
+      const solveProbability = predictSolveProbability(
+        problemModel,
+        bootstrapRating
+      );
+      if (random.float() >= solveProbability) {
+        break;
+      }
+      const solveTime = predictSolveTime(problemModel, bootstrapRating);
+      if (solveTime > remainingTime) {
+        break;
+      }
+      score += problem.point ? problem.point : 1;
+      penalty += solveTime;
+      remainingTime -= solveTime;
+    }
+    bootstrapResults.push({ score, penalty });
+  }
+  const performances = calculatePerformances(bootstrapRatings);
+
   return participants.map((userId) => {
-    const onlySolvedData = bestSubmissions
+    const solvedSubmissions = bestSubmissions
       .filter((b) => b.userId === userId)
       .filter((b) => {
         const result = b.bestSubmissionInfo?.bestSubmission.result;
@@ -42,33 +108,46 @@ function getEstimatedPerformances(
       .map((b) =>
         b.bestSubmissionInfo
           ? {
-              time: b.bestSubmissionInfo.bestSubmission.epoch_second,
+              time: b.bestSubmissionInfo.bestSubmission.epoch_second - start,
               id: b.problemId,
             }
           : undefined
       )
       .filter((obj): obj is { time: number; id: string } => obj !== undefined)
-      .sort((a, b) => a.time - b.time)
-      .reduce(
-        ({ prev, list }, entry) => ({
-          list: list.push({
-            problemId: entry.id,
-            solved: true,
-            time: entry.time - prev,
-          }),
-          prev: entry.time,
-        }),
-        {
-          list: List<{ problemId: string; time: number; solved: boolean }>(),
-          prev: start,
+      .sort((a, b) => a.time - b.time);
+    const score = solvedSubmissions
+      .map((submission) => {
+        const point = keyedProblems.get(submission.id)?.point;
+        return point ? point : 1;
+      })
+      .reduce((accum, point) => {
+        return accum + point;
+      }, 0);
+    const penalty = solvedSubmissions.reduce((accum, submission) => {
+      return Math.max(accum, submission.time);
+    }, 0);
+    const position = bootstrapResults
+      .map((result) => {
+        if (score > result.score) {
+          return 0;
+        } else if (score === result.score && penalty < result.penalty) {
+          return 0;
+        } else {
+          return 1;
         }
-      ).list;
-    const solvedData = problems.map((p) => {
-      const problemId = p.id;
-      const entry = onlySolvedData.find((e) => e.problemId === problemId);
-      return entry ? entry : { problemId: p.id, time: 0, solved: false };
-    });
-    const performance = calcPerformance(solvedData, modelMap);
+      })
+      .reduce((accum: number, lose) => {
+        return accum + lose;
+      }, 0);
+
+    let performance;
+    if (position === 0) {
+      performance = performances[0];
+    } else if (position === performances.length) {
+      performance = performances[performances.length - 1];
+    } else {
+      performance = (performances[position - 1] + performances[position]) / 2;
+    }
     return { performance, userId };
   });
 }
@@ -120,7 +199,7 @@ function compareProblem<T extends { id: string; order: number | null }>(
 }
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
-  const { showProblems, problems, mode, users, start } = props;
+  const { showProblems, problems, mode, users, start, end } = props;
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
     : ImmutableMap<ProblemId, ProblemModel>();
@@ -152,6 +231,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         users,
         bestSubmissions,
         start,
+        end,
         problems.map((p) => p.item),
         problemModels
       )
