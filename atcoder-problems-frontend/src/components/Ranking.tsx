@@ -4,7 +4,7 @@ import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { RankingEntry } from "../interfaces/RankingEntry";
 
 interface Props {
-  title: string;
+  title: React.ReactNode;
   ranking: RankingEntry[];
 }
 
