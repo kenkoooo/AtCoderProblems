@@ -1,4 +1,3 @@
-import Problem from "../interfaces/Problem";
 import { List, Map } from "immutable";
 import {
   Button,
@@ -16,6 +15,7 @@ import {
   UncontrolledDropdown,
 } from "reactstrap";
 import React, { useState } from "react";
+import Problem from "../interfaces/Problem";
 import { isAccepted, shuffleList } from "../utils";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,

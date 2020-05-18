@@ -1,5 +1,5 @@
-import { filterSubmissions } from "./FilteringHeatmap";
 import Submission from "../../../interfaces/Submission";
+import { filterSubmissions } from "./FilteringHeatmap";
 
 const emptySubmission: Submission = {
   execution_time: null,

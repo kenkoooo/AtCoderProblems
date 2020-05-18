@@ -1,6 +1,6 @@
+import { List, Set } from "immutable";
 import Contest from "../interfaces/Contest";
 import { ProblemStatus, StatusLabel } from "../interfaces/Status";
-import { List, Set } from "immutable";
 
 export enum ColorMode {
   None = "None",

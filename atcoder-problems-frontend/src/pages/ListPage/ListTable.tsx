@@ -1,12 +1,11 @@
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { StatusLabel } from "../../interfaces/Status";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
-import ProblemLink from "../../components/ProblemLink";
-import ContestLink from "../../components/ContestLink";
-import * as Url from "../../utils/Url";
-import { INF_POINT, ProblemRowData } from "./index";
 import { List } from "immutable";
+import * as Url from "../../utils/Url";
+import ContestLink from "../../components/ContestLink";
+import ProblemLink from "../../components/ProblemLink";
+import { StatusLabel } from "../../interfaces/Status";
 import {
   formatPredictedSolveTime,
   predictSolveTime,
@@ -17,6 +16,7 @@ import ProblemModel, {
 } from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ListPaginationPanel } from "../../components/ListPaginationPanel";
+import { INF_POINT, ProblemRowData } from "./index";
 
 interface Props {
   fromPoint: number;

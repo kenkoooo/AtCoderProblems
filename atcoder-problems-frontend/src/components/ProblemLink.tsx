@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import * as Url from "../utils/Url";
-import { DifficultyCircle } from "./DifficultyCircle";
 import { Tooltip } from "reactstrap";
+import * as Url from "../utils/Url";
 import { getRatingColorClass } from "../utils";
+import { DifficultyCircle } from "./DifficultyCircle";
 import { NewTabLink } from "./NewTabLink";
 
 interface Props {

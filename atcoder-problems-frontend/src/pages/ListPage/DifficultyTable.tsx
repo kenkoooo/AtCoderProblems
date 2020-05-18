@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { isAccepted } from "../../utils";
 import Table from "reactstrap/lib/Table";
-import Submission from "../../interfaces/Submission";
 import { List, Map as ImmutableMap, Range } from "immutable";
+import { Button, ButtonGroup } from "reactstrap";
+import { isAccepted } from "../../utils";
+import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
 import { ProblemId } from "../../interfaces/Status";
-import { Button, ButtonGroup } from "reactstrap";
 
 interface Props {
   mergedProblems: ImmutableMap<ProblemId, MergedProblem>;

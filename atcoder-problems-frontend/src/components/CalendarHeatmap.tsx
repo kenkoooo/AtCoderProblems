@@ -1,8 +1,8 @@
 import React from "react";
 import { UncontrolledTooltip } from "reactstrap";
-import { formatMomentDate, getNextSunday, getToday } from "../utils/DateUtil";
 import { Range, Map } from "immutable";
 import moment from "moment";
+import { formatMomentDate, getNextSunday, getToday } from "../utils/DateUtil";
 
 const WEEKDAY = 7;
 const WEEKS = 53;

@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { Course } from "../../interfaces/Course";
 import { connect, PromiseState } from "react-refetch";
+import { Container, Row, Table, Nav, NavItem, NavLink, Col } from "reactstrap";
+import Octicon, { Check, Search } from "@primer/octicons-react";
+import { Course } from "../../interfaces/Course";
 import Problem from "../../interfaces/Problem";
 import { ProblemId } from "../../interfaces/Status";
 import { cachedProblemMap } from "../../utils/CachedApiClient";
-import { Container, Row, Table, Nav, NavItem, NavLink, Col } from "reactstrap";
 import { convertMap } from "../../utils/ImmutableMigration";
 import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
 import { NewTabLink } from "../../components/NewTabLink";
 import * as Url from "../../utils/Url";
-import Octicon, { Check, Search } from "@primer/octicons-react";
 import ProblemLink from "../../components/ProblemLink";
 import { SinglePieChart } from "../../components/SinglePieChart";
 

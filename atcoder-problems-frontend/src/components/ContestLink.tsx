@@ -1,9 +1,9 @@
 import React from "react";
 import * as Url from "../utils/Url";
 import Contest from "../interfaces/Contest";
-import { NewTabLink } from "./NewTabLink";
 import { AGC_001_START } from "../pages/TablePage/ContestClassifier";
 import { getRatingColorClass } from "../utils";
+import { NewTabLink } from "./NewTabLink";
 
 interface Props {
   contest: Contest;
