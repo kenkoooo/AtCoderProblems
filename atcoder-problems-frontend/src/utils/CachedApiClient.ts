@@ -1,6 +1,6 @@
+import { List, Map, Set } from "immutable";
 import { ContestId, ProblemId } from "../interfaces/Status";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
-import { List, Map, Set } from "immutable";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import Contest, { isContest } from "../interfaces/Contest";
 import Problem, { isProblem } from "../interfaces/Problem";
@@ -14,12 +14,12 @@ import {
   RankingEntry,
   StreakRankingEntry,
 } from "../interfaces/RankingEntry";
-import { RatingInfo, ratingInfoOf } from "./RatingInfo";
-import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "./index";
 import ContestParticipation, {
   isContestParticipation,
 } from "../interfaces/ContestParticipation";
+import { RatingInfo, ratingInfoOf } from "./RatingInfo";
 import { isBlockedProblem } from "./BlockList";
+import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "./index";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";

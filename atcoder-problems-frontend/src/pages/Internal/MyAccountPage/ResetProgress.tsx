@@ -1,7 +1,8 @@
 import { Button, Col, Row, Table } from "reactstrap";
-import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
+import Octicon, { Trashcan } from "@primer/octicons-react";
+import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { ProgressResetList } from "../types";
 import Problem from "../../../interfaces/Problem";
 import {
@@ -11,7 +12,6 @@ import {
 } from "../ApiUrl";
 import { cachedProblemMap } from "../../../utils/CachedApiClient";
 import ProblemLink from "../../../components/ProblemLink";
-import Octicon, { Trashcan } from "@primer/octicons-react";
 import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
 
 interface Props {

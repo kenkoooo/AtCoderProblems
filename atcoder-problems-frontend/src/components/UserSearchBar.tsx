@@ -5,8 +5,8 @@ import {
   useHistory,
 } from "react-router-dom";
 import { Button, ButtonGroup, Form, Input, Nav, Navbar } from "reactstrap";
-import { extractRivalsParam, normalizeUserId } from "../utils";
 import { connect, PromiseState } from "react-refetch";
+import { extractRivalsParam, normalizeUserId } from "../utils";
 import { USER_GET } from "../pages/Internal/ApiUrl";
 import { UserResponse } from "../pages/Internal/types";
 

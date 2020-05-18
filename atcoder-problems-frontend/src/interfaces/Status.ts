@@ -1,5 +1,5 @@
-import Submission from "./Submission";
 import { isAccepted } from "../utils";
+import Submission from "./Submission";
 export type ContestId = string;
 export type ProblemId = string;
 

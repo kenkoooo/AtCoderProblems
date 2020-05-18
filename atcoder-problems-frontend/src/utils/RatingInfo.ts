@@ -1,5 +1,5 @@
-import ContestParticipation from "../interfaces/ContestParticipation";
 import { List } from "immutable";
+import ContestParticipation from "../interfaces/ContestParticipation";
 
 export class RatingInfo {
   readonly rating: number;

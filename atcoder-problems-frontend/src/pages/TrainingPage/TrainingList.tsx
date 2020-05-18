@@ -1,7 +1,7 @@
 import React from "react";
-import { Course } from "../../interfaces/Course";
 import { Container, Row, Button, Jumbotron, Badge, Progress } from "reactstrap";
 import { Link, useRouteMatch } from "react-router-dom";
+import { Course } from "../../interfaces/Course";
 import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
 

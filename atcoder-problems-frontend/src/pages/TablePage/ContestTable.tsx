@@ -1,8 +1,8 @@
 import { List, Map as ImmutableMap, Set } from "immutable";
-import Contest from "../../interfaces/Contest";
-import Problem from "../../interfaces/Problem";
 import { Table, Row } from "reactstrap";
 import React from "react";
+import Contest from "../../interfaces/Contest";
+import Problem from "../../interfaces/Problem";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
