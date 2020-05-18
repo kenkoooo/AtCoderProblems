@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Row, UncontrolledTooltip } from "reactstrap";
+import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
 import { ordinalSuffixOf } from "../../../utils";
 import { formatMomentDate, getToday } from "../../../utils/DateUtil";
 import { connect, PromiseState } from "react-refetch";
@@ -91,15 +91,13 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
       value: props.ratedPointSum,
       rank: props.sumRank.fulfilled ? props.sumRank.value : undefined,
     },
-    {
-      key: "Longest Streak",
-      value: `${longestStreak} days`,
-      rank: props.streakRank.fulfilled ? props.streakRank.value : undefined,
-    },
   ];
 
   const yesterdayLabel = formatMomentDate(getToday().add(-1, "day"));
   const isIncreasing = prevDateLabel >= yesterdayLabel;
+  const longestStreakRank = props.streakRank.fulfilled
+    ? props.streakRank.value
+    : undefined;
   return (
     <>
       <Row className="my-2 border-bottom">
@@ -108,22 +106,7 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
       <Row className="my-3">
         {achievements.map(({ key, value, rank }) => (
           <Col key={key} className="text-center" xs="6" md="3">
-            <h6>
-              {key}
-              {key === "Longest Streak" && (
-                <>
-                  {" "}
-                  <span id="longestStreakTooltip">(?)</span>
-                  <UncontrolledTooltip
-                    target="longestStreakTooltip"
-                    placement="right"
-                  >
-                    The longest streak is based on{" "}
-                    <strong>Japan Standard Time</strong> (JST, UTC+9).
-                  </UncontrolledTooltip>
-                </>
-              )}
-            </h6>
+            <h6>{key}</h6>
             <h3>{value}</h3>
             <h6 className="text-muted">
               {rank !== undefined
@@ -132,9 +115,35 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
             </h6>
           </Col>
         ))}
+        <Col key="Longest Streak" className="text-center" xs="6" md="3">
+          <h6>
+            Longest Streak{" "}
+            <Badge pill id="longestStreakTooltip">
+              ?
+            </Badge>
+            <UncontrolledTooltip
+              target="longestStreakTooltip"
+              placement="right"
+            >
+              The longest streak is based on{" "}
+              <strong>Japan Standard Time</strong> (JST, UTC+9).
+            </UncontrolledTooltip>
+          </h6>
+          <h3>{longestStreak} days</h3>
+          <h6 className="text-muted">
+            {longestStreakRank !== undefined
+              ? `${longestStreakRank + 1}${ordinalSuffixOf(
+                  longestStreakRank + 1
+                )}`
+              : ""}
+          </h6>
+        </Col>
         <Col key="Current Streak" className="text-center" xs="6" md="3">
           <h6>
-            Current Streak <span id="currentStreakTooltip">(?)</span>
+            Current Streak{" "}
+            <Badge pill id="currentStreakTooltip">
+              ?
+            </Badge>
             <UncontrolledTooltip
               target="currentStreakTooltip"
               placement="right"

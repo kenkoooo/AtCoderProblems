@@ -2,7 +2,7 @@ import React from "react";
 import Ranking from "../components/Ranking";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import { connect, PromiseState } from "react-refetch";
-import { UncontrolledTooltip } from "reactstrap";
+import { Badge, UncontrolledTooltip } from "reactstrap";
 import * as CachedApiClient from "../utils/CachedApiClient";
 
 interface Props {
@@ -13,7 +13,10 @@ const StreakRanking: React.FC<Props> = (props) => (
   <Ranking
     title={
       <>
-        Streak Ranking <span id="streakRankingTooltip">(?)</span>
+        Streak Ranking{" "}
+        <Badge pill id="streakRankingTooltip">
+          ?
+        </Badge>
         <UncontrolledTooltip target="streakRankingTooltip" placement="right">
           The streak ranking is based on <strong>Japan Standard Time</strong>{" "}
           (JST, UTC+9).
