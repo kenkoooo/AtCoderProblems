@@ -18,7 +18,6 @@ import { ListPage } from "./pages/ListPage";
 import { UserPage } from "./pages/UserPage";
 import { TablePage } from "./pages/TablePage";
 import { NavigationBar } from "./components/NavigationBar";
-import { UserSearchBar } from "./components/UserSearchBar";
 import StreakRanking from "./pages/StreakRanking";
 import ContestCreatePage from "./pages/Internal/VirtualContest/ContestCreatePage";
 import ShowContest from "./pages/Internal/VirtualContest/ShowContest";
