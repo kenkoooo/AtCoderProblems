@@ -167,16 +167,15 @@ const InnerNavigationBar: React.FC<InnerProps> = (props) => {
         </Collapse>
       </Navbar>
 
-      <Collapse isOpen={isOpen} navbar>
-        <Route
-          path={[
-            "/user/:userIds([a-zA-Z0-9_]+)+",
-            "/table/:userIds([a-zA-Z0-9_]*)*",
-            "/list/:userIds([a-zA-Z0-9_]*)*",
-          ]}
-          component={UserSearchBar}
-        />
-      </Collapse>
+      <Route
+        path={[
+          "/user/:userIds([a-zA-Z0-9_]+)+",
+          "/table/:userIds([a-zA-Z0-9_]*)*",
+          "/list/:userIds([a-zA-Z0-9_]*)*",
+        ]}
+      >
+        <UserSearchBar isOpen={isOpen} />
+      </Route>
     </>
   );
 };
