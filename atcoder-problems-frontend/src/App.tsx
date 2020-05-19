@@ -36,15 +36,6 @@ const App: React.FC = () => {
       <div>
         <div className="sticky-top">
           <NavigationBar />
-
-          <Route
-            path={[
-              "/user/:userIds([a-zA-Z0-9_]+)+",
-              "/table/:userIds([a-zA-Z0-9_]*)*",
-              "/list/:userIds([a-zA-Z0-9_]*)*",
-            ]}
-            component={UserSearchBar}
-          />
         </div>
 
         <Container className="my-5" style={{ width: "100%", maxWidth: "90%" }}>
