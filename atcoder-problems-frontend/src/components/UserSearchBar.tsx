@@ -4,7 +4,15 @@ import {
   useLocation,
   useHistory,
 } from "react-router-dom";
-import { Button, ButtonGroup, Form, Input, Nav, Navbar } from "reactstrap";
+import {
+  Button,
+  ButtonGroup,
+  Form,
+  Input,
+  Nav,
+  Navbar,
+  Collapse,
+} from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
 import { extractRivalsParam, normalizeUserId } from "../utils";
 import { USER_GET } from "../pages/Internal/ApiUrl";
@@ -36,7 +44,11 @@ const extractUserIds = (
   return { userId, rivalIdString };
 };
 
-interface InnerProps {
+interface OuterProps {
+  isOpen: boolean;
+}
+
+interface InnerProps extends OuterProps {
   loginState: PromiseState<UserResponse | null>;
 }
 
@@ -98,66 +110,74 @@ const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
   );
 
   return (
-    <Navbar color="light" light expand="lg" className="border-bottom">
-      <Nav navbar>
-        <Form inline>
-          <Input
-            className="mt-2 mr-2 mt-lg-0"
-            style={{ width: 160 }}
-            onKeyPress={(e): void => {
-              if (e.key === "Enter") {
-                pushHistory();
-              }
-            }}
-            value={userId}
-            type="text"
-            name="user_id"
-            id="user_id"
-            placeholder={loggedInUserId ? loggedInUserId : "User ID"}
-            onChange={(e): void => setUserId(e.target.value)}
-          />
+    <Navbar
+      color="light"
+      light
+      expand="lg"
+      className="border-bottom"
+      style={{ padding: 0 }}
+    >
+      <Collapse isOpen={props.isOpen} navbar>
+        <Nav navbar style={{ padding: "0.5rem 1rem" }}>
+          <Form inline>
+            <Input
+              className="mt-2 mr-2 mt-lg-0"
+              style={{ width: 160 }}
+              onKeyPress={(e): void => {
+                if (e.key === "Enter") {
+                  pushHistory();
+                }
+              }}
+              value={userId}
+              type="text"
+              name="user_id"
+              id="user_id"
+              placeholder={loggedInUserId ? loggedInUserId : "User ID"}
+              onChange={(e): void => setUserId(e.target.value)}
+            />
 
-          <Input
-            className="mt-2 mr-2 mt-lg-0"
-            style={{ width: 160 }}
-            onKeyPress={(e): void => {
-              if (e.key === "Enter") {
-                pushHistory();
-              }
-            }}
-            value={rivalIdString}
-            type="text"
-            name="rival_id"
-            id="rival_id"
-            placeholder="Rival ID, ..."
-            onChange={(e): void => setRivalIdString(e.target.value)}
-          />
+            <Input
+              className="mt-2 mr-2 mt-lg-0"
+              style={{ width: 160 }}
+              onKeyPress={(e): void => {
+                if (e.key === "Enter") {
+                  pushHistory();
+                }
+              }}
+              value={rivalIdString}
+              type="text"
+              name="rival_id"
+              id="rival_id"
+              placeholder="Rival ID, ..."
+              onChange={(e): void => setRivalIdString(e.target.value)}
+            />
 
-          <ButtonGroup className="mt-2 mb-0 mt-lg-0">
-            <Button tag={RouterLink} to={tablePath} color="light">
-              Table
-            </Button>
+            <ButtonGroup className="mt-2 mb-0 mt-lg-0">
+              <Button tag={RouterLink} to={tablePath} color="light">
+                Table
+              </Button>
 
-            <Button tag={RouterLink} to={listPath} color="light">
-              List
-            </Button>
+              <Button tag={RouterLink} to={listPath} color="light">
+                List
+              </Button>
 
-            <Button
-              disabled={userId.length === 0 && loggedInUserId.length === 0}
-              tag={RouterLink}
-              to={userPath}
-              color="light"
-            >
-              User
-            </Button>
-          </ButtonGroup>
-        </Form>
-      </Nav>
+              <Button
+                disabled={userId.length === 0 && loggedInUserId.length === 0}
+                tag={RouterLink}
+                to={userPath}
+                color="light"
+              >
+                User
+              </Button>
+            </ButtonGroup>
+          </Form>
+        </Nav>
+      </Collapse>
     </Navbar>
   );
 };
 
-export const UserSearchBar = connect<{}, InnerProps>(() => ({
+export const UserSearchBar = connect<OuterProps, InnerProps>(() => ({
   loginState: {
     url: USER_GET,
   },
