@@ -173,9 +173,8 @@ const InnerNavigationBar: React.FC<InnerProps> = (props) => {
           "/table/:userIds([a-zA-Z0-9_]*)*",
           "/list/:userIds([a-zA-Z0-9_]*)*",
         ]}
-      >
-        <UserSearchBar isOpen={isOpen} />
-      </Route>
+        component={UserSearchBar}
+      />
     </>
   );
 };
