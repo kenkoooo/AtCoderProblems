@@ -15,6 +15,7 @@ type FilterStatus = "AC" | "Submissions" | "Unique AC";
 type ColorMode = "Count" | "Difficulty";
 
 const COLOR_GREY = "#ebedf0";
+const COLORS_COUNT = ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"];
 
 interface OuterProps {
   submissions: Submission[];
@@ -123,14 +124,7 @@ export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
               formatCountTooltip(date, count, filterStatus)
             }
             getColor={(date: string, count: number): string => {
-              const COLORS = [
-                "#ebedf0",
-                "#c6e48b",
-                "#7bc96f",
-                "#239a3b",
-                "#196127",
-              ];
-              return COLORS[Math.min(count, COLORS.length - 1)];
+              return COLORS_COUNT[Math.min(count, COLORS_COUNT.length - 1)];
             }}
           />
         )}
