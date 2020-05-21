@@ -13,6 +13,7 @@ interface Props {
   difficulty?: number | null;
   showDifficulty?: boolean;
   isExperimentalDifficulty?: boolean;
+  showDifficultyUnavailable?: boolean;
 }
 
 const ProblemLink: React.FC<Props> = (props) => {
@@ -25,6 +26,7 @@ const ProblemLink: React.FC<Props> = (props) => {
     difficulty,
     showDifficulty,
     isExperimentalDifficulty,
+    showDifficultyUnavailable,
   } = props;
   const link = (
     <NewTabLink
@@ -34,12 +36,18 @@ const ProblemLink: React.FC<Props> = (props) => {
       {problemTitle}
     </NewTabLink>
   );
-  if (!showDifficulty || difficulty === null || difficulty === undefined) {
+  if (
+    !showDifficulty ||
+    difficulty === undefined ||
+    (difficulty === null && !showDifficultyUnavailable)
+  ) {
     return link;
   }
 
   const uniqueId = problemId + "-" + contestId;
   const experimentalIconId = "experimental-" + uniqueId;
+  const ratingColorClass =
+    difficulty === null ? undefined : getRatingColorClass(difficulty);
   return (
     <>
       <DifficultyCircle id={uniqueId} difficulty={difficulty} />
@@ -62,7 +70,7 @@ const ProblemLink: React.FC<Props> = (props) => {
         href={Url.formatProblemUrl(problemId, contestId)}
         target="_blank" // eslint-disable-line react/jsx-no-target-blank
         rel="noopener"
-        className={getRatingColorClass(difficulty)}
+        className={ratingColorClass}
       >
         {problemTitle}
       </a>

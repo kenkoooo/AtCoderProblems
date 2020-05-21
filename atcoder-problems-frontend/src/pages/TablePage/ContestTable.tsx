@@ -1,5 +1,5 @@
 import { List, Map as ImmutableMap, Set } from "immutable";
-import { Table, Row } from "reactstrap";
+import { Row, Table } from "reactstrap";
 import React from "react";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
@@ -9,6 +9,7 @@ import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
+import { isRatedContest } from "./ContestClassifier";
 
 interface Props {
   contests: Contest[];
@@ -101,6 +102,7 @@ export const ContestTable: React.FC<Props> = (props) => {
                             isExperimentalDifficulty={
                               model ? model.is_experimental : false
                             }
+                            showDifficultyUnavailable={isRatedContest(contest)}
                             showDifficulty={props.showDifficulty}
                             problemId={problem.id}
                             problemTitle={problem.title}
