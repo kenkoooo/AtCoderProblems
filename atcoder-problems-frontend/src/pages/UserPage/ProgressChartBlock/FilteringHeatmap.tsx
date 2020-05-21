@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ButtonGroup, Button, Row } from "reactstrap";
 
-import { Map as ImmutableMap } from "immutable";
+import { Map as ImmutableMap, List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import { ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
@@ -72,6 +72,36 @@ export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
   const { submissions } = props;
   const filteredSubmissions = filterSubmissions(submissions, filterStatus);
 
+  const submissionsByDate = List(filteredSubmissions).reduce(
+    (map, submission) => {
+      const date = formatDate(submission);
+      return map.set(date, map.get(date, List<Submission>()).push(submission));
+    },
+    ImmutableMap<string, List<Submission>>()
+  );
+  const countTableData = submissionsByDate.map(
+    (submissions: List<Submission>): number => submissions.count()
+  );
+  const maxDifficultyTableData = submissionsByDate.map(
+    (submissions: List<Submission>): number | null => {
+      if (submissions.count() === 0) {
+        return null;
+      }
+
+      const problemModels = props.problemModels.fulfilled
+        ? props.problemModels.value
+        : ImmutableMap<string, ProblemModel>();
+      const maxDifficulty = submissions
+        .map(
+          (submission) =>
+            problemModels.get(submission.problem_id)?.difficulty ?? 0
+        )
+        .max() as number;
+
+      return maxDifficulty;
+    }
+  );
+
   return (
     <div>
       <Row className="my-3">
@@ -117,9 +147,8 @@ export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
       <Row className="my-5">
         {colorMode === "Count" && (
           <CalendarHeatmap
-            submissions={filteredSubmissions}
-            formatDate={formatDate}
-            reducer={(date: string, subs: Submission[]): number => subs.length}
+            tableData={countTableData}
+            defaultValue={0}
             formatTooltip={(date: string, count: number): string =>
               formatCountTooltip(date, count, filterStatus)
             }
@@ -131,26 +160,11 @@ export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
 
         {colorMode === "Difficulty" && (
           <CalendarHeatmap
-            submissions={filteredSubmissions}
-            formatDate={formatDate}
-            reducer={(date: string, subs: Submission[]): number | undefined => {
-              if (subs.length === 0) {
-                return;
-              }
-
-              const problemModels = props.problemModels.fulfilled
-                ? props.problemModels.value
-                : ImmutableMap<string, ProblemModel>();
-              const difficulties = subs.map(
-                (sub) => problemModels.get(sub.problem_id)?.difficulty ?? 0
-              );
-              const maxDifficulty = Math.max(...difficulties);
-
-              return maxDifficulty;
-            }}
+            tableData={maxDifficultyTableData}
+            defaultValue={null}
             formatTooltip={(
               date: string,
-              maxDifficulty: number | undefined
+              maxDifficulty: number | null
             ): string => {
               if (typeof maxDifficulty === "number") {
                 return `${date}: Difficulty ${maxDifficulty}`;
@@ -158,10 +172,7 @@ export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
                 return `${date}: No ACs`;
               }
             }}
-            getColor={(
-              date: string,
-              maxDifficulty: number | undefined
-            ): string => {
+            getColor={(date: string, maxDifficulty: number | null): string => {
               if (typeof maxDifficulty === "number") {
                 return getRatingColorCode(getRatingColor(maxDifficulty));
               } else {
@@ -175,7 +186,7 @@ export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
   );
 };
 
-export const FilteringHeatmap = connect<OuterProps, InnerProps>((props) => ({
+export const FilteringHeatmap = connect<OuterProps, InnerProps>(() => ({
   problemModels: {
     comparison: null,
     value: (): any => cachedProblemModels(),

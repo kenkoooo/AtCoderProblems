@@ -1,53 +1,33 @@
 import React from "react";
 import { UncontrolledTooltip } from "reactstrap";
-import { Range, Map } from "immutable";
+import { Range, Map as ImmutableMap } from "immutable";
 import moment from "moment";
 import { formatMomentDate, getNextSunday, getToday } from "../utils/DateUtil";
-import Submission from "../interfaces/Submission";
 
 const WEEKDAY = 7;
 const WEEKS = 53;
 
-type DateStr = string;
 interface Props<State> {
-  submissions: Submission[];
-  reducer: (date: DateStr, subs: Submission[]) => State;
-  formatDate: (sub: Submission) => DateStr;
-  formatTooltip: (date: DateStr, state: State) => string;
-  getColor: (date: DateStr, state: State) => string;
+  tableData: ImmutableMap<string, State>;
+  defaultValue: State;
+  formatTooltip: (date: string, state: State) => string;
+  getColor: (date: string, state: State) => string;
 }
 
-const CalendarHeatmap: React.FC<Props<any>> = <T extends {}>(
-  props: Props<T>
-) => {
+function CalendarHeatmap<T>(props: Props<T>): React.ReactElement {
   const today = getToday();
   const nextSunday = getNextSunday(today);
 
   const startDate = nextSunday.date(nextSunday.date() - WEEKS * WEEKDAY);
-  const startLabel = formatMomentDate(startDate);
 
-  const countMap = Range(0, WEEKS * WEEKDAY)
+  // Generate all entries by date in range, including empty entries.
+  const tableData = Range(0, WEEKS * WEEKDAY)
     .map((i) => moment(startDate).add(i, "day"))
+    .map((date): string => formatMomentDate(date))
     .map((date) => ({
-      label: formatMomentDate(date),
-      submissions: [] as Submission[],
+      date,
+      state: props.tableData.get(date, props.defaultValue),
     }))
-    .concat(
-      props.submissions.map((submission: Submission) => ({
-        label: props.formatDate(submission),
-        submissions: [submission],
-      }))
-    )
-    .filter(({ label }) => label >= startLabel)
-    .reduce(
-      (map, { label, submissions }) =>
-        map.set(label, map.get(label, [] as Submission[]).concat(submissions)),
-      Map<string, Submission[]>()
-    )
-    .map((value, key) => props.reducer(key, value));
-  const tableData = countMap
-    .entrySeq()
-    .map(([date, state]) => ({ state, date }))
     .sort((a, b) => a.date.localeCompare(b.date))
     .toArray();
 
@@ -87,6 +67,6 @@ const CalendarHeatmap: React.FC<Props<any>> = <T extends {}>(
       ))}
     </div>
   );
-};
+}
 
 export default CalendarHeatmap;
