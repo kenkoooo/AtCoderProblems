@@ -146,6 +146,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       isExperimentalDifficulty={
                         !!model && model.is_experimental
                       }
+                      showDifficultyUnavailable
                       showDifficulty={props.showDifficulty}
                       contestId={contest.id}
                       problemId={problem.problem.id}

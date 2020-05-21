@@ -1,5 +1,5 @@
 import React from "react";
-import { Tooltip } from "reactstrap";
+import { Badge, Tooltip } from "reactstrap";
 import { getRatingColor, getRatingColorCode } from "../utils";
 
 interface Props {
@@ -38,10 +38,32 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
 
   render(): React.ReactNode {
     const { id, difficulty } = this.props;
-    if (difficulty === null) {
-      return null;
-    }
     const { tooltipOpen } = this.state;
+    const toggleTooltipState = (): void =>
+      this.setState({ tooltipOpen: !tooltipOpen });
+    const circleId = "DifficultyCircle-" + id;
+    if (difficulty === null) {
+      return (
+        <span>
+          <Badge
+            className="difficulty-unavailable-circle"
+            color="info"
+            id={circleId}
+            pill
+          >
+            ?
+          </Badge>
+          <Tooltip
+            placement="top"
+            target={circleId}
+            isOpen={tooltipOpen}
+            toggle={toggleTooltipState}
+          >
+            Difficulty is unavailable.
+          </Tooltip>
+        </span>
+      );
+    }
     const fillRatio: number =
       difficulty >= 3200 ? 1.0 : (difficulty % 400) / 400;
     const color: string = getColor(difficulty);
@@ -62,7 +84,6 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
           : `linear-gradient(to right, ${color}, white, ${color})`,
     });
     const title = `Difficulty: ${difficulty}`;
-    const circleId = "DifficultyCircle-" + id;
     return (
       <>
         <span
@@ -74,7 +95,7 @@ export class DifficultyCircle extends React.Component<Props, LocalState> {
           placement="top"
           target={circleId}
           isOpen={tooltipOpen}
-          toggle={(): void => this.setState({ tooltipOpen: !tooltipOpen })}
+          toggle={toggleTooltipState}
         >
           {title}
         </Tooltip>
