@@ -33,6 +33,11 @@ code {
   }
 }
 
+.difficulty-unavailable-circle.badge {
+  margin-right: 5px;
+  font-size: 5px;
+}
+
 span.difficulty-circle {
   display: inline-block;
   border-radius: 50%;
