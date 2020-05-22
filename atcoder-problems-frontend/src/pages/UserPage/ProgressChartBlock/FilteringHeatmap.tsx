@@ -1,59 +1,104 @@
 import React, { useState } from "react";
-import { ButtonGroup, Button, Row } from "reactstrap";
+import { Button, ButtonGroup, Row } from "reactstrap";
 
-import { Map as ImmutableMap, List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
+import moment from "moment";
 import { ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
-import { isAccepted, getRatingColorCode, getRatingColor } from "../../../utils";
-import CalendarHeatmap from "../../../components/CalendarHeatmap";
-import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
+import { getRatingColor, getRatingColorCode, isAccepted } from "../../../utils";
+import { CalendarHeatmap } from "../../../components/CalendarHeatmap";
+import {
+  formatMomentDate,
+  getNextSunday,
+  getToday,
+  parseSecond,
+} from "../../../utils/DateUtil";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { cachedProblemModels } from "../../../utils/CachedApiClient";
+import { convertMap } from "../../../utils/ImmutableMigration";
 
-type FilterStatus = "AC" | "Submissions" | "Unique AC";
-type ColorMode = "Count" | "Difficulty";
+type ShowMode = "AC" | "Submissions" | "Unique AC" | "Max Difficulty";
 
-const COLOR_GREY = "#ebedf0";
 const COLORS_COUNT = ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"];
+const WEEKDAY = 7;
+const WEEKS = 53;
+
+const createTableData = (
+  filteredSubmissions: Submission[],
+  showMode: ShowMode,
+  problemModels: Map<ProblemId, ProblemModel>
+): { date: string; value?: number }[] => {
+  const submissionsByDate = new Map<string, Submission[]>();
+  filteredSubmissions.forEach((s) => {
+    const date = formatMomentDate(parseSecond(s.epoch_second));
+    const dateSubmissions = submissionsByDate.get(date) ?? [];
+    dateSubmissions.push(s);
+    submissionsByDate.set(date, dateSubmissions);
+  });
+
+  const today = getToday();
+  const nextSunday = getNextSunday(today);
+  const startDate = nextSunday.date(nextSunday.date() - WEEKS * WEEKDAY);
+  const tableData: { date: string; value?: number }[] = [];
+  for (let i = 0; i < WEEKS * WEEKDAY; i++) {
+    const date = formatMomentDate(moment(startDate).add(i, "day"));
+    if (showMode === "Max Difficulty") {
+      const submissions = submissionsByDate.get(date) ?? [];
+      const difficulties = submissions
+        .map((s) => problemModels.get(s.problem_id)?.difficulty)
+        .filter((d): d is number => d !== undefined);
+      if (difficulties.length > 0) {
+        const value = difficulties.reduce(
+          (max, difficulty) => Math.max(max, difficulty),
+          0
+        );
+        tableData.push({ date, value });
+      } else {
+        tableData.push({ date });
+      }
+    } else {
+      const value = submissionsByDate.get(date)?.length;
+      tableData.push({ date, value });
+    }
+  }
+  return tableData;
+};
 
 interface OuterProps {
   submissions: Submission[];
 }
 
 interface InnerProps extends OuterProps {
-  problemModels: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
+  problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 export const filterSubmissions = (
   submissions: Submission[],
-  filterStatus: FilterStatus
+  showMode: ShowMode
 ): Submission[] => {
-  switch (filterStatus) {
+  switch (showMode) {
     case "Submissions":
       return submissions;
     case "AC":
+    case "Max Difficulty":
       return submissions.filter((s) => isAccepted(s.result));
-    case "Unique AC":
-      return submissions
+    case "Unique AC": {
+      const submissionByDate = submissions
         .filter((s) => isAccepted(s.result))
-        .sort((a, b) => a.epoch_second - b.epoch_second)
-        .reduce(
-          (map, s) => map.set(s.problem_id, map.get(s.problem_id, s)),
-          ImmutableMap<ProblemId, Submission>()
-        )
-        .valueSeq()
-        .toArray();
+        .sort((a, b) => b.id - a.id)
+        .reduce((map, s) => {
+          map.set(s.problem_id, s);
+          return map;
+        }, new Map<ProblemId, Submission>());
+      return Array.from(submissionByDate.values());
+    }
   }
 };
-
-const formatDate = (s: Submission): string =>
-  formatMomentDate(parseSecond(s.epoch_second));
 
 const formatCountTooltip = (
   date: string,
   count: number,
-  filter: FilterStatus
+  filter: ShowMode
 ): string => {
   if (filter === "Submissions") {
     if (count === 1) {
@@ -67,120 +112,69 @@ const formatCountTooltip = (
 };
 
 export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>("Submissions");
-  const [colorMode, setColorMode] = useState<ColorMode>("Count");
+  const [showMode, setShowMode] = useState<ShowMode>("Submissions");
   const { submissions } = props;
-  const filteredSubmissions = filterSubmissions(submissions, filterStatus);
-
-  const submissionsByDate = List(filteredSubmissions).reduce(
-    (map, submission) => {
-      const date = formatDate(submission);
-      return map.set(date, map.get(date, List<Submission>()).push(submission));
-    },
-    ImmutableMap<string, List<Submission>>()
+  const problemModels = props.problemModels.fulfilled
+    ? props.problemModels.value
+    : new Map<ProblemId, ProblemModel>();
+  const filteredSubmissions = filterSubmissions(submissions, showMode);
+  const tableData = createTableData(
+    filteredSubmissions,
+    showMode,
+    problemModels
   );
-  const countTableData = submissionsByDate.map(
-    (submissions: List<Submission>): number => submissions.count()
-  );
-  const maxDifficultyTableData = submissionsByDate.map(
-    (submissions: List<Submission>): number | null => {
-      if (submissions.count() === 0) {
-        return null;
-      }
 
-      const problemModels = props.problemModels.fulfilled
-        ? props.problemModels.value
-        : ImmutableMap<string, ProblemModel>();
-      const maxDifficulty = submissions
-        .map(
-          (submission) =>
-            problemModels.get(submission.problem_id)?.difficulty ?? 0
-        )
-        .max() as number;
-
-      return maxDifficulty;
-    }
-  );
+  const formatTooltip =
+    showMode === "Max Difficulty"
+      ? (date: string, difficulty: number): string =>
+          `${date} Max Difficulty: ${difficulty}`
+      : (date: string, count: number): string =>
+          formatCountTooltip(date, count, showMode);
+  const getColor =
+    showMode === "Max Difficulty"
+      ? (date: string, difficulty: number): string =>
+          getRatingColorCode(getRatingColor(difficulty))
+      : (date: string, count: number): string =>
+          COLORS_COUNT[Math.min(count, COLORS_COUNT.length - 1)];
 
   return (
     <div>
       <Row className="my-3">
         <ButtonGroup className="mr-3">
           <Button
-            onClick={(): void => {
-              setFilterStatus("Submissions");
-              setColorMode("Count");
-            }}
-            active={filterStatus === "Submissions" && colorMode === "Count"}
+            onClick={(): void => setShowMode("Submissions")}
+            active={showMode === "Submissions"}
           >
             All Submissions
           </Button>
           <Button
-            onClick={(): void => {
-              setFilterStatus("AC");
-              setColorMode("Count");
-            }}
-            active={filterStatus === "AC" && colorMode === "Count"}
+            onClick={(): void => setShowMode("AC")}
+            active={showMode === "AC"}
           >
             All AC
           </Button>
           <Button
-            onClick={(): void => {
-              setFilterStatus("Unique AC");
-              setColorMode("Count");
-            }}
-            active={filterStatus === "Unique AC" && colorMode === "Count"}
+            onClick={(): void => setShowMode("Unique AC")}
+            active={showMode === "Unique AC"}
           >
             Unique AC
           </Button>
           <Button
-            onClick={(): void => {
-              setFilterStatus("AC");
-              setColorMode("Difficulty");
-            }}
-            active={filterStatus === "AC" && colorMode === "Difficulty"}
+            onClick={(): void => setShowMode("Max Difficulty")}
+            active={showMode === "Max Difficulty"}
           >
-            Max. Difficulty
+            Max Difficulty
           </Button>
         </ButtonGroup>
       </Row>
       <Row className="my-5">
-        {colorMode === "Count" && (
-          <CalendarHeatmap
-            tableData={countTableData}
-            defaultValue={0}
-            formatTooltip={(date: string, count: number): string =>
-              formatCountTooltip(date, count, filterStatus)
-            }
-            getColor={(date: string, count: number): string => {
-              return COLORS_COUNT[Math.min(count, COLORS_COUNT.length - 1)];
-            }}
-          />
-        )}
-
-        {colorMode === "Difficulty" && (
-          <CalendarHeatmap
-            tableData={maxDifficultyTableData}
-            defaultValue={null}
-            formatTooltip={(
-              date: string,
-              maxDifficulty: number | null
-            ): string => {
-              if (typeof maxDifficulty === "number") {
-                return `${date}: Difficulty ${maxDifficulty}`;
-              } else {
-                return `${date}: No ACs`;
-              }
-            }}
-            getColor={(date: string, maxDifficulty: number | null): string => {
-              if (typeof maxDifficulty === "number") {
-                return getRatingColorCode(getRatingColor(maxDifficulty));
-              } else {
-                return COLOR_GREY;
-              }
-            }}
-          />
-        )}
+        <CalendarHeatmap
+          tableData={tableData}
+          formatTooltip={formatTooltip}
+          getColor={getColor}
+          columns={WEEKS}
+          rows={WEEKDAY}
+        />
       </Row>
     </div>
   );
@@ -189,6 +183,7 @@ export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
 export const FilteringHeatmap = connect<OuterProps, InnerProps>(() => ({
   problemModels: {
     comparison: null,
-    value: (): any => cachedProblemModels(),
+    value: (): Promise<Map<ProblemId, ProblemModel>> =>
+      cachedProblemModels().then((map) => convertMap(map)),
   },
 }))(InnerFilteringHeatmap);
