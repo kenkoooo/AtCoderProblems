@@ -1,40 +1,33 @@
 import React from "react";
 import { UncontrolledTooltip } from "reactstrap";
-import { Range, Map } from "immutable";
+import { Range, Map as ImmutableMap } from "immutable";
 import moment from "moment";
 import { formatMomentDate, getNextSunday, getToday } from "../utils/DateUtil";
 
 const WEEKDAY = 7;
 const WEEKS = 53;
-const COLORS = ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"];
 
-interface Props {
-  dateLabels: string[];
-  formatTooltip?: (date: string, count: number) => string;
+interface Props<State> {
+  tableData: ImmutableMap<string, State>;
+  defaultValue: State;
+  formatTooltip: (date: string, state: State) => string;
+  getColor: (date: string, state: State) => string;
 }
 
-const CalendarHeatmap: React.FC<Props> = (props) => {
-  const { dateLabels } = props;
-
+function CalendarHeatmap<T>(props: Props<T>): React.ReactElement {
   const today = getToday();
   const nextSunday = getNextSunday(today);
 
   const startDate = nextSunday.date(nextSunday.date() - WEEKS * WEEKDAY);
-  const startLabel = formatMomentDate(startDate);
 
-  const countMap = Range(0, WEEKS * WEEKDAY)
+  // Generate all entries by date in range, including empty entries.
+  const tableData = Range(0, WEEKS * WEEKDAY)
     .map((i) => moment(startDate).add(i, "day"))
-    .map((date) => ({ label: formatMomentDate(date), count: 0 }))
-
-    .concat(dateLabels.map((label) => ({ label, count: 1 })))
-    .filter(({ label }) => label >= startLabel)
-    .reduce(
-      (map, { label, count }) => map.set(label, map.get(label, 0) + count),
-      Map<string, number>()
-    );
-  const tableData = countMap
-    .entrySeq()
-    .map(([date, count]) => ({ count, date }))
+    .map((date): string => formatMomentDate(date))
+    .map((date) => ({
+      date,
+      state: props.tableData.get(date, props.defaultValue),
+    }))
     .sort((a, b) => a.date.localeCompare(b.date))
     .toArray();
 
@@ -44,8 +37,8 @@ const CalendarHeatmap: React.FC<Props> = (props) => {
   return (
     <div style={{ width: "100%" }}>
       <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%" }}>
-        {tableData.map(({ date, count }, i) => {
-          const color = COLORS[Math.min(count, COLORS.length - 1)];
+        {tableData.map(({ date, state }, i) => {
+          const color = props.getColor(date, state);
           const week = Math.floor(i / WEEKDAY);
           const day = i % WEEKDAY;
           return (
@@ -62,20 +55,18 @@ const CalendarHeatmap: React.FC<Props> = (props) => {
         })}
       </svg>
 
-      {tableData.map(({ date, count }) => (
+      {tableData.map(({ date, state }) => (
         <UncontrolledTooltip
           delay={{ show: 0, hide: 0 }}
           key={date}
           placement="right"
           target={`rect-${date}`}
         >
-          {props.formatTooltip
-            ? props.formatTooltip(date, count)
-            : `${date}: ${count}`}
+          {props.formatTooltip(date, state)}
         </UncontrolledTooltip>
       ))}
     </div>
   );
-};
+}
 
 export default CalendarHeatmap;
