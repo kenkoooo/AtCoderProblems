@@ -27,6 +27,9 @@ old_sponsored_contests = {"code-festival-2014-exhibition", "code-festival-2014-f
                           "tenka1-2015-final", "tenka1-2015-quala", "tenka1-2015-qualb"}
 
 
+prohibited_problem_ids = {"codefestival_2016_final_j", "discovery_2016_final_e", "arc047_d", "arc022_4", "tenka1_2013_qualB_d"}
+
+
 class AtCoderCSRFExtractor(HTMLParser):
     def __init__(self):
         super(AtCoderCSRFExtractor, self).__init__()
@@ -375,6 +378,8 @@ def all_rated_contests():
 
 def all_contest_problems():
     problems = requests.get("https://kenkoooo.com/atcoder/resources/problems.json").json()
+    # exclude marathon-like problems
+    problems = [problem for problem in problems if problem["id"] not in prohibited_problem_ids]
     return {contest_id: set(problem["id"] for problem in problems) for contest_id, problems in itertools.groupby(problems, key=lambda problem: problem["contest_id"])}
 
 
