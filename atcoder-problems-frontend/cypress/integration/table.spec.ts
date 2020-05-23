@@ -56,12 +56,12 @@ describe("Table page", () => {
     cy.server();
     cy.route(
       "GET",
-      "atcoder-api/results?user=user",
+      "**/atcoder-api/results?user=user",
       "fixture:results/user.json"
     ).as("fetchUserResults");
     cy.route(
       "GET",
-      "atcoder-api/results?user=rival",
+      "**/atcoder-api/results?user=rival",
       "fixture:results/rival.json"
     ).as("fetchRivalResults");
 
@@ -71,6 +71,7 @@ describe("Table page", () => {
       .type(`${username}{enter}`)
       .url()
       .should("include", `#/table/${username}`);
+    cy.wait("@fetchUserResults");
     cy.get(".table-success");
     cy.get(".table-warning");
 
@@ -80,6 +81,7 @@ describe("Table page", () => {
       .type(`${rival}{enter}`)
       .url()
       .should("include", `#/table/${username}/${rival}`);
+    cy.wait("@fetchRivalResults");
     cy.get(".table-danger");
   });
 });
