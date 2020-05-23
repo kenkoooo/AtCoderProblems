@@ -40,5 +40,5 @@ matrix:
         - yarn build
         - yarn test
         - yarn lint
-        - yarn start & wait-on http://localhost:3000
+        - yarn start &
         - yarn cypress:run
