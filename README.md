@@ -26,6 +26,18 @@ yarn build
 yarn lint:fix
 ```
 
+## Run end-to-end test
+
+```bash
+yarn cypress:run
+```
+
+## Open Cypress window
+
+```bash
+yarn cypress:open
+```
+
 # atcoder-problems-backend
 
 `atcoder-problems-backend` is a set of backend applications written in Rust.
