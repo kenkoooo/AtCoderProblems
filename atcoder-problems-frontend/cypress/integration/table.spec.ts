@@ -28,7 +28,9 @@ describe("Table page", () => {
     cy.contains("A. Registration")
       .should("have.attr", "href")
       .and("eq", "https://atcoder.jp/contests/abc167/tasks/abc167_a");
-    cy.get("#DifficultyCircle-abc167_a-abc167").trigger("mouseover");
+    cy.get("#DifficultyCircle-abc167_a-abc167.difficulty-circle").trigger(
+      "mouseover"
+    );
     cy.get(".tooltip.show").should("contain", "Difficulty:");
 
     Promise.all(
