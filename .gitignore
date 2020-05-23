@@ -12,3 +12,4 @@
 **/.vscode
 **/cypress/screenshots
 **/cypress/videos
+**/serve

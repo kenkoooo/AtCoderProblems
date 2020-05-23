@@ -40,5 +40,6 @@ matrix:
         - yarn build
         - yarn test
         - yarn lint
-        - yarn start &
+        - yarn prepare-ci
+        - yarn start:ci &
         - yarn cypress:run
