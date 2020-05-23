@@ -73,7 +73,6 @@ describe("Table page", () => {
       .should("include", `#/table/${username}`);
     cy.wait("@fetchUserResults");
     cy.get(".table-success");
-    cy.get(".table-warning");
 
     // Enter rival and see diff
     const rival = "rival";
