@@ -15,7 +15,7 @@
     "prettier": "prettier --write --ignore-path .gitignore \"**/*.{css,html,js,json,jsx,md,ts,tsx}\"",
     "sort-package-json": "sort-package-json",
     "start": "react-scripts start",
-    "start:ci": "serve -l 3000",
+    "start:ci": "serve --no-clipboard -l 3000",
     "test": "react-scripts test"
   },
   "husky": {
