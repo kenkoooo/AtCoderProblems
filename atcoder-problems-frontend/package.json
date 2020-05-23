@@ -11,7 +11,7 @@
     "format": "yarn run sort-package-json && yarn run prettier && yarn run lint:fix",
     "lint": "eslint --ignore-path .gitignore \"**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "yarn run lint --fix",
-    "prepare-ci": "rm -r serve && mkdir serve && cp -r build serve/atcoder",
+    "prepare-ci": "rm -rf serve && mkdir serve && cp -r build serve/atcoder",
     "prettier": "prettier --write --ignore-path .gitignore \"**/*.{css,html,js,json,jsx,md,ts,tsx}\"",
     "sort-package-json": "sort-package-json",
     "start": "react-scripts start",
