@@ -5,6 +5,8 @@
   "homepage": "https://kenkoooo.com/atcoder",
   "scripts": {
     "build": "react-scripts build",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
     "eject": "react-scripts eject",
     "format": "yarn run sort-package-json && yarn run prettier && yarn run lint:fix",
     "lint": "eslint --ignore-path .gitignore \"**/*.{js,jsx,ts,tsx}\"",
@@ -68,6 +70,7 @@
     "@types/seedrandom": "2.4.28",
     "@typescript-eslint/eslint-plugin": "2.33.0",
     "@typescript-eslint/parser": "2.33.0",
+    "cypress": "4.6.0",
     "eslint": "6.6.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-import": "2.20.2",
