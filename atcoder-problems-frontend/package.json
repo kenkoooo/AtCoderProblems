@@ -5,8 +5,8 @@
   "homepage": "https://kenkoooo.com/atcoder",
   "scripts": {
     "build": "react-scripts build",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
     "eject": "react-scripts eject",
     "format": "yarn run sort-package-json && yarn run prettier && yarn run lint:fix",
     "lint": "eslint --ignore-path .gitignore \"**/*.{js,jsx,ts,tsx}\"",

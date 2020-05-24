@@ -42,4 +42,4 @@ matrix:
         - yarn lint
         - yarn prepare-ci
         - yarn start:ci &
-        - yarn cypress:run
+        - yarn cy:run
