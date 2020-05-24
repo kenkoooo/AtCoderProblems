@@ -1,10 +1,13 @@
 FROM rustlang/rust:nightly AS builder
 
-RUN USER=root cargo new app
 WORKDIR /app
-ADD ./Cargo.toml /app
+RUN mkdir ./src
+RUN echo "fn main(){}" > ./src/main.rs
+ADD ./Cargo.toml .
+ADD ./Cargo.lock .
 RUN cargo build --release
-ADD ./src /app/src
+
+ADD ./src ./src
 RUN cargo build --release
 
 FROM rustlang/rust:nightly
