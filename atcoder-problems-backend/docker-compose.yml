@@ -1,0 +1,24 @@
+version: '3'
+services:
+  postgresql:
+    container_name: postgresql
+    image: postgres:12.3
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+    volumes:
+      - ../config/database-definition.sql:/docker-entrypoint-initdb.d/init.sql
+  api_server:
+    build: .
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    environment:
+      SQL_URL: postgres://db_user:password@postgresql:5432/db
+      CLIENT_ID: a
+      CLIENT_SECRET: b
+    command: run_server
+    links:
+      - "postgresql"
