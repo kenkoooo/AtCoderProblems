@@ -81,6 +81,8 @@ describe("Table page", () => {
       .url()
       .should("include", `#/table/${username}/${rival}`);
     cy.wait("@fetchRivalResults");
+    cy.contains("ARC").click(); // Fire click events to force updating window
+    cy.contains("ABC").click();
     cy.get(".table-danger");
   });
 });
