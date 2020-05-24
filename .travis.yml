@@ -16,11 +16,6 @@ matrix:
         - cargo clean
         - cargo build
         - env RUST_TEST_THREADS=1 RUST_BACKTRACE=1 cargo test
-      after_script:
-        - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && echo "$DOCKER_PASSWORD" | docker login -u kenkoooo --password-stdin
-        - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker pull kenkoooo/atcoder-problems-backend
-        - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker build -t kenkoooo/atcoder-problems-backend .
-        - test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST = "false" && docker push kenkoooo/atcoder-problems-backend
 
     - language: node_js
       node_js: node
