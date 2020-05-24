@@ -1,3 +1,4 @@
 {
-  "baseUrl": "http://localhost:3000/atcoder"
+  "baseUrl": "http://localhost:3000/atcoder",
+  "defaultCommandTimeout": 10000
 }
