@@ -5,13 +5,17 @@
   "homepage": "https://kenkoooo.com/atcoder",
   "scripts": {
     "build": "react-scripts build",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
     "eject": "react-scripts eject",
     "format": "yarn run sort-package-json && yarn run prettier && yarn run lint:fix",
     "lint": "eslint --ignore-path .gitignore \"**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "yarn run lint --fix",
+    "prepare-ci": "rm -rf serve && mkdir serve && cp -r build serve/atcoder",
     "prettier": "prettier --write --ignore-path .gitignore \"**/*.{css,html,js,json,jsx,md,ts,tsx}\"",
     "sort-package-json": "sort-package-json",
     "start": "react-scripts start",
+    "start:ci": "serve --no-clipboard -l 3000",
     "test": "react-scripts test"
   },
   "husky": {
@@ -68,6 +72,7 @@
     "@types/seedrandom": "2.4.28",
     "@typescript-eslint/eslint-plugin": "2.33.0",
     "@typescript-eslint/parser": "2.33.0",
+    "cypress": "4.6.0",
     "eslint": "6.6.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-import": "2.20.2",
@@ -78,6 +83,7 @@
     "husky": "4.2.5",
     "lint-staged": "10.2.2",
     "prettier": "2.0.5",
+    "serve": "11.3.1",
     "sort-package-json": "1.42.2",
     "typescript": "3.7.3"
   }

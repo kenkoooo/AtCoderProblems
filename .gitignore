@@ -10,3 +10,6 @@
 **/.python-version
 **/package-lock.json
 **/.vscode
+**/cypress/screenshots
+**/cypress/videos
+**/serve

@@ -19,6 +19,14 @@ matrix:
 
     - language: node_js
       node_js: node
+      addons:
+        apt:
+          packages:
+            - libgconf-2-4
+      cache:
+        npm: true
+        directories:
+          - ~/.cache
       before_script:
         - cd atcoder-problems-frontend/
       script:
@@ -27,3 +35,6 @@ matrix:
         - yarn build
         - yarn test
         - yarn lint
+        - yarn prepare-ci
+        - yarn start:ci &
+        - yarn cy:run
