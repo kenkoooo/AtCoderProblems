@@ -64,7 +64,13 @@ export const TrainingList: React.FC<Props> = (props) => {
                   return (
                     <li key={j} className="lead">
                       {set.title}{" "}
-                      <Badge>
+                      <Badge
+                        color={
+                          solved === set.problems.length
+                            ? "success"
+                            : "secondary"
+                        }
+                      >
                         {solved} / {set.problems.length}
                       </Badge>
                     </li>
