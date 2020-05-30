@@ -205,6 +205,9 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
       )}
       {(userPageTab === "All" || userPageTab === "Progress Charts") && (
         <ProgressChartBlock
+          problemModels={problemModels}
+          submissions={submissions}
+          userId={userId}
           dailyCount={dailyCount.toArray()}
           userSubmissions={userSubmissions.toArray()}
         />
