@@ -62,8 +62,20 @@ export const RatingColors = [
   "Orange",
   "Red",
 ] as const;
+export const ProblemColors = [
+  "Black",
+  "Grey",
+  "Brown",
+  "Green",
+  "Cyan",
+  "Blue",
+  "Yellow",
+  "Orange",
+  "Red",
+] as const;
 
 export type RatingColor = typeof RatingColors[number];
+export type ProblemColor = typeof ProblemColors[number];
 export const getRatingColor = (rating: number): RatingColor => {
   const index = Math.min(Math.floor(rating / 400), RatingColors.length - 1);
   return RatingColors[index];
@@ -116,6 +128,14 @@ export const getRatingColorCode = (ratingColor: RatingColor): string => {
       return "#FF8000";
     case "Red":
       return "#FF0000";
+  }
+};
+export const getProblemColorCode = (problemColor: ProblemColor): string => {
+  switch (problemColor) {
+    case "Black":
+      return "#101010";
+    default:
+      return getRatingColorCode(problemColor);
   }
 };
 
