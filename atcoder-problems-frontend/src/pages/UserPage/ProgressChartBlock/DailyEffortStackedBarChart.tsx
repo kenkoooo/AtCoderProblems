@@ -9,11 +9,11 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Map as ImmutableMap } from "immutable";
 import {
-  getProblemColorCode,
-  ProblemColor,
-  ProblemColors,
+  getRatingColorCode,
+  RatingColor,
+  RatingColors,
+  mapToObject,
 } from "../../../utils";
 import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 import { DailyEffortTooltip } from "./DailyEffortTooltip";
@@ -21,7 +21,7 @@ import { DailyEffortTooltip } from "./DailyEffortTooltip";
 interface Props {
   dailyColorCount: {
     dateSecond: number;
-    countMap: ImmutableMap<ProblemColor, number>;
+    countMap: Map<RatingColor, number>;
   }[];
 }
 
@@ -29,9 +29,7 @@ export const DailyEffortStackedBarChart: React.FC<Props> = (props) => {
   const { dailyColorCount } = props;
 
   const dailyCount = dailyColorCount.map(({ dateSecond, countMap }) => {
-    const counts = countMap.toObject();
-    counts["dateSecond"] = dateSecond;
-    return counts;
+    return { ...mapToObject(countMap), dateSecond };
   });
 
   return (
@@ -58,8 +56,8 @@ export const DailyEffortStackedBarChart: React.FC<Props> = (props) => {
           <YAxis />
           <Tooltip content={DailyEffortTooltip} />
 
-          {ProblemColors.map((ratingColor) => {
-            const color = getProblemColorCode(ratingColor);
+          {RatingColors.map((ratingColor) => {
+            const color = getRatingColorCode(ratingColor);
             return (
               <Bar
                 dataKey={ratingColor}

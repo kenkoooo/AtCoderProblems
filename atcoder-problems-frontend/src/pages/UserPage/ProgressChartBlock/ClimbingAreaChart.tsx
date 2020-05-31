@@ -9,11 +9,11 @@ import {
   Area,
   ResponsiveContainer,
 } from "recharts";
-import { Map as ImmutableMap } from "immutable";
 import {
-  getProblemColorCode,
-  ProblemColor,
-  ProblemColors,
+  getRatingColorCode,
+  RatingColor,
+  RatingColors,
+  mapToObject,
 } from "../../../utils";
 import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 import { DailyEffortTooltip } from "./DailyEffortTooltip";
@@ -21,7 +21,7 @@ import { DailyEffortTooltip } from "./DailyEffortTooltip";
 interface Props {
   colorClimbing: {
     dateSecond: number;
-    countMap: ImmutableMap<ProblemColor, number>;
+    countMap: Map<RatingColor, number>;
   }[];
 }
 
@@ -29,9 +29,7 @@ export const ClimbingAreaChart: React.FC<Props> = (props) => {
   const { colorClimbing } = props;
 
   const dailyCount = colorClimbing.map(({ dateSecond, countMap }) => {
-    const counts = countMap.toObject();
-    counts["dateSecond"] = dateSecond;
-    return counts;
+    return { ...mapToObject(countMap), dateSecond };
   });
 
   return (
@@ -58,8 +56,8 @@ export const ClimbingAreaChart: React.FC<Props> = (props) => {
           <YAxis />
           <Tooltip content={DailyEffortTooltip} />
 
-          {ProblemColors.map((ratingColor) => {
-            const color = getProblemColorCode(ratingColor);
+          {RatingColors.map((ratingColor) => {
+            const color = getRatingColorCode(ratingColor);
             return (
               <Area
                 type="monotone"

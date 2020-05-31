@@ -53,16 +53,6 @@ export const clipDifficulty = (difficulty: number): number =>
   );
 
 export const RatingColors = [
-  "Grey",
-  "Brown",
-  "Green",
-  "Cyan",
-  "Blue",
-  "Yellow",
-  "Orange",
-  "Red",
-] as const;
-export const ProblemColors = [
   "Black",
   "Grey",
   "Brown",
@@ -75,12 +65,12 @@ export const ProblemColors = [
 ] as const;
 
 export type RatingColor = typeof RatingColors[number];
-export type ProblemColor = typeof ProblemColors[number];
 export const getRatingColor = (rating: number): RatingColor => {
-  const index = Math.min(Math.floor(rating / 400), RatingColors.length - 1);
-  return RatingColors[index];
+  const index = Math.min(Math.floor(rating / 400), RatingColors.length - 2);
+  return RatingColors[index + 1];
 };
 type RatingColorClassName =
+  | "difficulty-black"
   | "difficulty-grey"
   | "difficulty-brown"
   | "difficulty-green"
@@ -92,6 +82,8 @@ type RatingColorClassName =
 export const getRatingColorClass = (rating: number): RatingColorClassName => {
   const ratingColor = getRatingColor(rating);
   switch (ratingColor) {
+    case "Black":
+      return "difficulty-black";
     case "Grey":
       return "difficulty-grey";
     case "Brown":
@@ -112,6 +104,8 @@ export const getRatingColorClass = (rating: number): RatingColorClassName => {
 };
 export const getRatingColorCode = (ratingColor: RatingColor): string => {
   switch (ratingColor) {
+    case "Black":
+      return "#101010";
     case "Grey":
       return "#808080";
     case "Brown":
@@ -130,14 +124,6 @@ export const getRatingColorCode = (ratingColor: RatingColor): string => {
       return "#FF0000";
   }
 };
-export const getProblemColorCode = (problemColor: ProblemColor): string => {
-  switch (problemColor) {
-    case "Black":
-      return "#101010";
-    default:
-      return getRatingColorCode(problemColor);
-  }
-};
 
 export const shuffleList = (list: List<any>, k?: number): List<any> => {
   let shuffledList = List();
@@ -149,3 +135,9 @@ export const shuffleList = (list: List<any>, k?: number): List<any> => {
   }
   return shuffledList;
 };
+
+export const mapToObject = (map: Map<RatingColor, number>): {} =>
+  Array.from(map.entries()).reduce(
+    (l, [k, v]) => Object.assign(l, { [k]: v }),
+    {}
+  );

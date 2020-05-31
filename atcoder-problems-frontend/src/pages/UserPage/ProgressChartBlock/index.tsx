@@ -1,10 +1,9 @@
 import React from "react";
 import { Row, ButtonGroup, Button } from "reactstrap";
-import { List, Map as ImmutableMap } from "immutable";
 import {
   getRatingColor,
-  ProblemColor,
-  ProblemColors,
+  RatingColor,
+  RatingColors,
   isAccepted,
 } from "../../../utils";
 import {
@@ -23,8 +22,8 @@ import { ClimbingAreaChart } from "./ClimbingAreaChart";
 import { FilteringHeatmap } from "./FilteringHeatmap";
 
 interface Props {
-  problemModels: ImmutableMap<ProblemId, ProblemModel>;
-  submissions: ImmutableMap<ProblemId, List<Submission>>;
+  problemModels: Map<ProblemId, ProblemModel>;
+  submissions: Map<ProblemId, Submission[]>;
   userId: string;
   dailyCount: { dateLabel: string; count: number }[];
   userSubmissions: Submission[];
@@ -85,12 +84,12 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
     return list;
   }, [] as { dateSecond: number; count: number }[]);
 
-  const dailyColorCount = submissions
+  const dateColorCountMap = Array.from(submissions.values())
     .map((submissionList) =>
       submissionList
         .filter((s) => s.user_id === userId && isAccepted(s.result))
         .sort((a, b) => a.epoch_second - b.epoch_second)
-        .first(undefined)
+        .find(() => true)
     )
     .filter(
       (submission: Submission | undefined): submission is Submission =>
@@ -99,45 +98,40 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
     .reduce(
       (map, submission) => {
         const date = formatMomentDate(parseSecond(submission.epoch_second));
-        return map.update(
-          date,
-          ImmutableMap<ProblemColor, number>(
-            ProblemColors.map((ratingColor) => [ratingColor, 0])
-          ),
-          (countMap) => {
-            const model = problemModels.get(submission.problem_id);
-            const color =
-              model?.difficulty !== undefined
-                ? getRatingColor(model.difficulty)
-                : "Black";
-            const curCount = countMap.get(color) ?? 0;
-            return countMap.set(color, curCount + 1);
-          }
-        );
+        const countMap =
+          map.get(date) ??
+          new Map<RatingColor, number>(
+            RatingColors.map((ratingColor) => [ratingColor, 0])
+          );
+        const model = problemModels.get(submission.problem_id);
+        const color =
+          model?.difficulty !== undefined
+            ? getRatingColor(model.difficulty)
+            : "Black";
+        const curCount = countMap.get(color) ?? 0;
+        countMap.set(color, curCount + 1);
+        map.set(date, countMap);
+        return map;
       },
-      ImmutableMap<string, ImmutableMap<ProblemColor, number>>() // date -> color -> count
-    )
-    .entrySeq()
+      new Map<string, Map<RatingColor, number>>() // date -> color -> count
+    );
+  const dailyColorCount = Array.from(dateColorCountMap.entries())
     .map(([dateLabel, countMap]) => ({
       dateSecond: parseDateLabel(dateLabel).unix(),
       countMap,
     }))
     .sort((a, b) => a.dateSecond - b.dateSecond);
   const mergeCountMap = (
-    lastMap: ImmutableMap<ProblemColor, number>,
-    curMap: ImmutableMap<ProblemColor, number>
-  ): ImmutableMap<ProblemColor, number> =>
-    curMap
-      .keySeq()
-      .reduce(
-        (map, key) =>
-          map.update(
-            key,
-            0,
-            (count) => count + lastMap.get(key, 0) + curMap.get(key, 0)
-          ),
-        ImmutableMap<ProblemColor, number>()
+    lastMap: Map<RatingColor, number>,
+    curMap: Map<RatingColor, number>
+  ): Map<RatingColor, number> =>
+    RatingColors.reduce((map, ratingColor) => {
+      map.set(
+        ratingColor,
+        (lastMap.get(ratingColor) ?? 0) + (curMap.get(ratingColor) ?? 0)
       );
+      return map;
+    }, new Map<RatingColor, number>());
 
   const colorClimbing = dailyColorCount.reduce(
     (list, { dateSecond, countMap }) => {
@@ -152,7 +146,7 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
       }
       return list;
     },
-    [] as { dateSecond: number; countMap: ImmutableMap<ProblemColor, number> }[]
+    [] as { dateSecond: number; countMap: Map<RatingColor, number> }[]
   );
 
   return (
@@ -172,9 +166,7 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
           }))}
         />
       ) : (
-        <DailyEffortStackedBarChart
-          dailyColorCount={dailyColorCount.toArray()}
-        />
+        <DailyEffortStackedBarChart dailyColorCount={dailyColorCount} />
       )}
 
       <Row className="my-2 border-bottom">
