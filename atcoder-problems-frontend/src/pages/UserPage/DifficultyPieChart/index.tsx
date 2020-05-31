@@ -36,7 +36,9 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
     return map;
   }, new Map<RatingColor, number>());
 
-  const data = RatingColors.map((ratingColor) => {
+  const data = RatingColors.filter(
+    (ratingColor) => ratingColor !== "Black"
+  ).map((ratingColor) => {
     const totalCount = colorCount.get(ratingColor) ?? 0;
     const solved = solvedCount.get(ratingColor) ?? 0;
     const color = getRatingColorCode(ratingColor);
