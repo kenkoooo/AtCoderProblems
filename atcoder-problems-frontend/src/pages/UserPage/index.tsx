@@ -205,6 +205,11 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
       )}
       {(userPageTab === "All" || userPageTab === "Progress Charts") && (
         <ProgressChartBlock
+          problemModels={convertMap(problemModels)}
+          submissions={convertMap(
+            submissions.map((submissionList) => submissionList.toArray())
+          )}
+          userId={userId}
           dailyCount={dailyCount.toArray()}
           userSubmissions={userSubmissions.toArray()}
         />
