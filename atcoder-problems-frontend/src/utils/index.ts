@@ -53,6 +53,7 @@ export const clipDifficulty = (difficulty: number): number =>
   );
 
 export const RatingColors = [
+  "Black",
   "Grey",
   "Brown",
   "Green",
@@ -65,10 +66,11 @@ export const RatingColors = [
 
 export type RatingColor = typeof RatingColors[number];
 export const getRatingColor = (rating: number): RatingColor => {
-  const index = Math.min(Math.floor(rating / 400), RatingColors.length - 1);
-  return RatingColors[index];
+  const index = Math.min(Math.floor(rating / 400), RatingColors.length - 2);
+  return RatingColors[index + 1];
 };
 type RatingColorClassName =
+  | "difficulty-black"
   | "difficulty-grey"
   | "difficulty-brown"
   | "difficulty-green"
@@ -80,6 +82,8 @@ type RatingColorClassName =
 export const getRatingColorClass = (rating: number): RatingColorClassName => {
   const ratingColor = getRatingColor(rating);
   switch (ratingColor) {
+    case "Black":
+      return "difficulty-black";
     case "Grey":
       return "difficulty-grey";
     case "Brown":
@@ -100,6 +104,8 @@ export const getRatingColorClass = (rating: number): RatingColorClassName => {
 };
 export const getRatingColorCode = (ratingColor: RatingColor): string => {
   switch (ratingColor) {
+    case "Black":
+      return "#101010";
     case "Grey":
       return "#808080";
     case "Brown":
@@ -129,3 +135,9 @@ export const shuffleList = (list: List<any>, k?: number): List<any> => {
   }
   return shuffledList;
 };
+
+export const mapToObject = (map: Map<RatingColor, number>): {} =>
+  Array.from(map.entries()).reduce(
+    (l, [k, v]) => Object.assign(l, { [k]: v }),
+    {}
+  );
