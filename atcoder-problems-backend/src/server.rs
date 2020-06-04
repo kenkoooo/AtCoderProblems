@@ -1,5 +1,4 @@
 use crate::error::{Error, Result};
-use crate::server::middleware::RequestLogger;
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
@@ -15,9 +14,9 @@ use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use cookie::Cookie;
 use std::time::Duration;
+use tide::StatusCode;
 
 pub(crate) mod internal_user;
-pub(crate) mod middleware;
 pub(crate) mod problem_list;
 pub(crate) mod progress_reset;
 pub(crate) mod time_submissions;
@@ -35,26 +34,30 @@ where
     A: Authentication + Send + Sync + 'static + Clone,
 {
     let app_data = AppData::new(pool, authentication);
-    let mut api = tide::with_state(app_data);
+    let mut api = tide::with_state(app_data.clone());
 
-    api.middleware(RequestLogger::new());
-    api.at("/internal-api").nest(|api| {
+    api.at("/internal-api").nest({
+        let mut api = tide::with_state(app_data.clone());
         api.at("/authorize").get(get_token);
-
-        api.at("/list").nest(|api| {
+        api.at("/list").nest({
+            let mut api = tide::with_state(app_data.clone());
             api.at("/my").get(get_own_lists);
             api.at("/get/:list_id").get(get_single_list);
             api.at("/create").post(create_list);
             api.at("/delete").post(delete_list);
             api.at("/update").post(update_list);
-            api.at("/item").nest(|api| {
+            api.at("/item").nest({
+                let mut api = tide::with_state(app_data.clone());
                 api.at("/add").post(add_item);
                 api.at("/update").post(update_item);
                 api.at("/delete").post(delete_item);
+                api
             });
+            api
         });
 
-        api.at("/contest").nest(|api| {
+        api.at("/contest").nest({
+            let mut api = tide::with_state(app_data.clone());
             api.at("/create").post(virtual_contest::create_contest);
             api.at("/update").post(virtual_contest::update_contest);
             api.at("/item/update").post(virtual_contest::update_items);
@@ -64,32 +67,44 @@ where
             api.at("/my").get(virtual_contest::get_my_contests);
             api.at("/joined").get(virtual_contest::get_participated);
             api.at("/recent").get(virtual_contest::get_recent_contests);
+            api
         });
 
-        api.at("/user").nest(|api| {
+        api.at("/user").nest({
+            let mut api = tide::with_state(app_data.clone());
             api.at("/get").get(internal_user::get);
             api.at("/update").post(internal_user::update);
+            api
         });
 
-        api.at("/progress_reset").nest(|api| {
+        api.at("/progress_reset").nest({
+            let mut api = tide::with_state(app_data.clone());
             api.at("/list").get(progress_reset::get_progress_reset_list);
             api.at("/add").post(progress_reset::add_progress_reset_item);
             api.at("/delete")
                 .post(progress_reset::delete_progress_reset_item);
+            api
         });
+        api
     });
-    api.at("/atcoder-api").nest(|api| {
+    api.at("/atcoder-api").nest({
+        let mut api = tide::with_state(app_data.clone());
         api.at("/results").get(get_user_submissions);
-        api.at("/v2").nest(|api| {
+        api.at("/v2").nest({
+            let mut api = tide::with_state(app_data.clone());
             api.at("/user_info").get(get_user_info);
+            api
         });
-        api.at("/v3").nest(|api| {
+        api.at("/v3").nest({
+            let mut api = tide::with_state(app_data.clone());
             api.at("/from/:from").get(get_time_submissions);
             api.at("/recent").get(get_recent_submissions);
             api.at("/users_and_time").get(get_users_time_submissions);
+            api
         });
+        api
     });
-    api.at("/healthcheck").get(|_| async move { "" });
+    api.at("/healthcheck").get(|_| async move { Ok("") });
     api.listen(format!("0.0.0.0:{}", port)).await?;
     Ok(())
 }
@@ -103,56 +118,25 @@ pub fn initialize_pool<S: Into<String>>(database_url: S) -> Result<Pool> {
     Ok(pool)
 }
 
-pub(crate) trait CommonRequest {
-    fn extract_etag(&self) -> &str;
-    fn get_cookie(&self, key: &str) -> Result<String>;
-}
-
-impl<T> CommonRequest for tide::Request<T> {
-    fn extract_etag(&self) -> &str {
-        self.header("if-none-match").unwrap_or_else(|| "no etag")
-    }
-    fn get_cookie(&self, key: &str) -> Result<String> {
-        self.header("cookie")
-            .and_then(|s| {
-                s.split(';')
-                    .flat_map(|row| Cookie::parse(row).ok())
-                    .find(|cookie: &Cookie| cookie.name() == key)
-            })
-            .map(|cookie: Cookie| cookie.value().to_string())
-            .ok_or_else(|| Error::CookieNotFound)
-    }
-}
-
 pub(crate) trait CommonResponse {
     fn ok() -> Self;
     fn new_cors() -> Self;
     fn bad_request() -> Self;
     fn internal_error() -> Self;
-    fn redirect(location: &str) -> Self;
-
-    fn set_cookie(self, cookie: cookie::Cookie) -> Self;
 }
 
 impl CommonResponse for tide::Response {
     fn ok() -> Self {
-        Self::new(200)
+        Self::new(StatusCode::Ok)
     }
     fn new_cors() -> Self {
         Self::ok().set_header("access-control-allow-origin", "*")
     }
     fn bad_request() -> Self {
-        Self::new(400)
+        Self::new(StatusCode::BadRequest)
     }
     fn internal_error() -> Self {
-        Self::new(503)
-    }
-    fn redirect(location: &str) -> Self {
-        Self::new(302).set_header("location", location)
-    }
-
-    fn set_cookie(self, cookie: cookie::Cookie) -> Self {
-        self.set_header("Set-Cookie", cookie.to_string())
+        Self::new(StatusCode::InternalServerError)
     }
 }
 
