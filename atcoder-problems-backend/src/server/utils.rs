@@ -1,6 +1,7 @@
 use crate::error::Result;
-use crate::server::{AppData, Authentication, CommonRequest, CommonResponse, PooledConnection};
+use crate::server::{AppData, Authentication, CommonResponse, PooledConnection};
 
+use crate::error::Error::CookieNotFound;
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use tide::{Request, Response};
@@ -18,9 +19,9 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
     async fn get_unpack(self) -> Result<(PooledConnection, String)> {
         let client = self.state().authentication.clone();
         let request = self;
-        let token = request.get_cookie("token")?;
+        let token = request.cookie("token").ok_or_else(|| CookieNotFound)?;
         let conn = request.state().pool.get()?;
-        let response = client.get_user_id(&token).await?;
+        let response = client.get_user_id(&token.value()).await?;
         Ok((conn, response.id.to_string()))
     }
     async fn post_unpack<Body: DeserializeOwned + Send + Sync + 'static>(
@@ -29,22 +30,13 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         let client = self.state().authentication.clone();
         let mut request = self;
         let body: Body = request.body_json().await?;
-        let token = request.get_cookie("token")?;
+        let token = request.cookie("token").ok_or_else(|| CookieNotFound)?;
         let conn = request.state().pool.get()?;
-        let response = client.get_user_id(&token).await?;
+        let response = client.get_user_id(&token.value()).await?;
         Ok((body, conn, response.id.to_string()))
     }
 }
 
-pub(crate) trait UnwrapResponse {
-    fn unwrap_response(self) -> Response;
-}
+pub(crate) trait UnwrapResponse {}
 
-impl UnwrapResponse for Result<Response> {
-    fn unwrap_response(self) -> Response {
-        self.unwrap_or_else(|e| {
-            log::error!("{:?}", e);
-            Response::bad_request()
-        })
-    }
-}
+impl UnwrapResponse for Result<Response> {}
