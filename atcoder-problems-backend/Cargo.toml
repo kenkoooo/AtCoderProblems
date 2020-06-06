@@ -26,16 +26,15 @@ diesel = { version = "1.4.3", features = ["postgres", "r2d2"] }
 futures = "0.3"
 
 # Web framework
-tide = "0.4.0"
-cookie = "0.12"
-surf = "1.0.3"
-isahc = "0.8"
+tide = "0.9"
+cookie = "0.14"
+surf = "2.0.0-alpha.4"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 
 async-trait = "0.1.30"
 
-async-std = { version = "1.5.0", features = ["attributes"] }
-tokio = { version="0.2.20", features = ["rt-threaded", "macros"] }
+async-std = { version = "1.6", features = ["attributes"] }
+http-types = "2.1.0"
 
 [dev-dependencies]
 rand = "0.7.2"

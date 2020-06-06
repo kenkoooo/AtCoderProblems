@@ -3,7 +3,7 @@ use std::env;
 use atcoder_problems_backend::server::GitHubAuthentication;
 use atcoder_problems_backend::server::{initialize_pool, run_server};
 
-#[tokio::main]
+#[async_std::main]
 async fn main() {
     simple_logger::init_with_level(log::Level::Info).unwrap();
     let database_url = env::var("SQL_URL").expect("SQL_URL is not set.");

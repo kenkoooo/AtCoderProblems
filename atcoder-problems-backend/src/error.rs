@@ -8,15 +8,14 @@ pub enum Error {
     QueryError(diesel::result::Error),
     IOError(std::io::Error),
     ConnectionPoolError(r2d2::Error),
-    TideError(tide::Error),
     JSONError(serde_json::Error),
-    HttpConnectionError(surf::Exception),
     CookieNotFound,
     InvalidGetRequest,
     InvalidPostRequest,
     OtherError,
     S3Error(s3::error::S3Error),
     AtCoderClientError(algorithm_problem_client::Error),
+    HttpError(http_types::Error),
 }
 
 impl From<diesel::ConnectionError> for Error {
@@ -42,21 +41,9 @@ impl From<r2d2::Error> for Error {
     }
 }
 
-impl From<tide::Error> for Error {
-    fn from(e: tide::Error) -> Self {
-        Error::TideError(e)
-    }
-}
-
 impl From<serde_json::Error> for Error {
     fn from(e: serde_json::Error) -> Self {
         Error::JSONError(e)
-    }
-}
-
-impl From<surf::Exception> for Error {
-    fn from(e: surf::Exception) -> Self {
-        Error::HttpConnectionError(e)
     }
 }
 
@@ -75,6 +62,11 @@ impl From<s3::error::S3Error> for Error {
 impl From<algorithm_problem_client::Error> for Error {
     fn from(e: algorithm_problem_client::Error) -> Self {
         Error::AtCoderClientError(e)
+    }
+}
+impl From<http_types::Error> for Error {
+    fn from(e: http_types::Error) -> Self {
+        Error::HttpError(e)
     }
 }
 

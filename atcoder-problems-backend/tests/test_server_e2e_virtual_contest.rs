@@ -60,14 +60,14 @@ async fn test_virtual_contest() -> Result<()> {
     let cookie_header = format!("token={}", VALID_TOKEN);
 
     let response = surf::post(url("/internal-api/user/update", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
                 "atcoder_user_id": "atcoder_user1"
         }))?
         .await?;
     assert!(response.status().is_success());
     let mut response = surf::post(url("/internal-api/contest/create", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "title":"contest title",
             "memo": "contest memo",
@@ -80,7 +80,7 @@ async fn test_virtual_contest() -> Result<()> {
     let contest_id = body["contest_id"].as_str().unwrap();
 
     let response = surf::post(url("/internal-api/contest/update", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "id": format!("{}", contest_id),
             "title":"contest title",
@@ -92,7 +92,7 @@ async fn test_virtual_contest() -> Result<()> {
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/my", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
         .await?;
     assert_eq!(
@@ -113,13 +113,13 @@ async fn test_virtual_contest() -> Result<()> {
     );
 
     let response = surf::get(url("/internal-api/contest/joined", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
         .await?;
     assert_eq!(response, json!([]));
 
     let response = surf::post(url("/internal-api/contest/join", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
         }))?
@@ -127,7 +127,7 @@ async fn test_virtual_contest() -> Result<()> {
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/joined", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
         .await?;
     assert_eq!(
@@ -148,7 +148,7 @@ async fn test_virtual_contest() -> Result<()> {
     );
 
     let response = surf::post(url("/internal-api/contest/item/update", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
             "problems": [{"id":"problem_1", "point":100}],
@@ -157,7 +157,7 @@ async fn test_virtual_contest() -> Result<()> {
     assert!(response.status().is_success());
 
     let response = surf::post(url("/internal-api/contest/item/update", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
             "problems": [{"id":"problem_1", "point":100}],
@@ -166,7 +166,7 @@ async fn test_virtual_contest() -> Result<()> {
     assert!(response.status().is_success());
 
     let response = surf::post(url("/internal-api/contest/item/update", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
             "problems": [{"id":"problem_1", "point":100}, {"id": "problem_2"}],
@@ -175,7 +175,7 @@ async fn test_virtual_contest() -> Result<()> {
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/joined", port))
-        .set_header("Cookie", &cookie_header)
+        .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
         .await?;
     assert_eq!(
