@@ -3,7 +3,6 @@ use crate::sql::schema::*;
 
 use diesel::expression::dsl::count_star;
 use diesel::prelude::*;
-use diesel::sql_types::*;
 use diesel::Queryable;
 use diesel::{delete, insert_into, update, PgConnection};
 use internal_users as i_users;
