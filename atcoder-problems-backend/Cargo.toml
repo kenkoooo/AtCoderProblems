@@ -28,7 +28,7 @@ futures = "0.3"
 # Web framework
 tide = "0.9"
 cookie = "0.13"
-surf = "2.0.0-alpha.3"
+surf = "2.0.0-alpha.4"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 
 async-trait = "0.1.30"
