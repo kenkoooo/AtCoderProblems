@@ -1,8 +1,7 @@
-use crate::server::utils::{RequestUnpack, UnwrapResponse};
+use crate::server::utils::RequestUnpack;
 use crate::server::{AppData, Authentication, CommonResponse};
 use crate::sql::internal::problem_list_manager::ProblemListManager;
 
-use crate::error::Error;
 use serde::Deserialize;
 use tide::{Request, Response};
 

@@ -1,4 +1,4 @@
-use crate::server::utils::{RequestUnpack, UnwrapResponse};
+use crate::server::utils::RequestUnpack;
 use crate::server::{AppData, Authentication, CommonResponse};
 use crate::sql::internal::progress_reset_manager::ProgressResetManager;
 use serde::Deserialize;
