@@ -1,7 +1,7 @@
 use crate::error::Result;
 use crate::server::{AppData, Authentication, PooledConnection};
 
-use crate::error::Error::CookieNotFound;
+use crate::error::ErrorTypes::CookieNotFound;
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use tide::Request;
