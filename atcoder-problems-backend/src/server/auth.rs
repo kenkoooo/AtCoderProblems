@@ -1,6 +1,5 @@
 use crate::error::Result;
 use crate::server::AppData;
-
 use crate::sql::internal::user_manager::UserManager;
 use async_trait::async_trait;
 use cookie::Cookie;

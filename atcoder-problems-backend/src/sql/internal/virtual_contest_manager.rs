@@ -1,6 +1,7 @@
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::sql::schema::*;
 
+use crate::error::ErrorTypes::InvalidRequest;
 use diesel::expression::dsl::count_star;
 use diesel::prelude::*;
 use diesel::Queryable;
@@ -253,10 +254,11 @@ impl VirtualContestManager for PgConnection {
             ))
             .load::<VirtualContestTuple>(self)?;
         let virtual_contests = construct_virtual_contests(data);
-        virtual_contests
+        let contest = virtual_contests
             .into_iter()
             .next()
-            .ok_or_else(|| Error::InvalidPostRequest)
+            .ok_or_else(|| InvalidRequest)?;
+        Ok(contest)
     }
 
     fn update_items(
@@ -266,7 +268,7 @@ impl VirtualContestManager for PgConnection {
         user_id: &str,
     ) -> Result<()> {
         if problems.len() > MAX_PROBLEM_NUM_PER_CONTEST {
-            return Err(Error::InvalidPostRequest);
+            return Err(http_types::Error::from(InvalidRequest));
         }
         v_contests::table
             .filter(

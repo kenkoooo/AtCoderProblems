@@ -1,6 +1,7 @@
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::sql::schema::*;
 
+use crate::error::ErrorTypes::InvalidRequest;
 use diesel::prelude::*;
 use diesel::{delete, insert_into, update, PgConnection};
 use serde::Serialize;
@@ -109,7 +110,7 @@ impl ProblemListManager for PgConnection {
                 },
             )
             .next()
-            .ok_or_else(|| Error::InvalidGetRequest)?;
+            .ok_or_else(|| InvalidRequest)?;
         Ok(list)
     }
 
@@ -117,7 +118,7 @@ impl ProblemListManager for PgConnection {
         let new_list_id = uuid::Uuid::new_v4().to_string();
         let list = self.get_list(internal_user_id)?;
         if list.len() >= MAX_LIST_NUM {
-            return Err(Error::InvalidPostRequest);
+            return Err(http_types::Error::from(InvalidRequest));
         }
         insert_into(internal_problem_lists::table)
             .values(vec![(
@@ -152,7 +153,7 @@ impl ProblemListManager for PgConnection {
             .select(internal_problem_list_items::problem_id)
             .load::<String>(self)?;
         if problems.len() >= MAX_ITEM_NUM {
-            return Err(Error::InvalidPostRequest);
+            return Err(http_types::Error::from(InvalidRequest));
         }
         insert_into(internal_problem_list_items::table)
             .values(vec![(

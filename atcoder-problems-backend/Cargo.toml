@@ -10,7 +10,7 @@ log = "0.4.6"
 simple_logger = "1.2"
 
 # Scraping
-algorithm-problem-client = "0.5"
+algorithm-problem-client = "0.6"
 
 chrono = "0.4"
 regex = "1"
@@ -35,7 +35,6 @@ async-trait = "0.1.30"
 
 async-std = { version = "1.6", features = ["attributes"] }
 http-types = "2.1.0"
-anyhow = "1.0.31"
 
 [dev-dependencies]
 rand = "0.7.2"
