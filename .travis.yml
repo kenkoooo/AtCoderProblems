@@ -5,7 +5,6 @@ matrix:
   include:
     - language: rust
       os: linux
-      rust: nightly
       cache: cargo
       before_install:
         - cd atcoder-problems-backend/
