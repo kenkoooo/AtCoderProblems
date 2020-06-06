@@ -8,58 +8,38 @@ use tide::{Request, Response};
 
 pub(crate) async fn get_own_lists<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> Response {
-    request
-        .get_unpack()
-        .await
-        .and_then(|(conn, user_id)| conn.get_list(&user_id))
-        .and_then(|list| {
-            let response = Response::ok().body_json(&list)?;
-            Ok(response)
-        })
-        .unwrap_response()
+) -> tide::Result<Response> {
+    let (conn, user_id) = request.get_unpack().await?;
+    let list = conn.get_list(&user_id)?;
+    let response = Response::ok().body_json(&list)?;
+    Ok(response)
 }
+
 pub(crate) async fn get_single_list<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> Response {
-    request
-        .param::<String>("list_id")
-        .map_err(|_| Error::InvalidGetRequest)
-        .and_then(|list_id| {
-            let conn = request.state().pool.get()?;
-            Ok((conn, list_id))
-        })
-        .and_then(|(conn, list_id)| {
-            let list = conn.get_single_list(&list_id)?;
-            Ok(Response::ok().body_json(&list)?)
-        })
-        .unwrap_response()
+) -> tide::Result<Response> {
+    let list_id = request.param::<String>("list_id")?;
+    let conn = request.state().pool.get()?;
+    let list = conn.get_single_list(&list_id)?;
+    let response = Response::ok().body_json(&list)?;
+    Ok(response)
 }
 
 pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> Response {
+) -> tide::Result<Response> {
     #[derive(Deserialize)]
     struct Query {
         list_name: String,
     }
-
-    request
-        .post_unpack::<Query>()
-        .await
-        .and_then(|(query, conn, internal_user_id)| {
-            let list_id = conn.create_list(&internal_user_id, &query.list_name)?;
-            Ok(list_id)
-        })
-        .and_then(|internal_list_id| {
-            let body = serde_json::json!({ "internal_list_id": internal_list_id });
-            let response = Response::ok().body_json(&body)?;
-            Ok(response)
-        })
-        .unwrap_response()
+    let (query, conn, internal_user_id) = request.post_unpack::<Query>().await?;
+    let internal_list_id = conn.create_list(&internal_user_id, &query.list_name)?;
+    let body = serde_json::json!({ "internal_list_id": internal_list_id });
+    let response = Response::ok().body_json(&body)?;
+    Ok(response)
 }
 
-pub(crate) async fn delete_list<A>(request: Request<AppData<A>>) -> Response
+pub(crate) async fn delete_list<A>(request: Request<AppData<A>>) -> tide::Result<Response>
 where
     A: Authentication + Clone + Send + Sync + 'static,
 {
@@ -67,15 +47,13 @@ where
     struct Q {
         internal_list_id: String,
     }
-    request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(query, conn, _)| conn.delete_list(&query.internal_list_id))
-        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
-        .unwrap_response()
+    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    conn.delete_list(&query.internal_list_id)?;
+    let response = Response::ok().body_json(&serde_json::json!({}))?;
+    Ok(response)
 }
 
-pub(crate) async fn update_list<A>(request: Request<AppData<A>>) -> Response
+pub(crate) async fn update_list<A>(request: Request<AppData<A>>) -> tide::Result<Response>
 where
     A: Authentication + Clone + Send + Sync + 'static,
 {
@@ -84,15 +62,13 @@ where
         internal_list_id: String,
         name: String,
     }
-    request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(query, conn, _)| conn.update_list(&query.internal_list_id, &query.name))
-        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
-        .unwrap_response()
+    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    conn.update_list(&query.internal_list_id, &query.name)?;
+    let response = Response::ok().body_json(&serde_json::json!({}))?;
+    Ok(response)
 }
 
-pub(crate) async fn add_item<A>(request: Request<AppData<A>>) -> Response
+pub(crate) async fn add_item<A>(request: Request<AppData<A>>) -> tide::Result<Response>
 where
     A: Authentication + Clone + Send + Sync + 'static,
 {
@@ -101,15 +77,13 @@ where
         internal_list_id: String,
         problem_id: String,
     }
-    request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(query, conn, _)| conn.add_item(&query.internal_list_id, &query.problem_id))
-        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
-        .unwrap_response()
+    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    conn.add_item(&query.internal_list_id, &query.problem_id)?;
+    let response = Response::ok().body_json(&serde_json::json!({}))?;
+    Ok(response)
 }
 
-pub(crate) async fn update_item<A>(request: Request<AppData<A>>) -> Response
+pub(crate) async fn update_item<A>(request: Request<AppData<A>>) -> tide::Result<Response>
 where
     A: Authentication + Clone + Send + Sync + 'static,
 {
@@ -119,17 +93,14 @@ where
         problem_id: String,
         memo: String,
     }
-    request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(query, conn, _)| {
-            conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)
-        })
-        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
-        .unwrap_response()
+
+    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)?;
+    let response = Response::ok().body_json(&serde_json::json!({}))?;
+    Ok(response)
 }
 
-pub(crate) async fn delete_item<A>(request: Request<AppData<A>>) -> Response
+pub(crate) async fn delete_item<A>(request: Request<AppData<A>>) -> tide::Result<Response>
 where
     A: Authentication + Clone + Send + Sync + 'static,
 {
@@ -138,10 +109,8 @@ where
         internal_list_id: String,
         problem_id: String,
     }
-    request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(query, conn, _)| conn.delete_item(&query.internal_list_id, &query.problem_id))
-        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
-        .unwrap_response()
+    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    conn.delete_item(&query.internal_list_id, &query.problem_id)?;
+    let response = Response::ok().body_json(&serde_json::json!({}))?;
+    Ok(response)
 }

@@ -45,11 +45,10 @@ impl Authentication for GitHubAuthentication {
             client_secret: self.client_secret.to_owned(),
             code: code.to_owned(),
         };
-        let response: TokenResponse = surf::post("https://github.com/login/oauth/access_token")
+        let request = surf::post("https://github.com/login/oauth/access_token")
             .set_header("Accept", "application/json")
-            .body_json(&request)?
-            .recv_json()
-            .await?;
+            .body_json(&request)?;
+        let response: TokenResponse = request.recv_json().await?;
         Ok(response.access_token)
     }
     async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
@@ -76,43 +75,21 @@ struct Query {
     code: String,
 }
 
-pub(crate) async fn get_token<A: Authentication + Clone>(request: Request<AppData<A>>) -> Response {
-    fn unpack_request<A: Authentication + Clone>(
-        request: Request<AppData<A>>,
-    ) -> Result<(Query, A, PooledConnection)> {
-        let query = request.query::<Query>()?;
-        let client = request.state().authentication.clone();
-        let conn = request.state().pool.get()?;
-        Ok((query, client, conn))
-    }
+pub(crate) async fn get_token<A: Authentication + Clone>(
+    request: Request<AppData<A>>,
+) -> tide::Result<Response> {
+    let query = request.query::<Query>()?;
+    let client = request.state().authentication.clone();
+    let conn = request.state().pool.get()?;
 
-    async fn create_response<A: Authentication + Clone>(
-        client: A,
-        code: String,
-        conn: PooledConnection,
-    ) -> Result<Response> {
-        let token = client.get_token(&code).await?;
-        let response = client.get_user_id(&token).await?;
-        let internal_user_id = response.id.to_string();
-        conn.register_user(&internal_user_id)?;
+    let token = client.get_token(&query.code).await?;
+    let response = client.get_user_id(&token).await?;
+    let internal_user_id = response.id.to_string();
+    conn.register_user(&internal_user_id)?;
 
-        let cookie = Cookie::build("token", token).path("/").finish();
-        let redirect_url = "https://kenkoooo.com/atcoder/#/login/user";
-        let response = Response::redirect(redirect_url).set_cookie(cookie);
-        Ok(response)
-    }
-
-    match unpack_request(request) {
-        Ok((query, client, conn)) => match create_response(client, query.code, conn).await {
-            Ok(response) => response,
-            Err(e) => {
-                log::error!("{:?}", e);
-                Response::bad_request()
-            }
-        },
-        Err(e) => {
-            log::error!("{:?}", e);
-            Response::bad_request()
-        }
-    }
+    let cookie = Cookie::build("token", token).path("/").finish();
+    let redirect_url = "https://kenkoooo.com/atcoder/#/login/user";
+    let mut response = Response::redirect(redirect_url);
+    response.set_cookie(cookie);
+    Ok(response)
 }

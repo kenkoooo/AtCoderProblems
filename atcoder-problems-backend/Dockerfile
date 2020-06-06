@@ -1,4 +1,4 @@
-FROM rustlang/rust:nightly AS builder
+FROM rust:1.44.0 AS builder
 
 WORKDIR /app
 RUN mkdir ./src
@@ -10,7 +10,7 @@ RUN cargo build --release
 ADD ./src ./src
 RUN cargo build --release
 
-FROM rustlang/rust:nightly
+FROM rust:1.44.0
 COPY --from=builder /app/target/release/batch_update                /usr/bin/batch_update
 COPY --from=builder /app/target/release/crawl_all_submissions       /usr/bin/crawl_all_submissions
 COPY --from=builder /app/target/release/crawl_for_virtual_contests  /usr/bin/crawl_for_virtual_contests

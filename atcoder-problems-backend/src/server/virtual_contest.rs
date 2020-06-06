@@ -7,7 +7,7 @@ use tide::{Request, Response};
 
 pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> Response {
+) -> tide::Result<Response> {
     #[derive(Deserialize)]
     struct Q {
         title: String,
@@ -16,7 +16,7 @@ pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'st
         duration_second: i64,
         mode: Option<String>,
     }
-    request
+    let contest_id = request
         .post_unpack::<Q>()
         .await
         .and_then(|(q, conn, user_id)| {
@@ -29,18 +29,15 @@ pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'st
                 q.mode.as_deref(),
             )?;
             Ok(contest_id)
-        })
-        .and_then(|contest_id| {
-            let body = serde_json::json!({ "contest_id": contest_id });
-            let response = Response::ok().body_json(&body)?;
-            Ok(response)
-        })
-        .unwrap_response()
+        })?;
+    let body = serde_json::json!({ "contest_id": contest_id });
+    let response = Response::ok().body_json(&body)?;
+    Ok(response)
 }
 
 pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> Response {
+) -> tide::Result<Response> {
     #[derive(Deserialize)]
     struct Q {
         id: String,
@@ -51,26 +48,22 @@ pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'st
         mode: Option<String>,
     }
 
-    request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(q, conn, _)| {
-            conn.update_contest(
-                &q.id,
-                &q.title,
-                &q.memo,
-                q.start_epoch_second,
-                q.duration_second,
-                q.mode.as_deref(),
-            )
-        })
-        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
-        .unwrap_response()
+    request.post_unpack::<Q>().await.and_then(|(q, conn, _)| {
+        conn.update_contest(
+            &q.id,
+            &q.title,
+            &q.memo,
+            q.start_epoch_second,
+            q.duration_second,
+            q.mode.as_deref(),
+        )
+    })?;
+    Ok(Response::ok().body_json(&serde_json::json!({}))?)
 }
 
 pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> Response {
+) -> tide::Result<Response> {
     #[derive(Deserialize)]
     struct Q {
         contest_id: String,
@@ -79,54 +72,48 @@ pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'stat
     request
         .post_unpack::<Q>()
         .await
-        .and_then(|(q, conn, user_id)| conn.update_items(&q.contest_id, &q.problems, &user_id))
-        .and_then(|_| Ok(Response::ok().body_json(&serde_json::json!({}))?))
-        .unwrap_response()
+        .and_then(|(q, conn, user_id)| conn.update_items(&q.contest_id, &q.problems, &user_id))?;
+    Ok(Response::ok().body_json(&serde_json::json!({}))?)
 }
 
 pub(crate) async fn get_my_contests<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> Response {
-    request
+) -> tide::Result<Response> {
+    let contests = request
         .get_unpack()
         .await
-        .and_then(|(conn, user_id)| conn.get_own_contests(&user_id))
-        .and_then(|contests| Ok(Response::ok().body_json(&contests)?))
-        .unwrap_response()
+        .and_then(|(conn, user_id)| conn.get_own_contests(&user_id))?;
+    Ok(Response::ok().body_json(&contests)?)
 }
 
 pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> Response {
-    request
+) -> tide::Result<Response> {
+    let contests = request
         .get_unpack()
         .await
-        .and_then(|(conn, user_id)| conn.get_participated_contests(&user_id))
-        .and_then(|contests| Ok(Response::ok().body_json(&contests)?))
-        .unwrap_response()
+        .and_then(|(conn, user_id)| conn.get_participated_contests(&user_id))?;
+    Ok(Response::ok().body_json(&contests)?)
 }
 
-pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> Response {
-    match request.param::<String>("contest_id") {
-        Ok(contest_id) => request.state().respond(|conn| {
-            let contest = conn.get_single_contest(&contest_id)?;
-            let response = Response::ok().body_json(&contest)?;
-            Ok(response)
-        }),
-        _ => Response::internal_error(),
-    }
+pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> tide::Result<Response> {
+    let conn = request.state().pool.get()?;
+    let contest_id = request.param::<String>("contest_id")?;
+    let contest = conn.get_single_contest(&contest_id)?;
+    let response = Response::ok().body_json(&contest)?;
+    Ok(response)
 }
-pub(crate) async fn get_recent_contests<A>(request: Request<AppData<A>>) -> Response {
-    request.state().respond(|conn| {
-        let contest = conn.get_recent_contest_info()?;
-        let response = Response::ok().body_json(&contest)?;
-        Ok(response)
-    })
+
+pub(crate) async fn get_recent_contests<A>(request: Request<AppData<A>>) -> tide::Result<Response> {
+    let conn = request.state().pool.get()?;
+    let contest = conn.get_recent_contest_info()?;
+    let response = Response::ok().body_json(&contest)?;
+    Ok(response)
 }
 
 pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> Response {
+) -> tide::Result<Response> {
     #[derive(Deserialize)]
     struct Q {
         contest_id: String,
@@ -134,10 +121,7 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
     request
         .post_unpack::<Q>()
         .await
-        .and_then(|(q, conn, user_id)| conn.join_contest(&q.contest_id, &user_id))
-        .and_then(|_| {
-            let response = Response::ok().body_json(&serde_json::json!({}))?;
-            Ok(response)
-        })
-        .unwrap_response()
+        .and_then(|(q, conn, user_id)| conn.join_contest(&q.contest_id, &user_id))?;
+    let response = Response::ok().body_json(&serde_json::json!({}))?;
+    Ok(response)
 }
