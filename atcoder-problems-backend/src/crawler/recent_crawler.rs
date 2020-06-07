@@ -54,7 +54,7 @@ mod tests {
     use crate::crawler::utils::MockFetcher;
     use crate::sql::models::{Contest, Problem, Submission};
     use crate::sql::SubmissionRequest;
-    use futures::executor::block_on;
+    use async_std::task::block_on;
 
     #[test]
     fn test_recent_crawler() {

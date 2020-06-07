@@ -3,11 +3,11 @@ use atcoder_problems_backend::crawler::WholeContestCrawler;
 use atcoder_problems_backend::error::Result;
 use atcoder_problems_backend::sql::models::Contest;
 use atcoder_problems_backend::sql::{connect, SimpleClient};
-use futures::executor::block_on;
 use log::{error, info};
 use std::{env, thread, time};
 
-fn main() {
+#[async_std::main]
+async fn main() {
     simple_logger::init_with_level(log::Level::Info).unwrap();
     info!("Started");
     let url = env::var("SQL_URL").expect("SQL_URL is not set.");
@@ -18,7 +18,7 @@ fn main() {
         match load_contest(&url) {
             Ok(contests) => {
                 for contest in contests.into_iter() {
-                    finish_one_contest(&url, &contest.id);
+                    finish_one_contest(&url, &contest.id).await;
                 }
             }
             Err(e) => {
@@ -29,10 +29,10 @@ fn main() {
     }
 }
 
-fn finish_one_contest(url: &str, contest_id: &str) {
+async fn finish_one_contest(url: &str, contest_id: &str) {
     loop {
         info!("Starting {}", contest_id);
-        match block_on(crawl_one_contest(url, contest_id)) {
+        match crawl_one_contest(url, contest_id).await {
             Ok(_) => {
                 info!("Finished {}", contest_id);
                 return;

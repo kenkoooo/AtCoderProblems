@@ -3,7 +3,6 @@ use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
 use atcoder_problems_backend::error::Result;
 use atcoder_problems_backend::sql::connect;
 use chrono::Utc;
-use futures::executor::block_on;
 use std::time::{Duration, Instant};
 use std::{env, thread};
 
@@ -26,7 +25,8 @@ async fn crawl(url: &str) -> Result<()> {
     Ok(())
 }
 
-fn main() {
+#[async_std::main]
+async fn main() {
     simple_logger::init_with_level(log::Level::Info).expect("Failed to initialize the logger.");
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
     log::info!("Started");
@@ -35,7 +35,7 @@ fn main() {
         log::info!("Start new loop...");
         let now = Instant::now();
 
-        if let Err(e) = block_on(crawl(&url)) {
+        if let Err(e) = crawl(&url).await {
             log::error!("{:?}", e);
         }
 
