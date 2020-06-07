@@ -48,7 +48,7 @@ mod tests {
     use crate::crawler::utils::MockFetcher;
     use crate::sql::models::Submission;
     use crate::sql::SubmissionRequest;
-    use futures::executor::block_on;
+    use async_std::task::block_on;
 
     struct MockDB;
     impl SubmissionClient for MockDB {
