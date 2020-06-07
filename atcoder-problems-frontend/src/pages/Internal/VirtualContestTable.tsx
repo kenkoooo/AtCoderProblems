@@ -79,7 +79,7 @@ export const VirtualContestTable: React.FC<Props> = (props) => {
           return formatMode(mode);
         }}
       >
-        Start
+        Mode
       </TableHeaderColumn>
       <TableHeaderColumn
         dataField="start_epoch_second"
