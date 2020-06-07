@@ -1,13 +1,14 @@
-use crate::server::utils::{RequestUnpack, UnwrapResponse};
+use crate::server::utils::RequestUnpack;
 use crate::server::{AppData, Authentication, CommonResponse};
 use crate::sql::internal::virtual_contest_manager::{VirtualContestItem, VirtualContestManager};
 
 use serde::Deserialize;
 use tide::{Request, Response};
 
-pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'static>(
-    request: Request<AppData<A>>,
-) -> tide::Result<Response> {
+pub(crate) async fn create_contest<A>(request: Request<AppData<A>>) -> tide::Result<Response>
+where
+    A: Authentication + Clone + Send + Sync + 'static,
+{
     #[derive(Deserialize)]
     struct Q {
         title: String,
@@ -16,28 +17,24 @@ pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'st
         duration_second: i64,
         mode: Option<String>,
     }
-    let contest_id = request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(q, conn, user_id)| {
-            let contest_id = conn.create_contest(
-                &q.title,
-                &q.memo,
-                &user_id,
-                q.start_epoch_second,
-                q.duration_second,
-                q.mode.as_deref(),
-            )?;
-            Ok(contest_id)
-        })?;
+    let (q, conn, user_id) = request.post_unpack::<Q>().await?;
+    let contest_id = conn.create_contest(
+        &q.title,
+        &q.memo,
+        &user_id,
+        q.start_epoch_second,
+        q.duration_second,
+        q.mode.as_deref(),
+    )?;
     let body = serde_json::json!({ "contest_id": contest_id });
     let response = Response::ok().body_json(&body)?;
     Ok(response)
 }
 
-pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'static>(
-    request: Request<AppData<A>>,
-) -> tide::Result<Response> {
+pub(crate) async fn update_contest<A>(request: Request<AppData<A>>) -> tide::Result<Response>
+where
+    A: Authentication + Clone + Send + Sync + 'static,
+{
     #[derive(Deserialize)]
     struct Q {
         id: String,
@@ -48,16 +45,15 @@ pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'st
         mode: Option<String>,
     }
 
-    request.post_unpack::<Q>().await.and_then(|(q, conn, _)| {
-        conn.update_contest(
-            &q.id,
-            &q.title,
-            &q.memo,
-            q.start_epoch_second,
-            q.duration_second,
-            q.mode.as_deref(),
-        )
-    })?;
+    let (q, conn, _) = request.post_unpack::<Q>().await?;
+    conn.update_contest(
+        &q.id,
+        &q.title,
+        &q.memo,
+        q.start_epoch_second,
+        q.duration_second,
+        q.mode.as_deref(),
+    )?;
     Ok(Response::ok().body_json(&serde_json::json!({}))?)
 }
 
@@ -69,30 +65,25 @@ pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'stat
         contest_id: String,
         problems: Vec<VirtualContestItem>,
     }
-    request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(q, conn, user_id)| conn.update_items(&q.contest_id, &q.problems, &user_id))?;
+
+    let (q, conn, user_id) = request.post_unpack::<Q>().await?;
+    conn.update_items(&q.contest_id, &q.problems, &user_id)?;
     Ok(Response::ok().body_json(&serde_json::json!({}))?)
 }
 
 pub(crate) async fn get_my_contests<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
 ) -> tide::Result<Response> {
-    let contests = request
-        .get_unpack()
-        .await
-        .and_then(|(conn, user_id)| conn.get_own_contests(&user_id))?;
+    let (conn, user_id) = request.get_unpack().await?;
+    let contests = conn.get_own_contests(&user_id)?;
     Ok(Response::ok().body_json(&contests)?)
 }
 
 pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
 ) -> tide::Result<Response> {
-    let contests = request
-        .get_unpack()
-        .await
-        .and_then(|(conn, user_id)| conn.get_participated_contests(&user_id))?;
+    let (conn, user_id) = request.get_unpack().await?;
+    let contests = conn.get_participated_contests(&user_id)?;
     Ok(Response::ok().body_json(&contests)?)
 }
 
@@ -118,10 +109,8 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
     struct Q {
         contest_id: String,
     }
-    request
-        .post_unpack::<Q>()
-        .await
-        .and_then(|(q, conn, user_id)| conn.join_contest(&q.contest_id, &user_id))?;
+    let (q, conn, user_id) = request.post_unpack::<Q>().await?;
+    conn.join_contest(&q.contest_id, &user_id)?;
     let response = Response::ok().body_json(&serde_json::json!({}))?;
     Ok(response)
 }

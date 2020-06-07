@@ -1,5 +1,5 @@
 use crate::crawler::AtCoderFetcher;
-use crate::error::Error;
+use crate::error::Result;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
 use async_trait::async_trait;
 
@@ -14,11 +14,11 @@ where
         (self.0)(contest_id, page)
     }
 
-    async fn fetch_contests(&self, _: u32) -> Result<Vec<Contest>, Error> {
+    async fn fetch_contests(&self, _: u32) -> Result<Vec<Contest>> {
         unimplemented!()
     }
 
-    async fn fetch_problems(&self, _: &str) -> Result<(Vec<Problem>, Vec<ContestProblem>), Error> {
+    async fn fetch_problems(&self, _: &str) -> Result<(Vec<Problem>, Vec<ContestProblem>)> {
         unimplemented!()
     }
 }

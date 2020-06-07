@@ -1,4 +1,4 @@
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
@@ -12,7 +12,6 @@ use crate::server::problem_list::{
 };
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
-use cookie::Cookie;
 use std::time::Duration;
 use tide::StatusCode;
 
@@ -159,21 +158,6 @@ impl<A> AppData<A> {
         Self {
             pool,
             authentication,
-        }
-    }
-    pub(crate) fn respond<F>(&self, f: F) -> tide::Response
-    where
-        F: FnOnce(&diesel::PgConnection) -> Result<tide::Response>,
-    {
-        match self.pool.get() {
-            Ok(conn) => f(&conn).unwrap_or_else(|e| {
-                log::error!("{:?}", e);
-                tide::Response::bad_request()
-            }),
-            Err(e) => {
-                log::error!("SQL Connection Failed {:?}", e);
-                tide::Response::internal_error()
-            }
         }
     }
 }

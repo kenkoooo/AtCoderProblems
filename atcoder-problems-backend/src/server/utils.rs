@@ -1,10 +1,10 @@
 use crate::error::Result;
-use crate::server::{AppData, Authentication, CommonResponse, PooledConnection};
+use crate::server::{AppData, Authentication, PooledConnection};
 
-use crate::error::Error::CookieNotFound;
+use crate::error::ErrorTypes::CookieNotFound;
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
-use tide::{Request, Response};
+use tide::Request;
 
 #[async_trait]
 pub(crate) trait RequestUnpack {
@@ -36,7 +36,3 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         Ok((body, conn, response.id.to_string()))
     }
 }
-
-pub(crate) trait UnwrapResponse {}
-
-impl UnwrapResponse for Result<Response> {}
