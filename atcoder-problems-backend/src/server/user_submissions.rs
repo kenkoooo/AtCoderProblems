@@ -1,4 +1,4 @@
-use crate::server::{utils, AppData, CommonResponse};
+use crate::server::{AppData, CommonResponse};
 use crate::sql::{SubmissionClient, SubmissionRequest};
 use serde::Deserialize;
 use tide::{Request, Response};
@@ -42,10 +42,10 @@ pub(crate) async fn get_users_time_submissions<A>(
 
     let conn = request.state().pool.get()?;
     let query = request.query::<Query>()?;
-    let user_ids = query.users.split(",").map(|s| s.trim()).collect::<Vec<_>>();
+    let user_ids = query.users.split(',').map(|s| s.trim()).collect::<Vec<_>>();
     let problem_ids = query
         .problems
-        .split(",")
+        .split(',')
         .map(|s| s.trim())
         .collect::<Vec<_>>();
     let submissions = conn.get_submissions(SubmissionRequest::UsersProblemsTime {

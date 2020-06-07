@@ -1,4 +1,4 @@
-use atcoder_problems_backend::error::{Error, Result};
+use atcoder_problems_backend::error::Result;
 use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
 
 use async_std::future::ready;
@@ -6,6 +6,7 @@ use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::GitHubUserResponse;
+use http_types::StatusCode;
 use rand::Rng;
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -23,13 +24,13 @@ impl Authentication for MockAuth {
     async fn get_token(&self, code: &str) -> Result<String> {
         match code {
             VALID_CODE => Ok(VALID_TOKEN.to_owned()),
-            _ => Err(Error::OtherError),
+            _ => Err(http_types::Error::from_str(StatusCode::Forbidden, "error")),
         }
     }
     async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse> {
         match token {
             VALID_TOKEN => Ok(GitHubUserResponse::default()),
-            _ => Err(Error::OtherError),
+            _ => Err(http_types::Error::from_str(StatusCode::Forbidden, "error")),
         }
     }
 }
