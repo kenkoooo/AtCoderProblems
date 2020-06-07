@@ -27,7 +27,8 @@ old_sponsored_contests = {"code-festival-2014-exhibition", "code-festival-2014-f
                           "tenka1-2015-final", "tenka1-2015-quala", "tenka1-2015-qualb"}
 
 
-prohibited_problem_ids = {"codefestival_2016_final_j", "discovery_2016_final_e", "arc047_d", "arc022_4", "tenka1_2013_qualB_d"}
+prohibited_problem_ids = {"codefestival_2016_final_j",
+                          "discovery_2016_final_e", "arc047_d", "arc022_4", "tenka1_2013_qualB_d"}
 
 
 class AtCoderCSRFExtractor(HTMLParser):
@@ -189,22 +190,27 @@ def is_agc_easiest_problem(task_screen_name):
 
 
 def fit_problem_model(user_results, task_screen_name):
-    max_score = max(task_result[task_screen_name + ".score"] for task_result in user_results)
+    max_score = max(task_result[task_screen_name + ".score"]
+                    for task_result in user_results)
     if max_score == 0.:
-        print(f"The problem {task_screen_name} is not solved by any competitors. skipping.")
+        print(
+            f"The problem {task_screen_name} is not solved by any competitors. skipping.")
         return {}
     for task_result in user_results:
-        task_result[task_screen_name + ".ac"] *= float(task_result[task_screen_name + ".score"] == max_score)
+        task_result[task_screen_name +
+                    ".ac"] *= float(task_result[task_screen_name + ".score"] == max_score)
     elapsed = [task_result[task_screen_name + ".elapsed"]
                for task_result in user_results]
     first_ac = min(elapsed)
 
-    recurring_users = [task_result for task_result in user_results if task_result["prev_contests"] > 0 and task_result["rating"] > 0]
+    recurring_users = [
+        task_result for task_result in user_results if task_result["prev_contests"] > 0 and task_result["rating"] > 0]
     for task_result in recurring_users:
-        task_result["raw_rating"] = inverse_adjust_rating(task_result["rating"], task_result["prev_contests"])
+        task_result["raw_rating"] = inverse_adjust_rating(
+            task_result["rating"], task_result["prev_contests"])
     time_model_sample_users = [task_result for task_result in recurring_users
-                   if task_result[task_screen_name + ".time"] > first_ac / 2 and task_result[
-                       task_screen_name + ".ac"] == 1.]
+                               if task_result[task_screen_name + ".time"] > first_ac / 2 and task_result[
+                                   task_screen_name + ".ac"] == 1.]
     model = {}
     if len(time_model_sample_users) < 40:
         print(
@@ -228,13 +234,15 @@ def fit_problem_model(user_results, task_screen_name):
 
     if is_very_easy_problem(task_screen_name):
         # ad-hoc. excluding high-rating competitors from abc-a/abc-b dataset. They often skip these problems.
-        difficulty_dataset = [task_result for task_result in recurring_users if task_result["is_rated"] and not task_result["retreated"]]
+        difficulty_dataset = [
+            task_result for task_result in recurring_users if task_result["is_rated"] and not task_result["retreated"]]
     elif is_agc_easiest_problem(task_screen_name):
         # ad-hoc. AGC-A usually have missing data for negative samples.
         difficulty_dataset = recurring_users
     else:
         # normal. using all participants with at least one submissions
-        difficulty_dataset = [task_result for task_result in recurring_users if not task_result["retreated"]]
+        difficulty_dataset = [
+            task_result for task_result in recurring_users if not task_result["retreated"]]
     if len(difficulty_dataset) < 40:
         print(
             f"{task_screen_name}: insufficient data ({len(difficulty_dataset)} users). skip estimating difficulty model.")
@@ -248,7 +256,8 @@ def fit_problem_model(user_results, task_screen_name):
         d_accepteds = [task_result[task_screen_name + ".ac"]
                        for task_result in difficulty_dataset]
         if is_agc_easiest_problem(task_screen_name):
-            difficulty, discrimination, retreat_proba = fit_3plm_irt(d_raw_ratings, d_accepteds)
+            difficulty, discrimination, retreat_proba = fit_3plm_irt(
+                d_raw_ratings, d_accepteds)
         else:
             difficulty, discrimination = fit_2plm_irt(
                 d_raw_ratings, d_accepteds)
@@ -263,10 +272,13 @@ def fit_problem_model(user_results, task_screen_name):
             model["discrimination"] = discrimination
         if is_agc_easiest_problem(task_screen_name):
             # evaluate difficulty and discrimination using 2plm data.
-            d_retreateds = [task_result["retreated"] for task_result in difficulty_dataset]
-            loglikelihood, users = evaluate_3plm_irt(d_raw_ratings, d_accepteds, difficulty, discrimination, d_retreateds)
+            d_retreateds = [task_result["retreated"]
+                            for task_result in difficulty_dataset]
+            loglikelihood, users = evaluate_3plm_irt(
+                d_raw_ratings, d_accepteds, difficulty, discrimination, d_retreateds)
         else:
-            loglikelihood, users = evaluate_2plm_irt(d_raw_ratings, d_accepteds, difficulty, discrimination)
+            loglikelihood, users = evaluate_2plm_irt(
+                d_raw_ratings, d_accepteds, difficulty, discrimination)
         model["irt_loglikelihood"] = loglikelihood
         model["irt_users"] = users
     return model
@@ -321,7 +333,8 @@ def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, sess
                 user_row[task_screen_name + ".elapsed"] = elapsed
                 user_row[task_screen_name + ".time"] = penalty + elapsed - \
                     max(t for t in prev_accepted_times if t < elapsed)
-                user_row[task_screen_name + ".ac"] = float(task_result["Status"] == 1)
+                user_row[task_screen_name +
+                         ".ac"] = float(task_result["Status"] == 1)
         user_results.append(user_row)
 
     if len(user_results) == 0:
@@ -332,7 +345,8 @@ def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, sess
     user_results_by_problem = defaultdict(list)
     for task_screen_name in task_names.keys():
         if task_screen_name in existing_problem:
-            print(f"The problem model for {task_screen_name} already exists. skipping.")
+            print(
+                f"The problem model for {task_screen_name} already exists. skipping.")
             continue
         user_results_by_problem[task_screen_name] += user_results
     return user_results_by_problem, standings
@@ -347,7 +361,7 @@ def get_current_models():
 
 
 def infer_contest_type(contest) -> ContestType:
-    if contest["rate_change"] == "All":
+    if contest["rate_change"] == "All" or contest["rate_change"] == "1200 ~ ":
         return ContestType.AGC
     elif contest["rate_change"] == " ~ 2799":
         return ContestType.NEW_ARC
@@ -372,14 +386,17 @@ def all_rated_contests():
     contests = requests.get(
         "https://kenkoooo.com/atcoder/resources/contests.json").json()
     contests.sort(key=lambda contest: contest["start_epoch_second"])
-    contests_and_types = [(contest["id"], infer_contest_type(contest)) for contest in contests]
+    contests_and_types = [(contest["id"], infer_contest_type(contest))
+                          for contest in contests]
     return [(contest_id, contest_type) for contest_id, contest_type in contests_and_types if contest_type != ContestType.UNRATED]
 
 
 def all_contest_problems():
-    problems = requests.get("https://kenkoooo.com/atcoder/resources/problems.json").json()
+    problems = requests.get(
+        "https://kenkoooo.com/atcoder/resources/problems.json").json()
     # exclude marathon-like problems
-    problems = [problem for problem in problems if problem["id"] not in prohibited_problem_ids]
+    problems = [problem for problem in problems if problem["id"]
+                not in prohibited_problem_ids]
     return {contest_id: set(problem["id"] for problem in problems) for contest_id, problems in itertools.groupby(problems, key=lambda problem: problem["contest_id"])}
 
 
@@ -406,7 +423,8 @@ def run(target, overwrite, session):
             print("All problem models of contest {} are already estimated. specify overwrite = True if you want to update the model.".format(contest))
             continue
         is_old_contest = not contest_type.is_rated
-        user_results_by_problem, standings = fetch_dataset_for_contest(contest, contest_type, existing_problems, session)
+        user_results_by_problem, standings = fetch_dataset_for_contest(
+            contest, contest_type, existing_problems, session)
         for problem, data_points in user_results_by_problem.items():
             if recompute_history:
                 # overwrite competition history, and rating if necessary
@@ -414,9 +432,11 @@ def run(target, overwrite, session):
                     # contests before official rating system. using the emulated rating
                     experimental_problems.add(problem)
                     for data_point in data_points:
-                        prev_contests = rating_system.competition_count(data_point["user_name"])
+                        prev_contests = rating_system.competition_count(
+                            data_point["user_name"])
                         data_point["prev_contests"] = prev_contests
-                        data_point["rating"] = rating_system.calc_rating(data_point["user_name"]) if prev_contests > 0 else 0
+                        data_point["rating"] = rating_system.calc_rating(
+                            data_point["user_name"]) if prev_contests > 0 else 0
                 else:
                     # contests after official rating system. using the official rating
                     if contest_type.is_rated:
@@ -427,10 +447,12 @@ def run(target, overwrite, session):
                         if data_point["rating"] == 0:
                             # AtCoder returns 0 for OldRating if the user has no submission in the contest.
                             # It is not ideal when these users is also a part of dataset (e.g. AGC-A workaround)
-                            data_point["rating"] = last_nonzero_rating.get(user_name, 0)
+                            data_point["rating"] = last_nonzero_rating.get(
+                                user_name, 0)
                         else:
                             last_nonzero_rating[user_name] = data_point["rating"]
-                        data_point["prev_contests"] = len(competition_history_by_id[user_name]) - 1
+                        data_point["prev_contests"] = len(
+                            competition_history_by_id[user_name]) - 1
             dataset_by_problem[problem] += data_points
         if recompute_history and is_old_contest:
             print("Updating user rating with the result of {}".format(contest))
