@@ -2,7 +2,6 @@ use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler::WholeContestCrawler;
 use atcoder_problems_backend::error::Result;
 use atcoder_problems_backend::sql::{connect, SimpleClient};
-use futures::executor::block_on;
 use log::info;
 use std::{env, thread, time};
 
@@ -23,14 +22,15 @@ async fn iteration(url: &str) -> Result<()> {
     Ok(())
 }
 
-fn main() {
+#[async_std::main]
+async fn main() {
     simple_logger::init_with_level(log::Level::Info).unwrap();
     info!("Started");
     let url = env::var("SQL_URL").expect("SQL_URL is not set.");
 
     loop {
         info!("Start new loop");
-        if let Err(e) = block_on(iteration(&url)) {
+        if let Err(e) = iteration(&url).await {
             log::error!("{:?}", e);
             thread::sleep(time::Duration::from_millis(1000));
         }
