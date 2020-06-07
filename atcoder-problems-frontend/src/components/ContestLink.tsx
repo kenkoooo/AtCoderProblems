@@ -28,16 +28,21 @@ function getRatedTarget(contest: Contest): RatedTarget {
       return RatedTargetType.Unrated;
     case "All":
       return RatedTargetType.All;
-    case /\d+/.test(contest.rate_change) ? contest.rate_change : false: {
-      const tmp = /\d+/.exec(contest.rate_change);
-      if (tmp !== null) {
-        return parseInt(tmp[0], 10);
-      } else {
+    default: {
+      const range = contest.rate_change.split("~").map((r) => r.trim());
+      if (range.length != 2) {
         return RatedTargetType.Unrated;
       }
-    }
-    default:
+      const upperBound = parseInt(range[1]);
+      if (upperBound) {
+        return upperBound;
+      }
+      const lowerBound = parseInt(range[0]);
+      if (lowerBound) {
+        return RatedTargetType.All;
+      }
       return RatedTargetType.Unrated;
+    }
   }
 }
 
