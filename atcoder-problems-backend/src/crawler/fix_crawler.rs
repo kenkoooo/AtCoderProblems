@@ -62,7 +62,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use futures::executor::block_on;
+    use async_std::task::block_on;
     const CURRENT_TIME: i64 = 100;
 
     struct MockDB;
