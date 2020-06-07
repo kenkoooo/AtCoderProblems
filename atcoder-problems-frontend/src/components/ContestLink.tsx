@@ -10,14 +10,14 @@ interface Props {
   title?: string;
 }
 
-enum RatedTargetType {
+export enum RatedTargetType {
   All,
   Unrated,
 }
 
 type RatedTarget = number | RatedTargetType;
 
-function getRatedTarget(contest: Contest): RatedTarget {
+export function getRatedTarget(contest: Contest): RatedTarget {
   if (AGC_001_START > contest.start_epoch_second) {
     return RatedTargetType.Unrated;
   }
@@ -30,7 +30,7 @@ function getRatedTarget(contest: Contest): RatedTarget {
       return RatedTargetType.All;
     default: {
       const range = contest.rate_change.split("~").map((r) => r.trim());
-      if (range.length != 2) {
+      if (range.length !== 2) {
         return RatedTargetType.Unrated;
       }
       const upperBound = parseInt(range[1]);
