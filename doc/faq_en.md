@@ -40,5 +40,5 @@ FYI: [On Estimating the Difficulty of AtCoder Problems](http://pepsin-amylase.ha
 
 ## What is Current Streak / Longest Streak?
 
-Current Streak is the number of continuous days on which you solve a new problem that you have not solved before.
+Current Streak is the number of consecutive days on which you solve a new problem that you have not solved before.
 Longest Streak is the maximum value of Current Streak.
