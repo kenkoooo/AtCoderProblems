@@ -2,6 +2,31 @@
 
 [![Build Status](https://travis-ci.org/kenkoooo/AtCoderProblems.svg?branch=master)](https://travis-ci.org/kenkoooo/AtCoderProblems)
 
+## Table of Contents
+
+- [atcoder-problems-frontend](#atcoder-problems-frontend)
+  - [Install required packages](#install-required-packages)
+  - [Start the web application on your local machine](#start-the-web-application-on-your-local-machine)
+  - [Build optimized files for distribution](#build-optimized-files-for-distribution)
+  - [Fix code formatting](#fix-code-formatting)
+  - [Run end-to-end test](#run-end-to-end-test)
+  - [Open Cypress Test Runner](#open-cypress-test-runner)
+- [atcoder-problems-backend](#atcoder-problems-backend)
+  - [Build](#build)
+  - [Run](#run)
+- [API](#api)
+  - [Information API](#information-api)
+  - [Statistics API](#statistics-api)
+  - [Submission API](#submission-api)
+  - [Time-based Submission API](#time-based-submission-api)
+    - [Interface](#interface)
+    - [Example](#example)
+- [Datasets](#datasets)
+  - [Submissions](#submissions)
+  - [Estimated Difficulties of the Problems](#estimated-difficulties-of-the-problems)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 # atcoder-problems-frontend
 
 `atcoder-problems-frontend` is a web application written in TypeScript.
@@ -12,7 +37,7 @@
 yarn
 ```
 
-## Start the web application on your local
+## Start the web application on your local machine
 
 ```bash
 yarn start
@@ -24,7 +49,7 @@ yarn start
 yarn build
 ```
 
-## Fix code format
+## Fix code formatting
 
 ```bash
 yarn lint:fix
@@ -46,8 +71,8 @@ yarn cy:open
 
 `atcoder-problems-backend` is a set of backend applications written in Rust.
 
-Since the web app, which is running in your local, will connect to the
-production backend server, you don't need to run backend applications in most cases.
+Since the web app, which is running on your local machine, connects to the
+production backend server, you don't need to run the backend applications in most cases.
 
 ## Build
 
@@ -60,8 +85,8 @@ cargo build
 
 ```bash
 export SQL_URL=... # URL of PostgreSQL
-export CLIENT_ID=... # GitHub client_id, which is required to use login function.
-export CLIENT_SECRET=... # GitHub client_secret, which is required to use login function.
+export CLIENT_ID=... # GitHub client_id, which is required to use the login function.
+export CLIENT_SECRET=... # GitHub client_secret, which is required to use the login function.
 
 # Run backend server
 cargo run --bin run_server
@@ -83,8 +108,8 @@ cargo run --bin fix_invalid_submissions
 
 # API
 
-Please use API politely.
-Especially, please ensure using cache and adding delay if you develop a bot.
+Please use the API politely.
+Especially, please ensure that you are using cache and adding delays between API calls if you are developing a bot.
 
 API は行儀良く利用してください。
 特に bot を開発している場合は、ETag を用いたキャッシュを利用し、連続して呼び出す際はある程度 (例えば 1 秒) の遅延をはさむようにしてください。
@@ -102,7 +127,7 @@ bot の場合も 1 日に 1000 回以下程度のリクエストであればた�
   - https://kenkoooo.com/atcoder/resources/problems.json
 - Detailed Problems Information
   - https://kenkoooo.com/atcoder/resources/merged-problems.json
-- Pairs of contests and problems
+- Pairs of Contests and Problems
   - https://kenkoooo.com/atcoder/resources/contest-problem.json
 
 ## Statistics API
@@ -132,7 +157,7 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/from/{unix_time_second}
 
 - https://kenkoooo.com/atcoder/atcoder-api/v3/from/1505342145
 
-# Dataset
+# Datasets
 
 ## Submissions
 
@@ -140,6 +165,6 @@ This will be updated once a week.
 
 - https://s3-ap-northeast-1.amazonaws.com/kenkoooo/submissions.csv.gz
 
-## Estimated difficulties of the problems
+## Estimated Difficulties of the Problems
 
 - https://kenkoooo.com/atcoder/resources/problem-models.json
