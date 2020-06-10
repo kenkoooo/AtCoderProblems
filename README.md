@@ -14,18 +14,8 @@
 - [atcoder-problems-backend](#atcoder-problems-backend)
   - [Build](#build)
   - [Run](#run)
-- [API](#api)
-  - [Information API](#information-api)
-  - [Statistics API](#statistics-api)
-  - [Submission API](#submission-api)
-  - [Time-based Submission API](#time-based-submission-api)
-    - [Interface](#interface)
-    - [Example](#example)
-- [Datasets](#datasets)
-  - [Submissions](#submissions)
-  - [Estimated Difficulties of the Problems](#estimated-difficulties-of-the-problems)
-
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+- [API](./doc/api.md)
+- [FAQ (en)](./doc/faq_en.md) / [FAQ (ja)](./doc/faq_ja.md)
 
 # atcoder-problems-frontend
 
