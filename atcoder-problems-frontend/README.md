@@ -2,6 +2,9 @@
 
 `atcoder-problems-frontend` is a web application written in TypeScript.
 
+## Prerequirements
+- [Yarn](https://yarnpkg.com/)
+
 ## Install required packages
 
 ```bash
@@ -14,16 +17,12 @@ yarn
 yarn start
 ```
 
-## Build optimized files for distribution
+You can see it on http://localhost:3000/
+
+## Create a production build
 
 ```bash
 yarn build
-```
-
-## Fix code formatting
-
-```bash
-yarn lint:fix
 ```
 
 ## Run end-to-end test
