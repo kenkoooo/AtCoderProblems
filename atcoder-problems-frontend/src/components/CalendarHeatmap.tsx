@@ -19,7 +19,7 @@ export function CalendarHeatmap(props: Props): React.ReactElement {
   const blockWidth = 10;
   const xOffset = blockWidth * 1.6;
   const yOffset = blockWidth;
-  const width = xOffset + blockWidth * props.columns;
+  const width = xOffset + blockWidth * props.columns + blockWidth * 0.5;
   const height = yOffset + blockWidth * props.rows;
   return (
     <div style={{ width: "100%" }}>
