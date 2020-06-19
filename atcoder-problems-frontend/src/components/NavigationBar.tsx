@@ -19,6 +19,7 @@ import { UserResponse } from "../pages/Internal/types";
 import { GITHUB_LOGIN_LINK } from "../utils/Url";
 import { ACCOUNT_INFO } from "../utils/RouterPath";
 import { UserSearchBar } from "./UserSearchBar";
+import { ThemeSelector } from "./ThemeSelector";
 
 interface InnerProps {
   loginState: PromiseState<UserResponse | null>;
@@ -142,6 +143,8 @@ const InnerNavigationBar: React.FC<InnerProps> = (props) => {
           </Nav>
 
           <Nav className="ml-auto" navbar>
+            <ThemeSelector />
+
             <NavItem>
               <NavLink tag={RouterLink} to="/contest/recent">
                 Virtual Contests
