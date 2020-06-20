@@ -23,10 +23,11 @@ interface Props {
     dateSecond: number;
     countMap: Map<RatingColor, number>;
   }[];
+  reverseColorOrder: boolean;
 }
 
 export const ClimbingAreaChart: React.FC<Props> = (props) => {
-  const { colorClimbing } = props;
+  const { colorClimbing, reverseColorOrder } = props;
 
   const dailyCount = colorClimbing.map(({ dateSecond, countMap }) => {
     return { ...mapToObject(countMap), dateSecond };
@@ -56,13 +57,16 @@ export const ClimbingAreaChart: React.FC<Props> = (props) => {
           <YAxis />
           <Tooltip content={DailyEffortTooltip} />
 
-          {RatingColors.map((ratingColor) => {
+          {(reverseColorOrder
+            ? ([...RatingColors].reverse() as ReadonlyArray<RatingColor>)
+            : RatingColors
+          ).map((ratingColor) => {
             const color = getRatingColorCode(ratingColor);
             return (
               <Area
                 type="monotone"
                 dataKey={ratingColor}
-                key={ratingColor}
+                key={`${ratingColor}${reverseColorOrder ? "_r" : ""}`}
                 stackId="1"
                 stroke={color}
                 fill={color}
