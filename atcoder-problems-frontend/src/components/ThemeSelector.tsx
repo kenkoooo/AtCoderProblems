@@ -36,7 +36,7 @@ export const ThemeSelector: React.FC = () => {
             style={{ cursor: "pointer" }}
             onClick={(): void => setTheme("dark")}
           >
-            Dark
+            Dark (Beta)
           </DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
