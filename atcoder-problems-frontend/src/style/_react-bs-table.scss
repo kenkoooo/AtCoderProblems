@@ -52,8 +52,8 @@ $react-bs-table-border-color: #ddd !default;
 }
 
 .react-bs-table .table-bordered {
-    border: 0;
-    outline: none !important;
+  border: 0;
+  outline: none !important;
 }
 
 .react-bs-table .table-bordered > thead > tr > th,
@@ -122,60 +122,196 @@ $react-bs-table-border-color: #ddd !default;
   font-weight: normal;
 }
 
-.react-bs-table .react-bs-container-header > table > thead > tr > th .select-filter option[value=''],
-.react-bs-table .react-bs-container-header > table > thead > tr > th .select-filter.placeholder-selected,
-.react-bs-table .react-bs-container-header > table > thead > tr > th .filter::-webkit-input-placeholder,
-.react-bs-table .react-bs-container-header > table > thead > tr > th .number-filter-input::-webkit-input-placeholder{
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .select-filter
+  option[value=""],
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .select-filter.placeholder-selected,
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .filter::-webkit-input-placeholder,
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .number-filter-input::-webkit-input-placeholder {
   color: $react-bs-table-lightgrey;
   font-style: italic;
 }
 
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .select-filter option[value=''],
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .select-filter.placeholder-selected,
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .filter::-webkit-input-placeholder,
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .number-filter-input::-webkit-input-placeholder{
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .select-filter
+  option[value=""],
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .select-filter.placeholder-selected,
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .filter::-webkit-input-placeholder,
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .number-filter-input::-webkit-input-placeholder {
   color: $react-bs-table-lightgrey;
   font-style: italic;
 }
 
-.react-bs-table .react-bs-container-header > table > thead > tr > th .select-filter.placeholder-selected option:not([value='']),
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .select-filter.placeholder-selected option:not([value='']) {
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .select-filter.placeholder-selected
+  option:not([value=""]),
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .select-filter.placeholder-selected
+  option:not([value=""]) {
   color: initial;
   font-style: initial;
 }
 
-.react-bs-table .react-bs-container-header > table > thead > tr > th .number-filter,
-.react-bs-table .react-bs-container-header > table > thead > tr > th .date-filter {
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .number-filter,
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .date-filter {
   display: flex;
 }
 
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .number-filter,
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .date-filter {
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .number-filter,
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .date-filter {
   display: flex;
 }
 
-.react-bs-table .react-bs-container-header > table > thead > tr > th .number-filter-input,
-.react-bs-table .react-bs-container-header > table > thead > tr > th .date-filter-input {
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .number-filter-input,
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .date-filter-input {
   margin-left: 5px;
   float: left;
   width: calc(100% - 67px - 5px);
 }
 
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .number-filter-input,
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .date-filter-input {
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .number-filter-input,
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .date-filter-input {
   margin-left: 5px;
   float: left;
   width: calc(100% - 67px - 5px);
 }
 
-.react-bs-table .react-bs-container-header > table > thead > tr > th .number-filter-comparator,
-.react-bs-table .react-bs-container-header > table > thead > tr > th .date-filter-comparator {
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .number-filter-comparator,
+.react-bs-table
+  .react-bs-container-header
+  > table
+  > thead
+  > tr
+  > th
+  .date-filter-comparator {
   width: 67px;
   float: left;
 }
 
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .number-filter-comparator,
-.react-bs-table .react-bs-container-footer > table > thead > tr > th .date-filter-comparator {
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .number-filter-comparator,
+.react-bs-table
+  .react-bs-container-footer
+  > table
+  > thead
+  > tr
+  > th
+  .date-filter-comparator {
   width: 67px;
   float: left;
 }
@@ -185,7 +321,7 @@ $react-bs-table-border-color: #ddd !default;
 }
 
 /*inline editor default style*/
-.react-bs-container .form-control.editor{
+.react-bs-container .form-control.editor {
   /*width:100%;
   top:0;
   left:0;*/
@@ -193,7 +329,7 @@ $react-bs-table-border-color: #ddd !default;
   position: absolute;*/
 }
 
-.react-bs-container  .textarea-save-btn{
+.react-bs-container .textarea-save-btn {
   position: absolute;
   z-index: 100;
   right: 0;
@@ -203,7 +339,6 @@ $react-bs-table-border-color: #ddd !default;
 .react-bs-table-no-data {
   text-align: center;
 }
-
 
 .ReactModal__Overlay {
   -webkit-perspective: 600;
@@ -252,33 +387,36 @@ $react-bs-table-border-color: #ddd !default;
 }
 
 .animated.bounceIn,
-.animated.bounceOut{
-  animation-duration: .75s;
+.animated.bounceOut {
+  animation-duration: 0.75s;
 }
 
-.animated.shake{
-  animation-duration: .3s;
+.animated.shake {
+  animation-duration: 0.3s;
 }
 
 td.react-bs-table-expand-cell {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 th.react-bs-table-expand-cell > div {
   cursor: pointer;
 }
 
-
 @keyframes shake {
-  from, to {
+  from,
+  to {
     transform: translate3d(0, 0, 0);
   }
 
-  10%,  50%,  90% {
+  10%,
+  50%,
+  90% {
     transform: translate3d(-10px, 0, 0);
   }
 
-  30%, 70%{
+  30%,
+  70% {
     transform: translate3d(10px, 0, 0);
   }
 }
@@ -288,13 +426,18 @@ th.react-bs-table-expand-cell > div {
 }
 
 @keyframes bounceIn {
-  from, 20%, 40%, 60%, 80%, to {
-    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  from,
+  20%,
+  40%,
+  60%,
+  80%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
   }
 
   0% {
     opacity: 0;
-    transform: scale3d(.3, .3, .3);
+    transform: scale3d(0.3, 0.3, 0.3);
   }
 
   20% {
@@ -302,7 +445,7 @@ th.react-bs-table-expand-cell > div {
   }
 
   40% {
-    transform: scale3d(.9, .9, .9);
+    transform: scale3d(0.9, 0.9, 0.9);
   }
 
   60% {
@@ -311,7 +454,7 @@ th.react-bs-table-expand-cell > div {
   }
 
   80% {
-    transform: scale3d(.97, .97, .97);
+    transform: scale3d(0.97, 0.97, 0.97);
   }
 
   to {
@@ -326,17 +469,18 @@ th.react-bs-table-expand-cell > div {
 
 @keyframes bounceOut {
   20% {
-    transform: scale3d(.9, .9, .9);
+    transform: scale3d(0.9, 0.9, 0.9);
   }
 
-  50%, 55% {
+  50%,
+  55% {
     opacity: 1;
     transform: scale3d(1.1, 1.1, 1.1);
   }
 
   to {
     opacity: 0;
-    transform: scale3d(.3, .3, .3);
+    transform: scale3d(0.3, 0.3, 0.3);
   }
 }
 

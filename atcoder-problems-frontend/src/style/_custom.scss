@@ -1,3 +1,23 @@
+// Color Variables
+
+$difficulty-red-color: #ff0000 !default;
+$difficulty-orange-color: #ff8000 !default;
+$difficulty-yellow-color: #c0c000 !default;
+$difficulty-blue-color: #0000ff !default;
+$difficulty-cyan-color: #00c0c0 !default;
+$difficulty-green-color: #008000 !default;
+$difficulty-brown-color: #804000 !default;
+$difficulty-grey-color: #808080 !default;
+
+$success-intime-bg-color: #9ad59e !default;
+$warning-intime-bg-color: #ffdd99 !default;
+$success-before-contest-bg-color: #99ccff !default;
+$success-intime-hover-bg-color: #88cc88 !default;
+$warning-intime-hover-bg-color: #f0cc99 !default;
+$success-before-contest-hover-bg-color: #88bbff !default;
+
+// Style
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -49,28 +69,28 @@ span.difficulty-circle {
 }
 
 .difficulty-red {
-  color: #ff0000;
+  color: $difficulty-red-color;
 }
 .difficulty-orange {
-  color: #ff8000;
+  color: $difficulty-orange-color;
 }
 .difficulty-yellow {
-  color: #c0c000;
+  color: $difficulty-yellow-color;
 }
 .difficulty-blue {
-  color: #0000ff;
+  color: $difficulty-blue-color;
 }
 .difficulty-cyan {
-  color: #00c0c0;
+  color: $difficulty-cyan-color;
 }
 .difficulty-green {
-  color: #008000;
+  color: $difficulty-green-color;
 }
 .difficulty-brown {
-  color: #804000;
+  color: $difficulty-brown-color;
 }
 .difficulty-grey {
-  color: #808080;
+  color: $difficulty-grey-color;
 }
 
 .table-problem {
@@ -83,37 +103,37 @@ span.difficulty-circle {
 .table-success-language,
 .table-success-language > td,
 .table-success-language > th {
-  background-color: #9ad59e;
+  background-color: $success-intime-bg-color;
 }
 
 .table-warning-intime,
 .table-warning-intime > td,
 .table-warning-intime > th {
-  background-color: #ffdd99;
+  background-color: $warning-intime-bg-color;
 }
 
 .table-success-before-contest,
 .table-success-before-contest > td,
 .table-success-before-contest > th {
-  background-color: #99ccff;
+  background-color: $success-before-contest-bg-color;
 }
 
 .table-hover .table-success-intime:hover,
 .table-hover .table-success-intime:hover > td,
 .table-hover .table-success-intime:hover > th {
-  background-color: #88cc88;
+  background-color: $success-intime-hover-bg-color;
 }
 
 .table-hover .table-warning-intime:hover,
 .table-hover .table-warning-intime:hover > td,
 .table-hover .table-warning-intime:hover > th {
-  background-color: #f0cc99;
+  background-color: $warning-intime-hover-bg-color;
 }
 
 .table-hover .table-success-before-contest:hover,
 .table-hover .table-success-before-contest:hover > td,
 .table-hover .table-success-before-contest:hover > th {
-  background-color: #88bbff;
+  background-color: $success-before-contest-hover-bg-color;
 }
 
 .table-problem-timespan {
