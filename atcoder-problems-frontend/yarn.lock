@@ -1672,6 +1672,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-helmet@6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@types/react-helmet/-/react-helmet-6.0.0.tgz#5b74e44a12662ffb12d1c97ee702cf4e220958cf"
+  integrity sha512-NBMPAxgjpaMooXa51cU1BTgrX6T+hQbMiLm77JhBbfOzPQea3RB5rNpPOD5xGWHIVpGXHd59cltEzIq0qglGcQ==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-measure@2.0.5":
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/@types/react-measure/-/react-measure-2.0.5.tgz#c1d304e3cab3a1c393342bf377b040628e6c29a8"
