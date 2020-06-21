@@ -1,4 +1,5 @@
 import { List } from "immutable";
+import { Theme, ThemeLight } from "../style/theme";
 
 const userIdRegex = /[0-9a-zA-Z_]+/;
 export const ATCODER_USER_REGEXP = new RegExp(`^${userIdRegex.source}$`);
@@ -69,7 +70,7 @@ export const getRatingColor = (rating: number): RatingColor => {
   const index = Math.min(Math.floor(rating / 400), RatingColors.length - 2);
   return RatingColors[index + 1];
 };
-type RatingColorClassName =
+export type RatingColorClassName =
   | "difficulty-black"
   | "difficulty-grey"
   | "difficulty-brown"
@@ -102,26 +103,29 @@ export const getRatingColorClass = (rating: number): RatingColorClassName => {
       return "difficulty-red";
   }
 };
-export const getRatingColorCode = (ratingColor: RatingColor): string => {
+export const getRatingColorCode = (
+  ratingColor: RatingColor,
+  theme: Theme = ThemeLight
+): string => {
   switch (ratingColor) {
     case "Black":
-      return "#101010";
+      return theme.difficultyBlackColor;
     case "Grey":
-      return "#808080";
+      return theme.difficultyGreyColor;
     case "Brown":
-      return "#804000";
+      return theme.difficultyBrownColor;
     case "Green":
-      return "#008000";
+      return theme.difficultyGreenColor;
     case "Cyan":
-      return "#00C0C0";
+      return theme.difficultyCyanColor;
     case "Blue":
-      return "#0000FF";
+      return theme.difficultyBlueColor;
     case "Yellow":
-      return "#C0C000";
+      return theme.difficultyYellowColor;
     case "Orange":
-      return "#FF8000";
+      return theme.difficultyOrangeColor;
     case "Red":
-      return "#FF0000";
+      return theme.difficultyRedColor;
   }
 };
 

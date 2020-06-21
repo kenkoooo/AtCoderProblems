@@ -40,16 +40,18 @@ $gray-800: #222 !default;
 $gray-900: #212529 !default;
 $black: #000 !default;
 
-$blue: #2a9fd6 !default;
-$indigo: #6610f2 !default;
-$purple: #6f42c1 !default;
-$pink: #e83e8c !default;
-$red: #cc0000 !default;
-$orange: #fd7e14 !default;
-$yellow: #ff8800 !default;
-$green: #77b300 !default;
-$teal: #20c997 !default;
+$blue: #0e7aac !default;
+$indigo: #5805dd !default;
+$purple: #5b28bb !default;
+$pink: #d61e74 !default;
+$red: #b40000 !default;
+$orange: #ff7809 !default;
+$yellow: #fdd90a !default;
+$green: #4b7000 !default;
+$teal: #0b9c71 !default;
 $cyan: #9933cc !default;
+
+$link-color: #36aae0 !default;
 
 $primary: $blue !default;
 $secondary: $gray-600 !default;
@@ -148,6 +150,12 @@ $pagination-disabled-border-color: $pagination-border-color !default;
 
 $jumbotron-bg: $gray-700 !default;
 
+// Alerts
+
+$alert-bg-level: 4 !default;
+$alert-border-level: -9 !default;
+$alert-color-level: -10 !default;
+
 // Cards
 
 $card-bg: $gray-700 !default;
@@ -217,17 +225,44 @@ $react-bs-table-border-color: $gray-700;
 
 // AtCoder Problems Color Override
 
+// Variables to make the auto generated color for tables sane.
 $table-bg-level: 7;
-$table-border-level: 6;
+$table-border-level: -10;
 
-$success-intime-bg-color: #39883f;
-$warning-intime-bg-color: #996f1c;
-$success-before-contest-bg-color: #15518d;
+$difficulty-grey-color: #c0c0c0 !default;
+$difficulty-brown-color: #ffa244 !default;
+$difficulty-green-color: #3faf3f !default;
+$difficulty-cyan-color: #42e0e0 !default;
+$difficulty-blue-color: #8888ff !default;
+$difficulty-yellow-color: #ffff56 !default;
+$difficulty-orange-color: #ffc86f !default;
+$difficulty-red-color: #ff6767 !default;
+
+$success-bg-color: #005c08;
+$success-hover-bg-color: darken($success-bg-color, 5%);
+
+$success-intime-bg-color: darken($success-bg-color, 5%);
 $success-intime-hover-bg-color: darken($success-intime-bg-color, 5%);
+
+$warning-bg-color: #5d3e00;
+$warning-hover-bg-color: darken($warning-bg-color, 5%);
+
+$warning-intime-bg-color: darken($warning-bg-color, 5%);
 $warning-intime-hover-bg-color: darken($warning-intime-bg-color, 5%);
+
+$success-before-contest-bg-color: #002a55;
 $success-before-contest-hover-bg-color: darken(
   $success-before-contest-bg-color,
   5%
 );
+
+$danger-bg-color: #4b0000;
+$danger-hover-bg-color: darken($danger-bg-color, 5%);
+
+table.table-bordered,
+table.table-bordered th,
+table.table-bordered td {
+  border-color: #484848 !important;
+}
 
 @import "common";
