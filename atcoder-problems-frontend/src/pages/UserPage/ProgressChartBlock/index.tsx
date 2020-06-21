@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, ButtonGroup, Button } from "reactstrap";
+import { Row, FormGroup, ButtonGroup, Button, Label, Input } from "reactstrap";
 import {
   getRatingColor,
   RatingColor,
@@ -38,22 +38,20 @@ interface ChartTypeTabProps {
 const ChartTypeTabButtons: React.FC<ChartTypeTabProps> = (props) => {
   const { active, setActive } = props;
   return (
-    <Row>
-      <ButtonGroup className="table-tab">
-        {chartTypes.map((chartType, i) => (
-          <Button
-            key={i}
-            color="secondary"
-            onClick={(): void => {
-              setActive(chartType);
-            }}
-            active={active === chartType}
-          >
-            {chartType}
-          </Button>
-        ))}
-      </ButtonGroup>
-    </Row>
+    <ButtonGroup className="mr-3 table-tab">
+      {chartTypes.map((chartType, i) => (
+        <Button
+          key={i}
+          color="secondary"
+          onClick={(): void => {
+            setActive(chartType);
+          }}
+          active={active === chartType}
+        >
+          {chartType}
+        </Button>
+      ))}
+    </ButtonGroup>
   );
 };
 
@@ -66,6 +64,10 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
     climbingLineChartAactiveTab,
     setClimbingLineChartAactiveTab,
   ] = useLocalStorage<ChartType>("climbingLineChartAactiveTab", "Simple");
+  const [reverseColorOrder, setReverseColorOrder] = useLocalStorage(
+    "climbingLineChartReverseColorOrder",
+    false
+  );
   const {
     problemModels,
     submissions,
@@ -154,10 +156,12 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
       <Row className="my-2 border-bottom">
         <h1>Daily Effort</h1>
       </Row>
-      <ChartTypeTabButtons
-        active={dailyEffortBarChartAactiveTab}
-        setActive={setDailyEffortBarChartAactiveTab}
-      />
+      <Row>
+        <ChartTypeTabButtons
+          active={dailyEffortBarChartAactiveTab}
+          setActive={setDailyEffortBarChartAactiveTab}
+        />
+      </Row>
       {dailyEffortBarChartAactiveTab === "Simple" ? (
         <DailyEffortBarChart
           dailyData={dailyCount.map(({ dateLabel, count }) => ({
@@ -172,14 +176,30 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
       <Row className="my-2 border-bottom">
         <h1>Climbing</h1>
       </Row>
-      <ChartTypeTabButtons
-        active={climbingLineChartAactiveTab}
-        setActive={setClimbingLineChartAactiveTab}
-      />
+      <Row>
+        <ChartTypeTabButtons
+          active={climbingLineChartAactiveTab}
+          setActive={setClimbingLineChartAactiveTab}
+        />
+        <FormGroup check inline>
+          <Label check>
+            <Input
+              type="checkbox"
+              checked={reverseColorOrder}
+              onChange={(e): void => setReverseColorOrder(e.target.checked)}
+              disabled={climbingLineChartAactiveTab !== "Colored"}
+            />
+            Reverse Color Order
+          </Label>
+        </FormGroup>
+      </Row>
       {climbingLineChartAactiveTab === "Simple" ? (
         <ClimbingLineChart climbingData={climbing} />
       ) : (
-        <ClimbingAreaChart colorClimbing={colorClimbing} />
+        <ClimbingAreaChart
+          colorClimbing={colorClimbing}
+          reverseColorOrder={reverseColorOrder}
+        />
       )}
 
       <Row className="my-2 border-bottom">
