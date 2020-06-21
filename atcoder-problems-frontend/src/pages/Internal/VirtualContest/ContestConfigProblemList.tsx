@@ -6,9 +6,11 @@ import {
   InputGroupAddon,
   ListGroup,
   ListGroupItem,
+  ButtonGroup,
 } from "reactstrap";
 import { List, Map, Set } from "immutable";
 import { connect, PromiseState } from "react-refetch";
+import Octicon, { ChevronUp, ChevronDown } from "@primer/octicons-react";
 import { cachedSubmissions } from "../../../utils/CachedApiClient";
 import Problem from "../../../interfaces/Problem";
 import { VirtualContestItem } from "../types";
@@ -60,26 +62,54 @@ const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
               problemId
             )}
             {solvedUsers.length > 0 && <> solved by {solvedUsers.join(", ")}</>}
-            {p.point === null ? (
+            <ButtonGroup
+              size="sm"
+              style={{ float: "right", marginRight: "1rem" }}
+            >
+              {p.point === null ? (
+                <Button
+                  onClick={(): void => {
+                    props.setProblemSet(
+                      props.problemSet.update(i, (x) => ({
+                        ...x,
+                        point: 0,
+                      }))
+                    );
+                  }}
+                >
+                  Set Point
+                </Button>
+              ) : null}
               <Button
-                style={{ float: "right" }}
+                disabled={i === 0}
                 onClick={(): void => {
                   props.setProblemSet(
-                    props.problemSet.update(i, (x) => ({
-                      ...x,
-                      point: 0,
-                    }))
+                    props.problemSet
+                      .set(i - 1, props.problemSet.get(i)!)
+                      .set(i, props.problemSet.get(i - 1)!)
                   );
                 }}
               >
-                Set Point
+                <Octicon icon={ChevronUp} />
               </Button>
-            ) : null}
+              <Button
+                disabled={i === props.problemSet.size - 1}
+                onClick={(): void => {
+                  props.setProblemSet(
+                    props.problemSet
+                      .set(i, props.problemSet.get(i + 1)!)
+                      .set(i + 1, props.problemSet.get(i)!)
+                  );
+                }}
+              >
+                <Octicon icon={ChevronDown} />
+              </Button>
+            </ButtonGroup>
             {p.point !== null ? (
-              <InputGroup>
+              <InputGroup style={{ marginTop: "1rem" }}>
                 <Input
                   type="number"
-                  value={p.point}
+                  defaultValue={p.point}
                   onChange={(e): void => {
                     const parse = parseInt(e.target.value, 10);
                     const point = !isNaN(parse) ? parse : 0;
