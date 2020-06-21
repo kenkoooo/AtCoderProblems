@@ -9,7 +9,7 @@ type ThemeContextProps = [ThemeId, (newThemeId: ThemeId) => void];
 export const ThemeContext = React.createContext<ThemeContextProps>([
   "light",
   (): void => {
-    throw "setThemeId is not implemented.";
+    throw new Error("setThemeId is not implemented.");
   },
 ]);
 
