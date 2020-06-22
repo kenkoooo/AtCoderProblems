@@ -39,6 +39,7 @@ interface OuterProps {
   longestStreak: number;
   currentStreak: number;
   prevDateLabel: string;
+  streakSum: number;
 }
 
 interface InnerProps extends OuterProps {
@@ -51,7 +52,7 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
-  const { longestStreak, currentStreak, prevDateLabel } = props;
+  const { longestStreak, currentStreak, prevDateLabel, streakSum } = props;
   const shortRanking = props.shortestRanking.fulfilled
     ? props.shortestRanking.value
     : ([] as RankingEntry[]);
@@ -153,6 +154,10 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
           </h6>
           <h3>{isIncreasing ? currentStreak : 0} days</h3>
           <h6 className="text-muted">{`Last AC: ${prevDateLabel}`}</h6>
+        </Col>
+        <Col key="Streak Sum" className="text-center" xs="6" md="3">
+          <h6>Streak Sum</h6>
+          <h3>{streakSum} days</h3>
         </Col>
         <Col />
       </Row>
