@@ -153,7 +153,7 @@ const getRecommendProbabilityRange = (
 };
 
 interface Props {
-  readonly userSubmissions: List<Submission>;
+  readonly userSubmissions: Submission[];
   readonly problems: List<Problem>;
   readonly contests: ImmutableMap<string, Contest>;
   readonly problemModels: ImmutableMap<string, ProblemModel>;
@@ -176,7 +176,7 @@ export const Recommendations: React.FC<Props> = (props) => {
   const [recommendExperimental, setRecommendExperimental] = useState(true);
   const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
 
-  if (userSubmissions.isEmpty()) {
+  if (userSubmissions.length === 0) {
     return null;
   }
   const lastSolvedTimeMap = new Map<ProblemId, number>();
