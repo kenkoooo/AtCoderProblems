@@ -9,7 +9,7 @@
     "cy:run": "cypress run",
     "eject": "react-scripts eject",
     "format": "yarn run sort-package-json && yarn run prettier && yarn run lint:fix",
-    "lint": "eslint --ignore-path .gitignore \"**/*.{js,jsx,ts,tsx}\"",
+    "lint": "eslint --ignore-path .gitignore \"./src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "yarn run lint --fix",
     "prepare-ci": "rm -rf serve && mkdir serve && cp -r build serve/atcoder",
     "prettier": "prettier --write --ignore-path .gitignore \"**/*.{css,scss,html,js,json,jsx,md,ts,tsx}\"",
