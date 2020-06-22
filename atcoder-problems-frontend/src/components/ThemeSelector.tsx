@@ -1,45 +1,36 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
 } from "reactstrap";
-import { Helmet } from "react-helmet";
-import { useLocalStorage } from "../utils/LocalStorage";
-
-type Theme = "light" | "dark";
+import { ThemeContext } from "./ThemeProvider";
 
 export const ThemeSelector: React.FC = () => {
-  const [theme, setTheme] = useLocalStorage<Theme>("theme", "light");
+  const [, setThemeId] = useContext(ThemeContext);
 
   return (
-    <>
-      <Helmet>
-        <html className={`theme-${theme}`} />
-      </Helmet>
-
-      <UncontrolledDropdown nav inNavbar>
-        <DropdownToggle nav caret>
-          Theme
-        </DropdownToggle>
-        <DropdownMenu>
-          <DropdownItem
-            tag="a"
-            style={{ cursor: "pointer" }}
-            onClick={(): void => setTheme("light")}
-          >
-            Light
-          </DropdownItem>
-          <DropdownItem
-            tag="a"
-            style={{ cursor: "pointer" }}
-            onClick={(): void => setTheme("dark")}
-          >
-            Dark (Beta)
-          </DropdownItem>
-        </DropdownMenu>
-      </UncontrolledDropdown>
-    </>
+    <UncontrolledDropdown nav inNavbar>
+      <DropdownToggle nav caret>
+        Theme
+      </DropdownToggle>
+      <DropdownMenu>
+        <DropdownItem
+          tag="a"
+          style={{ cursor: "pointer" }}
+          onClick={(): void => setThemeId("light")}
+        >
+          Light
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          style={{ cursor: "pointer" }}
+          onClick={(): void => setThemeId("dark")}
+        >
+          Dark (Beta)
+        </DropdownItem>
+      </DropdownMenu>
+    </UncontrolledDropdown>
   );
 };
