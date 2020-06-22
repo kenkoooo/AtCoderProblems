@@ -27,6 +27,8 @@ $warning-intime-hover-bg-color: #f0cc99 !default;
 $danger-bg-color: #f5c6cb !default;
 $danger-hover-bg-color: #f1b0b7 !default;
 
+$penalties-color: #ff0000 !default;
+
 // Table Background Override Hatch
 
 .table-success,
@@ -190,10 +192,14 @@ span.difficulty-circle {
 
 .table-problem-timespan {
   position: absolute;
-  right: 0;
+  right: 0.1rem;
   bottom: 0;
   color: #888888;
   font-size: x-small;
+  .table-problem-timespan-penalty {
+    color: $penalties-color;
+    margin-left: 0.2rem;
+  }
 }
 
 .list-table tbody tr td,
