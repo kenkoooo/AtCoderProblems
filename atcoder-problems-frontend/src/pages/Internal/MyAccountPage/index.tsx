@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { connect, PromiseState } from "react-refetch";
+import { connect, PromiseState, PropsMapInner } from "react-refetch";
 import {
   Alert,
   Button,
@@ -33,35 +33,21 @@ interface InnerProps {
   updateUserInfoResponse: PromiseState<{} | null>;
 }
 
-export const MyAccountPage = connect<{}, InnerProps>(() => ({
-  userInfoGet: {
-    url: USER_GET,
-  },
-  updateUserInfo: (atcoderUser: string): any => ({
-    updateUserInfoResponse: {
-      force: true,
-      refreshing: true,
-      url: USER_UPDATE,
-      method: "POST",
-      body: JSON.stringify({ atcoder_user_id: atcoderUser }),
-    },
-  }),
-  updateUserInfoResponse: {
-    value: null,
-  },
-}))((props) => {
+const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
   const { userInfoGet, updateUserInfoResponse } = props;
+  const currentAtCoderId =
+    userInfoGet.fulfilled && userInfoGet.value
+      ? userInfoGet.value.atcoder_user_id
+      : "";
+
+  const [userId, setUserId] = useState(currentAtCoderId ?? "");
+  const [activeTab, setActiveTab] = useState<TabType>("Account Info");
+
   if (userInfoGet.rejected || updateUserInfoResponse.rejected) {
     return <Redirect to="/" />;
   } else if (userInfoGet.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else {
-    const userInfo = userInfoGet.value;
-    const [userId, setUserId] = useState(
-      userInfo && userInfo.atcoder_user_id ? userInfo.atcoder_user_id : ""
-    );
-    const [activeTab, setActiveTab] = useState<TabType>("Account Info");
-
     const updating = updateUserInfoResponse.refreshing;
     const updated =
       !updating &&
@@ -162,4 +148,24 @@ export const MyAccountPage = connect<{}, InnerProps>(() => ({
       </>
     );
   }
-});
+};
+
+export const MyAccountPage = connect<{}, InnerProps>(() => ({
+  userInfoGet: {
+    url: USER_GET,
+  },
+  updateUserInfo: (
+    atcoderUser: string
+  ): PropsMapInner<Pick<InnerProps, "updateUserInfoResponse">> => ({
+    updateUserInfoResponse: {
+      force: true,
+      refreshing: true,
+      url: USER_UPDATE,
+      method: "POST",
+      body: JSON.stringify({ atcoder_user_id: atcoderUser }),
+    },
+  }),
+  updateUserInfoResponse: {
+    value: null,
+  },
+}))(InnerMyAccountPage);

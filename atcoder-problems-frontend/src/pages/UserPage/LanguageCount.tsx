@@ -2,6 +2,7 @@ import React from "react";
 import { Row, Col } from "reactstrap";
 import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
+import { normalizeLanguage } from "../../utils/LanguageNormalizer";
 
 interface Props {
   submissions: Submission[];
@@ -11,9 +12,7 @@ const LanguageCount: React.FC<Props> = ({ submissions }) => {
   const languageMap = submissions
     .filter((s) => isAccepted(s.result))
     .reduce((map, submission) => {
-      const language = submission.language.startsWith("Perl6")
-        ? "Perl6"
-        : submission.language.replace(/\d* \(.*\)$/, "");
+      const language = normalizeLanguage(submission.language);
       const problems = map.get(language);
       if (problems) {
         problems.add(submission.problem_id);
