@@ -19,6 +19,7 @@ interface Props {
   colorMode: ColorMode;
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
+  showPenalties: boolean;
   selectedLanguages: Set<string>;
   title: string;
 }
@@ -31,6 +32,7 @@ export const ContestTable: React.FC<Props> = (props) => {
     statusLabelMap,
     colorMode,
     problemModels,
+    showPenalties,
     selectedLanguages,
   } = props;
   const mergedContests = contests
@@ -108,13 +110,13 @@ export const ContestTable: React.FC<Props> = (props) => {
                             problemTitle={problem.title}
                             contestId={problem.contest_id}
                           />
-                          <SubmitTimespan
-                            contest={contest}
-                            problemStatus={status}
-                            enableColorfulMode={
-                              props.colorMode === ColorMode.ContestResult
-                            }
-                          />
+                          {props.colorMode === ColorMode.ContestResult && (
+                            <SubmitTimespan
+                              contest={contest}
+                              problemStatus={status}
+                              showPenalties={showPenalties}
+                            />
+                          )}
                         </td>
                       );
                     })}

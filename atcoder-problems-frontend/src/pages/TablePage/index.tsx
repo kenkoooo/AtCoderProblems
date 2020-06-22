@@ -63,6 +63,10 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     "colorMode",
     ColorMode.None
   );
+  const [showPenalties, setShowPenalties] = useLocalStorage(
+    "showPenalties",
+    false
+  );
   const [selectedLanguages, setSelectedLanguages] = useState(Set<string>());
 
   const problemModels = problemModelsFetch.fulfilled
@@ -115,6 +119,8 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
         toggleShowDifficulties={(): void => setShowDifficulty(!showDifficulty)}
         colorMode={colorMode}
         setColorMode={setColorMode}
+        showPenalties={showPenalties}
+        toggleShowPenalties={(): void => setShowPenalties(!showPenalties)}
         selectableLanguages={selectableLanguages}
         selectedLanguages={selectedLanguages}
         toggleLanguage={(language): void =>
@@ -142,6 +148,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
           }
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
+          showPenalties={showPenalties}
           selectedLanguages={selectedLanguages}
         />
       ) : (
@@ -154,6 +161,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
           showSolved={showAccepted}
           colorMode={colorMode}
           statusLabelMap={statusLabelMap}
+          showPenalties={showPenalties}
           selectedLanguages={selectedLanguages}
         />
       )}

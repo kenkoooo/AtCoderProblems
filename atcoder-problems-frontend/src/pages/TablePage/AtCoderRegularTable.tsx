@@ -30,11 +30,12 @@ interface Props {
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
+  showPenalties: boolean;
   selectedLanguages: Set<string>;
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
-  const { colorMode, selectedLanguages } = props;
+  const { colorMode, selectedLanguages, showPenalties } = props;
   const contests = props.contests
     .map((contest) => {
       const problems = props.contestToProblems
@@ -152,13 +153,13 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       problemId={problem.problem.id}
                       problemTitle={problem.problem.title}
                     />
-                    <SubmitTimespan
-                      contest={contest}
-                      problemStatus={problem.status}
-                      enableColorfulMode={
-                        props.colorMode === ColorMode.ContestResult
-                      }
-                    />
+                    {props.colorMode === ColorMode.ContestResult && (
+                      <SubmitTimespan
+                        contest={contest}
+                        problemStatus={problem.status}
+                        showPenalties={showPenalties}
+                      />
+                    )}
                   </>
                 );
               } else {
