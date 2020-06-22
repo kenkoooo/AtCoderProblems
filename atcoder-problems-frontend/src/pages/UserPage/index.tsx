@@ -41,6 +41,35 @@ const TAB_PARAM = "userPageTab";
 
 type UserPageTab = typeof userPageTabs[number];
 
+const countByDate = (
+  userSubmissions: Submission[]
+): { dateLabel: string; count: number }[] => {
+  const submissionMap = new Map<ProblemId, Submission>();
+  userSubmissions
+    .filter((s) => isAccepted(s.result))
+    .forEach((submission) => {
+      const current = submissionMap.get(submission.problem_id);
+      if (current) {
+        if (current.id > submission.id) {
+          submissionMap.set(submission.problem_id, submission);
+        }
+      } else {
+        submissionMap.set(submission.problem_id, submission);
+      }
+    });
+
+  const dailyCount = Array.from(submissionMap)
+    .map(([, s]) => formatMomentDate(parseSecond(s.epoch_second)))
+    .reduce((map, date) => {
+      const count = map.get(date) ?? 0;
+      map.set(date, count + 1);
+      return map;
+    }, new Map<string, number>());
+  return Array.from(dailyCount)
+    .map(([dateLabel, count]) => ({ dateLabel, count }))
+    .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
+};
+
 interface OuterProps {
   userId: string;
 }
@@ -111,28 +140,11 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   const userSubmissions = submissions
     .valueSeq()
     .flatMap((list) => list)
-    .filter((s) => s.user_id === userId);
-
-  const dailyCount = submissions
-    .map((submissionList) =>
-      submissionList
-        .filter((s) => s.user_id === userId && isAccepted(s.result))
-        .map((s) => s.epoch_second)
-        .min()
-    )
-    .filter(
-      (second: number | undefined): second is number => second !== undefined
-    )
-    .map((second) => formatMomentDate(parseSecond(second)))
-    .reduce(
-      (map, date) => map.update(date, 0, (count) => count + 1),
-      ImmutableMap<string, number>()
-    )
-    .entrySeq()
-    .map(([dateLabel, count]) => ({ dateLabel, count }))
-    .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
+    .filter((s) => s.user_id === userId)
+    .toArray();
+  const dailyCount = countByDate(userSubmissions);
   const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
-    dailyCount.toArray()
+    dailyCount
   );
   const solvedProblemIds = submissions
     .entrySeq()
@@ -210,8 +222,8 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             submissions.map((submissionList) => submissionList.toArray())
           )}
           userId={userId}
-          dailyCount={dailyCount.toArray()}
-          userSubmissions={userSubmissions.toArray()}
+          dailyCount={dailyCount}
+          userSubmissions={userSubmissions}
         />
       )}
       {(userPageTab === "All" || userPageTab === "Submissions") && (
@@ -222,7 +234,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <SubmissionListTable
             problemModels={convertMap(problemModels)}
             problems={mergedProblems.valueSeq().toArray()}
-            submissions={userSubmissions.toArray()}
+            submissions={userSubmissions}
           />
         </>
       )}
@@ -231,7 +243,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <Row className="my-2 border-bottom">
             <h1>Languages</h1>
           </Row>
-          <LanguageCount submissions={userSubmissions.toArray()} />
+          <LanguageCount submissions={userSubmissions} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Recommendation") && (
@@ -240,7 +252,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             <h1>Recommendation</h1>
           </Row>
           <Recommendations
-            userSubmissions={userSubmissions.toList()}
+            userSubmissions={userSubmissions}
             problems={mergedProblems.valueSeq().toList()}
             contests={contests}
             problemModels={problemModels}
