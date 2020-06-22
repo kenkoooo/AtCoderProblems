@@ -1,20 +1,69 @@
 // Color Variables
 
-$difficulty-red-color: #ff0000 !default;
-$difficulty-orange-color: #ff8000 !default;
-$difficulty-yellow-color: #c0c000 !default;
-$difficulty-blue-color: #0000ff !default;
-$difficulty-cyan-color: #00c0c0 !default;
-$difficulty-green-color: #008000 !default;
-$difficulty-brown-color: #804000 !default;
 $difficulty-grey-color: #808080 !default;
+$difficulty-brown-color: #804000 !default;
+$difficulty-green-color: #008000 !default;
+$difficulty-cyan-color: #00c0c0 !default;
+$difficulty-blue-color: #0000ff !default;
+$difficulty-yellow-color: #c0c000 !default;
+$difficulty-orange-color: #ff8000 !default;
+$difficulty-red-color: #ff0000 !default;
+
+$success-bg-color: #c3e6cb !default;
+$success-hover-bg-color: #b1dfbb !default;
 
 $success-intime-bg-color: #9ad59e !default;
-$warning-intime-bg-color: #ffdd99 !default;
-$success-before-contest-bg-color: #99ccff !default;
 $success-intime-hover-bg-color: #88cc88 !default;
-$warning-intime-hover-bg-color: #f0cc99 !default;
+
+$success-before-contest-bg-color: #99ccff !default;
 $success-before-contest-hover-bg-color: #88bbff !default;
+
+$warning-bg-color: #ffeeba !default;
+$warning-hover-bg-color: #ffe8a1 !default;
+
+$warning-intime-bg-color: #ffdd99 !default;
+$warning-intime-hover-bg-color: #f0cc99 !default;
+
+$danger-bg-color: #f5c6cb !default;
+$danger-hover-bg-color: #f1b0b7 !default;
+
+// Table Background Override Hatch
+
+.table-success,
+.table-success > th,
+.table-success > td {
+  background-color: $success-bg-color !important;
+}
+
+.table-hover .table-success:hover,
+.table-hover .table-success:hover > th,
+.table-hover .table-success:hover > td {
+  background-color: $success-hover-bg-color !important;
+}
+
+.table-warning,
+.table-warning > th,
+.table-warning > td {
+  background-color: $warning-bg-color !important;
+}
+
+.table-hover .table-warning:hover,
+.table-hover .table-warning:hover > th,
+.table-hover .table-warning:hover > td {
+  background-color: $warning-hover-bg-color !important;
+}
+
+.table-danger,
+.table-danger > th,
+.table-danger > td {
+  background-color: $danger-bg-color !important;
+}
+
+.table-hover .table-danger:hover,
+.table-hover .table-danger:hover > th,
+.table-hover .table-danger:hover > td {
+  background-color: $danger-hover-bg-color !important;
+}
 
 // Style
 
@@ -120,7 +169,10 @@ span.difficulty-circle {
 
 .table-hover .table-success-intime:hover,
 .table-hover .table-success-intime:hover > td,
-.table-hover .table-success-intime:hover > th {
+.table-hover .table-success-intime:hover > th,
+.table-hover .table-success-language:hover,
+.table-hover .table-success-language:hover > td,
+.table-hover .table-success-language:hover > th {
   background-color: $success-intime-hover-bg-color;
 }
 
