@@ -195,6 +195,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           longestStreak={longestStreak}
           currentStreak={currentStreak}
           prevDateLabel={prevDateLabel}
+          streakSum={dailyCount.length}
         />
       )}
       {(userPageTab === "All" || userPageTab === "AtCoder Pie Charts") && (
