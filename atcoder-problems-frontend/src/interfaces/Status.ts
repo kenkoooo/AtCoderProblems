@@ -13,38 +13,47 @@ export enum StatusLabel {
 export const successStatus = (
   firstAcceptedEpochSecond: number,
   lastAcceptedEpochSecond: number,
-  solvedLanguages: Set<string>
+  solvedLanguages: Set<string>,
+  rejectedEpochSeconds: number[]
 ): {
   label: StatusLabel.Success;
   epoch: number;
   lastAcceptedEpochSecond: number;
   solvedLanguages: Set<string>;
+  rejectedEpochSeconds: number[];
 } => ({
   label: StatusLabel.Success as typeof StatusLabel.Success,
   epoch: firstAcceptedEpochSecond,
   lastAcceptedEpochSecond,
   solvedLanguages,
+  rejectedEpochSeconds,
 });
 export const failedStatus = (
-  solvedRivals: Set<string>
+  solvedRivals: Set<string>,
+  rejectedEpochSeconds: number[]
 ): {
   label: StatusLabel.Failed;
   solvedRivals: Set<string>;
+  rejectedEpochSeconds: number[];
 } => ({
   label: StatusLabel.Failed as typeof StatusLabel.Failed,
   solvedRivals,
+  rejectedEpochSeconds,
 });
 export const warningStatus = (
   result: string,
-  epoch: number
+  epoch: number,
+  rejectedEpochSeconds: number[]
 ): {
   label: StatusLabel.Warning;
   result: string;
   epoch: number;
+  rejectedEpochSeconds: number[];
 } => ({
   label: StatusLabel.Warning,
   result,
   epoch,
+  rejectedEpochSeconds,
 });
 export const noneStatus = (): {
   label: StatusLabel.None;
@@ -81,6 +90,10 @@ export const constructStatusLabelMap = (
       .filter((s) => s.user_id !== userId)
       .filter((s) => isAccepted(s.result));
 
+    const rejectedEpochSeconds = userRejected.map(
+      (submission) => submission.epoch_second
+    );
+
     if (userAccepted.length > 0) {
       const languageSet = new Set(userAccepted.map((s) => s.language));
       const firstSolvedEpochSecond = userAccepted
@@ -89,23 +102,28 @@ export const constructStatusLabelMap = (
       const lastSolvedEpochSecond = userAccepted
         .map((s) => s.epoch_second)
         .reduceRight((a, b) => Math.max(a, b));
+
       statusLabelMap.set(
         problemId,
         successStatus(
           firstSolvedEpochSecond,
           lastSolvedEpochSecond,
-          languageSet
+          languageSet,
+          rejectedEpochSeconds.filter((epoch) => epoch < firstSolvedEpochSecond)
         )
       );
     } else if (rivalAccepted.length > 0) {
       const rivalSet = new Set(rivalAccepted.map((s) => s.user_id));
-      statusLabelMap.set(problemId, failedStatus(rivalSet));
+      statusLabelMap.set(
+        problemId,
+        failedStatus(rivalSet, rejectedEpochSeconds)
+      );
     } else if (userRejected.length > 0) {
       userRejected.sort((a, b) => b.id - a.id);
       const last = userRejected[userRejected.length - 1];
       statusLabelMap.set(
         problemId,
-        warningStatus(last.result, last.epoch_second)
+        warningStatus(last.result, last.epoch_second, rejectedEpochSeconds)
       );
     } else {
       statusLabelMap.set(problemId, noneStatus());

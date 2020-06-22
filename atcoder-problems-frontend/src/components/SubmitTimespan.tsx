@@ -5,7 +5,7 @@ import { ProblemStatus, StatusLabel } from "../interfaces/Status";
 interface Props {
   contest: Contest;
   problemStatus?: ProblemStatus;
-  enableColorfulMode: boolean;
+  showPenalties: boolean;
 }
 
 const formatTimespan = (sec: number): string => {
@@ -20,18 +20,24 @@ const formatTimespan = (sec: number): string => {
 };
 
 const SubmitTimespan: React.FC<Props> = (props) => {
-  const { contest, problemStatus, enableColorfulMode } = props;
-  if (!enableColorfulMode) {
+  const { contest, problemStatus, showPenalties } = props;
+  if (!problemStatus || problemStatus.label === StatusLabel.None) {
     return null;
   }
 
+  const penalty = problemStatus.rejectedEpochSeconds.filter(
+    (epoch) => epoch <= contest.start_epoch_second + contest.duration_second
+  ).length;
+
   return (
     <div className="table-problem-timespan">
-      {!problemStatus ||
-      problemStatus.label !== StatusLabel.Success ||
+      {problemStatus.label !== StatusLabel.Success ||
       problemStatus.epoch > contest.start_epoch_second + contest.duration_second
         ? ""
         : formatTimespan(problemStatus.epoch - contest.start_epoch_second)}
+      {showPenalties && penalty > 0 && (
+        <span className="table-problem-timespan-penalty">{`(${penalty})`}</span>
+      )}
     </div>
   );
 };

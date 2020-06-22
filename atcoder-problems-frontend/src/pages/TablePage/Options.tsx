@@ -23,6 +23,8 @@ interface Props {
   toggleShowDifficulties: () => void;
   colorMode: ColorMode;
   setColorMode: (colorMode: ColorMode) => void;
+  showPenalties: boolean;
+  toggleShowPenalties: () => void;
   selectableLanguages: Set<string>;
   selectedLanguages: Set<string>;
   toggleLanguage: (language: string) => void;
@@ -55,6 +57,18 @@ const Options: React.FC<Props> = (props) => {
             </HelpBadgeTooltip>
           </Label>
         </FormGroup>
+        {props.colorMode === ColorMode.ContestResult && (
+          <FormGroup check inline>
+            <Label check>
+              <Input
+                type="checkbox"
+                checked={props.showPenalties}
+                onChange={props.toggleShowPenalties}
+              />
+              Show Penalties
+            </Label>
+          </FormGroup>
+        )}
         <UncontrolledDropdown>
           <DropdownToggle caret>
             {
