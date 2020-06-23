@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { connect, PromiseState, PropsMapInner } from "react-refetch";
 import {
   Alert,
@@ -35,13 +35,17 @@ interface InnerProps {
 
 const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
   const { userInfoGet, updateUserInfoResponse } = props;
-  const currentAtCoderId =
-    userInfoGet.fulfilled && userInfoGet.value
-      ? userInfoGet.value.atcoder_user_id
-      : "";
 
-  const [userId, setUserId] = useState(currentAtCoderId ?? "");
+  const [userId, setUserId] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>("Account Info");
+
+  useEffect(() => {
+    if (userInfoGet.fulfilled && userInfoGet.value) {
+      setUserId(userInfoGet.value.atcoder_user_id ?? "");
+    }
+    // We only want to set the userId when the userInfoGet promise is first fulfilled.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfoGet.fulfilled]);
 
   if (userInfoGet.rejected || updateUserInfoResponse.rejected) {
     return <Redirect to="/" />;
