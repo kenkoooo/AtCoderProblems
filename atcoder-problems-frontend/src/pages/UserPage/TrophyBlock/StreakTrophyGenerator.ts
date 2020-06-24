@@ -7,94 +7,43 @@ const generateLongestStreakTrophies = (
   language: string | null,
   longestStreak: number
 ): Trophy[] => {
-  const inLanguage = language ? ` in ${language}` : "";
-  const idHead = language ? `longest-streak-${language}` : "longest-streak";
-
-  const trophies = [
-    {
-      title: `Started your streak${inLanguage}`,
-      reason: `Longest Steak${inLanguage} >= 3 days`,
-      achieved: longestStreak >= 3,
-      sortId: `${idHead}-0003`,
-    },
-    {
-      title: `Keep solving problems${inLanguage} for a week`,
-      reason: `Longest Steak${inLanguage} >= 7 days`,
-      achieved: longestStreak >= 7,
-      sortId: `${idHead}-0007`,
-    },
-    {
-      title: `Keep solving problems${inLanguage} for 2 weeks`,
-      reason: `Longest Steak${inLanguage} >= 14 days`,
-      achieved: longestStreak >= 14,
-      sortId: `${idHead}-0014`,
-    },
-    {
-      title: `Keep solving problems${inLanguage} for a month`,
-      reason: `Longest Steak${inLanguage} >= 30 days`,
-      achieved: longestStreak >= 30,
-      sortId: `${idHead}-0030`,
-    },
-    {
-      title: `Keep solving problems${inLanguage} for 2 months`,
-      reason: `Longest Steak${inLanguage} >= 60 days`,
-      achieved: longestStreak >= 60,
-      sortId: `${idHead}-0060`,
-    },
-    {
-      title: `Keep solving problems${inLanguage} for a quarter`,
-      reason: `Longest Steak${inLanguage} >= 90 days`,
-      achieved: longestStreak >= 90,
-      sortId: `${idHead}-0090`,
-    },
-    {
-      title: `Keep solving problems${inLanguage} for half a year`,
-      reason: `Longest Steak${inLanguage} >= 180 days`,
-      achieved: longestStreak >= 180,
-      sortId: `${idHead}-0180`,
-    },
-    {
-      title: `Keep solving problems${inLanguage} for a year`,
-      reason: `Longest Steak${inLanguage} >= 365 days`,
-      achieved: longestStreak >= 365,
-      sortId: `${idHead}-0365`,
-    },
-    {
-      title: `Keep solving problems${inLanguage} for 2 years`,
-      reason: `Longest Steak${inLanguage} >= 730 days`,
-      achieved: longestStreak >= 730,
-      sortId: `${idHead}-0730`,
-    },
-    {
-      title: `Keep solving problems${inLanguage} for 3 years`,
-      reason: `Longest Steak${inLanguage} >= 1095 days`,
-      achieved: longestStreak >= 1095,
-      sortId: `${idHead}-1095`,
-    },
-    {
-      title: `1000 days${inLanguage}, can't stop`,
-      reason: `Longest Steak${inLanguage} >= 1000 days`,
-      achieved: longestStreak >= 1000,
-      sortId: `${idHead}-1000`,
-    },
+  const mileStones: [string, number][] = [
+    ["Welcome!", 3],
+    ["Golden Week", 7],
+    ["Real Golden Week", 14],
+    ["Vacation", 31],
+    ["Can't Come Back from Vacation", 62],
+    ["#SolveProblemEveryDay", 93],
+    ["Goal", 100],
+    ["Beyond Goal", 101],
+    ["Problem Solving is My Job", 180],
+    ["Happy Anniversary!", 365],
+    ["2nd Anniversary!", 730],
+    ["I am no genius. I am simply good at it.", 1000],
+    ["I am genius.", 1095],
   ];
+
   for (let i = 10; i < 100; i += 10) {
-    trophies.push({
-      title: `Keep solving problems${inLanguage} for ${i} days`,
-      reason: `Longest Steak${inLanguage} >= ${i} days`,
-      achieved: longestStreak >= i,
-      sortId: `${idHead}-${i.toString().padStart(4, "0")}`,
-    });
+    mileStones.push([`Keep solving problems for ${i} days`, i]);
   }
-  for (let i = 100; i < 1000; i += 50) {
-    trophies.push({
-      title: `Keep solving problems${inLanguage} for ${i} days`,
-      reason: `Longest Steak${inLanguage} >= ${i} days`,
-      achieved: longestStreak >= i,
-      sortId: `${idHead}-${i.toString().padStart(4, "0")}`,
-    });
+  for (let i = 150; i < 1000; i += 50) {
+    mileStones.push([`Keep solving problems for ${i} days`, i]);
   }
-  return trophies;
+
+  mileStones.map(([draft, days]) => {
+    return {};
+  });
+
+  return mileStones.map(([draftTitle, days]) => {
+    const header = language ? `[${language}] ` : "";
+    const title = header + draftTitle;
+    const reason = header + `Longest Streak >= ${days} days`;
+    const achieved = longestStreak >= days;
+    const sortId = `longest-streak-${
+      language ? language : "all"
+    }-${days.toString().padStart(4, "0")}`;
+    return { title, reason, achieved, sortId };
+  });
 };
 
 const calcStreakByLanguage = (

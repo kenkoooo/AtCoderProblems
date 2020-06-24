@@ -222,7 +222,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
       {(userPageTab === "All" || userPageTab === "Trophy") && (
         <>
           <Row className="my-2 border-bottom">
-            <h1>Trophy</h1>
+            <h1>Trophy [beta]</h1>
           </Row>
           <TrophyBlock submissions={userSubmissions} />
         </>
