@@ -1,6 +1,8 @@
 import Octicon, { Verified } from "@primer/octicons-react";
 import React from "react";
 import { Table, Row } from "reactstrap";
+import ProblemModel from "../../../interfaces/ProblemModel";
+import { ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
 import { generateACCountTrophies } from "./ACCountTrophyGenerator";
 import { generateStreakTrophies } from "./StreakTrophyGenerator";
@@ -8,13 +10,19 @@ import { Trophy } from "./Trophy";
 
 interface Props {
   submissions: Submission[];
+  problemModels: Map<ProblemId, ProblemModel>;
 }
 
 export const TrophyBlock = (props: Props): JSX.Element => {
-  const { submissions } = props;
+  const { submissions, problemModels } = props;
+  const trophySubmissions = submissions.map((submission) => {
+    const problemModel = problemModels.get(submission.problem_id);
+    return { submission, problemModel };
+  });
+
   const trophies = [] as Trophy[];
-  trophies.push(...generateStreakTrophies(submissions));
-  trophies.push(...generateACCountTrophies(submissions));
+  trophies.push(...generateStreakTrophies(trophySubmissions));
+  trophies.push(...generateACCountTrophies(trophySubmissions));
 
   const filteredTrophies = trophies
     .sort((a, b) => a.sortId.localeCompare(b.sortId))

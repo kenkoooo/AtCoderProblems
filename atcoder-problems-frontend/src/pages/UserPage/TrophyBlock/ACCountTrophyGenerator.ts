@@ -1,12 +1,12 @@
-import Submission from "../../../interfaces/Submission";
-import { isAccepted } from "../../../utils";
+import { getRatingColor, isAccepted, RatingColors } from "../../../utils";
 import { groupBy } from "../../../utils/GroupBy";
 import { normalizeLanguage } from "../../../utils/LanguageNormalizer";
-import { Trophy } from "./Trophy";
+import { Trophy, TrophySubmission } from "./Trophy";
 
 const generateACCountTrophiesByTag = (
   tag: string | null,
-  count: number
+  count: number,
+  idPrefix: string
 ): Trophy[] => {
   const milestones: [string, number][] = [
     ["Beginning", 1],
@@ -31,32 +31,47 @@ const generateACCountTrophiesByTag = (
     const title = header + draftTitle;
     const reason = header + `AC count >= ${c}`;
     const achieved = count >= c;
-    const sortId = `ac-count-${tag ? tag : "all"}-${count
-      .toString()
-      .padStart(5, "0")}`;
+    const sortId = `ac-count-${idPrefix}-${count.toString().padStart(5, "0")}`;
     return { title, reason, achieved, sortId };
   });
 };
 
-const countUniqueProblems = (submissions: Submission[]): number =>
-  new Set(submissions.map((s) => s.problem_id)).size;
+const countUniqueProblems = (submissions: TrophySubmission[]): number =>
+  new Set(submissions.map((s) => s.submission.problem_id)).size;
 
 export const generateACCountTrophies = (
-  allSubmissions: Submission[]
+  allSubmissions: TrophySubmission[]
 ): Trophy[] => {
-  const acSubmissions = allSubmissions.filter((s) => isAccepted(s.result));
+  const acSubmissions = allSubmissions.filter((s) =>
+    isAccepted(s.submission.result)
+  );
+  const trophies = [] as Trophy[];
 
   const submissionsByLanguage = groupBy(acSubmissions, (s) =>
-    normalizeLanguage(s.language)
+    normalizeLanguage(s.submission.language)
   );
-
-  const trophies = [] as Trophy[];
   Array.from(submissionsByLanguage).forEach(([language, submissions]) => {
     const count = countUniqueProblems(submissions);
-    trophies.push(...generateACCountTrophiesByTag(language, count));
+    trophies.push(
+      ...generateACCountTrophiesByTag(language, count, `language-${language}`)
+    );
+  });
+
+  const submissionsByDiff = groupBy(acSubmissions, (s) => {
+    const difficulty = s.problemModel?.difficulty;
+    return difficulty !== undefined ? getRatingColor(difficulty) : undefined;
+  });
+  Array.from(submissionsByDiff).forEach(([color, submissions]) => {
+    if (color) {
+      const count = countUniqueProblems(submissions);
+      const index = RatingColors.indexOf(color);
+      trophies.push(
+        ...generateACCountTrophiesByTag(color, count, `difficulty-${index}`)
+      );
+    }
   });
   const count = countUniqueProblems(acSubmissions);
-  trophies.push(...generateACCountTrophiesByTag(null, count));
+  trophies.push(...generateACCountTrophiesByTag(null, count, "all"));
 
   return trophies;
 };
