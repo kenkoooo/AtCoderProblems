@@ -24,6 +24,7 @@ const generateACCountTrophiesByTag = (
     ["Almost done", 2000],
     ["Looking for a new problem", 2500],
     ["AtCoder has only a few problems.", 3000],
+    ["You're tourist of Solving.", 3500],
   ];
 
   return milestones.map(([draftTitle, c]) => {
