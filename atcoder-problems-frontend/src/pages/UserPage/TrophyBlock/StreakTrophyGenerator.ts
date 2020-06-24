@@ -3,8 +3,8 @@ import { normalizeLanguage } from "../../../utils/LanguageNormalizer";
 import { calcStreak, countUniqueAcByDate } from "../../../utils/StreakCounter";
 import { Trophy } from "./Trophy";
 
-const generateLongestStreakTrophies = (
-  language: string | null,
+const generateStreakTrophiesByTag = (
+  tag: string | null,
   longestStreak: number
 ): Trophy[] => {
   const mileStones: [string, number][] = [
@@ -31,12 +31,12 @@ const generateLongestStreakTrophies = (
   }
 
   return mileStones.map(([draftTitle, days]) => {
-    const header = language ? `[${language}] ` : "";
+    const header = tag ? `[${tag}] ` : "";
     const title = header + draftTitle;
     const reason = header + `Longest Streak >= ${days} days`;
     const achieved = longestStreak >= days;
     const sortId = `longest-streak-${
-      language ? language : "all"
+      tag ? tag : "all"
     }-${days.toString().padStart(4, "0")}`;
     return { title, reason, achieved, sortId };
   });
@@ -67,18 +67,16 @@ const calcStreakByLanguage = (
   );
 };
 
-export const generateLanguageTrophies = (
-  submissions: Submission[]
-): Trophy[] => {
+export const generateStreakTrophies = (submissions: Submission[]): Trophy[] => {
   const streaks = calcStreakByLanguage(submissions);
   const trophies = [] as Trophy[];
   streaks.forEach(({ language, longestStreak }) => {
-    trophies.push(...generateLongestStreakTrophies(language, longestStreak));
+    trophies.push(...generateStreakTrophiesByTag(language, longestStreak));
   });
 
   const count = countUniqueAcByDate(submissions);
   const { longestStreak } = calcStreak(count);
-  trophies.push(...generateLongestStreakTrophies(null, longestStreak));
+  trophies.push(...generateStreakTrophiesByTag(null, longestStreak));
 
   return trophies;
 };
