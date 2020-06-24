@@ -1,5 +1,6 @@
 import Submission from "../../../interfaces/Submission";
 import { isAccepted } from "../../../utils";
+import { groupBy } from "../../../utils/GroupBy";
 import { normalizeLanguage } from "../../../utils/LanguageNormalizer";
 import { Trophy } from "./Trophy";
 
@@ -41,21 +42,13 @@ const countUniqueProblems = (submissions: Submission[]): number =>
   new Set(submissions.map((s) => s.problem_id)).size;
 
 export const generateACCountTrophies = (
-  submissions: Submission[]
+  allSubmissions: Submission[]
 ): Trophy[] => {
-  const acSubmissions = submissions.filter((s) => isAccepted(s.result));
+  const acSubmissions = allSubmissions.filter((s) => isAccepted(s.result));
 
-  const submissionsByLanguage = new Map<string, Submission[]>();
-  acSubmissions.forEach((s) => {
-    const language = normalizeLanguage(s.language);
-    const list = submissionsByLanguage.get(language);
-    if (list) {
-      list.push(s);
-      submissionsByLanguage.set(language, list);
-    } else {
-      submissionsByLanguage.set(language, [s]);
-    }
-  });
+  const submissionsByLanguage = groupBy(acSubmissions, (s) =>
+    normalizeLanguage(s.language)
+  );
 
   const trophies = [] as Trophy[];
   Array.from(submissionsByLanguage).forEach(([language, submissions]) => {

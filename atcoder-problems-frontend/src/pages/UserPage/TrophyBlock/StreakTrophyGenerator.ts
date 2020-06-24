@@ -1,4 +1,5 @@
 import Submission from "../../../interfaces/Submission";
+import { groupBy } from "../../../utils/GroupBy";
 import { normalizeLanguage } from "../../../utils/LanguageNormalizer";
 import { calcStreak, countUniqueAcByDate } from "../../../utils/StreakCounter";
 import { Trophy } from "./Trophy";
@@ -42,21 +43,9 @@ const generateStreakTrophiesByTag = (
   });
 };
 
-const calcStreakByLanguage = (
-  submissions: Submission[]
+const calcStreakByTag = (
+  submissionsByLanguage: Map<string, Submission[]>
 ): { language: string; longestStreak: number; totalDays: number }[] => {
-  const submissionsByLanguage = new Map<string, Submission[]>();
-  submissions.forEach((s) => {
-    const language = normalizeLanguage(s.language);
-    const list = submissionsByLanguage.get(language);
-    if (list) {
-      list.push(s);
-      submissionsByLanguage.set(language, list);
-    } else {
-      submissionsByLanguage.set(language, [s]);
-    }
-  });
-
   return Array.from(submissionsByLanguage).map(
     ([language, langSubmissions]) => {
       const count = countUniqueAcByDate(langSubmissions);
@@ -67,14 +56,18 @@ const calcStreakByLanguage = (
   );
 };
 
-export const generateStreakTrophies = (submissions: Submission[]): Trophy[] => {
-  const streaks = calcStreakByLanguage(submissions);
+export const generateStreakTrophies = (
+  allSubmissions: Submission[]
+): Trophy[] => {
   const trophies = [] as Trophy[];
-  streaks.forEach(({ language, longestStreak }) => {
+  const streaksByLanguage = calcStreakByTag(
+    groupBy(allSubmissions, (s) => normalizeLanguage(s.language))
+  );
+  streaksByLanguage.forEach(({ language, longestStreak }) => {
     trophies.push(...generateStreakTrophiesByTag(language, longestStreak));
   });
 
-  const count = countUniqueAcByDate(submissions);
+  const count = countUniqueAcByDate(allSubmissions);
   const { longestStreak } = calcStreak(count);
   trophies.push(...generateStreakTrophiesByTag(null, longestStreak));
 
