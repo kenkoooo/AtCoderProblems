@@ -60,7 +60,7 @@ export const generateStreakTrophies = (
   const submissionsByLanguage = groupBy(allSubmissions, (s) =>
     normalizeLanguage(s.submission.language)
   );
-  Array.from(submissionsByLanguage).map(([language, submissions]) => {
+  Array.from(submissionsByLanguage).forEach(([language, submissions]) => {
     const { longestStreak } = calcSubmissionsStreak(submissions);
     trophies.push(
       ...generateStreakTrophiesByTag(
@@ -75,7 +75,7 @@ export const generateStreakTrophies = (
     const difficulty = s.problemModel?.difficulty;
     return difficulty !== undefined ? getRatingColor(difficulty) : undefined;
   });
-  Array.from(submissionsByDifficulty).map(([color, submissions]) => {
+  Array.from(submissionsByDifficulty).forEach(([color, submissions]) => {
     if (color) {
       const index = RatingColors.indexOf(color);
       const { longestStreak } = calcSubmissionsStreak(submissions);
