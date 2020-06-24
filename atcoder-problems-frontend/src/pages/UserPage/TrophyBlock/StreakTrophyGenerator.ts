@@ -30,10 +30,6 @@ const generateLongestStreakTrophies = (
     mileStones.push([`Keep solving problems for ${i} days`, i]);
   }
 
-  mileStones.map(([draft, days]) => {
-    return {};
-  });
-
   return mileStones.map(([draftTitle, days]) => {
     const header = language ? `[${language}] ` : "";
     const title = header + draftTitle;
