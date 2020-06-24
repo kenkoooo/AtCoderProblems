@@ -4,6 +4,7 @@ const generateACTrophiesWithOneProblem = (
   acProblemIds: Set<string>
 ): Trophy[] => {
   const milestones: [string, string, string][] = [
+    ["New Era", "Accept AGC023-A", "agc023_a"],
     ["Transcendental number", "Accept WorldTourFinals2019-E", "wtf19_e"],
   ];
   return milestones.map(([draftTitle, reason, problem_id]) => {
