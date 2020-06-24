@@ -153,7 +153,7 @@ const InnerNavigationBar: React.FC<InnerProps> = (props) => {
 
             <NavItem>
               <NavLink tag={RouterLink} to="/training">
-                Training (beta)
+                Training
               </NavLink>
             </NavItem>
 

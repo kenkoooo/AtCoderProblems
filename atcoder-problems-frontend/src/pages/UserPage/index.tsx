@@ -8,7 +8,6 @@ import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import { isAccepted } from "../../utils";
-import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import { ContestId, ProblemId } from "../../interfaces/Status";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -17,14 +16,15 @@ import Problem from "../../interfaces/Problem";
 import { SubmissionListTable } from "../../components/SubmissionListTable";
 import { convertMap } from "../../utils/ImmutableMigration";
 import { generatePathWithParams } from "../../utils/QueryString";
+import { calcStreak, countUniqueAcByDate } from "../../utils/StreakCounter";
 import { isRatedContest } from "../TablePage/ContestClassifier";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
 import { Recommendations } from "./Recommendations";
 import LanguageCount from "./LanguageCount";
-import { calcStreak } from "./AchievementBlock/StreakCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
+import { TrophyBlock } from "./TrophyBlock/TrophyBlock";
 
 const userPageTabs = [
   "Achievement",
@@ -34,41 +34,13 @@ const userPageTabs = [
   "Submissions",
   "Recommendation",
   "Languages",
+  "Trophy",
   "All",
 ] as const;
 
 const TAB_PARAM = "userPageTab";
 
 type UserPageTab = typeof userPageTabs[number];
-
-const countByDate = (
-  userSubmissions: Submission[]
-): { dateLabel: string; count: number }[] => {
-  const submissionMap = new Map<ProblemId, Submission>();
-  userSubmissions
-    .filter((s) => isAccepted(s.result))
-    .forEach((submission) => {
-      const current = submissionMap.get(submission.problem_id);
-      if (current) {
-        if (current.id > submission.id) {
-          submissionMap.set(submission.problem_id, submission);
-        }
-      } else {
-        submissionMap.set(submission.problem_id, submission);
-      }
-    });
-
-  const dailyCount = Array.from(submissionMap)
-    .map(([, s]) => formatMomentDate(parseSecond(s.epoch_second)))
-    .reduce((map, date) => {
-      const count = map.get(date) ?? 0;
-      map.set(date, count + 1);
-      return map;
-    }, new Map<string, number>());
-  return Array.from(dailyCount)
-    .map(([dateLabel, count]) => ({ dateLabel, count }))
-    .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
-};
 
 interface OuterProps {
   userId: string;
@@ -142,7 +114,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
     .flatMap((list) => list)
     .filter((s) => s.user_id === userId)
     .toArray();
-  const dailyCount = countByDate(userSubmissions);
+  const dailyCount = countUniqueAcByDate(userSubmissions);
   const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
     dailyCount
   );
@@ -245,6 +217,14 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             <h1>Languages</h1>
           </Row>
           <LanguageCount submissions={userSubmissions} />
+        </>
+      )}
+      {(userPageTab === "All" || userPageTab === "Trophy") && (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Trophy [beta]</h1>
+          </Row>
+          <TrophyBlock submissions={userSubmissions} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Recommendation") && (
