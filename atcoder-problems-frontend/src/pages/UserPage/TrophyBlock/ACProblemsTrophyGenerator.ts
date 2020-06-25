@@ -7,8 +7,7 @@ const generateACTrophiesWithOneProblem = (
   const milestones: [string, string, string][] = [
     ["2718", "Solved WorldTourFinals2019-E", "wtf19_e"],
   ];
-  return milestones.map(([draftTitle, reason, problem_id]) => {
-    const title = draftTitle;
+  return milestones.map(([title, reason, problem_id]) => {
     const achieved = acProblemIds.has(problem_id);
     const sortId = `accepted-problem-${problem_id}`;
     return { title, reason, achieved, sortId };
