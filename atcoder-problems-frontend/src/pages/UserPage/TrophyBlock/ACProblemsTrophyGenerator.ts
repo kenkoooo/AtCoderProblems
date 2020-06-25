@@ -5,12 +5,12 @@ const generateACTrophiesWithOneProblem = (
   acProblemIds: Set<string>
 ): Trophy[] => {
   const milestones: [string, string, string][] = [
-    ["2718", "Accept WorldTourFinals2019-E", "wtf19_e"],
+    ["2718", "Solved WorldTourFinals2019-E", "wtf19_e"],
   ];
   return milestones.map(([draftTitle, reason, problem_id]) => {
     const title = draftTitle;
     const achieved = acProblemIds.has(problem_id);
-    const sortId = `accept-${problem_id}`;
+    const sortId = `accepted-problem-${problem_id}`;
     return { title, reason, achieved, sortId };
   });
 };
@@ -22,7 +22,7 @@ const uniqueACProblemIds = (submissions: TrophySubmission[]): Set<string> => {
   return new Set(acProblemIds);
 };
 
-export const generateACTrophies = (
+export const generateACProblemsTrophies = (
   allSubmissions: TrophySubmission[]
 ): Trophy[] => {
   const trophies = [] as Trophy[];
