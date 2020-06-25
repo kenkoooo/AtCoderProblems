@@ -1,3 +1,4 @@
+import { isAccepted } from "../../../utils";
 import { Trophy, TrophySubmission } from "./Trophy";
 
 const generateACTrophiesWithOneProblem = (
@@ -36,7 +37,7 @@ const generateACTrophiesWithProblems = (
 
 const uniqueACProblemIds = (submissions: TrophySubmission[]): Set<string> => {
   const acProblemIds = submissions
-    .filter((submissions) => submissions.submission.result === "AC")
+    .filter((submissions) => isAccepted(submissions.submission.result))
     .map((submission) => submission.submission.problem_id);
   return new Set(acProblemIds);
 };
