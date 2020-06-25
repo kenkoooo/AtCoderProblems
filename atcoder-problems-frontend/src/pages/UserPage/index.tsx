@@ -227,6 +227,9 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <TrophyBlock
             submissions={userSubmissions}
             problemModels={convertMap(problemModels)}
+            contests={contests}
+            contestToProblems={contestToProblems}
+            solvedProblemIds={solvedProblemIds}
           />
         </>
       )}
