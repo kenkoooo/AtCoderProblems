@@ -5,7 +5,7 @@ import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
 import { generateACCountTrophies } from "./ACCountTrophyGenerator";
-import { generateACTrophies } from "./ACTrophyGenerator";
+import { generateACProblemsTrophies } from "./ACProblemsTrophyGenerator";
 import { generateStreakTrophies } from "./StreakTrophyGenerator";
 import { Trophy } from "./Trophy";
 
@@ -24,7 +24,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
   const trophies = [] as Trophy[];
   trophies.push(...generateStreakTrophies(trophySubmissions));
   trophies.push(...generateACCountTrophies(trophySubmissions));
-  trophies.push(...generateACTrophies(trophySubmissions));
+  trophies.push(...generateACProblemsTrophies(trophySubmissions));
 
   const filteredTrophies = trophies
     .sort((a, b) => a.sortId.localeCompare(b.sortId))
