@@ -11,6 +11,7 @@ export default interface Submission {
   readonly length: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isSubmission = (obj: any): obj is Submission =>
   (typeof obj.execution_time === "number" || obj.execution_time === null) &&
   typeof obj.point === "number" &&

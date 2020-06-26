@@ -3,6 +3,7 @@ export interface RankingEntry {
   readonly user_id: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isRankingEntry = (obj: any): obj is RankingEntry =>
   typeof obj.problem_count === "number" && typeof obj.user_id === "string";
 
@@ -11,6 +12,7 @@ export interface SumRankingEntry {
   readonly point_sum: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isSumRankingEntry = (obj: any): obj is SumRankingEntry =>
   typeof obj.user_id === "string" && typeof obj.point_sum === "number";
 
@@ -20,6 +22,7 @@ export interface LangRankingEntry {
   language: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isLangRankingEntry = (obj: any): obj is LangRankingEntry =>
   typeof obj.user_id === "string" &&
   typeof obj.count === "number" &&
@@ -29,6 +32,6 @@ export interface StreakRankingEntry {
   readonly user_id: string;
   readonly streak: number;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isStreakRankingEntry = (obj: any): obj is StreakRankingEntry =>
   typeof obj.user_id === "string" && typeof obj.streak === "number";

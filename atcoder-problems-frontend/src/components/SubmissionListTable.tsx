@@ -85,6 +85,7 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
           },
         ],
         paginationPanel: function DataFormat(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           paginationPanelProps: any
         ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;

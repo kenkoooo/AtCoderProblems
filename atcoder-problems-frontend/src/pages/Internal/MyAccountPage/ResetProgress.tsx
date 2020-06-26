@@ -108,7 +108,7 @@ export const ResetProgress = connect<{}, Props>(() => ({
       cachedProblemMap().then((map) => map.valueSeq().toArray()),
   },
   addResetProgressResponse: { value: null },
-  addResetProgress: (problemId: string): any => ({
+  addResetProgress: (problemId: string) => ({
     addResetProgressResponse: {
       force: true,
       refreshing: true,
@@ -118,7 +118,7 @@ export const ResetProgress = connect<{}, Props>(() => ({
         problem_id: problemId,
         reset_epoch_second: Math.floor(new Date().getTime() / 1000),
       }),
-      andThen: (): any => ({
+      andThen: () => ({
         progressResetList: {
           force: true,
           url: PROGRESS_RESET_LIST,
@@ -126,7 +126,7 @@ export const ResetProgress = connect<{}, Props>(() => ({
       }),
     },
   }),
-  deleteResetProgress: (problemId: string): any => ({
+  deleteResetProgress: (problemId: string) => ({
     deleteResetProgressResponse: {
       force: true,
       refreshing: true,
@@ -135,7 +135,7 @@ export const ResetProgress = connect<{}, Props>(() => ({
       body: JSON.stringify({
         problem_id: problemId,
       }),
-      andThen: (): any => ({
+      andThen: () => ({
         progressResetList: {
           force: true,
           url: PROGRESS_RESET_LIST,

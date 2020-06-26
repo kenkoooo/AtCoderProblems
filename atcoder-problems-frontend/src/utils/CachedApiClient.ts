@@ -27,31 +27,43 @@ const ATCODER_API_URL = process.env.REACT_APP_ATCODER_API_URL;
 
 function fetchTypedList<T>(
   url: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   typeGuardFn: (obj: any) => obj is T
 ): Promise<List<T>> {
-  return fetch(url)
-    .then((r) => r.json())
-    .then((array: any[]) => array.filter(typeGuardFn))
-    .then((array) => List(array));
+  return (
+    fetch(url)
+      .then((r) => r.json())
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .then((array: any[]) => array.filter(typeGuardFn))
+      .then((array) => List(array))
+  );
 }
 
 function fetchTypedArray<T>(
   url: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   typeGuardFn: (obj: any) => obj is T
 ): Promise<T[]> {
-  return fetch(url)
-    .then((r) => r.json())
-    .then((array: any[]) => array.filter(typeGuardFn));
+  return (
+    fetch(url)
+      .then((r) => r.json())
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .then((array: any[]) => array.filter(typeGuardFn))
+  );
 }
 
 function fetchTypedMap<V>(
   url: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   typeGuardFn: (obj: any) => obj is V
 ): Promise<Map<string, V>> {
-  return fetch(url)
-    .then((r) => r.json())
-    .then((obj: { [p: string]: any }) => Map(obj))
-    .then((m) => m.filter(typeGuardFn));
+  return (
+    fetch(url)
+      .then((r) => r.json())
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .then((obj: { [p: string]: any }) => Map(obj))
+      .then((m) => m.filter(typeGuardFn))
+  );
 }
 
 const fetchContestProblemPairs = (): Promise<
@@ -62,7 +74,7 @@ const fetchContestProblemPairs = (): Promise<
 > =>
   fetchTypedList(
     STATIC_API_BASE_URL + "/contest-problem.json",
-    (obj: any): obj is { contest_id: string; problem_id: string } =>
+    (obj): obj is { contest_id: string; problem_id: string } =>
       typeof obj.contest_id === "string" && typeof obj.problem_id === "string"
   );
 
