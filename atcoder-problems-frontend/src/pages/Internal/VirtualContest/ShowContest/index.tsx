@@ -225,7 +225,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
       value: (): Promise<ImmutableMap<string, MergedProblem>> =>
         CachedApi.cachedMergedProblemMap(),
     },
-    joinContest: (): any => ({
+    joinContest: () => ({
       joinContestPost: {
         url: CONTEST_JOIN,
         method: "POST",
@@ -233,7 +233,7 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ contest_id: props.contestId }),
-        andThen: (): any => ({
+        andThen: () => ({
           contestInfoFetch: {
             url: contestGetUrl(props.contestId),
             force: true,

@@ -38,8 +38,10 @@ export const ClimbingLineChart: React.FC<Props> = (props) => (
         />
         <YAxis />
         <Tooltip
-          labelFormatter={(dateSecond: any): string =>
-            formatMomentDate(parseSecond(dateSecond))
+          labelFormatter={(dateSecond: number | string): string =>
+            typeof dateSecond === "number"
+              ? formatMomentDate(parseSecond(dateSecond))
+              : dateSecond
           }
         />
         <Line dataKey="count" stroke="#8884d8" />

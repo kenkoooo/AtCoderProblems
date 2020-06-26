@@ -49,7 +49,7 @@ interface InnerProps extends OuterProps {
 const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
   userInfoFetch: USER_GET,
   problemListFetch: listGetUrl(props.listId),
-  updateList: (name: string): any => ({
+  updateList: (name: string) => ({
     updateListResponse: {
       url: LIST_UPDATE,
       method: "POST",
@@ -60,9 +60,9 @@ const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
   updateListResponse: { value: null },
   problems: {
     comparison: null,
-    value: (): any => CachedApi.cachedProblemMap(),
+    value: () => CachedApi.cachedProblemMap(),
   },
-  addItem: (problemId: string): any => ({
+  addItem: (problemId: string) => ({
     problemListFetch: {
       url: LIST_ITEM_ADD,
       method: "POST",
@@ -73,7 +73,7 @@ const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
       then: (): string => listGetUrl(props.listId),
     },
   }),
-  deleteItem: (problemId: string): any => ({
+  deleteItem: (problemId: string) => ({
     problemListFetch: {
       url: LIST_ITEM_DELETE,
       method: "POST",
@@ -84,7 +84,7 @@ const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
       then: (): string => listGetUrl(props.listId),
     },
   }),
-  updateItem: (problemId: string, memo: string): any => ({
+  updateItem: (problemId: string, memo: string) => ({
     problemListFetch: {
       url: LIST_ITEM_UPDATE,
       method: "POST",

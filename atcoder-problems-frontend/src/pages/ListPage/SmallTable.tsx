@@ -8,7 +8,7 @@ import MergedProblem from "../../interfaces/MergedProblem";
 interface Props {
   mergedProblems: ImmutableMap<string, MergedProblem>;
   submissions: Submission[];
-  setFilterFunc: (point: number) => any;
+  setFilterFunc: (point: number) => void;
 }
 
 export const SmallTable: React.FC<Props> = ({
