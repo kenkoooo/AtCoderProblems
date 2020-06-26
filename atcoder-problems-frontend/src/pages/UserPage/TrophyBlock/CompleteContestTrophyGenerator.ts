@@ -5,11 +5,11 @@ import { ContestId, ProblemId } from "../../../interfaces/Status";
 import { Trophy, TrophySubmission } from "./Trophy";
 
 const isCompleteContest = (
-  contest_id: ContestId,
+  contestId: ContestId,
   contestToProblems: Map<ContestId, Problem[]>,
   solvedProblemIdSet: Set<ProblemId>
 ): boolean => {
-  const problems = contestToProblems.get(contest_id);
+  const problems = contestToProblems.get(contestId);
   return (
     !!problems &&
     problems.every((problem) => solvedProblemIdSet.has(problem.id))
@@ -17,19 +17,19 @@ const isCompleteContest = (
 };
 
 const generateCompleteContestTrophy = (
-  contest_id: ContestId,
-  contest_title: string,
+  contestId: ContestId,
+  contestTitle: string,
   contestToProblems: Map<ContestId, Problem[]>,
   solvedProblemIdSet: Set<ProblemId>
 ): Trophy => {
-  const title = `Completed ${contest_title}`;
-  const reason = `Solved all problems in ${contest_id}`;
+  const title = `Completed ${contestTitle}`;
+  const reason = `Solved all problems in ${contestId}`;
   const achieved = isCompleteContest(
-    contest_id,
+    contestId,
     contestToProblems,
     solvedProblemIdSet
   );
-  const sortId = `complete-contest-${contest_id}`;
+  const sortId = `complete-contest-${contestId}`;
   return { title, reason, achieved, sortId };
 };
 
@@ -48,10 +48,10 @@ export const generateCompleteContestTrophies = (
   const trophies = [] as Trophy[];
   const solvedProblemIdSet = uniqueACProblemIds(allSubmissions);
 
-  Array.from(contests).forEach(([contest_id, contest]) => {
+  Array.from(contests).forEach(([contestId, contest]) => {
     trophies.push(
       generateCompleteContestTrophy(
-        contest_id,
+        contestId,
         contest.title,
         contestToProblems,
         solvedProblemIdSet
