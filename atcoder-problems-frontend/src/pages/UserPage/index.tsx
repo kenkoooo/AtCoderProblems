@@ -7,7 +7,7 @@ import { connect, PromiseState } from "react-refetch";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
-import { isAccepted } from "../../utils";
+import { isAccepted, isValidResult } from "../../utils";
 import { ContestId, ProblemId } from "../../interfaces/Status";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import ProblemModel from "../../interfaces/ProblemModel";
