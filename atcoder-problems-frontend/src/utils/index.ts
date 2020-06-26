@@ -129,6 +129,7 @@ export const getRatingColorCode = (
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const shuffleList = (list: List<any>, k?: number): List<any> => {
   let shuffledList = List();
   const size = k === undefined ? list.size : Math.min(k, list.size);

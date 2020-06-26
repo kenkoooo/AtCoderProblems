@@ -81,41 +81,37 @@ interface InnerProps {
   updateResponse: PromiseState<{} | null>;
 }
 
-const mapper = (): any => {
-  return {
-    createContest: (request: Request, problems: VirtualContestItem[]): any => ({
-      createContestResponse: {
-        url: CONTEST_CREATE,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(request),
-        andThen: (response: Response): any => ({
-          updateResponse: {
-            url: CONTEST_ITEM_UPDATE,
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              contest_id: response.contest_id,
-              problems: problems.map((p, i) => ({
-                ...p,
-                order: i,
-              })),
-            }),
-          },
-        }),
-      },
-    }),
+export default connect<{}, InnerProps>(() => ({
+  createContest: (request: Request, problems: VirtualContestItem[]) => ({
     createContestResponse: {
-      value: null,
+      url: CONTEST_CREATE,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      andThen: (response: Response) => ({
+        updateResponse: {
+          url: CONTEST_ITEM_UPDATE,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contest_id: response.contest_id,
+            problems: problems.map((p, i) => ({
+              ...p,
+              order: i,
+            })),
+          }),
+        },
+      }),
     },
-    updateResponse: {
-      value: null,
-    },
-  };
-};
-
-export default connect<{}, InnerProps>(mapper)(ContestCreatePage);
+  }),
+  createContestResponse: {
+    value: null,
+  },
+  updateResponse: {
+    value: null,
+  },
+}))(ContestCreatePage);

@@ -31,19 +31,19 @@ interface Props {
 export default connect<{}, Props>(() => ({
   myListFetch: LIST_MY,
   createListFetch: { value: null },
-  createNewList: (): any => ({
+  createNewList: () => ({
     createListFetch: {
       url: LIST_CREATE,
       method: "POST",
       body: JSON.stringify({ list_name: "New List" }),
     },
   }),
-  deleteList: (internalListId: string): any => ({
+  deleteList: (internalListId: string) => ({
     deleteResponse: {
       url: LIST_DELETE,
       method: "POST",
       body: JSON.stringify({ internal_list_id: internalListId }),
-      andThen: (): any => ({
+      andThen: () => ({
         myListFetch: {
           url: LIST_MY,
           refreshing: true,

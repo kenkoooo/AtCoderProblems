@@ -6,6 +6,7 @@ export default interface Contest {
   readonly title: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isContest = (contest: any): contest is Contest =>
   typeof contest.start_epoch_second === "number" &&
   typeof contest.rate_change === "string" &&

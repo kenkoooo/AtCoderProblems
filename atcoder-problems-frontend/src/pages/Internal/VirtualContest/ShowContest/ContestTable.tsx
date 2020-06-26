@@ -423,6 +423,6 @@ export const ContestTable = connect<OuterProps, InnerProps>((props) => ({
   },
   problemModels: {
     comparison: null,
-    value: (): any => cachedProblemModels(),
+    value: () => cachedProblemModels(),
   },
 }))(InnerContestTable);
