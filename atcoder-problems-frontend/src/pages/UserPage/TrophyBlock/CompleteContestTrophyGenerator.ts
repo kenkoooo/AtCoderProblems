@@ -1,4 +1,3 @@
-import { Map as ImmutableMap } from "immutable";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
@@ -34,7 +33,7 @@ const generateCompleteContestTrophy = (
 };
 
 export const generateCompleteContestTrophies = (
-  contests: ImmutableMap<ContestId, Contest>,
+  contests: Map<ContestId, Contest>,
   contestToProblems: Map<ContestId, Problem[]>,
   solvedProblemIds: ProblemId[]
 ): Trophy[] => {

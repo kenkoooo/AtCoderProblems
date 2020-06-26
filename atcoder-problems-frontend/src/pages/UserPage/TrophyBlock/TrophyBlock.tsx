@@ -1,7 +1,6 @@
 import Octicon, { Verified } from "@primer/octicons-react";
 import React from "react";
 import { Table, Row } from "reactstrap";
-import { Map as ImmutableMap } from "immutable";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
@@ -16,7 +15,7 @@ import { Trophy } from "./Trophy";
 interface Props {
   submissions: Submission[];
   problemModels: Map<ProblemId, ProblemModel>;
-  contests: ImmutableMap<string, Contest>;
+  contests: Map<string, Contest>;
   contestToProblems: Map<ContestId, Problem[]>;
   solvedProblemIds: string[];
 }
