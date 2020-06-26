@@ -38,8 +38,10 @@ export const DailyEffortBarChart: React.FC<Props> = (props) => (
         />
         <YAxis />
         <Tooltip
-          labelFormatter={(dateSecond: any): string =>
-            formatMomentDate(parseSecond(dateSecond))
+          labelFormatter={(dateSecond: number | string): string =>
+            typeof dateSecond === "string"
+              ? dateSecond
+              : formatMomentDate(parseSecond(dateSecond))
           }
         />
         <Bar dataKey="count" fill="#8884d8" />

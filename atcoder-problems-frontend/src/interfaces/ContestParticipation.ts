@@ -13,6 +13,7 @@ export default interface ContestParticipation {
   readonly EndTime: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isContestParticipation = (obj: any): obj is ContestParticipation =>
   typeof obj.IsRated === "boolean" &&
   typeof obj.Place === "number" &&

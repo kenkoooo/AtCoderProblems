@@ -61,6 +61,7 @@ export const ListTable: React.FC<Props> = (props) => {
     dataField: string;
     dataSort?: boolean;
     dataAlign?: "center";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dataFormat?: (cell: any, row: ProblemRowData) => ReactElement | string;
     hidden?: boolean;
     sortFunc?: (
@@ -403,6 +404,7 @@ export const ListTable: React.FC<Props> = (props) => {
           },
         ],
         paginationPanel: function DataFormat(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           paginationPanelProps: any
         ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;

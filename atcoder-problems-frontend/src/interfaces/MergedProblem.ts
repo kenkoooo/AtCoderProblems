@@ -25,6 +25,7 @@ export default interface MergedProblem {
   readonly point?: number | null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isMergedProblem = (obj: any): obj is MergedProblem =>
   typeof obj.id === "string" &&
   typeof obj.contest_id === "string" &&

@@ -4,6 +4,7 @@ export default interface Problem {
   readonly title: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isProblem = (obj: any): obj is Problem =>
   typeof obj.id === "string" &&
   typeof obj.contest_id === "string" &&
