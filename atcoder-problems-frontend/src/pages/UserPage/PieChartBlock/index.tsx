@@ -2,9 +2,15 @@ import { Col, Row } from "reactstrap";
 import React from "react";
 import Problem from "../../../interfaces/Problem";
 import Submission from "../../../interfaces/Submission";
-import { isAccepted } from "../../../utils";
+import { isAccepted, isValidResult } from "../../../utils";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import { SmallPieChart } from "./SmallPieChart";
+
+enum SubmissionStatus {
+  TRYING,
+  REJECTED,
+  ACCEPTED,
+}
 
 const solvedCountForPieChart = (
   contestToProblems: [string, Problem[]][],
@@ -12,6 +18,7 @@ const solvedCountForPieChart = (
   userId: string
 ): {
   total: number;
+  rejected: number;
   solved: number;
 }[] => {
   const mapProblemPosition = (contestId: string, problemId: string): number => {
@@ -49,29 +56,38 @@ const solvedCountForPieChart = (
     }
   };
 
-  const userCount = contestToProblems
+  const statusCount = contestToProblems
     .map(([contestId, problems]) => {
-      const problemIds = problems
-        .filter((problem) => {
-          const userAccepted = submissions
-            .get(problem.id)
-            ?.filter((s) => s.user_id === userId)
-            ?.find((s) => isAccepted(s.result));
-          return !!userAccepted;
-        })
-        .map((problem) => problem.id);
-      return { contestId, problemIds };
+      const idStatus = problems.map((problem) => {
+        const validSubmissions = submissions
+          .get(problem.id)
+          ?.filter((s) => s.user_id === userId && isValidResult(s.result));
+        const status = !validSubmissions
+          ? SubmissionStatus.TRYING
+          : validSubmissions?.find((s) => isAccepted(s.result))
+          ? SubmissionStatus.ACCEPTED
+          : SubmissionStatus.REJECTED;
+        return { id: problem.id, status };
+      });
+      return { contestId, idStatus };
     })
-    .map(({ problemIds, contestId }) =>
-      problemIds.map((problemId) => mapProblemPosition(contestId, problemId))
+    .map(({ contestId, idStatus }) =>
+      idStatus.map(({ id, status }) => ({
+        position: mapProblemPosition(contestId, id),
+        status,
+      }))
     )
     .flatMap((list) => list)
     .reduce(
-      (count, position) => {
-        count[position] += 1;
+      (count, { position, status }) => {
+        count[status][position] += 1;
         return count;
       },
-      [0, 0, 0, 0, 0, 0]
+      {
+        [SubmissionStatus.TRYING]: [0, 0, 0, 0, 0, 0],
+        [SubmissionStatus.REJECTED]: [0, 0, 0, 0, 0, 0],
+        [SubmissionStatus.ACCEPTED]: [0, 0, 0, 0, 0, 0],
+      }
     );
   const totalCount = contestToProblems
     .map(([contestId, problems]) => {
@@ -92,7 +108,8 @@ const solvedCountForPieChart = (
   return totalCount
     .map((total, index) => ({
       total,
-      solved: userCount[index],
+      rejected: statusCount[SubmissionStatus.REJECTED][index],
+      solved: statusCount[SubmissionStatus.ACCEPTED][index],
     }))
     .filter((x) => x.total > 0);
 };
@@ -136,7 +153,7 @@ export const PieChartBlock: React.FC<Props> = (props) => {
 };
 
 interface PieChartsProps {
-  problems: { total: number; solved: number }[];
+  problems: { total: number; solved: number; rejected: number }[];
   title: string;
 }
 
@@ -146,7 +163,7 @@ const PieCharts: React.FC<PieChartsProps> = ({ problems, title }) => (
       <h1>{title}</h1>
     </Row>
     <Row className="my-3">
-      {problems.map(({ solved, total }, i) => {
+      {problems.map(({ solved, rejected, total }, i) => {
         const key = "ABCDEF".charAt(i);
         return (
           <Col
@@ -157,7 +174,8 @@ const PieCharts: React.FC<PieChartsProps> = ({ problems, title }) => (
           >
             <SmallPieChart
               accepted={solved}
-              trying={total - solved}
+              rejected={rejected}
+              trying={total - solved - rejected}
               title={`Problem ${key}`}
             />
           </Col>
