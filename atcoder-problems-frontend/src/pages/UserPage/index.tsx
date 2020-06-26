@@ -24,6 +24,7 @@ import { ProgressChartBlock } from "./ProgressChartBlock";
 import { Recommendations } from "./Recommendations";
 import LanguageCount from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
+import { ForgettingCurveBlock } from "./ForgettingCurveBlock";
 import { TrophyBlock } from "./TrophyBlock/TrophyBlock";
 
 const userPageTabs = [
@@ -33,6 +34,7 @@ const userPageTabs = [
   "Progress Charts",
   "Submissions",
   "Recommendation",
+  "Forgetting curve",
   "Languages",
   "Trophy",
   "All",
@@ -243,6 +245,18 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             contests={contests}
             problemModels={problemModels}
             userRatingInfo={userRatingInfo}
+          />
+        </>
+      )}
+      {(userPageTab === "All" || userPageTab === "Forgetting curve") && (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Forgetting Curve</h1>
+          </Row>
+          <ForgettingCurveBlock
+            userSubmissions={userSubmissions}
+            problemModels={convertMap(problemModels)}
+            mergedProblems={convertMap(mergedProblems)}
           />
         </>
       )}
