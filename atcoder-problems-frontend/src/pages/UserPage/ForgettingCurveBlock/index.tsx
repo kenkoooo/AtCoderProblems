@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import moment from "moment";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { Button, ButtonGroup, Row } from "reactstrap";
+import { Button, ButtonGroup, Col, Row } from "reactstrap";
+
 import ProblemLink from "../../../components/ProblemLink";
 import Submission from "../../../interfaces/Submission";
 import MergedProblem from "../../../interfaces/MergedProblem";
 import { ProblemId } from "../../../interfaces/Status";
 import ProblemModel from "../../../interfaces/ProblemModel";
-import { isAccepted } from "../../../utils";
-import { groupBy } from "../../../utils/GroupBy";
 import { formatMomentDateTime } from "../../../utils/DateUtil";
+import { DifficultyDropDown, INF_POINT } from "./DifficultyDropdown";
+import { findForgetProblems } from "./FindForgetProblems";
+const maxSuggestProblemSize = 10;
 
 interface Props {
   readonly userSubmissions: Submission[];
@@ -17,100 +19,28 @@ interface Props {
   readonly mergedProblems: Map<string, MergedProblem>;
 }
 
-const maxSuggestProblemSize = 10;
-interface ProblemSolveInfo {
-  problemId: string;
-  solveCount: number;
-  latestAcceptedDate: moment.Moment;
-}
-interface ForgetProblems {
-  solveCount: number;
-  suggestedProblems: ProblemSolveInfo[];
-}
-
-interface ForgetConfig {
-  solveCount: number;
-  forgetDay: number;
-}
-const forgetConfigs: ForgetConfig[] = [
-  { solveCount: 1, forgetDay: 30 },
-  { solveCount: 2, forgetDay: 180 },
-];
-
-const parseProblemSolveInfos = (
-  userSubmissions: Submission[]
-): ProblemSolveInfo[] => {
-  const acceptedSubmissions = userSubmissions.filter((submission) =>
-    isAccepted(submission.result)
-  );
-  const acceptedSubmissionsByProblem = groupBy(
-    acceptedSubmissions,
-    (s) => s.problem_id
-  );
-
-  return Array.from(acceptedSubmissionsByProblem).map(
-    ([problemId, submissions]) => {
-      const solveCount = submissions.length;
-      const latestAcceptedDate = moment.unix(
-        Math.max(...submissions.map((submission) => submission.epoch_second))
-      );
-      return { problemId, solveCount, latestAcceptedDate };
-    }
-  );
-};
-
-const pickupForgetProblems = (
-  problemSolvedInfos: ProblemSolveInfo[]
-): ForgetProblems[] => {
-  const problemSolvedInfosBySolveCount = groupBy(
-    problemSolvedInfos,
-    (s) => s.solveCount
-  );
-
-  return forgetConfigs
-    .map(({ solveCount, forgetDay }) => {
-      const forgetDuration = moment.duration(forgetDay, "days");
-      const forgetDate = moment().subtract(forgetDuration);
-      const solveCountMatchedProblems =
-        problemSolvedInfosBySolveCount.get(solveCount) || [];
-
-      const suggestedProblems = solveCountMatchedProblems
-        .filter((problem) => problem.latestAcceptedDate <= forgetDate)
-        .sort((l, r) => {
-          const lval = l.latestAcceptedDate;
-          const rval = r.latestAcceptedDate;
-          if (lval < rval) return 1;
-          if (lval > rval) return -1;
-          return 0;
-        })
-        .splice(0, maxSuggestProblemSize);
-
-      return { solveCount, suggestedProblems };
-    })
-    .sort((l, r) => {
-      const lval = l.solveCount;
-      const rval = r.solveCount;
-      if (lval < rval) return -1;
-      if (lval > rval) return 1;
-      return 0;
-    });
-};
-
 export const ForgettingCurveBlock: React.FC<Props> = (props) => {
   const { userSubmissions, problemModels, mergedProblems } = props;
 
   const [focusedSolvedCount, setFocusedSolvedCount] = useState(1);
+  const [fromDifficulty, setFromDifficulty] = useState(-1);
+  const [toDifficulty, setToDifficulty] = useState(INF_POINT);
 
-  const problemSolveInfos = parseProblemSolveInfos(userSubmissions);
-  const forgetProblems = pickupForgetProblems(problemSolveInfos);
-  const focusedForgetProblems =
+  const forgetProblems = findForgetProblems(userSubmissions, problemModels);
+  const focusedForgetProblems = (
     forgetProblems.find((elem) => elem.solveCount === focusedSolvedCount)
-      ?.suggestedProblems || [];
+      ?.suggestedProblems || []
+  )
+    .filter(
+      ({ difficulty }) =>
+        fromDifficulty <= difficulty && difficulty <= toDifficulty
+    )
+    .slice(0, maxSuggestProblemSize);
 
   return (
     <>
       <Row className="my-3 d-flex justify-content-between">
-        <div>
+        <Col>
           {forgetProblems.map((forgetProblem) => (
             <ButtonGroup key={forgetProblem.solveCount}>
               <Button
@@ -123,7 +53,15 @@ export const ForgettingCurveBlock: React.FC<Props> = (props) => {
               </Button>
             </ButtonGroup>
           ))}
-        </div>
+        </Col>
+        <Col>
+          <DifficultyDropDown
+            fromDifficulty={fromDifficulty}
+            setFromDifficulty={setFromDifficulty}
+            toDifficulty={toDifficulty}
+            setToDifficulty={setToDifficulty}
+          />
+        </Col>
       </Row>
       <Row className="my-3">
         <BootstrapTable
