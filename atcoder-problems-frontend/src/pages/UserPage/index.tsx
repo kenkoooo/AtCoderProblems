@@ -229,7 +229,6 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             problemModels={convertMap(problemModels)}
             contests={convertMap(contests)}
             contestToProblems={contestToProblems}
-            solvedProblemIds={solvedProblemIds}
           />
         </>
       )}

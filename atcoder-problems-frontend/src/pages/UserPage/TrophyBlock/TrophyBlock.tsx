@@ -17,17 +17,10 @@ interface Props {
   problemModels: Map<ProblemId, ProblemModel>;
   contests: Map<string, Contest>;
   contestToProblems: Map<ContestId, Problem[]>;
-  solvedProblemIds: string[];
 }
 
 export const TrophyBlock = (props: Props): JSX.Element => {
-  const {
-    submissions,
-    problemModels,
-    contests,
-    contestToProblems,
-    solvedProblemIds,
-  } = props;
+  const { submissions, problemModels, contests, contestToProblems } = props;
   const trophySubmissions = submissions.map((submission) => {
     const problemModel = problemModels.get(submission.problem_id);
     return { submission, problemModel };
@@ -39,9 +32,9 @@ export const TrophyBlock = (props: Props): JSX.Element => {
   trophies.push(...generateACProblemsTrophies(trophySubmissions));
   trophies.push(
     ...generateCompleteContestTrophies(
+      trophySubmissions,
       contests,
-      contestToProblems,
-      solvedProblemIds
+      contestToProblems
     )
   );
 
