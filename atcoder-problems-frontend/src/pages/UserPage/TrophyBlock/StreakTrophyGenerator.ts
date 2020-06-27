@@ -2,7 +2,7 @@ import { getRatingColor, RatingColors } from "../../../utils";
 import { groupBy } from "../../../utils/GroupBy";
 import { normalizeLanguage } from "../../../utils/LanguageNormalizer";
 import { calcStreak, countUniqueAcByDate } from "../../../utils/StreakCounter";
-import { Trophy, TrophySubmission } from "./Trophy";
+import { Trophy, TrophySubmission, TrophyGroup } from "./Trophy";
 
 const generateStreakTrophiesByTag = (
   tag: string | null,
@@ -40,7 +40,7 @@ const generateStreakTrophiesByTag = (
     const sortId = `longest-streak-${idPrefix}-${days
       .toString()
       .padStart(4, "0")}`;
-    return { title, reason, achieved, sortId };
+    return { title, reason, achieved, sortId, group: TrophyGroup.STREAK };
   });
 };
 

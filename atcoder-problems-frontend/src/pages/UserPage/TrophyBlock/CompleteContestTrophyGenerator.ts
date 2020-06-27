@@ -2,7 +2,7 @@ import { isAccepted } from "../../../utils";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
-import { Trophy, TrophySubmission } from "./Trophy";
+import { Trophy, TrophySubmission, TrophyGroup } from "./Trophy";
 
 const isCompleteContest = (
   contestId: ContestId,
@@ -30,7 +30,7 @@ const generateCompleteContestTrophy = (
     solvedProblemIdSet
   );
   const sortId = `complete-contest-${contestId}`;
-  return { title, reason, achieved, sortId };
+  return { title, reason, achieved, sortId, group: TrophyGroup.CONTESTS };
 };
 
 const uniqueACProblemIds = (submissions: TrophySubmission[]): Set<string> => {
