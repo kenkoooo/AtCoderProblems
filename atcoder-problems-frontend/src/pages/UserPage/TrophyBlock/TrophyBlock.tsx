@@ -83,7 +83,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
         <Col md="12" lg="9">
           <Table striped hover>
             <tbody>
-              {filteredTrophies.map(({ sortId, title, group, reason }) => (
+              {filteredTrophies.map(({ sortId, title, reason }) => (
                 <tr key={sortId}>
                   <th className="text-success">
                     <Octicon icon={Verified} />
