@@ -2,7 +2,7 @@ import { getRatingColor, RatingColors } from "../../../utils";
 import { groupBy } from "../../../utils/GroupBy";
 import { normalizeLanguage } from "../../../utils/LanguageNormalizer";
 import { calcStreak, countUniqueAcByDate } from "../../../utils/StreakCounter";
-import { Trophy, TrophySubmission, TrophyGroup } from "./Trophy";
+import { Trophy, TrophySubmission } from "./Trophy";
 
 const generateStreakTrophiesByTag = (
   tag: string | null,
