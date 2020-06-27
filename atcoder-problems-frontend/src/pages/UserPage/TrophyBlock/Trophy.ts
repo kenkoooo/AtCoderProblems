@@ -9,12 +9,13 @@ export interface Trophy {
   group: TrophyGroup;
 }
 
-export enum TrophyGroup {
-  AC_COUNT = "AC Count",
-  STREAK = "Streak",
-  PROBLEMS = "Problems",
-  CONTESTS = "Contests",
-}
+export const TrophyGroups = [
+  "AC Count",
+  "Contests",
+  "Problems",
+  "Streak",
+] as const;
+export type TrophyGroup = typeof TrophyGroups[number];
 
 export interface TrophySubmission {
   submission: Submission;

@@ -1,5 +1,5 @@
 import Octicon, { Verified } from "@primer/octicons-react";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Table, Row, Col, ListGroup, ListGroupItem, Badge } from "reactstrap";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
@@ -10,7 +10,7 @@ import { generateACCountTrophies } from "./ACCountTrophyGenerator";
 import { generateACProblemsTrophies } from "./ACProblemsTrophyGenerator";
 import { generateStreakTrophies } from "./StreakTrophyGenerator";
 import { generateCompleteContestTrophies } from "./CompleteContestTrophyGenerator";
-import { Trophy, TrophyGroup } from "./Trophy";
+import { Trophy, TrophyGroup, TrophyGroups } from "./Trophy";
 
 interface Props {
   submissions: Submission[];
@@ -38,36 +38,26 @@ export const TrophyBlock = (props: Props): JSX.Element => {
     )
   );
 
-  const [filterGroup, setFilterGroup] = useState<TrophyGroup | null>(null);
-  const filteredTrophies = useMemo(
-    () =>
-      trophies
-        .sort((a, b) => a.sortId.localeCompare(b.sortId))
-        .filter((t) => filterGroup === null || t.group === filterGroup)
-        .filter((t) => t.achieved),
-    [trophies, filterGroup]
-  );
+  const [filterGroup, setFilterGroup] = useState<TrophyGroup | "All">("All");
+  const filteredTrophies = trophies
+    .sort((a, b) => a.sortId.localeCompare(b.sortId))
+    .filter((t) => t.achieved)
+    .filter((t) => filterGroup === "All" || t.group === filterGroup);
 
-  const totalTrophies = useMemo(
-    () => trophies.filter((t) => t.achieved).length,
-    [trophies]
-  );
-  const groupChoices: [TrophyGroup | null, string, number][] = useMemo(
-    () => [
-      [null, "All", trophies.filter((t) => t.achieved).length],
-      ...Object.values(TrophyGroup)
-        .sort((a, b) => a.localeCompare(b))
-        .map(
-          (group) =>
-            [
-              group,
-              group,
-              trophies.filter((t) => t.achieved && t.group === group).length,
-            ] as [TrophyGroup, string, number]
-        ),
-    ],
-    [trophies]
-  );
+  const totalTrophies = trophies.filter((t) => t.achieved).length;
+
+  const groupChoices: [TrophyGroup | "All", number][] = [
+    ["All", trophies.filter((t) => t.achieved).length],
+    ...Object.values(TrophyGroups)
+      .sort((a, b) => a.localeCompare(b))
+      .map(
+        (group) =>
+          [
+            group,
+            trophies.filter((t) => t.achieved && t.group === group).length,
+          ] as [TrophyGroup, number]
+      ),
+  ];
 
   return (
     <>
@@ -77,15 +67,15 @@ export const TrophyBlock = (props: Props): JSX.Element => {
       <Row>
         <Col md="12" lg="3" className="mb-3">
           <ListGroup>
-            {groupChoices.map(([group, description, count]) => (
+            {groupChoices.map(([group, count]) => (
               <ListGroupItem
-                key={description}
+                key={group}
                 tag="button"
                 action
                 active={filterGroup === group}
                 onClick={() => setFilterGroup(group)}
               >
-                {description} <Badge pill>{count}</Badge>
+                {group} <Badge pill>{count}</Badge>
               </ListGroupItem>
             ))}
           </ListGroup>
