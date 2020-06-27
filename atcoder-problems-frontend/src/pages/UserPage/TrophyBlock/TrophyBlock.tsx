@@ -73,7 +73,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
         <h2>{totalTrophies} Trophies</h2>
       </Row>
       <Row>
-        <Col sm="12" md="3" className="mb-3">
+        <Col md="12" lg="3" className="mb-3">
           <ListGroup>
             {groupChoices.map(([group, description, count]) => (
               <ListGroupItem
@@ -89,7 +89,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
             ))}
           </ListGroup>
         </Col>
-        <Col sm="12" md="9">
+        <Col md="12" lg="9">
           <Table striped hover>
             <tbody>
               {filteredTrophies.map(({ sortId, title, group, reason }) => (
