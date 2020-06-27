@@ -20,6 +20,7 @@ import {
   UserResponse,
 } from "../Internal/types";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
+import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import { classifyContest, ContestCategory } from "./ContestClassifier";
 import { TableTabButtons } from "./TableTab";
 import Options from "./Options";
@@ -42,6 +43,7 @@ interface InnerProps extends OuterProps {
   >;
   readonly selectableLanguagesFetch: PromiseState<Set<string>>;
   readonly submissions: PromiseState<Submission[]>;
+  readonly userRatingInfoFetch: PromiseState<RatingInfo>;
   readonly loginState: PromiseState<UserResponse | null>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
@@ -52,6 +54,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     contestToProblemsFetch,
     problemModelsFetch,
     selectableLanguagesFetch,
+    userRatingInfoFetch,
   } = props;
 
   const [activeTab, setActiveTab] = useLocalStorage<ContestCategory>(
@@ -62,6 +65,10 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
   const [showDifficulty, setShowDifficulty] = useLocalStorage(
     "showDifficulty",
     true
+  );
+  const [showRelativeDifficulty, setShowRelativeDifficulty] = useLocalStorage(
+    "showRelativeDifficulty",
+    false
   );
   const [colorMode, setColorMode] = useLocalStorage(
     "colorMode",
@@ -88,6 +95,9 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
   const submissions = props.submissions.fulfilled
     ? props.submissions.value
     : [];
+  const userRatingInfo = userRatingInfoFetch.fulfilled
+    ? userRatingInfoFetch.value
+    : ratingInfoOf(List());
 
   const loginUserId =
     props.loginState.fulfilled &&
@@ -121,6 +131,10 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
         toggleShowAccepted={(): void => setShowAccepted(!showAccepted)}
         showDifficulties={showDifficulty}
         toggleShowDifficulties={(): void => setShowDifficulty(!showDifficulty)}
+        showRelativeDifficulties={showRelativeDifficulty}
+        toggleShowRelativeDifficulties={(): void =>
+          setShowRelativeDifficulty(!showRelativeDifficulty)
+        }
         colorMode={colorMode}
         setColorMode={setColorMode}
         showPenalties={showPenalties}
@@ -154,6 +168,8 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
           statusLabelMap={statusLabelMap}
           showPenalties={showPenalties}
           selectedLanguages={selectedLanguages}
+          userInternalRating={userRatingInfo.internalRating}
+          showRelativeDifficulty={showRelativeDifficulty}
         />
       ) : (
         <ContestTable
@@ -167,6 +183,8 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
           statusLabelMap={statusLabelMap}
           showPenalties={showPenalties}
           selectedLanguages={selectedLanguages}
+          userInternalRating={userRatingInfo.internalRating}
+          showRelativeDifficulty={showRelativeDifficulty}
         />
       )}
     </div>
@@ -205,6 +223,11 @@ export const TablePage = connect<OuterProps, InnerProps>((props) => ({
       Promise.all(
         props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
       ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
+  },
+  userRatingInfoFetch: {
+    comparison: props.userId,
+    value: (): Promise<RatingInfo> =>
+      CachedApiClient.cachedRatingInfo(props.userId),
   },
   loginState: USER_GET,
   progressResetList: PROGRESS_RESET_LIST,

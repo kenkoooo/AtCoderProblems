@@ -202,6 +202,15 @@ span.difficulty-circle {
   }
 }
 
+.relative-difficulty-icon {
+  position: absolute;
+  left: 0.3rem;
+  bottom: 0.2rem;
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+}
+
 .list-table tbody tr td,
 .list-table thead th {
   font-size: small;

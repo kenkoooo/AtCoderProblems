@@ -7,8 +7,11 @@ import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
-import ProblemModel from "../../interfaces/ProblemModel";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel,
+} from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
+import RelativeDifficultyIcon from "../../components/RelativeDifficultyIcon";
 import { isRatedContest } from "./ContestClassifier";
 
 interface Props {
@@ -16,6 +19,8 @@ interface Props {
   contestToProblems: ImmutableMap<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
+  userInternalRating?: number | null;
+  showRelativeDifficulty: boolean;
   colorMode: ColorMode;
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
@@ -110,6 +115,15 @@ export const ContestTable: React.FC<Props> = (props) => {
                             problemTitle={problem.title}
                             contestId={problem.contest_id}
                           />
+                          {props.showRelativeDifficulty &&
+                            isProblemModelWithDifficultyModel(model) &&
+                            props.userInternalRating && (
+                              <RelativeDifficultyIcon
+                                id={problem.id}
+                                problemModel={model}
+                                userInternalRating={props.userInternalRating}
+                              />
+                            )}
                           {props.colorMode === ColorMode.ContestResult && (
                             <SubmitTimespan
                               contest={contest}

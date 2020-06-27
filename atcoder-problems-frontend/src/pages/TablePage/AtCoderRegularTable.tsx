@@ -18,8 +18,11 @@ import {
 } from "../../utils/TableColor";
 import ProblemLink from "../../components/ProblemLink";
 import ContestLink from "../../components/ContestLink";
-import ProblemModel from "../../interfaces/ProblemModel";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel,
+} from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
+import RelativeDifficultyIcon from "../../components/RelativeDifficultyIcon";
 
 interface Props {
   contests: Contest[];
@@ -32,6 +35,8 @@ interface Props {
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
   showPenalties: boolean;
   selectedLanguages: Set<string>;
+  userInternalRating?: number | null;
+  showRelativeDifficulty?: boolean;
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
@@ -153,6 +158,15 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       problemId={problem.problem.id}
                       problemTitle={problem.problem.title}
                     />
+                    {props.showRelativeDifficulty &&
+                      isProblemModelWithDifficultyModel(model) &&
+                      props.userInternalRating && (
+                        <RelativeDifficultyIcon
+                          id={problem.problem.id}
+                          problemModel={model}
+                          userInternalRating={props.userInternalRating}
+                        />
+                      )}
                     {props.colorMode === ColorMode.ContestResult && (
                       <SubmitTimespan
                         contest={contest}
