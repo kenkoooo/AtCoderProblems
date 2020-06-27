@@ -2,7 +2,7 @@ import { isAccepted } from "../../../utils";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
-import { Trophy, TrophySubmission, TrophyGroup } from "./Trophy";
+import { Trophy, TrophySubmission } from "./Trophy";
 
 const isCompleteContest = (
   contestId: ContestId,

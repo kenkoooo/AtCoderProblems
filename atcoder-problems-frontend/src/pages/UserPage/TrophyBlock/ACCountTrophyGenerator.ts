@@ -1,7 +1,7 @@
 import { getRatingColor, isAccepted, RatingColors } from "../../../utils";
 import { groupBy } from "../../../utils/GroupBy";
 import { normalizeLanguage } from "../../../utils/LanguageNormalizer";
-import { Trophy, TrophySubmission, TrophyGroup } from "./Trophy";
+import { Trophy, TrophySubmission } from "./Trophy";
 
 const generateACCountTrophiesByTag = (
   tag: string | null,

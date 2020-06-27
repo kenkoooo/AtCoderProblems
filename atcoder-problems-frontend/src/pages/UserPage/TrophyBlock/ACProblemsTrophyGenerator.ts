@@ -1,5 +1,5 @@
 import { isAccepted } from "../../../utils";
-import { Trophy, TrophySubmission, TrophyGroup } from "./Trophy";
+import { Trophy, TrophySubmission } from "./Trophy";
 
 const generateACTrophiesWithOneProblem = (
   acProblemIds: Set<string>
