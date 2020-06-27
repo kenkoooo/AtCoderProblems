@@ -1,7 +1,7 @@
 import { getRatingColor, isAccepted, RatingColors } from "../../../utils";
 import { groupBy } from "../../../utils/GroupBy";
 import { normalizeLanguage } from "../../../utils/LanguageNormalizer";
-import { Trophy, TrophySubmission } from "./Trophy";
+import { Trophy, TrophySubmission, TrophyGroup } from "./Trophy";
 
 const generateACCountTrophiesByTag = (
   tag: string | null,
@@ -27,13 +27,15 @@ const generateACCountTrophiesByTag = (
     ["You're tourist of Solving.", 3500],
   ];
 
-  return milestones.map(([draftTitle, c]) => {
+  return milestones.map(([draftTitle, milestoneCount]) => {
     const header = tag ? `[${tag}] ` : "";
     const title = header + draftTitle;
-    const reason = header + `AC count >= ${c}`;
-    const achieved = count >= c;
-    const sortId = `ac-count-${idPrefix}-${count.toString().padStart(5, "0")}`;
-    return { title, reason, achieved, sortId };
+    const reason = header + `AC count >= ${milestoneCount}`;
+    const achieved = count >= milestoneCount;
+    const sortId = `ac-count-${idPrefix}-${milestoneCount
+      .toString()
+      .padStart(5, "0")}`;
+    return { title, reason, achieved, sortId, group: TrophyGroup.AC_COUNT };
   });
 };
 

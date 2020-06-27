@@ -1,6 +1,6 @@
 import Octicon, { Verified } from "@primer/octicons-react";
-import React from "react";
-import { Table, Row } from "reactstrap";
+import React, { useState, useMemo } from "react";
+import { Table, Row, Col, ListGroup, ListGroupItem, Badge } from "reactstrap";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
@@ -10,7 +10,7 @@ import { generateACCountTrophies } from "./ACCountTrophyGenerator";
 import { generateACProblemsTrophies } from "./ACProblemsTrophyGenerator";
 import { generateStreakTrophies } from "./StreakTrophyGenerator";
 import { generateCompleteContestTrophies } from "./CompleteContestTrophyGenerator";
-import { Trophy } from "./Trophy";
+import { Trophy, TrophyGroup } from "./Trophy";
 
 interface Props {
   submissions: Submission[];
@@ -38,30 +38,74 @@ export const TrophyBlock = (props: Props): JSX.Element => {
     )
   );
 
-  const filteredTrophies = trophies
-    .sort((a, b) => a.sortId.localeCompare(b.sortId))
-    .filter((t) => t.achieved);
+  const [filterGroup, setFilterGroup] = useState<TrophyGroup | null>(null);
+  const filteredTrophies = useMemo(
+    () =>
+      trophies
+        .sort((a, b) => a.sortId.localeCompare(b.sortId))
+        .filter((t) => filterGroup === null || t.group === filterGroup)
+        .filter((t) => t.achieved),
+    [trophies, filterGroup]
+  );
+
+  const totalTrophies = useMemo(
+    () => trophies.filter((t) => t.achieved).length,
+    [trophies]
+  );
+  const groupChoices: [TrophyGroup | null, string, number][] = useMemo(
+    () => [
+      [null, "All", trophies.filter((t) => t.achieved).length],
+      ...Object.values(TrophyGroup).map(
+        (group) =>
+          [
+            group,
+            group,
+            trophies.filter((t) => t.achieved && t.group === group).length,
+          ] as [TrophyGroup, string, number]
+      ),
+    ],
+    [trophies]
+  );
+
   return (
     <>
       <Row className="my-2">
-        <h2>{filteredTrophies.length} Trophies</h2>
+        <h2>{totalTrophies} Trophies</h2>
       </Row>
       <Row>
-        <Table striped hover>
-          <tbody>
-            {filteredTrophies.map(({ sortId, title, reason }) => (
-              <tr key={sortId}>
-                <th className="text-success">
-                  <Octicon icon={Verified} />
-                </th>
-                <td>
-                  <b>{title}</b>
-                </td>
-                <td>{reason}</td>
-              </tr>
+        <Col sm="12" md="3" className="mb-3">
+          <ListGroup>
+            {groupChoices.map(([group, description, count]) => (
+              <ListGroupItem
+                key={description}
+                active={filterGroup === group}
+                onClick={() => setFilterGroup(group)}
+                style={{ cursor: "pointer" }}
+              >
+                <span>
+                  {description} <Badge pill>{count}</Badge>
+                </span>
+              </ListGroupItem>
             ))}
-          </tbody>
-        </Table>
+          </ListGroup>
+        </Col>
+        <Col sm="12" md="9">
+          <Table striped hover>
+            <tbody>
+              {filteredTrophies.map(({ sortId, title, group, reason }) => (
+                <tr key={sortId}>
+                  <th className="text-success">
+                    <Octicon icon={Verified} />
+                  </th>
+                  <td>
+                    <b>{title}</b>
+                  </td>
+                  <td>{reason}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Col>
       </Row>
     </>
   );

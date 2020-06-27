@@ -1,5 +1,5 @@
 import { isAccepted } from "../../../utils";
-import { Trophy, TrophySubmission } from "./Trophy";
+import { Trophy, TrophySubmission, TrophyGroup } from "./Trophy";
 
 const generateACTrophiesWithOneProblem = (
   acProblemIds: Set<string>
@@ -10,7 +10,7 @@ const generateACTrophiesWithOneProblem = (
   return milestones.map(([title, reason, problem_id]) => {
     const achieved = acProblemIds.has(problem_id);
     const sortId = `accepted-problem-${problem_id}`;
-    return { title, reason, achieved, sortId };
+    return { title, reason, achieved, sortId, group: TrophyGroup.PROBLEMS };
   });
 };
 
