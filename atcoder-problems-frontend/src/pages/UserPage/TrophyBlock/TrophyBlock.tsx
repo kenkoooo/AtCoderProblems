@@ -55,14 +55,16 @@ export const TrophyBlock = (props: Props): JSX.Element => {
   const groupChoices: [TrophyGroup | null, string, number][] = useMemo(
     () => [
       [null, "All", trophies.filter((t) => t.achieved).length],
-      ...Object.values(TrophyGroup).map(
-        (group) =>
-          [
-            group,
-            group,
-            trophies.filter((t) => t.achieved && t.group === group).length,
-          ] as [TrophyGroup, string, number]
-      ),
+      ...Object.values(TrophyGroup)
+        .sort((a, b) => a.localeCompare(b))
+        .map(
+          (group) =>
+            [
+              group,
+              group,
+              trophies.filter((t) => t.achieved && t.group === group).length,
+            ] as [TrophyGroup, string, number]
+        ),
     ],
     [trophies]
   );
@@ -78,13 +80,12 @@ export const TrophyBlock = (props: Props): JSX.Element => {
             {groupChoices.map(([group, description, count]) => (
               <ListGroupItem
                 key={description}
+                tag="button"
+                action
                 active={filterGroup === group}
                 onClick={() => setFilterGroup(group)}
-                style={{ cursor: "pointer" }}
               >
-                <span>
-                  {description} <Badge pill>{count}</Badge>
-                </span>
+                {description} <Badge pill>{count}</Badge>
               </ListGroupItem>
             ))}
           </ListGroup>
