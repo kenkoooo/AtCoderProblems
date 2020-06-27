@@ -10,7 +10,7 @@ const generateACTrophiesWithOneProblem = (
   return milestones.map(([title, reason, problem_id]) => {
     const achieved = acProblemIds.has(problem_id);
     const sortId = `accepted-problem-${problem_id}`;
-    return { title, reason, achieved, sortId, group: TrophyGroup.PROBLEMS };
+    return { title, reason, achieved, sortId, group: "Problems" };
   });
 };
 

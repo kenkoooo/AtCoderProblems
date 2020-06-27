@@ -30,7 +30,7 @@ const generateCompleteContestTrophy = (
     solvedProblemIdSet
   );
   const sortId = `complete-contest-${contestId}`;
-  return { title, reason, achieved, sortId, group: TrophyGroup.CONTESTS };
+  return { title, reason, achieved, sortId, group: "Contests" };
 };
 
 const uniqueACProblemIds = (submissions: TrophySubmission[]): Set<string> => {

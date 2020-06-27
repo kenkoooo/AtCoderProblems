@@ -35,7 +35,7 @@ const generateACCountTrophiesByTag = (
     const sortId = `ac-count-${idPrefix}-${milestoneCount
       .toString()
       .padStart(5, "0")}`;
-    return { title, reason, achieved, sortId, group: TrophyGroup.AC_COUNT };
+    return { title, reason, achieved, sortId, group: "AC Count" };
   });
 };
 
