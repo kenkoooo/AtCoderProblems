@@ -38,31 +38,28 @@ export const TrophyBlock = (props: Props): JSX.Element => {
     )
   );
 
+  const achievedTrophies = trophies.filter((t) => t.achieved);
+
   const [filterGroup, setFilterGroup] = useState<TrophyGroup | "All">("All");
-  const filteredTrophies = trophies
+  const filteredTrophies = achievedTrophies
     .sort((a, b) => a.sortId.localeCompare(b.sortId))
-    .filter((t) => t.achieved)
     .filter((t) => filterGroup === "All" || t.group === filterGroup);
 
-  const totalTrophies = trophies.filter((t) => t.achieved).length;
-
   const groupChoices: [TrophyGroup | "All", number][] = [
-    ["All", trophies.filter((t) => t.achieved).length],
-    ...Object.values(TrophyGroups)
-      .sort((a, b) => a.localeCompare(b))
-      .map(
-        (group) =>
-          [
-            group,
-            trophies.filter((t) => t.achieved && t.group === group).length,
-          ] as [TrophyGroup, number]
-      ),
+    ["All", achievedTrophies.length],
+    ...TrophyGroups.map(
+      (group) =>
+        [group, achievedTrophies.filter((t) => t.group === group).length] as [
+          TrophyGroup,
+          number
+        ]
+    ),
   ];
 
   return (
     <>
       <Row className="my-2">
-        <h2>{totalTrophies} Trophies</h2>
+        <h2>{achievedTrophies.length} Trophies</h2>
       </Row>
       <Row>
         <Col md="12" lg="3" className="mb-3">
