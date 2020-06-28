@@ -20,11 +20,13 @@ const getRGB = (code: string) => {
 
 const getLevelColors = (theme: Theme) => {
   return [
-    getRGB(theme.relativeDifficultyEasyColor),
-    getRGB(theme.relativeDifficultyModerateColor),
-    getRGB(theme.relativeDifficultyDifficultColor),
+    theme.relativeDifficultyEasyColor,
+    theme.relativeDifficultyModerateColor,
+    theme.relativeDifficultyDifficultColor,
   ];
 };
+
+const LEVEL_NAMES = ["Easy", "Moderate", "Difficult"];
 
 const RelativeDifficultyIcon: React.FC<Props> = (props) => {
   const { id, problemModel, userInternalRating } = props;
@@ -33,35 +35,26 @@ const RelativeDifficultyIcon: React.FC<Props> = (props) => {
     userInternalRating
   );
   const relativeDifficultyRatio = 1 - predictedSolveProbability;
-  // const difficultyLevel = (predictedSolveProbability * 3)|0;
+  const difficultyLevel = (relativeDifficultyRatio * 3) | 0;
+  const fillRatio = (relativeDifficultyRatio - 0.333 * difficultyLevel) / 0.333;
   const theme = useTheme();
-  const colors = getLevelColors(theme);
-  const styles = [];
-  const [gray_r, gray_g, gray_b] = getRGB(
-    theme.relativeDifficultyBackgroundColor
-  );
-  for (let i = 0, curRatio = 0; i < 3; i++) {
-    const [r, g, b] = colors[i];
-    const nextRatio = curRatio + 0.333;
-    const toRatio = Math.max(
-      Math.min(nextRatio, relativeDifficultyRatio),
-      curRatio
-    );
-    if (curRatio < toRatio) {
-      styles.push(`rgb(${r}, ${g}, ${b}) ${curRatio * 100}%`);
-      styles.push(`rgb(${r}, ${g}, ${b}) ${toRatio * 100}%`);
-    }
-    if (toRatio < nextRatio) {
-      styles.push(`rgb(${gray_r}, ${gray_g}, ${gray_b}) ${toRatio * 100}%`);
-      styles.push(`rgb(${gray_r}, ${gray_g}, ${gray_b}) ${nextRatio * 100}%`);
-    }
-    curRatio = nextRatio;
-  }
+  const color = getLevelColors(theme)[difficultyLevel];
+  const [r, g, b] = getRGB(color);
+  const [bg_r, bg_g, bg_b] = getRGB(theme.relativeDifficultyBackgroundColor);
+  const color_styles = [
+    `rgb(${r}, ${g}, ${b}) 0%`,
+    `rgb(${r}, ${g}, ${b}) ${fillRatio * 100}%`,
+    `rgb(${bg_r}, ${bg_g}, ${bg_b}) ${fillRatio * 100}%`,
+    `rgb(${bg_r}, ${bg_g}, ${bg_b}) 100%`,
+  ];
 
   const styleOptions = Object({
-    background: `linear-gradient(to right, ${styles.join(", ")})`,
+    borderColor: color,
+    background: `linear-gradient(to right, ${color_styles.join(", ")})`,
   });
-  const description = `Predicted solve probability of User: ${Math.round(
+  const description = `Relative difficulty: ${
+    LEVEL_NAMES[difficultyLevel]
+  }\nPredicted solve probability: ${Math.round(
     predictedSolveProbability * 100
   )}%`;
   const iconId = `RelativeDifficultyIcon-${id}`;
