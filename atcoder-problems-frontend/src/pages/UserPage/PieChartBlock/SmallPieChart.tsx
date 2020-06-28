@@ -22,16 +22,15 @@ export const SmallPieChart: React.FC<SmallPieChartProps> = ({
 }) => {
   const data = [
     { value: accepted, color: COLORS.Accepted, name: "Accepted" },
-    { value: rejected, color: COLORS.Rejected, name: "Rejected" },
-    { value: trying, color: COLORS.Trying, name: "Trying" },
+    { value: rejected, color: COLORS.Rejected, name: "Not Passed" },
+    { value: trying, color: COLORS.Trying, name: "Not Submitted" },
   ];
+  const totalCount = trying + rejected + accepted;
   return (
     <div>
-      <SinglePieChart data={data} />
+      <SinglePieChart data={data} hideLegend />
       <h5>{title}</h5>
-      <h5 className="text-muted">{`${accepted} (${rejected})  / ${
-        accepted + rejected + trying
-      }`}</h5>
+      <h5 className="text-muted">{`${accepted} / ${totalCount}`}</h5>
     </div>
   );
 };
