@@ -15,9 +15,10 @@ interface Entry {
 }
 interface Props {
   data: Entry[];
+  hideLegend?: boolean;
 }
 
-export const SinglePieChart: React.FC<Props> = ({ data }) => {
+export const SinglePieChart: React.FC<Props> = ({ data, hideLegend }) => {
   return (
     <div>
       <ResponsiveContainer width="100%" height={300}>
@@ -28,7 +29,7 @@ export const SinglePieChart: React.FC<Props> = ({ data }) => {
             ))}
           </Pie>
           <Tooltip />
-          <Legend />
+          {!hideLegend && <Legend />}
         </PieChart>
       </ResponsiveContainer>
     </div>
