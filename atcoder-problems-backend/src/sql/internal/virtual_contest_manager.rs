@@ -42,6 +42,9 @@ pub struct VirtualContestInfo {
     pub(crate) start_epoch_second: i64,
     pub(crate) duration_second: i64,
     pub(crate) mode: Option<String>,
+
+    #[serde(skip_serializing)]
+    pub(crate) is_public: bool,
 }
 
 #[deprecated(note = "want to migrate to VirtualContestInfo")]
@@ -74,6 +77,7 @@ pub trait VirtualContestManager {
         start_epoch_second: i64,
         duration_second: i64,
         mode: Option<&str>,
+        is_public: bool,
     ) -> Result<String>;
     fn update_contest(
         &self,
@@ -83,6 +87,7 @@ pub trait VirtualContestManager {
         start_epoch_second: i64,
         duration_second: i64,
         mode: Option<&str>,
+        is_public: bool,
     ) -> Result<()>;
 
     fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
@@ -110,6 +115,7 @@ impl VirtualContestManager for PgConnection {
         start_epoch_second: i64,
         duration_second: i64,
         mode: Option<&str>,
+        is_public: bool,
     ) -> Result<String> {
         let uuid = Uuid::new_v4().to_string();
         insert_into(v_contests::table)
@@ -121,6 +127,7 @@ impl VirtualContestManager for PgConnection {
                 v_contests::start_epoch_second.eq(start_epoch_second),
                 v_contests::duration_second.eq(duration_second),
                 v_contests::mode.eq(mode),
+                v_contests::is_public.eq(is_public),
             )])
             .execute(self)?;
         Ok(uuid)
@@ -133,6 +140,7 @@ impl VirtualContestManager for PgConnection {
         start_epoch_second: i64,
         duration_second: i64,
         mode: Option<&str>,
+        is_public: bool,
     ) -> Result<()> {
         update(v_contests::table.filter(v_contests::id.eq(id)))
             .set((
@@ -141,6 +149,7 @@ impl VirtualContestManager for PgConnection {
                 v_contests::start_epoch_second.eq(start_epoch_second),
                 v_contests::duration_second.eq(duration_second),
                 v_contests::mode.eq(mode),
+                v_contests::is_public.eq(is_public),
             ))
             .execute(self)?;
         Ok(())
@@ -222,6 +231,7 @@ impl VirtualContestManager for PgConnection {
 
     fn get_recent_contest_info(&self) -> Result<Vec<VirtualContestInfo>> {
         let data = v_contests::table
+            .filter(v_contests::is_public.eq(true))
             .order_by((v_contests::start_epoch_second + v_contests::duration_second).desc())
             .limit(RECENT_CONTEST_NUM)
             .load::<VirtualContestInfo>(self)?;
