@@ -27,13 +27,15 @@ const generateACCountTrophiesByTag = (
     ["You're tourist of Solving.", 3500],
   ];
 
-  return milestones.map(([draftTitle, c]) => {
+  return milestones.map(([draftTitle, milestoneCount]) => {
     const header = tag ? `[${tag}] ` : "";
     const title = header + draftTitle;
-    const reason = header + `AC count >= ${c}`;
-    const achieved = count >= c;
-    const sortId = `ac-count-${idPrefix}-${count.toString().padStart(5, "0")}`;
-    return { title, reason, achieved, sortId };
+    const reason = header + `AC count >= ${milestoneCount}`;
+    const achieved = count >= milestoneCount;
+    const sortId = `ac-count-${idPrefix}-${milestoneCount
+      .toString()
+      .padStart(5, "0")}`;
+    return { title, reason, achieved, sortId, group: "AC Count" };
   });
 };
 

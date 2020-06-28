@@ -6,7 +6,16 @@ export interface Trophy {
   reason: string;
   achieved: boolean;
   sortId: string;
+  group: TrophyGroup;
 }
+
+export const TrophyGroups = [
+  "AC Count",
+  "Contests",
+  "Problems",
+  "Streak",
+] as const;
+export type TrophyGroup = typeof TrophyGroups[number];
 
 export interface TrophySubmission {
   submission: Submission;
