@@ -40,7 +40,7 @@ const generateStreakTrophiesByTag = (
     const sortId = `longest-streak-${idPrefix}-${days
       .toString()
       .padStart(4, "0")}`;
-    return { title, reason, achieved, sortId };
+    return { title, reason, achieved, sortId, group: "Streak" };
   });
 };
 
