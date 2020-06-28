@@ -19,9 +19,10 @@ import ProblemModel from "../../../interfaces/ProblemModel";
 import { isAccepted } from "../../../utils";
 
 const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
+  const { problemSet } = props;
   return (
     <ListGroup>
-      {props.problemSet.valueSeq().map((p, i) => {
+      {problemSet.valueSeq().map((p, i) => {
         const problemId = p.id;
         const problem = props.problemMap.get(problemId);
 
@@ -43,7 +44,7 @@ const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
               close
               onClick={(): void => {
                 props.setProblemSet(
-                  props.problemSet.filter((x) => x.id !== problemId)
+                  problemSet.filter((x) => x.id !== problemId)
                 );
               }}
             />
@@ -70,7 +71,7 @@ const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
                 <Button
                   onClick={(): void => {
                     props.setProblemSet(
-                      props.problemSet.update(i, (x) => ({
+                      problemSet.update(i, (x) => ({
                         ...x,
                         point: 0,
                       }))
@@ -83,23 +84,27 @@ const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
               <Button
                 disabled={i === 0}
                 onClick={(): void => {
-                  props.setProblemSet(
-                    props.problemSet
-                      .set(i - 1, props.problemSet.get(i)!)
-                      .set(i, props.problemSet.get(i - 1)!)
-                  );
+                  const nextFirst = problemSet.get(i);
+                  const nextSecond = problemSet.get(i - 1);
+                  if (nextFirst && nextSecond) {
+                    props.setProblemSet(
+                      problemSet.set(i - 1, nextFirst).set(i, nextSecond)
+                    );
+                  }
                 }}
               >
                 <Octicon icon={ChevronUp} />
               </Button>
               <Button
-                disabled={i === props.problemSet.size - 1}
+                disabled={i === problemSet.size - 1}
                 onClick={(): void => {
-                  props.setProblemSet(
-                    props.problemSet
-                      .set(i, props.problemSet.get(i + 1)!)
-                      .set(i + 1, props.problemSet.get(i)!)
-                  );
+                  const nextFirst = problemSet.get(i + 1);
+                  const nextSecond = problemSet.get(i);
+                  if (nextFirst && nextSecond) {
+                    props.setProblemSet(
+                      problemSet.set(i, nextFirst).set(i + 1, nextSecond)
+                    );
+                  }
                 }}
               >
                 <Octicon icon={ChevronDown} />
@@ -114,7 +119,7 @@ const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
                     const parse = parseInt(e.target.value, 10);
                     const point = !isNaN(parse) ? parse : 0;
                     props.setProblemSet(
-                      props.problemSet.update(i, (x) => ({
+                      problemSet.update(i, (x) => ({
                         ...x,
                         point,
                       }))
@@ -125,7 +130,7 @@ const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
                   <Button
                     onClick={(): void => {
                       props.setProblemSet(
-                        props.problemSet.update(i, (x) => ({
+                        problemSet.update(i, (x) => ({
                           ...x,
                           point: null,
                         }))

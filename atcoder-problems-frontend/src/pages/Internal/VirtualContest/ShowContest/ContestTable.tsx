@@ -106,10 +106,13 @@ function getEstimatedPerformances(
   random.use(seedrandom("atcoder-problems"));
 
   const keyedProblems: Map<string, VirtualContestItem> = new Map();
-  const validatedModelMap: Map<
+  const validatedModelMap = new Map<
     ProblemId,
-    ProblemModelWithDifficultyModel & ProblemModelWithTimeModel
-  > = new Map();
+    [
+      VirtualContestItem,
+      ProblemModelWithDifficultyModel & ProblemModelWithTimeModel
+    ]
+  >();
   for (const problem of problems) {
     keyedProblems.set(problem.id, problem);
     const model = modelMap.get(problem.id);
@@ -119,7 +122,7 @@ function getEstimatedPerformances(
     if (!isProblemModelWithTimeModel(model)) {
       return [];
     }
-    validatedModelMap.set(problem.id, model);
+    validatedModelMap.set(problem.id, [problem, model]);
   }
 
   const bootstrapRatings: number[] = [];
@@ -136,14 +139,14 @@ function getEstimatedPerformances(
     let score = 0;
     let penalty = 0;
     let remainingTime = end - start;
-    for (const problem of problems) {
-      const problemModel = validatedModelMap.get(problem.id)!;
+
+    validatedModelMap.forEach(([problem, problemModel]) => {
       const solveProbability =
         problemModel.rawDifficulty > -10000
           ? predictSolveProbability(problemModel, bootstrapRating)
           : 1;
       if (random.float() >= solveProbability) {
-        continue;
+        return;
       }
       const logTimeMean =
         problemModel.slope * bootstrapRating + problemModel.intercept;
@@ -152,12 +155,13 @@ function getEstimatedPerformances(
         Math.sqrt(problemModel.variance)
       )();
       if (solveTime > remainingTime) {
-        break;
+        return;
       }
       score += problem.point ? problem.point : 1;
       penalty += solveTime;
       remainingTime -= solveTime;
-    }
+    });
+
     console.log(bootstrapRating, score, penalty);
     bootstrapResults.push({ score, penalty });
   }
