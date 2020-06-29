@@ -46,7 +46,7 @@ export const classifyContest = (contest: Contest): ContestCategory => {
     return "JAG";
   }
   if (
-    /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova)/.exec(
+    /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
       contest.title
     ) ||
     /(^future-meets-you-contest|^hokudai-hitachi)/.exec(contest.id) ||
