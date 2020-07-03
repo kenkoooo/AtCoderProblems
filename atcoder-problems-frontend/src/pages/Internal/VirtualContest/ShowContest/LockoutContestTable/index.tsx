@@ -32,14 +32,13 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissions: PromiseState<Submission[]>;
+  submissions: PromiseState<List<Submission>>;
 }
 
 const InnerLockoutContestTable: React.FC<InnerProps> = (props) => {
   const submissions = props.submissions.fulfilled
-    ? props.submissions.value
-    : [];
-  submissions.sort((a, b) => a.id - b.id);
+    ? props.submissions.value.sort((a, b) => a.id - b.id)
+    : List<Submission>();
 
   const colorMap = new Map<string, string>();
   for (let i = 0; i < props.participants.length; i++) {
