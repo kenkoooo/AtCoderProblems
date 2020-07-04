@@ -66,7 +66,7 @@ const ProblemTable: React.FC<ProblemTableProps> = (props) => {
                       : null
                   }
                   isExperimentalDifficulty={!!model && model.is_experimental}
-                  showDifficulty
+                  showDifficulty={submission !== undefined}
                   showDifficultyUnavailable
                 />
               </td>
