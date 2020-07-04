@@ -1,7 +1,6 @@
 import { Table } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
-import { List, Map as ImmutableMap } from "immutable";
 import { VirtualContestItem } from "../../../types";
 import { isAccepted } from "../../../../../utils";
 import { ProblemId } from "../../../../../interfaces/Status";
@@ -13,6 +12,7 @@ import {
 } from "../../../../../utils/CachedApiClient";
 import { extractBestSubmissions, BestSubmissionEntry } from "../util";
 import { compareProblem, calcTotalResult } from "../ContestTable";
+import { convertMap } from "../../../../../utils/ImmutableMigration";
 import SmallScoreCell from "./SmallScoreCell";
 
 const getSortedUserIds = (
@@ -48,8 +48,8 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissions: PromiseState<List<Submission>>;
-  problemModels: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
+  submissions: PromiseState<Submission[]>;
+  problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
@@ -154,19 +154,19 @@ export const TrainingContestTable = connect<OuterProps, InnerProps>(
   (props) => ({
     submissions: {
       comparison: null,
-      value: (): Promise<List<Submission>> =>
+      value: (): Promise<Submission[]> =>
         fetchVirtualContestSubmission(
           props.users,
           props.problems.map((p) => p.item.id),
           props.start,
           props.end
-        ),
+        ).then((submissions) => submissions.toArray()),
       refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
       force: props.enableAutoRefresh,
     },
     problemModels: {
       comparison: null,
-      value: () => cachedProblemModels(),
+      value: () => cachedProblemModels().then((map) => convertMap(map)),
     },
   })
 )(InnerContestTable);
