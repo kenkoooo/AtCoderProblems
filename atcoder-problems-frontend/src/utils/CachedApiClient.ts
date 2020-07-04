@@ -185,21 +185,8 @@ let CACHED_PROBLEM_MODELS: undefined | Promise<Map<ProblemId, ProblemModel>>;
 export const cachedProblemModels = (): Promise<Map<string, ProblemModel>> => {
   if (CACHED_PROBLEM_MODELS === undefined) {
     CACHED_PROBLEM_MODELS = fetchProblemModels();
-    CACHED_PROBLEM_MODELS.then((value) =>
-      localStorage.setItem(
-        "problemModels",
-        JSON.stringify(Array.from(value.entries()))
-      )
-    );
   }
   return CACHED_PROBLEM_MODELS;
-};
-export const oldProblemModels = (): Map<string, ProblemModel> => {
-  return Map<ProblemId, ProblemModel>(
-    JSON.parse(localStorage.getItem("problemModels") || "[]") as Array<
-      [ProblemId, ProblemModel]
-    >
-  );
 };
 
 let CACHED_CONTESTS: undefined | Promise<Map<ContestId, Contest>>;

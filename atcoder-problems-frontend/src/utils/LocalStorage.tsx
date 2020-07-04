@@ -1,7 +1,21 @@
 import React from "react";
 
+// Restrict the key of LocalStorage to avoid conflicting
+const LocalStorageKeys = [
+  "theme",
+  "contestTableTab",
+  "showDifficulty",
+  "colorMode",
+  "showPenalties",
+  "showAccepted",
+  "dailyEffortBarChartActiveTab",
+  "climbingLineChartActiveTab",
+  "climbingLineChartReverseColorOrder",
+] as const;
+type LocalStorageKey = typeof LocalStorageKeys[number];
+
 export function useLocalStorage<T>(
-  key: string,
+  key: LocalStorageKey,
   defaultValue: T
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
   const a = localStorage.getItem(key);
