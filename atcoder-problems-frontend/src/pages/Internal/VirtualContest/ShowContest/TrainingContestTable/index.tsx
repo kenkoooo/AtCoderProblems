@@ -98,7 +98,13 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
             <tr key={i}>
               <th>{i + 1}</th>
               <th>{userId}</th>
-              <td style={{ lineHeight: 0, minWidth: "15rem" }}>
+              <td
+                style={{
+                  lineHeight: 0,
+                  minWidth: "15rem",
+                  verticalAlign: "middle",
+                }}
+              >
                 {!showProblems
                   ? null
                   : items.sort(compareProblem).map((problem, index) => {
