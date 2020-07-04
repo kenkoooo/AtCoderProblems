@@ -27,6 +27,7 @@ import { calculatePerformances } from "../../../../utils/RatingSystem";
 import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
 import { BestSubmissionEntry, extractBestSubmissions } from "./util";
 import ScoreCell from "./ScoreCell";
+import SmallScoreCell from "./SmallScoreCell";
 
 const calcTotalResult = (
   userId: string,
@@ -233,6 +234,7 @@ interface OuterProps {
   readonly start: number;
   readonly end: number;
   readonly enableAutoRefresh: boolean;
+  readonly condensed: boolean;
 }
 
 interface InnerProps extends OuterProps {
@@ -267,7 +269,7 @@ function compareProblem<T extends { id: string; order: number | null }>(
 }
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
-  const { showProblems, problems, users, start, end } = props;
+  const { condensed, showProblems, problems, users, start, end } = props;
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
     : ImmutableMap<ProblemId, ProblemModel>();
@@ -317,29 +319,35 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         <tr>
           <th>#</th>
           <th>Participant</th>
-          {showProblems
-            ? items.sort(compareProblem).map((p, i) => {
-                return (
-                  <th key={i}>
-                    {`${i + 1}. `}
-                    {p.contestId && p.title ? (
-                      <ProblemLink
-                        problemId={p.id}
-                        contestId={p.contestId}
-                        problemTitle={p.title}
-                      />
-                    ) : (
-                      p.id
-                    )}
-                    {p.point !== null ? ` (${p.point})` : null}
-                  </th>
-                );
-              })
-            : null}
-          <th style={{ textAlign: "center" }}>Score</th>
-          {showEstimatedPerformances ? (
-            <th style={{ textAlign: "center" }}>Estimated Performance</th>
-          ) : null}
+          {condensed ? (
+            <th>Progress</th>
+          ) : (
+            <>
+              {showProblems
+                ? items.sort(compareProblem).map((p, i) => {
+                    return (
+                      <th key={i}>
+                        {`${i + 1}. `}
+                        {p.contestId && p.title ? (
+                          <ProblemLink
+                            problemId={p.id}
+                            contestId={p.contestId}
+                            problemTitle={p.title}
+                          />
+                        ) : (
+                          p.id
+                        )}
+                        {p.point !== null ? ` (${p.point})` : null}
+                      </th>
+                    );
+                  })
+                : null}
+              <th style={{ textAlign: "center" }}>Score</th>
+              {showEstimatedPerformances ? (
+                <th style={{ textAlign: "center" }}>Estimated Performance</th>
+              ) : null}
+            </>
+          )}
         </tr>
       </thead>
       <tbody>
@@ -354,17 +362,21 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
             <tr key={i}>
               <th>{i + 1}</th>
               <th>{userId}</th>
-              {!showProblems
-                ? null
-                : items.sort(compareProblem).map((problem) => {
+              {condensed ? (
+                <td style={{ lineHeight: 0, minWidth: "15rem" }}>
+                  {items.sort(compareProblem).map((problem, index) => {
                     const info = bestSubmissions.find(
                       (e) => e.userId === userId && e.problemId === problem.id
                     )?.bestSubmissionInfo;
                     if (!info) {
                       return (
-                        <td key={problem.id} style={{ textAlign: "center" }}>
-                          -
-                        </td>
+                        <SmallScoreCell
+                          key={`cell-${userId}-${index}`}
+                          point={0}
+                          trials={0}
+                          time={0}
+                          problem={problem}
+                        />
                       );
                     }
                     const best = info.bestSubmission;
@@ -378,32 +390,74 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
                           : 0
                         : best.point;
                     return (
-                      <td key={problem.id}>
-                        <ScoreCell
-                          trials={trials}
-                          maxPoint={point}
-                          time={best.epoch_second - start}
-                        />
-                      </td>
+                      <SmallScoreCell
+                        key={`cell-${userId}-${index}`}
+                        point={point}
+                        trials={trials}
+                        time={best.epoch_second - start}
+                        problem={problem}
+                      />
                     );
                   })}
-              <td>
-                <ScoreCell
-                  trials={totalResult.trialsBeforeBest}
-                  maxPoint={totalResult.point}
-                  time={totalResult.lastBestSubmissionTime - start}
-                />
-              </td>
-              {showEstimatedPerformances ? (
-                <td>
-                  <EstimatedPerformance
-                    estimatedPerformance={
-                      estimatedPerformances.find((e) => e.userId === userId)
-                        ?.performance
-                    }
-                  />
                 </td>
-              ) : null}
+              ) : (
+                <>
+                  {!showProblems
+                    ? null
+                    : items.sort(compareProblem).map((problem) => {
+                        const info = bestSubmissions.find(
+                          (e) =>
+                            e.userId === userId && e.problemId === problem.id
+                        )?.bestSubmissionInfo;
+                        if (!info) {
+                          return (
+                            <td
+                              key={problem.id}
+                              style={{ textAlign: "center" }}
+                            >
+                              -
+                            </td>
+                          );
+                        }
+                        const best = info.bestSubmission;
+                        const trials =
+                          info.trialsBeforeBest +
+                          (isAccepted(info.bestSubmission.result) ? 0 : 1);
+                        const point =
+                          problem.point !== null
+                            ? isAccepted(best.result)
+                              ? problem.point
+                              : 0
+                            : best.point;
+                        return (
+                          <td key={problem.id}>
+                            <ScoreCell
+                              trials={trials}
+                              maxPoint={point}
+                              time={best.epoch_second - start}
+                            />
+                          </td>
+                        );
+                      })}
+                  <td>
+                    <ScoreCell
+                      trials={totalResult.trialsBeforeBest}
+                      maxPoint={totalResult.point}
+                      time={totalResult.lastBestSubmissionTime - start}
+                    />
+                  </td>
+                  {showEstimatedPerformances ? (
+                    <td>
+                      <EstimatedPerformance
+                        estimatedPerformance={
+                          estimatedPerformances.find((e) => e.userId === userId)
+                            ?.performance
+                        }
+                      />
+                    </td>
+                  ) : null}
+                </>
+              )}
             </tr>
           );
         })}

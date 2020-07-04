@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, Redirect, useHistory, useParams } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import {
@@ -47,6 +47,20 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
 
+  const [showCondensedContestTable, setShowCondensedContestTable] = useState(
+    false
+  );
+  useEffect(() => {
+    if (
+      contestInfoFetch.fulfilled &&
+      contestInfoFetch.value.problems.length >= 20
+    ) {
+      setShowCondensedContestTable(true);
+    }
+    // The problems length only needs to be checked once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contestInfoFetch.fulfilled]);
+
   if (contestInfoFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else if (contestInfoFetch.rejected) {
@@ -94,6 +108,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
       return { item };
     }
   });
+
   return (
     <>
       <Row className="my-2">
@@ -174,6 +189,15 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
           >
             <Octicon icon={autoRefreshEnabled ? Check : Sync} /> Auto Refresh{" "}
             {autoRefreshEnabled ? "Enabled" : "Disabled"}
+          </Button>{" "}
+          <Button
+            outline={!showCondensedContestTable}
+            active={showCondensedContestTable}
+            onClick={(): void =>
+              setShowCondensedContestTable(!showCondensedContestTable)
+            }
+          >
+            Condensed Table {showCondensedContestTable ? "Enabled" : "Disabled"}
           </Button>
         </Col>
       </Row>
@@ -198,6 +222,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               start={start}
               end={end}
               enableAutoRefresh={autoRefreshEnabled}
+              condensed={showCondensedContestTable}
             />
           )}
         </Col>
