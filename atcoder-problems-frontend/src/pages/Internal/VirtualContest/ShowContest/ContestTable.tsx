@@ -28,7 +28,7 @@ import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
 import { BestSubmissionEntry, extractBestSubmissions } from "./util";
 import ScoreCell from "./ScoreCell";
 
-const calcTotalResult = (
+export const calcTotalResult = (
   userId: string,
   problems: VirtualContestItem[],
   bestSubmissions: BestSubmissionEntry[]
@@ -36,6 +36,7 @@ const calcTotalResult = (
   trialsBeforeBest: number;
   lastBestSubmissionTime: number;
   point: number;
+  solveCount: number;
 } => {
   return problems.reduce(
     (state, item) => {
@@ -61,12 +62,14 @@ const calcTotalResult = (
           best.epoch_second
         ),
         point: state.point + (point ? point : best.point),
+        solveCount: state.solveCount + (point ? 1 : 0),
       };
     },
     {
       trialsBeforeBest: 0,
       lastBestSubmissionTime: 0,
       point: 0,
+      solveCount: 0,
     }
   );
 };
@@ -256,7 +259,7 @@ const EstimatedPerformance: React.FC<{
   );
 };
 
-function compareProblem<T extends { id: string; order: number | null }>(
+export function compareProblem<T extends { id: string; order: number | null }>(
   a: T,
   b: T
 ): number {

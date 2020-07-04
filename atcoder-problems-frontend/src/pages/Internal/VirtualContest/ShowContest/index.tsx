@@ -28,6 +28,7 @@ import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
+import { TrainingContestTable } from "./TrainingContestTable";
 
 interface OuterProps {
   contestId: string;
@@ -188,6 +189,15 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               enableAutoRefresh={autoRefreshEnabled}
               start={start}
               end={end}
+            />
+          ) : contestInfo.mode === "training" ? (
+            <TrainingContestTable
+              showProblems={showProblems}
+              problems={problems}
+              users={contestInfo.participants}
+              start={start}
+              end={end}
+              enableAutoRefresh={autoRefreshEnabled}
             />
           ) : (
             <ContestTable
