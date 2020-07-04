@@ -1,4 +1,3 @@
-import { List } from "immutable";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Table, Row, Col, Card, CardHeader, CardBody } from "reactstrap";
@@ -32,13 +31,13 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissions: PromiseState<List<Submission>>;
+  submissions: PromiseState<Submission[]>;
 }
 
 const InnerLockoutContestTable: React.FC<InnerProps> = (props) => {
   const submissions = props.submissions.fulfilled
-    ? props.submissions.value.sort((a, b) => a.id - b.id)
-    : List<Submission>();
+    ? props.submissions.value.slice().sort((a, b) => a.id - b.id)
+    : ([] as Submission[]);
 
   const colorMap = new Map<string, string>();
   for (let i = 0; i < props.participants.length; i++) {
@@ -152,13 +151,13 @@ const InnerLockoutContestTable: React.FC<InnerProps> = (props) => {
 export const LockoutContestTable = connect<OuterProps, InnerProps>((props) => ({
   submissions: {
     comparison: null,
-    value: (): Promise<List<Submission>> =>
+    value: (): Promise<Submission[]> =>
       fetchVirtualContestSubmission(
         props.participants,
         props.problems.map((p) => p.item.id),
         props.start,
         props.end
-      ),
+      ).then((submissions) => submissions.toArray()),
     refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
     force: props.enableAutoRefresh,
   },

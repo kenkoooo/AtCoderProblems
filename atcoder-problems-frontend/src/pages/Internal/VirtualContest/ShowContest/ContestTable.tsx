@@ -3,7 +3,6 @@ import seedrandom from "seedrandom";
 import { Table } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
-import { List, Map as ImmutableMap } from "immutable";
 import { VirtualContestItem } from "../../types";
 import {
   clipDifficulty,
@@ -25,6 +24,7 @@ import {
 } from "../../../../utils/CachedApiClient";
 import { calculatePerformances } from "../../../../utils/RatingSystem";
 import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
+import { convertMap } from "../../../../utils/ImmutableMigration";
 import { BestSubmissionEntry, extractBestSubmissions } from "./util";
 import ScoreCell from "./ScoreCell";
 
@@ -101,7 +101,7 @@ function getEstimatedPerformances(
   start: number,
   end: number,
   problems: VirtualContestItem[],
-  modelMap: ImmutableMap<ProblemId, ProblemModel>
+  modelMap: Map<ProblemId, ProblemModel>
 ): {
   performance: number;
   userId: string;
@@ -239,8 +239,8 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissions: PromiseState<List<Submission>>;
-  problemModels: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
+  submissions: PromiseState<Submission[]>;
+  problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 const EstimatedPerformance: React.FC<{
@@ -273,7 +273,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   const { showProblems, problems, users, start, end } = props;
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
-    : ImmutableMap<ProblemId, ProblemModel>();
+    : new Map<ProblemId, ProblemModel>();
   const submissionMap = props.submissions.fulfilled
     ? props.submissions.value
         .filter((s) => s.result !== "CE")
@@ -418,18 +418,18 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
 export const ContestTable = connect<OuterProps, InnerProps>((props) => ({
   submissions: {
     comparison: null,
-    value: (): Promise<List<Submission>> =>
+    value: (): Promise<Submission[]> =>
       fetchVirtualContestSubmission(
         props.users,
         props.problems.map((p) => p.item.id),
         props.start,
         props.end
-      ),
+      ).then((submissions) => submissions.toArray()),
     refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
     force: props.enableAutoRefresh,
   },
   problemModels: {
     comparison: null,
-    value: () => cachedProblemModels(),
+    value: () => cachedProblemModels().then((map) => convertMap(map)),
   },
 }))(InnerContestTable);
