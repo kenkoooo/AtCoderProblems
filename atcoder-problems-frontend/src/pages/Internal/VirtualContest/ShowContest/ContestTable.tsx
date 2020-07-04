@@ -239,7 +239,7 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissions: PromiseState<Submission[]>;
+  submissions: PromiseState<List<Submission>>;
   problemModels: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
