@@ -10,7 +10,7 @@ import {
   Spinner,
   Table,
 } from "reactstrap";
-import Octicon, { Check, Sync } from "@primer/octicons-react";
+import Octicon, { Check, Sync, Book } from "@primer/octicons-react";
 import { Map as ImmutableMap } from "immutable";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
@@ -47,15 +47,13 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
 
-  const [showCondensedContestTable, setShowCondensedContestTable] = useState(
-    false
-  );
+  const [contestTableCondensed, setProblemTableCondensed] = useState(false);
   useEffect(() => {
     if (
       contestInfoFetch.fulfilled &&
       contestInfoFetch.value.problems.length >= 20
     ) {
-      setShowCondensedContestTable(true);
+      setProblemTableCondensed(true);
     }
     // The problems length only needs to be checked once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,13 +189,14 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             {autoRefreshEnabled ? "Enabled" : "Disabled"}
           </Button>{" "}
           <Button
-            outline={!showCondensedContestTable}
-            active={showCondensedContestTable}
+            outline={!contestTableCondensed}
+            active={contestTableCondensed}
             onClick={(): void =>
-              setShowCondensedContestTable(!showCondensedContestTable)
+              setProblemTableCondensed(!contestTableCondensed)
             }
           >
-            Condensed Table {showCondensedContestTable ? "Enabled" : "Disabled"}
+            <Octicon icon={contestTableCondensed ? Check : Book} /> Condensed
+            Table {contestTableCondensed ? "Enabled" : "Disabled"}
           </Button>
         </Col>
       </Row>
@@ -222,7 +221,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               start={start}
               end={end}
               enableAutoRefresh={autoRefreshEnabled}
-              condensed={showCondensedContestTable}
+              condensed={contestTableCondensed}
             />
           )}
         </Col>
