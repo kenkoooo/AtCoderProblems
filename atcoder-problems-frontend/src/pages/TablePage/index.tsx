@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
-import { List, Map, Set } from "immutable";
+import { List, Map as ImmutableMap, Set } from "immutable";
 import {
   constructStatusLabelMap,
   ContestId,
@@ -32,10 +32,14 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  readonly contestsFetch: PromiseState<Map<ContestId, Contest>>;
-  readonly contestToProblemsFetch: PromiseState<Map<ContestId, List<Problem>>>;
-  readonly problemsFetch: PromiseState<Map<ProblemId, Problem>>;
-  readonly problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
+  readonly contestsFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
+  readonly contestToProblemsFetch: PromiseState<
+    ImmutableMap<ContestId, List<Problem>>
+  >;
+  readonly problemsFetch: PromiseState<ImmutableMap<ProblemId, Problem>>;
+  readonly problemModelsFetch: PromiseState<
+    ImmutableMap<ProblemId, ProblemModel>
+  >;
   readonly selectableLanguagesFetch: PromiseState<Set<string>>;
   readonly submissions: PromiseState<Submission[]>;
   readonly loginState: PromiseState<UserResponse | null>;
@@ -71,13 +75,13 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
 
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
-    : CachedApiClient.oldProblemModels();
+    : ImmutableMap<ProblemId, ProblemModel>();
   const contestToProblems = contestToProblemsFetch.fulfilled
     ? contestToProblemsFetch.value
-    : Map<ContestId, List<Problem>>();
+    : ImmutableMap<ContestId, List<Problem>>();
   const contests = contestsFetch.fulfilled
     ? contestsFetch.value
-    : Map<ContestId, Contest>();
+    : ImmutableMap<ContestId, Contest>();
   const selectableLanguages = selectableLanguagesFetch.fulfilled
     ? selectableLanguagesFetch.value
     : Set<string>();
@@ -172,22 +176,22 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
 export const TablePage = connect<OuterProps, InnerProps>((props) => ({
   problemModelsFetch: {
     comparison: null,
-    value: (): Promise<Map<string, ProblemModel>> =>
+    value: (): Promise<ImmutableMap<string, ProblemModel>> =>
       CachedApiClient.cachedProblemModels(),
   },
   contestsFetch: {
     comparison: null,
-    value: (): Promise<Map<string, Contest>> =>
+    value: (): Promise<ImmutableMap<string, Contest>> =>
       CachedApiClient.cachedContestMap(),
   },
   problemsFetch: {
     comparison: null,
-    value: (): Promise<Map<string, Problem>> =>
+    value: (): Promise<ImmutableMap<string, Problem>> =>
       CachedApiClient.cachedProblemMap(),
   },
   contestToProblemsFetch: {
     comparison: null,
-    value: (): Promise<Map<string, List<Problem>>> =>
+    value: (): Promise<ImmutableMap<string, List<Problem>>> =>
       CachedApiClient.cachedContestToProblemMap(),
   },
   selectableLanguagesFetch: {

@@ -57,13 +57,13 @@ const ChartTypeTabButtons: React.FC<ChartTypeTabProps> = (props) => {
 
 export const ProgressChartBlock: React.FC<Props> = (props) => {
   const [
-    dailyEffortBarChartAactiveTab,
-    setDailyEffortBarChartAactiveTab,
-  ] = useLocalStorage<ChartType>("dailyEffortBarChartAactiveTab", "Simple");
+    dailyEffortBarChartActiveTab,
+    setDailyEffortBarChartActiveTab,
+  ] = useLocalStorage<ChartType>("dailyEffortBarChartActiveTab", "Simple");
   const [
-    climbingLineChartAactiveTab,
-    setClimbingLineChartAactiveTab,
-  ] = useLocalStorage<ChartType>("climbingLineChartAactiveTab", "Simple");
+    climbingLineChartActiveTab,
+    setClimbingLineChartActiveTab,
+  ] = useLocalStorage<ChartType>("climbingLineChartActiveTab", "Simple");
   const [reverseColorOrder, setReverseColorOrder] = useLocalStorage(
     "climbingLineChartReverseColorOrder",
     false
@@ -158,11 +158,11 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
       </Row>
       <Row>
         <ChartTypeTabButtons
-          active={dailyEffortBarChartAactiveTab}
-          setActive={setDailyEffortBarChartAactiveTab}
+          active={dailyEffortBarChartActiveTab}
+          setActive={setDailyEffortBarChartActiveTab}
         />
       </Row>
-      {dailyEffortBarChartAactiveTab === "Simple" ? (
+      {dailyEffortBarChartActiveTab === "Simple" ? (
         <DailyEffortBarChart
           dailyData={dailyCount.map(({ dateLabel, count }) => ({
             dateSecond: parseDateLabel(dateLabel).unix(),
@@ -178,8 +178,8 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
       </Row>
       <Row>
         <ChartTypeTabButtons
-          active={climbingLineChartAactiveTab}
-          setActive={setClimbingLineChartAactiveTab}
+          active={climbingLineChartActiveTab}
+          setActive={setClimbingLineChartActiveTab}
         />
         <FormGroup check inline>
           <Label check>
@@ -187,13 +187,13 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
               type="checkbox"
               checked={reverseColorOrder}
               onChange={(e): void => setReverseColorOrder(e.target.checked)}
-              disabled={climbingLineChartAactiveTab !== "Colored"}
+              disabled={climbingLineChartActiveTab !== "Colored"}
             />
             Reverse Color Order
           </Label>
         </FormGroup>
       </Row>
-      {climbingLineChartAactiveTab === "Simple" ? (
+      {climbingLineChartActiveTab === "Simple" ? (
         <ClimbingLineChart climbingData={climbing} />
       ) : (
         <ClimbingAreaChart
