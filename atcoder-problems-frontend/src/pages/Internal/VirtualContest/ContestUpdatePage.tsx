@@ -15,6 +15,7 @@ interface Request {
   start_epoch_second: number;
   duration_second: number;
   mode: string | null;
+  is_public: boolean;
 }
 
 interface OuterProps {
@@ -95,6 +96,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
       initialEndMinute={end.minute()}
       initialProblems={List(problems)}
       initialMode={contestInfo.mode}
+      initialPublicness={contestInfo.is_public}
       buttonTitle="Update"
       buttonPush={({
         title,
@@ -103,6 +105,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
         endSecond,
         problems: ps,
         mode,
+        publicness,
       }): void => {
         props.updateContest(
           {
@@ -112,6 +115,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
             start_epoch_second: startSecond,
             duration_second: endSecond - startSecond,
             mode,
+            is_public: publicness,
           },
           ps.toArray()
         );
