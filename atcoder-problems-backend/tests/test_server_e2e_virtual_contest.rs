@@ -229,6 +229,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "start_epoch_second": 1,
                 "memo": "contest memo",
                 "title": "contest title",
+                "is_public":true,
                 "id": format!("{}", contest_id),
                 "mode": null
             }
