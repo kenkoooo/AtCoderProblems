@@ -136,6 +136,9 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
                 <DropdownItem onClick={(): void => setMode("lockout")}>
                   {formatMode("lockout")}
                 </DropdownItem>
+                <DropdownItem onClick={(): void => setMode("training")}>
+                  {formatMode("training")}
+                </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
           </InputGroup>
