@@ -198,6 +198,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               start={start}
               end={end}
               enableAutoRefresh={autoRefreshEnabled}
+              atCoderUserId={atCoderUserId}
             />
           )}
         </Col>

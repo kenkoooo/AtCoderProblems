@@ -233,6 +233,7 @@ interface OuterProps {
   readonly start: number;
   readonly end: number;
   readonly enableAutoRefresh: boolean;
+  readonly atCoderUserId: string;
 }
 
 interface InnerProps extends OuterProps {
@@ -266,8 +267,107 @@ function compareProblem<T extends { id: string; order: number | null }>(
   return a.id.localeCompare(b.id);
 }
 
+interface ContestTableRowProps {
+  userId: string;
+  index: number;
+  problems: {
+    item: VirtualContestItem;
+    title?: string | undefined;
+    contestId?: string | undefined;
+  }[];
+  bestSubmissions: BestSubmissionEntry[];
+  items: {
+    id: string;
+    point: number | null;
+    order: number | null;
+    contestId: string | undefined;
+    title: string | undefined;
+  }[];
+  showProblems: boolean;
+  start: number;
+  showEstimatedPerformances: boolean;
+  estimatedPerformances: {
+    performance: number;
+    userId: string;
+  }[];
+}
+
+const ContestTableRow: React.FC<ContestTableRowProps> = ({
+  userId,
+  index,
+  problems,
+  bestSubmissions,
+  items,
+  showProblems,
+  start,
+  showEstimatedPerformances,
+  estimatedPerformances,
+}) => {
+  const totalResult = calcTotalResult(
+    userId,
+    problems.map((p) => p.item),
+    bestSubmissions
+  );
+  return (
+    <tr>
+      <th>{index + 1}</th>
+      <th>{userId}</th>
+      {!showProblems
+        ? null
+        : items.sort(compareProblem).map((problem) => {
+            const info = bestSubmissions.find(
+              (e) => e.userId === userId && e.problemId === problem.id
+            )?.bestSubmissionInfo;
+            if (!info) {
+              return (
+                <td key={problem.id} style={{ textAlign: "center" }}>
+                  -
+                </td>
+              );
+            }
+            const best = info.bestSubmission;
+            const trials =
+              info.trialsBeforeBest +
+              (isAccepted(info.bestSubmission.result) ? 0 : 1);
+            const point =
+              problem.point !== null
+                ? isAccepted(best.result)
+                  ? problem.point
+                  : 0
+                : best.point;
+            return (
+              <td key={problem.id}>
+                <ScoreCell
+                  trials={trials}
+                  maxPoint={point}
+                  time={best.epoch_second - start}
+                />
+              </td>
+            );
+          })}
+      <td>
+        <ScoreCell
+          trials={totalResult.trialsBeforeBest}
+          maxPoint={totalResult.point}
+          time={totalResult.lastBestSubmissionTime - start}
+        />
+      </td>
+      {showEstimatedPerformances ? (
+        <td>
+          <EstimatedPerformance
+            estimatedPerformance={
+              estimatedPerformances.find((e) => e.userId === userId)
+                ?.performance
+            }
+          />
+        </td>
+      ) : null}
+    </tr>
+  );
+};
+
 const InnerContestTable: React.FC<InnerProps> = (props) => {
-  const { showProblems, problems, users, start, end } = props;
+  const { showProblems, problems, users, start, end, atCoderUserId } = props;
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
     : ImmutableMap<ProblemId, ProblemModel>();
@@ -293,6 +393,11 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     problems.map((p) => p.item),
     bestSubmissions
   );
+
+  const loginUserIndex = sortedUserIds.findIndex(
+    (userId) => userId === atCoderUserId
+  );
+
   const estimatedPerformances = props.enableEstimatedPerformances
     ? getEstimatedPerformances(
         users,
@@ -343,68 +448,33 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         </tr>
       </thead>
       <tbody>
+        {loginUserIndex >= 0 ? (
+          <ContestTableRow
+            userId={atCoderUserId}
+            index={loginUserIndex}
+            problems={problems}
+            bestSubmissions={bestSubmissions}
+            items={items}
+            showProblems={showProblems}
+            start={start}
+            showEstimatedPerformances={showEstimatedPerformances}
+            estimatedPerformances={estimatedPerformances}
+          />
+        ) : null}
         {sortedUserIds.map((userId, i) => {
-          const totalResult = calcTotalResult(
-            userId,
-            problems.map((p) => p.item),
-
-            bestSubmissions
-          );
           return (
-            <tr key={i}>
-              <th>{i + 1}</th>
-              <th>{userId}</th>
-              {!showProblems
-                ? null
-                : items.sort(compareProblem).map((problem) => {
-                    const info = bestSubmissions.find(
-                      (e) => e.userId === userId && e.problemId === problem.id
-                    )?.bestSubmissionInfo;
-                    if (!info) {
-                      return (
-                        <td key={problem.id} style={{ textAlign: "center" }}>
-                          -
-                        </td>
-                      );
-                    }
-                    const best = info.bestSubmission;
-                    const trials =
-                      info.trialsBeforeBest +
-                      (isAccepted(info.bestSubmission.result) ? 0 : 1);
-                    const point =
-                      problem.point !== null
-                        ? isAccepted(best.result)
-                          ? problem.point
-                          : 0
-                        : best.point;
-                    return (
-                      <td key={problem.id}>
-                        <ScoreCell
-                          trials={trials}
-                          maxPoint={point}
-                          time={best.epoch_second - start}
-                        />
-                      </td>
-                    );
-                  })}
-              <td>
-                <ScoreCell
-                  trials={totalResult.trialsBeforeBest}
-                  maxPoint={totalResult.point}
-                  time={totalResult.lastBestSubmissionTime - start}
-                />
-              </td>
-              {showEstimatedPerformances ? (
-                <td>
-                  <EstimatedPerformance
-                    estimatedPerformance={
-                      estimatedPerformances.find((e) => e.userId === userId)
-                        ?.performance
-                    }
-                  />
-                </td>
-              ) : null}
-            </tr>
+            <ContestTableRow
+              key={userId}
+              userId={userId}
+              index={i}
+              problems={problems}
+              bestSubmissions={bestSubmissions}
+              items={items}
+              showProblems={showProblems}
+              start={start}
+              showEstimatedPerformances={showEstimatedPerformances}
+              estimatedPerformances={estimatedPerformances}
+            />
           );
         })}
       </tbody>
