@@ -4,8 +4,12 @@ import { Container, Row, Table, Nav, NavItem, NavLink, Col } from "reactstrap";
 import Octicon, { Check, Search } from "@primer/octicons-react";
 import { Course } from "../../interfaces/Course";
 import Problem from "../../interfaces/Problem";
+import ProblemModel from "../../interfaces/ProblemModel";
 import { ProblemId } from "../../interfaces/Status";
-import { cachedProblemMap } from "../../utils/CachedApiClient";
+import {
+  cachedProblemMap,
+  cachedProblemModels,
+} from "../../utils/CachedApiClient";
 import { convertMap } from "../../utils/ImmutableMigration";
 import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
@@ -16,6 +20,7 @@ import { SinglePieChart } from "../../components/SinglePieChart";
 
 interface ProblemTableProps {
   problems: Problem[];
+  models: Map<string, ProblemModel>;
   submissions: Submission[];
 }
 
@@ -40,6 +45,7 @@ const ProblemTable: React.FC<ProblemTableProps> = (props) => {
       <tbody>
         {props.problems.map((problem, i) => {
           const submission = latestAcceptedSubmissionMap.get(problem.id);
+          const model = props.models.get(problem.id);
           return (
             <tr key={i}>
               <th scope="row" style={{ width: "10%", textAlign: "right" }}>
@@ -53,6 +59,14 @@ const ProblemTable: React.FC<ProblemTableProps> = (props) => {
                   problemId={problem.id}
                   problemTitle={problem.title}
                   contestId={problem.contest_id}
+                  difficulty={
+                    model && model.difficulty !== undefined
+                      ? model.difficulty
+                      : null
+                  }
+                  isExperimentalDifficulty={!!model && model.is_experimental}
+                  showDifficulty={submission !== undefined}
+                  showDifficultyUnavailable
                 />
               </td>
               <td>
@@ -101,6 +115,7 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   problems: PromiseState<Map<ProblemId, Problem>>;
+  models: PromiseState<Map<string, ProblemModel>>;
 }
 
 const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
@@ -125,6 +140,7 @@ const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
   const problemMap = props.problems.fulfilled
     ? props.problems.value
     : undefined;
+  const models = props.models.fulfilled ? props.models.value : new Map();
   const problems = currentSelectedSet
     .map((entry) => problemMap?.get(entry.problem_id))
     .filter(
@@ -169,7 +185,11 @@ const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
         ))}
       </Nav>
       <Row>
-        <ProblemTable problems={problems} submissions={submissions} />
+        <ProblemTable
+          problems={problems}
+          models={models}
+          submissions={submissions}
+        />
       </Row>
     </Container>
   );
@@ -180,5 +200,10 @@ export const SingleCourseView = connect<OuterProps, InnerProps>(() => ({
     comparison: null,
     value: (): Promise<Map<string, Problem>> =>
       cachedProblemMap().then((map) => convertMap(map)),
+  },
+  models: {
+    comparison: null,
+    value: (): Promise<Map<string, ProblemModel>> =>
+      cachedProblemModels().then((map) => convertMap(map)),
   },
 }))(InnerSingleCourseView);
