@@ -43,7 +43,6 @@ pub struct VirtualContestInfo {
     pub(crate) duration_second: i64,
     pub(crate) mode: Option<String>,
 
-    #[serde(skip_serializing)]
     pub(crate) is_public: bool,
 }
 
