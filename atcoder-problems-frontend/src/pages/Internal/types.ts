@@ -38,11 +38,15 @@ export interface VirtualContestItem {
   readonly order: number | null;
 }
 
-export type VirtualContestMode = null | "lockout";
-export const formatMode = (mode: VirtualContestMode): "Lockout" | "Normal" => {
+export type VirtualContestMode = null | "lockout" | "training";
+export const formatMode = (
+  mode: VirtualContestMode
+): "Lockout" | "Training" | "Normal" => {
   switch (mode) {
     case "lockout":
       return "Lockout";
+    case "training":
+      return "Training";
     case null:
       return "Normal";
   }
