@@ -9,7 +9,6 @@ import { ProblemId } from "../../interfaces/Status";
 import {
   cachedProblemMap,
   cachedProblemModels,
-  oldProblemModels,
 } from "../../utils/CachedApiClient";
 import { convertMap } from "../../utils/ImmutableMigration";
 import Submission from "../../interfaces/Submission";
@@ -141,9 +140,7 @@ const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
   const problemMap = props.problems.fulfilled
     ? props.problems.value
     : undefined;
-  const models = props.models.fulfilled
-    ? props.models.value
-    : convertMap(oldProblemModels());
+  const models = props.models.fulfilled ? props.models.value : new Map();
   const problems = currentSelectedSet
     .map((entry) => problemMap?.get(entry.problem_id))
     .filter(
