@@ -21,7 +21,12 @@ import { ProblemId } from "../../../interfaces/Status";
 import Problem from "../../../interfaces/Problem";
 import { USER_GET } from "../ApiUrl";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
-import { formatMode, VirtualContestItem, VirtualContestMode } from "../types";
+import {
+  formatMode,
+  VirtualContestItem,
+  VirtualContestMode,
+  formatPublicness,
+} from "../types";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import HelpBadgeTooltip from "../../../components/HelpBadgeTooltip";
@@ -46,6 +51,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
   const [endMinute, setEndMinute] = useState(props.initialEndMinute);
   const [problemSet, setProblemSet] = useState(props.initialProblems);
   const [mode, setMode] = useState(props.initialMode);
+  const [publicness, setPublicness] = useState(props.initialPublicness);
   const [
     expectedParticipantUserIdsText,
     setExpectedParticipantUserIdsText,
@@ -120,6 +126,27 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
             value={memo}
             onChange={(event): void => setMemo(event.target.value)}
           />
+        </Col>
+      </Row>
+
+      <Row className="my-2">
+        <Col>
+          <Label>Publicness</Label>
+          <InputGroup>
+            <UncontrolledDropdown>
+              <DropdownToggle caret>
+                {formatPublicness(publicness)}
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem onClick={(): void => setPublicness(true)}>
+                  {formatPublicness(true)}
+                </DropdownItem>
+                <DropdownItem onClick={(): void => setPublicness(false)}>
+                  {formatPublicness(false)}
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </InputGroup>
         </Col>
       </Row>
 
@@ -297,6 +324,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
                 endSecond,
                 problems: problemSet,
                 mode,
+                publicness,
               })
             }
           >
@@ -314,6 +342,7 @@ interface ContestInfo {
   startSecond: number;
   endSecond: number;
   mode: VirtualContestMode;
+  publicness: boolean;
   problems: List<VirtualContestItem>;
 }
 
@@ -329,6 +358,7 @@ interface OuterProps {
   initialEndHour: number;
   initialEndMinute: number;
   initialMode: VirtualContestMode;
+  initialPublicness: boolean;
 
   buttonPush: (contest: ContestInfo) => void;
   buttonTitle: string;
