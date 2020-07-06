@@ -10,7 +10,7 @@ import {
   Spinner,
   Table,
 } from "reactstrap";
-import Octicon, { Check, Sync } from "@primer/octicons-react";
+import Octicon, { Check, Sync, Eye } from "@primer/octicons-react";
 import { Map as ImmutableMap } from "immutable";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
@@ -45,6 +45,7 @@ interface InnerProps extends OuterProps {
 
 const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
+  const [showYourselfTop, setShowYourselfTop] = useState(false);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
 
@@ -176,6 +177,14 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             <Octicon icon={autoRefreshEnabled ? Check : Sync} /> Auto Refresh{" "}
             {autoRefreshEnabled ? "Enabled" : "Disabled"}
           </Button>
+          <Button
+            outline={!showYourselfTop}
+            active={showYourselfTop}
+            onClick={(): void => setShowYourselfTop(!showYourselfTop)}
+          >
+            <Octicon icon={showYourselfTop ? Check : Eye} /> Show Yourself on
+            the Top {showYourselfTop ? "Enabled" : "Disabled"}
+          </Button>
         </Col>
       </Row>
 
@@ -209,6 +218,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               end={end}
               enableAutoRefresh={autoRefreshEnabled}
               atCoderUserId={atCoderUserId}
+              showYourselfTop={showYourselfTop}
             />
           )}
         </Col>
