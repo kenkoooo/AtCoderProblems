@@ -5,6 +5,7 @@ const LocalStorageKeys = [
   "theme",
   "contestTableTab",
   "showDifficulty",
+  "showRelativeDifficulty",
   "colorMode",
   "showPenalties",
   "showAccepted",

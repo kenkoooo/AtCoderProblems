@@ -217,18 +217,18 @@ span.difficulty-circle {
 // relative-difficulty-fill-horizontal-bar
 .relative-difficulty-icon {
   position: absolute;
-  left: 0rem;
-  bottom: 0rem;
-  right: 0rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
   height: 3px;
 }
 
 //// relative-difficulty-fill-vertical-bar
 //.relative-difficulty-icon {
 //  position: absolute;
-//  left: 0.0rem;
-//  bottom: 0.0rem;
-//  top: 0.0rem;
+//  top: 0;
+//  left: 0;
+//  bottom: 0;
 //  width: 6px;
 //}
 
