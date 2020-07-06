@@ -237,6 +237,7 @@ interface OuterProps {
   readonly end: number;
   readonly enableAutoRefresh: boolean;
   readonly atCoderUserId: string;
+  readonly showYourselfTop: boolean;
 }
 
 interface InnerProps extends OuterProps {
@@ -370,7 +371,15 @@ const ContestTableRow: React.FC<ContestTableRowProps> = ({
 };
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
-  const { showProblems, problems, users, start, end, atCoderUserId } = props;
+  const {
+    showProblems,
+    problems,
+    users,
+    start,
+    end,
+    atCoderUserId,
+    showYourselfTop,
+  } = props;
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
     : new Map<ProblemId, ProblemModel>();
@@ -451,7 +460,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         </tr>
       </thead>
       <tbody>
-        {loginUserIndex >= 0 ? (
+        {showYourselfTop && loginUserIndex >= 0 ? (
           <ContestTableRow
             userId={atCoderUserId}
             index={loginUserIndex}
