@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
-  href: string;
+  href?: string;
   children: ReactNode;
   className?: string;
 }
