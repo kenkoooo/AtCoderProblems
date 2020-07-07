@@ -30,7 +30,7 @@ import ContestConfigProblemList from "./ContestConfigProblemList";
 const toUnixSecond = (date: string, hour: number, minute: number): number => {
   const hh = hour < 10 ? "0" + hour : "" + hour;
   const mm = minute < 10 ? "0" + minute : "" + minute;
-  const s = `${date}T${hh}:${mm}:00+09:00`;
+  const s = `${date}T${hh}:${mm}:00`;
   return moment(s).unix();
 };
 
