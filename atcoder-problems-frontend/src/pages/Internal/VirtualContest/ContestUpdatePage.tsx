@@ -99,7 +99,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
       initialEndMinute={end.minute()}
       initialProblems={List(problems)}
       initialMode={contestInfo.mode}
-      initialPublicness={contestInfo.is_public}
+      initialPublicState={contestInfo.is_public}
       buttonTitle="Update"
       buttonPush={({
         title,
@@ -108,7 +108,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
         endSecond,
         problems: ps,
         mode,
-        publicness,
+        publicState,
       }): void => {
         props.updateContest(
           {
@@ -118,7 +118,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
             start_epoch_second: startSecond,
             duration_second: endSecond - startSecond,
             mode,
-            is_public: publicness,
+            is_public: publicState,
           },
           ps.toArray()
         );

@@ -39,7 +39,7 @@ const ContestCreatePage: React.FC<InnerProps> = (props) => {
       initialEndMinute={todayMinute}
       initialProblems={List()}
       initialMode={null}
-      initialPublicness={false}
+      initialPublicState={false}
       buttonTitle="Create Contest"
       buttonPush={({
         title,
@@ -48,7 +48,7 @@ const ContestCreatePage: React.FC<InnerProps> = (props) => {
         endSecond,
         problems,
         mode,
-        publicness,
+        publicState,
       }): void =>
         props.createContest(
           {
@@ -57,7 +57,7 @@ const ContestCreatePage: React.FC<InnerProps> = (props) => {
             start_epoch_second: startSecond,
             duration_second: endSecond - startSecond,
             mode,
-            is_public: publicness,
+            is_public: publicState,
           },
           problems.toArray()
         )

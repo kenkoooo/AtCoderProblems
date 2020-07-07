@@ -25,7 +25,7 @@ import {
   formatMode,
   VirtualContestItem,
   VirtualContestMode,
-  formatPublicness,
+  formatPublicState,
 } from "../types";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
@@ -51,7 +51,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
   const [endMinute, setEndMinute] = useState(props.initialEndMinute);
   const [problemSet, setProblemSet] = useState(props.initialProblems);
   const [mode, setMode] = useState(props.initialMode);
-  const [publicness, setPublicness] = useState(props.initialPublicness);
+  const [publicState, setPublicState] = useState(props.initialPublicState);
   const [
     expectedParticipantUserIdsText,
     setExpectedParticipantUserIdsText,
@@ -131,18 +131,18 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
 
       <Row className="my-2">
         <Col>
-          <Label>Publicness</Label>
+          <Label>Public State</Label>
           <InputGroup>
             <UncontrolledDropdown>
               <DropdownToggle caret>
-                {formatPublicness(publicness)}
+                {formatPublicState(publicState)}
               </DropdownToggle>
               <DropdownMenu>
-                <DropdownItem onClick={(): void => setPublicness(true)}>
-                  {formatPublicness(true)}
+                <DropdownItem onClick={(): void => setPublicState(true)}>
+                  {formatPublicState(true)}
                 </DropdownItem>
-                <DropdownItem onClick={(): void => setPublicness(false)}>
-                  {formatPublicness(false)}
+                <DropdownItem onClick={(): void => setPublicState(false)}>
+                  {formatPublicState(false)}
                 </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
@@ -324,7 +324,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
                 endSecond,
                 problems: problemSet,
                 mode,
-                publicness,
+                publicState,
               })
             }
           >
@@ -342,7 +342,7 @@ interface ContestInfo {
   startSecond: number;
   endSecond: number;
   mode: VirtualContestMode;
-  publicness: boolean;
+  publicState: boolean;
   problems: List<VirtualContestItem>;
 }
 
@@ -358,7 +358,7 @@ interface OuterProps {
   initialEndHour: number;
   initialEndMinute: number;
   initialMode: VirtualContestMode;
-  initialPublicness: boolean;
+  initialPublicState: boolean;
 
   buttonPush: (contest: ContestInfo) => void;
   buttonTitle: string;
