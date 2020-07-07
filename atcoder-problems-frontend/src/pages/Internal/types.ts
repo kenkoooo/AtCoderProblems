@@ -33,6 +33,12 @@ export interface VirtualContest extends VirtualContestInfo {
   readonly participants: string[];
 }
 
+export interface VirtualContestDetails {
+  readonly info: VirtualContestInfo;
+  readonly problems: VirtualContestItem[];
+  readonly participants: string[];
+}
+
 export interface VirtualContestItem {
   readonly id: string;
   readonly point: number | null;

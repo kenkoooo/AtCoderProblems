@@ -94,7 +94,7 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
 pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> tide::Result<Response> {
     let conn = request.state().pool.get()?;
     let contest_id = request.param::<String>("contest_id")?;
-    let contest = conn.get_single_contest(&contest_id)?;
+    let contest = conn.get_single_contest_details(&contest_id)?;
     let response = Response::ok().body_json(&contest)?;
     Ok(response)
 }
