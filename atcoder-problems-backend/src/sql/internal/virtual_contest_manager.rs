@@ -46,13 +46,6 @@ pub struct VirtualContestInfo {
     pub(crate) is_public: bool,
 }
 
-#[derive(Serialize)]
-pub struct VirtualContestDetails {
-    pub(crate) info: VirtualContestInfo,
-    pub(crate) problems: Vec<VirtualContestItem>,
-    pub(crate) participants: Vec<String>,
-}
-
 #[deprecated(note = "want to migrate to VirtualContestInfo")]
 #[derive(Serialize)]
 pub struct VirtualContest {
