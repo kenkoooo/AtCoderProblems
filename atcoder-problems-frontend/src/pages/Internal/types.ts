@@ -59,8 +59,10 @@ export const formatMode = (
   }
 };
 
-export const formatPublicness = (publicness: boolean): "Public" | "Private" => {
-  switch (publicness) {
+export const formatPublicState = (
+  publicState: boolean
+): "Public" | "Private" => {
+  switch (publicState) {
     case true:
       return "Public";
     case false:
