@@ -263,6 +263,7 @@ impl VirtualContestManager for PgConnection {
             )
             .select(i_users::atcoder_user_id.nullable())
             .filter(i_users::atcoder_user_id.is_not_null())
+            .order_by(i_users::atcoder_user_id.nullable().asc())
             .load::<Option<String>>(self)?
             .into_iter()
             .filter_map(|participant| participant)
@@ -274,6 +275,8 @@ impl VirtualContestManager for PgConnection {
                 v_items::user_defined_point,
                 v_items::user_defined_order,
             ))
+            .order_by(v_items::user_defined_order.nullable().asc())
+            .then_order_by(v_items::problem_id.asc())
             .load::<(String, Option<i64>, Option<i64>)>(self)?
             .into_iter()
             .map(|(id, point, order)| VirtualContestItem { id, point, order })
