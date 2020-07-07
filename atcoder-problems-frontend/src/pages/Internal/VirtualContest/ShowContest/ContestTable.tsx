@@ -55,14 +55,15 @@ export const calcTotalResult = (
         return state;
       }
 
+      const additionalPoint = point ? point : best.point;
       return {
         trialsBeforeBest: state.trialsBeforeBest + info.trialsBeforeBest,
         lastBestSubmissionTime: Math.max(
           state.lastBestSubmissionTime,
           best.epoch_second
         ),
-        point: state.point + (point ? point : best.point),
-        solveCount: state.solveCount + (point ? 1 : 0),
+        point: state.point + additionalPoint,
+        solveCount: state.solveCount + (additionalPoint > 0 ? 1 : 0),
       };
     },
     {
