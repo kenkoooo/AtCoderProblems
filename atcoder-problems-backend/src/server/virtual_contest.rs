@@ -1,6 +1,6 @@
 use crate::server::utils::RequestUnpack;
 use crate::server::{AppData, Authentication, CommonResponse};
-use crate::sql::internal::virtual_contest_manager::{VirtualContestItem, VirtualContestManager};
+use crate::sql::internal::virtual_contest_manager::{VirtualContestItem, VirtualContestManager, VirtualContestDetails};
 
 use serde::Deserialize;
 use tide::{Request, Response};
@@ -94,7 +94,11 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
 pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> tide::Result<Response> {
     let conn = request.state().pool.get()?;
     let contest_id = request.param::<String>("contest_id")?;
-    let contest = conn.get_single_contest_details(&contest_id)?;
+    let contest = VirtualContestDetails {
+        info: conn.get_single_contest_info(&contest_id)?,
+        participants: conn.get_single_contest_participants(&contest_id)?,
+        problems: conn.get_single_contest_problems(&contest_id)?,
+    };
     let response = Response::ok().body_json(&contest)?;
     Ok(response)
 }

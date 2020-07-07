@@ -48,9 +48,9 @@ pub struct VirtualContestInfo {
 
 #[derive(Serialize)]
 pub struct VirtualContestDetails {
-    info: VirtualContestInfo,
-    problems: Vec<VirtualContestItem>,
-    participants: Vec<String>,
+    pub(crate) info: VirtualContestInfo,
+    pub(crate) problems: Vec<VirtualContestItem>,
+    pub(crate) participants: Vec<String>,
 }
 
 #[deprecated(note = "want to migrate to VirtualContestInfo")]
@@ -98,8 +98,9 @@ pub trait VirtualContestManager {
 
     fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
     fn get_participated_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContest>>;
-    fn get_single_contest_details(&self, contest_id: &str) -> Result<VirtualContestDetails>;
     fn get_single_contest_info(&self, contest_id: &str) -> Result<VirtualContestInfo>;
+    fn get_single_contest_participants(&self, contest_id: &str) -> Result<Vec<String>>;
+    fn get_single_contest_problems(&self, contest_id: &str) -> Result<Vec<VirtualContestItem>>;
     fn get_recent_contest_info(&self) -> Result<Vec<VirtualContestInfo>>;
     fn get_running_contest_problems(&self, time: i64) -> Result<Vec<String>>;
 
@@ -254,8 +255,7 @@ impl VirtualContestManager for PgConnection {
             .ok_or_else(|| InvalidRequest.into())
     }
 
-    fn get_single_contest_details(&self, contest_id: &str) -> Result<VirtualContestDetails> {
-        let info = self.get_single_contest_info(contest_id)?;
+    fn get_single_contest_participants(&self, contest_id: &str) -> Result<Vec<String>> {
         let participants = v_participants::table
             .filter(v_participants::internal_virtual_contest_id.eq(contest_id))
             .left_join(
@@ -268,6 +268,10 @@ impl VirtualContestManager for PgConnection {
             .into_iter()
             .filter_map(|participant| participant)
             .collect::<Vec<String>>();
+        Ok(participants)
+    }
+
+    fn get_single_contest_problems(&self, contest_id: &str) -> Result<Vec<VirtualContestItem>> {
         let problems = v_items::table
             .filter(v_items::internal_virtual_contest_id.eq(contest_id))
             .select((
@@ -281,12 +285,7 @@ impl VirtualContestManager for PgConnection {
             .into_iter()
             .map(|(id, point, order)| VirtualContestItem { id, point, order })
             .collect::<Vec<VirtualContestItem>>();
-
-        Ok(VirtualContestDetails {
-            info,
-            participants,
-            problems,
-        })
+        Ok(problems)
     }
 
     fn update_items(
