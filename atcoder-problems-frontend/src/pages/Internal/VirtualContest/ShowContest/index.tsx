@@ -169,22 +169,26 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             ) : null}
             <TweetButton title={contestInfo.title} id={contestInfo.id} />
           </ButtonGroup>{" "}
-          <Button
-            outline={!autoRefreshEnabled}
-            active={autoRefreshEnabled}
-            onClick={(): void => setAutoRefreshEnabled(!autoRefreshEnabled)}
-          >
-            <Octicon icon={autoRefreshEnabled ? Check : Sync} /> Auto Refresh{" "}
-            {autoRefreshEnabled ? "Enabled" : "Disabled"}
-          </Button>
-          <Button
-            outline={!pinMe}
-            active={pinMe}
-            onClick={(): void => setPinMe(!pinMe)}
-          >
-            <Octicon icon={pinMe ? Check : Eye} />{" "}
-            {pinMe ? "Pin me" : "Unpin me"}
-          </Button>
+          <ButtonGroup>
+            <Button
+              outline={!autoRefreshEnabled}
+              active={autoRefreshEnabled}
+              onClick={(): void => setAutoRefreshEnabled(!autoRefreshEnabled)}
+            >
+              <Octicon icon={autoRefreshEnabled ? Check : Sync} /> Auto Refresh{" "}
+              {autoRefreshEnabled ? "Enabled" : "Disabled"}
+            </Button>
+            {alreadyJoined ? (
+              <Button
+                outline={!pinMe}
+                active={pinMe}
+                onClick={(): void => setPinMe(!pinMe)}
+              >
+                <Octicon icon={pinMe ? Check : Eye} />{" "}
+                {pinMe ? "Pin me" : "Unpin me"}
+              </Button>
+            ) : null}
+          </ButtonGroup>
         </Col>
       </Row>
 
