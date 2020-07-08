@@ -237,7 +237,7 @@ interface OuterProps {
   readonly end: number;
   readonly enableAutoRefresh: boolean;
   readonly atCoderUserId: string;
-  readonly showYourselfTop: boolean;
+  readonly pinMe: boolean;
 }
 
 interface InnerProps extends OuterProps {
@@ -378,7 +378,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     start,
     end,
     atCoderUserId,
-    showYourselfTop,
+    pinMe,
   } = props;
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
@@ -460,7 +460,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         </tr>
       </thead>
       <tbody>
-        {showYourselfTop && loginUserIndex >= 0 ? (
+        {pinMe && loginUserIndex >= 0 ? (
           <ContestTableRow
             userId={atCoderUserId}
             index={loginUserIndex}

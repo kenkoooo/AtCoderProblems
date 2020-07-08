@@ -45,7 +45,7 @@ interface InnerProps extends OuterProps {
 
 const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
-  const [showYourselfTop, setShowYourselfTop] = useState(false);
+  const [pinMe, setPinMe] = useState(false);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
 
@@ -178,12 +178,12 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             {autoRefreshEnabled ? "Enabled" : "Disabled"}
           </Button>
           <Button
-            outline={!showYourselfTop}
-            active={showYourselfTop}
-            onClick={(): void => setShowYourselfTop(!showYourselfTop)}
+            outline={!pinMe}
+            active={pinMe}
+            onClick={(): void => setPinMe(!pinMe)}
           >
-            <Octicon icon={showYourselfTop ? Check : Eye} /> Show Yourself on
-            the Top {showYourselfTop ? "Enabled" : "Disabled"}
+            <Octicon icon={pinMe ? Check : Eye} />{" "}
+            {pinMe ? "Pin me" : "Unpin me"}
           </Button>
         </Col>
       </Row>
@@ -218,7 +218,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               end={end}
               enableAutoRefresh={autoRefreshEnabled}
               atCoderUserId={atCoderUserId}
-              showYourselfTop={showYourselfTop}
+              pinMe={pinMe}
             />
           )}
         </Col>
