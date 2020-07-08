@@ -25,9 +25,16 @@ export interface VirtualContestInfo {
   readonly start_epoch_second: number;
   readonly duration_second: number;
   readonly mode: VirtualContestMode;
+  readonly is_public: boolean;
 }
 
 export interface VirtualContest extends VirtualContestInfo {
+  readonly problems: VirtualContestItem[];
+  readonly participants: string[];
+}
+
+export interface VirtualContestDetails {
+  readonly info: VirtualContestInfo;
   readonly problems: VirtualContestItem[];
   readonly participants: string[];
 }
@@ -49,6 +56,17 @@ export const formatMode = (
       return "Training";
     case null:
       return "Normal";
+  }
+};
+
+export const formatPublicState = (
+  publicState: boolean
+): "Public" | "Private" => {
+  switch (publicState) {
+    case true:
+      return "Public";
+    case false:
+      return "Private";
   }
 };
 

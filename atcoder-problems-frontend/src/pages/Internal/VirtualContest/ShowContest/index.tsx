@@ -21,7 +21,7 @@ import {
   formatMomentDateTimeDay,
   parseSecond,
 } from "../../../../utils/DateUtil";
-import { formatMode, UserResponse, VirtualContest } from "../../types";
+import { formatMode, UserResponse, VirtualContestDetails } from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { Timer } from "../../../../components/Timer";
@@ -35,7 +35,7 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  contestInfoFetch: PromiseState<VirtualContest>;
+  contestInfoFetch: PromiseState<VirtualContestDetails>;
   userInfoGet: PromiseState<UserResponse | null>;
   joinContest: () => void;
   joinContestPost: PromiseState<{} | null>;
@@ -57,7 +57,11 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const problemMap = problemMapFetch.fulfilled
     ? problemMapFetch.value
     : ImmutableMap<ProblemId, MergedProblem>();
-  const contestInfo = contestInfoFetch.value;
+  const {
+    info: contestInfo,
+    participants: contestParticipants,
+    problems: contestProblems,
+  } = contestInfoFetch.value;
   const rawAtCoderUserId =
     userInfoGet.fulfilled && userInfoGet.value
       ? userInfoGet.value.atcoder_user_id
@@ -74,16 +78,16 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const start = contestInfo.start_epoch_second;
   const end = contestInfo.start_epoch_second + contestInfo.duration_second;
   const alreadyJoined =
-    userIdIsSet && contestInfo.participants.includes(atCoderUserId);
+    userIdIsSet && contestParticipants.includes(atCoderUserId);
   const now = Math.floor(Date.now() / 1000);
   const canJoin = !alreadyJoined && userIdIsSet && now < end;
   const isOwner = contestInfo.owner_user_id === internalUserId;
   const enableEstimatedPerformances =
-    contestInfo.participants.length * contestInfo.problems.length <=
+    contestParticipants.length * contestProblems.length <=
     (now < end ? 100 : 500);
 
   const showProblems = start < now;
-  const problems = contestInfo.problems.map((item) => {
+  const problems = contestProblems.map((item) => {
     const problem = problemMap.get(item.id);
     if (problem) {
       return {
@@ -185,7 +189,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             <LockoutContestTable
               showProblems={showProblems}
               problems={problems}
-              participants={contestInfo.participants}
+              participants={contestParticipants}
               enableAutoRefresh={autoRefreshEnabled}
               start={start}
               end={end}
@@ -194,7 +198,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             <TrainingContestTable
               showProblems={showProblems}
               problems={problems}
-              users={contestInfo.participants}
+              users={contestParticipants}
               start={start}
               end={end}
               enableAutoRefresh={autoRefreshEnabled}
@@ -203,7 +207,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             <ContestTable
               showProblems={showProblems}
               problems={problems}
-              users={contestInfo.participants}
+              users={contestParticipants}
               enableEstimatedPerformances={enableEstimatedPerformances}
               start={start}
               end={end}

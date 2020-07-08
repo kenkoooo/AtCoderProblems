@@ -203,17 +203,19 @@ async fn test_virtual_contest() -> Result<()> {
     .await?;
     assert_eq!(
         response,
-        json!(
-        {
-            "owner_user_id": "0",
-            "duration_second": 2,
-            "start_epoch_second": 1,
-            "memo": "contest memo",
-            "title": "contest title",
-            "id": format!("{}", contest_id),
-            "participants": ["atcoder_user1"],
+        json!({
+            "info": {
+                "owner_user_id": "0",
+                "duration_second": 2,
+                "start_epoch_second": 1,
+                "memo": "contest memo",
+                "title": "contest title",
+                "id": format!("{}", contest_id),
+                "mode": null,
+                "is_public": true,
+            },
             "problems": [{"id":"problem_1", "point":100, "order":null}, {"id": "problem_2", "point":null, "order":null}],
-            "mode":null,
+            "participants": ["atcoder_user1"],
         })
     );
 
