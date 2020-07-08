@@ -10,7 +10,7 @@ import {
   Spinner,
   Table,
 } from "reactstrap";
-import Octicon, { Check, Sync, Eye } from "@primer/octicons-react";
+import Octicon, { Check, Sync, Pin } from "@primer/octicons-react";
 import { Map as ImmutableMap } from "immutable";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
@@ -184,8 +184,8 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                 active={pinMe}
                 onClick={(): void => setPinMe(!pinMe)}
               >
-                <Octicon icon={pinMe ? Check : Eye} />{" "}
-                {pinMe ? "Pin me" : "Unpin me"}
+                <Octicon icon={pinMe ? Check : Pin} />{" "}
+                {pinMe ? "Unpin me" : "Pin me"}
               </Button>
             ) : null}
           </ButtonGroup>
