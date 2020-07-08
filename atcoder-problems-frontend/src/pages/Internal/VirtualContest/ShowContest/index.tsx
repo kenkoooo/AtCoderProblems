@@ -10,7 +10,7 @@ import {
   Spinner,
   Table,
 } from "reactstrap";
-import Octicon, { Check, Sync } from "@primer/octicons-react";
+import Octicon, { Check, Sync, Pin } from "@primer/octicons-react";
 import { Map as ImmutableMap } from "immutable";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
@@ -45,6 +45,7 @@ interface InnerProps extends OuterProps {
 
 const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
+  const [pinMe, setPinMe] = useState(false);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
 
@@ -172,14 +173,26 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             ) : null}
             <TweetButton title={contestInfo.title} id={contestInfo.id} />
           </ButtonGroup>{" "}
-          <Button
-            outline={!autoRefreshEnabled}
-            active={autoRefreshEnabled}
-            onClick={(): void => setAutoRefreshEnabled(!autoRefreshEnabled)}
-          >
-            <Octicon icon={autoRefreshEnabled ? Check : Sync} /> Auto Refresh{" "}
-            {autoRefreshEnabled ? "Enabled" : "Disabled"}
-          </Button>
+          <ButtonGroup>
+            <Button
+              outline={!autoRefreshEnabled}
+              active={autoRefreshEnabled}
+              onClick={(): void => setAutoRefreshEnabled(!autoRefreshEnabled)}
+            >
+              <Octicon icon={autoRefreshEnabled ? Check : Sync} /> Auto Refresh{" "}
+              {autoRefreshEnabled ? "Enabled" : "Disabled"}
+            </Button>
+            {alreadyJoined ? (
+              <Button
+                outline={!pinMe}
+                active={pinMe}
+                onClick={(): void => setPinMe(!pinMe)}
+              >
+                <Octicon icon={pinMe ? Check : Pin} />{" "}
+                {pinMe ? "Unpin me" : "Pin me"}
+              </Button>
+            ) : null}
+          </ButtonGroup>
         </Col>
       </Row>
 
@@ -212,6 +225,8 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               start={start}
               end={end}
               enableAutoRefresh={autoRefreshEnabled}
+              atCoderUserId={atCoderUserId}
+              pinMe={pinMe}
             />
           )}
         </Col>
