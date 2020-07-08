@@ -5,7 +5,7 @@ import { Redirect, useParams } from "react-router-dom";
 import { Alert, Spinner } from "reactstrap";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_ITEM_UPDATE, CONTEST_UPDATE, contestGetUrl } from "../ApiUrl";
-import { VirtualContest, VirtualContestItem } from "../types";
+import { VirtualContestItem, VirtualContestDetails } from "../types";
 import ContestConfig from "./ContestConfig";
 
 interface Request {
@@ -15,6 +15,7 @@ interface Request {
   start_epoch_second: number;
   duration_second: number;
   mode: string | null;
+  is_public: boolean;
 }
 
 interface OuterProps {
@@ -22,7 +23,7 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  contestInfoFetch: PromiseState<VirtualContest | null>;
+  contestInfoFetch: PromiseState<VirtualContestDetails | null>;
   updateResponse: PromiseState<{} | null>;
   updateContest: (request: Request, problems: VirtualContestItem[]) => void;
 }
@@ -65,7 +66,10 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
   } else if (contestInfoFetch.rejected || !contestInfoFetch.value) {
     return <Alert color="danger">Failed to fetch contest info.</Alert>;
   }
-  const contestInfo = contestInfoFetch.value;
+  const {
+    info: contestInfo,
+    problems: contestProblems,
+  } = contestInfoFetch.value;
   if (updateResponse.fulfilled && updateResponse.value !== null) {
     return <Redirect to={`/contest/show/${contestId}`} />;
   }
@@ -75,7 +79,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
     contestInfo.start_epoch_second + contestInfo.duration_second
   );
 
-  const problems = contestInfo.problems.sort((a, b) => {
+  const problems = contestProblems.sort((a, b) => {
     if (a.order !== null && b.order !== null) {
       return a.order - b.order;
     }
@@ -95,6 +99,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
       initialEndMinute={end.minute()}
       initialProblems={List(problems)}
       initialMode={contestInfo.mode}
+      initialPublicState={contestInfo.is_public}
       buttonTitle="Update"
       buttonPush={({
         title,
@@ -103,6 +108,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
         endSecond,
         problems: ps,
         mode,
+        publicState,
       }): void => {
         props.updateContest(
           {
@@ -112,6 +118,7 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
             start_epoch_second: startSecond,
             duration_second: endSecond - startSecond,
             mode,
+            is_public: publicState,
           },
           ps.toArray()
         );
