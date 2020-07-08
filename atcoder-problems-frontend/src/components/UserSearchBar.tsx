@@ -113,7 +113,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
     <Navbar
       color="light"
       light
-      expand="lg"
+      expand="md"
       className="border-bottom"
       style={{ padding: 0 }}
     >
@@ -121,7 +121,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
         <Nav navbar style={{ padding: "0.5rem 1rem" }}>
           <Form inline>
             <Input
-              className="mt-2 mr-2 mt-lg-0"
+              className="mt-2 mr-2 mt-lg-0 mt-md-0"
               style={{ width: 160 }}
               onKeyPress={(e): void => {
                 if (e.key === "Enter") {
@@ -137,7 +137,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
             />
 
             <Input
-              className="mt-2 mr-2 mt-lg-0"
+              className="mt-2 mr-2 mt-lg-0 mt-md-0"
               style={{ width: 160 }}
               onKeyPress={(e): void => {
                 if (e.key === "Enter") {
@@ -152,7 +152,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
               onChange={(e): void => setRivalIdString(e.target.value)}
             />
 
-            <ButtonGroup className="mt-2 mb-0 mt-lg-0">
+            <ButtonGroup className="mt-2 mb-0 mt-lg-0 mt-md-0">
               <Button tag={RouterLink} to={tablePath} color="light">
                 Table
               </Button>
