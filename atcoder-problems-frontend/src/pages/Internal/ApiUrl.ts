@@ -8,6 +8,7 @@ export const contestGetUrl = (contestId: string): string =>
 export const CONTEST_MY = `${BASE_URL}/contest/my`;
 export const CONTEST_UPDATE = `${BASE_URL}/contest/update`;
 export const CONTEST_JOIN = `${BASE_URL}/contest/join`;
+export const CONTEST_LEAVE = `${BASE_URL}/contest/leave`;
 export const CONTEST_JOINED = `${BASE_URL}/contest/joined`;
 export const CONTEST_CREATE = `${BASE_URL}/contest/create`;
 export const CONTEST_RECENT = `${BASE_URL}/contest/recent`;

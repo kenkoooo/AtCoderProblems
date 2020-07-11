@@ -14,7 +14,12 @@ import Octicon, { Check, Sync, Pin } from "@primer/octicons-react";
 import { Map as ImmutableMap } from "immutable";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
-import { CONTEST_JOIN, contestGetUrl, USER_GET } from "../../ApiUrl";
+import {
+  CONTEST_JOIN,
+  CONTEST_LEAVE,
+  contestGetUrl,
+  USER_GET,
+} from "../../ApiUrl";
 import MergedProblem from "../../../../interfaces/MergedProblem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 import {
@@ -39,6 +44,8 @@ interface InnerProps extends OuterProps {
   userInfoGet: PromiseState<UserResponse | null>;
   joinContest: () => void;
   joinContestPost: PromiseState<{} | null>;
+  leaveContest: () => void;
+  leaveContestPost: PromiseState<{} | null>;
   problemMapFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
   problemModelGet: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
@@ -82,6 +89,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
     userIdIsSet && contestParticipants.includes(atCoderUserId);
   const now = Math.floor(Date.now() / 1000);
   const canJoin = !alreadyJoined && userIdIsSet && now < end;
+  const canLeave = alreadyJoined && userIdIsSet && now < start;
   const isOwner = contestInfo.owner_user_id === internalUserId;
   const enableEstimatedPerformances =
     contestParticipants.length * contestProblems.length <=
@@ -159,6 +167,9 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
           <ButtonGroup>
             {canJoin ? (
               <Button onClick={(): void => props.joinContest()}>Join</Button>
+            ) : null}
+            {canLeave ? (
+              <Button onClick={(): void => props.leaveContest()}>Leave</Button>
             ) : null}
             {isOwner ? (
               <Button
@@ -268,9 +279,28 @@ const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
             force: true,
           },
         }),
+        force: true,
       },
     }),
     joinContestPost: { value: null },
+    leaveContest: () => ({
+      leaveContestPost: {
+        url: CONTEST_LEAVE,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ contest_id: props.contestId }),
+        andThen: () => ({
+          contestInfoFetch: {
+            url: contestGetUrl(props.contestId),
+            force: true,
+          },
+        }),
+        force: true,
+      },
+    }),
+    leaveContestPost: { value: null },
   };
 })(InnerShowContest);
 
