@@ -14,14 +14,14 @@ production backend server, you don't need to run the backend applications in mos
    Keep the **client ID** and the **client secret**.
    - Remember to set the "User authorization callback URL" to
      `http://localhost:8080/internal-api/authorize`.
-2. Launch an instance of [**PostgreSQL**](https://www.postgresql.org/) on your machine.
+2. Launch an instance of [**PostgreSQL**](https://www.postgresql.org/) database on your machine.
 
 ## Modifying Files
 
 Below are the list of files you need to modify:
 
 - `atcoder-problems-backend/src/server/auth.rs`: change `redirect_url` to `http://localhost:3000/atcoder/#/login/user`
-  for your backend to redirect to your frontend web app.
+  for your backend to redirect to your frontend web app after logging in.
 - `atcoder-problems-frontend/src/setupProxy.js`: change `target` to `http://localhost:8080`
   for your frontend web app to use your backend server.
 - `atcoder-problems-frontend/src/utils/Url.tsx`: change `GITHUB_LOGIN_LINK` to `https://github.com/login/oauth/authorize?client_id=<YOUR_CLIENT_ID>`,
