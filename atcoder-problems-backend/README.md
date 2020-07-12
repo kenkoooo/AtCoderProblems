@@ -14,7 +14,7 @@ production backend server, you don't need to run the backend applications in mos
    Keep the **client ID** and the **client secret**.
    - Remember to set the "User authorization callback URL" to
      `http://localhost:8080/internal-api/authorize`.
-2. Launch an instance of [**PostgreSQL**](https://www.postgresql.org/) database on your machine.
+1. Launch an instance of [**PostgreSQL**](https://www.postgresql.org/) database on your machine.
 
 ## Modifying Files
 
