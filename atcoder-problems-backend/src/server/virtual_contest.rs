@@ -1,8 +1,10 @@
 use crate::server::utils::RequestUnpack;
 use crate::server::{AppData, Authentication, CommonResponse};
-use crate::sql::internal::virtual_contest_manager::{VirtualContestItem, VirtualContestInfo, VirtualContestManager};
+use crate::sql::internal::virtual_contest_manager::{
+    VirtualContestInfo, VirtualContestItem, VirtualContestManager,
+};
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use tide::{Request, Response};
 
 pub(crate) async fn create_contest<A>(request: Request<AppData<A>>) -> tide::Result<Response>
@@ -98,7 +100,7 @@ pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> tide:
         problems: Vec<VirtualContestItem>,
         participants: Vec<String>,
     }
-    
+
     let conn = request.state().pool.get()?;
     let contest_id = request.param::<String>("contest_id")?;
     let contest = VirtualContestDetails {
@@ -126,6 +128,19 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
     }
     let (q, conn, user_id) = request.post_unpack::<Q>().await?;
     conn.join_contest(&q.contest_id, &user_id)?;
+    let response = Response::ok().body_json(&serde_json::json!({}))?;
+    Ok(response)
+}
+
+pub(crate) async fn leave_contest<A: Authentication + Clone + Send + Sync + 'static>(
+    request: Request<AppData<A>>,
+) -> tide::Result<Response> {
+    #[derive(Deserialize)]
+    struct Q {
+        contest_id: String,
+    }
+    let (q, conn, user_id) = request.post_unpack::<Q>().await?;
+    conn.leave_contest(&q.contest_id, &user_id)?;
     let response = Response::ok().body_json(&serde_json::json!({}))?;
     Ok(response)
 }

@@ -105,6 +105,7 @@ pub trait VirtualContestManager {
     ) -> Result<()>;
 
     fn join_contest(&self, contest_id: &str, internal_user_id: &str) -> Result<()>;
+    fn leave_contest(&self, contest_id: &str, internal_user_id: &str) -> Result<()>;
 }
 
 impl VirtualContestManager for PgConnection {
@@ -324,6 +325,15 @@ impl VirtualContestManager for PgConnection {
                 v_participants::internal_user_id.eq(internal_user_id),
             )])
             .execute(self)?;
+        Ok(())
+    }
+    fn leave_contest(&self, contest_id: &str, internal_user_id: &str) -> Result<()> {
+        delete(
+            v_participants::table
+                .filter(v_participants::internal_virtual_contest_id.eq(contest_id))
+                .filter(v_participants::internal_user_id.eq(internal_user_id)),
+        )
+        .execute(self)?;
         Ok(())
     }
 }
