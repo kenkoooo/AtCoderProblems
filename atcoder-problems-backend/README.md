@@ -5,6 +5,33 @@
 Since the web app, which is running on your local machine, connects to the
 production backend server, you don't need to run the backend applications in most cases.
 
+> Note that the following steps assume that your frontend application runs on <http://localhost:3000>
+> and your backend application runs on <http://localhost:8080>, which are the default values.
+
+## Prerequisites
+
+1. [Create a GitHub app](https://docs.github.com/en/developers/apps/creating-a-github-app).
+   Keep the **client ID** and the **client secret**.
+   - Remember to set the "User authorization callback URL" to
+     `http://localhost:8080/internal-api/authorize`.
+2. Launch an instance of [**PostgreSQL**](https://www.postgresql.org/) on your machine.
+
+## Modifying Files
+
+Below are the list of files you need to modify:
+
+- `atcoder-problems-backend/src/server/auth.rs`: change `redirect_url` to `http://localhost:3000/atcoder/#/login/user`
+  for your backend to redirect to your frontend web app.
+- `atcoder-problems-frontend/src/setupProxy.js`: change `target` to `http://localhost:8080`
+  for your frontend web app to use your backend server.
+- `atcoder-problems-frontend/src/utils/Url.tsx`: change `GITHUB_LOGIN_LINK` to `https://github.com/login/oauth/authorize?client_id=<YOUR_CLIENT_ID>`,
+  where `<YOUR_CLIENT_ID>` is the client ID of your GitHub app.
+- (For running backend tests) `atcoder-problems-backend/tests/utils.rs`: change `SQL_URL`
+  to the correct connection URL. **Note that** it should be different from the database
+  you intend to develop on.
+
+**Be careful** not to commit these files to the Git repository.
+
 ## Build
 
 ```bash
@@ -15,7 +42,7 @@ cargo build
 ## Run
 
 ```bash
-export SQL_URL=... # URL of PostgreSQL
+export SQL_URL=... # Connection URL of PostgreSQL
 export CLIENT_ID=... # GitHub client_id, which is required to use the login function.
 export CLIENT_SECRET=... # GitHub client_secret, which is required to use the login function.
 
