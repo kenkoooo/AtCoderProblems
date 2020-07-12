@@ -28,11 +28,6 @@ export interface VirtualContestInfo {
   readonly is_public: boolean;
 }
 
-export interface VirtualContest extends VirtualContestInfo {
-  readonly problems: VirtualContestItem[];
-  readonly participants: string[];
-}
-
 export interface VirtualContestDetails {
   readonly info: VirtualContestInfo;
   readonly problems: VirtualContestItem[];

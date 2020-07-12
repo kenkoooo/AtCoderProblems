@@ -69,7 +69,7 @@ async fn test_virtual_contest() -> Result<()> {
     let mut response = surf::post(url("/internal-api/contest/create", port))
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
-            "title":"contest title",
+            "title": "contest title",
             "memo": "contest memo",
             "start_epoch_second": 1,
             "duration_second": 2
@@ -83,7 +83,7 @@ async fn test_virtual_contest() -> Result<()> {
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "id": format!("{}", contest_id),
-            "title":"contest title",
+            "title": "contest title",
             "memo": "contest memo",
             "start_epoch_second": 1,
             "duration_second": 2
@@ -105,9 +105,8 @@ async fn test_virtual_contest() -> Result<()> {
                 "memo": "contest memo",
                 "title": "contest title",
                 "id": format!("{}", contest_id),
-                "participants": [],
-                "problems": [],
-                "mode": null
+                "mode": null,
+                "is_public": true,
             }
         ])
     );
@@ -140,9 +139,8 @@ async fn test_virtual_contest() -> Result<()> {
                 "memo": "contest memo",
                 "title": "contest title",
                 "id": format!("{}", contest_id),
-                "participants": ["atcoder_user1"],
-                "problems": [],
-                "mode": null
+                "mode": null,
+                "is_public": true,
             }
         ])
     );
@@ -183,9 +181,8 @@ async fn test_virtual_contest() -> Result<()> {
                 "memo": "contest memo",
                 "title": "contest title",
                 "id": format!("{}", contest_id),
-                "participants": ["atcoder_user1"],
-                "problems": [],
-                "mode": null
+                "mode": null,
+                "is_public": true,
             }
         ])
     );
@@ -194,7 +191,7 @@ async fn test_virtual_contest() -> Result<()> {
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
-            "problems": [{"id":"problem_1", "point":100}],
+            "problems": [{ "id": "problem_1", "point": 100 }],
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -203,7 +200,7 @@ async fn test_virtual_contest() -> Result<()> {
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
-            "problems": [{"id":"problem_1", "point":100}],
+            "problems": [{ "id": "problem_1", "point": 100 }],
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -212,7 +209,7 @@ async fn test_virtual_contest() -> Result<()> {
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
-            "problems": [{"id":"problem_1", "point":100}, {"id": "problem_2"}],
+            "problems": [{ "id": "problem_1", "point": 100 }, { "id": "problem_2" }],
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -231,9 +228,8 @@ async fn test_virtual_contest() -> Result<()> {
                 "memo": "contest memo",
                 "title": "contest title",
                 "id": format!("{}", contest_id),
-                "participants": ["atcoder_user1"],
-                "problems": [{"id":"problem_1", "point":100, "order":null}, {"id": "problem_2", "point":null, "order":null}],
-                "mode":null,
+                "mode": null,
+                "is_public": true,
             }
         ])
     );
@@ -257,7 +253,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "mode": null,
                 "is_public": true,
             },
-            "problems": [{"id":"problem_1", "point":100, "order":null}, {"id": "problem_2", "point":null, "order":null}],
+            "problems": [{ "id": "problem_1", "point": 100, "order": null }, { "id": "problem_2", "point": null, "order": null }],
             "participants": ["atcoder_user1"],
         })
     );
@@ -274,7 +270,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "start_epoch_second": 1,
                 "memo": "contest memo",
                 "title": "contest title",
-                "is_public":true,
+                "is_public": true,
                 "id": format!("{}", contest_id),
                 "mode": null
             }
@@ -303,7 +299,7 @@ async fn test_virtual_contest_visibility() -> Result<()> {
     let mut response = surf::post(url("/internal-api/contest/create", port))
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
-            "title":"visible",
+            "title": "visible",
             "memo": "",
             "start_epoch_second": 1,
             "duration_second": 2
@@ -323,7 +319,7 @@ async fn test_virtual_contest_visibility() -> Result<()> {
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "id": format!("{}", contest_id),
-            "title":"invisible",
+            "title": "invisible",
             "memo": "",
             "start_epoch_second": 1,
             "duration_second": 2,
@@ -340,7 +336,7 @@ async fn test_virtual_contest_visibility() -> Result<()> {
     let mut response = surf::post(url("/internal-api/contest/create", port))
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
-            "title":"invisible",
+            "title": "invisible",
             "memo": "",
             "start_epoch_second": 1,
             "duration_second": 2,
@@ -360,7 +356,7 @@ async fn test_virtual_contest_visibility() -> Result<()> {
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "id": contest_id,
-            "title":"visible",
+            "title": "visible",
             "memo": "",
             "start_epoch_second": 1,
             "duration_second": 2,
