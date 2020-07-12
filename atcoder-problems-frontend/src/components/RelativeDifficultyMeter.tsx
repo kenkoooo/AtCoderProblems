@@ -21,14 +21,19 @@ const DifficultyLevel = {
 } as const;
 type DifficultyLevel = typeof DifficultyLevel[keyof typeof DifficultyLevel];
 
-const getDifficultyLevel = (relativeDifficultyRatio: number): DifficultyLevel => {
+const getDifficultyLevel = (
+  relativeDifficultyRatio: number
+): DifficultyLevel => {
   if (relativeDifficultyRatio <= LEVEL_SECTION) return DifficultyLevel.Easy;
   else if (relativeDifficultyRatio <= 1 - LEVEL_SECTION)
     return DifficultyLevel.Moderate;
   else return DifficultyLevel.Difficult;
 };
 
-const getFillRatio = (relativeDifficultyRatio: number, level: DifficultyLevel) => {
+const getFillRatio = (
+  relativeDifficultyRatio: number,
+  level: DifficultyLevel
+) => {
   switch (level) {
     case DifficultyLevel.Easy:
       return relativeDifficultyRatio / LEVEL_SECTION;
@@ -64,7 +69,7 @@ const getLevelColor = (level: DifficultyLevel, theme: Theme) => {
 const rgbStyle = (r: number, g: number, b: number, ratio: number) =>
   `rgb(${r}, ${g}, ${b}) ${ratio * 100}%`;
 
-const RelativeDifficultyIcon: React.FC<Props> = (props) => {
+const RelativeDifficultyMeter: React.FC<Props> = (props) => {
   const { id, problemModel, userInternalRating } = props;
 
   const predictedSolveProbability = predictSolveProbability(
@@ -99,7 +104,7 @@ const RelativeDifficultyIcon: React.FC<Props> = (props) => {
   return (
     <>
       <div
-        className="relative-difficulty-icon"
+        className="relative-difficulty-meter"
         style={styleOptions}
         id={iconId}
       />
@@ -115,4 +120,4 @@ const RelativeDifficultyIcon: React.FC<Props> = (props) => {
   );
 };
 
-export default RelativeDifficultyIcon;
+export default RelativeDifficultyMeter;

@@ -22,7 +22,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel,
 } from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
-import RelativeDifficultyIcon from "../../components/RelativeDifficultyIcon";
+import RelativeDifficultyMeter from "../../components/RelativeDifficultyMeter";
 
 interface Props {
   contests: Contest[];
@@ -161,7 +161,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                     {props.showRelativeDifficulty &&
                       isProblemModelWithDifficultyModel(model) &&
                       props.userInternalRating && (
-                        <RelativeDifficultyIcon
+                        <RelativeDifficultyMeter
                           id={problem.problem.id}
                           problemModel={model}
                           userInternalRating={props.userInternalRating}

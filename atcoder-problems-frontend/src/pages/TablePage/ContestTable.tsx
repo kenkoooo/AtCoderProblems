@@ -11,7 +11,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel,
 } from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
-import RelativeDifficultyIcon from "../../components/RelativeDifficultyIcon";
+import RelativeDifficultyMeter from "../../components/RelativeDifficultyMeter";
 import { isRatedContest } from "./ContestClassifier";
 
 interface Props {
@@ -118,7 +118,7 @@ export const ContestTable: React.FC<Props> = (props) => {
                           {props.showRelativeDifficulty &&
                             isProblemModelWithDifficultyModel(model) &&
                             props.userInternalRating && (
-                              <RelativeDifficultyIcon
+                              <RelativeDifficultyMeter
                                 id={problem.id}
                                 problemModel={model}
                                 userInternalRating={props.userInternalRating}
