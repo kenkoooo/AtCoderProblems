@@ -147,6 +147,49 @@ async fn test_virtual_contest() -> Result<()> {
         ])
     );
 
+    let response = surf::post(url("/internal-api/contest/leave", port))
+        .set_header("Cookie", cookie_header.as_str())
+        .body_json(&json!({
+            "contest_id": format!("{}", contest_id),
+        }))?
+        .await?;
+    assert!(response.status().is_success());
+
+    let response = surf::get(url("/internal-api/contest/joined", port))
+        .set_header("Cookie", cookie_header.as_str())
+        .recv_json::<Value>()
+        .await?;
+    assert_eq!(response, json!([]));
+
+    let response = surf::post(url("/internal-api/contest/join", port))
+        .set_header("Cookie", cookie_header.as_str())
+        .body_json(&json!({
+            "contest_id": format!("{}", contest_id),
+        }))?
+        .await?;
+    assert!(response.status().is_success());
+
+    let response = surf::get(url("/internal-api/contest/joined", port))
+        .set_header("Cookie", cookie_header.as_str())
+        .recv_json::<Value>()
+        .await?;
+    assert_eq!(
+        response,
+        json!([
+            {
+                "owner_user_id": "0",
+                "duration_second": 2,
+                "start_epoch_second": 1,
+                "memo": "contest memo",
+                "title": "contest title",
+                "id": format!("{}", contest_id),
+                "participants": ["atcoder_user1"],
+                "problems": [],
+                "mode": null
+            }
+        ])
+    );
+
     let response = surf::post(url("/internal-api/contest/item/update", port))
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({

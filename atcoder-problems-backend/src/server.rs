@@ -63,6 +63,7 @@ where
             api.at("/get/:contest_id")
                 .get(virtual_contest::get_single_contest);
             api.at("/join").post(virtual_contest::join_contest);
+            api.at("/leave").post(virtual_contest::leave_contest);
             api.at("/my").get(virtual_contest::get_my_contests);
             api.at("/joined").get(virtual_contest::get_participated);
             api.at("/recent").get(virtual_contest::get_recent_contests);
