@@ -337,7 +337,7 @@ def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, sess
                          ".ac"] = float(task_result["Status"] == 1)
         user_results.append(user_row)
 
-    if len(user_results) == 0:
+    if len(user_results) == 0 or all(user_row["rating"] == 0 for user_row in user_results):
         print(
             f"There are no participants/submissions for contest {contest_name}. Ignoring.")
         return {}
