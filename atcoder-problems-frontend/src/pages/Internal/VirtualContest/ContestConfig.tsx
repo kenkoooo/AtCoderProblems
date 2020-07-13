@@ -105,6 +105,8 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
         </Col>
       </Row>
 
+      <h2 className="my-3">Contest Information</h2>
+
       <Row className="my-2">
         <Col>
           <Label>Contest Title</Label>
@@ -121,7 +123,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
         <Col>
           <Label>Description</Label>
           <Input
-            type="text"
+            type="textarea"
             placeholder="Description"
             value={memo}
             onChange={(event): void => setMemo(event.target.value)}
@@ -187,7 +189,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
               onChange={(e): void => setStartHour(Number(e.target.value))}
             >
               {Range(0, 24).map((i) => (
-                <option key={i}>{i}</option>
+                <option key={i}>{i.toFixed().padStart(2, "0")}</option>
               ))}
             </Input>
             <Input
@@ -196,7 +198,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
               onChange={(e): void => setStartMinute(Number(e.target.value))}
             >
               {Range(0, 60, 5).map((i) => (
-                <option key={i}>{i}</option>
+                <option key={i}>{i.toFixed().padStart(2, "0")}</option>
               ))}
             </Input>
           </InputGroup>
@@ -218,7 +220,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
               onChange={(e): void => setEndHour(Number(e.target.value))}
             >
               {Range(0, 24).map((i) => (
-                <option key={i}>{i}</option>
+                <option key={i}>{i.toFixed().padStart(2, "0")}</option>
               ))}
             </Input>
             <Input
@@ -227,7 +229,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
               onChange={(e): void => setEndMinute(Number(e.target.value))}
             >
               {Range(0, 60, 5).map((i) => (
-                <option key={i}>{i}</option>
+                <option key={i}>{i.toFixed().padStart(2, "0")}</option>
               ))}
             </Input>
           </InputGroup>
@@ -237,7 +239,7 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
       <Row className="my-2">
         <Col>
           <Label>
-            Expected Participants
+            Expected Participants{" "}
             <HelpBadgeTooltip id={"help-expected-participants"}>
               This list is used for checking if the problems in the list are
               already solved by each participant.
@@ -257,13 +259,9 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
         </Col>
       </Row>
 
-      <Row>
-        <Col>
-          <Label>Problems</Label>
-        </Col>
-      </Row>
+      <h2 className="my-3">Contest Problemset</h2>
 
-      <Row>
+      <Row className="my-2">
         <Col>
           <ContestConfigProblemList
             onSolvedProblemsFetchFinished={(errorMessage): void => {
@@ -287,10 +285,19 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
         </Col>
       </Row>
 
+      <h2 className="my-3">
+        Bacha Gacha{" "}
+        <HelpBadgeTooltip id={"help-bacha-gacha"}>
+          This is a feature that helps you generate problems by picking problems
+          within certain ranges of difficulties, which is then appended to your
+          problemset.
+        </HelpBadgeTooltip>
+      </h2>
+
       <Row>
         <Col>
           <div style={{ padding: 8, border: "solid 1px lightgray" }}>
-            <Label>Bacha Gacha</Label>
+            <Label>Options</Label>
 
             <Row className="my-2">
               <Col>
