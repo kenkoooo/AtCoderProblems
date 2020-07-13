@@ -1,16 +1,11 @@
-import random from "random";
-import seedrandom from "seedrandom";
 import { Table } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
+import { useLocation } from "react-router-dom";
+import MergedProblem from "../../../../interfaces/MergedProblem";
 import { VirtualContestItem } from "../../types";
-import {
-  clipDifficulty,
-  getRatingColorClass,
-  isAccepted,
-} from "../../../../utils";
 import ProblemLink from "../../../../components/ProblemLink";
-import { ProblemId } from "../../../../interfaces/Status";
+import { ProblemId, UserId } from "../../../../interfaces/Status";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel,
@@ -19,211 +14,23 @@ import ProblemModel, {
 } from "../../../../interfaces/ProblemModel";
 import Submission from "../../../../interfaces/Submission";
 import {
+  cachedMergedProblemMap,
   cachedProblemModels,
   fetchVirtualContestSubmission,
 } from "../../../../utils/CachedApiClient";
-import { calculatePerformances } from "../../../../utils/RatingSystem";
-import { predictSolveProbability } from "../../../../utils/ProblemModelUtil";
+import {
+  calculatePerformances,
+  makeBotRunners,
+} from "../../../../utils/RatingSystem";
 import { convertMap } from "../../../../utils/ImmutableMigration";
-import { BestSubmissionEntry, extractBestSubmissions } from "./util";
-import ScoreCell from "./ScoreCell";
-
-export const calcTotalResult = (
-  userId: string,
-  problems: VirtualContestItem[],
-  bestSubmissions: BestSubmissionEntry[]
-): {
-  trialsBeforeBest: number;
-  lastBestSubmissionTime: number;
-  point: number;
-  solveCount: number;
-} => {
-  return problems.reduce(
-    (state, item) => {
-      const problemId = item.id;
-      const point = item.point;
-
-      const info = bestSubmissions.find(
-        (s) => s.userId === userId && s.problemId === problemId
-      )?.bestSubmissionInfo;
-      if (!info || info.bestSubmission.point === 0) {
-        return state;
-      }
-
-      const best = info.bestSubmission;
-      if (point !== null && !isAccepted(best.result)) {
-        return state;
-      }
-
-      const additionalPoint = point ? point : best.point;
-      return {
-        trialsBeforeBest: state.trialsBeforeBest + info.trialsBeforeBest,
-        lastBestSubmissionTime: Math.max(
-          state.lastBestSubmissionTime,
-          best.epoch_second
-        ),
-        point: state.point + additionalPoint,
-        solveCount: state.solveCount + (additionalPoint > 0 ? 1 : 0),
-      };
-    },
-    {
-      trialsBeforeBest: 0,
-      lastBestSubmissionTime: 0,
-      point: 0,
-      solveCount: 0,
-    }
-  );
-};
-const getSortedUserIds = (
-  users: string[],
-  problems: VirtualContestItem[],
-  bestSubmissions: BestSubmissionEntry[]
-): string[] => {
-  return users
-    .map((userId) => {
-      const result = calcTotalResult(userId, problems, bestSubmissions);
-      return { userId, ...result };
-    })
-    .sort((a, b) => {
-      if (a.point === b.point) {
-        if (a.lastBestSubmissionTime === b.lastBestSubmissionTime) {
-          return a.trialsBeforeBest - b.trialsBeforeBest;
-        }
-        return a.lastBestSubmissionTime - b.lastBestSubmissionTime;
-      }
-      return b.point - a.point;
-    })
-    .map((e) => e.userId);
-};
-
-function getEstimatedPerformances(
-  participants: string[],
-  bestSubmissions: BestSubmissionEntry[],
-  start: number,
-  end: number,
-  problems: VirtualContestItem[],
-  modelMap: Map<ProblemId, ProblemModel>
-): {
-  performance: number;
-  userId: string;
-}[] {
-  random.use(seedrandom("atcoder-problems"));
-
-  const keyedProblems: Map<string, VirtualContestItem> = new Map();
-  const validatedModelMap = new Map<
-    ProblemId,
-    [
-      VirtualContestItem,
-      ProblemModelWithDifficultyModel & ProblemModelWithTimeModel
-    ]
-  >();
-  for (const problem of problems) {
-    keyedProblems.set(problem.id, problem);
-    const model = modelMap.get(problem.id);
-    if (!isProblemModelWithDifficultyModel(model)) {
-      return [];
-    }
-    if (!isProblemModelWithTimeModel(model)) {
-      return [];
-    }
-    validatedModelMap.set(problem.id, [problem, model]);
-  }
-
-  const bootstrapRatings: number[] = [];
-  const bootstrapResults: { score: number; penalty: number }[] = [];
-  for (
-    let bootstrapRating = -1025;
-    bootstrapRating <= 4025;
-    bootstrapRating += 50
-  ) {
-    bootstrapRatings.push(bootstrapRating);
-
-    // generating bootstrap result assuming that participants solve problems in the listed order.
-    // potentially better to reorder it to maximize these performances.
-    let score = 0;
-    let penalty = 0;
-    let remainingTime = end - start;
-
-    validatedModelMap.forEach(([problem, problemModel]) => {
-      const solveProbability =
-        problemModel.rawDifficulty > -10000
-          ? predictSolveProbability(problemModel, bootstrapRating)
-          : 1;
-      if (random.float() >= solveProbability) {
-        return;
-      }
-      const logTimeMean =
-        problemModel.slope * bootstrapRating + problemModel.intercept;
-      const solveTime = random.logNormal(
-        logTimeMean,
-        Math.sqrt(problemModel.variance)
-      )();
-      if (solveTime > remainingTime) {
-        return;
-      }
-      score += problem.point ? problem.point : 1;
-      penalty += solveTime;
-      remainingTime -= solveTime;
-    });
-
-    console.log(bootstrapRating, score, penalty);
-    bootstrapResults.push({ score, penalty });
-  }
-  const performances = calculatePerformances(bootstrapRatings);
-
-  return participants.map((userId) => {
-    const solvedSubmissions = bestSubmissions
-      .filter((b) => b.userId === userId)
-      .filter((b) => {
-        const result = b.bestSubmissionInfo?.bestSubmission.result;
-        return result && isAccepted(result);
-      })
-      .map((b) =>
-        b.bestSubmissionInfo
-          ? {
-              time: b.bestSubmissionInfo.bestSubmission.epoch_second - start,
-              id: b.problemId,
-            }
-          : undefined
-      )
-      .filter((obj): obj is { time: number; id: string } => obj !== undefined)
-      .sort((a, b) => a.time - b.time);
-    const score = solvedSubmissions
-      .map((submission) => {
-        const point = keyedProblems.get(submission.id)?.point;
-        return point ? point : 1;
-      })
-      .reduce((accum, point) => {
-        return accum + point;
-      }, 0);
-    const penalty = solvedSubmissions.reduce((accum, submission) => {
-      return Math.max(accum, submission.time);
-    }, 0);
-    const position = bootstrapResults
-      .map((result) => {
-        if (score > result.score) {
-          return 0;
-        } else if (score === result.score && penalty < result.penalty) {
-          return 0;
-        } else {
-          return 1;
-        }
-      })
-      .reduce((accum: number, lose) => {
-        return accum + lose;
-      }, 0);
-
-    let performance;
-    if (position === 0) {
-      performance = performances[0];
-    } else if (position === performances.length) {
-      performance = performances[performances.length - 1];
-    } else {
-      performance = (performances[position - 1] + performances[position]) / 2;
-    }
-    return { performance, userId };
-  });
-}
+import {
+  calcUserTotalResult,
+  compareTotalResult,
+  ReducedProblemResult,
+  reduceUserContestResult,
+  UserTotalResult,
+} from "./ResultCalcUtil";
+import { ContestTableRow } from "./ContestTableRow";
 
 interface OuterProps {
   readonly showProblems: boolean;
@@ -244,23 +51,8 @@ interface OuterProps {
 interface InnerProps extends OuterProps {
   submissions: PromiseState<Submission[]>;
   problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
+  problemMap: PromiseState<Map<ProblemId, MergedProblem>>;
 }
-
-const EstimatedPerformance: React.FC<{
-  estimatedPerformance: number | undefined;
-}> = (props) => {
-  if (props.estimatedPerformance === undefined) {
-    return null;
-  }
-  return (
-    <p
-      className={getRatingColorClass(props.estimatedPerformance)}
-      style={{ textAlign: "center", fontWeight: "bold" }}
-    >
-      {clipDifficulty(props.estimatedPerformance)}
-    </p>
-  );
-};
 
 export function compareProblem<T extends { id: string; order: number | null }>(
   a: T,
@@ -272,105 +64,6 @@ export function compareProblem<T extends { id: string; order: number | null }>(
   return a.id.localeCompare(b.id);
 }
 
-interface ContestTableRowProps {
-  userId: string;
-  index: number;
-  problems: {
-    item: VirtualContestItem;
-    title?: string | undefined;
-    contestId?: string | undefined;
-  }[];
-  bestSubmissions: BestSubmissionEntry[];
-  items: {
-    id: string;
-    point: number | null;
-    order: number | null;
-    contestId: string | undefined;
-    title: string | undefined;
-  }[];
-  showProblems: boolean;
-  start: number;
-  showEstimatedPerformances: boolean;
-  estimatedPerformances: {
-    performance: number;
-    userId: string;
-  }[];
-}
-
-const ContestTableRow: React.FC<ContestTableRowProps> = ({
-  userId,
-  index,
-  problems,
-  bestSubmissions,
-  items,
-  showProblems,
-  start,
-  showEstimatedPerformances,
-  estimatedPerformances,
-}) => {
-  const totalResult = calcTotalResult(
-    userId,
-    problems.map((p) => p.item),
-    bestSubmissions
-  );
-  return (
-    <tr>
-      <th>{index + 1}</th>
-      <th>{userId}</th>
-      {!showProblems
-        ? null
-        : items.sort(compareProblem).map((problem) => {
-            const info = bestSubmissions.find(
-              (e) => e.userId === userId && e.problemId === problem.id
-            )?.bestSubmissionInfo;
-            if (!info) {
-              return (
-                <td key={problem.id} style={{ textAlign: "center" }}>
-                  -
-                </td>
-              );
-            }
-            const best = info.bestSubmission;
-            const trials =
-              info.trialsBeforeBest +
-              (isAccepted(info.bestSubmission.result) ? 0 : 1);
-            const point =
-              problem.point !== null
-                ? isAccepted(best.result)
-                  ? problem.point
-                  : 0
-                : best.point;
-            return (
-              <td key={problem.id}>
-                <ScoreCell
-                  trials={trials}
-                  maxPoint={point}
-                  time={best.epoch_second - start}
-                />
-              </td>
-            );
-          })}
-      <td>
-        <ScoreCell
-          trials={totalResult.trialsBeforeBest}
-          maxPoint={totalResult.point}
-          time={totalResult.lastBestSubmissionTime - start}
-        />
-      </td>
-      {showEstimatedPerformances ? (
-        <td>
-          <EstimatedPerformance
-            estimatedPerformance={
-              estimatedPerformances.find((e) => e.userId === userId)
-                ?.performance
-            }
-          />
-        </td>
-      ) : null}
-    </tr>
-  );
-};
-
 const InnerContestTable: React.FC<InnerProps> = (props) => {
   const {
     showProblems,
@@ -381,46 +74,156 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     atCoderUserId,
     pinMe,
   } = props;
+  const query = new URLSearchParams(useLocation().search);
+  const showBots = !!query.get("bot");
+
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
     : new Map<ProblemId, ProblemModel>();
-  const submissionMap = props.submissions.fulfilled
-    ? props.submissions.value
-        .filter((s) => s.result !== "CE")
-        .reduce((map, s) => {
-          const list = map.get(s.problem_id) ?? ([] as Submission[]);
-          list.push(s);
-          map.set(s.problem_id, list);
-          return map;
-        }, new Map<ProblemId, Submission[]>())
-    : new Map<ProblemId, Submission[]>();
-  const problemIds = problems.map((p) => p.item.id);
+  const problemMap = props.problemMap.fulfilled
+    ? props.problemMap.value
+    : new Map<ProblemId, MergedProblem>();
 
-  const bestSubmissions = extractBestSubmissions(
-    submissionMap,
-    users,
-    problemIds
-  );
-  const sortedUserIds = getSortedUserIds(
-    users,
-    problems.map((p) => p.item),
-    bestSubmissions
+  const pointOverrideMap = new Map<ProblemId, number>();
+  problems.forEach(({ item }) => {
+    const problemId = item.id;
+    const point = item.point;
+    if (point !== null) {
+      pointOverrideMap.set(problemId, point);
+    }
+  });
+
+  const modelArray = [] as {
+    problemModel: ProblemModelWithDifficultyModel & ProblemModelWithTimeModel;
+    problemId: string;
+    point: number;
+  }[];
+  problems.forEach(({ item }) => {
+    const problemId = item.id;
+    const point = item.point ?? problemMap.get(problemId)?.point;
+    const problemModel = problemModels.get(problemId);
+    if (
+      isProblemModelWithTimeModel(problemModel) &&
+      isProblemModelWithDifficultyModel(problemModel) &&
+      point
+    ) {
+      modelArray.push({ problemModel, problemId, point });
+    }
+  });
+
+  const submissionByUserId = new Map<UserId, Submission[]>();
+  if (props.submissions.fulfilled) {
+    props.submissions.value
+      .filter((s) => s.result !== "CE")
+      .forEach((submission) => {
+        const array = submissionByUserId.get(submission.user_id);
+        if (array) {
+          array.push(submission);
+          submissionByUserId.set(submission.user_id, array);
+        } else {
+          submissionByUserId.set(submission.user_id, [submission]);
+        }
+      });
+  }
+  const resultsByUser = new Map<UserId, Map<ProblemId, ReducedProblemResult>>();
+  users.forEach((userId) => {
+    const userSubmissions = submissionByUserId.get(userId) ?? [];
+    const userMap = reduceUserContestResult(userSubmissions, (problemId) =>
+      pointOverrideMap.get(problemId)
+    );
+    resultsByUser.set(userId, userMap);
+  });
+
+  const showEstimatedPerformances =
+    props.enableEstimatedPerformances && modelArray.length === problems.length;
+  const botRunnerIds = new Set<UserId>();
+  const ratingMap = new Map<UserId, number>();
+  if (showEstimatedPerformances) {
+    const runners = makeBotRunners(modelArray, start, end);
+    for (let i = 0; i < runners.length; i++) {
+      const { rating, result } = runners[i];
+      const userId = `Bot: ${rating}`;
+      botRunnerIds.add(userId);
+      resultsByUser.set(userId, result);
+      ratingMap.set(userId, rating);
+    }
+  }
+
+  const totalResultByUser = new Map<UserId, UserTotalResult>();
+  resultsByUser.forEach((map, userId) => {
+    const totalResult = calcUserTotalResult(map);
+    totalResultByUser.set(userId, totalResult);
+  });
+
+  const sortedUserIds = Array.from(totalResultByUser)
+    .sort(([aId, aResult], [bId, bResult]) => {
+      const c = compareTotalResult(aResult, bResult);
+      return c !== 0 ? c : aId.localeCompare(bId);
+    })
+    .map(([userId]) => userId);
+
+  const performanceMap = new Map<UserId, number>();
+  if (showEstimatedPerformances) {
+    const participantsRawRatings = [] as number[];
+    const userIds = [] as string[];
+    sortedUserIds.forEach((userId) => {
+      const rating = ratingMap.get(userId);
+      if (rating !== undefined) {
+        participantsRawRatings.push(rating);
+        userIds.push(userId);
+      }
+    });
+    const performances = calculatePerformances(participantsRawRatings);
+    for (let i = 0; i < performances.length; i++) {
+      const performance = performances[i];
+      const userId = userIds[i];
+      performanceMap.set(userId, performance);
+    }
+  }
+
+  const getPerformanceByUserId = (lookForUserId: string) => {
+    const index = sortedUserIds.indexOf(lookForUserId);
+    if (index < 0) {
+      return undefined;
+    }
+    let upper: number | undefined;
+    for (let i = index; i < sortedUserIds.length; i++) {
+      const userId = sortedUserIds[i];
+      const performance = performanceMap.get(userId);
+      if (performance !== undefined) {
+        upper = performance;
+        break;
+      }
+    }
+
+    let lower: number | undefined;
+    for (let i = index; i >= 0; i--) {
+      const userId = sortedUserIds[i];
+      const performance = performanceMap.get(userId);
+      if (performance !== undefined) {
+        lower = performance;
+        break;
+      }
+    }
+
+    if (lower !== undefined && upper !== undefined) {
+      return (lower + upper) / 2;
+    } else if (lower !== undefined) {
+      return lower;
+    } else if (upper !== undefined) {
+      return upper;
+    } else {
+      return undefined;
+    }
+  };
+
+  const showingUserIds = sortedUserIds.filter(
+    (userId) => !botRunnerIds.has(userId) || showBots
   );
 
-  const loginUserIndex = sortedUserIds.findIndex(
+  const loginUserIndex = showingUserIds.findIndex(
     (userId) => userId === atCoderUserId
   );
-
-  const estimatedPerformances = props.enableEstimatedPerformances
-    ? getEstimatedPerformances(
-        users,
-        bestSubmissions,
-        start,
-        end,
-        problems.map((p) => p.item),
-        problemModels
-      )
-    : [];
 
   const items = problems.map((p) => ({
     contestId: p.contestId,
@@ -428,7 +231,6 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     ...p.item,
   }));
 
-  const showEstimatedPerformances = estimatedPerformances.length > 0;
   return (
     <Table striped>
       <thead>
@@ -464,29 +266,33 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         {pinMe && loginUserIndex >= 0 ? (
           <ContestTableRow
             userId={atCoderUserId}
-            index={loginUserIndex}
-            problems={problems}
-            bestSubmissions={bestSubmissions}
+            rank={loginUserIndex}
             items={items}
             showProblems={showProblems}
             start={start}
-            showEstimatedPerformances={showEstimatedPerformances}
-            estimatedPerformances={estimatedPerformances}
+            estimatedPerformance={getPerformanceByUserId(atCoderUserId)}
+            reducedProblemResults={
+              resultsByUser.get(atCoderUserId) ??
+              new Map<ProblemId, ReducedProblemResult>()
+            }
+            userTotalResult={totalResultByUser.get(atCoderUserId)}
           />
         ) : null}
-        {sortedUserIds.map((userId, i) => {
+        {showingUserIds.map((userId, i) => {
           return (
             <ContestTableRow
               key={userId}
               userId={userId}
-              index={i}
-              problems={problems}
-              bestSubmissions={bestSubmissions}
+              rank={i}
               items={items}
               showProblems={showProblems}
               start={start}
-              showEstimatedPerformances={showEstimatedPerformances}
-              estimatedPerformances={estimatedPerformances}
+              estimatedPerformance={getPerformanceByUserId(userId)}
+              reducedProblemResults={
+                resultsByUser.get(userId) ??
+                new Map<ProblemId, ReducedProblemResult>()
+              }
+              userTotalResult={totalResultByUser.get(userId)}
             />
           );
         })}
@@ -507,6 +313,10 @@ export const ContestTable = connect<OuterProps, InnerProps>((props) => ({
       ).then((submissions) => submissions.toArray()),
     refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
     force: props.enableAutoRefresh,
+  },
+  problemMap: {
+    comparison: null,
+    value: () => cachedMergedProblemMap().then((map) => convertMap(map)),
   },
   problemModels: {
     comparison: null,

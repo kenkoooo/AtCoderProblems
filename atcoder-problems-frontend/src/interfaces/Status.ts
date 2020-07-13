@@ -2,6 +2,7 @@ import { isAccepted } from "../utils";
 import Submission from "./Submission";
 export type ContestId = string;
 export type ProblemId = string;
+export type UserId = string;
 
 export enum StatusLabel {
   Success,
