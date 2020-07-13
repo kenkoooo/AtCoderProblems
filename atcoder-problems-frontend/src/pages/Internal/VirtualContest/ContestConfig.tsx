@@ -30,6 +30,7 @@ import {
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import HelpBadgeTooltip from "../../../components/HelpBadgeTooltip";
+import HelpBadgeModal from "../../../components/HelpBadgeModal";
 import ContestConfigProblemList from "./ContestConfigProblemList";
 
 const toUnixSecond = (date: string, hour: number, minute: number): number => {
@@ -154,7 +155,26 @@ const ContestConfig: React.FC<InnerProps> = (props) => {
 
       <Row className="my-2">
         <Col>
-          <Label>Mode</Label>
+          <Label>
+            Mode{" "}
+            <HelpBadgeModal
+              title="Explanation of Different Modes"
+              id="help-virtual-contest-modes"
+            >
+              <p>
+                <b>Normal:</b> similar to normal contests. Contestants are
+                ranked by total score, then penalty.
+              </p>
+              <p>
+                <b>Lockout:</b> only the first contestant who solved the problem
+                gets the score for the problem.
+              </p>
+              <p>
+                <b>Training:</b> contestants are ranked by total number of
+                solved problems, then time of last accepted submission.
+              </p>
+            </HelpBadgeModal>
+          </Label>
           <InputGroup>
             <UncontrolledDropdown>
               <DropdownToggle caret>{formatMode(mode)}</DropdownToggle>
