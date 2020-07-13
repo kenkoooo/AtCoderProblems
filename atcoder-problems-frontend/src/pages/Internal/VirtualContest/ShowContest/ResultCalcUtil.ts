@@ -17,14 +17,31 @@ export function reduceUserContestResult<
     point: number;
     epoch_second: number;
   }
->(submissions: S[]) {
+>(
+  submissions: S[],
+  pointOverride:
+    | ((problemId: string) => number | undefined)
+    | undefined = undefined
+) {
   const result = new Map<ProblemId, ReducedProblemResult>();
   submissions
     .sort((a, b) => a.id - b.id)
     .forEach((submission) => {
       const accepted = isAccepted(submission.result);
       const problemId = submission.problem_id;
-      const point = submission.point;
+
+      const overrideMaxPoint = pointOverride
+        ? pointOverride(problemId)
+        : undefined;
+      const overridePoint =
+        overrideMaxPoint !== undefined
+          ? accepted
+            ? overrideMaxPoint
+            : 0
+          : undefined;
+      const point =
+        overridePoint !== undefined ? overridePoint : submission.point;
+
       const currentBest = result.get(submission.problem_id);
       const lastUpdatedEpochSecond = submission.epoch_second;
       if (currentBest) {
@@ -61,13 +78,34 @@ export interface UserTotalResult {
   lastUpdatedEpochSecond: number;
 }
 
-export const calcTotalResult = (
+export const compareTotalResult = (
+  aResult: UserTotalResult,
+  bResult: UserTotalResult
+) => {
+  const aPoint = aResult.point;
+  const bPoint = bResult.point;
+  if (aPoint !== bPoint) {
+    return bPoint - aPoint;
+  }
+
+  const aSecond = aResult.lastUpdatedEpochSecond;
+  const bSecond = bResult.lastUpdatedEpochSecond;
+  if (aSecond !== bSecond) {
+    return aSecond - bSecond;
+  }
+
+  const aPenalties = aResult.penalties;
+  const bPenalties = bResult.penalties;
+  return aPenalties - bPenalties;
+};
+
+export const calcUserTotalResult = (
   userResult: Map<ProblemId, ReducedProblemResult>
 ): UserTotalResult => {
   let penalties = 0;
   let point = 0;
   let lastUpdatedEpochSecond = 0;
-  Array.from(userResult).map(([, reducedProblemResult]) => {
+  userResult.forEach((reducedProblemResult) => {
     point += reducedProblemResult.point;
     penalties += reducedProblemResult.penalties;
     lastUpdatedEpochSecond = Math.max(

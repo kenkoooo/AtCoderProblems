@@ -1,3 +1,15 @@
+import random from "random";
+import seedrandom from "seedrandom";
+import {
+  ProblemModelWithDifficultyModel,
+  ProblemModelWithTimeModel,
+} from "../interfaces/ProblemModel";
+import { ProblemId } from "../interfaces/Status";
+import { ReducedProblemResult } from "../pages/Internal/VirtualContest/ShowContest/ResultCalcUtil";
+import { predictSolveProbability } from "./ProblemModelUtil";
+
+type ModelType = ProblemModelWithDifficultyModel & ProblemModelWithTimeModel;
+
 export function calculatePerformances(
   participantRawRatings: number[]
 ): number[] {
@@ -27,3 +39,73 @@ export function calculatePerformances(
   }
   return perfs;
 }
+
+export interface BotRunner {
+  result: Map<ProblemId, ReducedProblemResult>;
+  rating: number;
+}
+
+export const makeBotRunners = (
+  problemModelAndPoints: {
+    problemModel: ModelType;
+    problemId: string;
+    point: number;
+  }[],
+  start: number,
+  end: number
+) => {
+  random.use(seedrandom("atcoder-problems"));
+  problemModelAndPoints.sort(
+    (a, b) => a.problemModel.difficulty - b.problemModel.difficulty
+  );
+
+  const runners = [] as BotRunner[];
+  for (
+    let bootstrapRating = -1025;
+    bootstrapRating <= 4025;
+    bootstrapRating += 5
+  ) {
+    const result = new Map<ProblemId, ReducedProblemResult>();
+
+    // generating bootstrap result assuming that participants solve problems in the listed order.
+    // potentially better to reorder it to maximize these performances.
+    let currentTime = start;
+    problemModelAndPoints.forEach(({ problemModel, point, problemId }) => {
+      const tooEasy = problemModel.rawDifficulty > -10000;
+      const solveProbability = tooEasy
+        ? predictSolveProbability(problemModel, bootstrapRating)
+        : 1;
+      if (random.float() >= solveProbability) {
+        currentTime = end;
+        return;
+      }
+
+      const logTimeMean =
+        problemModel.slope * bootstrapRating + problemModel.intercept;
+      const solveTime = random.logNormal(
+        logTimeMean,
+        Math.sqrt(problemModel.variance)
+      )();
+      if (solveTime + currentTime > end) {
+        currentTime = end;
+        return;
+      }
+
+      currentTime += solveTime;
+      result.set(problemId, {
+        trials: 1,
+        penalties: 0,
+        accepted: true,
+        point,
+        lastUpdatedEpochSecond: Math.round(currentTime),
+      });
+    });
+
+    runners.push({
+      result: result,
+      rating: bootstrapRating,
+    });
+  }
+
+  return runners;
+};
