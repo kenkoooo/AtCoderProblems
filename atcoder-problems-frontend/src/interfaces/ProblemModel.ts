@@ -55,6 +55,7 @@ export const isProblemModelWithTimeModel = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: any
 ): obj is ProblemModelWithTimeModel =>
+  obj !== undefined &&
   typeof obj.slope === "number" &&
   typeof obj.intercept === "number" &&
   typeof obj.variance === "number" &&
