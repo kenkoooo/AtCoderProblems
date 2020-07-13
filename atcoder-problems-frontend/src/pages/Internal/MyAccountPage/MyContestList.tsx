@@ -3,12 +3,12 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import { VirtualContestTable } from "../VirtualContestTable";
-import { VirtualContest } from "../types";
+import { VirtualContestInfo } from "../types";
 import { CONTEST_JOINED, CONTEST_MY } from "../ApiUrl";
 
 interface Props {
-  ownedContestsGet: PromiseState<VirtualContest[] | null>;
-  joinedContestsGet: PromiseState<VirtualContest[] | null>;
+  ownedContestsGet: PromiseState<VirtualContestInfo[] | null>;
+  joinedContestsGet: PromiseState<VirtualContestInfo[] | null>;
 }
 const InnerMyContestList: React.FC<Props> = (props) => {
   const history = useHistory();
