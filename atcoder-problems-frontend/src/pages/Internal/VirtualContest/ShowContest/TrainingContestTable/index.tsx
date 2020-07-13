@@ -11,10 +11,56 @@ import {
   fetchVirtualContestSubmission,
 } from "../../../../../utils/CachedApiClient";
 import { extractBestSubmissions, BestSubmissionEntry } from "../util";
-import { compareProblem, calcTotalResult } from "../ContestTable";
+import { compareProblem } from "../ContestTable";
 import { convertMap } from "../../../../../utils/ImmutableMigration";
 import SmallScoreCell from "./SmallScoreCell";
 
+const calcTotalResult = (
+  userId: string,
+  problems: VirtualContestItem[],
+  bestSubmissions: BestSubmissionEntry[]
+): {
+  trialsBeforeBest: number;
+  lastBestSubmissionTime: number;
+  point: number;
+  solveCount: number;
+} => {
+  return problems.reduce(
+    (state, item) => {
+      const problemId = item.id;
+      const point = item.point;
+
+      const info = bestSubmissions.find(
+        (s) => s.userId === userId && s.problemId === problemId
+      )?.bestSubmissionInfo;
+      if (!info || info.bestSubmission.point === 0) {
+        return state;
+      }
+
+      const best = info.bestSubmission;
+      if (point !== null && !isAccepted(best.result)) {
+        return state;
+      }
+
+      const additionalPoint = point ? point : best.point;
+      return {
+        trialsBeforeBest: state.trialsBeforeBest + info.trialsBeforeBest,
+        lastBestSubmissionTime: Math.max(
+          state.lastBestSubmissionTime,
+          best.epoch_second
+        ),
+        point: state.point + additionalPoint,
+        solveCount: state.solveCount + (additionalPoint > 0 ? 1 : 0),
+      };
+    },
+    {
+      trialsBeforeBest: 0,
+      lastBestSubmissionTime: 0,
+      point: 0,
+      solveCount: 0,
+    }
+  );
+};
 const getSortedUserIds = (
   users: string[],
   problems: VirtualContestItem[],
