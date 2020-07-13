@@ -41,7 +41,7 @@ export const ProblemSearchBox: React.FC<Props> = (props) => {
     <>
       <Input
         type="text"
-        placeholder="Search Problems"
+        placeholder="Search here to add problems."
         value={problemSearch}
         onChange={(e): void => {
           setProblemSearch(e.target.value);
