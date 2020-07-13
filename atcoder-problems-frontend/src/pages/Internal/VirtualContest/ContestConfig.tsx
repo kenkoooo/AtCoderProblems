@@ -30,7 +30,7 @@ import {
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import HelpBadgeTooltip from "../../../components/HelpBadgeTooltip";
-import HelpBadgeModal from "../../../components/HelpBadgeModal";
+import { HelpBadgeModal } from "../../../components/HelpBadgeModal";
 import ContestConfigProblemList from "./ContestConfigProblemList";
 
 const toUnixSecond = (date: string, hour: number, minute: number): number => {
