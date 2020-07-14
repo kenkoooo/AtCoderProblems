@@ -11,7 +11,7 @@ import {
   PROGRESS_RESET_LIST,
 } from "../ApiUrl";
 import { cachedProblemMap } from "../../../utils/CachedApiClient";
-import ProblemLink from "../../../components/ProblemLink";
+import { ProblemLink } from "../../../components/ProblemLink";
 import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
 
 interface Props {

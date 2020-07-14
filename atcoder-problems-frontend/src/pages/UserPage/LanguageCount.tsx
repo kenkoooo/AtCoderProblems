@@ -8,7 +8,7 @@ interface Props {
   submissions: Submission[];
 }
 
-const LanguageCount: React.FC<Props> = ({ submissions }) => {
+export const LanguageCount: React.FC<Props> = ({ submissions }) => {
   const languageMap = submissions
     .filter((s) => isAccepted(s.result))
     .reduce((map, submission) => {
@@ -35,5 +35,3 @@ const LanguageCount: React.FC<Props> = ({ submissions }) => {
     </Row>
   );
 };
-
-export default LanguageCount;

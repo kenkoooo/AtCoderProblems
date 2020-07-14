@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-default-export
 export default interface Submission {
   readonly execution_time: number | null;
   readonly point: number;

@@ -7,7 +7,7 @@ import { formatMomentDateTime, parseSecond } from "../utils/DateUtil";
 import { isAccepted } from "../utils";
 import * as Url from "../utils/Url";
 import { ProblemId } from "../interfaces/Status";
-import ProblemLink from "./ProblemLink";
+import { ProblemLink } from "./ProblemLink";
 import { ListPaginationPanel } from "./ListPaginationPanel";
 import { NewTabLink } from "./NewTabLink";
 
