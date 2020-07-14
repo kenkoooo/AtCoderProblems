@@ -56,7 +56,7 @@ function getColorClass(target: RatedTarget): string {
   return getRatingColorClass(target);
 }
 
-const ContestLink: React.FC<Props> = (props) => {
+export const ContestLink: React.FC<Props> = (props) => {
   const { contest, title } = props;
   const target: RatedTarget = getRatedTarget(contest);
 
@@ -69,5 +69,3 @@ const ContestLink: React.FC<Props> = (props) => {
     </>
   );
 };
-
-export default ContestLink;

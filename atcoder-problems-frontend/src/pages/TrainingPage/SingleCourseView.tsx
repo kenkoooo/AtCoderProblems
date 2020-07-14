@@ -15,7 +15,7 @@ import Submission from "../../interfaces/Submission";
 import { isAccepted } from "../../utils";
 import { NewTabLink } from "../../components/NewTabLink";
 import * as Url from "../../utils/Url";
-import ProblemLink from "../../components/ProblemLink";
+import { ProblemLink } from "../../components/ProblemLink";
 import { SinglePieChart } from "../../components/SinglePieChart";
 
 interface ProblemTableProps {

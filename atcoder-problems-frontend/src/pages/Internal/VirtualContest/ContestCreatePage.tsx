@@ -5,9 +5,9 @@ import { Redirect } from "react-router-dom";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
 import { VirtualContestItem, VirtualContestMode } from "../types";
-import ContestConfig from "./ContestConfig";
+import { ContestConfig } from "./ContestConfig";
 
-const ContestCreatePage: React.FC<InnerProps> = (props) => {
+const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
   const createResponse = props.createContestResponse.fulfilled
     ? props.createContestResponse.value
     : null;
@@ -85,7 +85,7 @@ interface InnerProps {
   updateResponse: PromiseState<{} | null>;
 }
 
-export default connect<{}, InnerProps>(() => ({
+export const ContestCreatePage = connect<{}, InnerProps>(() => ({
   createContest: (request: Request, problems: VirtualContestItem[]) => ({
     createContestResponse: {
       url: CONTEST_CREATE,
@@ -118,4 +118,4 @@ export default connect<{}, InnerProps>(() => ({
   updateResponse: {
     value: null,
   },
-}))(ContestCreatePage);
+}))(InnerContestCreatePage);

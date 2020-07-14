@@ -16,12 +16,12 @@ import {
   statusToTableColor,
   combineTableColorList,
 } from "../../utils/TableColor";
-import ProblemLink from "../../components/ProblemLink";
-import ContestLink from "../../components/ContestLink";
+import { ProblemLink } from "../../components/ProblemLink";
+import { ContestLink } from "../../components/ContestLink";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
 } from "../../interfaces/ProblemModel";
-import SubmitTimespan from "../../components/SubmitTimespan";
+import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RelativeDifficultyMeter } from "../../components/RelativeDifficultyMeter";
 
 interface Props {

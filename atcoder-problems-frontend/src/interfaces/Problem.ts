@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-default-export
 export default interface Problem {
   readonly id: string;
   readonly contest_id: string;

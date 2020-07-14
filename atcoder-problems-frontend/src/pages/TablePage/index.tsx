@@ -23,7 +23,7 @@ import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
 import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import { classifyContest, ContestCategory } from "./ContestClassifier";
 import { TableTabButtons } from "./TableTab";
-import Options from "./Options";
+import { Options } from "./Options";
 import { ContestTable } from "./ContestTable";
 import { AtCoderRegularTable } from "./AtCoderRegularTable";
 

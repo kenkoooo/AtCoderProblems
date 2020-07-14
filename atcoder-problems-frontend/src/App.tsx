@@ -8,23 +8,23 @@ import {
 import { Container } from "reactstrap";
 
 import { List } from "immutable";
-import ACRanking from "./pages/ACRanking";
-import FastestRanking from "./pages/FastestRanking";
-import FirstRanking from "./pages/FirstRanking";
-import ShortRanking from "./pages/ShortRanking";
-import SumRanking from "./pages/SumRanking";
-import LanguageOwners from "./pages/LanguageOwners";
+import { ACRanking } from "./pages/ACRanking";
+import { FastestRanking } from "./pages/FastestRanking";
+import { FirstRanking } from "./pages/FirstRanking";
+import { ShortRanking } from "./pages/ShortRanking";
+import { SumRanking } from "./pages/SumRanking";
+import { LanguageOwners } from "./pages/LanguageOwners";
 import { ListPage } from "./pages/ListPage";
 import { UserPage } from "./pages/UserPage";
 import { TablePage } from "./pages/TablePage";
 import { NavigationBar } from "./components/NavigationBar";
-import StreakRanking from "./pages/StreakRanking";
-import ContestCreatePage from "./pages/Internal/VirtualContest/ContestCreatePage";
-import ShowContest from "./pages/Internal/VirtualContest/ShowContest";
+import { StreakRanking } from "./pages/StreakRanking";
+import { ContestCreatePage } from "./pages/Internal/VirtualContest/ContestCreatePage";
+import { ShowContest } from "./pages/Internal/VirtualContest/ShowContest";
 import { MyAccountPage } from "./pages/Internal/MyAccountPage";
 import { RecentContestList } from "./pages/Internal/VirtualContest/RecentContestList";
-import ContestUpdatePage from "./pages/Internal/VirtualContest/ContestUpdatePage";
-import SingleProblemList from "./pages/Internal/ProblemList/SingleProblemList";
+import { ContestUpdatePage } from "./pages/Internal/VirtualContest/ContestUpdatePage";
+import { SingleProblemList } from "./pages/Internal/ProblemList/SingleProblemList";
 import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
@@ -87,12 +87,18 @@ const App: React.FC = () => {
               {/*Virtual Contests*/}
               <Route
                 path="/contest/show/:contestId([a-zA-Z0-9_-]+)"
-                component={ShowContest}
+                render={({ match }): React.ReactElement => {
+                  const contestId: string = match.params.contestId ?? "";
+                  return <ShowContest contestId={contestId} />;
+                }}
               />
               <Route path="/contest/create" component={ContestCreatePage} />
               <Route
                 path="/contest/update/:contestId([a-zA-Z0-9_-]+)"
-                component={ContestUpdatePage}
+                render={({ match }): React.ReactElement => {
+                  const contestId: string = match.params.contestId ?? "";
+                  return <ContestUpdatePage contestId={contestId} />;
+                }}
               />
               <Route path="/contest/recent" component={RecentContestList} />
 
@@ -102,7 +108,10 @@ const App: React.FC = () => {
               {/*Problem List*/}
               <Route
                 path="/problemlist/:listId([a-zA-Z0-9_-]+)"
-                component={SingleProblemList}
+                render={({ match }): React.ReactElement => {
+                  const listId: string = match.params.listId ?? "";
+                  return <SingleProblemList listId={listId} />;
+                }}
               />
               <Route path="/submissions/recent" component={RecentSubmissions} />
 
@@ -119,4 +128,5 @@ const App: React.FC = () => {
   );
 };
 
+// eslint-disable-next-line import/no-default-export
 export default App;

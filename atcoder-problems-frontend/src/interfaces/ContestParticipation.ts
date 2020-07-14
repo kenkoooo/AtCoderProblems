@@ -1,6 +1,7 @@
 // Type interface for the Official API response from https://atcoder.jp/users/<user_id>/history/json.
 // Response type of the API is List<ContestParticipation>
 
+// eslint-disable-next-line import/no-default-export
 export default interface ContestParticipation {
   readonly IsRated: boolean;
   readonly Place: number;

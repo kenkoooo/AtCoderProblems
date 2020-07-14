@@ -28,7 +28,7 @@ interface Props {
   deleteResponse: PromiseState<{} | null>;
 }
 
-export default connect<{}, Props>(() => ({
+export const UserProblemListPage = connect<{}, Props>(() => ({
   myListFetch: LIST_MY,
   createListFetch: { value: null },
   createNewList: () => ({

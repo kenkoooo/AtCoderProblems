@@ -26,9 +26,9 @@ import {
   predictSolveProbability,
   predictSolveTime,
 } from "../../utils/ProblemModelUtil";
-import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
-import ProblemLink from "../../components/ProblemLink";
-import ContestLink from "../../components/ContestLink";
+import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
+import { ProblemLink } from "../../components/ProblemLink";
+import { ContestLink } from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
 import { ProblemId } from "../../interfaces/Status";
 

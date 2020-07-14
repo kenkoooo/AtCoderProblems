@@ -38,6 +38,7 @@ module.exports = {
     // only when the function is a type checker or it's required to use JS function.
     "@typescript-eslint/no-explicit-any": "error",
     "import/order": 1, // sort import in files
+    "import/no-default-export": "error",
     "@typescript-eslint/no-non-null-assertion": "error",
     // TODO: enable the following rules in the future
     "require-atomic-updates": 0, // https://github.com/eslint/eslint/issues/11899

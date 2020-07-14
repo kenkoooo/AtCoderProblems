@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-default-export
 export default interface MergedProblem {
   // Basic information
   readonly id: string;
