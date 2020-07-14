@@ -3,6 +3,7 @@ import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
 import MergedProblem from "../../../../interfaces/MergedProblem";
+import { clipDifficulty } from "../../../../utils";
 import { VirtualContestItem } from "../../types";
 import ProblemLink from "../../../../components/ProblemLink";
 import { ProblemId, UserId } from "../../../../interfaces/Status";
@@ -142,7 +143,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     const runners = makeBotRunners(modelArray, start, end);
     for (let i = 0; i < runners.length; i++) {
       const { rating, result } = runners[i];
-      const userId = `Bot: ${rating}`;
+      const userId = `Bot: ${clipDifficulty(rating)}`;
       botRunnerIds.add(userId);
       resultsByUser.set(userId, result);
       ratingMap.set(userId, rating);
