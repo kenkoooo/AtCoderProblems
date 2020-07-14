@@ -27,7 +27,7 @@
     "*.{css,scss,html,json,md}": "prettier --write",
     "*.{js,jsx,ts,tsx}": [
       "prettier --write",
-      "eslint --fix --max-warnings=0 --ignore-pattern"
+      "eslint --fix --max-warnings=0"
     ],
     "../**/*.md": "prettier --write",
     ".eslintrc.js": "prettier --write",
