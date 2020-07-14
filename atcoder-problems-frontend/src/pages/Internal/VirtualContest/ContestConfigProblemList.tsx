@@ -14,11 +14,11 @@ import Octicon, { ChevronUp, ChevronDown } from "@primer/octicons-react";
 import { cachedSubmissions } from "../../../utils/CachedApiClient";
 import Problem from "../../../interfaces/Problem";
 import { VirtualContestItem } from "../types";
-import ProblemLink from "../../../components/ProblemLink";
+import { ProblemLink } from "../../../components/ProblemLink";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { isAccepted } from "../../../utils";
 
-const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
+const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
   const { problemSet } = props;
   return (
     <ListGroup>
@@ -169,32 +169,34 @@ interface InnerProps extends OuterProps {
   userSolvedProblemsMapFetch: PromiseState<{ [user: string]: Set<string> }>;
 }
 
-export default connect<OuterProps, InnerProps>((props) => ({
-  userSolvedProblemsMapFetch: {
-    comparison: props.expectedParticipantUserIds,
-    refreshing: true,
-    value: async (): Promise<{ [problem: string]: Set<string> }> => {
-      const res: { [problem: string]: Set<string> } = {};
-      const failedUserIds: string[] = [];
-      for (const userId of props.expectedParticipantUserIds) {
-        try {
-          const submissions = await cachedSubmissions(userId);
-          res[userId] = submissions
-            .filter((submission) => isAccepted(submission.result))
-            .map((submission) => submission.problem_id)
-            .toSet();
-        } catch (e) {
-          failedUserIds.push(userId);
+export const ContestConfigProblemList = connect<OuterProps, InnerProps>(
+  (props) => ({
+    userSolvedProblemsMapFetch: {
+      comparison: props.expectedParticipantUserIds,
+      refreshing: true,
+      value: async (): Promise<{ [problem: string]: Set<string> }> => {
+        const res: { [problem: string]: Set<string> } = {};
+        const failedUserIds: string[] = [];
+        for (const userId of props.expectedParticipantUserIds) {
+          try {
+            const submissions = await cachedSubmissions(userId);
+            res[userId] = submissions
+              .filter((submission) => isAccepted(submission.result))
+              .map((submission) => submission.problem_id)
+              .toSet();
+          } catch (e) {
+            failedUserIds.push(userId);
+          }
         }
-      }
-      if (failedUserIds.length > 0) {
-        props.onSolvedProblemsFetchFinished(
-          `Fetch Failed for ${failedUserIds.join(", ")}`
-        );
-      } else {
-        props.onSolvedProblemsFetchFinished();
-      }
-      return res;
+        if (failedUserIds.length > 0) {
+          props.onSolvedProblemsFetchFinished(
+            `Fetch Failed for ${failedUserIds.join(", ")}`
+          );
+        } else {
+          props.onSolvedProblemsFetchFinished();
+        }
+        return res;
+      },
     },
-  },
-}))(ContestConfigProblemList);
+  })
+)(InnerContestConfigProblemList);

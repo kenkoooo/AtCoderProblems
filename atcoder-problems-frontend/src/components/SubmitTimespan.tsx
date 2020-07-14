@@ -19,7 +19,7 @@ const formatTimespan = (sec: number): string => {
   return `${sign}${Math.floor(sec / 60)}:${("0" + (sec % 60)).slice(-2)}`;
 };
 
-const SubmitTimespan: React.FC<Props> = (props) => {
+export const SubmitTimespan: React.FC<Props> = (props) => {
   const { contest, problemStatus, showPenalties } = props;
   if (!problemStatus || problemStatus.label === StatusLabel.None) {
     return null;
@@ -41,5 +41,3 @@ const SubmitTimespan: React.FC<Props> = (props) => {
     </div>
   );
 };
-
-export default SubmitTimespan;

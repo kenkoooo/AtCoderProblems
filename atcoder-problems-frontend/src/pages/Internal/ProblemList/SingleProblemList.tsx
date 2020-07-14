@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
-import { Redirect, useParams } from "react-router-dom";
 import { Map } from "immutable";
 import {
   Alert,
@@ -46,7 +45,7 @@ interface InnerProps extends OuterProps {
   updateItem: (problemId: string, memo: string) => void;
 }
 
-const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
+export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
   userInfoFetch: USER_GET,
   problemListFetch: listGetUrl(props.listId),
   updateList: (name: string) => ({
@@ -299,13 +298,4 @@ const DoubleClickEdit: React.FC<{
       )}
     </>
   );
-};
-
-export default (): React.ReactElement => {
-  const { listId } = useParams();
-  if (listId) {
-    return <SingleProblemList listId={listId} />;
-  } else {
-    return <Redirect to="/" />;
-  }
 };

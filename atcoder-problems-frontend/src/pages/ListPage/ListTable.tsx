@@ -3,8 +3,8 @@ import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
 import { List } from "immutable";
 import * as Url from "../../utils/Url";
-import ContestLink from "../../components/ContestLink";
-import ProblemLink from "../../components/ProblemLink";
+import { ContestLink } from "../../components/ContestLink";
+import { ProblemLink } from "../../components/ProblemLink";
 import { StatusLabel } from "../../interfaces/Status";
 import {
   formatPredictedSolveTime,

@@ -5,10 +5,10 @@ import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
-import ProblemLink from "../../components/ProblemLink";
-import ContestLink from "../../components/ContestLink";
+import { ProblemLink } from "../../components/ProblemLink";
+import { ContestLink } from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
-import SubmitTimespan from "../../components/SubmitTimespan";
+import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { isRatedContest } from "./ContestClassifier";
 
 interface Props {

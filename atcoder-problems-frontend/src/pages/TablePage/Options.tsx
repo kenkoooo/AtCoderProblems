@@ -13,7 +13,7 @@ import {
   Card,
 } from "reactstrap";
 import { Set } from "immutable";
-import HelpBadgeTooltip from "../../components/HelpBadgeTooltip";
+import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
 import { ColorMode } from "../../utils/TableColor";
 
 interface Props {
@@ -30,7 +30,7 @@ interface Props {
   toggleLanguage: (language: string) => void;
 }
 
-const Options: React.FC<Props> = (props) => {
+export const Options: React.FC<Props> = (props) => {
   return (
     <Container>
       <Row className="my-4">
@@ -130,5 +130,3 @@ const Options: React.FC<Props> = (props) => {
     </Container>
   );
 };
-
-export default Options;

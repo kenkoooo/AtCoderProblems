@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, Redirect, useHistory, useParams } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import {
   Alert,
@@ -246,69 +246,62 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   );
 };
 
-const ShowContest = connect<OuterProps, InnerProps>((props: OuterProps) => {
-  return {
-    problemModelGet: {
-      comparison: null,
-      value: (): Promise<ImmutableMap<string, ProblemModel>> =>
-        CachedApi.cachedProblemModels(),
-    },
-    userInfoGet: {
-      url: USER_GET,
-    },
-    contestInfoFetch: {
-      force: true,
-      url: contestGetUrl(props.contestId),
-    },
-    problemMapFetch: {
-      comparison: null,
-      value: (): Promise<ImmutableMap<string, MergedProblem>> =>
-        CachedApi.cachedMergedProblemMap(),
-    },
-    joinContest: () => ({
-      joinContestPost: {
-        url: CONTEST_JOIN,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ contest_id: props.contestId }),
-        andThen: () => ({
-          contestInfoFetch: {
-            url: contestGetUrl(props.contestId),
-            force: true,
-          },
-        }),
-        force: true,
+export const ShowContest = connect<OuterProps, InnerProps>(
+  (props: OuterProps) => {
+    return {
+      problemModelGet: {
+        comparison: null,
+        value: (): Promise<ImmutableMap<string, ProblemModel>> =>
+          CachedApi.cachedProblemModels(),
       },
-    }),
-    joinContestPost: { value: null },
-    leaveContest: () => ({
-      leaveContestPost: {
-        url: CONTEST_LEAVE,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ contest_id: props.contestId }),
-        andThen: () => ({
-          contestInfoFetch: {
-            url: contestGetUrl(props.contestId),
-            force: true,
-          },
-        }),
-        force: true,
+      userInfoGet: {
+        url: USER_GET,
       },
-    }),
-    leaveContestPost: { value: null },
-  };
-})(InnerShowContest);
-
-export default (): React.ReactElement => {
-  const { contestId } = useParams();
-  if (contestId) {
-    return <ShowContest contestId={contestId} />;
-  } else {
-    return <Redirect to="/contest/recent" />;
+      contestInfoFetch: {
+        force: true,
+        url: contestGetUrl(props.contestId),
+      },
+      problemMapFetch: {
+        comparison: null,
+        value: (): Promise<ImmutableMap<string, MergedProblem>> =>
+          CachedApi.cachedMergedProblemMap(),
+      },
+      joinContest: () => ({
+        joinContestPost: {
+          url: CONTEST_JOIN,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ contest_id: props.contestId }),
+          andThen: () => ({
+            contestInfoFetch: {
+              url: contestGetUrl(props.contestId),
+              force: true,
+            },
+          }),
+          force: true,
+        },
+      }),
+      joinContestPost: { value: null },
+      leaveContest: () => ({
+        leaveContestPost: {
+          url: CONTEST_LEAVE,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ contest_id: props.contestId }),
+          andThen: () => ({
+            contestInfoFetch: {
+              url: contestGetUrl(props.contestId),
+              force: true,
+            },
+          }),
+          force: true,
+        },
+      }),
+      leaveContestPost: { value: null },
+    };
   }
-};
+)(InnerShowContest);

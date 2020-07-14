@@ -1,7 +1,7 @@
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Badge, UncontrolledTooltip } from "reactstrap";
-import Ranking from "../components/Ranking";
+import { Ranking } from "../components/Ranking";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import * as CachedApiClient from "../utils/CachedApiClient";
 
@@ -9,7 +9,7 @@ interface Props {
   rankingFetch: PromiseState<RankingEntry[]>;
 }
 
-const StreakRanking: React.FC<Props> = (props) => (
+const InnerStreakRanking: React.FC<Props> = (props) => (
   <Ranking
     title={
       <>
@@ -27,9 +27,9 @@ const StreakRanking: React.FC<Props> = (props) => (
   />
 );
 
-export default connect<{}, Props>(() => ({
+export const StreakRanking = connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: CachedApiClient.cachedStreaksRanking,
   },
-}))(StreakRanking);
+}))(InnerStreakRanking);

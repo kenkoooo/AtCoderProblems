@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-default-export
 export default interface ProblemModel {
   readonly slope: number | undefined;
   readonly intercept: number | undefined;

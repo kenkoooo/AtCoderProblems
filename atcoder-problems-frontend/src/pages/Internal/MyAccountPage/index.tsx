@@ -16,7 +16,7 @@ import {
 } from "reactstrap";
 import { Redirect } from "react-router-dom";
 import { USER_GET, USER_UPDATE } from "../ApiUrl";
-import ListProblemList from "../UserProblemListPage";
+import { UserProblemListPage } from "../UserProblemListPage";
 import { UserResponse } from "../types";
 import { MyContestList } from "./MyContestList";
 import { ResetProgress } from "./ResetProgress";
@@ -143,7 +143,7 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
             <MyContestList />
           </TabPane>
           <TabPane tabId="Problem Lists">
-            <ListProblemList />
+            <UserProblemListPage />
           </TabPane>
           <TabPane tabId="Reset Progress">
             <ResetProgress />
