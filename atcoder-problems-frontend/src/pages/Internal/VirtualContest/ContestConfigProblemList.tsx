@@ -22,6 +22,13 @@ const ContestConfigProblemList: React.FC<InnerProps> = (props) => {
   const { problemSet } = props;
   return (
     <ListGroup>
+      {problemSet.isEmpty() && (
+        <ListGroupItem>
+          You have not added any problems yet. Use the search box below to
+          search for problems to add to the contest.
+        </ListGroupItem>
+      )}
+
       {problemSet.valueSeq().map((p, i) => {
         const problemId = p.id;
         const problem = props.problemMap.get(problemId);
