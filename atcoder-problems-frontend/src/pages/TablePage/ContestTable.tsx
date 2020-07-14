@@ -11,7 +11,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel,
 } from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
-import RelativeDifficultyMeter from "../../components/RelativeDifficultyMeter";
+import { RelativeDifficultyMeter } from "../../components/RelativeDifficultyMeter";
 import { isRatedContest } from "./ContestClassifier";
 
 interface Props {

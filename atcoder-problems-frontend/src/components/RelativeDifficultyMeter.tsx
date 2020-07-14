@@ -69,7 +69,7 @@ const getLevelColor = (level: DifficultyLevel, theme: Theme) => {
 const rgbStyle = (r: number, g: number, b: number, ratio: number) =>
   `rgb(${r}, ${g}, ${b}) ${ratio * 100}%`;
 
-const RelativeDifficultyMeter: React.FC<Props> = (props) => {
+export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
   const { id, problemModel, userInternalRating } = props;
 
   const predictedSolveProbability = predictSolveProbability(
@@ -119,5 +119,3 @@ const RelativeDifficultyMeter: React.FC<Props> = (props) => {
     </>
   );
 };
-
-export default RelativeDifficultyMeter;

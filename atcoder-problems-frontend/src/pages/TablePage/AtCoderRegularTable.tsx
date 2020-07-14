@@ -22,7 +22,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel,
 } from "../../interfaces/ProblemModel";
 import SubmitTimespan from "../../components/SubmitTimespan";
-import RelativeDifficultyMeter from "../../components/RelativeDifficultyMeter";
+import { RelativeDifficultyMeter } from "../../components/RelativeDifficultyMeter";
 
 interface Props {
   contests: Contest[];

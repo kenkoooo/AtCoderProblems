@@ -202,19 +202,6 @@ span.difficulty-circle {
   }
 }
 
-// relative-difficulty-iconic-bar
-//.relative-difficulty-meter {
-//  position: absolute;
-//  left: 0.3rem;
-//  bottom: 0.2rem;
-//  width: 24px;
-//  height: 6px;
-//  border-style: solid;
-//  border-width: 1px;
-//  border-radius: 3px;
-//}
-
-// relative-difficulty-fill-horizontal-bar
 .relative-difficulty-meter {
   position: absolute;
   left: 0;
@@ -222,15 +209,6 @@ span.difficulty-circle {
   bottom: 0;
   height: 3px;
 }
-
-//// relative-difficulty-fill-vertical-bar
-//.relative-difficulty-meter {
-//  position: absolute;
-//  top: 0;
-//  left: 0;
-//  bottom: 0;
-//  width: 6px;
-//}
 
 .list-table tbody tr td,
 .list-table thead th {
