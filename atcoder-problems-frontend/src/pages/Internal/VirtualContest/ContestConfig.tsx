@@ -29,9 +29,9 @@ import {
 } from "../types";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
-import HelpBadgeTooltip from "../../../components/HelpBadgeTooltip";
+import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { HelpBadgeModal } from "../../../components/HelpBadgeModal";
-import ContestConfigProblemList from "./ContestConfigProblemList";
+import { ContestConfigProblemList } from "./ContestConfigProblemList";
 
 const toUnixSecond = (date: string, hour: number, minute: number): number => {
   const hh = hour < 10 ? "0" + hour : "" + hour;
@@ -40,7 +40,7 @@ const toUnixSecond = (date: string, hour: number, minute: number): number => {
   return moment(s).unix();
 };
 
-const ContestConfig: React.FC<InnerProps> = (props) => {
+const InnerContestConfig: React.FC<InnerProps> = (props) => {
   const [title, setTitle] = useState(props.initialTitle);
   const [memo, setMemo] = useState(props.initialMemo);
 
@@ -397,7 +397,7 @@ interface InnerProps extends OuterProps {
   loginState: PromiseState<{} | null>;
 }
 
-export default connect<OuterProps, InnerProps>(() => ({
+export const ContestConfig = connect<OuterProps, InnerProps>(() => ({
   problemMapFetch: {
     comparison: null,
     value: (): Promise<Map<string, Problem>> =>
@@ -411,4 +411,4 @@ export default connect<OuterProps, InnerProps>(() => ({
   loginState: {
     url: USER_GET,
   },
-}))(ContestConfig);
+}))(InnerContestConfig);

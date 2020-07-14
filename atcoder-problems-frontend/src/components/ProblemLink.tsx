@@ -16,7 +16,7 @@ interface Props {
   showDifficultyUnavailable?: boolean;
 }
 
-const ProblemLink: React.FC<Props> = (props) => {
+export const ProblemLink: React.FC<Props> = (props) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const {
@@ -77,5 +77,3 @@ const ProblemLink: React.FC<Props> = (props) => {
     </>
   );
 };
-
-export default ProblemLink;

@@ -16,10 +16,10 @@ import {
   statusToTableColor,
   combineTableColorList,
 } from "../../utils/TableColor";
-import ProblemLink from "../../components/ProblemLink";
-import ContestLink from "../../components/ContestLink";
+import { ProblemLink } from "../../components/ProblemLink";
+import { ContestLink } from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
-import SubmitTimespan from "../../components/SubmitTimespan";
+import { SubmitTimespan } from "../../components/SubmitTimespan";
 
 interface Props {
   contests: Contest[];

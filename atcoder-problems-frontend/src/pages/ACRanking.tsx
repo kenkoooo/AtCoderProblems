@@ -1,6 +1,6 @@
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
-import Ranking from "../components/Ranking";
+import { Ranking } from "../components/Ranking";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import * as CachedApiClient from "../utils/CachedApiClient";
 
@@ -8,16 +8,16 @@ interface InnerProps {
   rankingFetch: PromiseState<RankingEntry[]>;
 }
 
-const ACRanking: React.FC<InnerProps> = (props) => (
+const InnerACRanking: React.FC<InnerProps> = (props) => (
   <Ranking
     title="AC Count Ranking"
     ranking={props.rankingFetch.fulfilled ? props.rankingFetch.value : []}
   />
 );
 
-export default connect<{}, InnerProps>(() => ({
+export const ACRanking = connect<{}, InnerProps>(() => ({
   rankingFetch: {
     comparison: null,
     value: (): Promise<RankingEntry[]> => CachedApiClient.cachedACRanking(),
   },
-}))(ACRanking);
+}))(InnerACRanking);

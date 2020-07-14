@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-default-export
 export default interface Contest {
   readonly start_epoch_second: number;
   readonly rate_change: string;

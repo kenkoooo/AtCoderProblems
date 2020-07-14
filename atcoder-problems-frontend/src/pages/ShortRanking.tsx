@@ -1,7 +1,7 @@
 import React from "react";
 import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import Ranking from "../components/Ranking";
+import { Ranking } from "../components/Ranking";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import * as CachedApiClient from "../utils/CachedApiClient";
 
@@ -9,7 +9,7 @@ interface Props {
   rankingFetch: PromiseState<List<RankingEntry>>;
 }
 
-const FirstRanking: React.FC<Props> = (props) => (
+const InnerShortRanking: React.FC<Props> = (props) => (
   <Ranking
     title={"Top Golfers"}
     ranking={
@@ -18,9 +18,9 @@ const FirstRanking: React.FC<Props> = (props) => (
   />
 );
 
-export default connect<{}, Props>(() => ({
+export const ShortRanking = connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: CachedApiClient.cachedShortRanking,
   },
-}))(FirstRanking);
+}))(InnerShortRanking);

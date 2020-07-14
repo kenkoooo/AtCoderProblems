@@ -1,12 +1,12 @@
 import React from "react";
 import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import { Redirect, useParams } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { Alert, Spinner } from "reactstrap";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_ITEM_UPDATE, CONTEST_UPDATE, contestGetUrl } from "../ApiUrl";
 import { VirtualContestItem, VirtualContestDetails } from "../types";
-import ContestConfig from "./ContestConfig";
+import { ContestConfig } from "./ContestConfig";
 
 interface Request {
   id: string;
@@ -28,7 +28,7 @@ interface InnerProps extends OuterProps {
   updateContest: (request: Request, problems: VirtualContestItem[]) => void;
 }
 
-const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
+export const ContestUpdatePage = connect<OuterProps, InnerProps>((props) => ({
   contestInfoFetch: {
     url: contestGetUrl(props.contestId),
   },
@@ -126,12 +126,3 @@ const InnerComponent = connect<OuterProps, InnerProps>((props) => ({
     />
   );
 });
-
-export default (): React.ReactElement => {
-  const { contestId } = useParams();
-  if (contestId) {
-    return <InnerComponent contestId={contestId} />;
-  } else {
-    return <Redirect to="/contest/recent" />;
-  }
-};

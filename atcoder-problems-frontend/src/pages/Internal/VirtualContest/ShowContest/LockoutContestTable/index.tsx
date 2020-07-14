@@ -6,7 +6,7 @@ import { VirtualContestItem } from "../../../types";
 import { isAccepted } from "../../../../../utils";
 import { ProblemId } from "../../../../../interfaces/Status";
 import { fetchVirtualContestSubmission } from "../../../../../utils/CachedApiClient";
-import ProblemLink from "../../../../../components/ProblemLink";
+import { ProblemLink } from "../../../../../components/ProblemLink";
 
 const CARD_COLORS = ["success", "danger", "warning", "info", "primary"];
 

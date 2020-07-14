@@ -13,7 +13,7 @@ import {
 import { extractBestSubmissions, BestSubmissionEntry } from "../util";
 import { compareProblem } from "../ContestTable";
 import { convertMap } from "../../../../../utils/ImmutableMigration";
-import SmallScoreCell from "./SmallScoreCell";
+import { SmallScoreCell } from "./SmallScoreCell";
 
 const calcTotalResult = (
   userId: string,

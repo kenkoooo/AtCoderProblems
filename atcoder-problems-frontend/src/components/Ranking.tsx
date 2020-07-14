@@ -35,7 +35,7 @@ const refineRanking = (ranking: RankingEntry[]): InternalRankEntry[] =>
       return array;
     }, [] as InternalRankEntry[]);
 
-const Ranking: React.FC<Props> = (props) => (
+export const Ranking: React.FC<Props> = (props) => (
   <Row>
     <h2>{props.title}</h2>
     <BootstrapTable
@@ -80,5 +80,3 @@ const Ranking: React.FC<Props> = (props) => (
     </BootstrapTable>
   </Row>
 );
-
-export default Ranking;

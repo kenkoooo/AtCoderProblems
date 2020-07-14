@@ -3,7 +3,7 @@ import { ProblemId } from "../../../../interfaces/Status";
 import { clipDifficulty, getRatingColorClass } from "../../../../utils";
 import { compareProblem } from "./ContestTable";
 import { ReducedProblemResult, UserTotalResult } from "./ResultCalcUtil";
-import ScoreCell from "./ScoreCell";
+import { ScoreCell } from "./ScoreCell";
 
 const EstimatedPerformance: React.FC<{
   estimatedPerformance: number | undefined;
