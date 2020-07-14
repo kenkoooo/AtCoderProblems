@@ -36,7 +36,7 @@ interface Props {
   rankingFetch: PromiseState<ImmutableMap<string, List<LangRankingEntry>>>;
 }
 
-const LanguageOwners: React.FC<Props> = (props) => {
+const InnerLanguageOwners: React.FC<Props> = (props) => {
   const [ownersNum, setOwnersNum] = useState(3);
 
   const ranking = props.rankingFetch.fulfilled
@@ -76,10 +76,10 @@ const LanguageOwners: React.FC<Props> = (props) => {
   );
 };
 
-export default connect<{}, Props>(() => ({
+export const LanguageOwners = connect<{}, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: (): Promise<ImmutableMap<string, List<LangRankingEntry>>> =>
       CachedApiClient.cachedLangRanking(),
   },
-}))(LanguageOwners);
+}))(InnerLanguageOwners);

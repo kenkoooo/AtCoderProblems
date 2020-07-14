@@ -30,6 +30,7 @@
       "eslint --fix --max-warnings=0"
     ],
     "../**/*.md": "prettier --write",
+    ".eslintrc.js": "prettier --write",
     "package.json": [
       "prettier --write",
       "sort-package-json"

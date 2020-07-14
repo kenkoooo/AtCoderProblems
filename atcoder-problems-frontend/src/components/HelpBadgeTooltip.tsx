@@ -9,7 +9,7 @@ interface LocalState {
   tooltipOpen: boolean;
 }
 
-class HelpBadgeTooltip extends React.Component<Props, LocalState> {
+export class HelpBadgeTooltip extends React.Component<Props, LocalState> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -37,5 +37,3 @@ class HelpBadgeTooltip extends React.Component<Props, LocalState> {
     );
   }
 }
-
-export default HelpBadgeTooltip;

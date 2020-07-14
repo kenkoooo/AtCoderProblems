@@ -1,8 +1,8 @@
 import { isNumber } from "util";
 import React, { useState } from "react";
 import { Popover } from "reactstrap";
-import ScoreCell from "../ScoreCell";
-import ProblemLink from "../../../../../components/ProblemLink";
+import { ScoreCell } from "../ScoreCell";
+import { ProblemLink } from "../../../../../components/ProblemLink";
 import { formatProblemUrl } from "../../../../../utils/Url";
 import { NewTabLink } from "../../../../../components/NewTabLink";
 
@@ -19,7 +19,7 @@ interface Props {
   id: string;
 }
 
-const SmallScoreCell: React.FC<Props> = (props) => {
+export const SmallScoreCell: React.FC<Props> = (props) => {
   const { maxPoint, trials, problem, time, id } = props;
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -63,5 +63,3 @@ const SmallScoreCell: React.FC<Props> = (props) => {
     </NewTabLink>
   );
 };
-
-export default SmallScoreCell;

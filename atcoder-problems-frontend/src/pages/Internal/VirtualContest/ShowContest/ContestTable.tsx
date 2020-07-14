@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 import MergedProblem from "../../../../interfaces/MergedProblem";
 import { clipDifficulty } from "../../../../utils";
 import { VirtualContestItem } from "../../types";
-import ProblemLink from "../../../../components/ProblemLink";
+import { ProblemLink } from "../../../../components/ProblemLink";
 import { ProblemId, UserId } from "../../../../interfaces/Status";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
