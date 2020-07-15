@@ -1,5 +1,10 @@
+import { ProblemId } from "../../../../interfaces/Status";
 import Submission from "../../../../interfaces/Submission";
-import { reduceUserContestResult } from "./ResultCalcUtil";
+import {
+  calcUserTotalResult,
+  ReducedProblemResult,
+  reduceUserContestResult,
+} from "./ResultCalcUtil";
 
 describe("reduce user's submissions", () => {
   const PROBLEM_ID = "abc999_z";
@@ -162,5 +167,66 @@ describe("reduce user's submissions", () => {
       point: 1,
       lastUpdatedEpochSecond: 500,
     });
+  });
+});
+
+test("Calculate total result", () => {
+  const userResult = new Map<ProblemId, ReducedProblemResult>();
+  expect(calcUserTotalResult(userResult)).toEqual({
+    penalties: 0,
+    point: 0,
+    lastUpdatedEpochSecond: 0,
+  });
+
+  userResult.set("p1", {
+    trials: 1,
+    penalties: 0,
+    accepted: false,
+    point: 0,
+    lastUpdatedEpochSecond: 10,
+  });
+  expect(calcUserTotalResult(userResult)).toEqual({
+    penalties: 0,
+    point: 0,
+    lastUpdatedEpochSecond: 0,
+  });
+
+  userResult.set("p1", {
+    trials: 2,
+    penalties: 0,
+    accepted: false,
+    point: 0,
+    lastUpdatedEpochSecond: 20,
+  });
+  expect(calcUserTotalResult(userResult)).toEqual({
+    penalties: 0,
+    point: 0,
+    lastUpdatedEpochSecond: 0,
+  });
+
+  userResult.set("p1", {
+    trials: 3,
+    penalties: 2,
+    accepted: false,
+    point: 30,
+    lastUpdatedEpochSecond: 30,
+  });
+  expect(calcUserTotalResult(userResult)).toEqual({
+    penalties: 2,
+    point: 30,
+    lastUpdatedEpochSecond: 30,
+  });
+
+  userResult.set("p1", {
+    trials: 4,
+    penalties: 3,
+    accepted: true,
+    point: 100,
+    lastUpdatedEpochSecond: 40,
+  });
+  expect(calcUserTotalResult(userResult)).toEqual({
+    penalties: 3,
+    point: 100,
+    lastUpdatedEpochSecond: 40,
   });
 });

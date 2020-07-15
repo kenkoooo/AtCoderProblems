@@ -108,10 +108,13 @@ export const calcUserTotalResult = (
   userResult.forEach((reducedProblemResult) => {
     point += reducedProblemResult.point;
     penalties += reducedProblemResult.penalties;
-    lastUpdatedEpochSecond = Math.max(
-      reducedProblemResult.lastUpdatedEpochSecond,
-      lastUpdatedEpochSecond
-    );
+
+    if (reducedProblemResult.point) {
+      lastUpdatedEpochSecond = Math.max(
+        reducedProblemResult.lastUpdatedEpochSecond,
+        lastUpdatedEpochSecond
+      );
+    }
   });
   return {
     penalties,
