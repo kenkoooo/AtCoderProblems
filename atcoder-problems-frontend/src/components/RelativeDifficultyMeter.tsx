@@ -30,22 +30,6 @@ const getDifficultyLevel = (
   else return DifficultyLevel.Difficult;
 };
 
-const getFillRatio = (
-  relativeDifficultyRatio: number,
-  level: DifficultyLevel
-) => {
-  switch (level) {
-    case DifficultyLevel.Easy:
-      return relativeDifficultyRatio / LEVEL_SECTION;
-    case DifficultyLevel.Moderate:
-      return (relativeDifficultyRatio - LEVEL_SECTION) / (LEVEL_SECTION * 2);
-    case DifficultyLevel.Difficult:
-      return (relativeDifficultyRatio - LEVEL_SECTION * 3) / LEVEL_SECTION;
-    default:
-      return 0;
-  }
-};
-
 const getRGB = (code: string) => {
   const r = parseInt(code.slice(1, 3), 16);
   const g = parseInt(code.slice(3, 5), 16);
@@ -78,7 +62,7 @@ export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
   );
   const relativeDifficultyRatio = 1 - predictedSolveProbability;
   const difficultyLevel = getDifficultyLevel(relativeDifficultyRatio);
-  const fillRatio = getFillRatio(relativeDifficultyRatio, difficultyLevel);
+  const fillRatio = relativeDifficultyRatio;
 
   const theme = useTheme();
   const color = getLevelColor(difficultyLevel, theme);
