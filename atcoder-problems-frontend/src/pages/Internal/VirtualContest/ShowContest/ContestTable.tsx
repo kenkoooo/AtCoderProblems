@@ -92,12 +92,11 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   }[];
   problems.forEach(({ item }) => {
     const problemId = item.id;
-    const point = item.point ?? problemMap.get(problemId)?.point;
+    const point = item.point ?? problemMap.get(problemId)?.point ?? 100;
     const problemModel = problemModels.get(problemId);
     if (
       isProblemModelWithTimeModel(problemModel) &&
-      isProblemModelWithDifficultyModel(problemModel) &&
-      point
+      isProblemModelWithDifficultyModel(problemModel)
     ) {
       modelArray.push({ problemModel, problemId, point });
     }

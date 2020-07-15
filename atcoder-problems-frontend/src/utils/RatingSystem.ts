@@ -72,16 +72,15 @@ export const makeBotRunners = (
     let currentTime = start;
     problemModelAndPoints.forEach(({ problemModel, point, problemId }) => {
       const tooEasy = problemModel.rawDifficulty > -10000;
+      const logTimeMean =
+        problemModel.slope * bootstrapRating + problemModel.intercept;
       const solveProbability = tooEasy
         ? predictSolveProbability(problemModel, bootstrapRating)
         : 1;
-      if (random.float() >= solveProbability) {
-        currentTime = end;
-        return;
+      while (random.float() >= solveProbability && currentTime <= end) {
+        currentTime += logTimeMean;
       }
 
-      const logTimeMean =
-        problemModel.slope * bootstrapRating + problemModel.intercept;
       const solveTime = random.logNormal(
         logTimeMean,
         Math.sqrt(problemModel.variance)
