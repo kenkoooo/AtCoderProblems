@@ -24,7 +24,7 @@ export function getPointOverrideMap<T extends { item: VirtualContestItem }>(
 export const getResultsByUserMap = (
   submissions: Submission[],
   userIds: string[],
-  pointOverrideMap: Map<ProblemId, number>
+  pointOverride: (problemId: string) => number | undefined
 ) => {
   const submissionByUserId = groupBy(
     submissions.filter((s) => s.result !== "CE"),
@@ -34,9 +34,7 @@ export const getResultsByUserMap = (
   const resultsByUser = new Map<UserId, Map<ProblemId, ReducedProblemResult>>();
   userIds.forEach((userId) => {
     const userSubmissions = submissionByUserId.get(userId) ?? [];
-    const userMap = reduceUserContestResult(userSubmissions, (problemId) =>
-      pointOverrideMap.get(problemId)
-    );
+    const userMap = reduceUserContestResult(userSubmissions, pointOverride);
     resultsByUser.set(userId, userMap);
   });
   return resultsByUser;

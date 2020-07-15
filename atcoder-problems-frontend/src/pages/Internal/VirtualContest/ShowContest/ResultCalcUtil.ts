@@ -17,12 +17,7 @@ export function reduceUserContestResult<
     point: number;
     epoch_second: number;
   }
->(
-  submissions: S[],
-  pointOverride:
-    | ((problemId: string) => number | undefined)
-    | undefined = undefined
-) {
+>(submissions: S[], pointOverride: (problemId: string) => number | undefined) {
   const result = new Map<ProblemId, ReducedProblemResult>();
   submissions
     .sort((a, b) => a.id - b.id)
