@@ -73,9 +73,9 @@ export function reduceUserContestResult<
 }
 
 export interface UserTotalResult {
-  penalties: number;
-  point: number;
-  lastUpdatedEpochSecond: number;
+  readonly penalties: number;
+  readonly point: number;
+  readonly lastUpdatedEpochSecond: number;
 }
 
 export const compareTotalResult = (
