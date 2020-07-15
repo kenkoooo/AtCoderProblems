@@ -28,10 +28,10 @@ import {
   calcUserTotalResult,
   compareTotalResult,
   ReducedProblemResult,
-  reduceUserContestResult,
   UserTotalResult,
 } from "./ResultCalcUtil";
 import { ContestTableRow } from "./ContestTableRow";
+import { getPointOverrideMap, getResultsByUserMap } from "./util";
 
 interface OuterProps {
   readonly showProblems: boolean;
@@ -85,15 +85,6 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     ? props.problemMap.value
     : new Map<ProblemId, MergedProblem>();
 
-  const pointOverrideMap = new Map<ProblemId, number>();
-  problems.forEach(({ item }) => {
-    const problemId = item.id;
-    const point = item.point;
-    if (point !== null) {
-      pointOverrideMap.set(problemId, point);
-    }
-  });
-
   const modelArray = [] as {
     problemModel: ProblemModelWithDifficultyModel & ProblemModelWithTimeModel;
     problemId: string;
@@ -101,39 +92,22 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   }[];
   problems.forEach(({ item }) => {
     const problemId = item.id;
-    const point = item.point ?? problemMap.get(problemId)?.point;
+    const point = item.point ?? problemMap.get(problemId)?.point ?? 100;
     const problemModel = problemModels.get(problemId);
     if (
       isProblemModelWithTimeModel(problemModel) &&
-      isProblemModelWithDifficultyModel(problemModel) &&
-      point
+      isProblemModelWithDifficultyModel(problemModel)
     ) {
       modelArray.push({ problemModel, problemId, point });
     }
   });
 
-  const submissionByUserId = new Map<UserId, Submission[]>();
-  if (props.submissions.fulfilled) {
-    props.submissions.value
-      .filter((s) => s.result !== "CE")
-      .forEach((submission) => {
-        const array = submissionByUserId.get(submission.user_id);
-        if (array) {
-          array.push(submission);
-          submissionByUserId.set(submission.user_id, array);
-        } else {
-          submissionByUserId.set(submission.user_id, [submission]);
-        }
-      });
-  }
-  const resultsByUser = new Map<UserId, Map<ProblemId, ReducedProblemResult>>();
-  users.forEach((userId) => {
-    const userSubmissions = submissionByUserId.get(userId) ?? [];
-    const userMap = reduceUserContestResult(userSubmissions, (problemId) =>
-      pointOverrideMap.get(problemId)
-    );
-    resultsByUser.set(userId, userMap);
-  });
+  const pointOverrideMap = getPointOverrideMap(problems);
+  const resultsByUser = getResultsByUserMap(
+    props.submissions.fulfilled ? props.submissions.value : [],
+    users,
+    pointOverrideMap
+  );
 
   const showEstimatedPerformances =
     props.enableEstimatedPerformances && modelArray.length === problems.length;
