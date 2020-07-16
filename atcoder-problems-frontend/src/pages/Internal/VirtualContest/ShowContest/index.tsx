@@ -85,7 +85,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
 
   const start = contestInfo.start_epoch_second;
   const end = contestInfo.start_epoch_second + contestInfo.duration_second;
-  const penalty = contestInfo.penalty;
+  const penaltySecond = contestInfo.penalty_second;
   const alreadyJoined =
     userIdIsSet && contestParticipants.includes(atCoderUserId);
   const now = Math.floor(Date.now() / 1000);
@@ -138,7 +138,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               </tr>
               <tr>
                 <th>Penalty</th>
-                <td>{contestInfo.penalty} seconds for each wrong submission</td>
+                <td>{penaltySecond} seconds for each wrong submission</td>
               </tr>
 
               {start < now && now < end ? (
@@ -241,7 +241,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               enableAutoRefresh={autoRefreshEnabled}
               atCoderUserId={atCoderUserId}
               pinMe={pinMe}
-              penalty={penalty}
+              penaltySecond={penaltySecond}
             />
           )}
         </Col>

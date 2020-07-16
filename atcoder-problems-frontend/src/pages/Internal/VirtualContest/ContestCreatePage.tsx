@@ -40,7 +40,7 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
       initialProblems={List()}
       initialMode={null}
       initialPublicState={false}
-      initialPenalty={300}
+      initialPenaltySecond={300}
       buttonTitle="Create Contest"
       buttonPush={({
         title,
@@ -50,7 +50,7 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
         problems,
         mode,
         publicState,
-        penalty,
+        penaltySecond,
       }): void =>
         props.createContest(
           {
@@ -60,7 +60,7 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
             duration_second: endSecond - startSecond,
             mode,
             is_public: publicState,
-            penalty,
+            penalty_second: penaltySecond,
           },
           problems.toArray()
         )
@@ -76,7 +76,7 @@ interface Request {
   duration_second: number;
   mode: VirtualContestMode;
   is_public: boolean;
-  penalty: number;
+  penalty_second: number;
 }
 
 interface Response {

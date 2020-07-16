@@ -47,7 +47,7 @@ interface OuterProps {
   readonly enableAutoRefresh: boolean;
   readonly atCoderUserId: string;
   readonly pinMe: boolean;
-  readonly penalty: number;
+  readonly penaltySecond: number;
 }
 
 interface InnerProps extends OuterProps {
@@ -75,7 +75,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     end,
     atCoderUserId,
     pinMe,
-    penalty,
+    penaltySecond,
   } = props;
   const query = new URLSearchParams(useLocation().search);
   const showBots = !!query.get("bot");
@@ -134,7 +134,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
 
   const sortedUserIds = Array.from(totalResultByUser)
     .sort(([aId, aResult], [bId, bResult]) => {
-      const c = compareTotalResult(aResult, bResult, penalty);
+      const c = compareTotalResult(aResult, bResult, penaltySecond);
       return c !== 0 ? c : aId.localeCompare(bId);
     })
     .map(([userId]) => userId);
