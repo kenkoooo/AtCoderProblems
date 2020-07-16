@@ -357,6 +357,8 @@ export const Recommendations: React.FC<Props> = (props) => {
                 problemId={id}
                 problemTitle={title}
                 contestId={contest_id}
+                problemModel={problemModels.get(id, null)}
+                internalRating={userRatingInfo?.internalRating}
               />
             )}
           >

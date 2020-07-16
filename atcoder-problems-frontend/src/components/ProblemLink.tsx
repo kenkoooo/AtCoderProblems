@@ -2,6 +2,18 @@ import React, { useState } from "react";
 import { Tooltip } from "reactstrap";
 import * as Url from "../utils/Url";
 import { getRatingColorClass } from "../utils";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel,
+  isProblemModelWithTimeModel,
+  ProblemModelWithDifficultyModel,
+  ProblemModelWithTimeModel,
+} from "../interfaces/ProblemModel";
+import {
+  predictSolveProbability,
+  predictSolveTime,
+  formatPredictedSolveProbability,
+  formatPredictedSolveTime,
+} from "../utils/ProblemModelUtil";
 import { DifficultyCircle } from "./DifficultyCircle";
 import { NewTabLink } from "./NewTabLink";
 
@@ -14,6 +26,8 @@ interface Props {
   showDifficulty?: boolean;
   isExperimentalDifficulty?: boolean;
   showDifficultyUnavailable?: boolean;
+  problemModel?: ProblemModel | null;
+  internalRating?: number | null;
 }
 
 export const ProblemLink: React.FC<Props> = (props) => {
@@ -27,6 +41,8 @@ export const ProblemLink: React.FC<Props> = (props) => {
     showDifficulty,
     isExperimentalDifficulty,
     showDifficultyUnavailable,
+    problemModel,
+    internalRating,
   } = props;
   const link = (
     <NewTabLink
@@ -48,9 +64,40 @@ export const ProblemLink: React.FC<Props> = (props) => {
   const experimentalIconId = "experimental-" + uniqueId;
   const ratingColorClass =
     difficulty === null ? undefined : getRatingColorClass(difficulty);
+  const predictdProb: string =
+    problemModel === undefined
+      ? "-"
+      : internalRating === undefined || internalRating === null
+      ? "-"
+      : isProblemModelWithDifficultyModel(problemModel) === false
+      ? "-"
+      : formatPredictedSolveProbability(
+          predictSolveProbability(
+            problemModel as ProblemModelWithDifficultyModel,
+            internalRating
+          )
+        );
+  const predictdTime =
+    problemModel === undefined
+      ? "-"
+      : internalRating === undefined || internalRating === null
+      ? "-"
+      : isProblemModelWithTimeModel(problemModel) === false
+      ? "-"
+      : formatPredictedSolveTime(
+          predictSolveTime(
+            problemModel as ProblemModelWithTimeModel,
+            internalRating
+          )
+        );
   return (
     <>
-      <DifficultyCircle id={uniqueId} difficulty={difficulty} />
+      <DifficultyCircle
+        id={uniqueId}
+        difficulty={difficulty}
+        predictedSolveProbabilityText={predictdProb}
+        predictedSolveTimeText={predictdTime}
+      />
       {isExperimentalDifficulty ? (
         <>
           <span id={experimentalIconId} role="img" aria-label="experimental">

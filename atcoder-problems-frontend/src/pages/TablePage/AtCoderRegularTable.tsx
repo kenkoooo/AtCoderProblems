@@ -20,6 +20,7 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { SubmitTimespan } from "../../components/SubmitTimespan";
+import { RatingInfo } from "../../utils/RatingInfo";
 
 interface Props {
   contests: Contest[];
@@ -32,10 +33,11 @@ interface Props {
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
   showPenalties: boolean;
   selectedLanguages: Set<string>;
+  userRatingInfo: RatingInfo;
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
-  const { colorMode, selectedLanguages, showPenalties } = props;
+  const { colorMode, selectedLanguages, showPenalties, userRatingInfo } = props;
   const contests = props.contests
     .map((contest) => {
       const problems = props.contestToProblems
@@ -152,6 +154,8 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       contestId={contest.id}
                       problemId={problem.problem.id}
                       problemTitle={problem.problem.title}
+                      problemModel={model}
+                      internalRating={userRatingInfo?.internalRating ?? null}
                     />
                     {props.colorMode === ColorMode.ContestResult && (
                       <SubmitTimespan
