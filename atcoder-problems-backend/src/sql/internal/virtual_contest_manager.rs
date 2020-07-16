@@ -29,6 +29,7 @@ pub struct VirtualContestInfo {
     pub(crate) mode: Option<String>,
 
     pub(crate) is_public: bool,
+    pub(crate) penalty: f64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -48,6 +49,7 @@ pub trait VirtualContestManager {
         duration_second: i64,
         mode: Option<&str>,
         is_public: bool,
+        penalty: f64,
     ) -> Result<String>;
     fn update_contest(
         &self,
@@ -58,6 +60,7 @@ pub trait VirtualContestManager {
         duration_second: i64,
         mode: Option<&str>,
         is_public: bool,
+        penalty: f64,
     ) -> Result<()>;
 
     fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContestInfo>>;
@@ -89,6 +92,7 @@ impl VirtualContestManager for PgConnection {
         duration_second: i64,
         mode: Option<&str>,
         is_public: bool,
+        penalty: f64,
     ) -> Result<String> {
         let uuid = Uuid::new_v4().to_string();
         insert_into(v_contests::table)
@@ -101,6 +105,7 @@ impl VirtualContestManager for PgConnection {
                 v_contests::duration_second.eq(duration_second),
                 v_contests::mode.eq(mode),
                 v_contests::is_public.eq(is_public),
+                v_contests::penalty.eq(penalty),
             )])
             .execute(self)?;
         Ok(uuid)
@@ -114,6 +119,7 @@ impl VirtualContestManager for PgConnection {
         duration_second: i64,
         mode: Option<&str>,
         is_public: bool,
+        penalty: f64,
     ) -> Result<()> {
         update(v_contests::table.filter(v_contests::id.eq(id)))
             .set((
@@ -123,6 +129,7 @@ impl VirtualContestManager for PgConnection {
                 v_contests::duration_second.eq(duration_second),
                 v_contests::mode.eq(mode),
                 v_contests::is_public.eq(is_public),
+                v_contests::penalty.eq(penalty),
             ))
             .execute(self)?;
         Ok(())

@@ -75,7 +75,8 @@ export interface UserTotalResult {
 
 export const compareTotalResult = (
   aResult: UserTotalResult,
-  bResult: UserTotalResult
+  bResult: UserTotalResult,
+  penalty = 0
 ) => {
   const aPoint = aResult.point;
   const bPoint = bResult.point;
@@ -83,8 +84,8 @@ export const compareTotalResult = (
     return bPoint - aPoint;
   }
 
-  const aSecond = aResult.lastUpdatedEpochSecond;
-  const bSecond = bResult.lastUpdatedEpochSecond;
+  const aSecond = aResult.lastUpdatedEpochSecond + aResult.penalties * penalty;
+  const bSecond = bResult.lastUpdatedEpochSecond + bResult.penalties * penalty;
   if (aSecond !== bSecond) {
     return aSecond - bSecond;
   }

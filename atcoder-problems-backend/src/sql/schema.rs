@@ -181,6 +181,7 @@ table! {
         duration_second -> Int8,
         mode -> Nullable<Varchar>,
         is_public -> Bool,
+        penalty -> Float8,
     }
 }
 
