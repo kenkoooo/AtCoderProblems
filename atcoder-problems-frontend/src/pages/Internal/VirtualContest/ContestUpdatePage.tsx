@@ -16,7 +16,7 @@ interface Request {
   duration_second: number;
   mode: string | null;
   is_public: boolean;
-  penalty: number;
+  penalty_second: number;
 }
 
 interface OuterProps {
@@ -101,7 +101,7 @@ export const ContestUpdatePage = connect<OuterProps, InnerProps>((props) => ({
       initialProblems={List(problems)}
       initialMode={contestInfo.mode}
       initialPublicState={contestInfo.is_public}
-      initialPenalty={contestInfo.penalty}
+      initialPenaltySecond={contestInfo.penalty_second}
       buttonTitle="Update"
       buttonPush={({
         title,
@@ -111,7 +111,7 @@ export const ContestUpdatePage = connect<OuterProps, InnerProps>((props) => ({
         problems: ps,
         mode,
         publicState,
-        penalty,
+        penaltySecond,
       }): void => {
         props.updateContest(
           {
@@ -122,7 +122,7 @@ export const ContestUpdatePage = connect<OuterProps, InnerProps>((props) => ({
             duration_second: endSecond - startSecond,
             mode,
             is_public: publicState,
-            penalty,
+            penalty_second: penaltySecond,
           },
           ps.toArray()
         );

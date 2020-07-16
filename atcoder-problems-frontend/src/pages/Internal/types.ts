@@ -26,7 +26,7 @@ export interface VirtualContestInfo {
   readonly duration_second: number;
   readonly mode: VirtualContestMode;
   readonly is_public: boolean;
-  readonly penalty: number;
+  readonly penalty_second: number;
 }
 
 export interface VirtualContestDetails {

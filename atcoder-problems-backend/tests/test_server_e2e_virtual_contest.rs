@@ -73,7 +73,7 @@ async fn test_virtual_contest() -> Result<()> {
             "memo": "contest memo",
             "start_epoch_second": 1,
             "duration_second": 2,
-            "penalty": 0.0,
+            "penalty_second": 0,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -88,7 +88,7 @@ async fn test_virtual_contest() -> Result<()> {
             "memo": "contest memo",
             "start_epoch_second": 1,
             "duration_second": 2,
-            "penalty": 300.0,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -109,7 +109,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
-                "penalty": 300.0,
+                "penalty_second": 300,
             }
         ])
     );
@@ -144,7 +144,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
-                "penalty": 300.0,
+                "penalty_second": 300,
             }
         ])
     );
@@ -187,7 +187,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
-                "penalty": 300.0,
+                "penalty_second": 300,
             }
         ])
     );
@@ -235,7 +235,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
-                "penalty": 300.0,
+                "penalty_second": 300,
             }
         ])
     );
@@ -258,7 +258,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
-                "penalty": 300.0,
+                "penalty_second": 300,
             },
             "problems": [{ "id": "problem_1", "point": 100, "order": null }, { "id": "problem_2", "point": null, "order": null }],
             "participants": ["atcoder_user1"],
@@ -280,7 +280,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "is_public": true,
                 "id": format!("{}", contest_id),
                 "mode": null,
-                "penalty": 300.0,
+                "penalty_second": 300,
             }
         ])
     );
@@ -311,7 +311,7 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "memo": "",
             "start_epoch_second": 1,
             "duration_second": 2,
-            "penalty": 300.0,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -333,7 +333,7 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "start_epoch_second": 1,
             "duration_second": 2,
             "is_public": false,
-            "penalty": 300.0,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -351,7 +351,7 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "start_epoch_second": 1,
             "duration_second": 2,
             "is_public": false,
-            "penalty": 300.0,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -372,7 +372,7 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "start_epoch_second": 1,
             "duration_second": 2,
             "is_public": true,
-            "penalty": 300.0,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());
