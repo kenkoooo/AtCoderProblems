@@ -8,7 +8,9 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { StatusLabel } from "../../interfaces/Status";
 import {
   formatPredictedSolveTime,
+  formatPredictedSolveProbability,
   predictSolveTime,
+  predictSolveProbability,
 } from "../../utils/ProblemModelUtil";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
@@ -55,6 +57,21 @@ export const ListTable: React.FC<Props> = (props) => {
     }
     return predictSolveTime(problemModel, props.userInternalRating);
   };
+  const predictSolveProbabilityOfRow: (row: ProblemRowData) => number | null = (
+    row
+  ) => {
+    if (props.userInternalRating === null) {
+      return null;
+    }
+    const problemModel = row.problemModel;
+    if (problemModel === undefined) {
+      return null;
+    }
+    if (!isProblemModelWithDifficultyModel(problemModel)) {
+      return null;
+    }
+    return predictSolveProbability(problemModel, props.userInternalRating);
+  };
 
   const columns: {
     header: string;
@@ -92,6 +109,8 @@ export const ListTable: React.FC<Props> = (props) => {
             problemId={row.mergedProblem.id}
             problemTitle={row.title}
             contestId={row.mergedProblem.contest_id}
+            problemModel={row.problemModel}
+            internalRating={props.userInternalRating}
           />
         );
       },
@@ -202,6 +221,27 @@ export const ListTable: React.FC<Props> = (props) => {
         } else {
           return <p>{problemModel.difficulty}</p>;
         }
+      },
+    },
+    {
+      header: "Solve Prob",
+      dataField: "prob",
+      dataSort: true,
+      sortFunc: (a, b, order): number => {
+        const aPred = predictSolveProbabilityOfRow(a);
+        const bPred = predictSolveProbabilityOfRow(b);
+        const aV = aPred === null ? -1 : aPred;
+        const bV = bPred === null ? -1 : bPred;
+        const delta = aV - bV;
+        const sign = order === "asc" ? 1 : -1;
+        return delta * sign;
+      },
+      dataFormat: function DataFormat(_: string, row): React.ReactElement {
+        const solveProb = predictSolveProbabilityOfRow(row);
+        if (solveProb === null) {
+          return <p>-</p>;
+        }
+        return <p>{formatPredictedSolveProbability(solveProb)}</p>;
       },
     },
     {

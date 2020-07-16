@@ -7,6 +7,8 @@ import { useTheme } from "./ThemeProvider";
 interface Props {
   id: string;
   difficulty: number | null;
+  predictedSolveProbabilityText?: string;
+  predictedSolveTimeText?: string;
 }
 
 interface LocalState {
@@ -31,7 +33,12 @@ function getColor(difficulty: number, theme: Theme): string {
 }
 
 export const DifficultyCircle: React.FC<Props> = (props) => {
-  const { id, difficulty } = props;
+  const {
+    id,
+    difficulty,
+    predictedSolveProbabilityText,
+    predictedSolveTimeText,
+  } = props;
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const theme = useTheme();
   const toggleTooltipState = (): void => setTooltipOpen(!tooltipOpen);
@@ -76,7 +83,22 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
         ? `linear-gradient(to right, ${color}, #FFDABD, ${color})`
         : `linear-gradient(to right, ${color}, white, ${color})`,
   });
-  const title = `Difficulty: ${difficulty}`;
+
+  const contentDifficulty = `Difficulty: ${difficulty}`;
+  const contentProbability = `Solve Prob: ${
+    predictedSolveProbabilityText ?? "-"
+  }`;
+  const contentTime = `Solve Time: ${predictedSolveTimeText ?? "-"}`;
+
+  const content = (
+    <>
+      {contentDifficulty}
+      <br />
+      {contentProbability}
+      <br />
+      {contentTime}
+    </>
+  );
   return (
     <>
       <span className="difficulty-circle" style={styleOptions} id={circleId} />
@@ -86,7 +108,7 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
         isOpen={tooltipOpen}
         toggle={toggleTooltipState}
       >
-        {title}
+        {content}
       </Tooltip>
     </>
   );
