@@ -106,7 +106,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   const resultsByUser = getResultsByUserMap(
     props.submissions.fulfilled ? props.submissions.value : [],
     users,
-    pointOverrideMap
+    (problemId) => pointOverrideMap.get(problemId)
   );
 
   const showEstimatedPerformances =

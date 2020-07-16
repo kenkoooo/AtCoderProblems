@@ -1,4 +1,4 @@
-import { Table } from "reactstrap";
+import { Badge, Table } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { VirtualContestItem } from "../../../types";
@@ -10,7 +10,7 @@ import {
   compareTotalResult,
   UserTotalResult,
 } from "../ResultCalcUtil";
-import { getPointOverrideMap, getResultsByUserMap } from "../util";
+import { getResultsByUserMap } from "../util";
 import { compareProblem } from "../ContestTable";
 import { SmallScoreCell } from "./SmallScoreCell";
 
@@ -34,11 +34,10 @@ interface InnerProps extends OuterProps {
 const InnerContestTable: React.FC<InnerProps> = (props) => {
   const { showProblems, problems, users, start } = props;
 
-  const pointOverrideMap = getPointOverrideMap(problems);
   const resultsByUser = getResultsByUserMap(
     props.submissions.fulfilled ? props.submissions.value : [],
     users,
-    pointOverrideMap
+    () => 1
   );
 
   const totalResultByUser = new Map<UserId, UserTotalResult>();
@@ -66,16 +65,26 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         <tr>
           <th>#</th>
           <th>Participant</th>
+          <th>Score</th>
           <th>Progress</th>
         </tr>
       </thead>
       <tbody>
         {sortedUserIds.map((userId, i) => {
           const userResult = resultsByUser.get(userId);
+          const totalProblemCount = items.length;
+          const solvedProblemCount = Array.from(userResult ?? []).filter(
+            ([, result]) => result.accepted
+          ).length;
           return (
             <tr key={i}>
               <th>{i + 1}</th>
               <th>{userId}</th>
+              <td>
+                <Badge>
+                  {solvedProblemCount} / {totalProblemCount}
+                </Badge>
+              </td>
               <td
                 style={{
                   lineHeight: 0,
