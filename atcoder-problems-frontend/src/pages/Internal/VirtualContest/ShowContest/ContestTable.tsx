@@ -4,6 +4,7 @@ import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
 import MergedProblem from "../../../../interfaces/MergedProblem";
 import { clipDifficulty } from "../../../../utils";
+import { makeBotRunners, makeFittingBots } from "../../../../utils/BotMaker";
 import { VirtualContestItem } from "../../types";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import { ProblemId, UserId } from "../../../../interfaces/Status";
@@ -19,10 +20,7 @@ import {
   cachedProblemModels,
   fetchVirtualContestSubmission,
 } from "../../../../utils/CachedApiClient";
-import {
-  calculatePerformances,
-  makeBotRunners,
-} from "../../../../utils/RatingSystem";
+import { calculatePerformances } from "../../../../utils/RatingSystem";
 import { convertMap } from "../../../../utils/ImmutableMigration";
 import {
   calcUserTotalResult,
@@ -114,10 +112,13 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   const botRunnerIds = new Set<UserId>();
   const ratingMap = new Map<UserId, number>();
   if (showEstimatedPerformances) {
-    const runners = makeBotRunners(modelArray, start, end);
+    const runners = makeFittingBots(
+      (ratings) => makeBotRunners(modelArray, start, end, ratings),
+      Array.from(resultsByUser).map(([, r]) => calcUserTotalResult(r))
+    );
     for (let i = 0; i < runners.length; i++) {
       const { rating, result } = runners[i];
-      const userId = `Bot: ${clipDifficulty(rating)}`;
+      const userId = `Bot ${i}: ${clipDifficulty(rating)}`;
       botRunnerIds.add(userId);
       resultsByUser.set(userId, result);
       ratingMap.set(userId, rating);
