@@ -19,6 +19,7 @@ where
         duration_second: i64,
         mode: Option<String>,
         is_public: Option<bool>,
+        penalty: f64,
     }
     let (q, conn, user_id) = request.post_unpack::<Q>().await?;
     let contest_id = conn.create_contest(
@@ -29,6 +30,7 @@ where
         q.duration_second,
         q.mode.as_deref(),
         q.is_public.unwrap_or(true),
+        q.penalty,
     )?;
     let body = serde_json::json!({ "contest_id": contest_id });
     let response = Response::ok().body_json(&body)?;
@@ -48,6 +50,7 @@ where
         duration_second: i64,
         mode: Option<String>,
         is_public: Option<bool>,
+        penalty: f64,
     }
 
     let (q, conn, _) = request.post_unpack::<Q>().await?;
@@ -59,6 +62,7 @@ where
         q.duration_second,
         q.mode.as_deref(),
         q.is_public.unwrap_or(true),
+        q.penalty,
     )?;
     Ok(Response::ok().body_json(&serde_json::json!({}))?)
 }
