@@ -4,30 +4,23 @@ import * as Url from "../utils/Url";
 import { getRatingColorClass } from "../utils";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
-  isProblemModelWithTimeModel,
   ProblemModelWithDifficultyModel,
   ProblemModelWithTimeModel,
 } from "../interfaces/ProblemModel";
-import {
-  predictSolveProbability,
-  predictSolveTime,
-  formatPredictedSolveProbability,
-  formatPredictedSolveTime,
-} from "../utils/ProblemModelUtil";
 import { DifficultyCircle } from "./DifficultyCircle";
 import { NewTabLink } from "./NewTabLink";
+import {RatingInfo} from "../utils/RatingInfo";
 
 interface Props {
   className?: string;
   problemId: string;
   contestId: string;
   problemTitle: string;
-  difficulty?: number | null;
   showDifficulty?: boolean;
   isExperimentalDifficulty?: boolean;
   showDifficultyUnavailable?: boolean;
   problemModel?: ProblemModel | null;
-  internalRating?: number | null;
+  userRatingInfo?: RatingInfo | null;
 }
 
 export const ProblemLink: React.FC<Props> = (props) => {
@@ -37,12 +30,11 @@ export const ProblemLink: React.FC<Props> = (props) => {
     contestId,
     problemId,
     problemTitle,
-    difficulty,
     showDifficulty,
     isExperimentalDifficulty,
     showDifficultyUnavailable,
     problemModel,
-    internalRating,
+    userRatingInfo,
   } = props;
   const link = (
     <NewTabLink
@@ -52,10 +44,12 @@ export const ProblemLink: React.FC<Props> = (props) => {
       {problemTitle}
     </NewTabLink>
   );
+
+  const difficulty = problemModel?.difficulty;
   if (
     !showDifficulty ||
-    difficulty === undefined ||
-    (difficulty === null && !showDifficultyUnavailable)
+    problemModel === undefined ||
+    (difficulty === undefined && !showDifficultyUnavailable)
   ) {
     return link;
   }
@@ -63,40 +57,14 @@ export const ProblemLink: React.FC<Props> = (props) => {
   const uniqueId = problemId + "-" + contestId;
   const experimentalIconId = "experimental-" + uniqueId;
   const ratingColorClass =
-    difficulty === null ? undefined : getRatingColorClass(difficulty);
-  const predictdProb: string =
-    problemModel === undefined
-      ? "-"
-      : internalRating === undefined || internalRating === null
-      ? "-"
-      : isProblemModelWithDifficultyModel(problemModel) === false
-      ? "-"
-      : formatPredictedSolveProbability(
-          predictSolveProbability(
-            problemModel as ProblemModelWithDifficultyModel,
-            internalRating
-          )
-        );
-  const predictdTime =
-    problemModel === undefined
-      ? "-"
-      : internalRating === undefined || internalRating === null
-      ? "-"
-      : isProblemModelWithTimeModel(problemModel) === false
-      ? "-"
-      : formatPredictedSolveTime(
-          predictSolveTime(
-            problemModel as ProblemModelWithTimeModel,
-            internalRating
-          )
-        );
+    difficulty === undefined ? undefined : getRatingColorClass(difficulty);
+
   return (
     <>
       <DifficultyCircle
         id={uniqueId}
-        difficulty={difficulty}
-        predictedSolveProbabilityText={predictdProb}
-        predictedSolveTimeText={predictdTime}
+        problemModel={problemModel}
+        userRatingInfo={userRatingInfo}
       />
       {isExperimentalDifficulty ? (
         <>

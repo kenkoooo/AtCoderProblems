@@ -141,11 +141,6 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                 return (
                   <>
                     <ProblemLink
-                      difficulty={
-                        model && model.difficulty !== undefined
-                          ? model.difficulty
-                          : null
-                      }
                       isExperimentalDifficulty={
                         !!model && model.is_experimental
                       }
@@ -155,7 +150,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       problemId={problem.problem.id}
                       problemTitle={problem.problem.title}
                       problemModel={model}
-                      internalRating={userRatingInfo?.internalRating ?? null}
+                      userRatingInfo={userRatingInfo}
                     />
                     {props.colorMode === ColorMode.ContestResult && (
                       <SubmitTimespan

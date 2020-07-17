@@ -112,7 +112,6 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
           { problem_id, contest_id }: Submission
         ): React.ReactElement => (
           <ProblemLink
-            difficulty={problemModels.get(problem_id)?.difficulty}
             isExperimentalDifficulty={
               problemModels.get(problem_id)?.is_experimental
             }
@@ -121,7 +120,7 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
             problemTitle={title || ""}
             contestId={contest_id}
             problemModel={problemModels.get(problem_id) ?? null}
-            internalRating={userRatingInfo?.internalRating}
+            userRatingInfo={userRatingInfo}
           />
         )}
       >

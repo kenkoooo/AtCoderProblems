@@ -19,6 +19,7 @@ import ProblemModel, {
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ListPaginationPanel } from "../../components/ListPaginationPanel";
 import { INF_POINT, ProblemRowData } from "./index";
+import {RatingInfo} from "../../utils/RatingInfo"
 
 interface Props {
   fromPoint: number;
@@ -28,10 +29,11 @@ interface Props {
   fromDifficulty: number;
   toDifficulty: number;
   rowData: List<ProblemRowData>;
-  userInternalRating: number | null;
+  userRatingInfo: RatingInfo | null;
 }
 
 export const ListTable: React.FC<Props> = (props) => {
+  const userInternalRating = props.userRatingInfo?.internalRating ?? null;
   const readDifficultyAsNumber: (row: ProblemRowData) => number = (row) => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
@@ -45,7 +47,7 @@ export const ListTable: React.FC<Props> = (props) => {
   const predictSolveTimeOfRow: (row: ProblemRowData) => number | null = (
     row
   ) => {
-    if (props.userInternalRating === null) {
+    if (userInternalRating === null) {
       return null;
     }
     const problemModel = row.problemModel;
@@ -55,12 +57,12 @@ export const ListTable: React.FC<Props> = (props) => {
     if (!isProblemModelWithTimeModel(problemModel)) {
       return null;
     }
-    return predictSolveTime(problemModel, props.userInternalRating);
+    return predictSolveTime(problemModel, userInternalRating);
   };
   const predictSolveProbabilityOfRow: (row: ProblemRowData) => number | null = (
     row
   ) => {
-    if (props.userInternalRating === null) {
+    if (userInternalRating === null) {
       return null;
     }
     const problemModel = row.problemModel;
@@ -70,7 +72,7 @@ export const ListTable: React.FC<Props> = (props) => {
     if (!isProblemModelWithDifficultyModel(problemModel)) {
       return null;
     }
-    return predictSolveProbability(problemModel, props.userInternalRating);
+    return predictSolveProbability(problemModel, userInternalRating);
   };
 
   const columns: {
@@ -100,17 +102,12 @@ export const ListTable: React.FC<Props> = (props) => {
         return (
           <ProblemLink
             showDifficulty={true}
-            difficulty={
-              isProblemModelWithDifficultyModel(row.problemModel)
-                ? row.problemModel.difficulty
-                : null
-            }
             isExperimentalDifficulty={row.problemModel?.is_experimental}
             problemId={row.mergedProblem.id}
             problemTitle={row.title}
             contestId={row.mergedProblem.contest_id}
             problemModel={row.problemModel}
-            internalRating={props.userInternalRating}
+            userRatingInfo={props.userRatingInfo}
           />
         );
       },
