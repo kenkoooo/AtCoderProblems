@@ -127,8 +127,9 @@ export const DifficultyTable: React.FC<Props> = (props) => {
                   <DifficultyCircle
                     problemModel={{
                       slope: undefined,
-                      difficulty: difficulties.get(difficultyLevel, { from: INF_POINT })
-                        .from + 399,
+                      difficulty:
+                        difficulties.get(difficultyLevel, { from: INF_POINT })
+                          .from + 399,
                       rawDifficulty: undefined,
                       intercept: undefined,
                       discrimination: undefined,
