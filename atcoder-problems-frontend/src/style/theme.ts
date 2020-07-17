@@ -10,6 +10,7 @@ export const ThemeLight = {
   difficultyRedColor: "#FF0000",
   relativeDifficultyEasyColor: "#80FF80",
   relativeDifficultyModerateColor: "#FFFF80",
+  relativeDifficultyDevotionColor: "#FFBB80",
   relativeDifficultyDifficultColor: "#FF8080",
   relativeDifficultyBackgroundColor: "#C0C0C0",
 };
@@ -27,6 +28,7 @@ export const ThemeDark: typeof ThemeLight = {
   difficultyRedColor: "#FF6767",
   relativeDifficultyEasyColor: "#40C040",
   relativeDifficultyModerateColor: "#C0C040",
+  relativeDifficultyDevotionColor: "#C08040",
   relativeDifficultyDifficultColor: "#C04040",
   relativeDifficultyBackgroundColor: "#404040",
 };

@@ -11,23 +11,33 @@ interface Props {
   userInternalRating: number;
 }
 
-// const LEVEL_NAMES = ["Easy", "Moderate", "Difficult"];
-const LEVEL_SECTION = 1 / 4;
+// const LEVEL_NAMES = ["Easy", "Moderate", "Devotion", "Difficult"];
+const LEVEL_SECTIONS = [1, 3 / 4, 1 / 3, 1 / 6, 0];
 
 const DifficultyLevel = {
   Easy: 0,
   Moderate: 1,
-  Difficult: 2,
+  Devotion: 2,
+  Difficult: 3,
 } as const;
 type DifficultyLevel = typeof DifficultyLevel[keyof typeof DifficultyLevel];
+const IdToLevel: Array<DifficultyLevel> = [
+  DifficultyLevel.Easy,
+  DifficultyLevel.Moderate,
+  DifficultyLevel.Devotion,
+  DifficultyLevel.Difficult,
+];
 
-const getDifficultyLevel = (
-  relativeDifficultyRatio: number
-): DifficultyLevel => {
-  if (relativeDifficultyRatio <= LEVEL_SECTION) return DifficultyLevel.Easy;
-  else if (relativeDifficultyRatio <= 1 - LEVEL_SECTION)
-    return DifficultyLevel.Moderate;
-  else return DifficultyLevel.Difficult;
+const getDifficultyLevel = (solveProbability: number): DifficultyLevel => {
+  for (let i = 0; i < 4; i++) {
+    if (
+      LEVEL_SECTIONS[i] >= solveProbability &&
+      solveProbability > LEVEL_SECTIONS[i + 1]
+    ) {
+      return IdToLevel[i];
+    }
+  }
+  return DifficultyLevel.Difficult; // Expect unreachable
 };
 
 const getRGB = (code: string) => {
@@ -43,6 +53,8 @@ const getLevelColor = (level: DifficultyLevel, theme: Theme) => {
       return theme.relativeDifficultyEasyColor;
     case DifficultyLevel.Moderate:
       return theme.relativeDifficultyModerateColor;
+    case DifficultyLevel.Devotion:
+      return theme.relativeDifficultyDevotionColor;
     case DifficultyLevel.Difficult:
       return theme.relativeDifficultyDifficultColor;
     default:
@@ -60,9 +72,8 @@ export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
     problemModel,
     userInternalRating
   );
-  const relativeDifficultyRatio = 1 - predictedSolveProbability;
-  const difficultyLevel = getDifficultyLevel(relativeDifficultyRatio);
-  const fillRatio = relativeDifficultyRatio;
+  const difficultyLevel = getDifficultyLevel(predictedSolveProbability);
+  const fillRatio = 1 - predictedSolveProbability;
 
   const theme = useTheme();
   const color = getLevelColor(difficultyLevel, theme);
