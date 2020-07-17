@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Badge, Tooltip } from "reactstrap";
 import { getRatingColor, getRatingColorCode } from "../utils";
 import { Theme } from "../style/theme";
-import { useTheme } from "./ThemeProvider";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel,
@@ -15,7 +14,8 @@ import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
 } from "../utils/ProblemModelUtil";
-import {RatingInfo} from "../utils/RatingInfo";
+import { RatingInfo } from "../utils/RatingInfo";
+import { useTheme } from "./ThemeProvider";
 
 interface Props {
   id: string;
@@ -45,11 +45,7 @@ function getColor(difficulty: number, theme: Theme): string {
 }
 
 export const DifficultyCircle: React.FC<Props> = (props) => {
-  const {
-    id,
-    problemModel,
-    userRatingInfo,
-  } = props;
+  const { id, problemModel, userRatingInfo } = props;
   const difficulty = problemModel?.difficulty;
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const theme = useTheme();
@@ -98,7 +94,8 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
   const predictdProb: string =
     problemModel === undefined
       ? "-"
-      : userRatingInfo?.internalRating === undefined || userRatingInfo?.internalRating === null
+      : userRatingInfo?.internalRating === undefined ||
+        userRatingInfo?.internalRating === null
       ? "-"
       : isProblemModelWithDifficultyModel(problemModel) === false
       ? "-"
@@ -111,7 +108,8 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
   const predictdTime =
     problemModel === undefined
       ? "-"
-      : userRatingInfo?.internalRating === undefined || userRatingInfo?.internalRating === null
+      : userRatingInfo?.internalRating === undefined ||
+        userRatingInfo?.internalRating === null
       ? "-"
       : isProblemModelWithTimeModel(problemModel) === false
       ? "-"
@@ -122,9 +120,7 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
           )
         );
   const contentDifficulty = `Difficulty: ${difficulty}`;
-  const contentProbability = `Solve Prob: ${
-    predictdProb
-  }`;
+  const contentProbability = `Solve Prob: ${predictdProb}`;
   const contentTime = `Solve Time: ${predictdTime}`;
 
   const content = (

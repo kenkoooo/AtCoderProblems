@@ -18,8 +18,8 @@ import ProblemModel, {
 } from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ListPaginationPanel } from "../../components/ListPaginationPanel";
+import { RatingInfo } from "../../utils/RatingInfo";
 import { INF_POINT, ProblemRowData } from "./index";
-import {RatingInfo} from "../../utils/RatingInfo"
 
 interface Props {
   fromPoint: number;
