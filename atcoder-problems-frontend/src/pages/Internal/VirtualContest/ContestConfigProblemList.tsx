@@ -61,7 +61,7 @@ const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
                 contestId={problem.contest_id}
                 problemTitle={problem.title}
                 showDifficulty={true}
-                difficulty={props.problemModelMap.get(problemId)?.difficulty}
+                problemModel={props.problemModelMap.get(problemId)}
                 isExperimentalDifficulty={
                   props.problemModelMap.get(problemId)?.is_experimental
                 }
