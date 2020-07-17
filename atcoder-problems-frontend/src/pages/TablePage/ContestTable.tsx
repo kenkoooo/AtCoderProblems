@@ -99,11 +99,6 @@ export const ContestTable: React.FC<Props> = (props) => {
                             .join(" ")}
                         >
                           <ProblemLink
-                            difficulty={
-                              model && model.difficulty
-                                ? model.difficulty
-                                : null
-                            }
                             isExperimentalDifficulty={
                               model ? model.is_experimental : false
                             }
@@ -113,9 +108,7 @@ export const ContestTable: React.FC<Props> = (props) => {
                             problemTitle={problem.title}
                             contestId={problem.contest_id}
                             problemModel={model}
-                            internalRating={
-                              userRatingInfo?.internalRating ?? null
-                            }
+                            userRatingInfo={userRatingInfo}
                           />
                           {props.colorMode === ColorMode.ContestResult && (
                             <SubmitTimespan

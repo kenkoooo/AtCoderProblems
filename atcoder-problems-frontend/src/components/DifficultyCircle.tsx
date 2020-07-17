@@ -3,12 +3,24 @@ import { Badge, Tooltip } from "reactstrap";
 import { getRatingColor, getRatingColorCode } from "../utils";
 import { Theme } from "../style/theme";
 import { useTheme } from "./ThemeProvider";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel,
+  isProblemModelWithTimeModel,
+  ProblemModelWithDifficultyModel,
+  ProblemModelWithTimeModel,
+} from "../interfaces/ProblemModel";
+import {
+  predictSolveProbability,
+  predictSolveTime,
+  formatPredictedSolveProbability,
+  formatPredictedSolveTime,
+} from "../utils/ProblemModelUtil";
+import {RatingInfo} from "../utils/RatingInfo";
 
 interface Props {
   id: string;
-  difficulty: number | null;
-  predictedSolveProbabilityText?: string;
-  predictedSolveTimeText?: string;
+  problemModel?: ProblemModel | null;
+  userRatingInfo?: RatingInfo | null;
 }
 
 interface LocalState {
@@ -35,15 +47,15 @@ function getColor(difficulty: number, theme: Theme): string {
 export const DifficultyCircle: React.FC<Props> = (props) => {
   const {
     id,
-    difficulty,
-    predictedSolveProbabilityText,
-    predictedSolveTimeText,
+    problemModel,
+    userRatingInfo,
   } = props;
+  const difficulty = problemModel?.difficulty;
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const theme = useTheme();
   const toggleTooltipState = (): void => setTooltipOpen(!tooltipOpen);
   const circleId = "DifficultyCircle-" + id;
-  if (difficulty === null) {
+  if (difficulty === undefined) {
     return (
       <span>
         <Badge
@@ -83,12 +95,37 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
         ? `linear-gradient(to right, ${color}, #FFDABD, ${color})`
         : `linear-gradient(to right, ${color}, white, ${color})`,
   });
-
+  const predictdProb: string =
+    problemModel === undefined
+      ? "-"
+      : userRatingInfo?.internalRating === undefined || userRatingInfo?.internalRating === null
+      ? "-"
+      : isProblemModelWithDifficultyModel(problemModel) === false
+      ? "-"
+      : formatPredictedSolveProbability(
+          predictSolveProbability(
+            problemModel as ProblemModelWithDifficultyModel,
+            userRatingInfo.internalRating
+          )
+        );
+  const predictdTime =
+    problemModel === undefined
+      ? "-"
+      : userRatingInfo?.internalRating === undefined || userRatingInfo?.internalRating === null
+      ? "-"
+      : isProblemModelWithTimeModel(problemModel) === false
+      ? "-"
+      : formatPredictedSolveTime(
+          predictSolveTime(
+            problemModel as ProblemModelWithTimeModel,
+            userRatingInfo.internalRating
+          )
+        );
   const contentDifficulty = `Difficulty: ${difficulty}`;
   const contentProbability = `Solve Prob: ${
-    predictedSolveProbabilityText ?? "-"
+    predictdProb
   }`;
-  const contentTime = `Solve Time: ${predictedSolveTimeText ?? "-"}`;
+  const contentTime = `Solve Time: ${predictdTime}`;
 
   const content = (
     <>
