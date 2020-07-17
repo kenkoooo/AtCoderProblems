@@ -2,14 +2,10 @@ import React, { useState } from "react";
 import { Tooltip } from "reactstrap";
 import * as Url from "../utils/Url";
 import { getRatingColorClass } from "../utils";
-import ProblemModel, {
-  isProblemModelWithDifficultyModel,
-  ProblemModelWithDifficultyModel,
-  ProblemModelWithTimeModel,
-} from "../interfaces/ProblemModel";
+import ProblemModel from "../interfaces/ProblemModel";
+import { RatingInfo } from "../utils/RatingInfo";
 import { DifficultyCircle } from "./DifficultyCircle";
 import { NewTabLink } from "./NewTabLink";
-import {RatingInfo} from "../utils/RatingInfo";
 
 interface Props {
   className?: string;
