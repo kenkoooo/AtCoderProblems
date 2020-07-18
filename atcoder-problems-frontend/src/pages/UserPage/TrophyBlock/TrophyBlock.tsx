@@ -38,7 +38,10 @@ export const TrophyBlock = (props: Props): JSX.Element => {
     )
   );
 
-  const achievedTrophies = trophies.filter((t) => t.achieved);
+  const achievedTrophies = trophies.map(function (t: Trophy): Trophy {
+    if (t.achieved === false) t.title = "???";
+    return t;
+  });
 
   const [filterGroup, setFilterGroup] = useState<TrophyGroup | "All">("All");
   const filteredTrophies = achievedTrophies
