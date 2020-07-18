@@ -39,7 +39,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
   );
 
   const achievedTrophies = trophies.map(function (t: Trophy): Trophy {
-    if (t.achieved === false) t.title = "???";
+    if (!t.achieved) t.title = "???";
     return t;
   });
 
