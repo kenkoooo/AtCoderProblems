@@ -86,7 +86,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
               {filteredTrophies.map(({ sortId, title, reason }) => (
                 <tr key={sortId}>
                   <th className="text-success">
-                    <Octicon icon={Verified} />
+                    {title !== "???" && <Octicon icon={Verified} />}
                   </th>
                   <td>
                     <b>{title}</b>
