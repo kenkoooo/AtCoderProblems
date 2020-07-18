@@ -11,25 +11,38 @@ interface Props {
   userInternalRating: number;
 }
 
-// const LEVEL_NAMES = ["Easy", "Moderate", "Devotion", "Difficult"];
-const LEVEL_SECTIONS = [1, 3 / 4, 1 / 3, 1 / 6, 0];
+// const LEVEL_NAMES = ["Easy", "Moderate", "Difficult", "Hard"];
+const LEVEL_SECTION_VERY_HARD = 0.1;
+const Logit_ = (x: number): number => Math.log((1 - x) / x);
+const D_ = Logit_(LEVEL_SECTION_VERY_HARD);
+const Sigmoid_ = (x: number): number => 1 / (1 + Math.exp(-x));
+const LEVEL_SECTIONS = [
+  1,
+  1 - LEVEL_SECTION_VERY_HARD, // Sigmoid_(D_),
+  Sigmoid_(D_ / 3),
+  Sigmoid_(-D_ / 3),
+  LEVEL_SECTION_VERY_HARD, // Sigmoid_(-D_),
+  0,
+];
 
 const DifficultyLevel = {
-  Easy: 0,
-  Moderate: 1,
-  Devotion: 2,
+  VeryEasy: 0,
+  Easy: 1,
+  Moderate: 2,
   Difficult: 3,
+  Hard: 4,
 } as const;
 type DifficultyLevel = typeof DifficultyLevel[keyof typeof DifficultyLevel];
 const IdToLevel: Array<DifficultyLevel> = [
+  DifficultyLevel.VeryEasy,
   DifficultyLevel.Easy,
   DifficultyLevel.Moderate,
-  DifficultyLevel.Devotion,
   DifficultyLevel.Difficult,
+  DifficultyLevel.Hard,
 ];
 
 const getDifficultyLevel = (solveProbability: number): DifficultyLevel => {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     if (
       LEVEL_SECTIONS[i] >= solveProbability &&
       solveProbability > LEVEL_SECTIONS[i + 1]
@@ -37,7 +50,7 @@ const getDifficultyLevel = (solveProbability: number): DifficultyLevel => {
       return IdToLevel[i];
     }
   }
-  return DifficultyLevel.Difficult; // Expect unreachable
+  return DifficultyLevel.Hard;
 };
 
 const getRGB = (code: string) => {
@@ -49,14 +62,16 @@ const getRGB = (code: string) => {
 
 const getLevelColor = (level: DifficultyLevel, theme: Theme) => {
   switch (level) {
+    case DifficultyLevel.VeryEasy:
+      return theme.relativeDifficultyVeryEasyColor;
     case DifficultyLevel.Easy:
       return theme.relativeDifficultyEasyColor;
     case DifficultyLevel.Moderate:
       return theme.relativeDifficultyModerateColor;
-    case DifficultyLevel.Devotion:
-      return theme.relativeDifficultyDevotionColor;
     case DifficultyLevel.Difficult:
       return theme.relativeDifficultyDifficultColor;
+    case DifficultyLevel.Hard:
+      return theme.relativeDifficultyHardColor;
     default:
       return theme.relativeDifficultyBackgroundColor;
   }

@@ -8,10 +8,11 @@ export const ThemeLight = {
   difficultyYellowColor: "#C0C000",
   difficultyOrangeColor: "#FF8000",
   difficultyRedColor: "#FF0000",
-  relativeDifficultyEasyColor: "#80FF80",
+  relativeDifficultyVeryEasyColor: "#80FF80",
+  relativeDifficultyEasyColor: "#80FFFF",
   relativeDifficultyModerateColor: "#FFFF80",
-  relativeDifficultyDevotionColor: "#FFBB80",
-  relativeDifficultyDifficultColor: "#FF8080",
+  relativeDifficultyDifficultColor: "#FFBB80",
+  relativeDifficultyHardColor: "#FF8080",
   relativeDifficultyBackgroundColor: "#C0C0C0",
 };
 
@@ -26,10 +27,11 @@ export const ThemeDark: typeof ThemeLight = {
   difficultyYellowColor: "#FFFF56",
   difficultyOrangeColor: "#FFC86F",
   difficultyRedColor: "#FF6767",
-  relativeDifficultyEasyColor: "#40C040",
+  relativeDifficultyVeryEasyColor: "#40C040",
+  relativeDifficultyEasyColor: "#40C0C0",
   relativeDifficultyModerateColor: "#C0C040",
-  relativeDifficultyDevotionColor: "#C08040",
-  relativeDifficultyDifficultColor: "#C04040",
+  relativeDifficultyDifficultColor: "#C08040",
+  relativeDifficultyHardColor: "#C04040",
   relativeDifficultyBackgroundColor: "#404040",
 };
 
