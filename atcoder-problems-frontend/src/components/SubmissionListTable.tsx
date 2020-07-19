@@ -7,6 +7,7 @@ import { formatMomentDateTime, parseSecond } from "../utils/DateUtil";
 import { isAccepted } from "../utils";
 import * as Url from "../utils/Url";
 import { ProblemId } from "../interfaces/Status";
+import { RatingInfo } from "../utils/RatingInfo";
 import { ProblemLink } from "./ProblemLink";
 import { ListPaginationPanel } from "./ListPaginationPanel";
 import { NewTabLink } from "./NewTabLink";
@@ -15,10 +16,11 @@ interface Props {
   submissions: Submission[];
   problems: { id: string; title: string }[];
   problemModels: Map<ProblemId, ProblemModel>;
+  userRatingInfo?: RatingInfo;
 }
 
 export const SubmissionListTable: React.FC<Props> = (props) => {
-  const { submissions, problems, problemModels } = props;
+  const { submissions, problems, problemModels, userRatingInfo } = props;
   const titleMap = problems.reduce((map, p) => {
     map.set(p.id, p.title);
     return map;
@@ -110,7 +112,6 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
           { problem_id, contest_id }: Submission
         ): React.ReactElement => (
           <ProblemLink
-            difficulty={problemModels.get(problem_id)?.difficulty}
             isExperimentalDifficulty={
               problemModels.get(problem_id)?.is_experimental
             }
@@ -118,6 +119,8 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
             problemId={problem_id}
             problemTitle={title || ""}
             contestId={contest_id}
+            problemModel={problemModels.get(problem_id) ?? null}
+            userRatingInfo={userRatingInfo}
           />
         )}
       >

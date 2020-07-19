@@ -22,6 +22,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel,
 } from "../../interfaces/ProblemModel";
 import { SubmitTimespan } from "../../components/SubmitTimespan";
+import { RatingInfo } from "../../utils/RatingInfo";
 import { RelativeDifficultyMeter } from "../../components/RelativeDifficultyMeter";
 
 interface Props {
@@ -29,18 +30,18 @@ interface Props {
   contestToProblems: ImmutableMap<string, List<Problem>>;
   showSolved: boolean;
   showDifficulty: boolean;
+  showRelativeDifficulty: boolean;
   colorMode: ColorMode;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
   showPenalties: boolean;
   selectedLanguages: Set<string>;
-  userInternalRating?: number | null;
-  showRelativeDifficulty?: boolean;
+  userRatingInfo: RatingInfo;
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
-  const { colorMode, selectedLanguages, showPenalties } = props;
+  const { colorMode, selectedLanguages, showPenalties, userRatingInfo } = props;
   const contests = props.contests
     .map((contest) => {
       const problems = props.contestToProblems
@@ -144,11 +145,6 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                 return (
                   <>
                     <ProblemLink
-                      difficulty={
-                        model && model.difficulty !== undefined
-                          ? model.difficulty
-                          : null
-                      }
                       isExperimentalDifficulty={
                         !!model && model.is_experimental
                       }
@@ -157,14 +153,18 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       contestId={contest.id}
                       problemId={problem.problem.id}
                       problemTitle={problem.problem.title}
+                      problemModel={model}
+                      userRatingInfo={userRatingInfo}
                     />
                     {props.showRelativeDifficulty &&
                       isProblemModelWithDifficultyModel(model) &&
-                      props.userInternalRating && (
+                      props.userRatingInfo.internalRating && (
                         <RelativeDifficultyMeter
                           id={problem.problem.id}
                           problemModel={model}
-                          userInternalRating={props.userInternalRating}
+                          userInternalRating={
+                            props.userRatingInfo.internalRating
+                          }
                         />
                       )}
                     {props.colorMode === ColorMode.ContestResult && (

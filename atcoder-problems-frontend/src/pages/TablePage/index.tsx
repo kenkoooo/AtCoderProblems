@@ -43,9 +43,10 @@ interface InnerProps extends OuterProps {
   >;
   readonly selectableLanguagesFetch: PromiseState<Set<string>>;
   readonly submissions: PromiseState<Submission[]>;
-  readonly userRatingInfoFetch: PromiseState<RatingInfo>;
   readonly loginState: PromiseState<UserResponse | null>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
+
+  readonly userRatingInfoFetch: PromiseState<RatingInfo>;
 }
 
 const InnerTablePage: React.FC<InnerProps> = (props) => {
@@ -80,6 +81,9 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
   );
   const [selectedLanguages, setSelectedLanguages] = useState(Set<string>());
 
+  const userRatingInfo = userRatingInfoFetch.fulfilled
+    ? userRatingInfoFetch.value
+    : ratingInfoOf(List());
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
     : ImmutableMap<ProblemId, ProblemModel>();
@@ -95,9 +99,6 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
   const submissions = props.submissions.fulfilled
     ? props.submissions.value
     : [];
-  const userRatingInfo = userRatingInfoFetch.fulfilled
-    ? userRatingInfoFetch.value
-    : ratingInfoOf(List());
 
   const loginUserId =
     props.loginState.fulfilled &&
@@ -168,7 +169,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
           statusLabelMap={statusLabelMap}
           showPenalties={showPenalties}
           selectedLanguages={selectedLanguages}
-          userInternalRating={userRatingInfo.internalRating}
+          userRatingInfo={userRatingInfo}
           showRelativeDifficulty={showRelativeDifficulty}
         />
       ) : (
@@ -183,7 +184,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
           statusLabelMap={statusLabelMap}
           showPenalties={showPenalties}
           selectedLanguages={selectedLanguages}
-          userInternalRating={userRatingInfo.internalRating}
+          userRatingInfo={userRatingInfo}
           showRelativeDifficulty={showRelativeDifficulty}
         />
       )}
@@ -217,17 +218,17 @@ export const TablePage = connect<OuterProps, InnerProps>((props) => ({
     value: (): Promise<Set<string>> =>
       CachedApiClient.cachedSelectableLanguages(props.userId),
   },
+  userRatingInfoFetch: {
+    comparison: props.userId,
+    value: (): Promise<RatingInfo> =>
+      CachedApiClient.cachedRatingInfo(props.userId),
+  },
   submissions: {
     comparison: [props.userId, props.rivals],
     value: (): Promise<Submission[]> =>
       Promise.all(
         props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
       ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
-  },
-  userRatingInfoFetch: {
-    comparison: props.userId,
-    value: (): Promise<RatingInfo> =>
-      CachedApiClient.cachedRatingInfo(props.userId),
   },
   loginState: USER_GET,
   progressResetList: PROGRESS_RESET_LIST,
