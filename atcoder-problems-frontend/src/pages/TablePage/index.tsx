@@ -132,6 +132,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
         toggleShowAccepted={(): void => setShowAccepted(!showAccepted)}
         showDifficulties={showDifficulty}
         toggleShowDifficulties={(): void => setShowDifficulty(!showDifficulty)}
+        isUserRatingInfoEnabled={userRatingInfo.internalRating !== null}
         showRelativeDifficulties={showRelativeDifficulty}
         toggleShowRelativeDifficulties={(): void =>
           setShowRelativeDifficulty(!showRelativeDifficulty)

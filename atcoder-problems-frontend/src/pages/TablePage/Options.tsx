@@ -21,6 +21,7 @@ interface Props {
   toggleShowAccepted: () => void;
   showDifficulties: boolean;
   toggleShowDifficulties: () => void;
+  isUserRatingInfoEnabled: boolean;
   showRelativeDifficulties: boolean;
   toggleShowRelativeDifficulties: () => void;
   colorMode: ColorMode;
@@ -59,16 +60,18 @@ export const Options: React.FC<Props> = (props) => {
             </HelpBadgeTooltip>
           </Label>
         </FormGroup>
-        <FormGroup check inline>
-          <Label check>
-            <Input
-              type="checkbox"
-              checked={props.showRelativeDifficulties}
-              onChange={props.toggleShowRelativeDifficulties}
-            />
-            Show Relative Difficulty
-          </Label>
-        </FormGroup>
+        {props.isUserRatingInfoEnabled && (
+          <FormGroup check inline>
+            <Label check>
+              <Input
+                type="checkbox"
+                checked={props.showRelativeDifficulties}
+                onChange={props.toggleShowRelativeDifficulties}
+              />
+              Show Relative Difficulty
+            </Label>
+          </FormGroup>
+        )}
         {props.colorMode === ColorMode.ContestResult && (
           <FormGroup check inline>
             <Label check>
