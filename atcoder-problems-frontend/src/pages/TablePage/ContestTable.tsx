@@ -9,6 +9,7 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { SubmitTimespan } from "../../components/SubmitTimespan";
+import { RatingInfo } from "../../utils/RatingInfo";
 import { isRatedContest } from "./ContestClassifier";
 
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
   showPenalties: boolean;
   selectedLanguages: Set<string>;
   title: string;
+  userRatingInfo: RatingInfo;
 }
 
 export const ContestTable: React.FC<Props> = (props) => {
@@ -34,6 +36,7 @@ export const ContestTable: React.FC<Props> = (props) => {
     problemModels,
     showPenalties,
     selectedLanguages,
+    userRatingInfo,
   } = props;
   const mergedContests = contests
     .sort((a, b) => b.start_epoch_second - a.start_epoch_second)
@@ -96,11 +99,6 @@ export const ContestTable: React.FC<Props> = (props) => {
                             .join(" ")}
                         >
                           <ProblemLink
-                            difficulty={
-                              model && model.difficulty
-                                ? model.difficulty
-                                : null
-                            }
                             isExperimentalDifficulty={
                               model ? model.is_experimental : false
                             }
@@ -109,6 +107,8 @@ export const ContestTable: React.FC<Props> = (props) => {
                             problemId={problem.id}
                             problemTitle={problem.title}
                             contestId={problem.contest_id}
+                            problemModel={model}
+                            userRatingInfo={userRatingInfo}
                           />
                           {props.colorMode === ColorMode.ContestResult && (
                             <SubmitTimespan

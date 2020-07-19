@@ -173,8 +173,8 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     props.userId
   );
 
-  const userInternalRating = userRatingInfoFetch.fulfilled
-    ? userRatingInfoFetch.value.internalRating
+  const userRatingInfo = userRatingInfoFetch.fulfilled
+    ? userRatingInfoFetch.value
     : null;
 
   const rowData = mergedProblems
@@ -361,7 +361,15 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
                   })}
                 >
                   <DifficultyCircle
-                    difficulty={to}
+                    problemModel={{
+                      slope: undefined,
+                      difficulty: to,
+                      rawDifficulty: undefined,
+                      intercept: undefined,
+                      discrimination: undefined,
+                      is_experimental: false,
+                      variance: undefined,
+                    }}
                     id={`from-difficulty-dropdown-${to}`}
                   />
                   {from} -
@@ -387,7 +395,15 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
                   })}
                 >
                   <DifficultyCircle
-                    difficulty={to}
+                    problemModel={{
+                      slope: undefined,
+                      difficulty: to,
+                      rawDifficulty: undefined,
+                      intercept: undefined,
+                      discrimination: undefined,
+                      is_experimental: false,
+                      variance: undefined,
+                    }}
                     id={`from-difficulty-dropdown-${to}`}
                   />
                   - {to < INF_POINT ? to : "inf"}
@@ -413,7 +429,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
           fromDifficulty={fromDifficulty}
           toDifficulty={toDifficulty}
           rowData={rowData}
-          userInternalRating={userInternalRating}
+          userRatingInfo={userRatingInfo}
         />
       </Row>
     </div>

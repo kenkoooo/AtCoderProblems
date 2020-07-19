@@ -8,7 +8,9 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { StatusLabel } from "../../interfaces/Status";
 import {
   formatPredictedSolveTime,
+  formatPredictedSolveProbability,
   predictSolveTime,
+  predictSolveProbability,
 } from "../../utils/ProblemModelUtil";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
@@ -16,6 +18,7 @@ import ProblemModel, {
 } from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ListPaginationPanel } from "../../components/ListPaginationPanel";
+import { RatingInfo } from "../../utils/RatingInfo";
 import { INF_POINT, ProblemRowData } from "./index";
 
 interface Props {
@@ -26,10 +29,11 @@ interface Props {
   fromDifficulty: number;
   toDifficulty: number;
   rowData: List<ProblemRowData>;
-  userInternalRating: number | null;
+  userRatingInfo: RatingInfo | null;
 }
 
 export const ListTable: React.FC<Props> = (props) => {
+  const userInternalRating = props.userRatingInfo?.internalRating ?? null;
   const readDifficultyAsNumber: (row: ProblemRowData) => number = (row) => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
@@ -43,7 +47,7 @@ export const ListTable: React.FC<Props> = (props) => {
   const predictSolveTimeOfRow: (row: ProblemRowData) => number | null = (
     row
   ) => {
-    if (props.userInternalRating === null) {
+    if (userInternalRating === null) {
       return null;
     }
     const problemModel = row.problemModel;
@@ -53,7 +57,22 @@ export const ListTable: React.FC<Props> = (props) => {
     if (!isProblemModelWithTimeModel(problemModel)) {
       return null;
     }
-    return predictSolveTime(problemModel, props.userInternalRating);
+    return predictSolveTime(problemModel, userInternalRating);
+  };
+  const predictSolveProbabilityOfRow: (row: ProblemRowData) => number | null = (
+    row
+  ) => {
+    if (userInternalRating === null) {
+      return null;
+    }
+    const problemModel = row.problemModel;
+    if (problemModel === undefined) {
+      return null;
+    }
+    if (!isProblemModelWithDifficultyModel(problemModel)) {
+      return null;
+    }
+    return predictSolveProbability(problemModel, userInternalRating);
   };
 
   const columns: {
@@ -83,15 +102,12 @@ export const ListTable: React.FC<Props> = (props) => {
         return (
           <ProblemLink
             showDifficulty={true}
-            difficulty={
-              isProblemModelWithDifficultyModel(row.problemModel)
-                ? row.problemModel.difficulty
-                : null
-            }
             isExperimentalDifficulty={row.problemModel?.is_experimental}
             problemId={row.mergedProblem.id}
             problemTitle={row.title}
             contestId={row.mergedProblem.contest_id}
+            problemModel={row.problemModel}
+            userRatingInfo={props.userRatingInfo}
           />
         );
       },
@@ -202,6 +218,27 @@ export const ListTable: React.FC<Props> = (props) => {
         } else {
           return <p>{problemModel.difficulty}</p>;
         }
+      },
+    },
+    {
+      header: "Solve Prob",
+      dataField: "prob",
+      dataSort: true,
+      sortFunc: (a, b, order): number => {
+        const aPred = predictSolveProbabilityOfRow(a);
+        const bPred = predictSolveProbabilityOfRow(b);
+        const aV = aPred === null ? -1 : aPred;
+        const bV = bPred === null ? -1 : bPred;
+        const delta = aV - bV;
+        const sign = order === "asc" ? 1 : -1;
+        return delta * sign;
+      },
+      dataFormat: function DataFormat(_: string, row): React.ReactElement {
+        const solveProb = predictSolveProbabilityOfRow(row);
+        if (solveProb === null) {
+          return <p>-</p>;
+        }
+        return <p>{formatPredictedSolveProbability(solveProb)}</p>;
       },
     },
     {
