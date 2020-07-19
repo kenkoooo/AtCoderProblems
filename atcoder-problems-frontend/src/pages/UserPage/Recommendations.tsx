@@ -351,12 +351,13 @@ export const Recommendations: React.FC<Props> = (props) => {
               }: { id: string; contest_id: string; is_experimental: boolean }
             ): React.ReactElement => (
               <ProblemLink
-                difficulty={problemModels.getIn([id, "difficulty"], null)}
                 isExperimentalDifficulty={is_experimental}
                 showDifficulty={true}
                 problemId={id}
                 problemTitle={title}
                 contestId={contest_id}
+                problemModel={problemModels.get(id, null)}
+                userRatingInfo={userRatingInfo}
               />
             )}
           >
