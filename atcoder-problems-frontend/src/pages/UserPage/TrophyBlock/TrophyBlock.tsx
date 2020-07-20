@@ -38,10 +38,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
     )
   );
 
-  const achievedTrophies = trophies.map(function (t: Trophy): Trophy {
-    if (!t.achieved) t.title = "???";
-    return t;
-  });
+  const achievedTrophies = trophies;
 
   const [filterGroup, setFilterGroup] = useState<TrophyGroup | "All">("All");
   const filteredTrophies = achievedTrophies
@@ -89,7 +86,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
                     {achieved && <Octicon icon={Verified} />}
                   </th>
                   <td>
-                    <b>{title}</b>
+                    <b>{achieved ? title : "???"}</b>
                   </td>
                   <td>{reason}</td>
                 </tr>
