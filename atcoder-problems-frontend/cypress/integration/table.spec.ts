@@ -76,7 +76,6 @@ describe("Table page", () => {
 
     // Enter rival and see diff
     const rival = "rival";
-
     cy.get("#rival_id")
       .type(`${rival}{enter}`)
       .url()
