@@ -59,11 +59,7 @@ const ProblemTable: React.FC<ProblemTableProps> = (props) => {
                   problemId={problem.id}
                   problemTitle={problem.title}
                   contestId={problem.contest_id}
-                  difficulty={
-                    model && model.difficulty !== undefined
-                      ? model.difficulty
-                      : null
-                  }
+                  problemModel={model}
                   isExperimentalDifficulty={!!model && model.is_experimental}
                   showDifficulty={submission !== undefined}
                   showDifficultyUnavailable

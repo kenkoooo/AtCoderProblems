@@ -25,11 +25,11 @@
   },
   "lint-staged": {
     "*.{css,scss,html,json,md}": "prettier --write",
-    "*.{js,jsx,ts,tsx}": [
+    "../**/*.md": "prettier --write",
+    "./(cypress|src)/**/*.{js,jsx,ts,tsx}": [
       "prettier --write",
       "eslint --fix --max-warnings=0"
     ],
-    "../**/*.md": "prettier --write",
     ".eslintrc.js": "prettier --write",
     "package.json": [
       "prettier --write",
