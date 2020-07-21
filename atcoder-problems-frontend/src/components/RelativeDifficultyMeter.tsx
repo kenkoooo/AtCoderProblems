@@ -33,7 +33,7 @@ const DifficultyLevel = {
   Hard: 4,
 } as const;
 type DifficultyLevel = typeof DifficultyLevel[keyof typeof DifficultyLevel];
-const IdToLevel: Array<DifficultyLevel> = [
+const ID_TO_LEVEL: Array<DifficultyLevel> = [
   DifficultyLevel.VeryEasy,
   DifficultyLevel.Easy,
   DifficultyLevel.Moderate,
@@ -47,7 +47,7 @@ const getDifficultyLevel = (solveProbability: number): DifficultyLevel => {
       LEVEL_SECTIONS[i] >= solveProbability &&
       solveProbability > LEVEL_SECTIONS[i + 1]
     ) {
-      return IdToLevel[i];
+      return ID_TO_LEVEL[i];
     }
   }
   return DifficultyLevel.Hard;
@@ -97,17 +97,22 @@ export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
 
   const styleOptions = Object({
     borderColor: color,
-    background: `linear-gradient(to right, ${[
-      rgbStyle(r, g, b, 0),
-      rgbStyle(r, g, b, fillRatio),
-      rgbStyle(bg_r, bg_g, bg_b, fillRatio),
-      rgbStyle(bg_r, bg_g, bg_b, 1),
-    ].join(", ")})`,
+    background: `linear-gradient(to right, ${rgbStyle(r, g, b, 0)}, ${rgbStyle(
+      r,
+      g,
+      b,
+      fillRatio
+    )}, ${rgbStyle(bg_r, bg_g, bg_b, fillRatio)}, ${rgbStyle(
+      bg_r,
+      bg_g,
+      bg_b,
+      1
+    )})`,
   });
   const description = `Predicted Solve Probability of User: ${Math.round(
     predictedSolveProbability * 100
   )}%`;
-  const iconId = `RelativeDifficultyIcon-${id}`;
+  const meterId = `RelativeDifficultyMeter-${id}`;
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const toggleTooltipState = (): void => setTooltipOpen(!tooltipOpen);
 
@@ -116,11 +121,11 @@ export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
       <div
         className="relative-difficulty-meter"
         style={styleOptions}
-        id={iconId}
+        id={meterId}
       />
       <Tooltip
         placement="top"
-        target={iconId}
+        target={meterId}
         isOpen={tooltipOpen}
         toggle={toggleTooltipState}
       >
