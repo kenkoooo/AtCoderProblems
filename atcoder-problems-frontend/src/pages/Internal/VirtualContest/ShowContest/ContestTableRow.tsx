@@ -32,6 +32,7 @@ interface ContestTableRowProps {
     title?: string;
   }[];
   start: number;
+  penaltySecond: number;
   showProblems: boolean;
   estimatedPerformance?: number;
   reducedProblemResults: Map<ProblemId, ReducedProblemResult>;
@@ -45,10 +46,19 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
     showProblems,
     items,
     start,
+    penaltySecond,
     reducedProblemResults,
     userTotalResult,
     estimatedPerformance,
   } = props;
+
+  const totalTime =
+    typeof userTotalResult !== "undefined"
+      ? userTotalResult.lastUpdatedEpochSecond +
+        penaltySecond * userTotalResult.penalties -
+        start
+      : 0;
+
   return (
     <tr>
       <th>{rank + 1}</th>
@@ -79,7 +89,7 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
         <ScoreCell
           trials={userTotalResult?.penalties ?? 0}
           maxPoint={userTotalResult?.point ?? 0}
-          time={(userTotalResult?.lastUpdatedEpochSecond ?? start) - start}
+          time={totalTime}
         />
       </td>
       {estimatedPerformance !== undefined && (
