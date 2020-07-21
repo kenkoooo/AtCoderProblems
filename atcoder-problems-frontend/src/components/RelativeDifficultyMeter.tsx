@@ -6,7 +6,7 @@ import { Theme } from "../style/theme";
 import { useTheme } from "./ThemeProvider";
 
 interface Props {
-  problem_id: string;
+  problemId: string;
   problemModel: ProblemModelWithDifficultyModel;
   userInternalRating: number;
 }
@@ -91,7 +91,7 @@ const getRGB = (code: string) => {
 };
 
 export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
-  const { problem_id, problemModel, userInternalRating } = props;
+  const { problemId, problemModel, userInternalRating } = props;
 
   const predictedSolveProbability = predictSolveProbability(
     problemModel,
@@ -115,7 +115,7 @@ export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
   });
   const description = `Predicted Solve Probability of User: \
     ${Math.round(predictedSolveProbability * 100)}%`;
-  const meterId = `RelativeDifficultyMeter-${problem_id}`;
+  const meterId = `RelativeDifficultyMeter-${problemId}`;
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const toggleTooltipState = (): void => setTooltipOpen(!tooltipOpen);
 
