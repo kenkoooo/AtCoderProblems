@@ -52,12 +52,11 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
     estimatedPerformance,
   } = props;
 
-  const totalTime =
-    typeof userTotalResult !== "undefined"
-      ? userTotalResult.lastUpdatedEpochSecond +
-        penaltySecond * userTotalResult.penalties -
-        start
-      : 0;
+  const totalTime = userTotalResult
+    ? userTotalResult.lastUpdatedEpochSecond +
+      penaltySecond * userTotalResult.penalties -
+      start
+    : 0;
 
   return (
     <tr>
