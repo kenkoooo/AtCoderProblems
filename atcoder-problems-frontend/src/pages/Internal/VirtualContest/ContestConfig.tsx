@@ -53,6 +53,9 @@ const InnerContestConfig: React.FC<InnerProps> = (props) => {
   const [problemSet, setProblemSet] = useState(props.initialProblems);
   const [mode, setMode] = useState(props.initialMode);
   const [publicState, setPublicState] = useState(props.initialPublicState);
+  const [penaltySecond, setPenaltySecond] = useState(
+    props.initialPenaltySecond
+  );
   const [
     expectedParticipantUserIdsText,
     setExpectedParticipantUserIdsText,
@@ -191,6 +194,20 @@ const InnerContestConfig: React.FC<InnerProps> = (props) => {
               </DropdownMenu>
             </UncontrolledDropdown>
           </InputGroup>
+        </Col>
+      </Row>
+
+      <Row className="my-2">
+        <Col>
+          <Label>Penalty (seconds)</Label>
+          <Input
+            type="number"
+            placeholder="Penalty for each wrong submission in seconds"
+            defaultValue={penaltySecond}
+            onChange={(event): void =>
+              setPenaltySecond(event.target.valueAsNumber)
+            }
+          />
         </Col>
       </Row>
 
@@ -360,6 +377,7 @@ const InnerContestConfig: React.FC<InnerProps> = (props) => {
                 problems: problemSet,
                 mode,
                 publicState,
+                penaltySecond,
               })
             }
           >
@@ -378,6 +396,7 @@ interface ContestInfo {
   endSecond: number;
   mode: VirtualContestMode;
   publicState: boolean;
+  penaltySecond: number;
   problems: List<VirtualContestItem>;
 }
 
@@ -394,6 +413,7 @@ interface OuterProps {
   initialEndMinute: number;
   initialMode: VirtualContestMode;
   initialPublicState: boolean;
+  initialPenaltySecond: number;
 
   buttonPush: (contest: ContestInfo) => void;
   buttonTitle: string;
