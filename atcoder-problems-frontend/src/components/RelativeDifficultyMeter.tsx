@@ -6,24 +6,12 @@ import { Theme } from "../style/theme";
 import { useTheme } from "./ThemeProvider";
 
 interface Props {
-  id: string;
+  problem_id: string;
   problemModel: ProblemModelWithDifficultyModel;
   userInternalRating: number;
 }
 
-// const LEVEL_NAMES = ["Easy", "Moderate", "Difficult", "Hard"];
-const LEVEL_SECTION_VERY_HARD = 0.1;
-const Logit_ = (x: number): number => Math.log((1 - x) / x);
-const D_ = Logit_(LEVEL_SECTION_VERY_HARD);
-const Sigmoid_ = (x: number): number => 1 / (1 + Math.exp(-x));
-const LEVEL_SECTIONS = [
-  1,
-  1 - LEVEL_SECTION_VERY_HARD, // Sigmoid_(D_),
-  Sigmoid_(D_ / 3),
-  Sigmoid_(-D_ / 3),
-  LEVEL_SECTION_VERY_HARD, // Sigmoid_(-D_),
-  0,
-];
+// const LEVEL_NAMES = ["Very Easy", "Easy", "Moderate", "Difficult", "Hard"];
 
 const DifficultyLevel = {
   VeryEasy: 0,
@@ -33,34 +21,52 @@ const DifficultyLevel = {
   Hard: 4,
 } as const;
 type DifficultyLevel = typeof DifficultyLevel[keyof typeof DifficultyLevel];
-const ID_TO_LEVEL: Array<DifficultyLevel> = [
-  DifficultyLevel.VeryEasy,
-  DifficultyLevel.Easy,
-  DifficultyLevel.Moderate,
-  DifficultyLevel.Difficult,
-  DifficultyLevel.Hard,
-];
 
-const getDifficultyLevel = (solveProbability: number): DifficultyLevel => {
-  for (let i = 0; i < 5; i++) {
-    if (
-      LEVEL_SECTIONS[i] >= solveProbability &&
-      solveProbability > LEVEL_SECTIONS[i + 1]
-    ) {
-      return ID_TO_LEVEL[i];
-    }
+class RelativeDifficultyPredictionUtil {
+  static get SOLVE_PROBABILITY_VERY_HARD(): number {
+    return 0.1;
   }
-  return DifficultyLevel.Hard;
-};
 
-const getRGB = (code: string) => {
-  const r = parseInt(code.slice(1, 3), 16);
-  const g = parseInt(code.slice(3, 5), 16);
-  const b = parseInt(code.slice(5, 7), 16);
-  return [r, g, b];
-};
+  static get X_AT_PROBABILITY_IS_VERY_HARD(): number {
+    return this.logit(this.SOLVE_PROBABILITY_VERY_HARD);
+  }
 
-const getLevelColor = (level: DifficultyLevel, theme: Theme) => {
+  static get SOLVE_PROBABILITY_SECTIONS(): ReadonlyArray<number> {
+    return [
+      1,
+      1 - this.SOLVE_PROBABILITY_VERY_HARD, // _sigmoid(-_D),
+      this.sigmoid(-this.X_AT_PROBABILITY_IS_VERY_HARD / 3),
+      this.sigmoid(this.X_AT_PROBABILITY_IS_VERY_HARD / 3),
+      this.SOLVE_PROBABILITY_VERY_HARD, // _sigmoid(_D),
+      0,
+    ];
+  }
+
+  static logit(x: number): number {
+    return Math.log(x / (1 - x));
+  }
+
+  static sigmoid(x: number): number {
+    return 1 / (1 + Math.exp(-x));
+  }
+
+  static getDifficultyLevel(solveProbability: number): DifficultyLevel {
+    for (const level of Object.values(DifficultyLevel)) {
+      if (
+        this.SOLVE_PROBABILITY_SECTIONS[level] >= solveProbability &&
+        solveProbability > this.SOLVE_PROBABILITY_SECTIONS[level + 1]
+      ) {
+        return level;
+      }
+    }
+    return DifficultyLevel.Hard;
+  }
+}
+
+const getDifficultyLevelColor = (solveProbability: number, theme: Theme) => {
+  const level = RelativeDifficultyPredictionUtil.getDifficultyLevel(
+    solveProbability
+  );
   switch (level) {
     case DifficultyLevel.VeryEasy:
       return theme.relativeDifficultyVeryEasyColor;
@@ -77,42 +83,39 @@ const getLevelColor = (level: DifficultyLevel, theme: Theme) => {
   }
 };
 
-const rgbStyle = (r: number, g: number, b: number, ratio: number) =>
-  `rgb(${r}, ${g}, ${b}) ${ratio * 100}%`;
+const getRGB = (code: string) => {
+  const r = parseInt(code.slice(1, 3), 16);
+  const g = parseInt(code.slice(3, 5), 16);
+  const b = parseInt(code.slice(5, 7), 16);
+  return [r, g, b];
+};
 
 export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
-  const { id, problemModel, userInternalRating } = props;
+  const { problem_id, problemModel, userInternalRating } = props;
 
   const predictedSolveProbability = predictSolveProbability(
     problemModel,
     userInternalRating
   );
-  const difficultyLevel = getDifficultyLevel(predictedSolveProbability);
   const fillRatio = 1 - predictedSolveProbability;
 
   const theme = useTheme();
-  const color = getLevelColor(difficultyLevel, theme);
+  const color = getDifficultyLevelColor(predictedSolveProbability, theme);
   const [r, g, b] = getRGB(color);
   const [bg_r, bg_g, bg_b] = getRGB(theme.relativeDifficultyBackgroundColor);
 
   const styleOptions = Object({
     borderColor: color,
-    background: `linear-gradient(to right, ${rgbStyle(r, g, b, 0)}, ${rgbStyle(
-      r,
-      g,
-      b,
-      fillRatio
-    )}, ${rgbStyle(bg_r, bg_g, bg_b, fillRatio)}, ${rgbStyle(
-      bg_r,
-      bg_g,
-      bg_b,
-      1
-    )})`,
+    background: `linear-gradient(to right, \
+      rgb(${r}, ${g}, ${b}) 0%, \
+      rgb(${r}, ${g}, ${b}) ${fillRatio * 100}%, \
+      rgb(${bg_r}, ${bg_g}, ${bg_b}) ${fillRatio * 100}%, \
+      rgb(${bg_r}, ${bg_g}, ${bg_b}) 100%\
+      )`,
   });
-  const description = `Predicted Solve Probability of User: ${Math.round(
-    predictedSolveProbability * 100
-  )}%`;
-  const meterId = `RelativeDifficultyMeter-${id}`;
+  const description = `Predicted Solve Probability of User: \
+    ${Math.round(predictedSolveProbability * 100)}%`;
+  const meterId = `RelativeDifficultyMeter-${problem_id}`;
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const toggleTooltipState = (): void => setTooltipOpen(!tooltipOpen);
 

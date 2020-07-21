@@ -118,7 +118,7 @@ export const ContestTable: React.FC<Props> = (props) => {
                             isProblemModelWithDifficultyModel(model) &&
                             props.userRatingInfo.internalRating && (
                               <RelativeDifficultyMeter
-                                id={problem.id}
+                                problem_id={problem.id}
                                 problemModel={model}
                                 userInternalRating={
                                   props.userRatingInfo.internalRating
