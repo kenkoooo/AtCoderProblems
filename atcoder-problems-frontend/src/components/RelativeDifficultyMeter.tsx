@@ -34,10 +34,10 @@ class RelativeDifficultyPredictionUtil {
   static get SOLVE_PROBABILITY_SECTIONS(): ReadonlyArray<number> {
     return [
       1,
-      1 - this.SOLVE_PROBABILITY_VERY_HARD, // _sigmoid(-_D),
+      1 - this.SOLVE_PROBABILITY_VERY_HARD, // this.sigmoid(-this.SOLVE_PROBABILITY_VERY_HARD),
       this.sigmoid(-this.X_AT_PROBABILITY_IS_VERY_HARD / 3),
       this.sigmoid(this.X_AT_PROBABILITY_IS_VERY_HARD / 3),
-      this.SOLVE_PROBABILITY_VERY_HARD, // _sigmoid(_D),
+      this.SOLVE_PROBABILITY_VERY_HARD, // this.sigmoid(this.SOLVE_PROBABILITY_VERY_HARD),
       0,
     ];
   }
