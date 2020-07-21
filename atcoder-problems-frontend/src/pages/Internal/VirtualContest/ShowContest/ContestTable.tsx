@@ -253,6 +253,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
               new Map<ProblemId, ReducedProblemResult>()
             }
             userTotalResult={totalResultByUser.get(atCoderUserId)}
+            penaltySecond={penaltySecond}
           />
         ) : null}
         {showingUserIds.map((userId, i) => {
@@ -270,6 +271,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
                 new Map<ProblemId, ReducedProblemResult>()
               }
               userTotalResult={totalResultByUser.get(userId)}
+              penaltySecond={penaltySecond}
             />
           );
         })}
