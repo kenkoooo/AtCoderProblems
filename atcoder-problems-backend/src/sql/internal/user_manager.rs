@@ -35,7 +35,7 @@ impl UserManager for PooledConnection {
         internal_user_id: &str,
         atcoder_user_id: &str,
     ) -> Result<()> {
-        sqlx::query("UPDATE internal_users SET atcoder_user_id = $1, WHERE internal_user_id = $2")
+        sqlx::query("UPDATE internal_users SET atcoder_user_id = $1 WHERE internal_user_id = $2")
             .bind(atcoder_user_id)
             .bind(internal_user_id)
             .execute(self)

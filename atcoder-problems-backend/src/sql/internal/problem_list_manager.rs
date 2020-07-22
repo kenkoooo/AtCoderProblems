@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 const MAX_LIST_NUM: usize = 256;
 const MAX_ITEM_NUM: usize = 1024;
 
-#[derive(Serialize, sqlx::FromRow)]
+#[derive(Serialize)]
 pub(crate) struct ProblemList {
     internal_list_id: String,
     internal_list_name: String,
@@ -17,7 +17,7 @@ pub(crate) struct ProblemList {
     items: Vec<ListItem>,
 }
 
-#[derive(Serialize, sqlx::FromRow)]
+#[derive(Serialize)]
 pub(crate) struct ListItem {
     problem_id: String,
     memo: String,
@@ -41,20 +41,37 @@ pub(crate) trait ProblemListManager {
 #[async_trait]
 impl ProblemListManager for PooledConnection {
     async fn get_list(&self, internal_user_id: &str) -> Result<Vec<ProblemList>> {
-        let items = internal_problem_lists::table
-            .left_join(
-                internal_problem_list_items::table.on(internal_problem_lists::internal_list_id
-                    .eq(internal_problem_list_items::internal_list_id)),
+        let items = sqlx::query(
+            r#"
+        SELECT
+            a.internal_list_id,
+            a.internal_list_name,
+            a.internal_user_id,
+            b.problem_id,
+            b.mamo
+        FROM internal_problem_lists AS a
+        LEFT JOIN internal_problem_list_items AS b
+        ON a.internal_list_id = b.internal_list_id
+        WHERE a.internal_user_id = $1
+            "#,
+        )
+        .bind(internal_user_id)
+        .map(|row| {
+            let internal_list_id: String = row.get(0);
+            let internal_list_name: String = row.get(1);
+            let internal_user_id: String = row.get(2);
+            let problem_id: Option<String> = row.get(3);
+            let memo: Option<String> = row.get(4);
+            (
+                internal_list_id,
+                internal_list_name,
+                internal_user_id,
+                problem_id,
+                memo,
             )
-            .filter(internal_problem_lists::internal_user_id.eq(internal_user_id))
-            .select((
-                internal_problem_lists::internal_list_id,
-                internal_problem_lists::internal_list_name,
-                internal_problem_lists::internal_user_id,
-                internal_problem_list_items::problem_id.nullable(),
-                internal_problem_list_items::memo.nullable(),
-            ))
-            .load::<(String, String, String, Option<String>, Option<String>)>(self)?;
+        })
+        .fetch(self)
+        .await?;
         let mut map = BTreeMap::new();
         for (list_id, list_name, user_id, problem_id, memo) in items.into_iter() {
             let list = map
@@ -77,21 +94,39 @@ impl ProblemListManager for PooledConnection {
             .collect();
         Ok(list)
     }
+
     async fn get_single_list(&self, internal_list_id: &str) -> Result<ProblemList> {
-        let items = internal_problem_lists::table
-            .left_join(
-                internal_problem_list_items::table.on(internal_problem_lists::internal_list_id
-                    .eq(internal_problem_list_items::internal_list_id)),
+        let items = sqlx::query(
+            r#"
+        SELECT
+            a.internal_list_id,
+            a.internal_list_name,
+            a.internal_user_id,
+            b.problem_id,
+            b.memo
+        FROM internal_problem_lists AS a
+        LEFT JOIN internal_problem_list_items AS b
+        ON a.internal_list_id = b.internal_list_id
+        WHERE a.internal_list_id = $1
+            "#,
+        )
+        .bind(internal_list_id)
+        .map(|row| {
+            let internal_list_id: String = row.get(0);
+            let internal_list_name: String = row.get(1);
+            let internal_user_id: String = row.get(2);
+            let problem_id: Option<String> = row.get(3);
+            let memo: Option<String> = row.get(4);
+            (
+                internal_list_id,
+                internal_list_name,
+                internal_user_id,
+                problem_id,
+                memo,
             )
-            .filter(internal_problem_lists::internal_list_id.eq(internal_list_id))
-            .select((
-                internal_problem_lists::internal_list_id,
-                internal_problem_lists::internal_list_name,
-                internal_problem_lists::internal_user_id,
-                internal_problem_list_items::problem_id.nullable(),
-                internal_problem_list_items::memo.nullable(),
-            ))
-            .load::<(String, String, String, Option<String>, Option<String>)>(self)?;
+        })
+        .fetch(self)
+        .await?;
         let mut map = BTreeMap::new();
         for (list_id, list_name, user_id, problem_id, memo) in items.into_iter() {
             let list = map
@@ -118,51 +153,69 @@ impl ProblemListManager for PooledConnection {
 
     async fn create_list(&self, internal_user_id: &str, name: &str) -> Result<String> {
         let new_list_id = uuid::Uuid::new_v4().to_string();
-        let list = self.get_list(internal_user_id)?;
+        let list = self.get_list(internal_user_id).await?;
         if list.len() >= MAX_LIST_NUM {
             return Err(http_types::Error::from(InvalidRequest));
         }
-        insert_into(internal_problem_lists::table)
-            .values(vec![(
-                internal_problem_lists::internal_user_id.eq(internal_user_id),
-                internal_problem_lists::internal_list_id.eq(new_list_id.as_str()),
-                internal_problem_lists::internal_list_name.eq(name),
-            )])
-            .execute(self)?;
+        sqlx::query(
+            r#"
+            INSERT INTO internal_problem_lists
+            (internal_user_id, internal_list_id, internal_list_name)
+            VALUES ($1, $2, $3)
+            "#,
+        )
+        .bind(internal_user_id)
+        .bind(new_list_id.as_str())
+        .bind(name)
+        .execute(self)
+        .await?;
         Ok(new_list_id)
     }
+
     async fn update_list(&self, internal_list_id: &str, name: &str) -> Result<()> {
-        update(
-            internal_problem_lists::table
-                .filter(internal_problem_lists::internal_list_id.eq(internal_list_id)),
+        sqlx::query(
+            r#"
+        UPDATE internal_problem_lists
+        SET internal_list_name = $1
+        WHERE internal_list_id = $2
+            "#,
         )
-        .set(internal_problem_lists::internal_list_name.eq(name))
-        .execute(self)?;
+        .bind(name)
+        .bind(internal_list_id)
+        .execute(self)
+        .await?;
         Ok(())
     }
+
     async fn delete_list(&self, internal_list_id: &str) -> Result<()> {
-        delete(
-            internal_problem_lists::table
-                .filter(internal_problem_lists::internal_list_id.eq(internal_list_id)),
-        )
-        .execute(self)?;
+        sqlx::query("DELETE FROM internal_problem_lists WHERE internal_list_id = $1")
+            .bind(internal_list_id)
+            .execute(self)
+            .await?;
         Ok(())
     }
 
     async fn add_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()> {
-        let problems = internal_problem_list_items::table
-            .filter(internal_problem_list_items::internal_list_id.eq(internal_list_id))
-            .select(internal_problem_list_items::problem_id)
-            .load::<String>(self)?;
+        let problems = sqlx::query(
+            "SELECT problem_id FROM internal_problem_list_items WHERE internal_list_id = $1",
+        )
+        .bind(internal_list_id)
+        .map(|row| row.get::<String>(0))
+        .fetch(self)
+        .await?;
         if problems.len() >= MAX_ITEM_NUM {
             return Err(http_types::Error::from(InvalidRequest));
         }
-        insert_into(internal_problem_list_items::table)
-            .values(vec![(
-                internal_problem_list_items::internal_list_id.eq(internal_list_id),
-                internal_problem_list_items::problem_id.eq(problem_id),
-            )])
-            .execute(self)?;
+        sqlx::query(
+            r#"
+            INSERT INTO internal_problem_list_items (internal_list_id, problem_id)
+            VALUES ($1, $2)
+            "#,
+        )
+        .bind(internal_list_id)
+        .bind(problem_id)
+        .execute(self)
+        .await?;
         Ok(())
     }
 
@@ -172,26 +225,31 @@ impl ProblemListManager for PooledConnection {
         problem_id: &str,
         memo: &str,
     ) -> Result<()> {
-        update(
-            internal_problem_list_items::table.filter(
-                internal_problem_list_items::internal_list_id
-                    .eq(internal_list_id)
-                    .and(internal_problem_list_items::problem_id.eq(problem_id)),
-            ),
+        sqlx::query(
+            r#"
+        UPDATE internal_problem_list_items
+        SET memo = $1
+        WHERE internal_list_id = $2 AND problem_id = $3
+            "#,
         )
-        .set(internal_problem_list_items::memo.eq(memo))
-        .execute(self)?;
+        .bind(memo)
+        .bind(internal_list_id)
+        .bind(problem_id)
+        .execute(self)
+        .await?;
         Ok(())
     }
     async fn delete_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()> {
-        delete(
-            internal_problem_list_items::table.filter(
-                internal_problem_list_items::internal_list_id
-                    .eq(internal_list_id)
-                    .and(internal_problem_list_items::problem_id.eq(problem_id)),
-            ),
+        sqlx::query(
+            r#"
+            DELETE FROM internal_problem_list_items
+            WHERE internal_list_id = $1 AND problem_id = $2
+            "#,
         )
-        .execute(self)?;
+        .bind(internal_list_id)
+        .bind(problem_id)
+        .execute(self)
+        .await?;
         Ok(())
     }
 }

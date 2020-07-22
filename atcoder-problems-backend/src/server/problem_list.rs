@@ -9,7 +9,7 @@ pub(crate) async fn get_own_lists<A: Authentication + Clone + Send + Sync + 'sta
     request: Request<AppData<A>>,
 ) -> tide::Result<Response> {
     let (conn, user_id) = request.get_unpack().await?;
-    let list = conn.get_list(&user_id)?;
+    let list = conn.get_list(&user_id).await?;
     let response = Response::ok().body_json(&list)?;
     Ok(response)
 }
@@ -18,8 +18,8 @@ pub(crate) async fn get_single_list<A: Authentication + Clone + Send + Sync + 's
     request: Request<AppData<A>>,
 ) -> tide::Result<Response> {
     let list_id = request.param::<String>("list_id")?;
-    let conn = request.state().pool.get()?;
-    let list = conn.get_single_list(&list_id)?;
+    let conn = request.state().pool.acquire().await?;
+    let list = conn.get_single_list(&list_id).await?;
     let response = Response::ok().body_json(&list)?;
     Ok(response)
 }
@@ -32,7 +32,9 @@ pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'stati
         list_name: String,
     }
     let (query, conn, internal_user_id) = request.post_unpack::<Query>().await?;
-    let internal_list_id = conn.create_list(&internal_user_id, &query.list_name)?;
+    let internal_list_id = conn
+        .create_list(&internal_user_id, &query.list_name)
+        .await?;
     let body = serde_json::json!({ "internal_list_id": internal_list_id });
     let response = Response::ok().body_json(&body)?;
     Ok(response)
@@ -47,7 +49,7 @@ where
         internal_list_id: String,
     }
     let (query, conn, _) = request.post_unpack::<Q>().await?;
-    conn.delete_list(&query.internal_list_id)?;
+    conn.delete_list(&query.internal_list_id).await?;
     let response = Response::ok().body_json(&serde_json::json!({}))?;
     Ok(response)
 }
@@ -62,7 +64,8 @@ where
         name: String,
     }
     let (query, conn, _) = request.post_unpack::<Q>().await?;
-    conn.update_list(&query.internal_list_id, &query.name)?;
+    conn.update_list(&query.internal_list_id, &query.name)
+        .await?;
     let response = Response::ok().body_json(&serde_json::json!({}))?;
     Ok(response)
 }
@@ -77,7 +80,7 @@ where
         problem_id: String,
     }
     let (query, conn, _) = request.post_unpack::<Q>().await?;
-    conn.add_item(&query.internal_list_id, &query.problem_id)?;
+    conn.add_item(&query.internal_list_id, &query.problem_id).await?;
     let response = Response::ok().body_json(&serde_json::json!({}))?;
     Ok(response)
 }
@@ -94,7 +97,8 @@ where
     }
 
     let (query, conn, _) = request.post_unpack::<Q>().await?;
-    conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)?;
+    conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)
+        .await?;
     let response = Response::ok().body_json(&serde_json::json!({}))?;
     Ok(response)
 }
@@ -109,7 +113,8 @@ where
         problem_id: String,
     }
     let (query, conn, _) = request.post_unpack::<Q>().await?;
-    conn.delete_item(&query.internal_list_id, &query.problem_id)?;
+    conn.delete_item(&query.internal_list_id, &query.problem_id)
+        .await?;
     let response = Response::ok().body_json(&serde_json::json!({}))?;
     Ok(response)
 }
