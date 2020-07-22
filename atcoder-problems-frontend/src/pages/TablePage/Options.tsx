@@ -60,18 +60,21 @@ export const Options: React.FC<Props> = (props) => {
             </HelpBadgeTooltip>
           </Label>
         </FormGroup>
-        {props.isUserRatingInfoEnabled && (
-          <FormGroup check inline>
-            <Label check>
-              <Input
-                type="checkbox"
-                checked={props.showRelativeDifficulties}
-                onChange={props.toggleShowRelativeDifficulties}
-              />
-              Show Relative Difficulty
-            </Label>
-          </FormGroup>
-        )}
+        <FormGroup check inline disabled={!props.isUserRatingInfoEnabled}>
+          <Label check>
+            <Input
+              type="checkbox"
+              disabled={!props.isUserRatingInfoEnabled}
+              checked={props.showRelativeDifficulties}
+              onChange={props.toggleShowRelativeDifficulties}
+            />
+            Show Relative Difficulty
+            <HelpBadgeTooltip id="relative-difficulty">
+              Evaluate as
+              <br />( 1 - <i>Predicted-Solve-Probability</i> )
+            </HelpBadgeTooltip>
+          </Label>
+        </FormGroup>
         {props.colorMode === ColorMode.ContestResult && (
           <FormGroup check inline>
             <Label check>
