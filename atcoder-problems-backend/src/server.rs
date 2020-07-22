@@ -24,9 +24,8 @@ pub(crate) mod user_submissions;
 pub(crate) mod utils;
 pub(crate) mod virtual_contest;
 
-pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
-pub(crate) type PooledConnection =
-    diesel::r2d2::PooledConnection<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
+pub(crate) type Pool = sqlx::postgres::PgPool;
+pub(crate) type PooledConnection = sqlx::pool::PoolConnection<sqlx::PgConnection>;
 
 pub async fn run_server<A>(pool: Pool, authentication: A, port: u16) -> Result<()>
 where
@@ -109,12 +108,12 @@ where
     Ok(())
 }
 
-pub fn initialize_pool<S: Into<String>>(database_url: S) -> Result<Pool> {
-    let manager = diesel::r2d2::ConnectionManager::<diesel::PgConnection>::new(database_url);
-    let pool = diesel::r2d2::Pool::builder()
+pub async fn initialize_pool<S: AsRef<str>>(database_url: S) -> Result<Pool> {
+    let pool = Pool::builder()
         .max_lifetime(Some(Duration::from_secs(60 * 5)))
         .max_size(15)
-        .build(manager)?;
+        .build(database_url.as_ref())
+        .await?;
     Ok(pool)
 }
 

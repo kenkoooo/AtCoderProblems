@@ -20,7 +20,7 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         let client = self.state().authentication.clone();
         let request = self;
         let token = request.cookie("token").ok_or_else(|| CookieNotFound)?;
-        let conn = request.state().pool.get()?;
+        let conn = request.state().pool.acquire().await?;
         let response = client.get_user_id(&token.value()).await?;
         Ok((conn, response.id.to_string()))
     }
@@ -31,7 +31,7 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         let mut request = self;
         let body: Body = request.body_json().await?;
         let token = request.cookie("token").ok_or_else(|| CookieNotFound)?;
-        let conn = request.state().pool.get()?;
+        let conn = &request.state().pool.acquire().await?;
         let response = client.get_user_id(&token.value()).await?;
         Ok((body, conn, response.id.to_string()))
     }

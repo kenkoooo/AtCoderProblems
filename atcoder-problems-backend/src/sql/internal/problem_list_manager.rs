@@ -1,16 +1,15 @@
 use crate::error::Result;
-use crate::sql::schema::*;
+use crate::server::PooledConnection;
 
 use crate::error::ErrorTypes::InvalidRequest;
-use diesel::prelude::*;
-use diesel::{delete, insert_into, update, PgConnection};
+use async_trait::async_trait;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
 const MAX_LIST_NUM: usize = 256;
 const MAX_ITEM_NUM: usize = 1024;
 
-#[derive(Serialize)]
+#[derive(Serialize, sqlx::FromRow)]
 pub(crate) struct ProblemList {
     internal_list_id: String,
     internal_list_name: String,
@@ -18,27 +17,30 @@ pub(crate) struct ProblemList {
     items: Vec<ListItem>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, sqlx::FromRow)]
 pub(crate) struct ListItem {
     problem_id: String,
     memo: String,
 }
 
+#[async_trait]
 pub(crate) trait ProblemListManager {
-    fn get_list(&self, internal_user_id: &str) -> Result<Vec<ProblemList>>;
-    fn get_single_list(&self, internal_list_id: &str) -> Result<ProblemList>;
+    async fn get_list(&self, internal_user_id: &str) -> Result<Vec<ProblemList>>;
+    async fn get_single_list(&self, internal_list_id: &str) -> Result<ProblemList>;
 
-    fn create_list(&self, internal_user_id: &str, name: &str) -> Result<String>;
-    fn update_list(&self, internal_list_id: &str, name: &str) -> Result<()>;
-    fn delete_list(&self, internal_list_id: &str) -> Result<()>;
+    async fn create_list(&self, internal_user_id: &str, name: &str) -> Result<String>;
+    async fn update_list(&self, internal_list_id: &str, name: &str) -> Result<()>;
+    async fn delete_list(&self, internal_list_id: &str) -> Result<()>;
 
-    fn add_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()>;
-    fn update_item(&self, internal_list_id: &str, problem_id: &str, memo: &str) -> Result<()>;
-    fn delete_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()>;
+    async fn add_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()>;
+    async fn update_item(&self, internal_list_id: &str, problem_id: &str, memo: &str)
+        -> Result<()>;
+    async fn delete_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()>;
 }
 
-impl ProblemListManager for PgConnection {
-    fn get_list(&self, internal_user_id: &str) -> Result<Vec<ProblemList>> {
+#[async_trait]
+impl ProblemListManager for PooledConnection {
+    async fn get_list(&self, internal_user_id: &str) -> Result<Vec<ProblemList>> {
         let items = internal_problem_lists::table
             .left_join(
                 internal_problem_list_items::table.on(internal_problem_lists::internal_list_id
@@ -75,7 +77,7 @@ impl ProblemListManager for PgConnection {
             .collect();
         Ok(list)
     }
-    fn get_single_list(&self, internal_list_id: &str) -> Result<ProblemList> {
+    async fn get_single_list(&self, internal_list_id: &str) -> Result<ProblemList> {
         let items = internal_problem_lists::table
             .left_join(
                 internal_problem_list_items::table.on(internal_problem_lists::internal_list_id
@@ -114,7 +116,7 @@ impl ProblemListManager for PgConnection {
         Ok(list)
     }
 
-    fn create_list(&self, internal_user_id: &str, name: &str) -> Result<String> {
+    async fn create_list(&self, internal_user_id: &str, name: &str) -> Result<String> {
         let new_list_id = uuid::Uuid::new_v4().to_string();
         let list = self.get_list(internal_user_id)?;
         if list.len() >= MAX_LIST_NUM {
@@ -129,7 +131,7 @@ impl ProblemListManager for PgConnection {
             .execute(self)?;
         Ok(new_list_id)
     }
-    fn update_list(&self, internal_list_id: &str, name: &str) -> Result<()> {
+    async fn update_list(&self, internal_list_id: &str, name: &str) -> Result<()> {
         update(
             internal_problem_lists::table
                 .filter(internal_problem_lists::internal_list_id.eq(internal_list_id)),
@@ -138,7 +140,7 @@ impl ProblemListManager for PgConnection {
         .execute(self)?;
         Ok(())
     }
-    fn delete_list(&self, internal_list_id: &str) -> Result<()> {
+    async fn delete_list(&self, internal_list_id: &str) -> Result<()> {
         delete(
             internal_problem_lists::table
                 .filter(internal_problem_lists::internal_list_id.eq(internal_list_id)),
@@ -147,7 +149,7 @@ impl ProblemListManager for PgConnection {
         Ok(())
     }
 
-    fn add_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()> {
+    async fn add_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()> {
         let problems = internal_problem_list_items::table
             .filter(internal_problem_list_items::internal_list_id.eq(internal_list_id))
             .select(internal_problem_list_items::problem_id)
@@ -164,7 +166,12 @@ impl ProblemListManager for PgConnection {
         Ok(())
     }
 
-    fn update_item(&self, internal_list_id: &str, problem_id: &str, memo: &str) -> Result<()> {
+    async fn update_item(
+        &self,
+        internal_list_id: &str,
+        problem_id: &str,
+        memo: &str,
+    ) -> Result<()> {
         update(
             internal_problem_list_items::table.filter(
                 internal_problem_list_items::internal_list_id
@@ -176,7 +183,7 @@ impl ProblemListManager for PgConnection {
         .execute(self)?;
         Ok(())
     }
-    fn delete_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()> {
+    async fn delete_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()> {
         delete(
             internal_problem_list_items::table.filter(
                 internal_problem_list_items::internal_list_id

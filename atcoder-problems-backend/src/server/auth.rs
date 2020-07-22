@@ -79,12 +79,12 @@ pub(crate) async fn get_token<A: Authentication + Clone>(
 ) -> tide::Result<Response> {
     let query = request.query::<Query>()?;
     let client = request.state().authentication.clone();
-    let conn = request.state().pool.get()?;
+    let conn = request.state().pool.acquire().await?;
 
     let token = client.get_token(&query.code).await?;
     let response = client.get_user_id(&token).await?;
     let internal_user_id = response.id.to_string();
-    conn.register_user(&internal_user_id)?;
+    conn.register_user(&internal_user_id).await?;
 
     let cookie = Cookie::build("token", token).path("/").finish();
     let redirect_url = "https://kenkoooo.com/atcoder/#/login/user";
