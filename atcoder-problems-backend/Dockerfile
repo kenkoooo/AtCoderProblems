@@ -5,6 +5,7 @@ WORKDIR /app
 RUN mkdir -p ./sql-client/src
 RUN touch ./sql-client/src/lib.rs
 ADD ./sql-client/Cargo.toml ./sql-client
+ADD ./sql-client/Cargo.lock ./sql-client
 
 RUN mkdir ./src
 RUN echo "fn main(){}" > ./src/main.rs
