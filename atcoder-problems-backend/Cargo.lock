@@ -225,6 +225,7 @@ dependencies = [
  "serde",
  "serde_json",
  "simple_logger",
+ "sql-client",
  "surf 2.0.0-alpha.4",
  "tide",
  "uuid 0.8.1",
@@ -2730,6 +2731,10 @@ dependencies = [
  "redox_syscall",
  "winapi 0.3.9",
 ]
+
+[[package]]
+name = "sql-client"
+version = "0.1.0"
 
 [[package]]
 name = "stable_deref_trait"
