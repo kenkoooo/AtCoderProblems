@@ -62,7 +62,7 @@ async fn test_virtual_contest() -> Result<()> {
     let response = surf::post(url("/internal-api/user/update", port))
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
-                "atcoder_user_id": "atcoder_user1"
+            "atcoder_user_id": "atcoder_user1"
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -72,7 +72,8 @@ async fn test_virtual_contest() -> Result<()> {
             "title": "contest title",
             "memo": "contest memo",
             "start_epoch_second": 1,
-            "duration_second": 2
+            "duration_second": 2,
+            "penalty_second": 0,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -86,7 +87,8 @@ async fn test_virtual_contest() -> Result<()> {
             "title": "contest title",
             "memo": "contest memo",
             "start_epoch_second": 1,
-            "duration_second": 2
+            "duration_second": 2,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -107,6 +109,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
+                "penalty_second": 300,
             }
         ])
     );
@@ -141,6 +144,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
+                "penalty_second": 300,
             }
         ])
     );
@@ -183,6 +187,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
+                "penalty_second": 300,
             }
         ])
     );
@@ -230,6 +235,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
+                "penalty_second": 300,
             }
         ])
     );
@@ -252,6 +258,7 @@ async fn test_virtual_contest() -> Result<()> {
                 "id": format!("{}", contest_id),
                 "mode": null,
                 "is_public": true,
+                "penalty_second": 300,
             },
             "problems": [{ "id": "problem_1", "point": 100, "order": null }, { "id": "problem_2", "point": null, "order": null }],
             "participants": ["atcoder_user1"],
@@ -272,7 +279,8 @@ async fn test_virtual_contest() -> Result<()> {
                 "title": "contest title",
                 "is_public": true,
                 "id": format!("{}", contest_id),
-                "mode": null
+                "mode": null,
+                "penalty_second": 300,
             }
         ])
     );
@@ -302,7 +310,8 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "title": "visible",
             "memo": "",
             "start_epoch_second": 1,
-            "duration_second": 2
+            "duration_second": 2,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -323,7 +332,8 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "memo": "",
             "start_epoch_second": 1,
             "duration_second": 2,
-            "is_public": false
+            "is_public": false,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -340,7 +350,8 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "memo": "",
             "start_epoch_second": 1,
             "duration_second": 2,
-            "is_public": false
+            "is_public": false,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());
@@ -360,7 +371,8 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "memo": "",
             "start_epoch_second": 1,
             "duration_second": 2,
-            "is_public": true
+            "is_public": true,
+            "penalty_second": 300,
         }))?
         .await?;
     assert!(response.status().is_success());

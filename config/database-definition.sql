@@ -166,7 +166,8 @@ CREATE TABLE internal_virtual_contests (
   start_epoch_second    BIGINT       NOT NULL,
   duration_second       BIGINT       NOT NULL,
   mode      VARCHAR(255) DEFAULT NULL,
-  is_public boolean NOT NULL DEFAULT TRUE,
+  is_public BOOLEAN NOT NULL DEFAULT TRUE,
+  penalty_second   BIGINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
 CREATE INDEX ON internal_virtual_contests (internal_user_id);

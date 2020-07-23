@@ -4,6 +4,7 @@ import {
   calcUserTotalResult,
   ReducedProblemResult,
   reduceUserContestResult,
+  compareTotalResult,
 } from "./ResultCalcUtil";
 
 describe("reduce user's submissions", () => {
@@ -164,4 +165,60 @@ test("Calculate total result", () => {
     point: 100,
     lastUpdatedEpochSecond: 40,
   });
+});
+
+test("Compare total result", () => {
+  expect(
+    compareTotalResult(
+      {
+        // Higher Rank
+        point: 500,
+        lastUpdatedEpochSecond: 660,
+        penalties: 0,
+      },
+      {
+        // Lower Rank
+        point: 500,
+        lastUpdatedEpochSecond: 60,
+        penalties: 2,
+      },
+      300
+    )
+  ).toBeLessThan(0);
+
+  expect(
+    compareTotalResult(
+      {
+        // Higher Rank
+        point: 100,
+        lastUpdatedEpochSecond: 60,
+        penalties: 0,
+      },
+      {
+        // Lower Rank
+        point: 100,
+        lastUpdatedEpochSecond: 60,
+        penalties: 1,
+      },
+      0
+    )
+  ).toBeLessThan(0);
+
+  expect(
+    compareTotalResult(
+      {
+        // Lower Rank
+        point: 500,
+        lastUpdatedEpochSecond: 60,
+        penalties: 1,
+      },
+      {
+        // Higher Rank
+        point: 500,
+        lastUpdatedEpochSecond: 80,
+        penalties: 0,
+      },
+      300
+    )
+  ).toBeGreaterThan(0);
 });
