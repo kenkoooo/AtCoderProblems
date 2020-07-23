@@ -4,7 +4,9 @@ export const ContestCategories = [
   "ABC",
   "ARC",
   "AGC",
-  "Other Rated Contests",
+  "ABC-Like",
+  "ARC-Like",
+  "AGC-Like",
   "PAST",
   "JOI",
   "JAG",
@@ -21,6 +23,17 @@ export const isRatedContest = (contest: Contest): boolean => {
   );
 };
 
+const classifyOtherRatedContest = (contest: Contest): ContestCategory => {
+  if (contest.rate_change === "All") {
+    return "AGC-Like";
+  }
+  const rated_max = parseInt(contest.rate_change.split(" ").slice(-1)[0], 10);
+  if (rated_max < 2000) {
+    return "ABC-Like";
+  }
+  return "ARC-Like";
+};
+
 export const classifyContest = (contest: Contest): ContestCategory => {
   if (/^abc\d{3}$/.exec(contest.id)) {
     return "ABC";
@@ -33,7 +46,7 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   }
 
   if (isRatedContest(contest)) {
-    return "Other Rated Contests";
+    return classifyOtherRatedContest(contest);
   }
 
   if (contest.id.startsWith("past")) {
