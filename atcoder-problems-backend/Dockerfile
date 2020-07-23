@@ -1,13 +1,21 @@
 FROM rust:1.44.0 AS builder
 
 WORKDIR /app
+
+RUN mkdir -p ./sql-client/src
+RUN touch ./sql-client/src/lib.rs
+ADD ./sql-client/Cargo.toml ./sql-client
+ADD ./sql-client/Cargo.lock ./sql-client
+
 RUN mkdir ./src
 RUN echo "fn main(){}" > ./src/main.rs
 ADD ./Cargo.toml .
 ADD ./Cargo.lock .
+
 RUN cargo build --release
 
 ADD ./src ./src
+ADD ./sql-client ./sql-client
 RUN cargo build --release
 
 FROM rust:1.44.0
