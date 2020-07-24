@@ -1,5 +1,5 @@
 export const ThemeLight = {
-  difficultyBlackColor: "#101010",
+  difficultyBlackColor: "#404040",
   difficultyGreyColor: "#808080",
   difficultyBrownColor: "#804000",
   difficultyGreenColor: "#008000",
