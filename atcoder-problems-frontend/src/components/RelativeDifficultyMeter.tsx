@@ -11,47 +11,35 @@ interface Props {
   userInternalRating: number;
 }
 
-class RelDiffPredictionUtil {
-  private static logit(x: number): number {
-    return Math.log(x / (1 - x));
-  }
-  private static sigmoid(x: number): number {
-    return 1 / (1 + Math.exp(-x));
-  }
-  private static get X_AT_PROB_MAX_HARD(): number {
-    return RelDiffPredictionUtil.logit(this.SOLVE_PROB_MAX_HARD);
-  }
+const logit = (x: number): number => {
+  return Math.log(x / (1 - x));
+};
+const sigmoid = (x: number): number => {
+  return 1 / (1 + Math.exp(-x));
+};
 
-  private static get SOLVE_PROB_MAX_HARD(): number {
-    return 0.1;
-  }
-  private static get SOLVE_PROB_MAX_DIFFICULT(): number {
-    return this.sigmoid(this.X_AT_PROB_MAX_HARD / 3);
-  }
-  private static get SOLVE_PROB_MAX_MODERATE(): number {
-    return this.sigmoid(-this.X_AT_PROB_MAX_HARD / 3);
-  }
-  private static get SOLVE_PROB_MAX_EASY(): number {
-    return 1 - this.SOLVE_PROB_MAX_HARD;
-  }
-  // private static get SOLVE_PROB_MAX_VERY_EASY(): number {  return 1; }
+const SOLVE_PROB_MAX_HARD = 0.1;
+const X_AT_PROB_MAX_HARD = logit(SOLVE_PROB_MAX_HARD);
+const SOLVE_PROB_MAX_DIFFICULT = sigmoid(X_AT_PROB_MAX_HARD / 3);
+const SOLVE_PROB_MAX_MODERATE = sigmoid(-X_AT_PROB_MAX_HARD / 3);
+const SOLVE_PROB_MAX_EASY = 1 - SOLVE_PROB_MAX_HARD;
+// const SOLVE_PROB_MAX_VERY_EASY: number = 1;
 
-  public static getRelDiffLevelColor(
-    solveProbability: number,
-    theme: Theme
-  ): string {
-    if (solveProbability <= this.SOLVE_PROB_MAX_HARD)
-      return theme.relativeDifficultyHardColor;
-    else if (solveProbability <= this.SOLVE_PROB_MAX_DIFFICULT)
-      return theme.relativeDifficultyDifficultColor;
-    else if (solveProbability <= this.SOLVE_PROB_MAX_MODERATE)
-      return theme.relativeDifficultyModerateColor;
-    else if (solveProbability <= this.SOLVE_PROB_MAX_EASY)
-      return theme.relativeDifficultyEasyColor;
-    // if (solveProbability <= this.SOLVE_PROB_MAX_VERY_EASY)
-    else return theme.relativeDifficultyVeryEasyColor;
-  }
-}
+const getRelDiffLevelColor = (
+  solveProbability: number,
+  theme: Theme
+): string => {
+  if (solveProbability <= SOLVE_PROB_MAX_HARD)
+    return theme.relativeDifficultyHardColor;
+  else if (solveProbability <= SOLVE_PROB_MAX_DIFFICULT)
+    return theme.relativeDifficultyDifficultColor;
+  else if (solveProbability <= SOLVE_PROB_MAX_MODERATE)
+    return theme.relativeDifficultyModerateColor;
+  else if (solveProbability <= SOLVE_PROB_MAX_EASY)
+    return theme.relativeDifficultyEasyColor;
+  // else if (solveProbability <= SOLVE_PROB_MAX_VERY_EASY)
+  else return theme.relativeDifficultyVeryEasyColor;
+};
 
 export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
   const { problemId, problemModel, userInternalRating } = props;
@@ -63,10 +51,7 @@ export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
   const fillRatio = 1 - predictedSolveProbability;
 
   const theme = useTheme();
-  const meter_color = RelDiffPredictionUtil.getRelDiffLevelColor(
-    predictedSolveProbability,
-    theme
-  );
+  const meter_color = getRelDiffLevelColor(predictedSolveProbability, theme);
   const bg_color = theme.relativeDifficultyBackgroundColor;
 
   const styleOptions = Object({
