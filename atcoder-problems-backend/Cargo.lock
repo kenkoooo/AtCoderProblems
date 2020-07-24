@@ -2801,7 +2801,11 @@ dependencies = [
 name = "sql-client"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
+ "serde",
  "sqlx",
+ "thiserror",
+ "uuid 0.8.1",
 ]
 
 [[package]]
