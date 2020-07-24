@@ -1,26 +1,26 @@
-use crate::{SqlClientResult, PgPool};
-use crate::error::{SqlClientError, EntityKind};
+use crate::error::{EntityKind, SqlClientError};
+use crate::{PgPool, SqlClientResult};
 use async_trait::async_trait;
 use serde::Serialize;
-use std::collections::BTreeMap;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
+use std::collections::BTreeMap;
 
 const MAX_LIST_NUM: usize = 256;
 const MAX_ITEM_NUM: usize = 1024;
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, PartialEq, Eq)]
 pub struct ProblemList {
-    internal_list_id: String,
-    internal_list_name: String,
-    internal_user_id: String,
-    items: Vec<ListItem>,
+    pub internal_list_id: String,
+    pub internal_list_name: String,
+    pub internal_user_id: String,
+    pub items: Vec<ListItem>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, PartialEq, Eq)]
 pub struct ListItem {
-    problem_id: String,
-    memo: String,
+    pub problem_id: String,
+    pub memo: String,
 }
 
 #[async_trait]
@@ -50,7 +50,7 @@ impl ProblemListManager for PgPool {
             a.internal_list_name,
             a.internal_user_id,
             b.problem_id,
-            b.mamo
+            b.memo
         FROM internal_problem_lists AS a
         LEFT JOIN internal_problem_list_items AS b
         ON a.internal_list_id = b.internal_list_id

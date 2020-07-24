@@ -1,4 +1,6 @@
-SET client_encoding = 'UTF8';
+-- comment out for now because of sqlx
+-- https://github.com/launchbadge/sqlx/issues/484
+-- SET client_encoding = 'UTF8';
 
 DROP TABLE IF EXISTS submissions;
 CREATE TABLE submissions (

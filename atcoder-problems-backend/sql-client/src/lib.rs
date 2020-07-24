@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-pub mod internal;
 pub mod error;
+pub mod internal;
 
 use error::SqlClientError;
 
@@ -16,4 +16,3 @@ pub async fn initialize_pool<S: AsRef<str>>(database_url: S) -> SqlClientResult<
         .await?;
     Ok(pool)
 }
-

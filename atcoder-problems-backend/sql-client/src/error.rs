@@ -1,5 +1,5 @@
-use thiserror::Error;
 use std::fmt;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum SqlClientError {
@@ -20,9 +20,13 @@ pub enum EntityKind {
 impl fmt::Display for EntityKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use EntityKind::*;
-        write!(f, "{}", match *self {
-            ListItem => "ListItem",
-            List => "List",
-        })
+        write!(
+            f,
+            "{}",
+            match *self {
+                ListItem => "ListItem",
+                List => "List",
+            }
+        )
     }
 }
