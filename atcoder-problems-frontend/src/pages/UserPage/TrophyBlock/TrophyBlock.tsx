@@ -44,13 +44,13 @@ export const TrophyBlock = (props: Props): JSX.Element => {
     .filter((t) => filterGroup === "All" || t.group === filterGroup);
 
   const groupChoices: [TrophyGroup | "All", number][] = [
-    ["All", trophies.length],
+    ["All", trophies.filter((t) => t.achieved).length],
     ...TrophyGroups.map(
       (group) =>
-        [group, trophies.filter((t) => t.group === group).length] as [
-          TrophyGroup,
-          number
-        ]
+        [
+          group,
+          trophies.filter((t) => t.group === group && t.achieved).length,
+        ] as [TrophyGroup, number]
     ),
   ];
 
