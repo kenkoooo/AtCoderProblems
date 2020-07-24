@@ -1,10 +1,13 @@
 import Contest from "../../interfaces/Contest";
+import { RatedTargetType, getRatedTarget } from "../../components/ContestLink";
 
 export const ContestCategories = [
   "ABC",
   "ARC",
   "AGC",
-  "Other Rated Contests",
+  "ABC-Like",
+  "ARC-Like",
+  "AGC-Like",
   "PAST",
   "JOI",
   "JAG",
@@ -21,6 +24,18 @@ export const isRatedContest = (contest: Contest): boolean => {
   );
 };
 
+const classifyOtherRatedContest = (contest: Contest): ContestCategory => {
+  const rated = getRatedTarget(contest);
+  if (rated === RatedTargetType.All) {
+    return "AGC-Like";
+  }
+  if (rated < 2000) {
+    return "ABC-Like";
+  }
+
+  return "ARC-Like";
+};
+
 export const classifyContest = (contest: Contest): ContestCategory => {
   if (/^abc\d{3}$/.exec(contest.id)) {
     return "ABC";
@@ -33,7 +48,7 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   }
 
   if (isRatedContest(contest)) {
-    return "Other Rated Contests";
+    return classifyOtherRatedContest(contest);
   }
 
   if (contest.id.startsWith("past")) {
