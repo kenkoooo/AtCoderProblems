@@ -1,4 +1,5 @@
 import Contest from "../../interfaces/Contest";
+import { RatedTargetType, getRatedTarget } from "../../components/ContestLink";
 
 export const ContestCategories = [
   "ABC",
@@ -24,13 +25,14 @@ export const isRatedContest = (contest: Contest): boolean => {
 };
 
 const classifyOtherRatedContest = (contest: Contest): ContestCategory => {
-  if (contest.rate_change === "All") {
+  const rated = getRatedTarget(contest);
+  if (rated === RatedTargetType.All) {
     return "AGC-Like";
   }
-  const rated_max = parseInt(contest.rate_change.split(" ").slice(-1)[0], 10);
-  if (rated_max < 2000) {
+  if (rated < 2000) {
     return "ABC-Like";
   }
+
   return "ARC-Like";
 };
 
