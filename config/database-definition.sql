@@ -1,4 +1,4 @@
--- comment out for now because of sqlx
+-- comment out for now because of the sqlx issue:
 -- https://github.com/launchbadge/sqlx/issues/484
 -- SET client_encoding = 'UTF8';
 
