@@ -44,13 +44,13 @@ const createTableData = (
     const date = formatMomentDate(moment(startDate).add(i, "day"));
     if (showMode === "Max Difficulty") {
       const submissions = submissionsByDate.get(date) ?? [];
-      const difficulties = submissions
-        .map((s) => problemModels.get(s.problem_id)?.difficulty)
-        .filter((d): d is number => d !== undefined);
+      const difficulties = submissions.map(
+        (s) => problemModels.get(s.problem_id)?.difficulty ?? -1
+      );
       if (difficulties.length > 0) {
         const value = difficulties.reduce(
           (max, difficulty) => Math.max(max, difficulty),
-          0
+          -1
         );
         tableData.push({ date, value });
       } else {
@@ -127,7 +127,7 @@ export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
   const formatTooltip =
     showMode === "Max Difficulty"
       ? (date: string, difficulty: number): string =>
-          `${date} Max Difficulty: ${difficulty}`
+          `${date} Max Difficulty: ${difficulty >= 0 ? difficulty : "-"}`
       : (date: string, count: number): string =>
           formatCountTooltip(date, count, showMode);
   const getColor =
