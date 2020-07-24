@@ -10,6 +10,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-attributes"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "efd3d156917d94862e779f356c5acae312b08fd3121e792c857d7928c8088423"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "async-channel"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -38,6 +48,7 @@ version = "1.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "00d68a33ebc8b57800847d00787307f84a562224a14db069b0acefe4c2abbf5d"
 dependencies = [
+ "async-attributes",
  "async-task",
  "crossbeam-utils",
  "futures-channel",
@@ -998,6 +1009,7 @@ dependencies = [
 name = "sql-client"
 version = "0.1.0"
 dependencies = [
+ "async-std",
  "async-trait",
  "serde",
  "sqlx",
