@@ -4,8 +4,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 const SQL_FILE: &str = "../../config/database-definition.sql";
-// TODO(magurotuna): change this to `postgresql://kenkoooo:pass@localhost/test`
-pub const SQL_URL: &str = "postgresql://db_user:password@localhost/db";
+pub const SQL_URL: &str = "postgresql://kenkoooo:pass@localhost/test";
 
 pub async fn initialize_and_connect_to_test_sql() -> PgPool {
     let pool = sql_client::initialize_pool(SQL_URL).await.unwrap();
