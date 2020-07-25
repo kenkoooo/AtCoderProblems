@@ -1,5 +1,5 @@
-use crate::error::{EntityKind, SqlClientError};
-use crate::{PgPool, SqlClientResult};
+use crate::PgPool;
+use anyhow::{anyhow, bail, Result};
 use async_trait::async_trait;
 use serde::Serialize;
 use sqlx::postgres::PgRow;
@@ -25,24 +25,20 @@ pub struct ListItem {
 
 #[async_trait]
 pub trait ProblemListManager {
-    async fn get_list(&self, internal_user_id: &str) -> SqlClientResult<Vec<ProblemList>>;
-    async fn get_single_list(&self, internal_list_id: &str) -> SqlClientResult<ProblemList>;
-    async fn create_list(&self, internal_user_id: &str, name: &str) -> SqlClientResult<String>;
-    async fn update_list(&self, internal_list_id: &str, name: &str) -> SqlClientResult<()>;
-    async fn delete_list(&self, internal_list_id: &str) -> SqlClientResult<()>;
-    async fn add_item(&self, internal_list_id: &str, problem_id: &str) -> SqlClientResult<()>;
-    async fn update_item(
-        &self,
-        internal_list_id: &str,
-        problem_id: &str,
-        memo: &str,
-    ) -> SqlClientResult<()>;
-    async fn delete_item(&self, internal_list_id: &str, problem_id: &str) -> SqlClientResult<()>;
+    async fn get_list(&self, internal_user_id: &str) -> Result<Vec<ProblemList>>;
+    async fn get_single_list(&self, internal_list_id: &str) -> Result<ProblemList>;
+    async fn create_list(&self, internal_user_id: &str, name: &str) -> Result<String>;
+    async fn update_list(&self, internal_list_id: &str, name: &str) -> Result<()>;
+    async fn delete_list(&self, internal_list_id: &str) -> Result<()>;
+    async fn add_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()>;
+    async fn update_item(&self, internal_list_id: &str, problem_id: &str, memo: &str)
+        -> Result<()>;
+    async fn delete_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()>;
 }
 
 #[async_trait]
 impl ProblemListManager for PgPool {
-    async fn get_list(&self, internal_user_id: &str) -> SqlClientResult<Vec<ProblemList>> {
+    async fn get_list(&self, internal_user_id: &str) -> Result<Vec<ProblemList>> {
         let items = sqlx::query(
             r"
         SELECT
@@ -97,7 +93,7 @@ impl ProblemListManager for PgPool {
         Ok(list)
     }
 
-    async fn get_single_list(&self, internal_list_id: &str) -> SqlClientResult<ProblemList> {
+    async fn get_single_list(&self, internal_list_id: &str) -> Result<ProblemList> {
         let items = sqlx::query(
             r"
         SELECT
@@ -149,16 +145,16 @@ impl ProblemListManager for PgPool {
                 },
             )
             .next()
-            .ok_or_else(|| SqlClientError::RecordNotFound(EntityKind::List))?;
+            .ok_or_else(|| anyhow!("list not found"))?;
         Ok(list)
     }
 
-    async fn create_list(&self, internal_user_id: &str, name: &str) -> SqlClientResult<String> {
+    async fn create_list(&self, internal_user_id: &str, name: &str) -> Result<String> {
         let new_list_id = uuid::Uuid::new_v4().to_string();
 
         let list = self.get_list(internal_user_id).await?;
         if list.len() >= MAX_LIST_NUM {
-            return Err(SqlClientError::LimitExceeded(EntityKind::List));
+            bail!("Cannot create a list anymore");
         }
 
         sqlx::query(
@@ -176,7 +172,7 @@ impl ProblemListManager for PgPool {
         Ok(new_list_id)
     }
 
-    async fn update_list(&self, internal_list_id: &str, name: &str) -> SqlClientResult<()> {
+    async fn update_list(&self, internal_list_id: &str, name: &str) -> Result<()> {
         sqlx::query(
             r"
         UPDATE internal_problem_lists
@@ -191,7 +187,7 @@ impl ProblemListManager for PgPool {
         Ok(())
     }
 
-    async fn delete_list(&self, internal_list_id: &str) -> SqlClientResult<()> {
+    async fn delete_list(&self, internal_list_id: &str) -> Result<()> {
         sqlx::query("DELETE FROM internal_problem_lists WHERE internal_list_id = $1")
             .bind(internal_list_id)
             .execute(self)
@@ -199,7 +195,7 @@ impl ProblemListManager for PgPool {
         Ok(())
     }
 
-    async fn add_item(&self, internal_list_id: &str, problem_id: &str) -> SqlClientResult<()> {
+    async fn add_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()> {
         let problems = sqlx::query(
             "SELECT problem_id FROM internal_problem_list_items WHERE internal_list_id = $1",
         )
@@ -208,7 +204,7 @@ impl ProblemListManager for PgPool {
         .fetch_all(self)
         .await?;
         if problems.len() >= MAX_ITEM_NUM {
-            return Err(SqlClientError::LimitExceeded(EntityKind::ListItem));
+            bail!("Cannot create a list item anymore");
         }
 
         sqlx::query(
@@ -229,7 +225,7 @@ impl ProblemListManager for PgPool {
         internal_list_id: &str,
         problem_id: &str,
         memo: &str,
-    ) -> SqlClientResult<()> {
+    ) -> Result<()> {
         sqlx::query(
             r"
         UPDATE internal_problem_list_items
@@ -245,7 +241,7 @@ impl ProblemListManager for PgPool {
         Ok(())
     }
 
-    async fn delete_item(&self, internal_list_id: &str, problem_id: &str) -> SqlClientResult<()> {
+    async fn delete_item(&self, internal_list_id: &str, problem_id: &str) -> Result<()> {
         sqlx::query(
             r"
             DELETE FROM internal_problem_list_items
