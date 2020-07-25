@@ -1,21 +1,6 @@
 use sql_client::internal::problem_list_manager::{ListItem, ProblemList, ProblemListManager};
-use sql_client::PgPool;
 
 mod utils;
-
-async fn setup_internal_user(pool: &PgPool, internal_user_id: &str, atcoder_user_id: &str) {
-    sqlx::query(
-        r"
-        INSERT INTO internal_users (internal_user_id, atcoder_user_id)
-        VALUES ($1, $2)
-        ",
-    )
-    .bind(internal_user_id)
-    .bind(atcoder_user_id)
-    .execute(pool)
-    .await
-    .unwrap();
-}
 
 #[async_std::test]
 async fn test_problem_list_manager() {
@@ -24,7 +9,7 @@ async fn test_problem_list_manager() {
     let list_name = "list_name";
     let problem_id = "problem_id";
     let pool = utils::initialize_and_connect_to_test_sql().await;
-    setup_internal_user(&pool, internal_user_id, atcoder_user_id).await;
+    utils::setup_internal_user(&pool, internal_user_id, atcoder_user_id).await;
 
     // get_list
     assert!(pool.get_list(internal_user_id).await.unwrap().is_empty());

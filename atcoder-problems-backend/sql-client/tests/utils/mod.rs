@@ -6,6 +6,20 @@ use std::io::prelude::*;
 const SQL_FILE: &str = "../../config/database-definition.sql";
 pub const SQL_URL: &str = "postgresql://kenkoooo:pass@localhost/test";
 
+pub async fn setup_internal_user(pool: &PgPool, internal_user_id: &str, atcoder_user_id: &str) {
+    sqlx::query(
+        r"
+        INSERT INTO internal_users (internal_user_id, atcoder_user_id)
+        VALUES ($1, $2)
+        ",
+    )
+    .bind(internal_user_id)
+    .bind(atcoder_user_id)
+    .execute(pool)
+    .await
+    .unwrap();
+}
+
 pub async fn initialize_and_connect_to_test_sql() -> PgPool {
     let pool = sql_client::initialize_pool(SQL_URL).await.unwrap();
     initialize(&pool).await;
