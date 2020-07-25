@@ -5,15 +5,15 @@ use serde::Serialize;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, PartialEq, Eq)]
 pub struct ProgressResetList {
-    items: Vec<ProgressResetItem>,
+    pub items: Vec<ProgressResetItem>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, PartialEq, Eq)]
 pub struct ProgressResetItem {
-    problem_id: String,
-    reset_epoch_second: i64,
+    pub problem_id: String,
+    pub reset_epoch_second: i64,
 }
 
 #[async_trait]
