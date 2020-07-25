@@ -1,5 +1,5 @@
 use crate::PgPool;
-use anyhow::{anyhow, bail, Result};
+use anyhow::{bail, Context, Result};
 use async_trait::async_trait;
 use serde::Serialize;
 use sqlx::postgres::PgRow;
@@ -145,7 +145,7 @@ impl ProblemListManager for PgPool {
                 },
             )
             .next()
-            .ok_or_else(|| anyhow!("list not found"))?;
+            .context("list not found")?;
         Ok(list)
     }
 
