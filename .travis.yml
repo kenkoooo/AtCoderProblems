@@ -10,11 +10,11 @@ matrix:
         - cd atcoder-problems-backend/
       before_script:
         - psql -c "CREATE USER kenkoooo PASSWORD 'pass';" -U postgres
-        - psql -c "CREATE DATABASE test OWNER kenkoooo;" -U postgres
+        - psql -c "CREATE DATABASE test OWNER kenkoooo ENCODING utf8;" -U postgres
       script:
         - cargo clean
         - cargo build
-        - RUST_BACKTRACE=1 cargo test -- --test-threads=1
+        - RUST_BACKTRACE=1 cargo test --workspace -- --test-threads=1
 
     - language: node_js
       node_js: node
