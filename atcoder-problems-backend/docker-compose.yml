@@ -7,6 +7,7 @@ services:
       POSTGRES_USER: db_user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
     volumes:
       - ../config/database-definition.sql:/docker-entrypoint-initdb.d/init.sql
   api_server:
