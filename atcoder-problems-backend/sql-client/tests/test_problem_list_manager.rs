@@ -34,33 +34,46 @@ async fn test_problem_list_manager() {
 
     // get_single_list
     let list = pool.get_single_list(&list_id).await.unwrap();
-    assert_eq!(list, ProblemList {
-        internal_list_id: list_id.clone(),
-        internal_list_name: list_name.to_string(),
-        internal_user_id: internal_user_id.to_string(),
-        items: vec![],
-    });
+    assert_eq!(
+        list,
+        ProblemList {
+            internal_list_id: list_id.clone(),
+            internal_list_name: list_name.to_string(),
+            internal_user_id: internal_user_id.to_string(),
+            items: vec![],
+        }
+    );
 
     // update_list
-    pool.update_list(&list_id, "list_name_updated").await.unwrap();
+    pool.update_list(&list_id, "list_name_updated")
+        .await
+        .unwrap();
     let list = pool.get_single_list(&list_id).await.unwrap();
     assert_eq!(list.internal_list_name, "list_name_updated");
 
     // add_item
     pool.add_item(&list_id, problem_id).await.unwrap();
     let list = pool.get_single_list(&list_id).await.unwrap();
-    assert_eq!(list.items, vec![ListItem {
-        problem_id: problem_id.to_string(),
-        memo: "".to_string(),
-    }]);
+    assert_eq!(
+        list.items,
+        vec![ListItem {
+            problem_id: problem_id.to_string(),
+            memo: "".to_string(),
+        }]
+    );
 
     // update_item
-    pool.update_item(&list_id, problem_id, "memo_updated").await.unwrap();
+    pool.update_item(&list_id, problem_id, "memo_updated")
+        .await
+        .unwrap();
     let list = pool.get_single_list(&list_id).await.unwrap();
-    assert_eq!(list.items, vec![ListItem {
-        problem_id: problem_id.to_string(),
-        memo: "memo_updated".to_string(),
-    }]);
+    assert_eq!(
+        list.items,
+        vec![ListItem {
+            problem_id: problem_id.to_string(),
+            memo: "memo_updated".to_string(),
+        }]
+    );
 
     // delete_item
     pool.delete_item(&list_id, problem_id).await.unwrap();
