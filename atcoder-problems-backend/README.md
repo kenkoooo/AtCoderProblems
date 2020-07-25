@@ -69,3 +69,10 @@ cargo run --bin delta_update
 cargo run --bin dump_json
 cargo run --bin fix_invalid_submissions
 ```
+
+## Test
+
+```bash
+# Before starting the tests, make sure that the database they connect to is running.
+cargo test --workspace -- --test-threads=1
+```
