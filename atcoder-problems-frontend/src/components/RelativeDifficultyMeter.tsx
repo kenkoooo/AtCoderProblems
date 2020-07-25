@@ -11,6 +11,10 @@ interface Props {
   userInternalRating: number;
 }
 
+/* --------------------------------------
+ * Method of defining sections for dividing relative difficulty is refer to:
+ * https://github.com/kenkoooo/AtCoderProblems/pull/681#issuecomment-660456902
+ */
 const logit = (x: number): number => {
   return Math.log(x / (1 - x));
 };
@@ -40,6 +44,7 @@ const getRelDiffLevelColor = (
   // else if (solveProbability <= SOLVE_PROB_MAX_VERY_EASY)
   else return theme.relativeDifficultyVeryEasyColor;
 };
+/* -------------------------------------- */
 
 export const RelativeDifficultyMeter: React.FC<Props> = (props) => {
   const { problemId, problemModel, userInternalRating } = props;
