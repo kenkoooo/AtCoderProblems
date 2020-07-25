@@ -37,3 +37,6 @@ http-types = "2.1.0"
 
 [dev-dependencies]
 rand = "0.7.2"
+
+[workspace]
+members = ["sql-client"]
