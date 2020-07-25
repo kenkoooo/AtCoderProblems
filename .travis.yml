@@ -14,7 +14,7 @@ matrix:
       script:
         - cargo clean
         - cargo build
-        - RUST_BACKTRACE=1 cargo test -- --test-threads=1
+        - RUST_BACKTRACE=1 cargo test --workspace -- --test-threads=1
 
     - language: node_js
       node_js: node
