@@ -23,10 +23,11 @@ interface Props {
     dateSecond: number;
     countMap: Map<RatingColor, number>;
   }[];
+  yRange: number | "auto";
 }
 
 export const DailyEffortStackedBarChart: React.FC<Props> = (props) => {
-  const { dailyColorCount } = props;
+  const { dailyColorCount, yRange } = props;
 
   const dailyCount = dailyColorCount.map(({ dateSecond, countMap }) => {
     return { ...mapToObject(countMap), dateSecond };
@@ -53,7 +54,7 @@ export const DailyEffortStackedBarChart: React.FC<Props> = (props) => {
               formatMomentDate(parseSecond(dateSecond))
             }
           />
-          <YAxis />
+          <YAxis domain={[0, yRange]} allowDataOverflow={true} />
           <Tooltip content={DailyEffortTooltip} />
 
           {RatingColors.map((ratingColor) => {
