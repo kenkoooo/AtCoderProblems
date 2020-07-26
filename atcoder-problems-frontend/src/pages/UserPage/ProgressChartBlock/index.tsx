@@ -1,5 +1,16 @@
 import React from "react";
-import { Row, FormGroup, ButtonGroup, Button, Label, Input } from "reactstrap";
+import {
+  Row,
+  FormGroup,
+  ButtonGroup,
+  Button,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Label,
+  Input,
+  UncontrolledDropdown,
+} from "reactstrap";
 import {
   getRatingColor,
   RatingColor,
@@ -55,11 +66,43 @@ const ChartTypeTabButtons: React.FC<ChartTypeTabProps> = (props) => {
   );
 };
 
+type YRanges = number | "auto";
+interface YRangeTabProps {
+  active: YRanges;
+  setActive: (next: YRanges) => void;
+}
+const YRangeTabButtons: React.FC<YRangeTabProps> = (props) => {
+  const { active, setActive } = props;
+  const RANGES: YRanges[] = [10, 20, 50, 100, "auto"];
+  return (
+    <ButtonGroup>
+      <UncontrolledDropdown>
+        <DropdownToggle caret>{"Y-Range"}</DropdownToggle>
+        <DropdownMenu>
+          {RANGES.map((range) => (
+            <DropdownItem
+              key={range}
+              onClick={(): void => setActive(range)}
+              active={active === range}
+            >
+              {range}
+            </DropdownItem>
+          ))}
+        </DropdownMenu>
+      </UncontrolledDropdown>
+    </ButtonGroup>
+  );
+};
+
 export const ProgressChartBlock: React.FC<Props> = (props) => {
   const [
     dailyEffortBarChartActiveTab,
     setDailyEffortBarChartActiveTab,
   ] = useLocalStorage<ChartType>("dailyEffortBarChartActiveTab", "Simple");
+  const [dailyEffortYRange, setDailyEffortYRange] = useLocalStorage<YRanges>(
+    "dailyEffortYRange",
+    "auto"
+  );
   const [
     climbingLineChartActiveTab,
     setClimbingLineChartActiveTab,
@@ -161,6 +204,10 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
           active={dailyEffortBarChartActiveTab}
           setActive={setDailyEffortBarChartActiveTab}
         />
+        <YRangeTabButtons
+          active={dailyEffortYRange}
+          setActive={setDailyEffortYRange}
+        />
       </Row>
       {dailyEffortBarChartActiveTab === "Simple" ? (
         <DailyEffortBarChart
@@ -168,9 +215,13 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
             dateSecond: parseDateLabel(dateLabel).unix(),
             count,
           }))}
+          yRange={dailyEffortYRange}
         />
       ) : (
-        <DailyEffortStackedBarChart dailyColorCount={dailyColorCount} />
+        <DailyEffortStackedBarChart
+          dailyColorCount={dailyColorCount}
+          yRange={dailyEffortYRange}
+        />
       )}
 
       <Row className="my-2 border-bottom">
