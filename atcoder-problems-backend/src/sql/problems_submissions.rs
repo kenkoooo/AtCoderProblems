@@ -1,6 +1,5 @@
 use crate::error::Result;
 
-use diesel;
 use diesel::connection::SimpleConnection;
 use diesel::PgConnection;
 
