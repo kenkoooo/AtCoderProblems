@@ -30,6 +30,13 @@ export const ThemeSelector: React.FC = () => {
         >
           Dark (Beta)
         </DropdownItem>
+        <DropdownItem
+          tag="a"
+          style={{ cursor: "pointer" }}
+          onClick={(): void => setThemeId("purple")}
+        >
+          Purple (Beta)
+        </DropdownItem>
       </DropdownMenu>
     </UncontrolledDropdown>
   );
