@@ -1,9 +1,9 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import { useLocalStorage } from "../utils/LocalStorage";
-import { ThemeDark, ThemeLight, Theme } from "../style/theme";
+import { ThemeLight, ThemeDark, ThemePurple, Theme } from "../style/theme";
 
-type ThemeId = "light" | "dark";
+type ThemeId = "light" | "dark" | "purple";
 type ThemeContextProps = [ThemeId, (newThemeId: ThemeId) => void];
 
 export const ThemeContext = React.createContext<ThemeContextProps>([
@@ -35,5 +35,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = (
 
 export const useTheme = (): Theme => {
   const [themeId] = React.useContext(ThemeContext);
-  return themeId === "light" ? ThemeLight : ThemeDark;
+
+  switch (themeId) {
+    case "light":
+      return ThemeLight;
+    case "dark":
+      return ThemeDark;
+    case "purple":
+      return ThemePurple;
+  }
 };
