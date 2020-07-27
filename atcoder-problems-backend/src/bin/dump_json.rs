@@ -18,7 +18,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let url = env::var("SQL_URL")?;
     let conn: PgConnection = PgConnection::establish(&url)?;
 
-    let merged_query = sql_query(r"
+    let merged_query = sql_query(
+        r"
             SELECT
                 problems.id,
                 problems.contest_id,
@@ -51,7 +52,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 LEFT JOIN points ON points.problem_id = problems.id
                 LEFT JOIN solver ON solver.problem_id = problems.id
                 ORDER BY problems.id;
-        ");
+        ",
+    );
 
     let data_paths = vec![
         (
