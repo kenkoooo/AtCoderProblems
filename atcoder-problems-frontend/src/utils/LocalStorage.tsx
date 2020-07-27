@@ -9,6 +9,7 @@ const LocalStorageKeys = [
   "showPenalties",
   "showAccepted",
   "dailyEffortBarChartActiveTab",
+  "dailyEffortYRange",
   "climbingLineChartActiveTab",
   "climbingLineChartReverseColorOrder",
 ] as const;
