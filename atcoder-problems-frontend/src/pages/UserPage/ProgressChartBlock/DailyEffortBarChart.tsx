@@ -13,6 +13,7 @@ import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 
 interface Props {
   dailyData: { dateSecond: number; count: number }[];
+  yRange: number | "auto";
 }
 
 export const DailyEffortBarChart: React.FC<Props> = (props) => (
@@ -36,7 +37,7 @@ export const DailyEffortBarChart: React.FC<Props> = (props) => (
             formatMomentDate(parseSecond(dateSecond))
           }
         />
-        <YAxis />
+        <YAxis domain={[0, props.yRange]} allowDataOverflow={true} />
         <Tooltip
           labelFormatter={(dateSecond: number | string): string =>
             typeof dateSecond === "string"
