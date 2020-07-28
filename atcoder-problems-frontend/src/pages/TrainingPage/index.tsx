@@ -2,6 +2,7 @@ import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Alert, Spinner } from "reactstrap";
 import { useRouteMatch, Switch, Route } from "react-router-dom";
+import { useHistory } from "react-router";
 import { Course } from "../../interfaces/Course";
 import { loadCourses } from "../../utils/StaticDataStorage";
 import { UserResponse } from "../Internal/types";
@@ -22,7 +23,7 @@ interface Props {
 
 const InnerTrainingList: React.FC<Props> = (props) => {
   const { path } = useRouteMatch();
-
+  const history = useHistory();
   if (props.courses.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }
@@ -44,13 +45,34 @@ const InnerTrainingList: React.FC<Props> = (props) => {
           <TrainingList submissions={submissions} courses={courses} />
         </Route>
         <Route
-          path={`${path}/:courseTitle`}
+          path={`${path}/:courseTitle/:tabIndex?`}
           render={({ match }): React.ReactNode => {
             const courseTitle = match.params.courseTitle;
+            const tabIndexParam = match.params.tabIndex;
+            const onSelectedSet = (order: number) => {
+              history.push(`${path}/${courseTitle}/${order}`);
+            };
             const course = courses.find((c) => c.title === courseTitle);
-            return course ? (
-              <SingleCourseView submissions={submissions} course={course} />
-            ) : null;
+            if (course) {
+              const defaultTabIndex = course.set_list[0].order;
+              const tabIndex = parseInt(tabIndexParam ?? `${defaultTabIndex}`);
+              const selectedSet =
+                !isNaN(tabIndex) &&
+                tabIndex > 0 &&
+                tabIndex <= course.set_list.length
+                  ? tabIndex
+                  : defaultTabIndex;
+              return (
+                <SingleCourseView
+                  submissions={submissions}
+                  course={course}
+                  selectedSet={selectedSet}
+                  onSelectedSet={onSelectedSet}
+                />
+              );
+            } else {
+              return null;
+            }
           }}
         />
       </Switch>
