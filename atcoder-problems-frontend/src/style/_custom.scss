@@ -341,3 +341,30 @@ $small-score-cell-border: $gray-300 !default;
     margin-bottom: 0;
   }
 }
+
+.user-name-label {
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.user-name-label-large {
+  padding-left: 3rem;
+}
+
+.rating-circle {
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  margin: auto 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.rating-circle-large {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-width: 2px;
+}
