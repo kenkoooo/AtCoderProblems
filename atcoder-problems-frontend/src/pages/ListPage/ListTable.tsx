@@ -30,6 +30,7 @@ interface Props {
   toDifficulty: number;
   rowData: List<ProblemRowData>;
   userRatingInfo: RatingInfo | null;
+  showUnratedProblems: boolean;
 }
 
 export const ListTable: React.FC<Props> = (props) => {
@@ -408,11 +409,15 @@ export const ListTable: React.FC<Props> = (props) => {
         .filter((row) => {
           const difficulty = isProblemModelWithDifficultyModel(row.problemModel)
             ? row.problemModel.difficulty
-            : -1;
-          return (
+            : null;
+          const difficultyInRange =
+            difficulty !== null &&
             props.fromDifficulty <= difficulty &&
-            difficulty <= props.toDifficulty
-          );
+            difficulty <= props.toDifficulty;
+          const showProblem =
+            difficultyInRange ||
+            (props.showUnratedProblems && difficulty === null);
+          return showProblem;
         })
         .toArray()}
       options={{

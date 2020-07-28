@@ -92,6 +92,7 @@ const FilterParams = {
   Rated: "rated",
   FromDifficulty: "fromDiff",
   ToDifficulty: "toDiff",
+  ShowUnratedProblems: "showUnrated",
 } as const;
 
 const InnerListPage: React.FC<InnerProps> = (props) => {
@@ -131,6 +132,18 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     const params = new URLSearchParams(location.search);
     params.set(FilterParams.FromDifficulty, from.toString());
     params.set(FilterParams.ToDifficulty, to.toString());
+    history.push({ ...location, search: params.toString() });
+  };
+  const showUnratedProblems = Boolean(
+    parseInt(searchParams.get(FilterParams.ShowUnratedProblems) ?? "0", 10)
+  );
+  const setShowUnratedProblems = (showUnratedProblems: boolean): void => {
+    const params = new URLSearchParams(location.search);
+    params.set(
+      FilterParams.ShowUnratedProblems,
+      showUnratedProblems ? "1" : "0"
+    );
+    console.log("Clicked", params);
     history.push({ ...location, search: params.toString() });
   };
 
@@ -412,6 +425,29 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
             </DropdownMenu>
           </UncontrolledButtonDropdown>
         </ButtonGroup>
+        <div
+          className="custom-control custom-switch"
+          style={{
+            marginTop: "0.375rem",
+            marginBottom: "0.375rem",
+            marginLeft: "0",
+            marginRight: "1.125rem",
+          }}
+        >
+          <input
+            type="checkbox"
+            id="show-unrated-problems"
+            className="custom-control-input"
+            checked={showUnratedProblems}
+            onChange={() => setShowUnratedProblems(!showUnratedProblems)}
+          />
+          <label
+            htmlFor="show-unrated-problems"
+            className="custom-control-label"
+          >
+            Show Problems in Unrated Contests
+          </label>
+        </div>
         <Button
           outline
           color="danger"
@@ -420,7 +456,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
           Reset
         </Button>
       </Row>
-      <Row>
+      <Row className="mt-3">
         <ListTable
           fromPoint={fromPoint}
           toPoint={toPoint}
@@ -430,6 +466,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
           toDifficulty={toDifficulty}
           rowData={rowData}
           userRatingInfo={userRatingInfo}
+          showUnratedProblems={showUnratedProblems}
         />
       </Row>
     </div>
