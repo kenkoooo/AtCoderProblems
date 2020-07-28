@@ -25,12 +25,15 @@ interface Props {
   fromPoint: number;
   toPoint: number;
   statusFilterState: "All" | "Only Trying" | "Only AC";
-  ratedFilterState: "All" | "Only Rated" | "Only Unrated";
+  ratedFilterState:
+    | "All"
+    | "Only Rated"
+    | "Only Unrated"
+    | "Only Unrated without Difficulty";
   fromDifficulty: number;
   toDifficulty: number;
   rowData: List<ProblemRowData>;
   userRatingInfo: RatingInfo | null;
-  showUnratedProblems: boolean;
 }
 
 export const ListTable: React.FC<Props> = (props) => {
@@ -397,6 +400,9 @@ export const ListTable: React.FC<Props> = (props) => {
         }) // eslint-disable-next-line
         .filter((row) => {
           const isRated = !!row.mergedProblem.point;
+          const hasDifficulty = isProblemModelWithDifficultyModel(
+            row.problemModel
+          );
           switch (props.ratedFilterState) {
             case "All":
               return true;
@@ -404,20 +410,18 @@ export const ListTable: React.FC<Props> = (props) => {
               return isRated;
             case "Only Unrated":
               return !isRated;
+            case "Only Unrated without Difficulty":
+              return !isRated && !hasDifficulty;
           }
         })
         .filter((row) => {
           const difficulty = isProblemModelWithDifficultyModel(row.problemModel)
             ? row.problemModel.difficulty
-            : null;
-          const difficultyInRange =
-            difficulty !== null &&
+            : -1;
+          return (
             props.fromDifficulty <= difficulty &&
-            difficulty <= props.toDifficulty;
-          const showProblem =
-            difficultyInRange ||
-            (props.showUnratedProblems && difficulty === null);
-          return showProblem;
+            difficulty <= props.toDifficulty
+          );
         })
         .toArray()}
       options={{
