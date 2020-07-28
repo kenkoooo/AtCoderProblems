@@ -18,6 +18,7 @@ import { convertMap } from "../../utils/ImmutableMigration";
 import { generatePathWithParams } from "../../utils/QueryString";
 import { calcStreak, countUniqueAcByDate } from "../../utils/StreakCounter";
 import { isRatedContest } from "../TablePage/ContestClassifier";
+import { UserNameLabel } from "../../components/UserNameLabel";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
@@ -144,7 +145,14 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   return (
     <div>
       <Row className="my-2 border-bottom">
-        <h1>{userId}</h1>
+        <h1>
+          <UserNameLabel
+            userId={userId}
+            userRating={userRatingInfo.rating}
+            showRatingCircle={true}
+            large
+          />
+        </h1>
       </Row>
       <Nav tabs>
         {userPageTabs.map((tab) => (
