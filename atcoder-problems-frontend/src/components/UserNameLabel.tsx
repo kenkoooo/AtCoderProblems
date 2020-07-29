@@ -15,12 +15,10 @@ export const UserNameLabel: React.FC<Props> = (props) => {
   if (!(showRatingCircle && userRating)) {
     return <>{userId}</>;
   } else {
-    const className = `user-name-label \
-      ${props.big ? "user-name-label-big" : ""} \
-      ${getRatingColorClass(userRating)}`;
     return (
-      <span className={className}>
+      <span className={getRatingColorClass(userRating)}>
         <RatingCircle userId={userId} userRating={userRating} big={props.big} />
+        &nbsp;
         {userId}
       </span>
     );

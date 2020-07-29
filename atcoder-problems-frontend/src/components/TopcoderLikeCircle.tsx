@@ -48,7 +48,7 @@ export const TopcoderLikeCircle: React.FC<Props> = (props) => {
   const theme = useTheme();
   const styleOptions = getStyleOptions(color, fillRatio, theme);
   return (
-    <div
+    <span
       className={`${className} ${props.className}`}
       id={props.id}
       style={styleOptions}

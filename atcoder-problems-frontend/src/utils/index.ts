@@ -134,7 +134,7 @@ export type RatingMetalColor = typeof RatingMetalColors[number];
 export const isRatingMetalColor = (
   color: CompletedRatingColor
 ): color is RatingMetalColor => {
-  return RatingMetalColors.includes(color);
+  return color === "Bronze" || color === "Silver" || color === "Gold";
 };
 export const getRatingMetalColorCode = (metalColor: RatingMetalColor) => {
   switch (metalColor) {
