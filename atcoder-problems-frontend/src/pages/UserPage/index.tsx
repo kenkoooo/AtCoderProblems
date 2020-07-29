@@ -150,7 +150,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             userId={userId}
             userRating={userRatingInfo.rating}
             showRatingCircle={true}
-            large
+            big
           />
         </h1>
       </Row>

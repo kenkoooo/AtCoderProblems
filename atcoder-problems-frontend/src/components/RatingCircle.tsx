@@ -1,54 +1,42 @@
 import React, { useState } from "react";
 import { Tooltip } from "reactstrap";
-import { Theme } from "../style/theme";
-import { getRatingColor, getRatingColorCode } from "../utils";
-import { useTheme } from "./ThemeProvider";
+import { CompletedRatingColor, getRatingColor } from "../utils";
+import { TopcoderLikeCircle } from "./TopcoderLikeCircle";
 
-function getColor(rating: number, theme: Theme): string {
+function getColor(rating: number): CompletedRatingColor {
   if (rating >= 3200) {
     if (rating < 3600) {
-      // silver
-      return "#808080";
+      return "Silver";
     } else {
-      // gold
-      return "#ffd700";
+      return "Gold";
     }
   } else {
-    return getRatingColorCode(getRatingColor(rating), theme);
+    return getRatingColor(rating);
   }
 }
 
 interface Props {
   userId: string;
   userRating: number;
-  large?: boolean;
+  big?: boolean;
 }
 
 export const RatingCircle: React.FC<Props> = (props) => {
   const { userId, userRating } = props;
 
-  const theme = useTheme();
-  const color: string = getColor(userRating, theme);
-  const fillRatio: number = userRating >= 3200 ? 1.0 : (userRating % 400) / 400;
-  const styleOptions = Object({
-    borderColor: color,
-    background:
-      userRating < 3200
-        ? `linear-gradient(to top, \
-        ${color} 0%, ${color} ${fillRatio * 100}%, \
-         rgba(0, 0, 0, ${0.0}) ${fillRatio * 100}%, rgba(0, 0, 0, ${0.0}) 100%)`
-        : `linear-gradient(to right, ${color}, white, ${color})`,
-  });
-
+  const color = getColor(userRating);
+  const fillRatio = userRating >= 3200 ? 1.0 : (userRating % 400) / 400;
   const id = "RatingCircle-" + userId;
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   return (
     <>
-      <span
-        className={`rating-circle${props.large ? " rating-circle-large" : ""}`}
-        style={styleOptions}
+      <TopcoderLikeCircle
+        className="rating-circle"
         id={id}
+        color={color}
+        fillRatio={fillRatio}
+        big={props.big}
       />
       <Tooltip
         placement="top"

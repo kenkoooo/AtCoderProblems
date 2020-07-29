@@ -129,6 +129,36 @@ export const getRatingColorCode = (
   }
 };
 
+export const RatingMetalColors = ["Bronze", "Silver", "Gold"] as const;
+export type RatingMetalColor = typeof RatingMetalColors[number];
+export const isRatingMetalColor = (
+  color: CompletedRatingColor
+): color is RatingMetalColor => {
+  return RatingMetalColors.includes(color);
+};
+export const getRatingMetalColorCode = (metalColor: RatingMetalColor) => {
+  switch (metalColor) {
+    case "Bronze":
+      return "#965C2C";
+    case "Silver":
+      return "#808080";
+    case "Gold":
+      return "#FFD700";
+  }
+};
+export const getMetalHighlightColorCode = (metalColor: RatingMetalColor) => {
+  switch (metalColor) {
+    case "Bronze":
+      return "#FFDABD";
+    case "Silver":
+    case "Gold":
+      return "white";
+  }
+};
+
+export const CompletedRatingColors = [...RatingColors, ...RatingMetalColors];
+export type CompletedRatingColor = RatingColor | RatingMetalColor;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const shuffleList = (list: List<any>, k?: number): List<any> => {
   let shuffledList = List();
