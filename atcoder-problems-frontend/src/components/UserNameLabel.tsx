@@ -6,7 +6,7 @@ interface Props {
   userId: string;
   userRating?: number;
   showRatingCircle?: boolean;
-  large?: boolean;
+  big?: boolean;
 }
 
 export const UserNameLabel: React.FC<Props> = (props) => {
@@ -16,15 +16,11 @@ export const UserNameLabel: React.FC<Props> = (props) => {
     return <>{userId}</>;
   } else {
     const className = `user-name-label \
-      ${props.large ? "user-name-label-large" : ""} \
+      ${props.big ? "user-name-label-big" : ""} \
       ${getRatingColorClass(userRating)}`;
     return (
       <span className={className}>
-        <RatingCircle
-          userId={userId}
-          userRating={userRating}
-          large={props.large}
-        />
+        <RatingCircle userId={userId} userRating={userRating} big={props.big} />
         {userId}
       </span>
     );
