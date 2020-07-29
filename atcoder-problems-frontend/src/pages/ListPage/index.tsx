@@ -74,7 +74,12 @@ const convertToValidStatusFilterState = (
   return "All";
 };
 
-const RATED_FILTERS = ["All", "Only Rated", "Only Unrated"] as const;
+const RATED_FILTERS = [
+  "All",
+  "Only Rated",
+  "Only Unrated",
+  "Only Unrated without Difficulty",
+] as const;
 type RatedFilter = typeof RATED_FILTERS[number];
 const convertToValidRatedFilter = (value: string | null): RatedFilter => {
   for (const filter of RATED_FILTERS) {
@@ -420,7 +425,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
           Reset
         </Button>
       </Row>
-      <Row>
+      <Row className="mt-3">
         <ListTable
           fromPoint={fromPoint}
           toPoint={toPoint}
