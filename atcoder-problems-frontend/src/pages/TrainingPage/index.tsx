@@ -45,23 +45,19 @@ const InnerTrainingList: React.FC<Props> = (props) => {
           <TrainingList submissions={submissions} courses={courses} />
         </Route>
         <Route
-          path={`${path}/:courseTitle/:tabIndex?`}
+          path={`${path}/:courseTitle/:setListOrder?`}
           render={({ match }): React.ReactNode => {
             const courseTitle = match.params.courseTitle;
-            const tabIndexParam = match.params.tabIndex;
+            const setListOrder = match.params.setListOrder;
             const onSelectedSet = (order: number) => {
               history.push(`${path}/${courseTitle}/${order}`);
             };
             const course = courses.find((c) => c.title === courseTitle);
             if (course) {
-              const defaultTabIndex = course.set_list[0].order;
-              const tabIndex = parseInt(tabIndexParam ?? `${defaultTabIndex}`);
+              const defaultSetListOrder = course.set_list[0].order;
               const selectedSet =
-                !isNaN(tabIndex) &&
-                tabIndex > 0 &&
-                tabIndex <= course.set_list.length
-                  ? tabIndex
-                  : defaultTabIndex;
+                course.set_list.find((set) => setListOrder === `${set.order}`)
+                  ?.order ?? defaultSetListOrder;
               return (
                 <SingleCourseView
                   submissions={submissions}
