@@ -37,8 +37,6 @@ export const RatingCircle: React.FC<Props> = (props) => {
         ? `linear-gradient(to top, \
         ${color} 0%, ${color} ${fillRatio * 100}%, \
          rgba(0, 0, 0, ${0.0}) ${fillRatio * 100}%, rgba(0, 0, 0, ${0.0}) 100%)`
-        : userRating < 3600
-        ? `linear-gradient(to right, ${color}, #FFDABD, ${color})`
         : `linear-gradient(to right, ${color}, white, ${color})`,
   });
 
