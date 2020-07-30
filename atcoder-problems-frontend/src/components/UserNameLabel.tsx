@@ -4,23 +4,17 @@ import { RatingCircle } from "./RatingCircle";
 
 interface Props {
   userId: string;
-  userRating?: number;
-  showRatingCircle?: boolean;
-  big?: boolean;
+  userRating: number;
 }
 
 export const UserNameLabel: React.FC<Props> = (props) => {
-  const { userId, userRating, showRatingCircle } = props;
+  const { userId, userRating } = props;
 
-  if (!(showRatingCircle && userRating)) {
-    return <>{userId}</>;
-  } else {
-    return (
-      <span className={getRatingColorClass(userRating)}>
-        <RatingCircle userId={userId} userRating={userRating} big={props.big} />
-        &nbsp;
-        {userId}
-      </span>
-    );
-  }
+  return (
+    <span className={getRatingColorClass(userRating)}>
+      <RatingCircle userId={userId} userRating={userRating} big />
+      &nbsp;
+      {userId}
+    </span>
+  );
 };

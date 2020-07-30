@@ -1,26 +1,24 @@
 import React from "react";
+import { getRatingColorCode } from "../utils";
 import {
-  CompletedRatingColor,
-  getMetalHighlightColorCode,
-  getRatingColorCode,
-  getRatingMetalColorCode,
+  RatingColorWithMetal,
+  getRatingMetalColorCodes,
   isRatingMetalColor,
-} from "../utils";
+} from "../utils/RatingMetalColor";
 import { Theme } from "../style/theme";
 import { useTheme } from "./ThemeProvider";
 
 const getStyleOptions = (
-  color: CompletedRatingColor,
+  color: RatingColorWithMetal,
   fillRatio: number,
   theme: Theme
 ) => {
   if (isRatingMetalColor(color)) {
-    const colorCode = getRatingMetalColorCode(color);
-    const highlightCode = getMetalHighlightColorCode(color);
+    const metalColor = getRatingMetalColorCodes(color);
     return Object({
-      borderColor: colorCode,
+      borderColor: metalColor.base,
       background: `linear-gradient(to right, \
-        ${colorCode}, ${highlightCode}, ${colorCode})`,
+        ${metalColor.base}, ${metalColor.highlight}, ${metalColor.base})`,
     });
   } else {
     const colorCode = getRatingColorCode(color, theme);
@@ -36,7 +34,7 @@ const getStyleOptions = (
 };
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
-  color: CompletedRatingColor;
+  color: RatingColorWithMetal;
   fillRatio: number;
   big?: boolean;
 }

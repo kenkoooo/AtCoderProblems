@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Tooltip } from "reactstrap";
-import { CompletedRatingColor, getRatingColor } from "../utils";
+import { getRatingColor } from "../utils";
+import { RatingColorWithMetal } from "../utils/RatingMetalColor";
 import { TopcoderLikeCircle } from "./TopcoderLikeCircle";
 
-function getColor(rating: number): CompletedRatingColor {
+function getColor(rating: number): RatingColorWithMetal {
   if (rating >= 3200) {
     if (rating < 3600) {
       return "Silver";
