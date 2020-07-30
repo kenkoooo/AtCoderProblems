@@ -6,6 +6,12 @@ import { ThemeLight, ThemeDark, ThemePurple, Theme } from "../style/theme";
 type ThemeId = "light" | "dark" | "purple";
 type ThemeContextProps = [ThemeId, (newThemeId: ThemeId) => void];
 
+const THEME_LIST = {
+  light: ThemeLight,
+  dark: ThemeDark,
+  purple: ThemePurple,
+};
+
 export const ThemeContext = React.createContext<ThemeContextProps>([
   "light",
   (): void => {
@@ -36,12 +42,5 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = (
 export const useTheme = (): Theme => {
   const [themeId] = React.useContext(ThemeContext);
 
-  switch (themeId) {
-    case "light":
-      return ThemeLight;
-    case "dark":
-      return ThemeDark;
-    case "purple":
-      return ThemePurple;
-  }
+  return THEME_LIST[themeId];
 };
