@@ -49,9 +49,6 @@ const InnerTrainingList: React.FC<Props> = (props) => {
           render={({ match }): React.ReactNode => {
             const courseTitle = match.params.courseTitle;
             const setListOrder = match.params.setListOrder;
-            const onSelectedSet = (order: number) => {
-              history.push(`${path}/${courseTitle}/${order}`);
-            };
             const course = courses.find((c) => c.title === courseTitle);
             if (course) {
               const defaultSetListOrder = course.set_list[0].order;
@@ -63,7 +60,6 @@ const InnerTrainingList: React.FC<Props> = (props) => {
                   submissions={submissions}
                   course={course}
                   selectedSet={selectedSet}
-                  onSelectedSet={onSelectedSet}
                 />
               );
             } else {
