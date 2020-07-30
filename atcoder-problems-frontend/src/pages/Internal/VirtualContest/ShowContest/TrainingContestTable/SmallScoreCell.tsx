@@ -23,7 +23,8 @@ export const SmallScoreCell: React.FC<Props> = (props) => {
   const { maxPoint, trials, problem, time, id } = props;
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const cellId = `small-score-cell-${id}`;
+  const sanitizedId = id.replace(/[^A-Za-z_-]/g, "");
+  const cellId = `small-score-cell-${sanitizedId}`;
   const classes =
     "small-score-cell " +
     (isNumber(maxPoint) && isNumber(trials) && isNumber(time)
