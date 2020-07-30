@@ -2,7 +2,6 @@ import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Alert, Spinner } from "reactstrap";
 import { useRouteMatch, Switch, Route } from "react-router-dom";
-import { useHistory } from "react-router";
 import { Course } from "../../interfaces/Course";
 import { loadCourses } from "../../utils/StaticDataStorage";
 import { UserResponse } from "../Internal/types";
@@ -23,7 +22,6 @@ interface Props {
 
 const InnerTrainingList: React.FC<Props> = (props) => {
   const { path } = useRouteMatch();
-  const history = useHistory();
   if (props.courses.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }
