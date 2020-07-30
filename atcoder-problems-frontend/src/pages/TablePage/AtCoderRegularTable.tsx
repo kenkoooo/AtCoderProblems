@@ -130,8 +130,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                     typeof current === "string" ||
                     current.label === StatusLabel.Success
                   );
-                },
-                true
+                }
               )
                 ? TableColor.Success
                 : TableColor.None
