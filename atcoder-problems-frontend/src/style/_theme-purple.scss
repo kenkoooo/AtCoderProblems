@@ -22,247 +22,124 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-// This file is modified from Cyborg 4.5.0 by Bootswatch
+// This file is modified from pulse 4.5.0 by Bootswatch
 
 //
 // Color system
 //
 
 $white: #fff !default;
-$gray-100: #f8f9fa !default;
-$gray-200: #e9ecef !default;
-$gray-300: #dee2e6 !default;
-$gray-400: #adafae !default;
-$gray-500: #888 !default;
-$gray-600: #555 !default;
-$gray-700: #282828 !default;
-$gray-800: #222 !default;
-$gray-900: #212529 !default;
+$gray-100: #fafafa !default;
+$gray-200: #f9f8fc !default;
+$gray-300: #ededed !default;
+$gray-400: #cbc8d0 !default;
+$gray-500: #adb5bd !default;
+$gray-600: #868e96 !default;
+$gray-700: #444 !default;
+$gray-800: #343a40 !default;
+$gray-900: #17141f !default;
 $black: #000 !default;
 
-$blue: #0e7aac !default;
-$indigo: #5805dd !default;
-$purple: #5b28bb !default;
-$pink: #d61e74 !default;
-$red: #b40000 !default;
-$orange: #ff7809 !default;
-$yellow: #fdd90a !default;
-$green: #079241 !default;
-$teal: #0b9c71 !default;
-$cyan: #33c7cc !default;
+$blue: #007bff !default;
+$indigo: #6610f2 !default;
+$purple: #593196 !default;
+$pink: #e83e8c !default;
+$red: #fc3939 !default;
+$orange: #fd7e14 !default;
+$yellow: #efa31d !default;
+$green: #13b955 !default;
+$teal: #20c997 !default;
+$cyan: #009cdc !default;
 
-$purple1: #f9e6ff !default;
-$purple2: #f5d1ff !default;
-$purple3: #e6b0f3 !default;
-
-$link-color: #36aae0 !default;
-
-$primary: $cyan !default;
-$secondary: $purple3 !default;
+$primary: $purple !default;
+$secondary: #a991d4 !default;
 $success: $green !default;
 $info: $cyan !default;
 $warning: $yellow !default;
 $danger: $red !default;
-$light: $purple3 !default;
-$dark: $purple1 !default;
+$light: $gray-200 !default;
+$dark: $gray-900 !default;
 
-$yiq-contrasted-threshold: 175 !default;
+$my-purple1: #fbf5ff !default;
+$my-purple2: #e6d7f0 !default;
+$my-purple3: #9469b3 !default;
+
+// Options
+
+$enable-rounded: false !default;
 
 // Body
 
-$body-bg: $purple1 !default;
-$body-color: $black !default;
+$body-bg: $my-purple1 !default;
+$body-color: $gray-700 !default;
+
+// Links
+
+$link-hover-color: $primary !default;
 
 // Fonts
 
-// $font-family-sans-serif: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
-//   Roboto, "Helvetica Neue", Arial, sans-serif !default;
-
-// $font-size-base: 0.875rem !default;
-
-// $h1-font-size: 4rem !default;
-// $h2-font-size: 3rem !default;
-// $h3-font-size: 2.5rem !default;
-// $h4-font-size: 2rem !default;
-// $h5-font-size: 1.5rem !default;
-
-$headings-color: $black !default;
+$font-size-base: 0.875rem !default;
 
 // Tables
 
-$table-color: $black !default;
-$table-accent-bg: rgba($white, 0.05) !default;
-$table-hover-bg: rgba($white, 0.075) !default;
-
-$table-border-color: $purple3 !default;
-
-$table-dark-bg: $gray-500 !default;
-$table-dark-border-color: darken($gray-500, 7.5%) !default;
-
-// Buttons
-
-// $input-btn-padding-x: 1rem !default;
+$table-border-color: rgba(0, 0, 0, 0.05) !default;
 
 // Forms
 
-$input-disabled-bg: $gray-400 !default;
-
-$input-border-color: $white !default;
-
-$input-group-addon-color: $white !default;
-$input-group-addon-bg: $purple3 !default;
-$input-group-addon-border-color: transparent !default;
-
-$custom-file-color: $white !default;
-$custom-file-border-color: $purple3 !default;
+$input-focus-border-color: $primary !default;
 
 // Dropdowns
 
-$dropdown-bg: $purple3 !default;
-$dropdown-divider-bg: $gray-800 !default;
+$dropdown-bg: $my-purple2 !default;
+$dropdown-divider-bg: $my-purple3 !default;
 
-$dropdown-link-color: $black !default;
+$dropdown-link-color: $gray-700 !default;
 $dropdown-link-hover-color: $white !default;
 $dropdown-link-hover-bg: $primary !default;
 
 // Navs
 
-$nav-tabs-border-color: $table-border-color !default;
-$nav-tabs-link-hover-border-color: $nav-tabs-border-color !default;
-$nav-tabs-link-active-color: $black !default;
-$nav-tabs-link-active-bg: $nav-tabs-border-color !default;
-$nav-tabs-link-active-border-color: $nav-tabs-border-color !default;
+$nav-tabs-border-color: $gray-300 !default;
+$nav-tabs-link-hover-border-color: $primary !default;
 
 // Navbar
 
-$navbar-dark-hover-color: $white !important;
+$navbar-padding-y: 1.2rem !default;
 
-// Pagination
+$navbar-dark-hover-color: rgba($white, 0.9) !default;
+$navbar-dark-active-color: rgba($white, 0.9) !default;
 
-$pagination-color: $black !default;
-$pagination-bg: $purple3 !default;
-$pagination-border-color: $purple1 !default;
-
-$pagination-hover-color: $white !default;
-$pagination-hover-bg: $primary !default;
-$pagination-hover-border-color: $pagination-border-color !default;
-
-$pagination-disabled-bg: $pagination-bg !default;
-$pagination-disabled-border-color: $pagination-border-color !default;
-
-// Jumbotron
-
-$jumbotron-bg: $purple3 !default;
-
-// Alerts
-
-$alert-bg-level: 4 !default;
-$alert-border-level: -9 !default;
-$alert-color-level: -10 !default;
-
-// Cards
-
-$card-bg: $purple3 !default;
-
-// Tooltips
-
-$tooltip-bg: $purple3 !default;
-$tooltip-opacity: 1 !default;
-
-// Popovers
-
-$popover-bg: $purple3 !default;
-
-// Toasts
-
-$toast-color: $white !default;
-$toast-background-color: $purple3 !default;
-$toast-border-color: $purple3 !default;
-
-$toast-header-color: $body-color !default;
-$toast-header-background-color: $toast-background-color !default;
-$toast-header-border-color: $toast-border-color !default;
-
-// Modals
-
-$modal-content-bg: $gray-800 !default;
-
-$modal-header-border-color: $purple3 !default;
+$navbar-light-color: rgba($black, 0.4) !default;
+$navbar-light-active-color: rgba($black, 0.7) !default;
+$navbar-light-disabled-color: rgba($black, 0.2) !default;
 
 // Progress bars
 
-$progress-bg: $purple3 !default;
+$progress-bg: $gray-300 !default;
+$progress-bar-bg: $primary !default;
 
 // List group
 
-$list-group-bg: $purple2 !default;
-$list-group-border-color: $white !default;
+$list-group-bg: $my-purple3 !default;
+$list-group-border-color: $list-group-bg !default;
 
 $list-group-hover-bg: $primary !default;
 
-$list-group-disabled-bg: $white !default;
+$list-group-disabled-bg: $gray-700 !default;
 
-$list-group-action-color: $black !default;
+$list-group-action-color: $white !default;
 $list-group-action-active-bg: $primary !default;
 
-// Breadcrumbs
-
-$breadcrumb-bg: $purple3 !default;
-
-// Close
-
-$close-color: $white !default;
-$close-text-shadow: none !default;
-
-// Code
-
-$pre-color: inherit !default;
-
-// React Bootstrap Table Custom
-
-$react-bs-table-border-color: $purple3;
-
 // Navbar Color Override
-
 .navbar.bg-dark {
   background-color: $purple !important;
 }
 
-// AtCoder Problems Color Override
-
-// Variables to make the auto generated color for tables sane.
-$table-bg-level: 7;
-$table-border-level: -10;
-
-$success-bg-color: $purple2;
+$success-bg-color: $my-purple2;
 $success-hover-bg-color: darken($success-bg-color, 5%);
 
 $success-intime-bg-color: darken($success-bg-color, 5%);
 $success-intime-hover-bg-color: darken($success-intime-bg-color, 5%);
-
-$warning-bg-color: #5d3e00;
-$warning-hover-bg-color: darken($warning-bg-color, 5%);
-
-$warning-intime-bg-color: darken($warning-bg-color, 5%);
-$warning-intime-hover-bg-color: darken($warning-intime-bg-color, 5%);
-
-$success-before-contest-bg-color: #002a55;
-$success-before-contest-hover-bg-color: darken(
-  $success-before-contest-bg-color,
-  5%
-);
-
-$danger-bg-color: #4b0000;
-$danger-hover-bg-color: darken($danger-bg-color, 5%);
-
-$penalties-color: #d61e74;
-
-table.table-bordered,
-table.table-bordered th,
-table.table-bordered td {
-  border-color: #484848 !important;
-}
-
-$small-score-cell-border: $white;
 
 @import "common";
