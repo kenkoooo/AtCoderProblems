@@ -119,18 +119,17 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
             dataField={c}
             key={c}
             className={() =>
-              contests.reduce(
-                (
-                  prev,
-                  {
-                    problemStatus,
-                  }: { problemStatus: List<{ status: ProblemStatus }> }
-                ): boolean => {
+              contests.every(
+                ({
+                  problemStatus,
+                }: {
+                  problemStatus: List<{ status: ProblemStatus }>;
+                }): boolean => {
                   const current = problemStatus.get(i, { status: "" }).status;
-                  const success =
-                    typeof current !== "string" &&
-                    current.label === StatusLabel.Success;
-                  return prev && success;
+                  return (
+                    typeof current === "string" ||
+                    current.label === StatusLabel.Success
+                  );
                 },
                 true
               )
