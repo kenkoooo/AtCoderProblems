@@ -104,39 +104,44 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
         </Nav>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="Account Info">
-            <Row className="my-2">
-              <Col sm="12">
-                <h2>Account Info</h2>
-              </Col>
-            </Row>
-            <Row className="my-2">
-              <Col sm="12">
-                <Label>AtCoder User ID</Label>
-                <Input
-                  type="text"
-                  placeholder="AtCoder User ID"
-                  value={userId}
-                  onChange={(event): void => setUserId(event.target.value)}
-                />
-              </Col>
-            </Row>
-            <Row className="my-2">
-              <Col sm="12">
-                <Button
-                  disabled={updating}
-                  onClick={(): void => props.updateUserInfo(userId)}
-                >
-                  {updating ? "Updating..." : "Update"}
-                </Button>
-              </Col>
-            </Row>
-            <Row className="my-2">
-              <Col sm="12">
-                <Alert color="success" isOpen={updated}>
-                  Updated
-                </Alert>
-              </Col>
-            </Row>
+            <form
+              onSubmit={(event): void => {
+                event.preventDefault();
+                props.updateUserInfo(userId);
+              }}
+            >
+              <Row className="my-2">
+                <Col sm="12">
+                  <h2>Account Info</h2>
+                </Col>
+              </Row>
+              <Row className="my-2">
+                <Col sm="12">
+                  <Label>AtCoder User ID</Label>
+                  <Input
+                    type="text"
+                    placeholder="AtCoder User ID"
+                    value={userId}
+                    pattern="[a-zA-Z0-9_]*"
+                    onChange={(event): void => setUserId(event.target.value)}
+                  />
+                </Col>
+              </Row>
+              <Row className="my-2">
+                <Col sm="12">
+                  <Button disabled={updating} as="button" type="submit">
+                    {updating ? "Updating..." : "Update"}
+                  </Button>
+                </Col>
+              </Row>
+              <Row className="my-2">
+                <Col sm="12">
+                  <Alert color="success" isOpen={updated}>
+                    Updated
+                  </Alert>
+                </Col>
+              </Row>
+            </form>
           </TabPane>
 
           <TabPane tabId="My Contests">
