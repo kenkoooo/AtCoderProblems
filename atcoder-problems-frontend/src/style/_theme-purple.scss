@@ -51,9 +51,13 @@ $green: #13b955 !default;
 $teal: #20c997 !default;
 $cyan: #009cdc !default;
 
+$my-purple1: #fbf5ff !default;
+$my-purple2: #e6d7f0 !default;
+$my-purple3: #9469b3 !default;
+
 $primary: $purple !default;
-$secondary: #a991d4 !default;
-$success: $green !default;
+$secondary: $my-purple3 !default;
+$success: $my-purple3 !default;
 $info: $cyan !default;
 $warning: $yellow !default;
 $danger: $red !default;
@@ -66,7 +70,7 @@ $my-purple3: #9469b3 !default;
 
 // Options
 
-$enable-rounded: false !default;
+// $enable-rounded: false !default;
 
 // Body
 
@@ -76,10 +80,6 @@ $body-color: $gray-700 !default;
 // Links
 
 $link-hover-color: $primary !default;
-
-// Fonts
-
-$font-size-base: 0.875rem !default;
 
 // Tables
 
@@ -104,8 +104,6 @@ $nav-tabs-border-color: $gray-300 !default;
 $nav-tabs-link-hover-border-color: $primary !default;
 
 // Navbar
-
-$navbar-padding-y: 1.2rem !default;
 
 $navbar-dark-hover-color: rgba($white, 0.9) !default;
 $navbar-dark-active-color: rgba($white, 0.9) !default;
