@@ -4,7 +4,7 @@ import { getRatingColorCode, RatingColor } from "../utils";
 import { useTheme } from "./ThemeProvider";
 
 type RatingMetalColor = "Bronze" | "Silver" | "Gold";
-const getRatingMetalColorCodes = (metalColor: RatingMetalColor) => {
+const getRatingMetalColorCode = (metalColor: RatingMetalColor) => {
   switch (metalColor) {
     case "Bronze":
       return { base: "#965C2C", highlight: "#FFDABD" };
@@ -22,7 +22,7 @@ const getStyleOptions = (
   theme: Theme
 ) => {
   if (color === "Bronze" || color === "Silver" || color === "Gold") {
-    const metalColor = getRatingMetalColorCodes(color);
+    const metalColor = getRatingMetalColorCode(color);
     return Object({
       borderColor: metalColor.base,
       background: `linear-gradient(to right, \
@@ -43,12 +43,13 @@ const getStyleOptions = (
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
   color: RatingColorWithMetal;
-  fillRatio: number;
+  rating: number;
   big?: boolean;
 }
 
 export const TopcoderLikeCircle: React.FC<Props> = (props) => {
-  const { color, fillRatio } = props;
+  const { color, rating } = props;
+  const fillRatio = rating >= 3200 ? 1.0 : (rating % 400) / 400;
   const className = `topcoder-like-circle \
     ${props.big ? "topcoder-like-circle-big" : ""}`;
   const theme = useTheme();

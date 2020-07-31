@@ -23,16 +23,14 @@ interface Props {
 }
 
 function getColor(difficulty: number) {
-  if (difficulty >= 3200) {
-    if (difficulty < 3600) {
-      return "Bronze";
-    } else if (difficulty < 4000) {
-      return "Silver";
-    } else {
-      return "Gold";
-    }
-  } else {
+  if (difficulty < 3200) {
     return getRatingColor(difficulty);
+  } else if (difficulty < 3600) {
+    return "Bronze";
+  } else if (difficulty < 4000) {
+    return "Silver";
+  } else {
+    return "Gold";
   }
 }
 
@@ -65,8 +63,7 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
     );
   }
   const color = getColor(difficulty);
-  const fillRatio: number = difficulty >= 3200 ? 1.0 : (difficulty % 400) / 400;
-  const predictdProb: string =
+  const predictProbability: string =
     problemModel === undefined
       ? "-"
       : userRatingInfo?.internalRating === undefined ||
@@ -80,7 +77,7 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
             userRatingInfo.internalRating
           )
         );
-  const predictdTime =
+  const predictTime =
     problemModel === undefined
       ? "-"
       : userRatingInfo?.internalRating === undefined ||
@@ -95,8 +92,8 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
           )
         );
   const contentDifficulty = `Difficulty: ${difficulty}`;
-  const contentProbability = `Solve Prob: ${predictdProb}`;
-  const contentTime = `Solve Time: ${predictdTime}`;
+  const contentProbability = `Solve Prob: ${predictProbability}`;
+  const contentTime = `Solve Time: ${predictTime}`;
 
   const content = (
     <>
@@ -111,7 +108,7 @@ export const DifficultyCircle: React.FC<Props> = (props) => {
     <>
       <TopcoderLikeCircle
         color={color}
-        fillRatio={fillRatio}
+        rating={difficulty}
         className="difficulty-circle"
         id={circleId}
       />
