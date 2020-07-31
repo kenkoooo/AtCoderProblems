@@ -169,13 +169,13 @@ const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
       <Nav tabs>
         {problemSet.map((set, i) => (
           <NavItem key={i}>
-            <NavLink active={selectedSet === set.order}>
-              <Link
-                to={`/training/${course.title}/${set.order}`}
-                style={{ textDecoration: "none", color: "black" }}
-              >
-                <h3>{set.title}</h3>
-              </Link>
+            <NavLink
+              active={selectedSet === set.order}
+              tag={Link}
+              to={`/training/${course.title}/${set.order}`}
+              style={{ color: "black" }}
+            >
+              <h3>{set.title}</h3>
             </NavLink>
           </NavItem>
         ))}
