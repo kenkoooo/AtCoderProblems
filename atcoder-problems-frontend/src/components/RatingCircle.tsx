@@ -6,7 +6,6 @@ import { TopcoderLikeCircle } from "./TopcoderLikeCircle";
 interface Props {
   userId: string;
   userRating: number;
-  big?: boolean;
 }
 
 export const RatingCircle: React.FC<Props> = (props) => {
@@ -18,7 +17,6 @@ export const RatingCircle: React.FC<Props> = (props) => {
       : userRating < 3600
       ? "Silver"
       : "Gold";
-  const fillRatio = userRating >= 3200 ? 1.0 : (userRating % 400) / 400;
   const id = "RatingCircle-" + userId;
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
@@ -28,8 +26,8 @@ export const RatingCircle: React.FC<Props> = (props) => {
         className="rating-circle"
         id={id}
         color={color}
-        fillRatio={fillRatio}
-        big={props.big}
+        rating={userRating}
+        big
       />
       <Tooltip
         placement="top"

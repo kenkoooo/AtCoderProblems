@@ -12,7 +12,7 @@ export const UserNameLabel: React.FC<Props> = (props) => {
 
   return (
     <span className={getRatingColorClass(userRating)}>
-      <RatingCircle userId={userId} userRating={userRating} big />
+      <RatingCircle userId={userId} userRating={userRating} />
       &nbsp;
       {userId}
     </span>
