@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Container, Row, Table, Nav, NavItem, NavLink, Col } from "reactstrap";
 import Octicon, { Check, Search } from "@primer/octicons-react";
+import { Link } from "react-router-dom";
 import { Course } from "../../interfaces/Course";
 import Problem from "../../interfaces/Problem";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -106,6 +107,7 @@ const SetPieChart: React.FC<SetPieChartProps> = (props) => {
 
 interface OuterProps {
   course: Course;
+  selectedSet: number;
   submissions: Submission[];
 }
 
@@ -115,12 +117,9 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
-  const { course } = props;
-  const [selectedSet, setSelectedSet] = useState(course.set_list[0].order);
-
+  const { course, selectedSet } = props;
   const problemSet = course.set_list;
   problemSet.sort((a, b) => a.order - b.order);
-
   const currentSelectedSet =
     problemSet.find((set) => set.order === selectedSet)?.problems ?? [];
   currentSelectedSet.sort((a, b) => a.order - b.order);
@@ -143,7 +142,6 @@ const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
       (problem: Problem | undefined): problem is Problem =>
         problem !== undefined
     );
-
   return (
     <Container fluid>
       <Row className="my-2">
@@ -173,7 +171,9 @@ const InnerSingleCourseView: React.FC<InnerProps> = (props) => {
           <NavItem key={i}>
             <NavLink
               active={selectedSet === set.order}
-              onClick={(): void => setSelectedSet(set.order)}
+              tag={Link}
+              to={`/training/${course.title}/${set.order}`}
+              style={{ color: "black" }}
             >
               <h3>{set.title}</h3>
             </NavLink>
