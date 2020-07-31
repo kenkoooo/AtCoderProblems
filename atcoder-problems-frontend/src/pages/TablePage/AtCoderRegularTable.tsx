@@ -119,19 +119,10 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
             dataField={c}
             key={c}
             className={() =>
-              contests.every(
-                ({
-                  problemStatus,
-                }: {
-                  problemStatus: List<{ status: ProblemStatus }>;
-                }): boolean => {
-                  const current = problemStatus.get(i, { status: "" }).status;
-                  return (
-                    typeof current === "string" ||
-                    current.label === StatusLabel.Success
-                  );
-                }
-              )
+              contests.every(({ problemStatus }) => {
+                const current = problemStatus.get(i)?.status;
+                return !current || current.label === StatusLabel.Success;
+              })
                 ? TableColor.Success
                 : TableColor.None
             }
