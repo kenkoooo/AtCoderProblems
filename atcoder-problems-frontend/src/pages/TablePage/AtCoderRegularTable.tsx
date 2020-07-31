@@ -118,6 +118,14 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
           <TableHeaderColumn
             dataField={c}
             key={c}
+            className={() =>
+              contests.every(({ problemStatus }) => {
+                const current = problemStatus.get(i)?.status;
+                return !current || current.label === StatusLabel.Success;
+              })
+                ? TableColor.Success
+                : TableColor.None
+            }
             columnClassName={(
               _,
               { problemStatus, cellColorList }: OneContest
