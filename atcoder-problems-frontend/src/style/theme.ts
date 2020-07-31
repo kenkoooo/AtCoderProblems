@@ -23,4 +23,6 @@ export const ThemeDark: typeof ThemeLight = {
   difficultyRedColor: "#FF6767",
 };
 
+export const ThemePurple = ThemeLight;
+
 export type Theme = typeof ThemeLight;
