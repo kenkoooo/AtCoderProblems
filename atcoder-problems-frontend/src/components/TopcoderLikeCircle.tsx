@@ -1,19 +1,27 @@
 import React from "react";
-import { getRatingColorCode } from "../utils";
-import {
-  RatingColorWithMetal,
-  getRatingMetalColorCodes,
-  isRatingMetalColor,
-} from "../utils/RatingMetalColor";
 import { Theme } from "../style/theme";
+import { getRatingColorCode, RatingColor } from "../utils";
 import { useTheme } from "./ThemeProvider";
 
+type RatingMetalColor = "Bronze" | "Silver" | "Gold";
+const getRatingMetalColorCodes = (metalColor: RatingMetalColor) => {
+  switch (metalColor) {
+    case "Bronze":
+      return { base: "#965C2C", highlight: "#FFDABD" };
+    case "Silver":
+      return { base: "#808080", highlight: "white" };
+    case "Gold":
+      return { base: "#FFD700", highlight: "white" };
+  }
+};
+
+type RatingColorWithMetal = RatingColor | RatingMetalColor;
 const getStyleOptions = (
   color: RatingColorWithMetal,
   fillRatio: number,
   theme: Theme
 ) => {
-  if (isRatingMetalColor(color)) {
+  if (color === "Bronze" || color === "Silver" || color === "Gold") {
     const metalColor = getRatingMetalColorCodes(color);
     return Object({
       borderColor: metalColor.base,
