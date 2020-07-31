@@ -14,12 +14,12 @@ export const ThemeDark: typeof ThemeLight = {
   ...ThemeLight,
   difficultyBlackColor: "#FFFFFF",
   difficultyGreyColor: "#C0C0C0",
-  difficultyBrownColor: "#FFA244",
+  difficultyBrownColor: "#B08C56",
   difficultyGreenColor: "#3FAF3F",
   difficultyCyanColor: "#42E0E0",
   difficultyBlueColor: "#8888FF",
   difficultyYellowColor: "#FFFF56",
-  difficultyOrangeColor: "#FFC86F",
+  difficultyOrangeColor: "#FFB836",
   difficultyRedColor: "#FF6767",
 };
 
