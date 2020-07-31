@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Badge, Tooltip } from "reactstrap";
 import { getRatingColor } from "../utils";
-import { RatingColorWithMetal } from "../utils/RatingMetalColor";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel,
@@ -23,11 +22,7 @@ interface Props {
   userRatingInfo?: RatingInfo | null;
 }
 
-interface LocalState {
-  tooltipOpen: boolean;
-}
-
-function getColor(difficulty: number): RatingColorWithMetal {
+function getColor(difficulty: number) {
   if (difficulty >= 3200) {
     if (difficulty < 3600) {
       return "Bronze";
