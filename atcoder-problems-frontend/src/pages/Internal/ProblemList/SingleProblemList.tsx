@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
-import { Map } from "immutable";
+import { Map, List } from "immutable";
 import {
   Alert,
   Button,
@@ -29,6 +29,7 @@ import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { formatProblemUrl } from "../../../utils/Url";
 import { ProblemList, ProblemListItem, UserResponse } from "../types";
 import { NewTabLink } from "../../../components/NewTabLink";
+import { ContestCreatePage } from "../VirtualContest/ContestCreatePage";
 
 interface OuterProps {
   listId: string;
@@ -109,11 +110,33 @@ export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
   const listInfo = problemListFetch.value;
   const modifiable = listInfo.internal_user_id === internalUserId;
   const [adding, setAdding] = useState(false);
+  const [creatingContest, setCreatingContest] = useState(false);
   const problems = props.problems.fulfilled
     ? props.problems.value.valueSeq().toArray()
     : [];
 
-  return (
+  return creatingContest ? (
+    <>
+      <Row className="mt-2 mb-4">
+        <Button
+          color="danger"
+          outline
+          onClick={(): void => setCreatingContest(false)}
+        >
+          Cancel
+        </Button>
+      </Row>
+      <ContestCreatePage
+        initialProblems={List(
+          listInfo.items.map((info) => ({
+            id: info.problem_id,
+            order: null,
+            point: null,
+          }))
+        )}
+      />
+    </>
+  ) : (
     <>
       <Row className="my-2">
         <Col sm="12">
@@ -140,6 +163,13 @@ export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
               Add
             </Button>
           ) : null}
+        </Col>
+      </Row>
+      <Row className="my-2">
+        <Col sm="12">
+          <Button onClick={(): void => setCreatingContest(true)}>
+            Create Virtual Contest
+          </Button>
         </Col>
       </Row>
       <Row className="my-2">

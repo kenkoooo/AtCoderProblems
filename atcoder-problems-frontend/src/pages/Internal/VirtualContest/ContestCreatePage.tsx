@@ -37,7 +37,7 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
       initialEndDate={todayDateTime}
       initialEndHour={todayHour}
       initialEndMinute={todayMinute}
-      initialProblems={List()}
+      initialProblems={props.initialProblems || List()}
       initialMode={null}
       initialPublicState={false}
       initialPenaltySecond={300}
@@ -87,9 +87,14 @@ interface InnerProps {
   createContestResponse: PromiseState<Response | null>;
   createContest: (request: Request, problems: VirtualContestItem[]) => void;
   updateResponse: PromiseState<{} | null>;
+  initialProblems?: List<VirtualContestItem>;
 }
 
-export const ContestCreatePage = connect<{}, InnerProps>(() => ({
+interface OuterProps {
+  initialProblems?: List<VirtualContestItem>;
+}
+
+export const ContestCreatePage = connect<OuterProps, InnerProps>(() => ({
   createContest: (request: Request, problems: VirtualContestItem[]) => ({
     createContestResponse: {
       url: CONTEST_CREATE,
