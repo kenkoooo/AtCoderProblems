@@ -13,14 +13,15 @@ async fn test_progress_reset_manager() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     utils::setup_internal_user(&pool, internal_user_id, atcoder_user_id).await;
 
-    // get_progress_reset_list (empty)
     let list = pool
         .get_progress_reset_list(internal_user_id)
         .await
         .unwrap();
-    assert!(list.items.is_empty());
+    assert!(
+        list.items.is_empty(),
+        "`get_progress_reset_list` here should return an empty list, but got not empty."
+    );
 
-    // add_item
     pool.add_item(internal_user_id, problem_id, reset_epoch_second)
         .await
         .unwrap();
@@ -35,11 +36,10 @@ async fn test_progress_reset_manager() {
                 problem_id: problem_id.to_string(),
                 reset_epoch_second,
             }],
-        }
+        },
+        "The item that has been added to the list is not found."
     );
 
-    // Checks that calling `add_item` on the same `internal_user_id` and `problem_id`
-    // causes updating `reset_epoch_second`
     let updated_reset_epoch_second = 334;
     pool.add_item(internal_user_id, problem_id, updated_reset_epoch_second)
         .await
@@ -55,10 +55,10 @@ async fn test_progress_reset_manager() {
                 problem_id: problem_id.to_string(),
                 reset_epoch_second: updated_reset_epoch_second,
             }],
-        }
+        },
+        "`reset_epoch_second` should be updated, but not."
     );
 
-    // remove_item
     pool.remove_item(internal_user_id, problem_id)
         .await
         .unwrap();
@@ -66,5 +66,8 @@ async fn test_progress_reset_manager() {
         .get_progress_reset_list(internal_user_id)
         .await
         .unwrap();
-    assert!(list.items.is_empty());
+    assert!(
+        list.items.is_empty(),
+        "The list should not have any items, but still has."
+    );
 }
