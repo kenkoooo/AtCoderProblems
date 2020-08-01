@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { connect, PromiseState, PropsMapInner } from "react-refetch";
 import { Nav, NavItem, NavLink, Spinner } from "reactstrap";
-import { Redirect, useRouteMatch, Switch, Route, Link } from "react-router-dom";
+import {
+  Redirect,
+  useRouteMatch,
+  Switch,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
 import { USER_GET, USER_UPDATE } from "../ApiUrl";
 import { UserProblemListPage } from "../UserProblemListPage";
 import { UserResponse } from "../types";
@@ -20,6 +27,7 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
 
   const [userId, setUserId] = useState("");
   const { path } = useRouteMatch();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (userInfoGet.fulfilled && userInfoGet.value) {
@@ -44,22 +52,34 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
       <>
         <Nav tabs>
           <NavItem>
-            <NavLink tag={Link} to={path}>
+            <NavLink tag={Link} to={path} active={path === pathname}>
               Account Info
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink tag={Link} to={`${path}/contests`}>
+            <NavLink
+              tag={Link}
+              to={`${path}/contests`}
+              active={`${path}/contests` === pathname}
+            >
               My Contests
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink tag={Link} to={`${path}/my_lists`}>
+            <NavLink
+              tag={Link}
+              to={`${path}/my_lists`}
+              active={`${path}/my_lists` === pathname}
+            >
               Problem Lists
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink tag={Link} to={`${path}/reset`}>
+            <NavLink
+              tag={Link}
+              to={`${path}/reset`}
+              active={`${path}/reset` === pathname}
+            >
               Reset Progress
             </NavLink>
           </NavItem>
