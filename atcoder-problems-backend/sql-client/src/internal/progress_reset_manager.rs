@@ -76,13 +76,13 @@ impl ProgressResetManager for PgPool {
             ",
         )
         .bind(internal_user_id)
-        .map(|row: PgRow| {
-            let problem_id: String = row.get(0);
-            let reset_epoch_second: i64 = row.get(1);
-            ProgressResetItem {
+        .try_map(|row: PgRow| {
+            let problem_id: String = row.try_get("problem_id")?;
+            let reset_epoch_second: i64 = row.try_get("reset_epoch_second")?;
+            Ok(ProgressResetItem {
                 problem_id,
                 reset_epoch_second,
-            }
+            })
         })
         .fetch_all(self)
         .await?;
