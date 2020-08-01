@@ -71,7 +71,7 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
               to={`${path}/my_lists`}
               active={`${path}/my_lists` === pathname}
             >
-              Problem Lists
+              My Lists
             </NavLink>
           </NavItem>
           <NavItem>
