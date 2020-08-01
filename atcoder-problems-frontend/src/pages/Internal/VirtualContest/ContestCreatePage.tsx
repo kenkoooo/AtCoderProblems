@@ -1,13 +1,16 @@
 import React from "react";
 import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import { Redirect } from "react-router-dom";
+import { Redirect, useLocation } from "react-router-dom";
 import * as DateUtil from "../../../utils/DateUtil";
 import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
 import { VirtualContestItem, VirtualContestMode } from "../types";
 import { ContestConfig } from "./ContestConfig";
 
 const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
   const createResponse = props.createContestResponse.fulfilled
     ? props.createContestResponse.value
     : null;
@@ -26,6 +29,20 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
   const todayHour = today.hour();
   const todayMinute = today.minute();
 
+  let initialProblems = List<VirtualContestItem>();
+  try {
+    const problems: string[] = JSON.parse(searchParams.get("problems") || "[]");
+    initialProblems = List(
+      problems.map((problem) => ({
+        id: problem,
+        order: null,
+        point: null,
+      }))
+    );
+  } catch (e) {
+    console.error(e);
+  }
+
   return (
     <ContestConfig
       pageTitle="Create Contest"
@@ -37,7 +54,7 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
       initialEndDate={todayDateTime}
       initialEndHour={todayHour}
       initialEndMinute={todayMinute}
-      initialProblems={List()}
+      initialProblems={initialProblems}
       initialMode={null}
       initialPublicState={false}
       initialPenaltySecond={300}
