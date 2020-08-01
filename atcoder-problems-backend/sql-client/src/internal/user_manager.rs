@@ -66,13 +66,13 @@ impl UserManager for PgPool {
             ",
         )
         .bind(internal_user_id)
-        .map(|row: PgRow| {
-            let internal_user_id: String = row.get(0);
-            let atcoder_user_id: Option<String> = row.get(1);
-            InternalUserInfo {
+        .try_map(|row: PgRow| {
+            let internal_user_id: String = row.try_get("internal_user_id")?;
+            let atcoder_user_id: Option<String> = row.try_get("atcoder_user_id")?;
+            Ok(InternalUserInfo {
                 internal_user_id,
                 atcoder_user_id,
-            }
+            })
         })
         .fetch_one(self)
         .await?;
