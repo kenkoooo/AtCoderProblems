@@ -106,7 +106,7 @@ const App: React.FC = () => {
               <Route path="/contest/recent" component={RecentContestList} />
 
               {/*User Settings*/}
-              <Route path={ACCOUNT_INFO} component={MyAccountPage} />
+              <Route path={`${ACCOUNT_INFO}`} component={MyAccountPage} />
 
               {/*Problem List*/}
               <Route
