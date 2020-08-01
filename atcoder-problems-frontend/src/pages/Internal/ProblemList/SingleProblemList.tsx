@@ -46,57 +46,10 @@ interface InnerProps extends OuterProps {
   updateItem: (problemId: string, memo: string) => void;
 }
 
-export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
-  userInfoFetch: USER_GET,
-  problemListFetch: listGetUrl(props.listId),
-  updateList: (name: string) => ({
-    updateListResponse: {
-      url: LIST_UPDATE,
-      method: "POST",
-      body: JSON.stringify({ internal_list_id: props.listId, name }),
-      force: true,
-    },
-  }),
-  updateListResponse: { value: null },
-  problems: {
-    comparison: null,
-    value: () => CachedApi.cachedProblemMap(),
-  },
-  addItem: (problemId: string) => ({
-    problemListFetch: {
-      url: LIST_ITEM_ADD,
-      method: "POST",
-      body: JSON.stringify({
-        internal_list_id: props.listId,
-        problem_id: problemId,
-      }),
-      then: (): string => listGetUrl(props.listId),
-    },
-  }),
-  deleteItem: (problemId: string) => ({
-    problemListFetch: {
-      url: LIST_ITEM_DELETE,
-      method: "POST",
-      body: JSON.stringify({
-        internal_list_id: props.listId,
-        problem_id: problemId,
-      }),
-      then: (): string => listGetUrl(props.listId),
-    },
-  }),
-  updateItem: (problemId: string, memo: string) => ({
-    problemListFetch: {
-      url: LIST_ITEM_UPDATE,
-      method: "POST",
-      body: JSON.stringify({
-        internal_list_id: props.listId,
-        problem_id: problemId,
-        memo,
-      }),
-      then: (): string => listGetUrl(props.listId),
-    },
-  }),
-}))((props) => {
+const InnerSingleProblemList = (props: InnerProps) => {
+  const [adding, setAdding] = useState(false);
+  const [creatingContest, setCreatingContest] = useState(false);
+
   const { problemListFetch, userInfoFetch } = props;
   const internalUserId =
     userInfoFetch.fulfilled && userInfoFetch.value
@@ -109,8 +62,6 @@ export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
   }
   const listInfo = problemListFetch.value;
   const modifiable = listInfo.internal_user_id === internalUserId;
-  const [adding, setAdding] = useState(false);
-  const [creatingContest, setCreatingContest] = useState(false);
   const problems = props.problems.fulfilled
     ? props.problems.value.valueSeq().toArray()
     : [];
@@ -195,7 +146,59 @@ export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
       </Row>
     </>
   );
-});
+};
+
+export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
+  userInfoFetch: USER_GET,
+  problemListFetch: listGetUrl(props.listId),
+  updateList: (name: string) => ({
+    updateListResponse: {
+      url: LIST_UPDATE,
+      method: "POST",
+      body: JSON.stringify({ internal_list_id: props.listId, name }),
+      force: true,
+    },
+  }),
+  updateListResponse: { value: null },
+  problems: {
+    comparison: null,
+    value: () => CachedApi.cachedProblemMap(),
+  },
+  addItem: (problemId: string) => ({
+    problemListFetch: {
+      url: LIST_ITEM_ADD,
+      method: "POST",
+      body: JSON.stringify({
+        internal_list_id: props.listId,
+        problem_id: problemId,
+      }),
+      then: (): string => listGetUrl(props.listId),
+    },
+  }),
+  deleteItem: (problemId: string) => ({
+    problemListFetch: {
+      url: LIST_ITEM_DELETE,
+      method: "POST",
+      body: JSON.stringify({
+        internal_list_id: props.listId,
+        problem_id: problemId,
+      }),
+      then: (): string => listGetUrl(props.listId),
+    },
+  }),
+  updateItem: (problemId: string, memo: string) => ({
+    problemListFetch: {
+      url: LIST_ITEM_UPDATE,
+      method: "POST",
+      body: JSON.stringify({
+        internal_list_id: props.listId,
+        problem_id: problemId,
+        memo,
+      }),
+      then: (): string => listGetUrl(props.listId),
+    },
+  }),
+}))(InnerSingleProblemList);
 
 const ProblemEntry: React.FC<{
   item: ProblemListItem;
