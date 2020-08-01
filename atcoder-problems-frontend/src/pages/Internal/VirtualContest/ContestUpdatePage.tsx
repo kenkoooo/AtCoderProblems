@@ -4,8 +4,12 @@ import { connect, PromiseState } from "react-refetch";
 import { Redirect } from "react-router-dom";
 import { Alert, Spinner } from "reactstrap";
 import * as DateUtil from "../../../utils/DateUtil";
-import { CONTEST_ITEM_UPDATE, CONTEST_UPDATE, contestGetUrl } from "../ApiUrl";
+import { contestGetUrl } from "../ApiUrl";
 import { VirtualContestItem, VirtualContestDetails } from "../types";
+import {
+  updateVirtualContestInfo,
+  updateVirtualContestItems,
+} from "./ApiClient";
 import { ContestConfig } from "./ContestConfig";
 
 interface Request {
@@ -29,38 +33,7 @@ interface InnerProps extends OuterProps {
   updateContest: (request: Request, problems: VirtualContestItem[]) => void;
 }
 
-export const ContestUpdatePage = connect<OuterProps, InnerProps>((props) => ({
-  contestInfoFetch: {
-    url: contestGetUrl(props.contestId),
-  },
-  updateContest: (request: Request, problems: VirtualContestItem[]) => ({
-    updateResponse: {
-      url: CONTEST_UPDATE,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(request),
-      then: () => ({
-        url: CONTEST_ITEM_UPDATE,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contest_id: props.contestId,
-          problems: problems.map((p, i) => ({
-            ...p,
-            order: i,
-          })),
-        }),
-      }),
-    },
-  }),
-  updateResponse: {
-    value: null,
-  },
-}))((props: InnerProps) => {
+const InnerContestUpdatePage = (props: InnerProps) => {
   const { contestId, contestInfoFetch, updateResponse } = props;
   if (contestInfoFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
@@ -129,4 +102,22 @@ export const ContestUpdatePage = connect<OuterProps, InnerProps>((props) => ({
       }}
     />
   );
-});
+};
+
+export const ContestUpdatePage = connect<OuterProps, InnerProps>((props) => ({
+  contestInfoFetch: {
+    url: contestGetUrl(props.contestId),
+  },
+  updateContest: (request: Request, problems: VirtualContestItem[]) => ({
+    updateResponse: {
+      comparison: null,
+      value: () =>
+        updateVirtualContestInfo(request).then(() =>
+          updateVirtualContestItems(props.contestId, problems)
+        ),
+    },
+  }),
+  updateResponse: {
+    value: null,
+  },
+}))(InnerContestUpdatePage);
