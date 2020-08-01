@@ -14,6 +14,7 @@ import {
   Row,
   Spinner,
 } from "reactstrap";
+import { useHistory, useLocation } from "react-router-dom";
 import {
   LIST_ITEM_ADD,
   LIST_ITEM_DELETE,
@@ -112,6 +113,8 @@ export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
   const problems = props.problems.fulfilled
     ? props.problems.value.valueSeq().toArray()
     : [];
+  const location = useLocation();
+  const history = useHistory();
 
   return (
     <>
@@ -140,6 +143,23 @@ export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
               Add
             </Button>
           ) : null}
+        </Col>
+      </Row>
+      <Row className="my-2">
+        <Col sm="12">
+          <Button
+            onClick={(): void =>
+              history.push({
+                ...location,
+                pathname: "/contest/create",
+                search: `problems=${encodeURIComponent(
+                  JSON.stringify(listInfo.items.map((data) => data.problem_id))
+                )}`,
+              })
+            }
+          >
+            Create Virtual Contest
+          </Button>
         </Col>
       </Row>
       <Row className="my-2">
