@@ -54,19 +54,19 @@ impl ProblemListManager for PgPool {
             ",
         )
         .bind(internal_user_id)
-        .map(|row: PgRow| {
-            let internal_list_id: String = row.get(0);
-            let internal_list_name: String = row.get(1);
-            let internal_user_id: String = row.get(2);
-            let problem_id: Option<String> = row.get(3);
-            let memo: Option<String> = row.get(4);
-            (
+        .try_map(|row: PgRow| {
+            let internal_list_id: String = row.try_get("internal_list_id")?;
+            let internal_list_name: String = row.try_get("internal_list_name")?;
+            let internal_user_id: String = row.try_get("internal_user_id")?;
+            let problem_id: Option<String> = row.try_get("problem_id")?;
+            let memo: Option<String> = row.try_get("memo")?;
+            Ok((
                 internal_list_id,
                 internal_list_name,
                 internal_user_id,
                 problem_id,
                 memo,
-            )
+            ))
         })
         .fetch_all(self)
         .await?;
@@ -200,7 +200,7 @@ impl ProblemListManager for PgPool {
             "SELECT problem_id FROM internal_problem_list_items WHERE internal_list_id = $1",
         )
         .bind(internal_list_id)
-        .map(|row: PgRow| row.get::<String, _>(0))
+        .try_map(|row: PgRow| row.try_get::<String, _>("problem_id"))
         .fetch_all(self)
         .await?;
         if problems.len() >= MAX_ITEM_NUM {
