@@ -1,5 +1,5 @@
 use crate::PgPool;
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use async_trait::async_trait;
 use serde::Serialize;
 use sqlx::postgres::PgRow;
@@ -363,9 +363,10 @@ impl VirtualContestManager for PgPool {
             bail!("The number of problems exceeded.");
         }
 
+        // Checks if the target contest exists
         sqlx::query(
             r"
-            SELECT COUNT(*) AS cnt
+            SELECT id
             FROM internal_virtual_contests
             WHERE internal_user_id = $1
             AND id = $2
@@ -373,9 +374,10 @@ impl VirtualContestManager for PgPool {
         )
         .bind(user_id)
         .bind(contest_id)
-        .try_map(|row: PgRow| row.try_get::<i64, _>("cnt"))
+        .try_map(|row: PgRow| row.try_get::<String, _>("id"))
         .fetch_one(self)
-        .await?;
+        .await
+        .context("The target contest does not exist.")?;
 
         let (contest_ids, problem_ids, points, orders) = problems.iter().fold(
             (vec![], vec![], vec![], vec![]),
