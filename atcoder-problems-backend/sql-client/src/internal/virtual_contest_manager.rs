@@ -7,10 +7,10 @@ use sqlx::Row;
 use std::result::Result as StdResult;
 use uuid::Uuid;
 
-const MAX_PROBLEM_NUM_PER_CONTEST: usize = 100;
-const RECENT_CONTEST_NUM: i64 = 1000;
+pub const MAX_PROBLEM_NUM_PER_CONTEST: usize = 100;
+pub const RECENT_CONTEST_NUM: i64 = 1000;
 
-#[derive(Serialize, Debug, PartialEq, Eq)]
+#[derive(Serialize, Debug, PartialEq, Eq, Clone)]
 pub struct VirtualContestInfo {
     pub id: String,
     pub title: String,
@@ -120,8 +120,8 @@ impl VirtualContestManager for PgPool {
         sqlx::query(
             r"
             INSERT INTO internal_virtual_contests
-            VALUES (id, title, memo, internal_user_id, start_epoch_second, duration_second, mode, is_public, penalty_second)
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            (id, title, memo, internal_user_id, start_epoch_second, duration_second, mode, is_public, penalty_second)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             ",
         )
         .bind(&uuid)
@@ -337,7 +337,7 @@ impl VirtualContestManager for PgPool {
     async fn get_running_contest_problems(&self, time: i64) -> Result<Vec<String>> {
         let problems = sqlx::query(
             r"
-            SELECT problem_id
+            SELECT a.problem_id
             FROM internal_virtual_contest_items AS a
             LEFT JOIN internal_virtual_contests AS b
             ON a.internal_virtual_contest_id = b.id
@@ -373,7 +373,7 @@ impl VirtualContestManager for PgPool {
         )
         .bind(user_id)
         .bind(contest_id)
-        .try_map(|row: PgRow| row.try_get::<u32, _>("cnt"))
+        .try_map(|row: PgRow| row.try_get::<i64, _>("cnt"))
         .fetch_one(self)
         .await?;
 
@@ -404,14 +404,13 @@ impl VirtualContestManager for PgPool {
         // See: https://github.com/launchbadge/sqlx/issues/571
         sqlx::query(
             r"
-
-            Ok(problems)
+            INSERT INTO internal_virtual_contest_items
             (internal_virtual_contest_id, problem_id, user_defined_point, user_defined_order)
             VALUES (
                 UNNEST($1::VARCHAR(255)[]),
                 UNNEST($2::VARCHAR(255)[]),
-                UNNEST($3::BIGINT[]}),
-                UNNEST($4::BIGINT[]}),
+                UNNEST($3::BIGINT[]),
+                UNNEST($4::BIGINT[])
             )
             ",
         )
