@@ -58,7 +58,7 @@ export const Options: React.FC<Props> = (props) => {
           </Label>
           <HelpBadgeTooltip id="difficulty">
             Internal rating to have 50% Solve Probability
-            </HelpBadgeTooltip>
+          </HelpBadgeTooltip>
         </FormGroup>
         {props.colorMode === ColorMode.ContestResult && (
           <FormGroup check inline>
