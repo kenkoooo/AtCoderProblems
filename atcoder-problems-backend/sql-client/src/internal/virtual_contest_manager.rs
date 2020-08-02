@@ -15,7 +15,7 @@ pub struct VirtualContestInfo {
     pub id: String,
     pub title: String,
     pub memo: String,
-    pub owner_user_id: String, // field name is `internal_user_id`
+    pub owner_user_id: String, // column name is `internal_user_id`
     pub start_epoch_second: i64,
     pub duration_second: i64,
     pub mode: Option<String>,
@@ -176,7 +176,7 @@ impl VirtualContestManager for PgPool {
     }
 
     async fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContestInfo>> {
-        let data = sqlx::query(
+        let contests = sqlx::query(
             r"
             SELECT 
                 id,
@@ -196,14 +196,15 @@ impl VirtualContestManager for PgPool {
         .try_map(virtual_contest_info_mapper)
         .fetch_all(self)
         .await?;
-        Ok(data)
+
+        Ok(contests)
     }
 
     async fn get_participated_contests(
         &self,
         internal_user_id: &str,
     ) -> Result<Vec<VirtualContestInfo>> {
-        let data = sqlx::query(
+        let contests = sqlx::query(
             r"
             SELECT 
                 a.id,
@@ -225,11 +226,12 @@ impl VirtualContestManager for PgPool {
         .try_map(virtual_contest_info_mapper)
         .fetch_all(self)
         .await?;
-        Ok(data)
+
+        Ok(contests)
     }
 
     async fn get_single_contest_info(&self, contest_id: &str) -> Result<VirtualContestInfo> {
-        sqlx::query(
+        let info = sqlx::query(
             r"
             SELECT
                 id,
@@ -248,8 +250,9 @@ impl VirtualContestManager for PgPool {
         .bind(contest_id)
         .try_map(virtual_contest_info_mapper)
         .fetch_one(self)
-        .await
-        .map_err(|e| e.into())
+        .await?;
+
+        Ok(info)
     }
 
     async fn get_single_contest_participants(&self, contest_id: &str) -> Result<Vec<String>> {
@@ -305,7 +308,7 @@ impl VirtualContestManager for PgPool {
     }
 
     async fn get_recent_contest_info(&self) -> Result<Vec<VirtualContestInfo>> {
-        sqlx::query(
+        let contests = sqlx::query(
             r"
             SELECT 
                 id,
@@ -326,12 +329,13 @@ impl VirtualContestManager for PgPool {
         .bind(RECENT_CONTEST_NUM)
         .try_map(virtual_contest_info_mapper)
         .fetch_all(self)
-        .await
-        .map_err(|e| e.into())
+        .await?;
+
+        Ok(contests)
     }
 
     async fn get_running_contest_problems(&self, time: i64) -> Result<Vec<String>> {
-        sqlx::query(
+        let problems = sqlx::query(
             r"
             SELECT problem_id
             FROM internal_virtual_contest_items AS a
@@ -344,8 +348,9 @@ impl VirtualContestManager for PgPool {
         .bind(time)
         .try_map(|row: PgRow| row.try_get::<String, _>("problem_id"))
         .fetch_all(self)
-        .await
-        .map_err(|e| e.into())
+        .await?;
+
+        Ok(problems)
     }
 
     async fn update_items(
@@ -399,7 +404,8 @@ impl VirtualContestManager for PgPool {
         // See: https://github.com/launchbadge/sqlx/issues/571
         sqlx::query(
             r"
-            INSERT INTO internal_virtual_contest_items
+
+            Ok(problems)
             (internal_virtual_contest_id, problem_id, user_defined_point, user_defined_order)
             VALUES (
                 UNNEST($1::VARCHAR(255)[]),
