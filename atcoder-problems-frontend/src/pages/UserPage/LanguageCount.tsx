@@ -39,7 +39,6 @@ export const LanguageCount: React.FC<Props> = ({ submissions }) => {
     }
   });
 
-  console.log(languageMap);
   const languageCountStreak = Array.from(languageMap)
     .map(([language, elm]) => ({
       language,
