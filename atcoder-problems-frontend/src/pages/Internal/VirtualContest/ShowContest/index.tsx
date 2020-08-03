@@ -26,11 +26,17 @@ import {
   formatMomentDateTimeDay,
   parseSecond,
 } from "../../../../utils/DateUtil";
-import { formatMode, UserResponse, VirtualContestDetails } from "../../types";
+import {
+  formatMode,
+  UserResponse,
+  VirtualContestDetails,
+  formatPublicState,
+} from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
+import { HelpBadgeTooltip } from "../../../../components/HelpBadgeTooltip";
 import { ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
@@ -127,6 +133,16 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                     ? null
                     : "(Performance estimation is disabled)"}
                 </td>
+              </tr>
+              <tr>
+                <th>
+                  Public State{" "}
+                  <HelpBadgeTooltip id="public-state-explanation">
+                    If the contest is private, it is hidden from the Virtual
+                    Contests page and can only be accessed from the URL.
+                  </HelpBadgeTooltip>
+                </th>
+                <td>{formatPublicState(contestInfo.is_public)}</td>
               </tr>
               <tr>
                 <th>Time</th>
