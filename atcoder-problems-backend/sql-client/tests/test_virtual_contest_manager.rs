@@ -215,15 +215,8 @@ async fn test_virtual_contest_manager() {
     assert_eq!(
         &updated_contest_info,
         &VirtualContestInfo {
-            id: contest_id.to_string(),
-            title: title.to_string(),
-            memo: memo.to_string(),
-            owner_user_id: user_id.to_string(),
-            start_epoch_second,
             duration_second: updated_duration_second,
-            mode: mode.clone(),
-            is_public,
-            penalty_second,
+            ..created_contest
         },
         "There is a difference between the contest that we have just updated and the actual saved data."
     );
