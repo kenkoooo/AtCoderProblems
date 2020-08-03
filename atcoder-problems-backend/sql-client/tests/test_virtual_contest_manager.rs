@@ -46,15 +46,10 @@ async fn test_virtual_contest_manager() {
         "`get_participated_contests` here should return an empty list, but got not empty."
     );
 
-    let update_err = pool
+    let update_result = pool
         .update_items("THIS_IS_FAKE_CONTEST_ID", &[], user_id)
-        .await
-        .unwrap_err();
-    assert_eq!(
-        update_err.to_string(),
-        "The target contest does not exist.",
-        "The error message is different from what we expect."
-    );
+        .await;
+    assert!(update_result.is_err(), "`update_items` should fail because the wrong contest id was passed, but actually it succeeded.");
 
     let title = "title";
     let memo = "memo";
@@ -123,15 +118,10 @@ async fn test_virtual_contest_manager() {
         "There should be no problems belonging to the contest, but actually not."
     );
 
-    let update_err = pool
+    let update_result = pool
         .update_items(&contest_id, &[], "THIS_IS_ANOTHER_USER")
-        .await
-        .unwrap_err();
-    assert_eq!(
-        update_err.to_string(),
-        "The target contest does not exist.",
-        "The error message is different from what we expect."
-    );
+        .await;
+    assert!(update_result.is_err(), "`update_items` should fail because the wrong user id was passed, but actually it succeeded.");
 
     let added_problems = [
         VirtualContestItem {
@@ -169,11 +159,10 @@ async fn test_virtual_contest_manager() {
             order: Some(i as i64),
         })
         .collect::<Vec<_>>();
-    let update_err = pool
+    let update_result = pool
         .update_items(&contest_id, &too_many_problems, user_id)
-        .await
-        .unwrap_err();
-    assert_eq!(update_err.to_string(), "The number of problems exceeded.");
+        .await;
+    assert!(update_result.is_err(), "`update_items` should fail because too many problems were passed, but actually it succeeded.");
 
     pool.join_contest(&contest_id, user_id).await.unwrap();
 
