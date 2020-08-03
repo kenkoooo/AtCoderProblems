@@ -1,9 +1,15 @@
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { Link } from "react-router-dom";
 import React from "react";
+import { Badge } from "reactstrap";
 import * as DateUtil from "../../utils/DateUtil";
 import { Timer } from "../../components/Timer";
-import { formatMode, VirtualContestInfo, VirtualContestMode } from "./types";
+import {
+  formatMode,
+  VirtualContestInfo,
+  VirtualContestMode,
+  formatPublicState,
+} from "./types";
 
 const formatContestDuration = (
   start: number,
@@ -67,7 +73,12 @@ export const VirtualContestTable: React.FC<Props> = (props) => {
           title: string,
           contest: VirtualContestInfo
         ): React.ReactElement => (
-          <Link to={`/contest/show/${contest.id}`}>{title}</Link>
+          <Link to={`/contest/show/${contest.id}`}>
+            <Badge pill color={contest.is_public ? "success" : "danger"}>
+              {formatPublicState(contest.is_public)}
+            </Badge>{" "}
+            {title}
+          </Link>
         )}
       >
         Title
