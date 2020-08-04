@@ -14,8 +14,11 @@ async fn main() {
 
     let auth = GitHubAuthentication::new(&client_id, &client_secret);
 
-    let pool = initialize_pool(database_url).expect("Failed to initialize the connection pool");
-    run_server(pool, auth, port)
+    let pool = initialize_pool(&database_url).expect("Failed to initialize the connection pool");
+    let pg_pool = sql_client::initialize_pool(&database_url)
+        .await
+        .expect("Failed to initialize the connection pool");
+    run_server(pool, pg_pool, auth, port)
         .await
         .expect("Failed to run server");
 }

@@ -12,6 +12,7 @@ use crate::server::problem_list::{
 };
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
+use sql_client::PgPool;
 use std::time::Duration;
 use tide::StatusCode;
 
@@ -28,7 +29,7 @@ pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel
 pub(crate) type PooledConnection =
     diesel::r2d2::PooledConnection<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
 
-pub async fn run_server<A>(pool: Pool, authentication: A, port: u16) -> Result<()>
+pub async fn run_server<A>(pool: Pool, pg_pool: PgPool, authentication: A, port: u16) -> Result<()>
 where
     A: Authentication + Send + Sync + 'static + Clone,
 {

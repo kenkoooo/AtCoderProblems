@@ -4,6 +4,7 @@ use crate::server::{AppData, Authentication, PooledConnection};
 use crate::error::ErrorTypes::CookieNotFound;
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
+use sql_client::PgPool;
 use tide::Request;
 
 #[async_trait]
