@@ -25,6 +25,7 @@ import MergedProblem from "../../../../interfaces/MergedProblem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 import {
   formatMomentDateTimeDay,
+  getNowMillis,
   parseSecond,
 } from "../../../../utils/DateUtil";
 import {
@@ -94,7 +95,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const penaltySecond = contestInfo.penalty_second;
   const alreadyJoined =
     userIdIsSet && contestParticipants.includes(atCoderUserId);
-  const now = Math.floor(Date.now() / 1000);
+  const now = getNowMillis();
   const canJoin = !alreadyJoined && userIdIsSet && now < end;
   const canLeave = alreadyJoined && userIdIsSet && now < start;
   const isOwner = contestInfo.owner_user_id === internalUserId;
@@ -115,14 +116,19 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   });
   return (
     <>
-      <Row className="my-2">
-        <Col sm="12">
-          <h1>
-            <Badge pill color={contestInfo.is_public ? "success" : "danger"}>
-              {formatPublicState(contestInfo.is_public)}
-            </Badge>{" "}
-            {contestInfo.title}
-          </h1>
+      <Row>
+        <Col md="auto">
+          <h1>{contestInfo.title}</h1>
+        </Col>
+        <Col md="auto" className="align-items-center d-flex">
+          <Badge color={contestInfo.is_public ? "success" : "danger"}>
+            {formatPublicState(contestInfo.is_public)}
+          </Badge>
+          <Badge>Mode: {formatMode(contestInfo.mode)}</Badge>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
           <h4>{contestInfo.memo}</h4>
         </Col>
       </Row>
@@ -131,20 +137,10 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
           <Table>
             <tbody>
               <tr>
-                <th>Mode</th>
-                <td>
-                  {formatMode(contestInfo.mode)}{" "}
-                  {enableEstimatedPerformances
-                    ? null
-                    : "(Performance estimation is disabled)"}
-                </td>
-              </tr>
-              <tr>
                 <th>Time</th>
                 <td>
                   {formatMomentDateTimeDay(parseSecond(start))} -{" "}
-                  {formatMomentDateTimeDay(parseSecond(end))} (
-                  {Math.floor(contestInfo.duration_second / 60)} minutes)
+                  {formatMomentDateTimeDay(parseSecond(end))}
                 </td>
               </tr>
               <tr>
@@ -154,9 +150,23 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
 
               {start < now && now < end ? (
                 <tr>
-                  <th>Remain</th>
+                  <th>Remaining</th>
                   <td>
-                    <Timer remain={end - now} />
+                    <Timer end={end} />
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </Table>
+        </Col>
+        <Col>
+          <Table>
+            <tbody>
+              {start < now && now < end ? (
+                <tr>
+                  <th>Remaining</th>
+                  <td>
+                    <Timer end={end} />
                   </td>
                 </tr>
               ) : null}
