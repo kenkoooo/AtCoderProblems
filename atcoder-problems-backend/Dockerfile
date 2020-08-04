@@ -16,6 +16,7 @@ RUN cargo build --release
 
 ADD ./src ./src
 ADD ./sql-client ./sql-client
+RUN cargo clean --release -p sql-client
 RUN cargo build --release
 
 FROM rust:1.44.0
