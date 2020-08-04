@@ -4,9 +4,9 @@ use crate::sql::internal::user_manager::UserManager;
 use anyhow::Result;
 use async_trait::async_trait;
 use cookie::Cookie;
-use http_types::StatusCode;
 use serde::{Deserialize, Serialize};
 use tide::http::headers::LOCATION;
+use tide::StatusCode;
 use tide::{Request, Response};
 
 #[async_trait]

@@ -2,8 +2,8 @@ use crate::error::ToAnyhowError;
 use crate::server::{AppData, CommonResponse};
 use crate::sql::{SubmissionClient, SubmissionRequest};
 use anyhow::Result;
-use http_types::headers::CACHE_CONTROL;
 use serde::Deserialize;
+use tide::http::headers::CACHE_CONTROL;
 use tide::{Request, Response};
 
 pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Result<Response> {

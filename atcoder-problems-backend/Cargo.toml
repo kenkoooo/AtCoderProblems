@@ -33,7 +33,6 @@ uuid = { version = "0.8", features = ["serde", "v4"] }
 async-trait = "0.1.30"
 
 async-std = { version = "1.6", features = ["attributes"] }
-http-types = "2.1.0"
 anyhow = "1.0.32"
 
 [dev-dependencies]
