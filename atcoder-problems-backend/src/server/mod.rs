@@ -6,6 +6,7 @@ use crate::server::user_submissions::{
 };
 
 pub(crate) mod auth;
+use crate::error::ErrorTypes::AnyhowMigration;
 use crate::server::problem_list::{
     add_item, create_list, delete_item, delete_list, get_own_lists, get_single_list, update_item,
     update_list,
@@ -58,16 +59,18 @@ where
 
         api.at("/contest").nest({
             let mut api = tide::with_state(app_data.clone());
-            api.at("/create").post(virtual_contest::create_contest);
-            api.at("/update").post(virtual_contest::update_contest);
-            api.at("/item/update").post(virtual_contest::update_items);
+            api.at("/create").post_ah(virtual_contest::create_contest);
+            api.at("/update").post_ah(virtual_contest::update_contest);
+            api.at("/item/update")
+                .post_ah(virtual_contest::update_items);
             api.at("/get/:contest_id")
-                .get(virtual_contest::get_single_contest);
-            api.at("/join").post(virtual_contest::join_contest);
-            api.at("/leave").post(virtual_contest::leave_contest);
-            api.at("/my").get(virtual_contest::get_my_contests);
-            api.at("/joined").get(virtual_contest::get_participated);
-            api.at("/recent").get(virtual_contest::get_recent_contests);
+                .get_ah(virtual_contest::get_single_contest);
+            api.at("/join").post_ah(virtual_contest::join_contest);
+            api.at("/leave").post_ah(virtual_contest::leave_contest);
+            api.at("/my").get_ah(virtual_contest::get_my_contests);
+            api.at("/joined").get_ah(virtual_contest::get_participated);
+            api.at("/recent")
+                .get_ah(virtual_contest::get_recent_contests);
             api
         });
 
@@ -164,5 +167,37 @@ impl<A> AppData<A> {
             pg_pool,
             authentication,
         }
+    }
+}
+
+/// This trait extends [Route] to handle a function which returns anyhow::Result<Response>
+trait AnyhowRouteExt<F> {
+    fn get_ah(&mut self, endpoint: F) -> &mut Self;
+    fn post_ah(&mut self, endpoint: F) -> &mut Self;
+}
+
+impl<'a, State, Fut, F> AnyhowRouteExt<F> for tide::Route<'a, State>
+where
+    State: Send + Sync + 'static,
+    F: Fn(tide::Request<State>) -> Fut + Sync + Send + 'static,
+    Fut: std::future::Future<Output = anyhow::Result<tide::Response>> + Send + 'static,
+{
+    fn get_ah(&mut self, endpoint: F) -> &mut Self {
+        self.get(move |request| {
+            let fut = endpoint(request);
+            Box::pin(async move {
+                let response = fut.await.map_err(|_| AnyhowMigration)?;
+                Ok(response)
+            })
+        })
+    }
+    fn post_ah(&mut self, endpoint: F) -> &mut Self {
+        self.post(move |request| {
+            let fut = endpoint(request);
+            Box::pin(async move {
+                let response = fut.await.map_err(|_| AnyhowMigration)?;
+                Ok(response)
+            })
+        })
     }
 }
