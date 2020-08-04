@@ -14,6 +14,9 @@ pub(crate) trait RequestUnpack {
     ) -> Result<(Body, PooledConnection, String)>;
 
     async fn get_authorized_id(&self) -> Result<String>;
+    async fn parse_body<Body>(self) -> Result<Body>
+    where
+        Body: DeserializeOwned + Send + Sync + 'static;
 }
 
 #[async_trait]
@@ -28,9 +31,8 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         self,
     ) -> Result<(Body, PooledConnection, String)> {
         let authorized_id = self.get_authorized_id().await?;
-        let mut request = self;
-        let body: Body = request.body_json().await?;
-        let conn = request.state().pool.get()?;
+        let conn = self.state().pool.get()?;
+        let body: Body = self.parse_body().await?;
         Ok((body, conn, authorized_id))
     }
 
@@ -39,5 +41,14 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         let token = self.cookie("token").ok_or_else(|| CookieNotFound)?;
         let response = client.get_user_id(&token.value()).await?;
         Ok(response.id.to_string())
+    }
+
+    async fn parse_body<Body>(self) -> Result<Body>
+    where
+        Body: DeserializeOwned + Send + Sync + 'static,
+    {
+        let mut request = self;
+        let body: Body = request.body_json().await?;
+        Ok(body)
     }
 }
