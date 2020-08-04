@@ -1,6 +1,6 @@
 use algorithm_problem_client::AtCoderClient;
+use anyhow::Result;
 use atcoder_problems_backend::crawler::WholeContestCrawler;
-use atcoder_problems_backend::error::Result;
 use atcoder_problems_backend::sql::models::Contest;
 use atcoder_problems_backend::sql::{connect, SimpleClient};
 use log::{error, info};

@@ -1,6 +1,6 @@
 use crate::crawler::AtCoderFetcher;
-use crate::error::Result;
 use crate::sql::{SimpleClient, SubmissionClient};
+use anyhow::Result;
 
 use log::info;
 use std::{thread, time};

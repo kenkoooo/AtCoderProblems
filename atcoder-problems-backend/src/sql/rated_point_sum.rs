@@ -2,8 +2,8 @@ use super::models::Submission;
 use super::schema::{contest_problem, contests, rated_point_sum};
 use super::MAX_INSERT_ROWS;
 use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
-use crate::error::Result;
 use crate::utils::SplitToSegments;
+use anyhow::Result;
 
 use crate::sql::models::ContestProblem;
 use diesel::dsl::*;

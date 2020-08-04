@@ -1,6 +1,6 @@
 use algorithm_problem_client::AtCoderClient;
+use anyhow::Result;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
-use atcoder_problems_backend::error::Result;
 use atcoder_problems_backend::sql::connect;
 use chrono::Utc;
 use std::time::{Duration, Instant};

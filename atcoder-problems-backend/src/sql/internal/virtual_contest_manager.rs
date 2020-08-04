@@ -1,7 +1,5 @@
-use crate::error::Result;
 use crate::sql::schema::*;
-
-use crate::error::ErrorTypes::InvalidRequest;
+use anyhow::{Context, Result};
 use diesel::expression::dsl::count_star;
 use diesel::prelude::*;
 use diesel::Queryable;
@@ -179,7 +177,7 @@ impl VirtualContestManager for PgConnection {
             .load::<VirtualContestInfo>(self)?
             .into_iter()
             .next()
-            .ok_or_else(|| InvalidRequest.into())
+            .with_context(|| "Invalid contest id")
     }
 
     fn get_single_contest_participants(&self, contest_id: &str) -> Result<Vec<String>> {
@@ -222,7 +220,9 @@ impl VirtualContestManager for PgConnection {
         user_id: &str,
     ) -> Result<()> {
         if problems.len() > MAX_PROBLEM_NUM_PER_CONTEST {
-            return Err(http_types::Error::from(InvalidRequest));
+            return Err(anyhow::anyhow!(
+                "Trying to add to many problems to one contest"
+            ));
         }
         v_contests::table
             .filter(
