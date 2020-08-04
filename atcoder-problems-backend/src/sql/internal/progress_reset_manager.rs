@@ -1,5 +1,5 @@
-use crate::error::Result;
 use crate::sql::schema::internal_progress_reset as r_table;
+use anyhow::Result;
 
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;

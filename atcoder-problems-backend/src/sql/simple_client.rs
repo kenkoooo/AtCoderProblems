@@ -1,6 +1,6 @@
 use super::models::*;
 use super::schema::*;
-use crate::error::Result;
+use anyhow::Result;
 
 use diesel::dsl::insert_into;
 use diesel::pg::PgConnection;

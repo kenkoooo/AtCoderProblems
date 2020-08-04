@@ -1,12 +1,11 @@
-use crate::error::Result;
+use crate::error::{ToAnyhowError, ToTideError};
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
     get_recent_submissions, get_user_submissions, get_users_time_submissions,
 };
-
+use anyhow::Result;
 pub(crate) mod auth;
-use crate::error::ErrorTypes::AnyhowMigration;
 use crate::server::problem_list::{
     add_item, create_list, delete_item, delete_list, get_own_lists, get_single_list, update_item,
     update_list,
@@ -27,9 +26,6 @@ pub(crate) mod utils;
 pub(crate) mod virtual_contest;
 
 pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
-pub(crate) type PooledConnection =
-    diesel::r2d2::PooledConnection<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
-
 pub async fn run_server<A>(pool: Pool, pg_pool: PgPool, authentication: A, port: u16) -> Result<()>
 where
     A: Authentication + Send + Sync + 'static + Clone,
@@ -39,19 +35,19 @@ where
 
     api.at("/internal-api").nest({
         let mut api = tide::with_state(app_data.clone());
-        api.at("/authorize").get(get_token);
+        api.at("/authorize").get_ah(get_token);
         api.at("/list").nest({
             let mut api = tide::with_state(app_data.clone());
-            api.at("/my").get(get_own_lists);
-            api.at("/get/:list_id").get(get_single_list);
-            api.at("/create").post(create_list);
-            api.at("/delete").post(delete_list);
-            api.at("/update").post(update_list);
+            api.at("/my").get_ah(get_own_lists);
+            api.at("/get/:list_id").get_ah(get_single_list);
+            api.at("/create").post_ah(create_list);
+            api.at("/delete").post_ah(delete_list);
+            api.at("/update").post_ah(update_list);
             api.at("/item").nest({
                 let mut api = tide::with_state(app_data.clone());
-                api.at("/add").post(add_item);
-                api.at("/update").post(update_item);
-                api.at("/delete").post(delete_item);
+                api.at("/add").post_ah(add_item);
+                api.at("/update").post_ah(update_item);
+                api.at("/delete").post_ah(delete_item);
                 api
             });
             api
@@ -76,34 +72,36 @@ where
 
         api.at("/user").nest({
             let mut api = tide::with_state(app_data.clone());
-            api.at("/get").get(internal_user::get);
-            api.at("/update").post(internal_user::update);
+            api.at("/get").get_ah(internal_user::get);
+            api.at("/update").post_ah(internal_user::update);
             api
         });
 
         api.at("/progress_reset").nest({
             let mut api = tide::with_state(app_data.clone());
-            api.at("/list").get(progress_reset::get_progress_reset_list);
-            api.at("/add").post(progress_reset::add_progress_reset_item);
+            api.at("/list")
+                .get_ah(progress_reset::get_progress_reset_list);
+            api.at("/add")
+                .post_ah(progress_reset::add_progress_reset_item);
             api.at("/delete")
-                .post(progress_reset::delete_progress_reset_item);
+                .post_ah(progress_reset::delete_progress_reset_item);
             api
         });
         api
     });
     api.at("/atcoder-api").nest({
         let mut api = tide::with_state(app_data.clone());
-        api.at("/results").get(get_user_submissions);
+        api.at("/results").get_ah(get_user_submissions);
         api.at("/v2").nest({
             let mut api = tide::with_state(app_data.clone());
-            api.at("/user_info").get(get_user_info);
+            api.at("/user_info").get_ah(get_user_info);
             api
         });
         api.at("/v3").nest({
             let mut api = tide::with_state(app_data.clone());
-            api.at("/from/:from").get(get_time_submissions);
-            api.at("/recent").get(get_recent_submissions);
-            api.at("/users_and_time").get(get_users_time_submissions);
+            api.at("/from/:from").get_ah(get_time_submissions);
+            api.at("/recent").get_ah(get_recent_submissions);
+            api.at("/users_and_time").get_ah(get_users_time_submissions);
             api
         });
         api
@@ -124,23 +122,37 @@ pub fn initialize_pool<S: Into<String>>(database_url: S) -> Result<Pool> {
 
 pub(crate) trait CommonResponse {
     fn ok() -> Self;
-    fn new_cors() -> Self;
-    fn bad_request() -> Self;
-    fn internal_error() -> Self;
+    fn json<S: serde::Serialize>(body: &S) -> anyhow::Result<Self>
+    where
+        Self: Sized;
+    fn empty_json() -> Self;
+    fn make_cors(self) -> Self;
 }
 
 impl CommonResponse for tide::Response {
     fn ok() -> Self {
         Self::new(StatusCode::Ok)
     }
-    fn new_cors() -> Self {
-        Self::ok().set_header("access-control-allow-origin", "*")
+    fn json<S: serde::Serialize>(body: &S) -> anyhow::Result<Self>
+    where
+        Self: Sized,
+    {
+        let response = Self::builder(tide::StatusCode::Ok)
+            .content_type(tide::http::mime::JSON)
+            .body(tide::Body::from_json(body).map_anyhow()?)
+            .build();
+        Ok(response)
     }
-    fn bad_request() -> Self {
-        Self::new(StatusCode::BadRequest)
+    fn empty_json() -> Self {
+        Self::builder(tide::StatusCode::Ok)
+            .content_type(tide::http::mime::JSON)
+            .body("{}")
+            .build()
     }
-    fn internal_error() -> Self {
-        Self::new(StatusCode::InternalServerError)
+    fn make_cors(self) -> Self {
+        let mut response = self;
+        response.insert_header(tide::http::headers::ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+        response
     }
 }
 
@@ -178,7 +190,7 @@ trait AnyhowRouteExt<F> {
 
 impl<'a, State, Fut, F> AnyhowRouteExt<F> for tide::Route<'a, State>
 where
-    State: Send + Sync + 'static,
+    State: Send + Sync + 'static + Clone,
     F: Fn(tide::Request<State>) -> Fut + Sync + Send + 'static,
     Fut: std::future::Future<Output = anyhow::Result<tide::Response>> + Send + 'static,
 {
@@ -186,7 +198,7 @@ where
         self.get(move |request| {
             let fut = endpoint(request);
             Box::pin(async move {
-                let response = fut.await.map_err(|_| AnyhowMigration)?;
+                let response = fut.await.map_tide_err()?;
                 Ok(response)
             })
         })
@@ -195,7 +207,7 @@ where
         self.post(move |request| {
             let fut = endpoint(request);
             Box::pin(async move {
-                let response = fut.await.map_err(|_| AnyhowMigration)?;
+                let response = fut.await.map_tide_err()?;
                 Ok(response)
             })
         })

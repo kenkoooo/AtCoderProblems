@@ -1,7 +1,7 @@
 use crate::crawler::AtCoderFetcher;
-use crate::error::Result;
 use crate::sql::models::{Contest, ContestProblem, Problem};
 use crate::sql::{ContestProblemClient, SimpleClient};
+use anyhow::Result;
 use std::collections::BTreeSet;
 use std::{thread, time};
 

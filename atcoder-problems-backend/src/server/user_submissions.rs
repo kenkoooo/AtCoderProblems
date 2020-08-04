@@ -1,37 +1,35 @@
+use crate::error::ToAnyhowError;
 use crate::server::{AppData, CommonResponse};
 use crate::sql::{SubmissionClient, SubmissionRequest};
+use anyhow::Result;
 use serde::Deserialize;
+use tide::http::headers::CACHE_CONTROL;
 use tide::{Request, Response};
 
-pub(crate) async fn get_user_submissions<A>(
-    request: Request<AppData<A>>,
-) -> tide::Result<Response> {
+pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Result<Response> {
     #[derive(Deserialize, Debug)]
     struct Query {
         user: String,
     }
     let conn = request.state().pool.get()?;
-    let query = request.query::<Query>()?;
+    let query = request.query::<Query>().map_anyhow()?;
     let user_id = &query.user;
     let submissions = conn.get_submissions(SubmissionRequest::UserAll { user_id })?;
-    let response = Response::new_cors()
-        .set_header("Cache-Control", "max-age=300")
-        .body_json(&submissions)?;
+    let mut response = Response::json(&submissions)?.make_cors();
+    response.insert_header(CACHE_CONTROL, "max-age=300");
     Ok(response)
 }
 
-pub(crate) async fn get_recent_submissions<A>(
-    request: Request<AppData<A>>,
-) -> tide::Result<Response> {
+pub(crate) async fn get_recent_submissions<A>(request: Request<AppData<A>>) -> Result<Response> {
     let conn = request.state().pool.get()?;
     let submissions = conn.get_submissions(SubmissionRequest::RecentAll { count: 1000 })?;
-    let response = Response::ok().body_json(&submissions)?;
+    let response = Response::json(&submissions)?;
     Ok(response)
 }
 
 pub(crate) async fn get_users_time_submissions<A>(
     request: Request<AppData<A>>,
-) -> tide::Result<Response> {
+) -> Result<Response> {
     #[derive(Deserialize, Debug)]
     struct Query {
         users: String,
@@ -41,7 +39,7 @@ pub(crate) async fn get_users_time_submissions<A>(
     }
 
     let conn = request.state().pool.get()?;
-    let query = request.query::<Query>()?;
+    let query = request.query::<Query>().map_anyhow()?;
     let user_ids = query.users.split(',').map(|s| s.trim()).collect::<Vec<_>>();
     let problem_ids = query
         .problems
@@ -54,6 +52,6 @@ pub(crate) async fn get_users_time_submissions<A>(
         from_second: query.from,
         to_second: query.to,
     })?;
-    let response = Response::ok().body_json(&submissions)?;
+    let response = Response::json(&submissions)?;
     Ok(response)
 }

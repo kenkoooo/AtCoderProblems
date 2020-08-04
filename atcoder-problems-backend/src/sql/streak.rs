@@ -1,8 +1,8 @@
 use super::models::Submission;
 use super::schema::max_streaks;
-use crate::error::Result;
 use crate::sql::MAX_INSERT_ROWS;
 use crate::utils::SplitToSegments;
+use anyhow::Result;
 
 use chrono::Duration;
 use chrono::{DateTime, Datelike, FixedOffset, TimeZone, Utc};

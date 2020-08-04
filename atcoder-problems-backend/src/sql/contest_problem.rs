@@ -1,6 +1,6 @@
-use crate::error::Result;
 use crate::sql::models::ContestProblem;
 use crate::sql::schema::contest_problem;
+use anyhow::Result;
 
 use diesel::dsl::*;
 use diesel::prelude::*;

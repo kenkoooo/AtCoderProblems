@@ -1,11 +1,10 @@
-use atcoder_problems_backend::error::Result;
+use anyhow::Result;
 use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
 
 use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::GitHubUserResponse;
-use http_types::StatusCode;
 use rand::Rng;
 use serde_json::{json, Value};
 
@@ -22,13 +21,13 @@ impl Authentication for MockAuth {
     async fn get_token(&self, code: &str) -> Result<String> {
         match code {
             VALID_CODE => Ok(VALID_TOKEN.to_owned()),
-            _ => Err(http_types::Error::from_str(StatusCode::Forbidden, "error")),
+            _ => Err(anyhow::anyhow!("error")),
         }
     }
     async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse> {
         match token {
             VALID_TOKEN => Ok(GitHubUserResponse::default()),
-            _ => Err(http_types::Error::from_str(StatusCode::Forbidden, "error")),
+            _ => Err(anyhow::anyhow!("error")),
         }
     }
 }
@@ -44,7 +43,7 @@ fn setup() -> u16 {
 }
 
 #[async_std::test]
-async fn test_virtual_contest() -> Result<()> {
+async fn test_virtual_contest() {
     let port = setup();
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
@@ -57,15 +56,18 @@ async fn test_virtual_contest() -> Result<()> {
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
     ))
-    .await?;
+    .await
+    .unwrap();
     let cookie_header = format!("token={}", VALID_TOKEN);
 
     let response = surf::post(url("/internal-api/user/update", port))
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "atcoder_user_id": "atcoder_user1"
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
     let mut response = surf::post(url("/internal-api/contest/create", port))
         .set_header("Cookie", cookie_header.as_str())
@@ -75,10 +77,12 @@ async fn test_virtual_contest() -> Result<()> {
             "start_epoch_second": 1,
             "duration_second": 2,
             "penalty_second": 0,
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
-    let body = response.body_json::<Value>().await?;
+    let body = response.body_json::<Value>().await.unwrap();
     let contest_id = body["contest_id"].as_str().unwrap();
 
     let response = surf::post(url("/internal-api/contest/update", port))
@@ -90,14 +94,17 @@ async fn test_virtual_contest() -> Result<()> {
             "start_epoch_second": 1,
             "duration_second": 2,
             "penalty_second": 300,
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/my", port))
         .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(
         response,
         json!([
@@ -118,21 +125,25 @@ async fn test_virtual_contest() -> Result<()> {
     let response = surf::get(url("/internal-api/contest/joined", port))
         .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(response, json!([]));
 
     let response = surf::post(url("/internal-api/contest/join", port))
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/joined", port))
         .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(
         response,
         json!([
@@ -154,28 +165,34 @@ async fn test_virtual_contest() -> Result<()> {
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/joined", port))
         .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(response, json!([]));
 
     let response = surf::post(url("/internal-api/contest/join", port))
         .set_header("Cookie", cookie_header.as_str())
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/joined", port))
         .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(
         response,
         json!([
@@ -198,8 +215,10 @@ async fn test_virtual_contest() -> Result<()> {
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
             "problems": [{ "id": "problem_1", "point": 100 }],
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
 
     let response = surf::post(url("/internal-api/contest/item/update", port))
@@ -207,8 +226,10 @@ async fn test_virtual_contest() -> Result<()> {
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
             "problems": [{ "id": "problem_1", "point": 100 }],
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
 
     let response = surf::post(url("/internal-api/contest/item/update", port))
@@ -216,14 +237,17 @@ async fn test_virtual_contest() -> Result<()> {
         .body_json(&json!({
             "contest_id": format!("{}", contest_id),
             "problems": [{ "id": "problem_1", "point": 100 }, { "id": "problem_2" }],
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/joined", port))
         .set_header("Cookie", cookie_header.as_str())
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(
         response,
         json!([
@@ -246,7 +270,8 @@ async fn test_virtual_contest() -> Result<()> {
         port,
     ))
     .recv_json::<Value>()
-    .await?;
+    .await
+    .unwrap();
     assert_eq!(
         response,
         json!({
@@ -268,7 +293,8 @@ async fn test_virtual_contest() -> Result<()> {
 
     let response = surf::get(url("/internal-api/contest/recent", port))
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(
         response,
         json!([
@@ -287,11 +313,10 @@ async fn test_virtual_contest() -> Result<()> {
     );
 
     server.race(async_std::future::ready(())).await;
-    Ok(())
 }
 
 #[async_std::test]
-async fn test_virtual_contest_visibility() -> Result<()> {
+async fn test_virtual_contest_visibility() {
     let port = setup();
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
@@ -303,7 +328,8 @@ async fn test_virtual_contest_visibility() -> Result<()> {
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
     ))
-    .await?;
+    .await
+    .unwrap();
     let cookie_header = format!("token={}", VALID_TOKEN);
 
     let mut response = surf::post(url("/internal-api/contest/create", port))
@@ -314,15 +340,18 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "start_epoch_second": 1,
             "duration_second": 2,
             "penalty_second": 300,
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
-    let body = response.body_json::<Value>().await?;
+    let body = response.body_json::<Value>().await.unwrap();
     let contest_id = body["contest_id"].as_str().unwrap();
 
     let response = surf::get(url("/internal-api/contest/recent", port))
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(response[0]["id"].as_str().unwrap(), contest_id);
     assert_eq!(response.as_array().unwrap().len(), 1);
 
@@ -336,13 +365,16 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "duration_second": 2,
             "is_public": false,
             "penalty_second": 300,
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/recent", port))
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(response.as_array().unwrap().len(), 0);
 
     let mut response = surf::post(url("/internal-api/contest/create", port))
@@ -354,15 +386,18 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "duration_second": 2,
             "is_public": false,
             "penalty_second": 300,
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
-    let body = response.body_json::<Value>().await?;
+    let body = response.body_json::<Value>().await.unwrap();
     let contest_id = body["contest_id"].as_str().unwrap();
 
     let response = surf::get(url("/internal-api/contest/recent", port))
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(response.as_array().unwrap().len(), 0);
 
     let response = surf::post(url("/internal-api/contest/update", port))
@@ -375,16 +410,18 @@ async fn test_virtual_contest_visibility() -> Result<()> {
             "duration_second": 2,
             "is_public": true,
             "penalty_second": 300,
-        }))?
-        .await?;
+        }))
+        .unwrap()
+        .await
+        .unwrap();
     assert!(response.status().is_success());
 
     let response = surf::get(url("/internal-api/contest/recent", port))
         .recv_json::<Value>()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(response.as_array().unwrap().len(), 1);
     assert_eq!(response[0]["id"].as_str().unwrap(), contest_id);
 
     server.race(async_std::future::ready(())).await;
-    Ok(())
 }
