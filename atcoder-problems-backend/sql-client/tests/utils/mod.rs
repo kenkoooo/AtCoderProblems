@@ -6,6 +6,7 @@ use std::io::prelude::*;
 const SQL_FILE: &str = "../../config/database-definition.sql";
 pub const SQL_URL: &str = "postgresql://kenkoooo:pass@localhost/test";
 
+#[cfg(test)]
 pub async fn setup_internal_user(pool: &PgPool, internal_user_id: &str, atcoder_user_id: &str) {
     sqlx::query(
         r"

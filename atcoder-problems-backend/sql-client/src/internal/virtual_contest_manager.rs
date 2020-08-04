@@ -1,7 +1,7 @@
 use crate::PgPool;
 use anyhow::{bail, Context, Result};
 use async_trait::async_trait;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::result::Result as StdResult;
@@ -46,7 +46,7 @@ fn virtual_contest_info_mapper(row: PgRow) -> StdResult<VirtualContestInfo, sqlx
     })
 }
 
-#[derive(Serialize, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct VirtualContestItem {
     pub id: String,
     pub point: Option<i64>,
