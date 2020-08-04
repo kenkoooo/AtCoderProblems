@@ -9,6 +9,7 @@ import {
   Row,
   Spinner,
   Table,
+  Badge,
 } from "reactstrap";
 import Octicon, { Check, Sync, Pin } from "@primer/octicons-react";
 import { Map as ImmutableMap } from "immutable";
@@ -26,7 +27,12 @@ import {
   formatMomentDateTimeDay,
   parseSecond,
 } from "../../../../utils/DateUtil";
-import { formatMode, UserResponse, VirtualContestDetails } from "../../types";
+import {
+  formatMode,
+  UserResponse,
+  VirtualContestDetails,
+  formatPublicState,
+} from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { Timer } from "../../../../components/Timer";
@@ -111,7 +117,12 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
     <>
       <Row className="my-2">
         <Col sm="12">
-          <h1>{contestInfo.title}</h1>
+          <h1>
+            <Badge pill color={contestInfo.is_public ? "success" : "danger"}>
+              {formatPublicState(contestInfo.is_public)}
+            </Badge>{" "}
+            {contestInfo.title}
+          </h1>
           <h4>{contestInfo.memo}</h4>
         </Col>
       </Row>
