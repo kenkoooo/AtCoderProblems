@@ -1,4 +1,3 @@
-use crate::error::ErrorTypes::AnyhowMigration;
 use crate::error::ToAnyhowError;
 use crate::server::{AppData, Authentication, PooledConnection};
 use anyhow::Context;
@@ -23,10 +22,7 @@ pub(crate) trait RequestUnpack {
 #[async_trait]
 impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Request<AppData<A>> {
     async fn get_unpack(&self) -> Result<(PooledConnection, String)> {
-        let authorized_id = self
-            .get_authorized_id()
-            .await
-            .map_err(|_| AnyhowMigration)?;
+        let authorized_id = self.get_authorized_id().await?;
         let conn = self.state().pool.get()?;
         Ok((conn, authorized_id))
     }
@@ -34,12 +30,9 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
     async fn post_unpack<Body: DeserializeOwned + Send + Sync + 'static>(
         self,
     ) -> Result<(Body, PooledConnection, String)> {
-        let authorized_id = self
-            .get_authorized_id()
-            .await
-            .map_err(|_| AnyhowMigration)?;
+        let authorized_id = self.get_authorized_id().await?;
         let conn = self.state().pool.get()?;
-        let body: Body = self.parse_body().await.map_err(|_| AnyhowMigration)?;
+        let body: Body = self.parse_body().await?;
         Ok((body, conn, authorized_id))
     }
 
