@@ -1,7 +1,6 @@
-use crate::error::Result;
-use crate::sql::schema::*;
-
 use crate::error::ErrorTypes::InvalidRequest;
+use crate::sql::schema::*;
+use anyhow::Result;
 use diesel::expression::dsl::count_star;
 use diesel::prelude::*;
 use diesel::Queryable;
@@ -222,7 +221,9 @@ impl VirtualContestManager for PgConnection {
         user_id: &str,
     ) -> Result<()> {
         if problems.len() > MAX_PROBLEM_NUM_PER_CONTEST {
-            return Err(http_types::Error::from(InvalidRequest));
+            return Err(anyhow::anyhow!(
+                "Trying to add to many problems to one contest"
+            ));
         }
         v_contests::table
             .filter(

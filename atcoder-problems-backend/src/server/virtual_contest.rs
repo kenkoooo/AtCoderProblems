@@ -38,7 +38,7 @@ where
         )
         .await?;
     let body = serde_json::json!({ "contest_id": contest_id });
-    let response = Response::ok().body_json(&body)?;
+    let response = Response::json(&body)?;
     Ok(response)
 }
 
@@ -71,7 +71,11 @@ where
         q.penalty_second,
     )
     .await?;
-    Ok(Response::ok().body_json(&serde_json::json!({}))?)
+    let response = Response::builder(tide::StatusCode::Ok)
+        .body("{}")
+        .content_type(tide::http::mime::JSON)
+        .build();
+    Ok(response)
 }
 
 pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'static>(
@@ -88,7 +92,11 @@ pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'stat
     let q: Q = request.parse_body().await?;
     conn.update_items(&q.contest_id, &q.problems, &user_id)
         .await?;
-    Ok(Response::ok().body_json(&serde_json::json!({}))?)
+    let response = Response::builder(tide::StatusCode::Ok)
+        .body("{}")
+        .content_type(tide::http::mime::JSON)
+        .build();
+    Ok(response)
 }
 
 pub(crate) async fn get_my_contests<A: Authentication + Clone + Send + Sync + 'static>(
@@ -97,7 +105,8 @@ pub(crate) async fn get_my_contests<A: Authentication + Clone + Send + Sync + 's
     let user_id = request.get_authorized_id().await?;
     let conn = request.state().pg_pool.clone();
     let contests = conn.get_own_contests(&user_id).await?;
-    Ok(Response::ok().body_json(&contests)?)
+    let response = Response::json(&contests)?;
+    Ok(response)
 }
 
 pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + 'static>(
@@ -106,7 +115,8 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
     let user_id = request.get_authorized_id().await?;
     let conn = request.state().pg_pool.clone();
     let contests = conn.get_participated_contests(&user_id).await?;
-    Ok(Response::ok().body_json(&contests)?)
+    let response = Response::json(&contests)?;
+    Ok(response)
 }
 
 pub(crate) async fn get_single_contest<A>(
@@ -126,7 +136,7 @@ pub(crate) async fn get_single_contest<A>(
         participants: conn.get_single_contest_participants(&contest_id).await?,
         problems: conn.get_single_contest_problems(&contest_id).await?,
     };
-    let response = Response::ok().body_json(&contest)?;
+    let response = Response::json(&contest)?;
     Ok(response)
 }
 
@@ -135,7 +145,7 @@ pub(crate) async fn get_recent_contests<A>(
 ) -> anyhow::Result<Response> {
     let conn = request.state().pg_pool.clone();
     let contest = conn.get_recent_contest_info().await?;
-    let response = Response::ok().body_json(&contest)?;
+    let response = Response::json(&contest)?;
     Ok(response)
 }
 
@@ -150,7 +160,10 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
     let conn = request.state().pg_pool.clone();
     let q: Q = request.parse_body().await?;
     conn.join_contest(&q.contest_id, &user_id).await?;
-    let response = Response::ok().body_json(&serde_json::json!({}))?;
+    let response = Response::builder(tide::StatusCode::Ok)
+        .body("{}")
+        .content_type(tide::http::mime::JSON)
+        .build();
     Ok(response)
 }
 
@@ -165,6 +178,9 @@ pub(crate) async fn leave_contest<A: Authentication + Clone + Send + Sync + 'sta
     let conn = request.state().pg_pool.clone();
     let q: Q = request.parse_body().await?;
     conn.leave_contest(&q.contest_id, &user_id).await?;
-    let response = Response::ok().body_json(&serde_json::json!({}))?;
+    let response = Response::builder(tide::StatusCode::Ok)
+        .body("{}")
+        .content_type(tide::http::mime::JSON)
+        .build();
     Ok(response)
 }

@@ -1,6 +1,6 @@
 use crate::crawler::AtCoderFetcher;
-use crate::error::Result;
 use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
+use anyhow::Result;
 use async_trait::async_trait;
 
 pub(crate) struct MockFetcher<F: Fn(&str, u32) -> Vec<Submission>>(pub(crate) F);

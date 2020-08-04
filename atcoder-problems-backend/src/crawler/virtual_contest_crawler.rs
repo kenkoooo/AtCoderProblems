@@ -1,7 +1,7 @@
 use crate::crawler::AtCoderFetcher;
-use crate::error::Result;
 use crate::sql::internal::virtual_contest_manager::VirtualContestManager;
 use crate::sql::{ContestProblemClient, SubmissionClient};
+use anyhow::Result;
 use chrono::Utc;
 use std::collections::BTreeSet;
 use std::{thread, time};

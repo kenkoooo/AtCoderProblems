@@ -1,5 +1,5 @@
-use crate::error::Result;
 use crate::sql::schema::*;
+use anyhow::Result;
 
 use crate::error::ErrorTypes::InvalidRequest;
 use diesel::prelude::*;
@@ -118,7 +118,7 @@ impl ProblemListManager for PgConnection {
         let new_list_id = uuid::Uuid::new_v4().to_string();
         let list = self.get_list(internal_user_id)?;
         if list.len() >= MAX_LIST_NUM {
-            return Err(http_types::Error::from(InvalidRequest));
+            return Err(anyhow::anyhow!("invalid request"));
         }
         insert_into(internal_problem_lists::table)
             .values(vec![(
@@ -153,7 +153,7 @@ impl ProblemListManager for PgConnection {
             .select(internal_problem_list_items::problem_id)
             .load::<String>(self)?;
         if problems.len() >= MAX_ITEM_NUM {
-            return Err(http_types::Error::from(InvalidRequest));
+            return Err(anyhow::anyhow!("invalid request"));
         }
         insert_into(internal_problem_list_items::table)
             .values(vec![(

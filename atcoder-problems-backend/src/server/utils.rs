@@ -1,8 +1,8 @@
-use crate::error::Result;
-use crate::server::{AppData, Authentication, PooledConnection};
-
 use crate::error::ErrorTypes::AnyhowMigration;
+use crate::error::ToAnyhowError;
+use crate::server::{AppData, Authentication, PooledConnection};
 use anyhow::Context;
+use anyhow::Result;
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use tide::Request;
@@ -14,8 +14,8 @@ pub(crate) trait RequestUnpack {
         self,
     ) -> Result<(Body, PooledConnection, String)>;
 
-    async fn get_authorized_id(&self) -> anyhow::Result<String>;
-    async fn parse_body<Body>(self) -> anyhow::Result<Body>
+    async fn get_authorized_id(&self) -> Result<String>;
+    async fn parse_body<Body>(self) -> Result<Body>
     where
         Body: DeserializeOwned + Send + Sync + 'static;
 }
@@ -43,7 +43,7 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         Ok((body, conn, authorized_id))
     }
 
-    async fn get_authorized_id(&self) -> anyhow::Result<String> {
+    async fn get_authorized_id(&self) -> Result<String> {
         let client = self.state().authentication.clone();
         let token = self.cookie("token").with_context(|| "Cookie not found")?;
         let response = client
@@ -53,12 +53,12 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         Ok(response.id.to_string())
     }
 
-    async fn parse_body<Body>(self) -> anyhow::Result<Body>
+    async fn parse_body<Body>(self) -> Result<Body>
     where
         Body: DeserializeOwned + Send + Sync + 'static,
     {
         let mut request = self;
-        let body: Body = request.body_json().await?;
+        let body: Body = request.body_json().await.map_anyhow()?;
         Ok(body)
     }
 }
