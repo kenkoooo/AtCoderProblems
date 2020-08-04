@@ -39,7 +39,8 @@ async fn test_progress_reset() -> Result<()> {
     let port = setup();
     let server = async_std::task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
-        run_server(pool, MockAuth, port).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(Duration::from_millis(1000)).await;
 
