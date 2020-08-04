@@ -1,7 +1,6 @@
-use crate::error::Result;
 use crate::sql::models::Submission;
 use crate::sql::schema::{submission_count, submissions};
-
+use anyhow::Result;
 use diesel::connection::SimpleConnection;
 use diesel::dsl::insert_into;
 use diesel::pg::upsert::excluded;

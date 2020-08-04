@@ -1,7 +1,6 @@
 use crate::crawler::AtCoderFetcher;
-use crate::error::Result;
 use crate::sql::{SubmissionClient, SubmissionRequest};
-
+use anyhow::Result;
 use log::info;
 use std::collections::BTreeMap;
 

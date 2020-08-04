@@ -1,8 +1,8 @@
 use super::models::{Submission, UserLanguageCount};
 use super::schema::language_count;
 use super::MAX_INSERT_ROWS;
-use crate::error::Result;
 use crate::utils::SplitToSegments;
+use anyhow::Result;
 
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;

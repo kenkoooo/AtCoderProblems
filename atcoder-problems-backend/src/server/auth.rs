@@ -1,9 +1,12 @@
-use crate::error::Result;
+use crate::error::ToAnyhowError;
 use crate::server::AppData;
 use crate::sql::internal::user_manager::UserManager;
+use anyhow::Result;
 use async_trait::async_trait;
 use cookie::Cookie;
+use http_types::StatusCode;
 use serde::{Deserialize, Serialize};
+use tide::http::headers::LOCATION;
 use tide::{Request, Response};
 
 #[async_trait]
@@ -47,7 +50,7 @@ impl Authentication for GitHubAuthentication {
         let request = surf::post("https://github.com/login/oauth/access_token")
             .set_header("Accept", "application/json")
             .body_json(&request)?;
-        let response: TokenResponse = request.recv_json().await?;
+        let response: TokenResponse = request.recv_json().await.map_anyhow()?;
         Ok(response.access_token)
     }
     async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
@@ -55,7 +58,8 @@ impl Authentication for GitHubAuthentication {
         let response: GitHubUserResponse = surf::get("https://api.github.com/user")
             .set_header("Authorization", token_header)
             .recv_json()
-            .await?;
+            .await
+            .map_anyhow()?;
         Ok(response)
     }
 }
@@ -76,8 +80,8 @@ struct Query {
 
 pub(crate) async fn get_token<A: Authentication + Clone>(
     request: Request<AppData<A>>,
-) -> tide::Result<Response> {
-    let query = request.query::<Query>()?;
+) -> Result<Response> {
+    let query = request.query::<Query>().map_anyhow()?;
     let client = request.state().authentication.clone();
     let conn = request.state().pool.get()?;
 
@@ -88,7 +92,9 @@ pub(crate) async fn get_token<A: Authentication + Clone>(
 
     let cookie = Cookie::build("token", token).path("/").finish();
     let redirect_url = "https://kenkoooo.com/atcoder/#/login/user";
-    let mut response = Response::redirect(redirect_url);
-    response.set_cookie(cookie);
+    let mut response = Response::builder(StatusCode::Found)
+        .header(LOCATION, redirect_url)
+        .build();
+    response.insert_cookie(cookie);
     Ok(response)
 }

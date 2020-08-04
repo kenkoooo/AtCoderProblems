@@ -27,7 +27,7 @@ pub use simple_client::SimpleClient;
 pub use streak::StreakUpdater;
 pub use submission_client::{SubmissionClient, SubmissionRequest};
 
-use crate::error::Result;
+use anyhow::Result;
 use diesel::{Connection, PgConnection};
 
 pub fn connect(url: &str) -> Result<PgConnection> {
