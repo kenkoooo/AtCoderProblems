@@ -8,7 +8,8 @@ use tide::{Request, Response};
 pub(crate) async fn get_own_lists<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
 ) -> Result<Response> {
-    let (conn, user_id) = request.get_unpack().await?;
+    let user_id = request.get_authorized_id().await?;
+    let conn = request.state().pool.get()?;
     let list = conn.get_list(&user_id)?;
     let response = Response::json(&list)?;
     Ok(response)
@@ -31,7 +32,9 @@ pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'stati
     struct Query {
         list_name: String,
     }
-    let (query, conn, internal_user_id) = request.post_unpack::<Query>().await?;
+    let internal_user_id = request.get_authorized_id().await?;
+    let conn = request.state().pool.get()?;
+    let query = request.parse_body::<Query>().await?;
     let internal_list_id = conn.create_list(&internal_user_id, &query.list_name)?;
     let body = serde_json::json!({ "internal_list_id": internal_list_id });
     let response = Response::json(&body)?;
@@ -46,7 +49,8 @@ where
     struct Q {
         internal_list_id: String,
     }
-    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    let conn = request.state().pool.get()?;
+    let query = request.parse_body::<Q>().await?;
     conn.delete_list(&query.internal_list_id)?;
     let response = Response::empty_json();
     Ok(response)
@@ -61,7 +65,8 @@ where
         internal_list_id: String,
         name: String,
     }
-    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    let conn = request.state().pool.get()?;
+    let query = request.parse_body::<Q>().await?;
     conn.update_list(&query.internal_list_id, &query.name)?;
     let response = Response::empty_json();
     Ok(response)
@@ -76,7 +81,8 @@ where
         internal_list_id: String,
         problem_id: String,
     }
-    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    let conn = request.state().pool.get()?;
+    let query = request.parse_body::<Q>().await?;
     conn.add_item(&query.internal_list_id, &query.problem_id)?;
     let response = Response::empty_json();
     Ok(response)
@@ -92,8 +98,8 @@ where
         problem_id: String,
         memo: String,
     }
-
-    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    let conn = request.state().pool.get()?;
+    let query = request.parse_body::<Q>().await?;
     conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)?;
     let response = Response::empty_json();
     Ok(response)
@@ -108,7 +114,8 @@ where
         internal_list_id: String,
         problem_id: String,
     }
-    let (query, conn, _) = request.post_unpack::<Q>().await?;
+    let conn = request.state().pool.get()?;
+    let query = request.parse_body::<Q>().await?;
     conn.delete_item(&query.internal_list_id, &query.problem_id)?;
     let response = Response::empty_json();
     Ok(response)
