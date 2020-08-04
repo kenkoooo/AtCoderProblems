@@ -71,10 +71,7 @@ where
         q.penalty_second,
     )
     .await?;
-    let response = Response::builder(tide::StatusCode::Ok)
-        .body("{}")
-        .content_type(tide::http::mime::JSON)
-        .build();
+    let response = Response::empty_json();
     Ok(response)
 }
 
@@ -92,10 +89,7 @@ pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'stat
     let q: Q = request.parse_body().await?;
     conn.update_items(&q.contest_id, &q.problems, &user_id)
         .await?;
-    let response = Response::builder(tide::StatusCode::Ok)
-        .body("{}")
-        .content_type(tide::http::mime::JSON)
-        .build();
+    let response = Response::empty_json();
     Ok(response)
 }
 
@@ -160,10 +154,7 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
     let conn = request.state().pg_pool.clone();
     let q: Q = request.parse_body().await?;
     conn.join_contest(&q.contest_id, &user_id).await?;
-    let response = Response::builder(tide::StatusCode::Ok)
-        .body("{}")
-        .content_type(tide::http::mime::JSON)
-        .build();
+    let response = Response::empty_json();
     Ok(response)
 }
 
@@ -178,9 +169,6 @@ pub(crate) async fn leave_contest<A: Authentication + Clone + Send + Sync + 'sta
     let conn = request.state().pg_pool.clone();
     let q: Q = request.parse_body().await?;
     conn.leave_contest(&q.contest_id, &user_id).await?;
-    let response = Response::builder(tide::StatusCode::Ok)
-        .body("{}")
-        .content_type(tide::http::mime::JSON)
-        .build();
+    let response = Response::empty_json();
     Ok(response)
 }
