@@ -33,7 +33,7 @@ pub async fn run_server<A>(pool: Pool, pg_pool: PgPool, authentication: A, port:
 where
     A: Authentication + Send + Sync + 'static + Clone,
 {
-    let app_data = AppData::new(pool, authentication);
+    let app_data = AppData::new(pool, pg_pool, authentication);
     let mut api = tide::with_state(app_data.clone());
 
     api.at("/internal-api").nest({
@@ -144,21 +144,24 @@ impl CommonResponse for tide::Response {
 pub(crate) struct AppData<A> {
     pub(crate) pool: Pool,
     pub(crate) authentication: A,
+    pub(crate) pg_pool: PgPool,
 }
 
 impl<A: Clone> Clone for AppData<A> {
     fn clone(&self) -> Self {
         Self {
             pool: self.pool.clone(),
+            pg_pool: self.pg_pool.clone(),
             authentication: self.authentication.clone(),
         }
     }
 }
 
 impl<A> AppData<A> {
-    fn new(pool: Pool, authentication: A) -> Self {
+    fn new(pool: Pool, pg_pool: PgPool, authentication: A) -> Self {
         Self {
             pool,
+            pg_pool,
             authentication,
         }
     }
