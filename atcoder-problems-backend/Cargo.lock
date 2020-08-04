@@ -271,7 +271,6 @@ dependencies = [
  "chrono",
  "cookie 0.14.1",
  "diesel",
- "http-types",
  "log",
  "r2d2",
  "rand 0.7.3",
