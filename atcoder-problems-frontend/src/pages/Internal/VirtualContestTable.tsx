@@ -2,6 +2,7 @@ import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { Link } from "react-router-dom";
 import React from "react";
 import { Badge } from "reactstrap";
+import { getNowMillis } from "../../utils/DateUtil";
 import * as DateUtil from "../../utils/DateUtil";
 import { Timer } from "../../components/Timer";
 import {
@@ -15,15 +16,14 @@ const formatContestDuration = (
   start: number,
   durationSecond: number
 ): string | React.ReactElement => {
-  const now = Math.floor(Date.now() / 1000);
+  const now = getNowMillis();
   if (start + durationSecond <= now || now < start) {
     const durationMinute = Math.floor(durationSecond / 60);
     const hour = `${Math.floor(durationMinute / 60)}`;
     const minute = `0${durationMinute % 60}`.slice(-2);
     return hour + ":" + minute;
   } else {
-    const remain = durationSecond - (now - start);
-    return <Timer remain={remain} />;
+    return <Timer end={durationSecond + start} />;
   }
 };
 
