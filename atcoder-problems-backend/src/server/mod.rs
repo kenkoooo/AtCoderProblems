@@ -26,9 +26,6 @@ pub(crate) mod utils;
 pub(crate) mod virtual_contest;
 
 pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
-pub(crate) type PooledConnection =
-    diesel::r2d2::PooledConnection<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
-
 pub async fn run_server<A>(pool: Pool, pg_pool: PgPool, authentication: A, port: u16) -> Result<()>
 where
     A: Authentication + Send + Sync + 'static + Clone,
@@ -125,8 +122,6 @@ pub fn initialize_pool<S: Into<String>>(database_url: S) -> Result<Pool> {
 
 pub(crate) trait CommonResponse {
     fn ok() -> Self;
-    fn bad_request() -> Self;
-    fn internal_error() -> Self;
     fn json<S: serde::Serialize>(body: &S) -> anyhow::Result<Self>
     where
         Self: Sized;
@@ -137,12 +132,6 @@ pub(crate) trait CommonResponse {
 impl CommonResponse for tide::Response {
     fn ok() -> Self {
         Self::new(StatusCode::Ok)
-    }
-    fn bad_request() -> Self {
-        Self::new(StatusCode::BadRequest)
-    }
-    fn internal_error() -> Self {
-        Self::new(StatusCode::InternalServerError)
     }
     fn json<S: serde::Serialize>(body: &S) -> anyhow::Result<Self>
     where

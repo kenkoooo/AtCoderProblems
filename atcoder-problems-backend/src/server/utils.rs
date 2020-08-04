@@ -1,5 +1,5 @@
 use crate::error::ToAnyhowError;
-use crate::server::{AppData, Authentication, PooledConnection};
+use crate::server::{AppData, Authentication};
 use anyhow::Context;
 use anyhow::Result;
 use async_trait::async_trait;
@@ -8,11 +8,6 @@ use tide::Request;
 
 #[async_trait]
 pub(crate) trait RequestUnpack {
-    async fn get_unpack(&self) -> Result<(PooledConnection, String)>;
-    async fn post_unpack<Body: DeserializeOwned + Send + Sync + 'static>(
-        self,
-    ) -> Result<(Body, PooledConnection, String)>;
-
     async fn get_authorized_id(&self) -> Result<String>;
     async fn parse_body<Body>(self) -> Result<Body>
     where
@@ -21,21 +16,6 @@ pub(crate) trait RequestUnpack {
 
 #[async_trait]
 impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Request<AppData<A>> {
-    async fn get_unpack(&self) -> Result<(PooledConnection, String)> {
-        let authorized_id = self.get_authorized_id().await?;
-        let conn = self.state().pool.get()?;
-        Ok((conn, authorized_id))
-    }
-
-    async fn post_unpack<Body: DeserializeOwned + Send + Sync + 'static>(
-        self,
-    ) -> Result<(Body, PooledConnection, String)> {
-        let authorized_id = self.get_authorized_id().await?;
-        let conn = self.state().pool.get()?;
-        let body: Body = self.parse_body().await?;
-        Ok((body, conn, authorized_id))
-    }
-
     async fn get_authorized_id(&self) -> Result<String> {
         let client = self.state().authentication.clone();
         let token = self.cookie("token").with_context(|| "Cookie not found")?;
