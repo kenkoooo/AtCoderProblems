@@ -1,4 +1,4 @@
-use crate::error::ToAnyhowError;
+use crate::error::{ToAnyhowError, ToTideError};
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
@@ -6,7 +6,6 @@ use crate::server::user_submissions::{
 };
 use anyhow::Result;
 pub(crate) mod auth;
-use crate::error::ErrorTypes::AnyhowMigration;
 use crate::server::problem_list::{
     add_item, create_list, delete_item, delete_list, get_own_lists, get_single_list, update_item,
     update_list,
@@ -210,7 +209,7 @@ where
         self.get(move |request| {
             let fut = endpoint(request);
             Box::pin(async move {
-                let response = fut.await.map_err(|_| AnyhowMigration)?;
+                let response = fut.await.map_tide_err()?;
                 Ok(response)
             })
         })
@@ -219,7 +218,7 @@ where
         self.post(move |request| {
             let fut = endpoint(request);
             Box::pin(async move {
-                let response = fut.await.map_err(|_| AnyhowMigration)?;
+                let response = fut.await.map_tide_err()?;
                 Ok(response)
             })
         })

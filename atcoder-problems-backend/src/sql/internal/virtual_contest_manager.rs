@@ -1,6 +1,5 @@
-use crate::error::ErrorTypes::InvalidRequest;
 use crate::sql::schema::*;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use diesel::expression::dsl::count_star;
 use diesel::prelude::*;
 use diesel::Queryable;
@@ -178,7 +177,7 @@ impl VirtualContestManager for PgConnection {
             .load::<VirtualContestInfo>(self)?
             .into_iter()
             .next()
-            .ok_or_else(|| InvalidRequest.into())
+            .with_context(|| "Invalid contest id")
     }
 
     fn get_single_contest_participants(&self, contest_id: &str) -> Result<Vec<String>> {

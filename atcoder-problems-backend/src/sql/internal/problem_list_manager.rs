@@ -1,7 +1,6 @@
 use crate::sql::schema::*;
-use anyhow::Result;
+use anyhow::{Context, Result};
 
-use crate::error::ErrorTypes::InvalidRequest;
 use diesel::prelude::*;
 use diesel::{delete, insert_into, update, PgConnection};
 use serde::Serialize;
@@ -110,7 +109,7 @@ impl ProblemListManager for PgConnection {
                 },
             )
             .next()
-            .ok_or_else(|| InvalidRequest)?;
+            .with_context(|| "Invalid request")?;
         Ok(list)
     }
 
