@@ -44,20 +44,21 @@ const renderActiveShape = (props: RenderProps) => {
     percent,
   } = props;
 
-  const text: string = ((name: string) => {
+  const text = ((name: string) => {
     if (name === "Accepted") return "AC";
-    else return name;
+    else if (name === "Not Submitted" || name === "Trying") return "NoSub";
+    else if (name === "Not Passed") return "Error";
   })(payload.name);
 
   return (
     <g>
       <text
         x={cx}
-        y={cy - 5}
+        y={cy}
         textAnchor="middle"
-        fill={"#111"}
-      >{`${value}`}</text>
-      <text x={cx} y={cy - 5} dy={18} textAnchor="middle" fill={"#333"}>{`(${(
+        fill={"#333"}
+      >{`${text}:${value}`}</text>
+      <text x={cx} y={cy} dy={18} textAnchor="middle" fill={"#777"}>{`(${(
         percent * 100
       ).toFixed(1)}%)`}</text>
       <Sector
@@ -103,7 +104,7 @@ export const SinglePieChart: React.FC<Props> = ({ data, hideLegend }) => {
             activeShape={renderActiveShape}
             dataKey="value"
             data={data}
-            innerRadius="55%"
+            innerRadius="60%"
             outerRadius="80%"
             fill="#ff0000"
             onMouseEnter={onPieEnter}
