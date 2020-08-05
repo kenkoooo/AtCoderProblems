@@ -21,9 +21,9 @@ export const SmallPieChart: React.FC<SmallPieChartProps> = ({
   accepted,
 }) => {
   const data = [
-    { value: accepted, color: COLORS.Accepted, name: "Accepted" },
-    { value: rejected, color: COLORS.Rejected, name: "Not Passed" },
-    { value: trying, color: COLORS.Trying, name: "Not Submitted" },
+    { value: accepted, color: COLORS.Accepted, name: "AC" },
+    { value: rejected, color: COLORS.Rejected, name: "Non-AC" },
+    { value: trying, color: COLORS.Trying, name: "NoSub" },
   ];
   const totalCount = trying + rejected + accepted;
   return (

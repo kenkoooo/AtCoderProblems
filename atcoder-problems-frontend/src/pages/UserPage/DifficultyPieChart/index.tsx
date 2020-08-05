@@ -54,9 +54,9 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
             <Col key={e.color} className="text-center" xs="6" md="3">
               <SinglePieChart
                 data={[
-                  { name: "Accepted", color: e.color, value: e.solved },
+                  { name: "AC", color: e.color, value: e.solved },
                   {
-                    name: "Trying",
+                    name: "NoSub",
                     color: "#58616a",
                     value: e.totalCount - e.solved,
                   },
