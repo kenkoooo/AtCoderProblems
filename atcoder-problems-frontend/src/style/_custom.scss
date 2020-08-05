@@ -341,3 +341,7 @@ $small-score-cell-border: $gray-300 !default;
     margin-bottom: 0;
   }
 }
+
+.pie-chart-summary text {
+  fill: $gray-900;
+}

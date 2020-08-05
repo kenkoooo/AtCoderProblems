@@ -45,16 +45,7 @@ const renderActiveShape = (props: RenderProps) => {
   } = props;
 
   return (
-    <g>
-      <text
-        x={cx}
-        y={cy}
-        textAnchor="middle"
-        fill={"#333"}
-      >{`${payload.name} : ${value}`}</text>
-      <text x={cx} y={cy} dy={18} textAnchor="middle" fill={"#777"}>{`${(
-        percent * 100
-      ).toFixed(1)}%`}</text>
+    <g className="pie-chart-summary">
       <Sector
         cx={cx}
         cy={cy}
@@ -69,10 +60,18 @@ const renderActiveShape = (props: RenderProps) => {
         cy={cy}
         startAngle={startAngle}
         endAngle={endAngle}
-        innerRadius={outerRadius + 3}
-        outerRadius={outerRadius + 5}
+        innerRadius={outerRadius + 2}
+        outerRadius={outerRadius + 4}
         fill={fill}
       />
+      <text
+        x={cx}
+        y={cy}
+        textAnchor="middle"
+      >{`${payload.name} : ${value}`}</text>
+      <text x={cx} y={cy} dy={18} textAnchor="middle">{`${(
+        percent * 100
+      ).toFixed(1)}%`}</text>
     </g>
   );
 };
