@@ -49,7 +49,7 @@ where
     struct Q {
         internal_list_id: String,
     }
-    request.get_authorized_id()?;
+    request.get_authorized_id().await?;
     let conn = request.state().pool.get()?;
     let query = request.parse_body::<Q>().await?;
     conn.delete_list(&query.internal_list_id)?;
@@ -66,7 +66,7 @@ where
         internal_list_id: String,
         name: String,
     }
-    request.get_authorized_id()?;
+    request.get_authorized_id().await?;
     let conn = request.state().pool.get()?;
     let query = request.parse_body::<Q>().await?;
     conn.update_list(&query.internal_list_id, &query.name)?;
@@ -83,7 +83,7 @@ where
         internal_list_id: String,
         problem_id: String,
     }
-    request.get_authorized_id()?;
+    request.get_authorized_id().await?;
     let conn = request.state().pool.get()?;
     let query = request.parse_body::<Q>().await?;
     conn.add_item(&query.internal_list_id, &query.problem_id)?;
@@ -101,7 +101,7 @@ where
         problem_id: String,
         memo: String,
     }
-    request.get_authorized_id()?;
+    request.get_authorized_id().await?;
     let conn = request.state().pool.get()?;
     let query = request.parse_body::<Q>().await?;
     conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)?;
@@ -118,7 +118,7 @@ where
         internal_list_id: String,
         problem_id: String,
     }
-    request.get_authorized_id()?;
+    request.get_authorized_id().await?;
     let conn = request.state().pool.get()?;
     let query = request.parse_body::<Q>().await?;
     conn.delete_item(&query.internal_list_id, &query.problem_id)?;

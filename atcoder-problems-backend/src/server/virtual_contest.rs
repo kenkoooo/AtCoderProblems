@@ -58,7 +58,7 @@ where
         penalty_second: i64,
     }
 
-    request.get_authorized_id()?;
+    request.get_authorized_id().await?;
     let conn = request.state().pg_pool.clone();
     let q: Q = request.parse_body().await?;
     conn.update_contest(
@@ -114,9 +114,10 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
     Ok(response)
 }
 
-pub(crate) async fn get_single_contest<A>(
-    request: Request<AppData<A>>,
-) -> anyhow::Result<Response> {
+pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> anyhow::Result<Response>
+where
+    A: Authentication + Clone + Send + Sync + 'static,
+{
     #[derive(Serialize)]
     struct VirtualContestDetails {
         info: VirtualContestInfo,
@@ -124,7 +125,6 @@ pub(crate) async fn get_single_contest<A>(
         participants: Vec<String>,
     }
 
-    request.get_authorized_id()?;
     let conn = request.state().pg_pool.clone();
     let contest_id = request.param::<String>("contest_id")?;
     let contest = VirtualContestDetails {
