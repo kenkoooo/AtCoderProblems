@@ -58,6 +58,7 @@ where
         penalty_second: i64,
     }
 
+    request.get_authorized_id()?;
     let conn = request.state().pg_pool.clone();
     let q: Q = request.parse_body().await?;
     conn.update_contest(
@@ -123,6 +124,7 @@ pub(crate) async fn get_single_contest<A>(
         participants: Vec<String>,
     }
 
+    request.get_authorized_id()?;
     let conn = request.state().pg_pool.clone();
     let contest_id = request.param::<String>("contest_id")?;
     let contest = VirtualContestDetails {
