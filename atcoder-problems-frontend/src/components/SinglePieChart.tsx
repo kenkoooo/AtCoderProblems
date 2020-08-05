@@ -44,12 +44,6 @@ const renderActiveShape = (props: RenderProps) => {
     percent,
   } = props;
 
-  const text = ((name: string) => {
-    if (name === "Accepted") return "AC";
-    else if (name === "Not Submitted" || name === "Trying") return "NoSub";
-    else if (name === "Not Passed") return "Error";
-  })(payload.name);
-
   return (
     <g>
       <text
@@ -57,10 +51,10 @@ const renderActiveShape = (props: RenderProps) => {
         y={cy}
         textAnchor="middle"
         fill={"#333"}
-      >{`${text}:${value}`}</text>
-      <text x={cx} y={cy} dy={18} textAnchor="middle" fill={"#777"}>{`(${(
+      >{`${payload.name} : ${value}`}</text>
+      <text x={cx} y={cy} dy={18} textAnchor="middle" fill={"#777"}>{`${(
         percent * 100
-      ).toFixed(1)}%)`}</text>
+      ).toFixed(1)}%`}</text>
       <Sector
         cx={cx}
         cy={cy}
@@ -86,15 +80,6 @@ const renderActiveShape = (props: RenderProps) => {
 export const SinglePieChart: React.FC<Props> = ({ data, hideLegend }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // eslint-disable-next-line
-  const onPieEnter = ({}, index: number) => {
-    setActiveIndex(index);
-  };
-
-  const onPieLeave = () => {
-    setActiveIndex(0);
-  };
-
   return (
     <div>
       <ResponsiveContainer width="100%" height={300}>
@@ -107,8 +92,13 @@ export const SinglePieChart: React.FC<Props> = ({ data, hideLegend }) => {
             innerRadius="60%"
             outerRadius="80%"
             fill="#ff0000"
-            onMouseEnter={onPieEnter}
-            onMouseLeave={onPieLeave}
+            // eslint-disable-next-line
+            onMouseEnter={({}, index: number) => {
+              setActiveIndex(index);
+            }}
+            onMouseLeave={() => {
+              setActiveIndex(0);
+            }}
           >
             {data.map((e) => (
               <Cell key={e.name} fill={e.color} />
