@@ -51,13 +51,8 @@ const renderActiveShape = (props: RenderProps) => {
 
   return (
     <g>
-      <text
-        x={cx}
-        y={cy}
-        textAnchor="middle"
-        fill={"#111"}
-      >{`${text} : ${value}`}</text>
-      <text x={cx} y={cy} dy={18} textAnchor="middle" fill={"#aaa"}>{`(${(
+      <text x={cx} y={cy} textAnchor="middle" fill={"#111"}>{`${value}`}</text>
+      <text x={cx} y={cy} dy={18} textAnchor="middle" fill={"#333"}>{`(${(
         percent * 100
       ).toFixed(1)}%)`}</text>
       <Sector
