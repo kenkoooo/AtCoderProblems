@@ -51,8 +51,13 @@ const renderActiveShape = (props: RenderProps) => {
 
   return (
     <g>
-      <text x={cx} y={cy} textAnchor="middle" fill={"#111"}>{`${value}`}</text>
-      <text x={cx} y={cy} dy={18} textAnchor="middle" fill={"#333"}>{`(${(
+      <text
+        x={cx}
+        y={cy - 5}
+        textAnchor="middle"
+        fill={"#111"}
+      >{`${value}`}</text>
+      <text x={cx} y={cy - 5} dy={18} textAnchor="middle" fill={"#333"}>{`(${(
         percent * 100
       ).toFixed(1)}%)`}</text>
       <Sector
@@ -70,7 +75,7 @@ const renderActiveShape = (props: RenderProps) => {
         startAngle={startAngle}
         endAngle={endAngle}
         innerRadius={outerRadius + 3}
-        outerRadius={outerRadius + 6}
+        outerRadius={outerRadius + 5}
         fill={fill}
       />
     </g>
@@ -98,7 +103,7 @@ export const SinglePieChart: React.FC<Props> = ({ data, hideLegend }) => {
             activeShape={renderActiveShape}
             dataKey="value"
             data={data}
-            innerRadius="60%"
+            innerRadius="55%"
             outerRadius="80%"
             fill="#ff0000"
             onMouseEnter={onPieEnter}
