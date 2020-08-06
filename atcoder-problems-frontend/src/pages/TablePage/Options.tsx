@@ -4,7 +4,6 @@ import {
   FormGroup,
   Input,
   Label,
-  Container,
   Row,
   Col,
   UncontrolledDropdown,
@@ -33,7 +32,7 @@ interface Props {
 
 export const Options: React.FC<Props> = (props) => {
   return (
-    <Container>
+    <>
       <Row className="my-4">
         <FormGroup check inline>
           <Label check>
@@ -56,6 +55,7 @@ export const Options: React.FC<Props> = (props) => {
               onChange={props.toggleShowDifficulties}
             />
           </Label>
+          &nbsp;
           <HelpBadgeTooltip id="difficulty">
             Internal rating to have 50% Solve Probability
           </HelpBadgeTooltip>
@@ -131,6 +131,6 @@ export const Options: React.FC<Props> = (props) => {
             </Col>
           </Row>
         )}
-    </Container>
+    </>
   );
 };
