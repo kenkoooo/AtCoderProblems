@@ -1,9 +1,9 @@
 import React from "react";
 import {
+  CustomInput,
   FormGroup,
   Input,
   Label,
-  Container,
   Row,
   Col,
   UncontrolledDropdown,
@@ -32,40 +32,44 @@ interface Props {
 
 export const Options: React.FC<Props> = (props) => {
   return (
-    <Container>
+    <>
       <Row className="my-4">
         <FormGroup check inline>
           <Label check>
-            <Input
-              type="checkbox"
+            <CustomInput
+              type="switch"
+              id="showAccepted"
+              label="Show Accepted"
               checked={props.showAccepted}
               onChange={props.toggleShowAccepted}
             />
-            Show Accepted
           </Label>
         </FormGroup>
         <FormGroup check inline>
           <Label check>
-            <Input
-              type="checkbox"
+            <CustomInput
+              type="switch"
+              id="showDifficulties"
+              label="Show Difficulty"
               checked={props.showDifficulties}
               onChange={props.toggleShowDifficulties}
             />
-            Show Difficulty
-            <HelpBadgeTooltip id="difficulty">
-              Internal rating to have 50% Solve Probability
-            </HelpBadgeTooltip>
           </Label>
+          &nbsp;
+          <HelpBadgeTooltip id="difficulty">
+            Internal rating to have 50% Solve Probability
+          </HelpBadgeTooltip>
         </FormGroup>
         {props.colorMode === ColorMode.ContestResult && (
           <FormGroup check inline>
             <Label check>
-              <Input
-                type="checkbox"
+              <CustomInput
+                type="switch"
+                id="showPenalties"
+                label="Show Penalties"
                 checked={props.showPenalties}
                 onChange={props.toggleShowPenalties}
               />
-              Show Penalties
             </Label>
           </FormGroup>
         )}
@@ -127,6 +131,6 @@ export const Options: React.FC<Props> = (props) => {
             </Col>
           </Row>
         )}
-    </Container>
+    </>
   );
 };

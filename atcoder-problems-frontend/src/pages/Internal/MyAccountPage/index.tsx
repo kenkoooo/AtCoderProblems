@@ -1,31 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { connect, PromiseState, PropsMapInner } from "react-refetch";
+import { Nav, NavItem, NavLink, Spinner } from "reactstrap";
 import {
-  Alert,
-  Button,
-  Col,
-  Input,
-  Label,
-  Nav,
-  NavItem,
-  NavLink,
-  Row,
-  Spinner,
-  TabContent,
-  TabPane,
-} from "reactstrap";
-import { Redirect } from "react-router-dom";
+  Redirect,
+  useRouteMatch,
+  Switch,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
 import { USER_GET, USER_UPDATE } from "../ApiUrl";
 import { UserProblemListPage } from "../UserProblemListPage";
 import { UserResponse } from "../types";
 import { MyContestList } from "./MyContestList";
 import { ResetProgress } from "./ResetProgress";
-
-type TabType =
-  | "Account Info"
-  | "My Contests"
-  | "Problem Lists"
-  | "Reset Progress";
+import { UserIdUpdate } from "./UserIdUpdate";
 
 interface InnerProps {
   userInfoGet: PromiseState<UserResponse | null>;
@@ -37,7 +26,8 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
   const { userInfoGet, updateUserInfoResponse } = props;
 
   const [userId, setUserId] = useState("");
-  const [activeTab, setActiveTab] = useState<TabType>("Account Info");
+  const { path } = useRouteMatch();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (userInfoGet.fulfilled && userInfoGet.value) {
@@ -62,93 +52,58 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
       <>
         <Nav tabs>
           <NavItem>
-            <NavLink
-              active={activeTab === "Account Info"}
-              onClick={(): void => {
-                setActiveTab("Account Info");
-              }}
-            >
+            <NavLink tag={Link} to={path} active={path === pathname}>
               Account Info
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink
-              active={activeTab === "My Contests"}
-              onClick={(): void => {
-                setActiveTab("My Contests");
-              }}
+              tag={Link}
+              to={`${path}/contests`}
+              active={`${path}/contests` === pathname}
             >
               My Contests
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink
-              active={activeTab === "Problem Lists"}
-              onClick={(): void => {
-                setActiveTab("Problem Lists");
-              }}
+              tag={Link}
+              to={`${path}/my_lists`}
+              active={`${path}/my_lists` === pathname}
             >
-              Problem Lists
+              My Lists
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink
-              active={activeTab === "Reset Progress"}
-              onClick={(): void => {
-                setActiveTab("Reset Progress");
-              }}
+              tag={Link}
+              to={`${path}/reset`}
+              active={`${path}/reset` === pathname}
             >
               Reset Progress
             </NavLink>
           </NavItem>
         </Nav>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="Account Info">
-            <Row className="my-2">
-              <Col sm="12">
-                <h2>Account Info</h2>
-              </Col>
-            </Row>
-            <Row className="my-2">
-              <Col sm="12">
-                <Label>AtCoder User ID</Label>
-                <Input
-                  type="text"
-                  placeholder="AtCoder User ID"
-                  value={userId}
-                  onChange={(event): void => setUserId(event.target.value)}
-                />
-              </Col>
-            </Row>
-            <Row className="my-2">
-              <Col sm="12">
-                <Button
-                  disabled={updating}
-                  onClick={(): void => props.updateUserInfo(userId)}
-                >
-                  {updating ? "Updating..." : "Update"}
-                </Button>
-              </Col>
-            </Row>
-            <Row className="my-2">
-              <Col sm="12">
-                <Alert color="success" isOpen={updated}>
-                  Updated
-                </Alert>
-              </Col>
-            </Row>
-          </TabPane>
 
-          <TabPane tabId="My Contests">
+        <Switch>
+          <Route exact path={path}>
+            <UserIdUpdate
+              userId={userId}
+              setUserId={setUserId}
+              onSubmit={() => props.updateUserInfo(userId)}
+              status={updating ? "updating" : updated ? "updated" : "open"}
+            />
+          </Route>
+          <Route exact path={`${path}/contests`}>
             <MyContestList />
-          </TabPane>
-          <TabPane tabId="Problem Lists">
+          </Route>
+          <Route exact path={`${path}/my_lists`}>
             <UserProblemListPage />
-          </TabPane>
-          <TabPane tabId="Reset Progress">
+          </Route>
+          <Route exact path={`${path}/reset`}>
             <ResetProgress />
-          </TabPane>
-        </TabContent>
+          </Route>
+        </Switch>
       </>
     );
   }

@@ -1,6 +1,8 @@
 use crate::server::{AppData, CommonResponse};
 
+use crate::error::ToAnyhowError;
 use crate::sql::{AcceptedCountClient, RatedPointSumClient};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use tide::{Request, Response};
 
@@ -17,9 +19,9 @@ struct UserInfo {
     rated_point_sum_rank: i64,
 }
 
-pub(crate) async fn get_user_info<A>(request: Request<AppData<A>>) -> tide::Result<Response> {
+pub(crate) async fn get_user_info<A>(request: Request<AppData<A>>) -> Result<Response> {
     let conn = request.state().pool.get()?;
-    let query = request.query::<Query>()?;
+    let query = request.query::<Query>().map_anyhow()?;
     let user_id = query.user;
     let accepted_count = conn.get_users_accepted_count(&user_id).unwrap_or(0);
     let accepted_count_rank = conn.get_accepted_count_rank(accepted_count)?;
@@ -33,6 +35,6 @@ pub(crate) async fn get_user_info<A>(request: Request<AppData<A>>) -> tide::Resu
         rated_point_sum,
         rated_point_sum_rank,
     };
-    let user_info = Response::new_cors().body_json(&user_info)?;
-    Ok(user_info)
+    let response = Response::json(&user_info)?.make_cors();
+    Ok(response)
 }

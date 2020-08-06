@@ -3,8 +3,13 @@ import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import { Redirect } from "react-router-dom";
 import * as DateUtil from "../../../utils/DateUtil";
-import { CONTEST_CREATE, CONTEST_ITEM_UPDATE } from "../ApiUrl";
-import { VirtualContestItem, VirtualContestMode } from "../types";
+import { VirtualContestItem } from "../types";
+import {
+  CreateContestRequest,
+  CreateContestResponse,
+  createVirtualContest,
+  updateVirtualContestItems,
+} from "./ApiClient";
 import { ContestConfig } from "./ContestConfig";
 
 const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
@@ -29,7 +34,7 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
   return (
     <ContestConfig
       pageTitle="Create Contest"
-      initialTitle=""
+      initialTitle={props.initialTitle ?? ""}
       initialMemo=""
       initialStartDate={todayDateTime}
       initialStartHour={todayHour}
@@ -37,7 +42,7 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
       initialEndDate={todayDateTime}
       initialEndHour={todayHour}
       initialEndMinute={todayMinute}
-      initialProblems={List()}
+      initialProblems={props.initialProblems ?? List()}
       initialMode={null}
       initialPublicState={false}
       initialPenaltySecond={300}
@@ -69,49 +74,32 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
   );
 };
 
-interface Request {
-  title: string;
-  memo: string;
-  start_epoch_second: number;
-  duration_second: number;
-  mode: VirtualContestMode;
-  is_public: boolean;
-  penalty_second: number;
+interface OuterProps {
+  initialTitle?: string;
+  initialProblems?: List<VirtualContestItem>;
 }
 
-interface Response {
-  contest_id: string;
-}
-
-interface InnerProps {
-  createContestResponse: PromiseState<Response | null>;
-  createContest: (request: Request, problems: VirtualContestItem[]) => void;
+interface InnerProps extends OuterProps {
+  createContestResponse: PromiseState<CreateContestResponse | null>;
+  createContest: (
+    request: CreateContestRequest,
+    problems: VirtualContestItem[]
+  ) => void;
   updateResponse: PromiseState<{} | null>;
 }
 
-export const ContestCreatePage = connect<{}, InnerProps>(() => ({
-  createContest: (request: Request, problems: VirtualContestItem[]) => ({
+export const ContestCreatePage = connect<OuterProps, InnerProps>(() => ({
+  createContest: (
+    request: CreateContestRequest,
+    problems: VirtualContestItem[]
+  ) => ({
     createContestResponse: {
-      url: CONTEST_CREATE,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(request),
-      andThen: (response: Response) => ({
+      comparison: null,
+      value: () => createVirtualContest(request),
+      andThen: (response: CreateContestResponse) => ({
         updateResponse: {
-          url: CONTEST_ITEM_UPDATE,
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contest_id: response.contest_id,
-            problems: problems.map((p, i) => ({
-              ...p,
-              order: i,
-            })),
-          }),
+          comparison: null,
+          value: () => updateVirtualContestItems(response.contest_id, problems),
         },
       }),
     },

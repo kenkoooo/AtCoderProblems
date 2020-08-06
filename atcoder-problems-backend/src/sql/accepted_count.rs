@@ -1,8 +1,8 @@
 use super::MAX_INSERT_ROWS;
-use crate::error::Result;
 use crate::sql::models::{Submission, UserProblemCount};
 use crate::sql::schema::accepted_count;
 use crate::utils::SplitToSegments;
+use anyhow::Result;
 use diesel::dsl::*;
 use diesel::pg::upsert::excluded;
 use diesel::prelude::*;

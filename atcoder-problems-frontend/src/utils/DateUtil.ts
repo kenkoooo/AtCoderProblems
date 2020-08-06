@@ -33,3 +33,5 @@ export const formatDuration = (durationSecond: number): string => {
   const ss = seconds < 10 ? "0" + seconds : "" + seconds;
   return `${hours}:${mm}:${ss}`;
 };
+
+export const getNowMillis = () => Math.floor(Date.now() / 1000);

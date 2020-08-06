@@ -1,13 +1,12 @@
-use atcoder_problems_backend::error::Result;
-use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
-use atcoder_problems_backend::sql::models::Submission;
-use atcoder_problems_backend::sql::schema::*;
-
+use anyhow::Result;
 use async_std::future::ready;
 use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::GitHubUserResponse;
+use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
+use atcoder_problems_backend::sql::models::Submission;
+use atcoder_problems_backend::sql::schema::*;
 use diesel::{insert_into, ExpressionMethods, PgConnection, RunQueryDsl};
 use rand::Rng;
 
@@ -98,140 +97,151 @@ fn setup() -> u16 {
 }
 
 #[async_std::test]
-async fn test_user_submissions() -> Result<()> {
+async fn test_user_submissions() {
     let port = setup();
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
-        run_server(pool, MockAuth, port).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
     let submissions: Vec<Submission> = surf::get(url("/atcoder-api/results?user=u1", port))
-        .await?
+        .await
+        .unwrap()
         .body_json()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
 
-    let mut response = surf::get(url("/atcoder-api/results?user=u2", port)).await?;
-    let submissions: Vec<Submission> = response.body_json().await?;
+    let mut response = surf::get(url("/atcoder-api/results?user=u2", port))
+        .await
+        .unwrap();
+    let submissions: Vec<Submission> = response.body_json().await.unwrap();
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
 
     server.race(ready(())).await;
-    Ok(())
 }
 
 #[async_std::test]
-async fn test_time_submissions() -> Result<()> {
+async fn test_time_submissions() {
     let port = setup();
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
-        run_server(pool, MockAuth, port).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
     let submissions: Vec<Submission> = surf::get(url("/atcoder-api/v3/from/100", port))
-        .await?
+        .await
+        .unwrap()
         .body_json()
-        .await?;
+        .await
+        .unwrap();
     assert_eq!(submissions.len(), 2);
     assert!(submissions.iter().all(|s| s.epoch_second >= 100));
 
     server.race(ready(())).await;
-    Ok(())
 }
 
 #[async_std::test]
-async fn test_invalid_path() -> Result<()> {
+async fn test_invalid_path() {
     let port = setup();
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
-        run_server(pool, MockAuth, port).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url("/atcoder-api/v3/from/", port)).await?;
+    let response = surf::get(url("/atcoder-api/v3/from/", port)).await.unwrap();
     assert_eq!(response.status(), 404);
 
-    let response = surf::get(url("/atcoder-api/results", port)).await?;
-    assert_eq!(response.status(), 400);
+    let response = surf::get(url("/atcoder-api/results", port)).await.unwrap();
+    assert_eq!(response.status(), 500);
 
-    let response = surf::get(url("/", port)).await?;
+    let response = surf::get(url("/", port)).await.unwrap();
     assert_eq!(response.status(), 404);
 
     server.race(ready(())).await;
-    Ok(())
 }
 
 #[async_std::test]
-async fn test_health_check() -> Result<()> {
+async fn test_health_check() {
     let port = setup();
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
-        run_server(pool, MockAuth, port).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url("/healthcheck", port)).await?;
+    let response = surf::get(url("/healthcheck", port)).await.unwrap();
     assert_eq!(response.status(), 200);
     server.race(ready(())).await;
-    Ok(())
 }
 
 #[async_std::test]
-async fn test_cors() -> Result<()> {
+async fn test_cors() {
     let port = setup();
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
-        run_server(pool, MockAuth, port).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
     assert_eq!(
         surf::get(url("/atcoder-api/v3/from/100", port))
-            .await?
+            .await
+            .unwrap()
             .header("access-control-allow-origin")
             .unwrap(),
         "*"
     );
     assert_eq!(
         surf::get(url("/atcoder-api/v2/user_info?user=u1", port))
-            .await?
+            .await
+            .unwrap()
             .header("access-control-allow-origin")
             .unwrap(),
         "*"
     );
     assert_eq!(
         surf::get(url("/atcoder-api/results?user=u1", port))
-            .await?
+            .await
+            .unwrap()
             .header("access-control-allow-origin")
             .unwrap(),
         "*"
     );
     server.race(ready(())).await;
-    Ok(())
 }
 
 #[async_std::test]
-async fn test_users_and_time() -> Result<()> {
+async fn test_users_and_time() {
     let port = setup();
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
-        run_server(pool, MockAuth, port).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
     let submissions: Vec<Submission> = surf::get(url(
         "/atcoder-api/v3/users_and_time?users=u1,u2&problems=p1&from=100&to=200",
         port,
     ))
-    .await?
+    .await
+    .unwrap()
     .body_json()
-    .await?;
+    .await
+    .unwrap();
     assert_eq!(submissions.len(), 2);
     assert_eq!(submissions.iter().filter(|s| &s.user_id == "u1").count(), 1);
     assert_eq!(submissions.iter().filter(|s| &s.user_id == "u2").count(), 1);
 
     server.race(ready(())).await;
-    Ok(())
 }
