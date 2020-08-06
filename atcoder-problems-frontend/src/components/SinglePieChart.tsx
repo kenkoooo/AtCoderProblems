@@ -30,7 +30,7 @@ interface RenderProps {
   percent: number;
 }
 
-const renderActiveShape = (props: RenderProps) => {
+const RenderActiveShape = (props: RenderProps) => {
   const {
     cx,
     cy,
@@ -79,13 +79,13 @@ export const SinglePieChart: React.FC<Props> = ({ data, hideLegend }) => {
         <PieChart>
           <Pie
             activeIndex={activeIndex}
-            activeShape={renderActiveShape}
+            activeShape={RenderActiveShape}
             dataKey="value"
             data={data}
             innerRadius="60%"
             outerRadius="80%"
             fill="#ff0000"
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-empty-pattern
             onMouseEnter={({}, index: number) => {
               setActiveIndex(index);
             }}
