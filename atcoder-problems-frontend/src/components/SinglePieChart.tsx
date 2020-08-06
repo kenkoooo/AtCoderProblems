@@ -64,14 +64,8 @@ const renderActiveShape = (props: RenderProps) => {
         outerRadius={outerRadius + 4}
         fill={fill}
       />
-      <text
-        x={cx}
-        y={cy}
-        textAnchor="middle"
-      >{`${payload.name} : ${value}`}</text>
-      <text x={cx} y={cy} dy={18} textAnchor="middle">{`${(
-        percent * 100
-      ).toFixed(1)}%`}</text>
+      <text x={cx} y={cy}>{`${payload.name} : ${value}`}</text>
+      <text x={cx} y={cy} dy={17}>{`${(percent * 100).toFixed(1)}%`}</text>
     </g>
   );
 };
