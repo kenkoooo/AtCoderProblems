@@ -85,12 +85,10 @@ export const SinglePieChart: React.FC<Props> = ({ data, hideLegend }) => {
             innerRadius="60%"
             outerRadius="80%"
             fill="#ff0000"
-            // eslint-disable-next-line no-unused-vars
             onMouseEnter={(data: Entry, index: number) => {
               setActiveIndex(index);
             }}
-            // eslint-disable-next-line
-            onMouseLeave={(data: Entry, index: number) => {
+            onMouseLeave={() => {
               setActiveIndex(0);
             }}
           >
