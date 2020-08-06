@@ -346,4 +346,24 @@ $small-score-cell-border: $gray-300 !default;
   fill: $gray-900;
   text-anchor: middle;
   font-size: unquote("min(1.3vw, 15px)");
+} 
+
+.topcoder-like-circle {
+  display: block;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 1px;
+  width: 12px;
+  height: 12px;
+}
+
+.topcoder-like-circle-big {
+  border-width: 3px;
+  width: 36px;
+  height: 36px;
+}
+
+.rating-circle {
+  display: inline-block;
+  master
 }

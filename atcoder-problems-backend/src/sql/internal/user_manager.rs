@@ -1,6 +1,5 @@
-use crate::error::Result;
 use crate::sql::schema::*;
-
+use anyhow::Result;
 use diesel::prelude::*;
 use diesel::{insert_into, update, PgConnection};
 use serde::Serialize;

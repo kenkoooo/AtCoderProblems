@@ -92,7 +92,10 @@ const App: React.FC = () => {
                   return <ShowContest contestId={contestId} />;
                 }}
               />
-              <Route path="/contest/create" component={ContestCreatePage} />
+              <Route
+                path="/contest/create"
+                render={() => <ContestCreatePage />}
+              />
               <Route
                 path="/contest/update/:contestId([a-zA-Z0-9_-]+)"
                 render={({ match }): React.ReactElement => {
@@ -103,7 +106,7 @@ const App: React.FC = () => {
               <Route path="/contest/recent" component={RecentContestList} />
 
               {/*User Settings*/}
-              <Route path={ACCOUNT_INFO} component={MyAccountPage} />
+              <Route path={`${ACCOUNT_INFO}`} component={MyAccountPage} />
 
               {/*Problem List*/}
               <Route

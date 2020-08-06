@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
-import { Map } from "immutable";
+import { Map, List } from "immutable";
 import {
   Alert,
   Button,
@@ -29,6 +29,7 @@ import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { formatProblemUrl } from "../../../utils/Url";
 import { ProblemList, ProblemListItem, UserResponse } from "../types";
 import { NewTabLink } from "../../../components/NewTabLink";
+import { ContestCreatePage } from "../VirtualContest/ContestCreatePage";
 
 interface OuterProps {
   listId: string;
@@ -44,6 +45,108 @@ interface InnerProps extends OuterProps {
   deleteItem: (problemId: string) => void;
   updateItem: (problemId: string, memo: string) => void;
 }
+
+const InnerSingleProblemList = (props: InnerProps) => {
+  const [adding, setAdding] = useState(false);
+  const [creatingContest, setCreatingContest] = useState(false);
+
+  const { problemListFetch, userInfoFetch } = props;
+  const internalUserId =
+    userInfoFetch.fulfilled && userInfoFetch.value
+      ? userInfoFetch.value.internal_user_id
+      : null;
+  if (problemListFetch.pending) {
+    return <Spinner style={{ width: "3rem", height: "3rem" }} />;
+  } else if (problemListFetch.rejected || !problemListFetch.value) {
+    return <Alert color="danger">Failed to fetch list info.</Alert>;
+  }
+  const listInfo = problemListFetch.value;
+  const modifiable = listInfo.internal_user_id === internalUserId;
+  const problems = props.problems.fulfilled
+    ? props.problems.value.valueSeq().toArray()
+    : [];
+
+  return creatingContest ? (
+    <>
+      <Row className="mt-2 mb-4">
+        <Button
+          color="danger"
+          outline
+          onClick={(): void => setCreatingContest(false)}
+        >
+          Cancel
+        </Button>
+      </Row>
+      <ContestCreatePage
+        initialProblems={List(
+          listInfo.items.map((info) => ({
+            id: info.problem_id,
+            order: null,
+            point: null,
+          }))
+        )}
+      />
+    </>
+  ) : (
+    <>
+      <Row className="my-2">
+        <Col sm="12">
+          <h2>
+            <DoubleClickEdit
+              modifiable={modifiable}
+              saveText={(name): void => props.updateList(name)}
+              initialText={listInfo.internal_list_name}
+            />
+          </h2>
+        </Col>
+      </Row>
+      <Row className="my-2">
+        <Col sm="12">
+          {adding ? (
+            <ProblemSearchBox
+              problems={problems}
+              selectProblem={(problem): void => {
+                props.addItem(problem.id);
+              }}
+            />
+          ) : modifiable ? (
+            <Button color="success" onClick={(): void => setAdding(!adding)}>
+              Add
+            </Button>
+          ) : null}
+        </Col>
+      </Row>
+      <Row className="my-2">
+        <Col sm="12">
+          <Button onClick={(): void => setCreatingContest(true)}>
+            Create Virtual Contest
+          </Button>
+        </Col>
+      </Row>
+      <Row className="my-2">
+        <Col sm="12">
+          <ListGroup>
+            {listInfo.items.map((item) => {
+              const problem = problems.find((p) => p.id === item.problem_id);
+              return (
+                <ProblemEntry
+                  modifiable={modifiable}
+                  key={item.problem_id}
+                  item={item}
+                  problem={problem}
+                  saveText={(memo: string): void =>
+                    props.updateItem(item.problem_id, memo)
+                  }
+                  deleteItem={(): void => props.deleteItem(item.problem_id)}
+                />
+              );
+            })}
+          </ListGroup>
+        </Col>
+      </Row>
+    </>
+  );
+};
 
 export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
   userInfoFetch: USER_GET,
@@ -95,77 +198,7 @@ export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
       then: (): string => listGetUrl(props.listId),
     },
   }),
-}))((props) => {
-  const { problemListFetch, userInfoFetch } = props;
-  const internalUserId =
-    userInfoFetch.fulfilled && userInfoFetch.value
-      ? userInfoFetch.value.internal_user_id
-      : null;
-  if (problemListFetch.pending) {
-    return <Spinner style={{ width: "3rem", height: "3rem" }} />;
-  } else if (problemListFetch.rejected || !problemListFetch.value) {
-    return <Alert color="danger">Failed to fetch list info.</Alert>;
-  }
-  const listInfo = problemListFetch.value;
-  const modifiable = listInfo.internal_user_id === internalUserId;
-  const [adding, setAdding] = useState(false);
-  const problems = props.problems.fulfilled
-    ? props.problems.value.valueSeq().toArray()
-    : [];
-
-  return (
-    <>
-      <Row className="my-2">
-        <Col sm="12">
-          <h2>
-            <DoubleClickEdit
-              modifiable={modifiable}
-              saveText={(name): void => props.updateList(name)}
-              initialText={listInfo.internal_list_name}
-            />
-          </h2>
-        </Col>
-      </Row>
-      <Row className="my-2">
-        <Col sm="12">
-          {adding ? (
-            <ProblemSearchBox
-              problems={problems}
-              selectProblem={(problem): void => {
-                props.addItem(problem.id);
-              }}
-            />
-          ) : modifiable ? (
-            <Button color="success" onClick={(): void => setAdding(!adding)}>
-              Add
-            </Button>
-          ) : null}
-        </Col>
-      </Row>
-      <Row className="my-2">
-        <Col sm="12">
-          <ListGroup>
-            {listInfo.items.map((item) => {
-              const problem = problems.find((p) => p.id === item.problem_id);
-              return (
-                <ProblemEntry
-                  modifiable={modifiable}
-                  key={item.problem_id}
-                  item={item}
-                  problem={problem}
-                  saveText={(memo: string): void =>
-                    props.updateItem(item.problem_id, memo)
-                  }
-                  deleteItem={(): void => props.deleteItem(item.problem_id)}
-                />
-              );
-            })}
-          </ListGroup>
-        </Col>
-      </Row>
-    </>
-  );
-});
+}))(InnerSingleProblemList);
 
 const ProblemEntry: React.FC<{
   item: ProblemListItem;

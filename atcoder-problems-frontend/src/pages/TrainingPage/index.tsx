@@ -22,7 +22,6 @@ interface Props {
 
 const InnerTrainingList: React.FC<Props> = (props) => {
   const { path } = useRouteMatch();
-
   if (props.courses.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }
@@ -44,13 +43,26 @@ const InnerTrainingList: React.FC<Props> = (props) => {
           <TrainingList submissions={submissions} courses={courses} />
         </Route>
         <Route
-          path={`${path}/:courseTitle`}
+          path={`${path}/:courseTitle/:setListOrder?`}
           render={({ match }): React.ReactNode => {
             const courseTitle = match.params.courseTitle;
+            const setListOrder = match.params.setListOrder;
             const course = courses.find((c) => c.title === courseTitle);
-            return course ? (
-              <SingleCourseView submissions={submissions} course={course} />
-            ) : null;
+            if (course) {
+              const defaultSetListOrder = course.set_list[0].order;
+              const selectedSet =
+                course.set_list.find((set) => setListOrder === `${set.order}`)
+                  ?.order ?? defaultSetListOrder;
+              return (
+                <SingleCourseView
+                  submissions={submissions}
+                  course={course}
+                  selectedSet={selectedSet}
+                />
+              );
+            } else {
+              return null;
+            }
           }}
         />
       </Switch>

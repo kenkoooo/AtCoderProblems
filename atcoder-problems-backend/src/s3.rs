@@ -1,4 +1,4 @@
-use crate::error::Result;
+use anyhow::Result;
 
 use s3::bucket::Bucket;
 use s3::credentials::Credentials;
