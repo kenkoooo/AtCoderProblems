@@ -270,4 +270,8 @@ table.table-bordered td {
 
 $small-score-cell-border: $white;
 
+.pie-chart-summary text {
+  fill: $gray-400 !important;
+}
+
 @import "common";
