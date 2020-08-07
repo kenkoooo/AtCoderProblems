@@ -34,8 +34,7 @@ where
 {
     let app_data = AppData::new(pool, pg_pool, authentication);
     let mut api = tide::with_state(app_data.clone());
-    let log = LogMiddleware;
-    api.with(log);
+    api.with(LogMiddleware);
     api.at("/internal-api").nest({
         let mut api = tide::with_state(app_data.clone());
         api.at("/authorize").get_ah(get_token);
