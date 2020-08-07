@@ -19,3 +19,9 @@ pub struct UserProblemCount {
     pub user_id: String,
     pub problem_count: i32,
 }
+
+#[derive(PartialEq, Debug, Serialize)]
+pub struct ContestProblem {
+    pub contest_id: String,
+    pub problem_id: String,
+}
