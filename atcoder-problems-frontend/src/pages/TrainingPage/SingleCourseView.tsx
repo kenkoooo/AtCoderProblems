@@ -94,8 +94,8 @@ interface SetPieChartProps {
 
 const SetPieChart: React.FC<SetPieChartProps> = (props) => {
   const data = [
-    { value: props.solved, color: "#32cd32", name: "Accepted" },
-    { value: props.total - props.solved, color: "#58616a", name: "Trying" },
+    { value: props.solved, color: "#32cd32", name: "AC" },
+    { value: props.total - props.solved, color: "#58616a", name: "NoSub" },
   ];
   return (
     <div>
