@@ -6,6 +6,7 @@ use crate::server::user_submissions::{
 };
 use anyhow::Result;
 pub(crate) mod auth;
+use crate::server::middleware::LogMiddleware;
 use crate::server::problem_list::{
     add_item, create_list, delete_item, delete_list, get_own_lists, get_single_list, update_item,
     update_list,
@@ -17,6 +18,7 @@ use std::time::Duration;
 use tide::StatusCode;
 
 pub(crate) mod internal_user;
+pub(crate) mod middleware;
 pub(crate) mod problem_list;
 pub(crate) mod progress_reset;
 pub(crate) mod time_submissions;
@@ -32,7 +34,7 @@ where
 {
     let app_data = AppData::new(pool, pg_pool, authentication);
     let mut api = tide::with_state(app_data.clone());
-
+    api.with(LogMiddleware);
     api.at("/internal-api").nest({
         let mut api = tide::with_state(app_data.clone());
         api.at("/authorize").get_ah(get_token);
