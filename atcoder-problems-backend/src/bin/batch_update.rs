@@ -8,7 +8,6 @@ use backend::sql::{
 };
 
 use log::{self, info};
-use simple_logger;
 use std::env;
 use std::error::Error;
 
