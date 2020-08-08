@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useHistory } from "react-router-dom";
 import { connect, PromiseState } from "react-refetch";
 import {
@@ -61,7 +61,7 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerShowContest: React.FC<InnerProps> = (props) => {
-  const [autoRefresh, setAutoRefresh] = useLocalStorage("autoRefresh", false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
