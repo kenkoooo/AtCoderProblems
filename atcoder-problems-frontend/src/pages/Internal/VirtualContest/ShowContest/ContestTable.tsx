@@ -34,6 +34,8 @@ import { ContestTableRow } from "./ContestTableRow";
 import { getPointOverrideMap, getResultsByUserMap } from "./util";
 
 interface OuterProps {
+  readonly contestId: string;
+  readonly contestTitle: string;
   readonly showProblems: boolean;
   readonly problems: {
     item: VirtualContestItem;
@@ -68,6 +70,8 @@ export function compareProblem<T extends { id: string; order: number | null }>(
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
   const {
+    contestId,
+    contestTitle,
     showProblems,
     problems,
     users,
@@ -242,6 +246,9 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
       <tbody>
         {pinMe && loginUserIndex >= 0 ? (
           <ContestTableRow
+            showShareit
+            contestId={contestId}
+            contestTitle={contestTitle}
             userId={atCoderUserId}
             rank={loginUserIndex}
             items={items}
@@ -259,6 +266,9 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         {showingUserIds.map((userId, i) => {
           return (
             <ContestTableRow
+              showShareit={atCoderUserId === userId}
+              contestId={contestId}
+              contestTitle={contestTitle}
               key={userId}
               userId={userId}
               rank={i}
