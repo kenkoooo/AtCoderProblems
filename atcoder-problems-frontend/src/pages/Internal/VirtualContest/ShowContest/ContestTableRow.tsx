@@ -1,6 +1,7 @@
 import React from "react";
 import { ProblemId } from "../../../../interfaces/Status";
 import { clipDifficulty, getRatingColorClass } from "../../../../utils";
+import { ShareitButton } from "../../../../components/TweetButton";
 import { compareProblem } from "./ContestTable";
 import { ReducedProblemResult, UserTotalResult } from "./ResultCalcUtil";
 import { ScoreCell } from "./ScoreCell";
@@ -22,6 +23,9 @@ const EstimatedPerformance: React.FC<{
 };
 
 interface ContestTableRowProps {
+  showShareit: boolean;
+  contestTitle: string;
+  contestId: string;
   userId: string;
   rank: number;
   items: {
@@ -41,6 +45,9 @@ interface ContestTableRowProps {
 
 export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
   const {
+    showShareit,
+    contestId,
+    contestTitle,
     rank,
     userId,
     showProblems,
@@ -61,7 +68,19 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
   return (
     <tr>
       <th>{rank + 1}</th>
-      <th>{userId}</th>
+      <th>
+        {userId}
+        {showShareit && (
+          <div className="text-right">
+            <ShareitButton
+              id={contestId}
+              title={contestTitle}
+              username={userId}
+              rank={rank + 1}
+            />
+          </div>
+        )}
+      </th>
       {!showProblems
         ? null
         : items.sort(compareProblem).map((problem) => {

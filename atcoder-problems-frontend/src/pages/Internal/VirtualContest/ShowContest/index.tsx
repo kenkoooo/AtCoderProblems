@@ -253,6 +253,8 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             />
           ) : (
             <ContestTable
+              contestId={contestInfo.id}
+              contestTitle={contestInfo.title}
               showProblems={showProblems}
               problems={problems}
               users={contestParticipants}
