@@ -8,7 +8,7 @@ import {
   DropdownMenu,
   DropdownToggle,
   Label,
-  Input,
+  CustomInput,
   UncontrolledDropdown,
 } from "reactstrap";
 import {
@@ -232,17 +232,19 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
           active={climbingLineChartActiveTab}
           setActive={setClimbingLineChartActiveTab}
         />
-        <FormGroup check inline>
-          <Label check>
-            <Input
-              type="checkbox"
-              checked={reverseColorOrder}
-              onChange={(e): void => setReverseColorOrder(e.target.checked)}
-              disabled={climbingLineChartActiveTab !== "Colored"}
-            />
-            Reverse Color Order
-          </Label>
-        </FormGroup>
+        {climbingLineChartActiveTab === "Colored" && (
+          <FormGroup check inline>
+            <Label check>
+              <CustomInput
+                type="switch"
+                id="ReverseColorOrder"
+                label="Reverse Color Order"
+                checked={reverseColorOrder}
+                onChange={(e): void => setReverseColorOrder(e.target.checked)}
+              />
+            </Label>
+          </FormGroup>
+        )}
       </Row>
       {climbingLineChartActiveTab === "Simple" ? (
         <ClimbingLineChart climbingData={climbing} />
