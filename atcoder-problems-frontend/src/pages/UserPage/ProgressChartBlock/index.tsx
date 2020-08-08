@@ -232,9 +232,9 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
           active={climbingLineChartActiveTab}
           setActive={setClimbingLineChartActiveTab}
         />
-        <FormGroup check inline>
-          <Label check>
-            {climbingLineChartActiveTab === "Colored" && (
+        {climbingLineChartActiveTab === "Colored" && (
+          <FormGroup check inline>
+            <Label check>
               <CustomInput
                 type="switch"
                 id="ReverseColorOrder"
@@ -242,9 +242,9 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
                 checked={reverseColorOrder}
                 onChange={(e): void => setReverseColorOrder(e.target.checked)}
               />
-            )}
-          </Label>
-        </FormGroup>
+            </Label>
+          </FormGroup>
+        )}
       </Row>
       {climbingLineChartActiveTab === "Simple" ? (
         <ClimbingLineChart climbingData={climbing} />
