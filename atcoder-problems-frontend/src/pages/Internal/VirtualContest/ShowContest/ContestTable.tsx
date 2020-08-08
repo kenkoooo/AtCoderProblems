@@ -217,11 +217,13 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   const tweetButton = (
     <TweetButton
       id={contestId}
-      label="Share it!"
+      text={`${atCoderUserId} took ${
+        loginUserRank + ordinalSuffixOf(loginUserRank)
+      } place in ${contestTitle}!`}
       color="link"
-    >{`${atCoderUserId} took ${
-      loginUserRank + ordinalSuffixOf(loginUserRank)
-    } place in ${contestTitle}!`}</TweetButton>
+    >
+      Share it!
+    </TweetButton>
   );
 
   return (

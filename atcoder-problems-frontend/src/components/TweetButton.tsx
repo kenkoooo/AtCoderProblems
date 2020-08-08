@@ -3,7 +3,7 @@ import { Button } from "reactstrap";
 
 interface Props {
   id: string;
-  label: string;
+  text: string;
   color: string;
   children: string;
 }
@@ -12,7 +12,7 @@ export const TweetButton: React.FC<Props> = (props) => {
   const internalUrl = `https://kenkoooo.com/atcoder/#/contest/show/${props.id}`;
   const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
     internalUrl
-  )}&text=${encodeURIComponent(props.children)}&hashtags=AtCoderProblems`;
+  )}&text=${encodeURIComponent(props.text)}&hashtags=AtCoderProblems`;
   return (
     <Button
       href={shareUrl}
@@ -20,7 +20,7 @@ export const TweetButton: React.FC<Props> = (props) => {
       target="_blank"
       color={props.color}
     >
-      {props.label}
+      {props.children}
     </Button>
   );
 };

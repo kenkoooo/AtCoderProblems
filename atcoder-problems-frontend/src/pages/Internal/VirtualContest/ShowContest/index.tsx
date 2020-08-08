@@ -206,8 +206,12 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                 Edit
               </Button>
             ) : null}
-            <TweetButton id={contestInfo.id} label="Tweet" color="primary">
-              {contestInfo.title}
+            <TweetButton
+              id={contestInfo.id}
+              text={contestInfo.title}
+              color="primary"
+            >
+              Tweet
             </TweetButton>
           </ButtonGroup>{" "}
           <ButtonGroup>
