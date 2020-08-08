@@ -4,7 +4,6 @@ use atcoder_problems_backend::sql::{
 };
 use diesel::{Connection, PgConnection};
 use log::{self, info};
-use simple_logger;
 use std::collections::BTreeSet;
 use std::env;
 use std::error::Error;

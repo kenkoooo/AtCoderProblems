@@ -4,7 +4,7 @@ pub trait ToAnyhowError<T> {
 
 impl<T> ToAnyhowError<T> for std::result::Result<T, tide::Error> {
     fn map_anyhow(self) -> anyhow::Result<T> {
-        self.map_err(|e| anyhow::Error::msg(e))
+        self.map_err(anyhow::Error::msg)
     }
 }
 

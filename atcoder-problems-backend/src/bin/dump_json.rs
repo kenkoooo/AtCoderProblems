@@ -6,8 +6,6 @@ use diesel::prelude::*;
 use diesel::{sql_query, Connection, PgConnection};
 use log::{self, info};
 use serde::Serialize;
-use serde_json;
-use simple_logger;
 use std::env;
 use std::error::Error;
 
