@@ -3,7 +3,7 @@ import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
 import MergedProblem from "../../../../interfaces/MergedProblem";
-import { clipDifficulty } from "../../../../utils";
+import { clipDifficulty, ordinalSuffixOf } from "../../../../utils";
 import { VirtualContestItem } from "../../types";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import { ProblemId, UserId } from "../../../../interfaces/Status";
@@ -24,6 +24,7 @@ import {
   makeBotRunners,
 } from "../../../../utils/RatingSystem";
 import { convertMap } from "../../../../utils/ImmutableMigration";
+import { TweetButton } from "../../../../components/TweetButton";
 import {
   calcUserTotalResult,
   compareTotalResult,
@@ -212,6 +213,17 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     ...p.item,
   }));
 
+  const loginUserRank = loginUserIndex + 1;
+  const tweetButton = (
+    <TweetButton
+      id={contestId}
+      label="Share it!"
+      color="link"
+    >{`${atCoderUserId} took ${
+      loginUserRank + ordinalSuffixOf(loginUserRank)
+    } place in ${contestTitle}!`}</TweetButton>
+  );
+
   return (
     <Table striped>
       <thead>
@@ -246,9 +258,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
       <tbody>
         {pinMe && loginUserIndex >= 0 ? (
           <ContestTableRow
-            showShareit
-            contestId={contestId}
-            contestTitle={contestTitle}
+            tweetButton={tweetButton}
             userId={atCoderUserId}
             rank={loginUserIndex}
             items={items}
@@ -266,9 +276,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         {showingUserIds.map((userId, i) => {
           return (
             <ContestTableRow
-              showShareit={atCoderUserId === userId}
-              contestId={contestId}
-              contestTitle={contestTitle}
+              tweetButton={atCoderUserId === userId ? tweetButton : undefined}
               key={userId}
               userId={userId}
               rank={i}
