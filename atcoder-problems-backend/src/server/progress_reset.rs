@@ -1,8 +1,8 @@
 use crate::server::utils::RequestUnpack;
 use crate::server::{AppData, Authentication, CommonResponse};
-use crate::sql::internal::progress_reset_manager::ProgressResetManager;
 use anyhow::Result;
 use serde::Deserialize;
+use sql_client::internal::progress_reset_manager::ProgressResetManager;
 use tide::{Request, Response};
 
 pub(crate) async fn get_progress_reset_list<A>(request: Request<AppData<A>>) -> Result<Response>
@@ -10,8 +10,8 @@ where
     A: Authentication + Clone + Send + Sync + 'static,
 {
     let user_id = request.get_authorized_id().await?;
-    let conn = request.state().pool.get()?;
-    let list = conn.get_progress_reset_list(&user_id)?;
+    let pool = request.state().pg_pool.clone();
+    let list = pool.get_progress_reset_list(&user_id).await?;
     let response = Response::json(&list)?;
     Ok(response)
 }
@@ -26,13 +26,14 @@ where
         reset_epoch_second: i64,
     }
     let internal_user_id = request.get_authorized_id().await?;
-    let conn = request.state().pool.get()?;
+    let pool = request.state().pg_pool.clone();
     let query = request.parse_body::<Query>().await?;
-    conn.add_item(
+    pool.add_item(
         &internal_user_id,
         &query.problem_id,
         query.reset_epoch_second,
-    )?;
+    )
+    .await?;
     Ok(Response::ok())
 }
 
@@ -45,8 +46,9 @@ where
         problem_id: String,
     }
     let internal_user_id = request.get_authorized_id().await?;
-    let conn = request.state().pool.get()?;
+    let pool = request.state().pg_pool.clone();
     let query = request.parse_body::<Query>().await?;
-    conn.remove_item(&internal_user_id, &query.problem_id)?;
+    pool.remove_item(&internal_user_id, &query.problem_id)
+        .await?;
     Ok(Response::ok())
 }
