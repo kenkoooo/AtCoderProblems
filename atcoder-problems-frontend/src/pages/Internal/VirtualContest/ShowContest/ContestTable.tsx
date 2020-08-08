@@ -25,6 +25,7 @@ import {
 } from "../../../../utils/RatingSystem";
 import { convertMap } from "../../../../utils/ImmutableMigration";
 import { TweetButton } from "../../../../components/TweetButton";
+import { getNowMillis } from "../../../../utils/DateUtil";
 import {
   calcUserTotalResult,
   compareTotalResult,
@@ -213,18 +214,21 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     ...p.item,
   }));
 
+  const now = getNowMillis();
+
   const loginUserRank = loginUserIndex + 1;
-  const tweetButton = (
-    <TweetButton
-      id={contestId}
-      text={`${atCoderUserId} took ${
-        loginUserRank + ordinalSuffixOf(loginUserRank)
-      } place in ${contestTitle}!`}
-      color="link"
-    >
-      Share it!
-    </TweetButton>
-  );
+  const tweetButton =
+    end < now ? (
+      <TweetButton
+        id={contestId}
+        text={`${atCoderUserId} took ${
+          loginUserRank + ordinalSuffixOf(loginUserRank)
+        } place in ${contestTitle}!`}
+        color="link"
+      >
+        Share it!
+      </TweetButton>
+    ) : undefined;
 
   return (
     <Table striped>
