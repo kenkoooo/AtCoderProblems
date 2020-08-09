@@ -3,7 +3,7 @@ import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
 import MergedProblem from "../../../../interfaces/MergedProblem";
-import { clipDifficulty } from "../../../../utils";
+import { clipDifficulty, ordinalSuffixOf } from "../../../../utils";
 import { VirtualContestItem } from "../../types";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import { ProblemId, UserId } from "../../../../interfaces/Status";
@@ -24,6 +24,8 @@ import {
   makeBotRunners,
 } from "../../../../utils/RatingSystem";
 import { convertMap } from "../../../../utils/ImmutableMigration";
+import { TweetButton } from "../../../../components/TweetButton";
+import { getNowMillis } from "../../../../utils/DateUtil";
 import {
   calcUserTotalResult,
   compareTotalResult,
@@ -34,6 +36,8 @@ import { ContestTableRow } from "./ContestTableRow";
 import { getPointOverrideMap, getResultsByUserMap } from "./util";
 
 interface OuterProps {
+  readonly contestId: string;
+  readonly contestTitle: string;
   readonly showProblems: boolean;
   readonly problems: {
     item: VirtualContestItem;
@@ -68,6 +72,8 @@ export function compareProblem<T extends { id: string; order: number | null }>(
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
   const {
+    contestId,
+    contestTitle,
     showProblems,
     problems,
     users,
@@ -208,6 +214,22 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     ...p.item,
   }));
 
+  const now = getNowMillis();
+
+  const loginUserRank = loginUserIndex + 1;
+  const tweetButton =
+    end < now ? (
+      <TweetButton
+        id={contestId}
+        text={`${atCoderUserId} took ${
+          loginUserRank + ordinalSuffixOf(loginUserRank)
+        } place in ${contestTitle}!`}
+        color="link"
+      >
+        Share it!
+      </TweetButton>
+    ) : undefined;
+
   return (
     <Table striped>
       <thead>
@@ -242,6 +264,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
       <tbody>
         {pinMe && loginUserIndex >= 0 ? (
           <ContestTableRow
+            tweetButton={tweetButton}
             userId={atCoderUserId}
             rank={loginUserIndex}
             items={items}
@@ -259,6 +282,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         {showingUserIds.map((userId, i) => {
           return (
             <ContestTableRow
+              tweetButton={atCoderUserId === userId ? tweetButton : undefined}
               key={userId}
               userId={userId}
               rank={i}
