@@ -22,6 +22,7 @@ const EstimatedPerformance: React.FC<{
 };
 
 interface ContestTableRowProps {
+  tweetButton?: JSX.Element;
   userId: string;
   rank: number;
   items: {
@@ -41,6 +42,7 @@ interface ContestTableRowProps {
 
 export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
   const {
+    tweetButton,
     rank,
     userId,
     showProblems,
@@ -61,7 +63,10 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
   return (
     <tr>
       <th>{rank + 1}</th>
-      <th>{userId}</th>
+      <th>
+        {userId}
+        {tweetButton && <div className="text-right">{tweetButton}</div>}
+      </th>
       {!showProblems
         ? null
         : items.sort(compareProblem).map((problem) => {

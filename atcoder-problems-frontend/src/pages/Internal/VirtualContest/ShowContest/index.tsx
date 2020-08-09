@@ -209,7 +209,13 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                 Edit
               </Button>
             ) : null}
-            <TweetButton title={contestInfo.title} id={contestInfo.id} />
+            <TweetButton
+              id={contestInfo.id}
+              text={contestInfo.title}
+              color="primary"
+            >
+              Tweet
+            </TweetButton>
           </ButtonGroup>{" "}
           <span className="ml-2">
             <FormGroup check inline>
@@ -262,6 +268,8 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             />
           ) : (
             <ContestTable
+              contestId={contestInfo.id}
+              contestTitle={contestInfo.title}
               showProblems={showProblems}
               problems={problems}
               users={contestParticipants}
