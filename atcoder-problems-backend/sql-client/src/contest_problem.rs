@@ -7,19 +7,19 @@ use sqlx::Row;
 
 #[async_trait]
 pub trait ContestProblemClient {
-    async fn insert_contest_problem(&self, contest_problems: &[ContestProblem]) -> Result<usize>;
+    async fn insert_contest_problem(&self, contest_problems: &[ContestProblem]) -> Result<()>;
     async fn load_contest_problem(&self) -> Result<Vec<ContestProblem>>;
 }
 
 #[async_trait]
 impl ContestProblemClient for PgPool {
-    async fn insert_contest_problem(&self, contest_problems: &[ContestProblem]) -> Result<usize> {
+    async fn insert_contest_problem(&self, contest_problems: &[ContestProblem]) -> Result<()> {
         let (contest_ids, problem_ids): (Vec<&str>, Vec<&str>) = contest_problems
             .iter()
             .map(|c| (c.contest_id.as_str(), c.problem_id.as_str()))
             .unzip();
 
-        let result = sqlx::query(
+        sqlx::query(
             r"
             INSERT INTO contest_problem (contest_id, problem_id)
             VALUES (
@@ -34,7 +34,7 @@ impl ContestProblemClient for PgPool {
         .execute(self)
         .await?;
 
-        Ok(result as usize)
+        Ok(())
     }
 
     async fn load_contest_problem(&self) -> Result<Vec<ContestProblem>> {
