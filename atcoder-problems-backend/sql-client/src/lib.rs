@@ -2,6 +2,7 @@ use anyhow::Result;
 use std::time::Duration;
 
 pub mod accepted_count;
+pub mod contest_problem;
 pub mod internal;
 pub mod models;
 
