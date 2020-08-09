@@ -10,8 +10,10 @@ import {
   Spinner,
   Table,
   Badge,
+  FormGroup,
+  Label,
+  CustomInput,
 } from "reactstrap";
-import Octicon, { Check, Sync, Pin } from "@primer/octicons-react";
 import { Map as ImmutableMap } from "immutable";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
@@ -38,6 +40,7 @@ import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
+import { useLocalStorage } from "../../../../utils/LocalStorage";
 import { ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
@@ -58,8 +61,8 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerShowContest: React.FC<InnerProps> = (props) => {
-  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
-  const [pinMe, setPinMe] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
 
@@ -208,26 +211,32 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             ) : null}
             <TweetButton title={contestInfo.title} id={contestInfo.id} />
           </ButtonGroup>{" "}
-          <ButtonGroup>
-            <Button
-              outline={!autoRefreshEnabled}
-              active={autoRefreshEnabled}
-              onClick={(): void => setAutoRefreshEnabled(!autoRefreshEnabled)}
-            >
-              <Octicon icon={autoRefreshEnabled ? Check : Sync} /> Auto Refresh{" "}
-              {autoRefreshEnabled ? "Enabled" : "Disabled"}
-            </Button>
+          <span className="ml-2">
+            <FormGroup check inline>
+              <Label check>
+                <CustomInput
+                  type="switch"
+                  id="autoRefresh"
+                  label="Auto Refresh"
+                  checked={autoRefresh}
+                  onChange={(): void => setAutoRefresh(!autoRefresh)}
+                />
+              </Label>
+            </FormGroup>
             {alreadyJoined ? (
-              <Button
-                outline={!pinMe}
-                active={pinMe}
-                onClick={(): void => setPinMe(!pinMe)}
-              >
-                <Octicon icon={pinMe ? Check : Pin} />{" "}
-                {pinMe ? "Unpin me" : "Pin me"}
-              </Button>
+              <FormGroup check inline>
+                <Label check>
+                  <CustomInput
+                    type="switch"
+                    id="pinMe"
+                    label="Pin me"
+                    checked={pinMe}
+                    onChange={(): void => setPinMe(!pinMe)}
+                  />
+                </Label>
+              </FormGroup>
             ) : null}
-          </ButtonGroup>
+          </span>
         </Col>
       </Row>
 
@@ -238,7 +247,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               showProblems={showProblems}
               problems={problems}
               participants={contestParticipants}
-              enableAutoRefresh={autoRefreshEnabled}
+              enableAutoRefresh={autoRefresh}
               start={start}
               end={end}
             />
@@ -249,7 +258,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               users={contestParticipants}
               start={start}
               end={end}
-              enableAutoRefresh={autoRefreshEnabled}
+              enableAutoRefresh={autoRefresh}
             />
           ) : (
             <ContestTable
@@ -259,7 +268,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
               enableEstimatedPerformances={enableEstimatedPerformances}
               start={start}
               end={end}
-              enableAutoRefresh={autoRefreshEnabled}
+              enableAutoRefresh={autoRefresh}
               atCoderUserId={atCoderUserId}
               pinMe={pinMe}
               penaltySecond={penaltySecond}
