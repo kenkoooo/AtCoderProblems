@@ -12,9 +12,11 @@ import {
 } from "../ResultCalcUtil";
 import { getResultsByUserMap } from "../util";
 import { compareProblem } from "../ContestTable";
+import { UserNameLabel } from "../../../../../components/UserNameLabel";
 import { SmallScoreCell } from "./SmallScoreCell";
 
 interface OuterProps {
+  readonly showRating: boolean;
   readonly showProblems: boolean;
   readonly problems: {
     item: VirtualContestItem;
@@ -32,7 +34,7 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
-  const { showProblems, problems, users, start } = props;
+  const { showRating, showProblems, problems, users, start } = props;
 
   const resultsByUser = getResultsByUserMap(
     props.submissions.fulfilled ? props.submissions.value : [],
@@ -79,7 +81,9 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
           return (
             <tr key={i}>
               <th>{i + 1}</th>
-              <th>{userId}</th>
+              <th>
+                <UserNameLabel userId={userId} hideRating={!showRating} />
+              </th>
               <td>
                 <Badge>
                   {solvedProblemCount} / {totalProblemCount}

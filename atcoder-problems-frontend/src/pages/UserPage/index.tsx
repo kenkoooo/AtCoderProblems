@@ -145,9 +145,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   return (
     <div>
       <Row className="my-2 border-bottom">
-        <h1>
-          <UserNameLabel userId={userId} userRating={userRatingInfo.rating} />
-        </h1>
+        <UserNameLabel userId={userId} big />
       </Row>
       <Nav tabs>
         {userPageTabs.map((tab) => (

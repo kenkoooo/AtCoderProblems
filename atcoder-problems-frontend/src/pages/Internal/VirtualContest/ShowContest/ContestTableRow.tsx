@@ -1,6 +1,7 @@
 import React from "react";
 import { ProblemId } from "../../../../interfaces/Status";
 import { clipDifficulty, getRatingColorClass } from "../../../../utils";
+import { UserNameLabel } from "../../../../components/UserNameLabel";
 import { compareProblem } from "./ContestTable";
 import { ReducedProblemResult, UserTotalResult } from "./ResultCalcUtil";
 import { ScoreCell } from "./ScoreCell";
@@ -34,6 +35,7 @@ interface ContestTableRowProps {
   }[];
   start: number;
   penaltySecond: number;
+  showRating: boolean;
   showProblems: boolean;
   estimatedPerformance?: number;
   reducedProblemResults: Map<ProblemId, ReducedProblemResult>;
@@ -45,6 +47,7 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
     tweetButton,
     rank,
     userId,
+    showRating,
     showProblems,
     items,
     start,
@@ -64,7 +67,7 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
     <tr>
       <th>{rank + 1}</th>
       <th>
-        {userId}
+        <UserNameLabel userId={userId} hideRating={!showRating} />
         {tweetButton && <div className="text-right">{tweetButton}</div>}
       </th>
       {!showProblems
