@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Tooltip } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
-import { List } from "immutable";
 import { getRatingColor, getRatingColorClass } from "../utils";
-import { RatingInfo, ratingInfoOf } from "../utils/RatingInfo";
+import { RatingInfo } from "../utils/RatingInfo";
 import * as CachedApiClient from "../utils/CachedApiClient";
 import { TopcoderLikeCircle } from "./TopcoderLikeCircle";
 
@@ -19,10 +18,9 @@ interface InnerProps extends OuterProps {
 
 const InnerColoredUserNameLabel: React.FC<InnerProps> = (props) => {
   const { userId, userRatingInfoFetch } = props;
-  const userRatingInfo = userRatingInfoFetch.fulfilled
-    ? userRatingInfoFetch.value
-    : ratingInfoOf(List());
-  const userRating = userRatingInfo.rating;
+  const userRating = userRatingInfoFetch.fulfilled
+    ? userRatingInfoFetch.value.rating
+    : 0;
   const color =
     userRating < 3200
       ? getRatingColor(userRating)
