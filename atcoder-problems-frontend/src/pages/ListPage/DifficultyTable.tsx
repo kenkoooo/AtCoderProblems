@@ -3,6 +3,7 @@ import Table from "reactstrap/lib/Table";
 import { List, Map as ImmutableMap, Range } from "immutable";
 import { Button, ButtonGroup } from "reactstrap";
 import { isAccepted } from "../../utils";
+import { TableColor } from "../../utils/TableColor";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -154,8 +155,15 @@ export const DifficultyTable: React.FC<Props> = (props) => {
           {userDiffCount.map(({ userId, diffCount }) => (
             <tr key={userId}>
               <td>{userId}</td>
-              {totalCount.map(({ difficultyLevel }) => (
-                <td key={difficultyLevel}>
+              {totalCount.map(({ difficultyLevel, count }) => (
+                <td
+                  key={difficultyLevel}
+                  className={
+                    diffCount.get(difficultyLevel) === count
+                      ? TableColor.Success
+                      : TableColor.None
+                  }
+                >
                   {diffCount.get(difficultyLevel) ?? 0}
                 </td>
               ))}
