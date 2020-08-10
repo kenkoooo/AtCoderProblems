@@ -82,7 +82,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
             <tr key={i}>
               <th>{i + 1}</th>
               <th>
-                <UserNameLabel userId={userId} hideRating={!showRating} />
+                <UserNameLabel userId={userId} showRating={showRating} />
               </th>
               <td>
                 <Badge>

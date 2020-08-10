@@ -67,7 +67,7 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
     <tr>
       <th>{rank + 1}</th>
       <th>
-        <UserNameLabel userId={userId} hideRating={!showRating} />
+        <UserNameLabel userId={userId} showRating={showRating} />
         {tweetButton && <div className="text-right">{tweetButton}</div>}
       </th>
       {!showProblems
