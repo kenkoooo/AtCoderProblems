@@ -10,7 +10,7 @@ import { TopcoderLikeCircle } from "./TopcoderLikeCircle";
 interface OuterProps {
   userId: string;
   big?: boolean;
-  hideRating?: boolean;
+  showRating?: boolean;
 }
 
 interface InnerProps extends OuterProps {
@@ -65,10 +65,10 @@ const ColoredUserNameLabel = connect<OuterProps, InnerProps>(({ userId }) => ({
 }))(InnerColoredUserNameLabel);
 
 export const UserNameLabel: React.FC<OuterProps> = (props) => {
-  const label = props.hideRating ? (
-    <>{props.userId}</>
-  ) : (
+  const label = props.showRating ? (
     <ColoredUserNameLabel {...props} />
+  ) : (
+    <>{props.userId}</>
   );
   return props.big ? <h1>{label}</h1> : label;
 };
