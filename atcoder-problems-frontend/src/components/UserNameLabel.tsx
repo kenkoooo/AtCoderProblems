@@ -31,9 +31,7 @@ const InnerColoredUserNameLabel: React.FC<InnerProps> = (props) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   return (
-    <span
-      className={[getRatingColorClass(userRating), "text-nowrap"].join(" ")}
-    >
+    <span className={`${getRatingColorClass(userRating)} text-nowrap`}>
       <TopcoderLikeCircle
         className="rating-circle"
         id={id}
