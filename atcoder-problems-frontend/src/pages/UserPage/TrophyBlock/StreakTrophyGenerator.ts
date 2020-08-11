@@ -33,8 +33,9 @@ const generateStreakTrophiesByTag = (
   }
 
   return mileStones
-    .sort(([, daysA], [, daysB]) => daysB - daysA)
+    .sort(([, daysA], [, daysB]) => daysA - daysB)
     .map(([draftTitle, days], index, mileStones) => {
+      console.log(mileStones);
       const header = tag ? `[${tag}] ` : "";
       const title = header + draftTitle;
       const reason = header + `Longest Streak >= ${days} days`;
@@ -48,7 +49,7 @@ const generateStreakTrophiesByTag = (
           ? [
               `longest-streak-${idPrefix}-${mileStones[index - 1][1]
                 .toString()
-                .padStart(5, "0")}`,
+                .padStart(4, "0")}`,
             ]
           : [];
       return {
