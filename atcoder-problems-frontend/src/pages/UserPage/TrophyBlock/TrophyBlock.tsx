@@ -1,16 +1,17 @@
-import Octicon, { Verified } from "@primer/octicons-react";
 import React, { useState } from "react";
-import { Table, Row, Col, ListGroup, ListGroupItem, Badge } from "reactstrap";
+import { Row, Col, ListGroup, ListGroupItem, Badge } from "reactstrap";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
+import { groupBy } from "../../../utils/GroupBy";
 import { generateACCountTrophies } from "./ACCountTrophyGenerator";
 import { generateACProblemsTrophies } from "./ACProblemsTrophyGenerator";
 import { generateStreakTrophies } from "./StreakTrophyGenerator";
 import { generateCompleteContestTrophies } from "./CompleteContestTrophyGenerator";
 import { Trophy, TrophyGroup, TrophyGroups } from "./Trophy";
+import { TrophySubgroup } from "./TrophySubgroup";
 
 interface Props {
   submissions: Submission[];
@@ -42,6 +43,11 @@ export const TrophyBlock = (props: Props): JSX.Element => {
   const filteredTrophies = trophies
     .sort((a, b) => a.sortId.localeCompare(b.sortId))
     .filter((t) => filterGroup === "All" || t.group === filterGroup);
+  const subgroupedTrophies = groupBy(filteredTrophies, (t) => t.subgroup);
+
+  const achievedIds = new Set(
+    trophies.filter((t) => t.achieved).map((t) => t.sortId)
+  );
 
   const groupChoices: [TrophyGroup | "All", number][] = [
     ["All", trophies.filter((t) => t.achieved).length],
@@ -57,7 +63,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
   return (
     <>
       <Row className="my-2">
-        <h2>{trophies.length} Trophies</h2>
+        <h2>{achievedIds.size} Trophies</h2>
       </Row>
       <Row>
         <Col md="12" lg="3" className="mb-3">
@@ -76,21 +82,16 @@ export const TrophyBlock = (props: Props): JSX.Element => {
           </ListGroup>
         </Col>
         <Col md="12" lg="9">
-          <Table striped hover>
-            <tbody>
-              {filteredTrophies.map(({ sortId, title, reason, achieved }) => (
-                <tr key={sortId}>
-                  <th className="text-success">
-                    {achieved && <Octicon icon={Verified} />}
-                  </th>
-                  <td>
-                    <b>{achieved ? title : "???"}</b>
-                  </td>
-                  <td>{reason}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          {Array.from(subgroupedTrophies.entries()).map(
+            ([subgroup, trophies]) => (
+              <TrophySubgroup
+                key={`trophy-subgroup-${subgroup.replace(/[ #]/g, "-")}`}
+                achievedIds={achievedIds}
+                title={subgroup}
+                trophies={trophies}
+              />
+            )
+          )}
         </Col>
       </Row>
     </>

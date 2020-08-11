@@ -6,7 +6,9 @@ export interface Trophy {
   reason: string;
   achieved: boolean;
   sortId: string;
+  dependsOn: string[];
   group: TrophyGroup;
+  subgroup: string;
 }
 
 export const TrophyGroups = [

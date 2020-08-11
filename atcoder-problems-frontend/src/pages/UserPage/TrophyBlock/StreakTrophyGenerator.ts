@@ -32,16 +32,27 @@ const generateStreakTrophiesByTag = (
     mileStones.push([`Keep solving problems for ${i} days`, i]);
   }
 
-  return mileStones.map(([draftTitle, days]) => {
-    const header = tag ? `[${tag}] ` : "";
-    const title = header + draftTitle;
-    const reason = header + `Longest Streak >= ${days} days`;
-    const achieved = longestStreak >= days;
-    const sortId = `longest-streak-${idPrefix}-${days
-      .toString()
-      .padStart(4, "0")}`;
-    return { title, reason, achieved, sortId, group: "Streak" };
-  });
+  return mileStones
+    .sort(([, daysA], [, daysB]) => daysB - daysA)
+    .map(([draftTitle, days]) => {
+      const header = tag ? `[${tag}] ` : "";
+      const title = header + draftTitle;
+      const reason = header + `Longest Streak >= ${days} days`;
+      const achieved = longestStreak >= days;
+      const subgroup = header + "Longest Streak";
+      const sortId = `longest-streak-${idPrefix}-${days
+        .toString()
+        .padStart(4, "0")}`;
+      return {
+        title,
+        reason,
+        achieved,
+        sortId,
+        group: "Streak",
+        subgroup,
+        dependsOn: [],
+      };
+    });
 };
 
 const calcSubmissionsStreak = (
