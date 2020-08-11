@@ -31,7 +31,6 @@ import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { HelpBadgeModal } from "../../../components/HelpBadgeModal";
-import { useLocalStorage } from "../../../utils/LocalStorage";
 import { ContestConfigProblemList } from "./ContestConfigProblemList";
 
 const toUnixSecond = (date: string, hour: number, minute: number): number => {
@@ -53,10 +52,7 @@ const InnerContestConfig: React.FC<InnerProps> = (props) => {
   const [endMinute, setEndMinute] = useState(props.initialEndMinute);
   const [problemSet, setProblemSet] = useState(props.initialProblems);
   const [mode, setMode] = useState(props.initialMode);
-  const [publicState, setPublicState] = useLocalStorage(
-    "publicState",
-    props.initialPublicState
-  );
+  const [publicState, setPublicState] = useState(props.initialPublicState);
   const [penaltySecond, setPenaltySecond] = useState(
     props.initialPenaltySecond
   );
