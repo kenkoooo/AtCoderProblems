@@ -83,14 +83,15 @@ export const ContestTable: React.FC<Props> = (props) => {
                 <tbody>
                   <tr>
                     {problemInfo.map(({ problem, status, model }) => {
-                      const color = status
-                        ? statusToTableColor({
-                            colorMode,
-                            status,
-                            contest,
-                            selectedLanguages,
-                          })
-                        : "";
+                      const color =
+                        showSolved && status
+                          ? statusToTableColor({
+                              colorMode,
+                              status,
+                              contest,
+                              selectedLanguages,
+                            })
+                          : "";
                       return (
                         <td
                           key={problem.id}

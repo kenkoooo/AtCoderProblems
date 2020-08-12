@@ -37,7 +37,13 @@ interface Props {
 }
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
-  const { colorMode, selectedLanguages, showPenalties, userRatingInfo } = props;
+  const {
+    colorMode,
+    selectedLanguages,
+    showPenalties,
+    showSolved,
+    userRatingInfo,
+  } = props;
   const contests = props.contests
     .map((contest) => {
       const problems = props.contestToProblems
@@ -73,7 +79,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
         cellColorList,
       };
     })
-    .filter(({ solvedAll }) => props.showSolved || !solvedAll)
+    .filter(({ solvedAll }) => showSolved || !solvedAll)
     .sort(
       (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
     );
@@ -119,6 +125,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
             dataField={c}
             key={c}
             className={() =>
+              showSolved &&
               contests.every(({ problemStatus }) => {
                 const current = problemStatus.get(i)?.status;
                 return !current || current.label === StatusLabel.Success;
@@ -131,7 +138,9 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
               { problemStatus, cellColorList }: OneContest
             ): string => {
               const problem = problemStatus.get(i);
-              const cellColor = cellColorList.get(i, TableColor.None);
+              const cellColor = showSolved
+                ? cellColorList.get(i, TableColor.None)
+                : TableColor.None;
               return [
                 "table-problem",
                 !problem ? "table-problem-empty" : cellColor,
