@@ -44,7 +44,7 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
       initialEndMinute={todayMinute}
       initialProblems={props.initialProblems ?? List()}
       initialMode={null}
-      initialPublicState={false}
+      initialPublicState={true}
       initialPenaltySecond={300}
       buttonTitle="Create Contest"
       buttonPush={({
