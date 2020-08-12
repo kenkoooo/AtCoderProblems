@@ -9,7 +9,7 @@ interface Props {
 
 export const ScoreCell: React.FC<Props> = (props) => (
   <>
-    <p style={{ textAlign: "center" }}>
+    <p style={{ textAlign: "center", margin: 0 }}>
       <span style={{ color: "limegreen", fontWeight: "bold" }}>
         {props.maxPoint}
       </span>{" "}
@@ -17,7 +17,7 @@ export const ScoreCell: React.FC<Props> = (props) => (
         {props.trials === 0 ? "" : `(${props.trials})`}
       </span>
     </p>
-    <p style={{ textAlign: "center" }}>
+    <p style={{ textAlign: "center", margin: 0 }}>
       <span style={{ color: "gray" }}>
         {props.maxPoint === 0 ? "-" : formatDuration(props.time)}
       </span>
