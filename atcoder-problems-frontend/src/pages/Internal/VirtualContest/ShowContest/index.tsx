@@ -62,6 +62,7 @@ interface InnerProps extends OuterProps {
 
 const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [autoRefresh, setAutoRefresh] = useState(false);
+  const [showRating, setShowRating] = useLocalStorage("showRating", false);
   const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
@@ -229,6 +230,17 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                 />
               </Label>
             </FormGroup>
+            <FormGroup check inline>
+              <Label check>
+                <CustomInput
+                  type="switch"
+                  id="showRating"
+                  label="Show Rating"
+                  checked={showRating}
+                  onChange={(): void => setShowRating(!showRating)}
+                />
+              </Label>
+            </FormGroup>
             {alreadyJoined ? (
               <FormGroup check inline>
                 <Label check>
@@ -250,6 +262,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
         <Col sm="12">
           {contestInfo.mode === "lockout" ? (
             <LockoutContestTable
+              showRating={showRating}
               showProblems={showProblems}
               problems={problems}
               participants={contestParticipants}
@@ -259,6 +272,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             />
           ) : contestInfo.mode === "training" ? (
             <TrainingContestTable
+              showRating={showRating}
               showProblems={showProblems}
               problems={problems}
               users={contestParticipants}
@@ -270,6 +284,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             <ContestTable
               contestId={contestInfo.id}
               contestTitle={contestInfo.title}
+              showRating={showRating}
               showProblems={showProblems}
               problems={problems}
               users={contestParticipants}

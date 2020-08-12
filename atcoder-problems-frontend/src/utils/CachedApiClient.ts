@@ -389,13 +389,13 @@ export const cachedSumRanking = (): Promise<RankingEntry[]> => {
   return SUM_RANKING;
 };
 
-const RATING_INFO_MAP = Map<string, Promise<RatingInfo>>();
+let RATING_INFO_MAP = Map<string, Promise<RatingInfo>>();
 export const cachedRatingInfo = (user: string): Promise<RatingInfo> => {
   const info = RATING_INFO_MAP.get(user);
   if (info) {
     return info;
   }
   const p = fetchRatingInfo(user);
-  RATING_INFO_MAP.set(user, p);
+  RATING_INFO_MAP = RATING_INFO_MAP.set(user, p);
   return p;
 };

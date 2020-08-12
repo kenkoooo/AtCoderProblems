@@ -13,6 +13,7 @@ const LocalStorageKeys = [
   "climbingLineChartActiveTab",
   "climbingLineChartReverseColorOrder",
   "pinMe",
+  "showRating",
 ] as const;
 type LocalStorageKey = typeof LocalStorageKeys[number];
 
