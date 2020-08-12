@@ -218,19 +218,28 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
 
   const now = getNowMillis();
 
-  const loginUserRank = loginUserIndex + 1;
-  const tweetButton =
-    end < now ? (
-      <TweetButton
-        id={contestId}
-        text={`${atCoderUserId} took ${
-          loginUserRank + ordinalSuffixOf(loginUserRank)
-        } place in ${contestTitle}!`}
-        color="link"
-      >
+  const loginUserEstimatedPerformance = getPerformanceByUserId(atCoderUserId);
+  const loginUserTotalResult = totalResultByUser.get(atCoderUserId);
+  let tweetButton: JSX.Element | undefined = undefined;
+  if (loginUserIndex >= 0 && end < now) {
+    const loginUserRank = loginUserIndex + 1;
+    const rankString = loginUserRank + ordinalSuffixOf(loginUserRank);
+    let text = `${atCoderUserId} took ${rankString} place in ${contestTitle}!\n`;
+    text +=
+      `Score: ${loginUserTotalResult?.point}` +
+      (loginUserTotalResult?.penalties
+        ? `(${loginUserTotalResult?.penalties})`
+        : "");
+    if (showEstimatedPerformances)
+      text += `, Estimated Performance: ${clipDifficulty(
+        loginUserEstimatedPerformance ?? 0
+      )}`;
+    tweetButton = (
+      <TweetButton id={contestId} text={text} color="link">
         Share it!
       </TweetButton>
-    ) : undefined;
+    );
+  }
 
   return (
     <Table striped>
@@ -273,12 +282,12 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
             showRating={showRating}
             showProblems={showProblems}
             start={start}
-            estimatedPerformance={getPerformanceByUserId(atCoderUserId)}
+            estimatedPerformance={loginUserEstimatedPerformance}
             reducedProblemResults={
               resultsByUser.get(atCoderUserId) ??
               new Map<ProblemId, ReducedProblemResult>()
             }
-            userTotalResult={totalResultByUser.get(atCoderUserId)}
+            userTotalResult={loginUserTotalResult}
             penaltySecond={penaltySecond}
           />
         ) : null}
