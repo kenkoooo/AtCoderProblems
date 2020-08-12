@@ -2,6 +2,7 @@ import React from "react";
 import Table from "reactstrap/lib/Table";
 import { Map as ImmutableMap } from "immutable";
 import { isAccepted } from "../../utils";
+import { TableColor } from "../../utils/TableColor";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 
@@ -78,8 +79,17 @@ export const SmallTable: React.FC<Props> = ({
         {userPointCountMap.map(({ userId, pointCountMap }) => (
           <tr key={userId}>
             <td>{userId}</td>
-            {totalCount.map(({ point }) => (
-              <td key={point}>{pointCountMap.get(point) ?? 0}</td>
+            {totalCount.map(({ point, count }) => (
+              <td
+                key={point}
+                className={
+                  pointCountMap.get(point) === count
+                    ? TableColor.Success
+                    : TableColor.None
+                }
+              >
+                {pointCountMap.get(point) ?? 0}
+              </td>
             ))}
           </tr>
         ))}
