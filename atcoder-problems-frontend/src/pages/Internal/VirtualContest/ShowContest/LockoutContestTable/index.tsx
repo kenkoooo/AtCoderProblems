@@ -7,6 +7,7 @@ import { isAccepted } from "../../../../../utils";
 import { ProblemId } from "../../../../../interfaces/Status";
 import { fetchVirtualContestSubmission } from "../../../../../utils/CachedApiClient";
 import { ProblemLink } from "../../../../../components/ProblemLink";
+import { UserNameLabel } from "../../../../../components/UserNameLabel";
 
 const CARD_COLORS = ["success", "danger", "warning", "info", "primary"];
 
@@ -18,6 +19,7 @@ interface LockoutStatus {
 }
 
 interface OuterProps {
+  readonly showRating: boolean;
   readonly showProblems: boolean;
   readonly participants: string[];
   readonly start: number;
@@ -99,7 +101,9 @@ const InnerLockoutContestTable: React.FC<InnerProps> = (props) => {
         <tbody>
           {ranking.map(({ userId, point }) => (
             <tr key={userId}>
-              <td>{userId}</td>
+              <td>
+                <UserNameLabel userId={userId} showRating={props.showRating} />
+              </td>
               <td>{point}</td>
             </tr>
           ))}

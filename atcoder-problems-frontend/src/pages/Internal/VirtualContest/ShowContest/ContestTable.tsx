@@ -38,6 +38,7 @@ import { getPointOverrideMap, getResultsByUserMap } from "./util";
 interface OuterProps {
   readonly contestId: string;
   readonly contestTitle: string;
+  readonly showRating: boolean;
   readonly showProblems: boolean;
   readonly problems: {
     item: VirtualContestItem;
@@ -74,6 +75,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   const {
     contestId,
     contestTitle,
+    showRating,
     showProblems,
     problems,
     users,
@@ -268,6 +270,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
             userId={atCoderUserId}
             rank={loginUserIndex}
             items={items}
+            showRating={showRating}
             showProblems={showProblems}
             start={start}
             estimatedPerformance={getPerformanceByUserId(atCoderUserId)}
@@ -287,6 +290,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
               userId={userId}
               rank={i}
               items={items}
+              showRating={showRating}
               showProblems={showProblems}
               start={start}
               estimatedPerformance={getPerformanceByUserId(userId)}
