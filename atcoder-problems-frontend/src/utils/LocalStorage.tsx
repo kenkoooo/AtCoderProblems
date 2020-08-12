@@ -12,7 +12,6 @@ const LocalStorageKeys = [
   "dailyEffortYRange",
   "climbingLineChartActiveTab",
   "climbingLineChartReverseColorOrder",
-  "publicState",
   "pinMe",
 ] as const;
 type LocalStorageKey = typeof LocalStorageKeys[number];
