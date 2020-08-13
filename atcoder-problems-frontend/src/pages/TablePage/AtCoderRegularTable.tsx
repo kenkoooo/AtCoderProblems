@@ -169,13 +169,14 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       problemModel={model}
                       userRatingInfo={userRatingInfo}
                     />
-                    {props.colorMode === ColorMode.ContestResult && (
-                      <SubmitTimespan
-                        contest={contest}
-                        problemStatus={problem.status}
-                        showPenalties={showPenalties}
-                      />
-                    )}
+                    {showSolved &&
+                      props.colorMode === ColorMode.ContestResult && (
+                        <SubmitTimespan
+                          contest={contest}
+                          problemStatus={problem.status}
+                          showPenalties={showPenalties}
+                        />
+                      )}
                   </>
                 );
               } else {
