@@ -120,7 +120,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   });
   return (
     <>
-      <Row>
+      <Row className="mb-2">
         <Col md="auto">
           <h1>{contestInfo.title}</h1>
         </Col>
@@ -137,8 +137,8 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
         </Col>
       </Row>
       <Row className="my-2">
-        <Col>
-          <Table>
+        <Col lg="6" md="12">
+          <Table className="mb-0">
             <tbody>
               <tr>
                 <th>Time</th>
@@ -151,20 +151,11 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                 <th>Penalty</th>
                 <td>{penaltySecond} seconds for each wrong submission</td>
               </tr>
-
-              {start < now && now < end ? (
-                <tr>
-                  <th>Remaining</th>
-                  <td>
-                    <Timer end={end} />
-                  </td>
-                </tr>
-              ) : null}
             </tbody>
           </Table>
         </Col>
-        <Col>
-          <Table>
+        <Col lg="6" md="12">
+          <Table className="mb-0">
             <tbody>
               {start < now && now < end ? (
                 <tr>
