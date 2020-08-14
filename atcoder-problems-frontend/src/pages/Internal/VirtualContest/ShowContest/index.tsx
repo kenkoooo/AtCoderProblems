@@ -151,15 +151,6 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                 <th>Penalty</th>
                 <td>{penaltySecond} seconds for each wrong submission</td>
               </tr>
-
-              {start < now && now < end ? (
-                <tr>
-                  <th>Remaining</th>
-                  <td>
-                    <Timer end={end} />
-                  </td>
-                </tr>
-              ) : null}
             </tbody>
           </Table>
         </Col>
