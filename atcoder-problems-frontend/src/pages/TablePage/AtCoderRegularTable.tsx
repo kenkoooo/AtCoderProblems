@@ -25,7 +25,7 @@ import { RatingInfo } from "../../utils/RatingInfo";
 interface Props {
   contests: Contest[];
   contestToProblems: ImmutableMap<string, List<Problem>>;
-  showSolved: boolean;
+  hideCompletedContest: boolean;
   showDifficulty: boolean;
   colorMode: ColorMode;
   title: string;
@@ -73,7 +73,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
         cellColorList,
       };
     })
-    .filter(({ solvedAll }) => props.showSolved || !solvedAll)
+    .filter(({ solvedAll }) => !props.hideCompletedContest || !solvedAll)
     .sort(
       (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
     );

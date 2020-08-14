@@ -17,8 +17,8 @@ import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
 import { ColorMode } from "../../utils/TableColor";
 
 interface Props {
-  showAccepted: boolean;
-  toggleShowAccepted: () => void;
+  hideCompletedContest: boolean;
+  toggleHideCompletedContest: () => void;
   showDifficulties: boolean;
   toggleShowDifficulties: () => void;
   colorMode: ColorMode;
@@ -38,10 +38,10 @@ export const Options: React.FC<Props> = (props) => {
           <Label check>
             <CustomInput
               type="switch"
-              id="showAccepted"
-              label="Show Accepted"
-              checked={props.showAccepted}
-              onChange={props.toggleShowAccepted}
+              id="hideCompletedContest"
+              label="Hide Completed Contest"
+              checked={props.hideCompletedContest}
+              onChange={props.toggleHideCompletedContest}
             />
           </Label>
         </FormGroup>
