@@ -8,6 +8,7 @@ import {
 import { Container } from "reactstrap";
 
 import { List } from "immutable";
+import { connect, PromiseState } from "react-refetch";
 import { ACRanking } from "./pages/ACRanking";
 import { FastestRanking } from "./pages/FastestRanking";
 import { FirstRanking } from "./pages/FirstRanking";
@@ -29,8 +30,20 @@ import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { UserResponse } from "./pages/Internal/types";
+import { USER_GET } from "./pages/Internal/ApiUrl";
 
-const App: React.FC = () => {
+interface InnerProps {
+  loginState: PromiseState<UserResponse | null>;
+}
+
+const InnerApp: React.FC<InnerProps> = (props) => {
+  const loggedInUserId =
+    props.loginState.fulfilled &&
+    props.loginState.value &&
+    props.loginState.value.atcoder_user_id
+      ? props.loginState.value.atcoder_user_id
+      : "";
   return (
     <ThemeProvider>
       <Router>
@@ -63,11 +76,12 @@ const App: React.FC = () => {
                 path="/table/:userIds([a-zA-Z0-9_]*)*"
                 render={({ match }): React.ReactElement => {
                   const userIds: string | undefined = match.params.userIds;
-                  const userId = (userIds ?? "").split("/")[0];
+                  let userId = (userIds ?? "").split("/")[0];
                   const rivals = (userIds ?? "/").split("/");
                   const rivalList = List(rivals)
                     .skip(1)
                     .filter((x) => x.length > 0);
+                  if (userId === "") userId = loggedInUserId;
                   return <TablePage userId={userId} rivals={rivalList} />;
                 }}
               />
@@ -75,11 +89,12 @@ const App: React.FC = () => {
                 path="/list/:userIds([a-zA-Z0-9_]*)*"
                 render={({ match }): React.ReactElement => {
                   const userIds: string | undefined = match.params.userIds;
-                  const userId = (userIds ?? "").split("/")[0];
+                  let userId = (userIds ?? "").split("/")[0];
                   const rivals = (userIds ?? "/").split("/");
                   const rivalList = List(rivals)
                     .skip(1)
                     .filter((x) => x.length > 0);
+                  if (userId === "") userId = loggedInUserId;
                   return <ListPage userId={userId} rivals={rivalList} />;
                 }}
               />
@@ -132,4 +147,8 @@ const App: React.FC = () => {
 };
 
 // eslint-disable-next-line import/no-default-export
-export default App;
+export default connect<{}, InnerProps>(() => ({
+  loginState: {
+    url: USER_GET,
+  },
+}))(InnerApp);
