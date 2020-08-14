@@ -65,10 +65,10 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
   return (
     <tr>
       <th className="text-center align-middle">{rank + 1}</th>
-      <td className="text-left align-middle">
+      <th className="text-left align-middle">
         <UserNameLabel userId={userId} showRating={showRating} />
         {tweetButton && <div className="text-right">{tweetButton}</div>}
-      </td>
+      </th>
       {!showProblems
         ? null
         : sortedItems.map((problem) => {

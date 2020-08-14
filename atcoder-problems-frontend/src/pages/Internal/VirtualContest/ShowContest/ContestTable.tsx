@@ -1,4 +1,4 @@
-import { Row, Table } from "reactstrap";
+import { Table } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
@@ -33,7 +33,11 @@ import {
   UserTotalResult,
 } from "./ResultCalcUtil";
 import { ContestTableRow } from "./ContestTableRow";
-import { getPointOverrideMap, getResultsByUserMap } from "./util";
+import {
+  compareProblem,
+  getPointOverrideMap,
+  getResultsByUserMap,
+} from "./util";
 
 interface OuterProps {
   readonly contestId: string;
@@ -59,16 +63,6 @@ interface InnerProps extends OuterProps {
   submissions: PromiseState<Submission[]>;
   problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
   problemMap: PromiseState<Map<ProblemId, MergedProblem>>;
-}
-
-export function compareProblem<T extends { id: string; order: number | null }>(
-  a: T,
-  b: T
-): number {
-  if (a.order !== null && b.order !== null) {
-    return a.order - b.order;
-  }
-  return a.id.localeCompare(b.id);
 }
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
@@ -235,132 +229,71 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     ) : undefined;
 
   return (
-    <>
-      {showProblems && (
-        <>
-          <Row className="m-0">
-            <h3>Problems</h3>
-          </Row>
-          <Row className="m-0">
-            <Table striped size="sm">
-              <thead>
-                <tr>
-                  <th> </th>
-                  <th>Problem Name</th>
-                  <th className="text-center">Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedItems.map((p, i) => (
-                  <tr key={i}>
-                    <th className="text-center">
-                      {p.contestId && p.title ? (
-                        <ProblemLink
-                          problemId={p.id}
-                          contestId={p.contestId}
-                          problemTitle={`${i + 1}`}
-                        />
-                      ) : (
-                        i + 1
-                      )}
-                    </th>
-                    <td>
-                      {p.contestId && p.title ? (
-                        <ProblemLink
-                          problemId={p.id}
-                          contestId={p.contestId}
-                          problemTitle={p.title}
-                        />
-                      ) : (
-                        p.id
-                      )}
-                    </td>
-                    <td className="text-center">
-                      {p.point !== null && `(${p.point})`}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Row>
-        </>
-      )}
-
-      <Row className="m-0">
-        <h3>Standings</h3>
-      </Row>
-      <Row className="m-0">
-        <Table striped bordered size="sm">
-          <thead>
-            <tr className="text-center">
-              <th>#</th>
-              <th>Participant</th>
-              {showProblems &&
-                sortedItems.map((p, i) => (
-                  <th key={i}>
-                    {p.contestId && p.title ? (
-                      <ProblemLink
-                        problemId={p.id}
-                        contestId={p.contestId}
-                        problemTitle={`${i + 1}`}
-                      />
-                    ) : (
-                      i + 1
-                    )}
-                  </th>
-                ))}
-              <th>Score</th>
-              {showEstimatedPerformances ? (
-                <th>Estimated Performance</th>
-              ) : null}
-            </tr>
-          </thead>
-          <tbody>
-            {pinMe && loginUserIndex >= 0 ? (
-              <ContestTableRow
-                tweetButton={tweetButton}
-                userId={atCoderUserId}
-                rank={loginUserIndex}
-                sortedItems={sortedItems}
-                showRating={showRating}
-                showProblems={showProblems}
-                start={start}
-                estimatedPerformance={getPerformanceByUserId(atCoderUserId)}
-                reducedProblemResults={
-                  resultsByUser.get(atCoderUserId) ??
-                  new Map<ProblemId, ReducedProblemResult>()
-                }
-                userTotalResult={totalResultByUser.get(atCoderUserId)}
-                penaltySecond={penaltySecond}
-              />
-            ) : null}
-            {showingUserIds.map((userId, i) => {
-              return (
-                <ContestTableRow
-                  tweetButton={
-                    atCoderUserId === userId ? tweetButton : undefined
-                  }
-                  key={userId}
-                  userId={userId}
-                  rank={i}
-                  sortedItems={sortedItems}
-                  showRating={showRating}
-                  showProblems={showProblems}
-                  start={start}
-                  estimatedPerformance={getPerformanceByUserId(userId)}
-                  reducedProblemResults={
-                    resultsByUser.get(userId) ??
-                    new Map<ProblemId, ReducedProblemResult>()
-                  }
-                  userTotalResult={totalResultByUser.get(userId)}
-                  penaltySecond={penaltySecond}
-                />
-              );
-            })}
-          </tbody>
-        </Table>
-      </Row>
-    </>
+    <Table striped bordered size="sm">
+      <thead>
+        <tr className="text-center">
+          <th>#</th>
+          <th>Participant</th>
+          {showProblems &&
+            sortedItems.map((p, i) => (
+              <th key={i}>
+                {p.contestId && p.title ? (
+                  <ProblemLink
+                    problemId={p.id}
+                    contestId={p.contestId}
+                    problemTitle={`${i + 1}`}
+                  />
+                ) : (
+                  i + 1
+                )}
+              </th>
+            ))}
+          <th>Score</th>
+          {showEstimatedPerformances && <th>Estimated Performance</th>}
+        </tr>
+      </thead>
+      <tbody>
+        {pinMe && loginUserIndex >= 0 ? (
+          <ContestTableRow
+            tweetButton={tweetButton}
+            userId={atCoderUserId}
+            rank={loginUserIndex}
+            sortedItems={sortedItems}
+            showRating={showRating}
+            showProblems={showProblems}
+            start={start}
+            estimatedPerformance={getPerformanceByUserId(atCoderUserId)}
+            reducedProblemResults={
+              resultsByUser.get(atCoderUserId) ??
+              new Map<ProblemId, ReducedProblemResult>()
+            }
+            userTotalResult={totalResultByUser.get(atCoderUserId)}
+            penaltySecond={penaltySecond}
+          />
+        ) : null}
+        {showingUserIds.map((userId, i) => {
+          return (
+            <ContestTableRow
+              tweetButton={atCoderUserId === userId ? tweetButton : undefined}
+              key={userId}
+              userId={userId}
+              rank={i}
+              sortedItems={sortedItems}
+              showRating={showRating}
+              showProblems={showProblems}
+              start={start}
+              estimatedPerformance={getPerformanceByUserId(userId)}
+              reducedProblemResults={
+                resultsByUser.get(userId) ??
+                new Map<ProblemId, ReducedProblemResult>()
+              }
+              userTotalResult={totalResultByUser.get(userId)}
+              penaltySecond={penaltySecond}
+            />
+          );
+        })}
+      </tbody>
+    </Table>
   );
 };
 

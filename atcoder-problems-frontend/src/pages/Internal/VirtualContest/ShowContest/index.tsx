@@ -11,8 +11,8 @@ import {
   Table,
   Badge,
   FormGroup,
-  Label,
   CustomInput,
+  Form,
 } from "reactstrap";
 import { Map as ImmutableMap } from "immutable";
 import * as CachedApi from "../../../../utils/CachedApiClient";
@@ -35,15 +35,18 @@ import {
   UserResponse,
   VirtualContestDetails,
   formatPublicState,
+  VirtualContestItem,
 } from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { useLocalStorage } from "../../../../utils/LocalStorage";
+import { ProblemLink } from "../../../../components/ProblemLink";
 import { ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
+import { compareProblem } from "./util";
 
 interface OuterProps {
   contestId: string;
@@ -106,7 +109,11 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const enableEstimatedPerformances = contestProblems.length < 10;
 
   const showProblems = start < now;
-  const problems = contestProblems.map((item) => {
+  const problems = contestProblems.map((item): {
+    item: VirtualContestItem;
+    contestId?: string;
+    title?: string;
+  } => {
     const problem = problemMap.get(item.id);
     if (problem) {
       return {
@@ -118,6 +125,15 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
       return { item };
     }
   });
+
+  const sortedItems = problems
+    .map((p) => ({
+      contestId: p.contestId,
+      title: p.title,
+      ...p.item,
+    }))
+    .sort(compareProblem);
+
   return (
     <>
       <Row>
@@ -209,88 +225,144 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             >
               Tweet
             </TweetButton>
-          </ButtonGroup>{" "}
-          <span className="ml-2">
-            <FormGroup check inline>
-              <Label check>
-                <CustomInput
-                  type="switch"
-                  id="autoRefresh"
-                  label="Auto Refresh"
-                  checked={autoRefresh}
-                  onChange={(): void => setAutoRefresh(!autoRefresh)}
-                />
-              </Label>
-            </FormGroup>
-            <FormGroup check inline>
-              <Label check>
-                <CustomInput
-                  type="switch"
-                  id="showRating"
-                  label="Show Rating"
-                  checked={showRating}
-                  onChange={(): void => setShowRating(!showRating)}
-                />
-              </Label>
-            </FormGroup>
-            {alreadyJoined ? (
-              <FormGroup check inline>
-                <Label check>
-                  <CustomInput
-                    type="switch"
-                    id="pinMe"
-                    label="Pin me"
-                    checked={pinMe}
-                    onChange={(): void => setPinMe(!pinMe)}
-                  />
-                </Label>
-              </FormGroup>
-            ) : null}
-          </span>
+          </ButtonGroup>
         </Col>
       </Row>
 
-      <Row className="my-2">
-        <Col sm="12">
-          {contestInfo.mode === "lockout" ? (
-            <LockoutContestTable
-              showRating={showRating}
-              showProblems={showProblems}
-              problems={problems}
-              participants={contestParticipants}
-              enableAutoRefresh={autoRefresh}
-              start={start}
-              end={end}
-            />
-          ) : contestInfo.mode === "training" ? (
-            <TrainingContestTable
-              showRating={showRating}
-              showProblems={showProblems}
-              problems={problems}
-              users={contestParticipants}
-              start={start}
-              end={end}
-              enableAutoRefresh={autoRefresh}
-            />
-          ) : (
-            <ContestTable
-              contestId={contestInfo.id}
-              contestTitle={contestInfo.title}
-              showRating={showRating}
-              showProblems={showProblems}
-              problems={problems}
-              users={contestParticipants}
-              enableEstimatedPerformances={enableEstimatedPerformances}
-              start={start}
-              end={end}
-              enableAutoRefresh={autoRefresh}
-              atCoderUserId={atCoderUserId}
-              pinMe={pinMe}
-              penaltySecond={penaltySecond}
-            />
-          )}
-        </Col>
-      </Row>
+      {showProblems && formatMode(contestInfo.mode) === "Normal" && (
+        <div className="my-2">
+          <Row>
+            <Col>
+              <h3>Problems</h3>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Table striped size="sm">
+                <thead>
+                  <tr>
+                    <th> </th>
+                    <th>Problem Name</th>
+                    <th className="text-center">Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedItems.map((p, i) => (
+                    <tr key={i}>
+                      <th className="text-center">
+                        {p.contestId && p.title ? (
+                          <ProblemLink
+                            problemId={p.id}
+                            contestId={p.contestId}
+                            problemTitle={`${i + 1}`}
+                          />
+                        ) : (
+                          i + 1
+                        )}
+                      </th>
+                      <td>
+                        {p.contestId && p.title ? (
+                          <ProblemLink
+                            problemId={p.id}
+                            contestId={p.contestId}
+                            problemTitle={p.title}
+                          />
+                        ) : (
+                          p.id
+                        )}
+                      </td>
+                      <td className="text-center">
+                        {p.point !== null && `(${p.point})`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Col>
+          </Row>
+        </div>
+      )}
+
+      <div className="my-2">
+        <Row>
+          <Col>
+            <Form inline>
+              <h3>Standings</h3>
+              <FormGroup inline className="ml-3">
+                <FormGroup check inline>
+                  <CustomInput
+                    type="switch"
+                    id="autoRefresh"
+                    label="Auto Refresh"
+                    inline
+                    checked={autoRefresh}
+                    onChange={(): void => setAutoRefresh(!autoRefresh)}
+                  />
+                  <CustomInput
+                    type="switch"
+                    id="showRating"
+                    label="Show Rating"
+                    inline
+                    checked={showRating}
+                    onChange={(): void => setShowRating(!showRating)}
+                  />
+                  {alreadyJoined && (
+                    <CustomInput
+                      type="switch"
+                      id="pinMe"
+                      label="Pin me"
+                      inline
+                      checked={pinMe}
+                      onChange={(): void => setPinMe(!pinMe)}
+                    />
+                  )}
+                </FormGroup>
+              </FormGroup>
+            </Form>
+          </Col>
+        </Row>
+        <Row>
+          <Col sm="12">
+            {contestInfo.mode === "lockout" ? (
+              <LockoutContestTable
+                showRating={showRating}
+                showProblems={showProblems}
+                problems={problems}
+                participants={contestParticipants}
+                enableAutoRefresh={autoRefresh}
+                start={start}
+                end={end}
+              />
+            ) : contestInfo.mode === "training" ? (
+              <TrainingContestTable
+                showRating={showRating}
+                showProblems={showProblems}
+                problems={problems}
+                users={contestParticipants}
+                start={start}
+                end={end}
+                enableAutoRefresh={autoRefresh}
+              />
+            ) : (
+              <ContestTable
+                contestId={contestInfo.id}
+                contestTitle={contestInfo.title}
+                showRating={showRating}
+                showProblems={showProblems}
+                problems={problems}
+                users={contestParticipants}
+                enableEstimatedPerformances={enableEstimatedPerformances}
+                start={start}
+                end={end}
+                enableAutoRefresh={autoRefresh}
+                atCoderUserId={atCoderUserId}
+                pinMe={pinMe}
+                penaltySecond={penaltySecond}
+              />
+            )}
+          </Col>
+        </Row>
+      </div>
     </>
   );
 };

@@ -101,9 +101,9 @@ const InnerLockoutContestTable: React.FC<InnerProps> = (props) => {
         <tbody>
           {ranking.map(({ userId, point }) => (
             <tr key={userId}>
-              <td>
+              <th>
                 <UserNameLabel userId={userId} showRating={props.showRating} />
-              </td>
+              </th>
               <td>{point}</td>
             </tr>
           ))}

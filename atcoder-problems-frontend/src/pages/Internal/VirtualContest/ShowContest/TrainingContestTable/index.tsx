@@ -10,8 +10,7 @@ import {
   compareTotalResult,
   UserTotalResult,
 } from "../ResultCalcUtil";
-import { getResultsByUserMap } from "../util";
-import { compareProblem } from "../ContestTable";
+import { getResultsByUserMap, compareProblem } from "../util";
 import { UserNameLabel } from "../../../../../components/UserNameLabel";
 import { SmallScoreCell } from "./SmallScoreCell";
 
@@ -83,9 +82,9 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
           return (
             <tr key={i}>
               <th className="text-center">{i + 1}</th>
-              <td>
+              <th>
                 <UserNameLabel userId={userId} showRating={showRating} />
-              </td>
+              </th>
               <td className="text-center">
                 <Badge>
                   {solvedProblemCount} / {totalProblemCount}
