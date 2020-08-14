@@ -289,34 +289,32 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             <Form inline>
               <h3>Standings</h3>
               <FormGroup inline className="ml-3">
-                <FormGroup check inline>
+                <CustomInput
+                  type="switch"
+                  id="autoRefresh"
+                  label="Auto Refresh"
+                  inline
+                  checked={autoRefresh}
+                  onChange={(): void => setAutoRefresh(!autoRefresh)}
+                />
+                <CustomInput
+                  type="switch"
+                  id="showRating"
+                  label="Show Rating"
+                  inline
+                  checked={showRating}
+                  onChange={(): void => setShowRating(!showRating)}
+                />
+                {alreadyJoined && (
                   <CustomInput
                     type="switch"
-                    id="autoRefresh"
-                    label="Auto Refresh"
+                    id="pinMe"
+                    label="Pin me"
                     inline
-                    checked={autoRefresh}
-                    onChange={(): void => setAutoRefresh(!autoRefresh)}
+                    checked={pinMe}
+                    onChange={(): void => setPinMe(!pinMe)}
                   />
-                  <CustomInput
-                    type="switch"
-                    id="showRating"
-                    label="Show Rating"
-                    inline
-                    checked={showRating}
-                    onChange={(): void => setShowRating(!showRating)}
-                  />
-                  {alreadyJoined && (
-                    <CustomInput
-                      type="switch"
-                      id="pinMe"
-                      label="Pin me"
-                      inline
-                      checked={pinMe}
-                      onChange={(): void => setPinMe(!pinMe)}
-                    />
-                  )}
-                </FormGroup>
+                )}
               </FormGroup>
             </Form>
           </Col>
