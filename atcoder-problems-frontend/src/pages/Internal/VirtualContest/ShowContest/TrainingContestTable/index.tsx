@@ -55,16 +55,18 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     })
     .map(([userId]) => userId);
 
-  const items = problems.map((p) => ({
-    contestId: p.contestId,
-    title: p.title,
-    ...p.item,
-  }));
+  const sortedItems = problems
+    .map((p) => ({
+      contestId: p.contestId,
+      title: p.title,
+      ...p.item,
+    }))
+    .sort(compareProblem);
 
   return (
     <Table striped>
       <thead>
-        <tr>
+        <tr className="text-center">
           <th>#</th>
           <th>Participant</th>
           <th>Score</th>
@@ -74,17 +76,17 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
       <tbody>
         {sortedUserIds.map((userId, i) => {
           const userResult = resultsByUser.get(userId);
-          const totalProblemCount = items.length;
+          const totalProblemCount = sortedItems.length;
           const solvedProblemCount = Array.from(userResult ?? []).filter(
             ([, result]) => result.accepted
           ).length;
           return (
             <tr key={i}>
-              <th>{i + 1}</th>
-              <th>
-                <UserNameLabel userId={userId} showRating={showRating} />
-              </th>
+              <th className="text-center">{i + 1}</th>
               <td>
+                <UserNameLabel userId={userId} showRating={showRating} />
+              </td>
+              <td className="text-center">
                 <Badge>
                   {solvedProblemCount} / {totalProblemCount}
                 </Badge>
@@ -98,7 +100,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
               >
                 {!showProblems
                   ? null
-                  : items.sort(compareProblem).map((problem, index) => {
+                  : sortedItems.map((problem, index) => {
                       const result = userResult?.get(problem.id);
                       if (!result) {
                         return (

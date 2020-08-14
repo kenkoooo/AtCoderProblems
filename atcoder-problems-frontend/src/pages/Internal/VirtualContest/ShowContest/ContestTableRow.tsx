@@ -2,7 +2,6 @@ import React from "react";
 import { ProblemId } from "../../../../interfaces/Status";
 import { clipDifficulty, getRatingColorClass } from "../../../../utils";
 import { UserNameLabel } from "../../../../components/UserNameLabel";
-import { compareProblem } from "./ContestTable";
 import { ReducedProblemResult, UserTotalResult } from "./ResultCalcUtil";
 import { ScoreCell } from "./ScoreCell";
 
@@ -26,7 +25,7 @@ interface ContestTableRowProps {
   tweetButton?: JSX.Element;
   userId: string;
   rank: number;
-  items: {
+  sortedItems: {
     id: string;
     point: number | null;
     order: number | null;
@@ -49,7 +48,7 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
     userId,
     showRating,
     showProblems,
-    items,
+    sortedItems,
     start,
     penaltySecond,
     reducedProblemResults,
@@ -65,18 +64,18 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
 
   return (
     <tr>
-      <th>{rank + 1}</th>
-      <th>
+      <th className="text-center align-middle">{rank + 1}</th>
+      <td className="text-left align-middle">
         <UserNameLabel userId={userId} showRating={showRating} />
         {tweetButton && <div className="text-right">{tweetButton}</div>}
-      </th>
+      </td>
       {!showProblems
         ? null
-        : items.sort(compareProblem).map((problem) => {
+        : sortedItems.map((problem) => {
             const result = reducedProblemResults.get(problem.id);
             if (!result) {
               return (
-                <td key={problem.id} style={{ textAlign: "center" }}>
+                <td key={problem.id} className="text-center">
                   -
                 </td>
               );
@@ -100,7 +99,7 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
         />
       </td>
       {estimatedPerformance !== undefined && (
-        <td>
+        <td className="align-middle">
           <EstimatedPerformance estimatedPerformance={estimatedPerformance} />
         </td>
       )}
