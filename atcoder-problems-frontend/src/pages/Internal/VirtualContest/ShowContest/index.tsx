@@ -16,6 +16,7 @@ import {
   Collapse,
 } from "reactstrap";
 import { Map as ImmutableMap } from "immutable";
+import Octicon, { ChevronDown, ChevronUp } from "@primer/octicons-react";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
 import {
@@ -249,7 +250,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                   onClick={() => setShowProblemTable(!showProblemTable)}
                   className="mx-3"
                 >
-                  {showProblemTable ? "▲" : "▼"}
+                  <Octicon icon={showProblemTable ? ChevronUp : ChevronDown} />
                 </Button>
               </div>
             </Col>
@@ -291,7 +292,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                           )}
                         </td>
                         <td className="text-center">
-                          {p.point !== null ? p.point : "Same as origin"}
+                          {p.point !== null && p.point}
                         </td>
                       </tr>
                     ))}
