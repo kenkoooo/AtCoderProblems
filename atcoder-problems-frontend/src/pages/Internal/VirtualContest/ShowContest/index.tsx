@@ -10,9 +10,10 @@ import {
   Spinner,
   Table,
   Badge,
+  Form,
   FormGroup,
   CustomInput,
-  Form,
+  Collapse,
 } from "reactstrap";
 import { Map as ImmutableMap } from "immutable";
 import * as CachedApi from "../../../../utils/CachedApiClient";
@@ -67,6 +68,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [showRating, setShowRating] = useLocalStorage("showRating", false);
   const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
+  const [showProblemTable, setShowProblemTable] = useState(true);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
 
@@ -233,55 +235,69 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
         <div className="my-2">
           <Row>
             <Col>
-              <Form inline>
+              <div
+                style={{
+                  display: "flex",
+                  flexFlow: "row wrap",
+                  alignItems: "center",
+                }}
+              >
                 <h3>Problems</h3>
                 <Button
                   color="secondary"
-              </Form>
+                  size="sm"
+                  onClick={() => setShowProblemTable(!showProblemTable)}
+                  className="mx-3"
+                >
+                  {showProblemTable ? "▲" : "▼"}
+                </Button>
+              </div>
             </Col>
           </Row>
           <Row>
             <Col>
-              <Table striped size="sm">
-                <thead>
-                  <tr>
-                    <th> </th>
-                    <th>Problem Name</th>
-                    <th className="text-center">Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedItems.map((p, i) => (
-                    <tr key={i}>
-                      <th className="text-center">
-                        {p.contestId && p.title ? (
-                          <ProblemLink
-                            problemId={p.id}
-                            contestId={p.contestId}
-                            problemTitle={`${i + 1}`}
-                          />
-                        ) : (
-                          i + 1
-                        )}
-                      </th>
-                      <td>
-                        {p.contestId && p.title ? (
-                          <ProblemLink
-                            problemId={p.id}
-                            contestId={p.contestId}
-                            problemTitle={p.title}
-                          />
-                        ) : (
-                          p.id
-                        )}
-                      </td>
-                      <td className="text-center">
-                        {p.point !== null ? p.point : "Same as origin"}
-                      </td>
+              <Collapse isOpen={showProblemTable}>
+                <Table striped size="sm">
+                  <thead>
+                    <tr>
+                      <th> </th>
+                      <th>Problem Name</th>
+                      <th className="text-center">Score</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
+                  </thead>
+                  <tbody>
+                    {sortedItems.map((p, i) => (
+                      <tr key={i}>
+                        <th className="text-center">
+                          {p.contestId && p.title ? (
+                            <ProblemLink
+                              problemId={p.id}
+                              contestId={p.contestId}
+                              problemTitle={`${i + 1}`}
+                            />
+                          ) : (
+                            i + 1
+                          )}
+                        </th>
+                        <td>
+                          {p.contestId && p.title ? (
+                            <ProblemLink
+                              problemId={p.id}
+                              contestId={p.contestId}
+                              problemTitle={p.title}
+                            />
+                          ) : (
+                            p.id
+                          )}
+                        </td>
+                        <td className="text-center">
+                          {p.point !== null ? p.point : "Same as origin"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </Collapse>
             </Col>
           </Row>
         </div>
