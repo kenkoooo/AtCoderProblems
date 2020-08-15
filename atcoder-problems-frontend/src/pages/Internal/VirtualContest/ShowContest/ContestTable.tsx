@@ -234,6 +234,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
         <tr className="text-center">
           <th>#</th>
           <th>Participant</th>
+          <th>Score</th>
           {showProblems &&
             sortedItems.map((p, i) => (
               <th key={i}>
@@ -248,7 +249,6 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
                 )}
               </th>
             ))}
-          <th>Score</th>
           {showEstimatedPerformances && <th>Estimated Performance</th>}
         </tr>
       </thead>

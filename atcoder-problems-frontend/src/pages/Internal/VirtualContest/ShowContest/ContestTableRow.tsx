@@ -69,6 +69,13 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
         <UserNameLabel userId={userId} showRating={showRating} />
         {tweetButton && <div className="text-right">{tweetButton}</div>}
       </th>
+      <td>
+        <ScoreCell
+          trials={userTotalResult?.penalties ?? 0}
+          maxPoint={userTotalResult?.point ?? 0}
+          time={totalTime}
+        />
+      </td>
       {!showProblems
         ? null
         : sortedItems.map((problem) => {
@@ -91,13 +98,6 @@ export const ContestTableRow: React.FC<ContestTableRowProps> = (props) => {
               </td>
             );
           })}
-      <td>
-        <ScoreCell
-          trials={userTotalResult?.penalties ?? 0}
-          maxPoint={userTotalResult?.point ?? 0}
-          time={totalTime}
-        />
-      </td>
       {estimatedPerformance !== undefined && (
         <td className="align-middle">
           <EstimatedPerformance estimatedPerformance={estimatedPerformance} />
