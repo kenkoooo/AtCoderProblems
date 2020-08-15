@@ -233,7 +233,11 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
         <div className="my-2">
           <Row>
             <Col>
-              <h3>Problems</h3>
+              <Form inline>
+                <h3>Problems</h3>
+                <Button
+                  color="secondary"
+              </Form>
             </Col>
           </Row>
           <Row>
@@ -272,7 +276,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                         )}
                       </td>
                       <td className="text-center">
-                        {p.point !== null && `(${p.point})`}
+                        {p.point !== null ? p.point : "Same as origin"}
                       </td>
                     </tr>
                   ))}
