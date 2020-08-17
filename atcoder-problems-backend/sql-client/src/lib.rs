@@ -4,6 +4,7 @@ use std::time::Duration;
 pub mod accepted_count;
 pub mod contest_problem;
 pub mod internal;
+pub mod language_count;
 pub mod models;
 
 pub type PgPool = sqlx::postgres::PgPool;
