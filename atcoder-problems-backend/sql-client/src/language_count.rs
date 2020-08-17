@@ -47,8 +47,7 @@ impl LanguageCountClient for PgPool {
         unzip_n::unzip_n!(3);
 
         for chunk in language_count.chunks(MAX_INSERT_ROWS) {
-            let (user_ids, languages, counts): (Vec<&str>, Vec<String>, Vec<i32>) =
-                chunk.iter().cloned().unzip_n_vec();
+            let (user_ids, languages, counts) = chunk.iter().cloned().unzip_n_vec();
 
             sqlx::query(
                 r"
