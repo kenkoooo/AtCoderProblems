@@ -2907,7 +2907,6 @@ dependencies = [
  "regex",
  "serde",
  "sqlx",
- "unzip-n",
  "uuid 0.8.1",
 ]
 
@@ -3619,17 +3618,6 @@ checksum = "df0c900f2f9b4116803415878ff48b63da9edb268668e08cf9292d7503114a01"
 dependencies = [
  "generic-array 0.12.3",
  "subtle 2.2.3",
-]
-
-[[package]]
-name = "unzip-n"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2e7e85a0596447f0f2ac090e16bc4c516c6fe91771fb0c0ccf7fa3dae896b9c"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]

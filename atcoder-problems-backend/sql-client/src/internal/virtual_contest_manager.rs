@@ -379,11 +379,16 @@ impl VirtualContestManager for PgPool {
         .await
         .context("The target contest does not exist.")?;
 
-        unzip_n::unzip_n!(4);
-        let (contest_ids, problem_ids, points, orders) = problems
-            .iter()
-            .map(|p| (contest_id, p.id.as_str(), p.point, p.order))
-            .unzip_n_vec();
+        let (contest_ids, problem_ids, points, orders) = problems.iter().fold(
+            (vec![], vec![], vec![], vec![]),
+            |(mut contest_ids, mut problem_ids, mut points, mut orders), cur| {
+                contest_ids.push(contest_id);
+                problem_ids.push(cur.id.as_str());
+                points.push(cur.point);
+                orders.push(cur.order);
+                (contest_ids, problem_ids, points, orders)
+            },
+        );
 
         let mut tx = self.begin().await?;
 
