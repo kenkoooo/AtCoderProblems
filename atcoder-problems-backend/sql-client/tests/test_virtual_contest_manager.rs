@@ -178,7 +178,7 @@ async fn test_virtual_contest_manager() {
     assert_eq!(
         participants,
         [atcoder_id],
-        "Could not get the patticipant AtCoder ID."
+        "Could not get the participant's AtCoder ID."
     );
 
     pool.leave_contest(&contest_id, user_id).await.unwrap();
