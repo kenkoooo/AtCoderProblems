@@ -1,22 +1,14 @@
 use sql_client::internal::virtual_contest_manager::{
     VirtualContestInfo, VirtualContestItem, VirtualContestManager, MAX_PROBLEM_NUM_PER_CONTEST,
 };
-use std::time::{SystemTime, UNIX_EPOCH};
 
 mod utils;
 
 const TIME_DELTA: i64 = 1000;
 
-fn current_timestamp() -> i64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64
-}
-
 #[async_std::test]
 async fn test_virtual_contest_manager() {
-    let now = current_timestamp();
+    let now_second = 1597988723;
     let pool = utils::initialize_and_connect_to_test_sql().await;
     let user_id = "user_id";
     let atcoder_id = "atcoder_id";
@@ -28,7 +20,7 @@ async fn test_virtual_contest_manager() {
         "`get_recent_contest_info` here should return an empty list, but got not empty."
     );
 
-    let running_problems = pool.get_running_contest_problems(now).await.unwrap();
+    let running_problems = pool.get_running_contest_problems(now_second).await.unwrap();
     assert!(
         running_problems.is_empty(),
         "`get_running_contest_problems` here should return an empty list, but got not empty."
@@ -54,7 +46,7 @@ async fn test_virtual_contest_manager() {
     let title = "title";
     let memo = "memo";
     let start_epoch_second = 0;
-    let duration_second = now.saturating_add(TIME_DELTA); // future
+    let duration_second = now_second.saturating_add(TIME_DELTA); // future
     let mode = None;
     let is_public = true;
     let penalty_second = 42;
@@ -145,10 +137,13 @@ async fn test_virtual_contest_manager() {
         "`update_items` failed to add items to the contest."
     );
 
-    let running_problems = pool.get_running_contest_problems(now).await.unwrap();
+    let running_problems = pool.get_running_contest_problems(now_second).await.unwrap();
     assert_eq!(
         running_problems,
-        ["0", "1"],
+        vec![
+            ("0".to_owned(), now_second + TIME_DELTA),
+            ("1".to_owned(), now_second + TIME_DELTA)
+        ],
         "Could not get the IDs of the running problems."
     );
 
@@ -178,7 +173,7 @@ async fn test_virtual_contest_manager() {
     assert_eq!(
         participants,
         [atcoder_id],
-        "Could not get the patticipant AtCoder ID."
+        "Could not get the participant's AtCoder ID."
     );
 
     pool.leave_contest(&contest_id, user_id).await.unwrap();
@@ -197,7 +192,7 @@ async fn test_virtual_contest_manager() {
         "There should be no participants now, but actually not."
     );
 
-    let updated_duration_second = now.saturating_sub(TIME_DELTA); // past
+    let updated_duration_second = now_second.saturating_sub(TIME_DELTA); // past
     pool.update_contest(
         &contest_id,
         title,
@@ -221,7 +216,7 @@ async fn test_virtual_contest_manager() {
         "There is a difference between the contest that we have just updated and the actual saved data."
     );
 
-    let running_problems = pool.get_running_contest_problems(now).await.unwrap();
+    let running_problems = pool.get_running_contest_problems(now_second).await.unwrap();
     assert!(
         running_problems.is_empty(),
         "`get_running_contest_problems` here should return an empty list, but got not empty."

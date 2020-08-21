@@ -3,6 +3,7 @@ use anyhow::Result;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
 use atcoder_problems_backend::sql::connect;
 use chrono::Utc;
+use sql_client::initialize_pool;
 use std::time::{Duration, Instant};
 use std::{env, thread};
 
@@ -11,7 +12,8 @@ const FIX_RANGE_SECOND: i64 = 10 * 60;
 async fn crawl(url: &str) -> Result<()> {
     log::info!("Start crawling...");
     let conn = connect(&url)?;
-    let crawler = VirtualContestCrawler::new(conn, AtCoderClient::default());
+    let pg_pool = initialize_pool(&url).await?;
+    let crawler = VirtualContestCrawler::new(conn, pg_pool, AtCoderClient::default());
     crawler.crawl().await?;
     log::info!("Finished crawling");
 

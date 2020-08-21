@@ -1,33 +1,53 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::internal::virtual_contest_manager::VirtualContestManager;
-use crate::sql::{ContestProblemClient, SubmissionClient};
+use crate::sql::SubmissionClient;
 use anyhow::Result;
 use chrono::Utc;
+use sql_client::contest_problem::ContestProblemClient;
+use sql_client::internal::virtual_contest_manager::VirtualContestManager;
 use std::collections::BTreeSet;
 use std::{thread, time};
 
 const CRAWLED_STREAK: usize = 3;
+const CONTEST_LENGTH_LIMIT_SECOND: i64 = 60 * 60 * 5;
 
-pub struct VirtualContestCrawler<C, F> {
+pub struct VirtualContestCrawler<C, P, F> {
     db: C,
+    db_pool: P,
     fetcher: F,
 }
 
-impl<C, F> VirtualContestCrawler<C, F>
+impl<C, P, F> VirtualContestCrawler<C, P, F>
 where
-    C: SubmissionClient + VirtualContestManager + ContestProblemClient,
+    C: SubmissionClient,
+    P: ContestProblemClient + VirtualContestManager,
     F: AtCoderFetcher,
 {
-    pub fn new(db: C, fetcher: F) -> Self {
-        Self { db, fetcher }
+    pub fn new(db: C, db_pool: P, fetcher: F) -> Self {
+        Self {
+            db,
+            db_pool,
+            fetcher,
+        }
     }
 
     pub async fn crawl(&self) -> Result<()> {
+        log::info!("Loading contests ...");
         let now = Utc::now().timestamp();
-        let pairs = self.db.load_contest_problem()?;
-        let mut problem_ids = self.db.get_running_contest_problems(now)?;
-        let past_problems = self.db.get_running_contest_problems(now - 120)?;
-        problem_ids.extend(past_problems);
+        let pairs = self.db_pool.load_contest_problem().await?;
+        let mut problems = self.db_pool.get_running_contest_problems(now).await?;
+        let past_problems = self.db_pool.get_running_contest_problems(now - 120).await?;
+        problems.extend(past_problems);
+
+        let mut problem_ids = problems
+            .into_iter()
+            .filter_map(|(problem_id, end_second)| {
+                if end_second < now + CONTEST_LENGTH_LIMIT_SECOND {
+                    Some(problem_id)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
         problem_ids.sort();
         problem_ids.dedup();
 
@@ -36,6 +56,7 @@ where
             .filter(|pair| problem_ids.binary_search(&pair.problem_id).is_ok())
             .map(|pair| pair.contest_id)
             .collect::<BTreeSet<_>>();
+        log::info!("Loaded {} contests", contest_set.len());
 
         for contest in contest_set.into_iter() {
             log::info!("Starting {} ...", contest);
