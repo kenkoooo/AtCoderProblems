@@ -8,6 +8,7 @@ use std::collections::BTreeSet;
 use std::{thread, time};
 
 const CRAWLED_STREAK: usize = 3;
+const CONTEST_LENGTH_LIMIT_SECOND: i64 = 60 * 60 * 5;
 
 pub struct VirtualContestCrawler<C, P, F> {
     db: C,
@@ -33,9 +34,20 @@ where
         log::info!("Loading contests ...");
         let now = Utc::now().timestamp();
         let pairs = self.db_pool.load_contest_problem().await?;
-        let mut problem_ids = self.db_pool.get_running_contest_problems(now).await?;
+        let mut problems = self.db_pool.get_running_contest_problems(now).await?;
         let past_problems = self.db_pool.get_running_contest_problems(now - 120).await?;
-        problem_ids.extend(past_problems);
+        problems.extend(past_problems);
+
+        let mut problem_ids = problems
+            .into_iter()
+            .filter_map(|(problem_id, end_second)| {
+                if end_second < now + CONTEST_LENGTH_LIMIT_SECOND {
+                    Some(problem_id)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
         problem_ids.sort();
         problem_ids.dedup();
 
