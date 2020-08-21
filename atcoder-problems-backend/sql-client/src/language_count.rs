@@ -99,11 +99,9 @@ impl LanguageCountClient for PgPool {
 }
 
 fn simplify_language(lang: &str) -> String {
-    let re = Regex::new(r"\d* \(.*\)").unwrap();
+    let re = Regex::new(r"\d*\s*\(.*\)").unwrap();
     if lang.starts_with("Perl6") {
         "Perl6".to_string()
-    } else if lang.starts_with("Fortran") {
-        "Fortran".to_string()
     } else {
         re.replace(lang, "").to_string()
     }
