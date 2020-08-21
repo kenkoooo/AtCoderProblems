@@ -39,3 +39,13 @@ export const getResultsByUserMap = (
   });
   return resultsByUser;
 };
+
+export function compareProblem<T extends { id: string; order: number | null }>(
+  a: T,
+  b: T
+): number {
+  if (a.order !== null && b.order !== null) {
+    return a.order - b.order;
+  }
+  return a.id.localeCompare(b.id);
+}
