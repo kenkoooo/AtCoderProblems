@@ -90,7 +90,7 @@ pub trait VirtualContestManager {
         contest_id: &str,
     ) -> Result<Vec<VirtualContestItem>>;
     async fn get_recent_contest_info(&self) -> Result<Vec<VirtualContestInfo>>;
-    async fn get_running_contest_problems(&self, time: i64) -> Result<Vec<String>>;
+    async fn get_running_contest_problems(&self, time: i64) -> Result<Vec<(String, i64)>>;
 
     async fn update_items(
         &self,
@@ -334,10 +334,10 @@ impl VirtualContestManager for PgPool {
         Ok(contests)
     }
 
-    async fn get_running_contest_problems(&self, time: i64) -> Result<Vec<String>> {
+    async fn get_running_contest_problems(&self, time: i64) -> Result<Vec<(String, i64)>> {
         let problems = sqlx::query(
             r"
-            SELECT a.problem_id
+            SELECT a.problem_id, (b.start_epoch_second + b.duration_second) AS end_second
             FROM internal_virtual_contest_items AS a
             LEFT JOIN internal_virtual_contests AS b
             ON a.internal_virtual_contest_id = b.id
@@ -346,7 +346,11 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(time)
-        .try_map(|row: PgRow| row.try_get::<String, _>("problem_id"))
+        .try_map(|row: PgRow| {
+            let problem_id: String = row.try_get("problem_id")?;
+            let end_second: i64 = row.try_get("end_second")?;
+            Ok((problem_id, end_second))
+        })
         .fetch_all(self)
         .await?;
 
