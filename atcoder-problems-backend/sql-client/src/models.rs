@@ -15,6 +15,17 @@ pub struct Submission {
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize)]
+pub struct UserLanguageCount {
+    pub user_id: String,
+
+    #[serde(rename = "language")]
+    pub simplified_language: String,
+
+    #[serde(rename = "count")]
+    pub problem_count: i32,
+}
+
+#[derive(Debug, Eq, PartialEq, Serialize)]
 pub struct UserProblemCount {
     pub user_id: String,
     pub problem_count: i32,
