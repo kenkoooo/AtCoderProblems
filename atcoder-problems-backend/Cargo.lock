@@ -2904,6 +2904,7 @@ dependencies = [
  "anyhow",
  "async-std",
  "async-trait",
+ "regex",
  "serde",
  "sqlx",
  "uuid 0.8.1",
