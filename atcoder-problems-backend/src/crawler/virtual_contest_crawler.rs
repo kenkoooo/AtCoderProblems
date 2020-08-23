@@ -2,6 +2,8 @@ use crate::crawler::AtCoderFetcher;
 use crate::sql::SubmissionClient;
 use anyhow::Result;
 use chrono::Utc;
+use rand::distributions::Uniform;
+use rand::Rng;
 use sql_client::contest_problem::ContestProblemClient;
 use sql_client::internal::virtual_contest_manager::VirtualContestManager;
 use std::collections::BTreeSet;
@@ -10,27 +12,30 @@ use std::{thread, time};
 const CRAWLED_STREAK: usize = 3;
 const CONTEST_LENGTH_LIMIT_SECOND: i64 = 60 * 60 * 5;
 
-pub struct VirtualContestCrawler<C, P, F> {
+pub struct VirtualContestCrawler<'a, C, P, F, R> {
     db: C,
     db_pool: P,
     fetcher: F,
+    rng: &'a mut R,
 }
 
-impl<C, P, F> VirtualContestCrawler<C, P, F>
+impl<'a, C, P, F, R> VirtualContestCrawler<'a, C, P, F, R>
 where
     C: SubmissionClient,
     P: ContestProblemClient + VirtualContestManager,
     F: AtCoderFetcher,
+    R: Rng,
 {
-    pub fn new(db: C, db_pool: P, fetcher: F) -> Self {
+    pub fn new(db: C, db_pool: P, fetcher: F, rng: &'a mut R) -> Self {
         Self {
             db,
             db_pool,
             fetcher,
+            rng,
         }
     }
 
-    pub async fn crawl(&self) -> Result<()> {
+    pub async fn crawl(&mut self) -> Result<()> {
         log::info!("Loading contests ...");
         let now = Utc::now().timestamp();
         let pairs = self.db_pool.load_contest_problem().await?;
@@ -41,7 +46,8 @@ where
         let mut problem_ids = problems
             .into_iter()
             .filter_map(|(problem_id, end_second)| {
-                if end_second < now + CONTEST_LENGTH_LIMIT_SECOND {
+                let remaining_second = end_second - now;
+                if select(self.rng, remaining_second) {
                     Some(problem_id)
                 } else {
                     None
@@ -88,4 +94,9 @@ where
 
         Ok(())
     }
+}
+
+fn select<R: Rng>(rng: &mut R, remaining_second: i64) -> bool {
+    remaining_second <= 0
+        || rng.sample(Uniform::from(0..remaining_second)) < CONTEST_LENGTH_LIMIT_SECOND
 }
