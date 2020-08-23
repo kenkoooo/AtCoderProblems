@@ -5,6 +5,7 @@ import { getRatingColor, getRatingColorClass } from "../utils";
 import { RatingInfo } from "../utils/RatingInfo";
 import * as CachedApiClient from "../utils/CachedApiClient";
 import { TopcoderLikeCircle } from "./TopcoderLikeCircle";
+import * as Url from "../utils/Url";
 
 interface OuterProps {
   userId: string;
@@ -48,7 +49,14 @@ const InnerColoredUserNameLabel: React.FC<InnerProps> = (props) => {
         {`Rating: ${userRating}`}
       </Tooltip>
       &nbsp;
-      {userId}
+      <a
+        href={Url.formatUserUrl(userId)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={getRatingColorClass(userRating)}
+      >
+        {userId}
+      </a>
     </span>
   );
 };
@@ -64,7 +72,13 @@ export const UserNameLabel: React.FC<OuterProps> = (props) => {
   const label = props.showRating ? (
     <ColoredUserNameLabel {...props} />
   ) : (
-    <>{props.userId}</>
+    <a
+      href={Url.formatUserUrl(props.userId)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {props.userId}
+    </a>
   );
   return props.big ? <h1>{label}</h1> : label;
 };
