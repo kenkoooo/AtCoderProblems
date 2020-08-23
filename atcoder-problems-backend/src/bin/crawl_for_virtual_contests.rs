@@ -3,17 +3,18 @@ use anyhow::Result;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
 use atcoder_problems_backend::sql::connect;
 use chrono::Utc;
+use rand::{thread_rng, Rng};
 use sql_client::initialize_pool;
 use std::time::{Duration, Instant};
 use std::{env, thread};
 
 const FIX_RANGE_SECOND: i64 = 10 * 60;
 
-async fn crawl(url: &str) -> Result<()> {
+async fn crawl<R: Rng>(url: &str, rng: &mut R) -> Result<()> {
     log::info!("Start crawling...");
     let conn = connect(&url)?;
     let pg_pool = initialize_pool(&url).await?;
-    let crawler = VirtualContestCrawler::new(conn, pg_pool, AtCoderClient::default());
+    let mut crawler = VirtualContestCrawler::new(conn, pg_pool, AtCoderClient::default(), rng);
     crawler.crawl().await?;
     log::info!("Finished crawling");
 
@@ -33,11 +34,13 @@ async fn main() {
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
     log::info!("Started");
 
+    let mut rng = thread_rng();
+
     loop {
         log::info!("Start new loop...");
         let now = Instant::now();
 
-        if let Err(e) = crawl(&url).await {
+        if let Err(e) = crawl(&url, &mut rng).await {
             log::error!("{:?}", e);
         }
 
