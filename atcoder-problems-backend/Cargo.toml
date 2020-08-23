@@ -7,12 +7,13 @@ publish = false
 
 [dependencies]
 # Logging
-log = "0.4.6"
-simple_logger = "1.2"
+log = "0.4"
+simple_logger = "1.6"
 
 # Scraping
 algorithm-problem-client = "0.6"
 
+rand = "0.7.3"
 chrono = "0.4"
 regex = "1"
 rust-s3 = "=0.18.6"
@@ -36,7 +37,6 @@ async-std = { version = "1.6", features = ["attributes"] }
 anyhow = "1.0.32"
 
 [dev-dependencies]
-rand = "0.7.2"
 
 [workspace]
 members = ["sql-client"]
