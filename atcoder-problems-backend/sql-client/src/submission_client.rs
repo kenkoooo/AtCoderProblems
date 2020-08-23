@@ -137,7 +137,7 @@ impl SubmissionClient for PgPool {
                     r"
                     SELECT * FROM submissions
                     WHERE 
-                        result != ALL(('AC', 'WA', 'TLE', 'CE', 'RE', 'MLE', 'OLE', 'QLE', 'IE', 'NG'))
+                        result != ALL(ARRAY['AC', 'WA', 'TLE', 'CE', 'RE', 'MLE', 'OLE', 'QLE', 'IE', 'NG'])
                     AND 
                         epoch_second >= $1
                     ORDER BY id DESC
@@ -284,7 +284,7 @@ impl SubmissionClient for PgPool {
                 UNNEST($4::VARCHAR(255)[]),
                 UNNEST($5::VARCHAR(255)[]),
                 UNNEST($6::VARCHAR(255)[]),
-                UNNEST($7::DOUBLE[]),
+                UNNEST($7::FLOAT8[]),
                 UNNEST($8::INTEGER[]),
                 UNNEST($9::VARCHAR(255)[]),
                 UNNEST($10::INTEGER[])
