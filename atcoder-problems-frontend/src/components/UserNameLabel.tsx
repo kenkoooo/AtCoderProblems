@@ -6,6 +6,7 @@ import { RatingInfo } from "../utils/RatingInfo";
 import * as CachedApiClient from "../utils/CachedApiClient";
 import { TopcoderLikeCircle } from "./TopcoderLikeCircle";
 import * as Url from "../utils/Url";
+import { NewTabLink } from "./NewTabLink";
 
 interface OuterProps {
   userId: string;
@@ -49,14 +50,12 @@ const InnerColoredUserNameLabel: React.FC<InnerProps> = (props) => {
         {`Rating: ${userRating}`}
       </Tooltip>
       &nbsp;
-      <a
+      <NewTabLink
         href={Url.formatUserUrl(userId)}
-        target="_blank"
-        rel="noopener noreferrer"
         className={getRatingColorClass(userRating)}
       >
         {userId}
-      </a>
+      </NewTabLink>
     </span>
   );
 };
@@ -72,13 +71,11 @@ export const UserNameLabel: React.FC<OuterProps> = (props) => {
   const label = props.showRating ? (
     <ColoredUserNameLabel {...props} />
   ) : (
-    <a
+    <NewTabLink
       href={Url.formatUserUrl(props.userId)}
-      target="_blank"
-      rel="noopener noreferrer"
     >
       {props.userId}
-    </a>
+    </NewTabLink>
   );
   return props.big ? <h1>{label}</h1> : label;
 };
