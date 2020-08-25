@@ -60,7 +60,13 @@ export interface ProblemRowData {
   readonly status: ProblemStatus;
 }
 
-const statusFilters = ["All", "Only Trying", "Only AC"] as const;
+const statusFilters = [
+  "All",
+  "Only Trying",
+  "Only AC",
+  "AC during Contest",
+  "AC after Contest",
+] as const;
 type StatusFilter = typeof statusFilters[number];
 const convertToValidStatusFilterState = (
   value: string | null

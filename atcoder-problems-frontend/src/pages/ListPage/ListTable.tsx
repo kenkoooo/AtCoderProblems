@@ -24,7 +24,12 @@ import { INF_POINT, ProblemRowData } from "./index";
 interface Props {
   fromPoint: number;
   toPoint: number;
-  statusFilterState: "All" | "Only Trying" | "Only AC";
+  statusFilterState:
+    | "All"
+    | "Only Trying"
+    | "Only AC"
+    | "AC during Contest"
+    | "AC after Contest";
   ratedFilterState:
     | "All"
     | "Only Rated"
@@ -396,6 +401,21 @@ export const ListTable: React.FC<Props> = (props) => {
               return row.status.label === StatusLabel.Success;
             case "Only Trying":
               return row.status.label !== StatusLabel.Success;
+            case "AC during Contest":
+              return (
+                row.status.label === StatusLabel.Success &&
+                row.contest !== undefined &&
+                row.status.epoch <=
+                  row.contest.start_epoch_second + row.contest.duration_second
+              );
+            case "AC after Contest":
+              return (
+                row.status.label === StatusLabel.Success &&
+                (row.contest === undefined ||
+                  row.status.epoch >
+                    row.contest.start_epoch_second +
+                      row.contest.duration_second)
+              );
           }
         }) // eslint-disable-next-line
         .filter((row) => {
