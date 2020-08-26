@@ -21,15 +21,19 @@ import { ListPaginationPanel } from "../../components/ListPaginationPanel";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { INF_POINT, ProblemRowData } from "./index";
 
+export const statusFilters = [
+  "All",
+  "Only Trying",
+  "Only AC",
+  "AC during Contest",
+  "AC after Contest",
+] as const;
+export type StatusFilter = typeof statusFilters[number];
+
 interface Props {
   fromPoint: number;
   toPoint: number;
-  statusFilterState:
-    | "All"
-    | "Only Trying"
-    | "Only AC"
-    | "AC during Contest"
-    | "AC after Contest";
+  statusFilterState: StatusFilter;
   ratedFilterState:
     | "All"
     | "Only Rated"
@@ -394,28 +398,24 @@ export const ListTable: React.FC<Props> = (props) => {
           (row) => props.fromPoint <= row.point && row.point <= props.toPoint
         ) // eslint-disable-next-line
         .filter((row) => {
+          const { status, contest } = row;
+          const isSuccess = status.label === StatusLabel.Success;
+          const isSubmittedInContest =
+            status.label === StatusLabel.Success &&
+            contest !== undefined &&
+            status.epoch <=
+              contest.start_epoch_second + contest.duration_second;
           switch (props.statusFilterState) {
             case "All":
               return true;
             case "Only AC":
-              return row.status.label === StatusLabel.Success;
+              return isSuccess;
             case "Only Trying":
-              return row.status.label !== StatusLabel.Success;
+              return !isSuccess;
             case "AC during Contest":
-              return (
-                row.status.label === StatusLabel.Success &&
-                row.contest !== undefined &&
-                row.status.epoch <=
-                  row.contest.start_epoch_second + row.contest.duration_second
-              );
+              return isSuccess && isSubmittedInContest;
             case "AC after Contest":
-              return (
-                row.status.label === StatusLabel.Success &&
-                (row.contest === undefined ||
-                  row.status.epoch >
-                    row.contest.start_epoch_second +
-                      row.contest.duration_second)
-              );
+              return isSuccess && !isSubmittedInContest;
           }
         }) // eslint-disable-next-line
         .filter((row) => {
