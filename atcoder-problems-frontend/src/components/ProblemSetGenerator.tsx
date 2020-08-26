@@ -56,9 +56,11 @@ const ABC_PRESET: ProblemSetSelectionPreset = {
 const ARC_PRESET: ProblemSetSelectionPreset = {
   displayName: "Level 2",
   problemSelectionParams: [
-    { minDifficulty: 800, maxDifficulty: 1200 },
-    { minDifficulty: 1200, maxDifficulty: 1800 },
-    { minDifficulty: 2000, maxDifficulty: 2800 },
+    { minDifficulty: 0, maxDifficulty: 100 },
+    { minDifficulty: 50, maxDifficulty: 400 },
+    { minDifficulty: 400, maxDifficulty: 1600 },
+    { minDifficulty: 1600, maxDifficulty: 2200 },
+    { minDifficulty: 2200, maxDifficulty: 2800 },
     { minDifficulty: 2800, maxDifficulty: 4000 },
   ],
 };
