@@ -35,7 +35,7 @@ import {
   ProgressResetList,
   UserResponse,
 } from "../Internal/types";
-import { ListTable } from "./ListTable";
+import { ListTable, StatusFilter, statusFilters } from "./ListTable";
 import { DifficultyTable } from "./DifficultyTable";
 import { SmallTable } from "./SmallTable";
 
@@ -60,8 +60,6 @@ export interface ProblemRowData {
   readonly status: ProblemStatus;
 }
 
-const statusFilters = ["All", "Only Trying", "Only AC"] as const;
-type StatusFilter = typeof statusFilters[number];
 const convertToValidStatusFilterState = (
   value: string | null
 ): StatusFilter => {
