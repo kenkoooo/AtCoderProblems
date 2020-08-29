@@ -69,7 +69,6 @@ impl SubmissionClient for PgPool {
                 )
                 .bind(user_id)
                 .fetch_all(self)
-                .await
             }
             SubmissionRequest::FromTime { from_second, count } => {
                 sqlx::query_as(
@@ -83,7 +82,6 @@ impl SubmissionClient for PgPool {
                 .bind(from_second)
                 .bind(count)
                 .fetch_all(self)
-                .await
             }
             SubmissionRequest::RecentAccepted { count } => {
                 sqlx::query_as(
@@ -96,7 +94,6 @@ impl SubmissionClient for PgPool {
                 )
                 .bind(count)
                 .fetch_all(self)
-                .await
             }
             SubmissionRequest::RecentAll { count } => {
                 sqlx::query_as(
@@ -108,7 +105,6 @@ impl SubmissionClient for PgPool {
                 )
                 .bind(count)
                 .fetch_all(self)
-                .await
             }
             SubmissionRequest::UsersAccepted { user_ids } => {
                 sqlx::query_as(
@@ -120,7 +116,6 @@ impl SubmissionClient for PgPool {
                 )
                 .bind(user_ids)
                 .fetch_all(self)
-                .await
             }
             SubmissionRequest::AllAccepted => {
                 sqlx::query_as(
@@ -130,7 +125,6 @@ impl SubmissionClient for PgPool {
                     ",
                 )
                 .fetch_all(self)
-                .await
             }
             SubmissionRequest::InvalidResult { from_second } => {
                 sqlx::query_as(
@@ -145,7 +139,6 @@ impl SubmissionClient for PgPool {
                 )
                 .bind(from_second)
                 .fetch_all(self)
-                .await
             }
             SubmissionRequest::ByIds { ids } => {
                 sqlx::query_as(
@@ -156,7 +149,6 @@ impl SubmissionClient for PgPool {
                 )
                 .bind(ids)
                 .fetch_all(self)
-                .await
             }
             SubmissionRequest::UsersProblemsTime {
                 user_ids,
@@ -179,9 +171,8 @@ impl SubmissionClient for PgPool {
                 .bind(from_second)
                 .bind(to_second)
                 .fetch_all(self)
-                .await
             }
-        }?;
+        }.await?;
         Ok(submissions)
     }
 
