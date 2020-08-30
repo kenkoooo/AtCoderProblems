@@ -22,10 +22,11 @@ import { UserNameLabel } from "../../components/UserNameLabel";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
-import { Recommendations } from "./Recommendations";
+import { Recommendations } from "./Recommendation/Recommendations";
 import { LanguageCount } from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
 import { TrophyBlock } from "./TrophyBlock/TrophyBlock";
+import { Recommendation2 } from "./Recommendation/Recommendation2";
 
 const userPageTabs = [
   "Achievement",
@@ -34,6 +35,7 @@ const userPageTabs = [
   "Progress Charts",
   "Submissions",
   "Recommendation",
+  "Recommendation2",
   "Languages",
   "Trophy",
   "All",
@@ -245,6 +247,20 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             contests={contests}
             problemModels={problemModels}
             userRatingInfo={userRatingInfo}
+          />
+        </>
+      )}
+      {(userPageTab === "All" || userPageTab === "Recommendation2") && (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Recommendation2</h1>
+          </Row>
+          <Recommendation2
+            problems={mergedProblems.valueSeq().toList()}
+            contests={contests}
+            problemModels={problemModels}
+            userRatingInfo={userRatingInfo}
+            userSubmissions={userSubmissions}
           />
         </>
       )}

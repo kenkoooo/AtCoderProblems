@@ -10,82 +10,33 @@ import {
   Row,
   UncontrolledDropdown,
 } from "reactstrap";
-import { isAccepted } from "../../utils";
-import * as Url from "../../utils/Url";
-import Submission from "../../interfaces/Submission";
-import Problem from "../../interfaces/Problem";
-import Contest from "../../interfaces/Contest";
+import { isAccepted } from "../../../utils";
+import * as Url from "../../../utils/Url";
+import Submission from "../../../interfaces/Submission";
+import Problem from "../../../interfaces/Problem";
+import Contest from "../../../interfaces/Contest";
 import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel,
-} from "../../interfaces/ProblemModel";
-import { RatingInfo } from "../../utils/RatingInfo";
+} from "../../../interfaces/ProblemModel";
+import { RatingInfo } from "../../../utils/RatingInfo";
 import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
   predictSolveProbability,
   predictSolveTime,
-} from "../../utils/ProblemModelUtil";
-import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
-import { ProblemLink } from "../../components/ProblemLink";
-import { ContestLink } from "../../components/ContestLink";
-import { NewTabLink } from "../../components/NewTabLink";
-import { ProblemId } from "../../interfaces/Status";
-
-const ExcludeOptions = [
-  "Exclude",
-  "1 Week",
-  "2 Weeks",
-  "4 Weeks",
-  "6 Months",
-  "Don't exclude",
-] as const;
-type ExcludeOption = typeof ExcludeOptions[number];
-
-const formatExcludeOption = (excludeOption: ExcludeOption): string => {
-  switch (excludeOption) {
-    case "1 Week":
-      return "Exclude problems solved in last 7 days.";
-    case "2 Weeks":
-      return "Exclude problems solved in last 2 weeks.";
-    case "4 Weeks":
-      return "Exclude problems solved in last 4 weeks";
-    case "6 Months":
-      return "Exclude problems solved in last 6 months";
-    case "Exclude":
-      return "Exclude all the solved problems";
-    case "Don't exclude":
-      return "Don't exclude solved problems.";
-  }
-};
-
-const isIncluded = (
-  problemId: string,
-  excludeOption: ExcludeOption,
-  currentSecond: number,
-  lastSolvedTimeMap: Map<ProblemId, number>
-): boolean => {
-  const lastSolvedTime = lastSolvedTimeMap.get(problemId);
-  if (lastSolvedTime) {
-    const seconds = currentSecond - lastSolvedTime;
-    switch (excludeOption) {
-      case "Exclude":
-        return false;
-      case "1 Week":
-        return seconds > 3600 * 24 * 7;
-      case "2 Weeks":
-        return seconds > 3600 * 24 * 14;
-      case "4 Weeks":
-        return seconds > 3600 * 24 * 28;
-      case "6 Months":
-        return seconds > 3600 * 24 * 180;
-      case "Don't exclude":
-        return true;
-    }
-  } else {
-    return true;
-  }
-};
+} from "../../../utils/ProblemModelUtil";
+import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
+import { ProblemLink } from "../../../components/ProblemLink";
+import { ContestLink } from "../../../components/ContestLink";
+import { NewTabLink } from "../../../components/NewTabLink";
+import { ProblemId } from "../../../interfaces/Status";
+import {
+  ExcludeOption,
+  ExcludeOptions,
+  formatExcludeOption,
+  isIncluded,
+} from "./Option";
 
 const RECOMMEND_NUM_OPTIONS = [
   {
