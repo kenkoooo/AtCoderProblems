@@ -7,6 +7,7 @@ pub mod internal;
 pub mod language_count;
 pub mod models;
 pub mod simple_client;
+pub mod submission_client;
 
 pub type PgPool = sqlx::postgres::PgPool;
 
