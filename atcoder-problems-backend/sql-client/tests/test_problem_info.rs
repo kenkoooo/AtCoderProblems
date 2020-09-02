@@ -1,6 +1,7 @@
 use sql_client::models::{Contest, Submission};
 use sql_client::problem_info::ProblemInfoUpdater;
 use sql_client::simple_client::SimpleClient;
+use sql_client::submission_client::SubmissionClient;
 use sql_client::PgPool;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
