@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let conn = PgConnection::establish(&url)?;
 
     info!("Loading submissions ...");
-    let request = SubmissionRequest::RecentAccepted { count: 1000 };
+    let request = SubmissionRequest::RecentAccepted { count: 200 };
     let recent_submissions = conn.get_submissions(request)?;
 
     let user_ids = recent_submissions
