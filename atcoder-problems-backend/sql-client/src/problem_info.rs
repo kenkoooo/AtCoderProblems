@@ -1,4 +1,4 @@
-use crate::PgPool;
+use crate::{PgPool, FIRST_AGC_EPOCH_SECOND};
 use anyhow::Result;
 use async_trait::async_trait;
 
@@ -34,13 +34,14 @@ impl ProblemInfoUpdater for PgPool {
                     SELECT submissions.problem_id, MAX(submissions.point)
                     FROM submissions
                     INNER JOIN contests ON contests.id = submissions.contest_id
-                    WHERE contests.start_epoch_second >= 1468670400
+                    WHERE contests.start_epoch_second >= $1
                     AND contests.rate_change != '-'
                     GROUP BY submissions.problem_id
                 ON CONFLICT (problem_id) DO UPDATE
                 SET point = EXCLUDED.point;
             ",
         )
+        .bind(FIRST_AGC_EPOCH_SECOND)
         .execute(self)
         .await?;
         Ok(())
