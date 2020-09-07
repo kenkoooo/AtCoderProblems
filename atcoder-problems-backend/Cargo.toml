@@ -35,6 +35,7 @@ async-trait = "0.1.30"
 
 async-std = { version = "1.6", features = ["attributes"] }
 anyhow = "1.0.32"
+futures = "0.3.5"
 
 [dev-dependencies]
 
