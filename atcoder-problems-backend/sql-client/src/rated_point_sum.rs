@@ -63,18 +63,18 @@ impl RatedPointSumClient for PgPool {
             .into_iter()
             .map(|(user_id, set)| {
                 let sum = set.into_iter().map(|(_, point)| point).sum::<u32>();
-                (user_id, sum)
+                (user_id, sum as f64)
             })
             .collect::<Vec<_>>();
 
         for chunk in rated_point_sum.chunks(MAX_INSERT_ROWS) {
-            let (user_ids, point_sums): (Vec<&str>, Vec<u32>) = chunk.iter().copied().unzip();
+            let (user_ids, point_sums): (Vec<&str>, Vec<f64>) = chunk.iter().copied().unzip();
             sqlx::query(
                 r"
                 INSERT INTO rated_point_sum (user_id, point_sum)
-                VALUE (
+                VALUES (
                     UNNEST($1::VARCHAR(255)[]),
-                    UNNEST($2::FLOAT8[]))
+                    UNNEST($2::FLOAT8[])
                 )
                 ON CONFLICT (user_id)
                 DO UPDATE SET point_sum = EXCLUDED.point_sum
