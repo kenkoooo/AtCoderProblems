@@ -46,7 +46,7 @@ async fn finish_one_contest(url: &str, contest_id: &str) {
 }
 
 async fn crawl_one_contest(url: &str, contest_id: &str) -> Result<()> {
-    let db = connect(url)?;
+    let db = sql_client::initialize_pool(url).await?;
     let crawler = WholeContestCrawler::new(db, AtCoderClient::default(), contest_id);
     crawler.crawl().await?;
     Ok(())

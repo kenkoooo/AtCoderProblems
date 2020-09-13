@@ -15,7 +15,7 @@ async fn iteration(url: &str) -> Result<()> {
 
     for contest in &contests[0..NEW_CONTEST_NUM] {
         info!("Starting {}", contest.id);
-        let db = connect(url)?;
+        let db = sql_client::initialize_pool(url).await?;
         let crawler = WholeContestCrawler::new(db, AtCoderClient::default(), &contest.id);
         crawler.crawl().await?;
     }

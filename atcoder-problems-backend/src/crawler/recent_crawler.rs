@@ -1,27 +1,28 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::{SimpleClient, SubmissionClient};
 use anyhow::Result;
 
 use log::info;
+use sql_client::simple_client::SimpleClient;
+use sql_client::submission_client::SubmissionClient;
 use std::{thread, time};
 
 pub struct RecentCrawler<C, F> {
-    db: C,
+    pool: C,
     fetcher: F,
 }
 
 impl<C, F> RecentCrawler<C, F>
 where
-    C: SubmissionClient + SimpleClient,
+    C: SubmissionClient + SimpleClient + Send + Sync,
     F: AtCoderFetcher,
 {
-    pub fn new(db: C, fetcher: F) -> Self {
-        Self { db, fetcher }
+    pub fn new(pool: C, fetcher: F) -> Self {
+        Self { pool, fetcher }
     }
 
     pub async fn crawl(&self) -> Result<()> {
         info!("Started");
-        let contests = self.db.load_contests()?;
+        let contests = self.pool.load_contests().await?;
         for contest in contests.into_iter() {
             for page in 1.. {
                 info!("Crawling {}-{} ...", contest.id, page);
@@ -32,8 +33,8 @@ where
                 }
 
                 let min_id = submissions.iter().map(|s| s.id).min().unwrap();
-                let exists = self.db.count_stored_submissions(&[min_id])? != 0;
-                self.db.update_submissions(&submissions)?;
+                let exists = self.pool.count_stored_submissions(&[min_id]).await? != 0;
+                self.pool.update_submissions(&submissions).await?;
                 thread::sleep(time::Duration::from_millis(200));
 
                 if exists {

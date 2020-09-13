@@ -1,8 +1,8 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::SubmissionClient;
 use anyhow::Result;
 
 use log::info;
+use sql_client::submission_client::SubmissionClient;
 use std::{thread, time};
 
 pub struct WholeContestCrawler<C, F> {
@@ -33,7 +33,7 @@ where
                 break;
             }
 
-            self.db.update_submissions(&submissions)?;
+            self.db.update_submissions(&submissions).await?;
             thread::sleep(time::Duration::from_millis(200));
         }
 

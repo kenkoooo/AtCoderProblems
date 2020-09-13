@@ -1,11 +1,11 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::{SubmissionClient, SubmissionRequest};
 use anyhow::Result;
 use log::info;
+use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 use std::collections::BTreeMap;
 
 pub struct FixCrawler<C, F> {
-    db: C,
+    pool: C,
     fetcher: F,
     current_time_second: i64,
 }
@@ -15,9 +15,9 @@ where
     C: SubmissionClient,
     F: AtCoderFetcher,
 {
-    pub fn new(db: C, fetcher: F, current_time_second: i64) -> Self {
+    pub fn new(pool: C, fetcher: F, current_time_second: i64) -> Self {
         Self {
-            db,
+            pool,
             fetcher,
             current_time_second,
         }
@@ -27,9 +27,12 @@ where
             "Pulling invalid submissions after {} ...",
             self.current_time_second
         );
-        let submissions = self.db.get_submissions(SubmissionRequest::InvalidResult {
-            from_second: self.current_time_second,
-        })?;
+        let submissions = self
+            .pool
+            .get_submissions(SubmissionRequest::InvalidResult {
+                from_second: self.current_time_second,
+            })
+            .await?;
 
         info!("There are {} invalid submissions.", submissions.len());
         let contests = submissions.into_iter().map(|s| (s.contest_id, s.id)).fold(
@@ -47,7 +50,7 @@ where
             for page in 1.. {
                 info!("Fetching from {}-{}", contest_id, page);
                 let submissions = self.fetcher.fetch_submissions(&contest_id, page).await;
-                self.db.update_submissions(&submissions)?;
+                self.pool.update_submissions(&submissions).await?;
                 let all_old = submissions.iter().all(|s| s.id <= minimum_id);
                 if all_old {
                     break;

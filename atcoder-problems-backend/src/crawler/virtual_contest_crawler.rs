@@ -1,34 +1,31 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::SubmissionClient;
 use anyhow::Result;
 use chrono::Utc;
 use rand::distributions::Uniform;
 use rand::Rng;
 use sql_client::contest_problem::ContestProblemClient;
 use sql_client::internal::virtual_contest_manager::VirtualContestManager;
+use sql_client::submission_client::SubmissionClient;
 use std::collections::BTreeSet;
 use std::{thread, time};
 
 const CRAWLED_STREAK: usize = 3;
 const CONTEST_LENGTH_LIMIT_SECOND: i64 = 60 * 60 * 5;
 
-pub struct VirtualContestCrawler<'a, C, P, F, R> {
-    db: C,
+pub struct VirtualContestCrawler<'a, P, F, R> {
     db_pool: P,
     fetcher: F,
     rng: &'a mut R,
 }
 
-impl<'a, C, P, F, R> VirtualContestCrawler<'a, C, P, F, R>
+impl<'a, P, F, R> VirtualContestCrawler<'a, P, F, R>
 where
-    C: SubmissionClient,
-    P: ContestProblemClient + VirtualContestManager,
+    P: ContestProblemClient + VirtualContestManager + SubmissionClient + Send + Sync,
     F: AtCoderFetcher,
     R: Rng,
 {
-    pub fn new(db: C, db_pool: P, fetcher: F, rng: &'a mut R) -> Self {
+    pub fn new(db_pool: P, fetcher: F, rng: &'a mut R) -> Self {
         Self {
-            db,
             db_pool,
             fetcher,
             rng,
@@ -74,7 +71,8 @@ where
                     break;
                 }
                 let fetched_ids = submissions.iter().map(|s| s.id).collect::<Vec<_>>();
-                let stored_submissions = self.db.count_stored_submissions(&fetched_ids)?;
+                let stored_submissions =
+                    self.db_pool.count_stored_submissions(&fetched_ids).await?;
 
                 if fetched_ids.len() == stored_submissions {
                     streak += 1;
@@ -82,7 +80,7 @@ where
                     streak = 0;
                 }
 
-                self.db.update_submissions(&submissions)?;
+                self.db_pool.update_submissions(&submissions).await?;
 
                 if streak >= CRAWLED_STREAK {
                     break;
