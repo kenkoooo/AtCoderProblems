@@ -44,6 +44,10 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/from/{unix_time_second}
 #### Example
 - https://kenkoooo.com/atcoder/atcoder-api/v3/from/1505342145
 
+
+## Deprecated
+- `/v2/user_info`
+
 ## Datasets
 ### Submissions
 This will be updated once a week.
@@ -51,3 +55,4 @@ This will be updated once a week.
 
 ### Estimated Difficulties of the Problems
 - https://kenkoooo.com/atcoder/resources/problem-models.json
+
