@@ -47,6 +47,7 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/from/{unix_time_second}
 
 ## Deprecated
 - `/v2/user_info`
+- `/atcoder/atcoder-api/info/*`
 
 ## Datasets
 ### Submissions
