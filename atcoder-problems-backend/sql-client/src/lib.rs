@@ -11,6 +11,7 @@ pub mod problems_submissions;
 pub mod rated_point_sum;
 pub mod simple_client;
 pub mod submission_client;
+pub mod streak;
 
 pub type PgPool = sqlx::postgres::PgPool;
 

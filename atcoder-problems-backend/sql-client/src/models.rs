@@ -95,3 +95,9 @@ pub struct ContestProblem {
     pub contest_id: String,
     pub problem_id: String,
 }
+
+#[derive(PartialEq, Debug, Serialize)]
+pub struct UserStreak {
+    pub user_id: String,
+    pub streak: i64,
+}
