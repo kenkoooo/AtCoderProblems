@@ -1,22 +1,23 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::models::{Contest, ContestProblem, Problem};
-use crate::sql::{ContestProblemClient, SimpleClient};
 use anyhow::Result;
+use sql_client::contest_problem::ContestProblemClient;
+use sql_client::models::{Contest, ContestProblem, Problem};
+use sql_client::simple_client::SimpleClient;
 use std::collections::BTreeSet;
 use std::{thread, time};
 
-pub struct ProblemCrawler<C, F> {
-    db: C,
+pub struct ProblemCrawler<P, F> {
+    pg_pool: P,
     fetcher: F,
 }
 
-impl<C, F> ProblemCrawler<C, F>
+impl<P, F> ProblemCrawler<P, F>
 where
     F: AtCoderFetcher,
-    C: SimpleClient + ContestProblemClient,
+    P: SimpleClient + ContestProblemClient,
 {
-    pub fn new(db: C, fetcher: F) -> Self {
-        Self { db, fetcher }
+    pub fn new(pg_pool: P, fetcher: F) -> Self {
+        Self { pg_pool, fetcher }
     }
     pub async fn crawl(&self) -> Result<()> {
         log::info!("Starting...");
@@ -38,11 +39,11 @@ where
         }
 
         log::info!("There are {} contests.", contests.len());
-        self.db.insert_contests(&contests)?;
+        self.pg_pool.insert_contests(&contests).await?;
 
-        let contests = self.db.load_contests()?;
-        let problems = self.db.load_problems()?;
-        let contest_problem = self.db.load_contest_problem()?;
+        let contests = self.pg_pool.load_contests().await?;
+        let problems = self.pg_pool.load_problems().await?;
+        let contest_problem = self.pg_pool.load_contest_problem().await?;
 
         let no_problem_contests =
             extract_no_problem_contests(&contests, &problems, &contest_problem);
@@ -51,8 +52,10 @@ where
             log::info!("Crawling problems of {}...", contest.id);
             match self.fetcher.fetch_problems(&contest.id).await {
                 Ok((problems, contest_problem)) => {
-                    self.db.insert_problems(&problems)?;
-                    self.db.insert_contest_problem(&contest_problem)?;
+                    self.pg_pool.insert_problems(&problems).await?;
+                    self.pg_pool
+                        .insert_contest_problem(&contest_problem)
+                        .await?;
                 }
                 Err(e) => {
                     log::error!("{:?}", e);

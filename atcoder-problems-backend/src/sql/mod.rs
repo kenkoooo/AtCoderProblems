@@ -2,7 +2,6 @@ pub mod models;
 pub mod schema;
 
 mod accepted_count;
-mod contest_problem;
 mod language_count;
 mod problem_info;
 mod problems_submissions;
@@ -18,7 +17,6 @@ const UNRATED_STATE: &str = "-";
 const MAX_INSERT_ROWS: usize = 10_000;
 
 pub use accepted_count::AcceptedCountClient;
-pub use contest_problem::ContestProblemClient;
 pub use language_count::LanguageCountClient;
 pub use problem_info::ProblemInfoUpdater;
 pub use problems_submissions::ProblemsSubmissionUpdater;
