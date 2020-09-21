@@ -363,7 +363,7 @@ def get_current_models():
 def infer_contest_type(contest) -> ContestType:
     if contest["rate_change"] == "All" or contest["rate_change"] == "1200 ~ ":
         return ContestType.AGC
-    elif contest["rate_change"] == " ~ 2799":
+    elif contest["rate_change"] == " ~ 2799" or contest["rate_change"] == "1200 ~ 2799":
         return ContestType.NEW_ARC
     elif contest["rate_change"] == " ~ 1999":
         return ContestType.NEW_ABC
