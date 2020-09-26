@@ -1,8 +1,8 @@
-const proxy = require("http-proxy-middleware"); // eslint-disable-line @typescript-eslint/no-var-requires
+const { createProxyMiddleware } = require("http-proxy-middleware"); // eslint-disable-line @typescript-eslint/no-var-requires
 
 module.exports = function (app) {
   app.use(
-    proxy("/atcoder-api", {
+    createProxyMiddleware("/atcoder-api", {
       target: "https://kenkoooo.com",
       changeOrigin: true,
       pathRewrite: {
@@ -11,7 +11,7 @@ module.exports = function (app) {
     })
   );
   app.use(
-    proxy("/internal-api", {
+    createProxyMiddleware("/internal-api", {
       target: "https://kenkoooo.com",
       changeOrigin: true,
       pathRewrite: {
