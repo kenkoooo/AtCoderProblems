@@ -148,9 +148,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
         }
       />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
-      {["ABC", "ARC", "AGC", "ABC-Like", "ARC-Like", "AGC-Like"].includes(
-        activeTab
-      ) ? (
+      {["ABC", "ARC", "AGC", "ABC-Like", "ARC-Like"].includes(activeTab) ? (
         <AtCoderRegularTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
@@ -166,9 +164,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
               ? "AtCoder Grand Contest"
               : activeTab === "ABC-Like"
               ? "ABC-Like Contest"
-              : activeTab === "ARC-Like"
-              ? "ARC-Like Contest"
-              : "AGC-Like Contest"
+              : "ARC-Like Contest"
           }
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
