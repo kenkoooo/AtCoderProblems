@@ -19,6 +19,7 @@ import ProblemModel, {
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ListPaginationPanel } from "../../components/ListPaginationPanel";
 import { RatingInfo } from "../../utils/RatingInfo";
+import { useLocalStorage } from "../../utils/LocalStorage";
 import { INF_POINT, ProblemRowData } from "./index";
 
 export const statusFilters = [
@@ -87,6 +88,11 @@ export const ListTable: React.FC<Props> = (props) => {
     }
     return predictSolveProbability(problemModel, userInternalRating);
   };
+
+  const [activeSortKey, setActiveSortKey] = useLocalStorage("listSortKey", {
+    key: "contestDate",
+    order: "desc",
+  });
 
   const columns: {
     header: string;
@@ -474,6 +480,17 @@ export const ListTable: React.FC<Props> = (props) => {
           paginationPanelProps: any
         ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;
+        },
+        defaultSortName: activeSortKey.key,
+        defaultSortOrder:
+          activeSortKey.order === "desc"
+            ? "desc"
+            : activeSortKey.order === "asc"
+            ? "asc"
+            : undefined,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSortChange: function (sortName: any, sortOrder: string): void {
+          setActiveSortKey({ key: sortName, order: sortOrder });
         },
       }}
     >
