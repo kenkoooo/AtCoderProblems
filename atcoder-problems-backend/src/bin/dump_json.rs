@@ -1,20 +1,23 @@
 use atcoder_problems_backend::s3;
 use atcoder_problems_backend::sql::models::*;
 use atcoder_problems_backend::sql::schema::*;
-use atcoder_problems_backend::sql::LanguageCountClient;
 use diesel::prelude::*;
 use diesel::{sql_query, Connection, PgConnection};
 use log::{self, info};
 use serde::Serialize;
+use sql_client::initialize_pool;
+use sql_client::language_count::LanguageCountClient;
 use std::env;
 use std::error::Error;
 
-fn main() -> Result<(), Box<dyn Error>> {
+#[async_std::main]
+async fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Info)?;
 
     info!("Started!");
     let url = env::var("SQL_URL")?;
     let conn: PgConnection = PgConnection::establish(&url)?;
+    let pg_pool = initialize_pool(&url).await?;
 
     let merged_query = sql_query(
         r"
@@ -89,7 +92,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             "/resources/sums.json",
         ),
         (
-            conn.load_language_count()?.serialize_to_bytes()?,
+            pg_pool.load_language_count().await?.serialize_to_bytes()?,
             "/resources/lang.json",
         ),
         (
