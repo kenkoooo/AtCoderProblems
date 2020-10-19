@@ -1,5 +1,5 @@
 use anyhow::Result;
-use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
+use atcoder_problems_backend::server::{run_server, Authentication};
 
 use async_std::prelude::*;
 use async_std::task;
@@ -46,9 +46,8 @@ async fn setup() -> u16 {
 async fn test_virtual_contest() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
-        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -310,9 +309,8 @@ async fn test_virtual_contest() {
 async fn test_virtual_contest_visibility() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
-        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
     surf::get(url(
