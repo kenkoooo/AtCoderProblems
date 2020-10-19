@@ -47,16 +47,18 @@ impl Authentication for GitHubAuthentication {
             client_secret: self.client_secret.to_owned(),
             code: code.to_owned(),
         };
-        let request = surf::post("https://github.com/login/oauth/access_token")
-            .set_header("Accept", "application/json")
-            .body_json(&request)?;
-        let response: TokenResponse = request.recv_json().await.map_anyhow()?;
+        let response: TokenResponse = surf::post("https://github.com/login/oauth/access_token")
+            .header("Accept", "application/json")
+            .body(surf::Body::from_json(&request).map_anyhow()?)
+            .recv_json()
+            .await
+            .map_anyhow()?;
         Ok(response.access_token)
     }
     async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
         let token_header = format!("token {}", access_token);
         let response: GitHubUserResponse = surf::get("https://api.github.com/user")
-            .set_header("Authorization", token_header)
+            .header("Authorization", token_header)
             .recv_json()
             .await
             .map_anyhow()?;
