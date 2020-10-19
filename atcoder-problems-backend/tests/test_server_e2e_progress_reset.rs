@@ -50,7 +50,7 @@ async fn test_progress_reset() {
     assert_eq!(response.status(), 302);
 
     let response = surf::get(url("/internal-api/progress_reset/list", port))
-        .set_header("Cookie", "token=a")
+        .header("Cookie", "token=a")
         .recv_json::<Value>()
         .await
         .unwrap();
@@ -62,14 +62,13 @@ async fn test_progress_reset() {
     );
 
     let response = surf::post(url("/internal-api/progress_reset/add", port))
-        .set_header("Cookie", "token=a")
-        .body_json(&json!({"problem_id":"problem_1","reset_epoch_second":100}))
-        .unwrap()
+        .header("Cookie", "token=a")
+        .body(json!({"problem_id":"problem_1","reset_epoch_second":100}))
         .await
         .unwrap();
     assert!(response.status().is_success());
     let response = surf::get(url("/internal-api/progress_reset/list", port))
-        .set_header("Cookie", "token=a")
+        .header("Cookie", "token=a")
         .recv_json::<Value>()
         .await
         .unwrap();
@@ -84,14 +83,13 @@ async fn test_progress_reset() {
     );
 
     let response = surf::post(url("/internal-api/progress_reset/add", port))
-        .set_header("Cookie", "token=a")
-        .body_json(&json!({"problem_id":"problem_1","reset_epoch_second":200}))
-        .unwrap()
+        .header("Cookie", "token=a")
+        .body(json!({"problem_id":"problem_1","reset_epoch_second":200}))
         .await
         .unwrap();
     assert!(response.status().is_success());
     let response = surf::get(url("/internal-api/progress_reset/list", port))
-        .set_header("Cookie", "token=a")
+        .header("Cookie", "token=a")
         .recv_json::<Value>()
         .await
         .unwrap();
@@ -106,21 +104,19 @@ async fn test_progress_reset() {
     );
 
     let response = surf::post(url("/internal-api/progress_reset/add", port))
-        .set_header("Cookie", "token=a")
-        .body_json(&json!({"problem_id":"problem_2","reset_epoch_second":200}))
-        .unwrap()
+        .header("Cookie", "token=a")
+        .body(json!({"problem_id":"problem_2","reset_epoch_second":200}))
         .await
         .unwrap();
     assert!(response.status().is_success());
     let response = surf::post(url("/internal-api/progress_reset/delete", port))
-        .set_header("Cookie", "token=a")
-        .body_json(&json!({"problem_id":"problem_1"}))
-        .unwrap()
+        .header("Cookie", "token=a")
+        .body(json!({"problem_id":"problem_1"}))
         .await
         .unwrap();
     assert!(response.status().is_success());
     let response = surf::get(url("/internal-api/progress_reset/list", port))
-        .set_header("Cookie", "token=a")
+        .header("Cookie", "token=a")
         .recv_json::<Value>()
         .await
         .unwrap();
