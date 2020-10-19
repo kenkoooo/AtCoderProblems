@@ -1,8 +1,10 @@
 use super::schema::*;
-use super::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 use diesel::sql_types::*;
 use diesel::Queryable;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+
+const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
+const UNRATED_STATE: &str = "-";
 
 #[derive(Default, Debug, Eq, PartialEq, Queryable, Insertable, Serialize)]
 pub struct Contest {
@@ -24,31 +26,6 @@ pub struct Problem {
     pub id: String,
     pub contest_id: String,
     pub title: String,
-}
-
-#[derive(Debug, Queryable, Insertable, Clone, Serialize, Default, Deserialize)]
-pub struct Submission {
-    pub id: i64,
-    pub epoch_second: i64,
-    pub problem_id: String,
-    pub contest_id: String,
-    pub user_id: String,
-    pub language: String,
-    pub point: f64,
-    pub length: i32,
-    pub result: String,
-    pub execution_time: Option<i32>,
-}
-
-#[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
-pub struct UserLanguageCount {
-    pub user_id: String,
-
-    #[serde(rename = "language")]
-    pub simplified_language: String,
-
-    #[serde(rename = "count")]
-    pub problem_count: i32,
 }
 
 #[derive(Debug, Eq, PartialEq, Queryable, Serialize)]
