@@ -1,7 +1,6 @@
 use algorithm_problem_client::AtCoderClient;
 use anyhow::Result;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
-use atcoder_problems_backend::sql::connect;
 use chrono::Utc;
 use rand::{thread_rng, Rng};
 use sql_client::initialize_pool;
@@ -12,14 +11,13 @@ const FIX_RANGE_SECOND: i64 = 10 * 60;
 
 async fn crawl<R: Rng>(url: &str, rng: &mut R) -> Result<()> {
     log::info!("Start crawling...");
-    let conn = connect(&url)?;
     let pg_pool = initialize_pool(&url).await?;
-    let mut crawler = VirtualContestCrawler::new(conn, pg_pool, AtCoderClient::default(), rng);
+    let mut crawler = VirtualContestCrawler::new(pg_pool, AtCoderClient::default(), rng);
     crawler.crawl().await?;
     log::info!("Finished crawling");
 
     log::info!("Starting fixing...");
-    let conn = connect(&url)?;
+    let conn = initialize_pool(&url).await?;
     let cur = Utc::now().timestamp();
     let crawler = FixCrawler::new(conn, AtCoderClient::default(), cur - FIX_RANGE_SECOND);
     crawler.crawl().await?;

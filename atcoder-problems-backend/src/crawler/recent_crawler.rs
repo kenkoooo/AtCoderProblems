@@ -1,8 +1,9 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::{SimpleClient, SubmissionClient};
 use anyhow::Result;
 
 use log::info;
+use sql_client::simple_client::SimpleClient;
+use sql_client::submission_client::SubmissionClient;
 use std::{thread, time};
 
 pub struct RecentCrawler<C, F> {
@@ -12,7 +13,7 @@ pub struct RecentCrawler<C, F> {
 
 impl<C, F> RecentCrawler<C, F>
 where
-    C: SubmissionClient + SimpleClient,
+    C: SubmissionClient + SimpleClient + Sync,
     F: AtCoderFetcher,
 {
     pub fn new(db: C, fetcher: F) -> Self {
@@ -21,7 +22,7 @@ where
 
     pub async fn crawl(&self) -> Result<()> {
         info!("Started");
-        let contests = self.db.load_contests()?;
+        let contests = self.db.load_contests().await?;
         for contest in contests.into_iter() {
             for page in 1.. {
                 info!("Crawling {}-{} ...", contest.id, page);
@@ -32,8 +33,8 @@ where
                 }
 
                 let min_id = submissions.iter().map(|s| s.id).min().unwrap();
-                let exists = self.db.count_stored_submissions(&[min_id])? != 0;
-                self.db.update_submissions(&submissions)?;
+                let exists = self.db.count_stored_submissions(&[min_id]).await? != 0;
+                self.db.update_submissions(&submissions).await?;
                 thread::sleep(time::Duration::from_millis(200));
 
                 if exists {
@@ -52,9 +53,10 @@ where
 mod tests {
     use super::*;
     use crate::crawler::utils::MockFetcher;
-    use crate::sql::models::{Contest, Problem, Submission};
-    use crate::sql::SubmissionRequest;
     use async_std::task::block_on;
+    use async_trait::async_trait;
+    use sql_client::models::{Contest, Problem, Submission};
+    use sql_client::submission_client::SubmissionRequest;
 
     #[test]
     fn test_recent_crawler() {
@@ -74,8 +76,12 @@ mod tests {
         });
 
         struct MockDB;
+        #[async_trait]
         impl SubmissionClient for MockDB {
-            fn get_submissions(&self, request: SubmissionRequest) -> Result<Vec<Submission>> {
+            async fn get_submissions<'a>(
+                &self,
+                request: SubmissionRequest<'a>,
+            ) -> Result<Vec<Submission>> {
                 match request {
                     SubmissionRequest::ByIds { ids } => {
                         assert_eq!(ids, &[0]);
@@ -86,36 +92,37 @@ mod tests {
                     _ => unimplemented!(),
                 }
             }
-            fn get_user_submission_count(&self, _: &str) -> Result<i64> {
+            async fn get_user_submission_count(&self, _: &str) -> Result<i64> {
                 unimplemented!()
             }
 
-            fn update_submissions(&self, submissions: &[Submission]) -> Result<usize> {
+            async fn update_submissions(&self, submissions: &[Submission]) -> Result<usize> {
                 assert_eq!(submissions.len(), 2);
                 Ok(2)
             }
-            fn update_submission_count(&self) -> Result<()> {
+            async fn update_submission_count(&self) -> Result<()> {
                 unimplemented!()
             }
-            fn update_user_submission_count(&self, _: &str) -> Result<()> {
+            async fn update_user_submission_count(&self, _: &str) -> Result<()> {
                 unimplemented!()
             }
 
-            fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
+            async fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
                 unimplemented!()
             }
         }
+        #[async_trait]
         impl SimpleClient for MockDB {
-            fn insert_contests(&self, _: &[Contest]) -> Result<usize> {
+            async fn insert_contests(&self, _: &[Contest]) -> Result<usize> {
                 unimplemented!()
             }
-            fn insert_problems(&self, _: &[Problem]) -> Result<usize> {
+            async fn insert_problems(&self, _: &[Problem]) -> Result<usize> {
                 unimplemented!()
             }
-            fn load_problems(&self) -> Result<Vec<Problem>> {
+            async fn load_problems(&self) -> Result<Vec<Problem>> {
                 unimplemented!()
             }
-            fn load_contests(&self) -> Result<Vec<Contest>> {
+            async fn load_contests(&self) -> Result<Vec<Contest>> {
                 Ok(vec![Contest {
                     id: "contest".to_string(),
                     ..Default::default()

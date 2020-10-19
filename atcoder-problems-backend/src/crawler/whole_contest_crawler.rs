@@ -1,8 +1,8 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::SubmissionClient;
 use anyhow::Result;
 
 use log::info;
+use sql_client::submission_client::SubmissionClient;
 use std::{thread, time};
 
 pub struct WholeContestCrawler<C, F> {
@@ -33,7 +33,7 @@ where
                 break;
             }
 
-            self.db.update_submissions(&submissions)?;
+            self.db.update_submissions(&submissions).await?;
             thread::sleep(time::Duration::from_millis(200));
         }
 
@@ -46,33 +46,40 @@ where
 mod tests {
     use super::*;
     use crate::crawler::utils::MockFetcher;
-    use crate::sql::models::Submission;
-    use crate::sql::SubmissionRequest;
     use async_std::task::block_on;
+    use async_trait::async_trait;
+    use sql_client::models::Submission;
+    use sql_client::submission_client::SubmissionRequest;
 
     struct MockDB;
+
+    #[async_trait]
     impl SubmissionClient for MockDB {
-        fn get_submissions(&self, _: SubmissionRequest) -> Result<Vec<Submission>> {
+        async fn get_submissions<'a>(&self, _: SubmissionRequest<'a>) -> Result<Vec<Submission>> {
             unimplemented!()
         }
 
-        fn get_user_submission_count(&self, _: &str) -> Result<i64> {
+        async fn get_user_submission_count(&self, _: &str) -> Result<i64> {
             unimplemented!()
         }
 
-        fn update_submissions(&self, _: &[Submission]) -> Result<usize> {
+        async fn update_submissions(&self, _: &[Submission]) -> Result<usize> {
             Ok(1)
         }
 
-        fn update_submission_count(&self) -> Result<()> {
+        async fn update_submission_count(&self) -> Result<()> {
             unimplemented!()
         }
 
-        fn update_user_submission_count(&self, _: &str) -> Result<()> {
+        async fn update_user_submission_count(&self, _: &str) -> Result<()> {
             unimplemented!()
         }
 
-        fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
+        async fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
+            unimplemented!()
+        }
+
+        async fn count_stored_submissions(&self, _: &[i64]) -> Result<usize> {
             unimplemented!()
         }
     }

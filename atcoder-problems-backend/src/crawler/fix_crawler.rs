@@ -1,7 +1,7 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::{SubmissionClient, SubmissionRequest};
 use anyhow::Result;
 use log::info;
+use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 use std::collections::BTreeMap;
 
 pub struct FixCrawler<C, F> {
@@ -27,9 +27,12 @@ where
             "Pulling invalid submissions after {} ...",
             self.current_time_second
         );
-        let submissions = self.db.get_submissions(SubmissionRequest::InvalidResult {
-            from_second: self.current_time_second,
-        })?;
+        let submissions = self
+            .db
+            .get_submissions(SubmissionRequest::InvalidResult {
+                from_second: self.current_time_second,
+            })
+            .await?;
 
         info!("There are {} invalid submissions.", submissions.len());
         let contests = submissions.into_iter().map(|s| (s.contest_id, s.id)).fold(
@@ -47,7 +50,7 @@ where
             for page in 1.. {
                 info!("Fetching from {}-{}", contest_id, page);
                 let submissions = self.fetcher.fetch_submissions(&contest_id, page).await;
-                self.db.update_submissions(&submissions)?;
+                self.db.update_submissions(&submissions).await?;
                 let all_old = submissions.iter().all(|s| s.id <= minimum_id);
                 if all_old {
                     break;
@@ -61,12 +64,22 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::crawler::utils::MockFetcher;
     use async_std::task::block_on;
+    use async_trait::async_trait;
+    use sql_client::models::Submission;
+
     const CURRENT_TIME: i64 = 100;
 
     struct MockDB;
+
+    #[async_trait]
     impl SubmissionClient for MockDB {
-        fn get_submissions(&self, request: SubmissionRequest) -> Result<Vec<Submission>> {
+        async fn get_submissions<'a>(
+            &self,
+            request: SubmissionRequest<'a>,
+        ) -> Result<Vec<Submission>> {
             match request {
                 SubmissionRequest::InvalidResult { from_second } => {
                     assert_eq!(from_second, CURRENT_TIME);
@@ -91,26 +104,22 @@ mod tests {
                 _ => unreachable!(),
             }
         }
-        fn get_user_submission_count(&self, _: &str) -> Result<i64> {
+        async fn get_user_submission_count(&self, _: &str) -> Result<i64> {
             unimplemented!()
         }
-        fn update_submissions(&self, _: &[Submission]) -> Result<usize> {
+        async fn update_submissions(&self, _: &[Submission]) -> Result<usize> {
             Ok(0)
         }
-        fn update_submission_count(&self) -> Result<()> {
+        async fn update_submission_count(&self) -> Result<()> {
             unimplemented!()
         }
-        fn update_user_submission_count(&self, _: &str) -> Result<()> {
+        async fn update_user_submission_count(&self, _: &str) -> Result<()> {
             unimplemented!()
         }
-        fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
+        async fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
             unimplemented!()
         }
     }
-
-    use super::*;
-    use crate::crawler::utils::MockFetcher;
-    use crate::sql::models::Submission;
 
     #[test]
     fn test_fix_crawler_found() {
