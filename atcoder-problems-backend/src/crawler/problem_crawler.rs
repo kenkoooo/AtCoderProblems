@@ -1,7 +1,8 @@
 use crate::crawler::AtCoderFetcher;
-use crate::sql::models::{Contest, ContestProblem, Problem};
-use crate::sql::{ContestProblemClient, SimpleClient};
 use anyhow::Result;
+use sql_client::contest_problem::ContestProblemClient;
+use sql_client::models::{Contest, ContestProblem, Problem};
+use sql_client::simple_client::SimpleClient;
 use std::collections::BTreeSet;
 use std::{thread, time};
 
@@ -38,11 +39,11 @@ where
         }
 
         log::info!("There are {} contests.", contests.len());
-        self.db.insert_contests(&contests)?;
+        self.db.insert_contests(&contests).await?;
 
-        let contests = self.db.load_contests()?;
-        let problems = self.db.load_problems()?;
-        let contest_problem = self.db.load_contest_problem()?;
+        let contests = self.db.load_contests().await?;
+        let problems = self.db.load_problems().await?;
+        let contest_problem = self.db.load_contest_problem().await?;
 
         let no_problem_contests =
             extract_no_problem_contests(&contests, &problems, &contest_problem);
@@ -51,8 +52,8 @@ where
             log::info!("Crawling problems of {}...", contest.id);
             match self.fetcher.fetch_problems(&contest.id).await {
                 Ok((problems, contest_problem)) => {
-                    self.db.insert_problems(&problems)?;
-                    self.db.insert_contest_problem(&contest_problem)?;
+                    self.db.insert_problems(&problems).await?;
+                    self.db.insert_contest_problem(&contest_problem).await?;
                 }
                 Err(e) => {
                     log::error!("{:?}", e);
