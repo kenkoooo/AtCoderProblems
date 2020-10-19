@@ -14,7 +14,6 @@ use crate::server::problem_list::{
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use sql_client::PgPool;
-use std::time::Duration;
 use tide::StatusCode;
 
 pub(crate) mod internal_user;
