@@ -1,5 +1,5 @@
 use anyhow::Result;
-use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
+use atcoder_problems_backend::server::{run_server, Authentication};
 
 use async_std::future::ready;
 use async_std::prelude::*;
@@ -48,9 +48,8 @@ async fn setup() -> u16 {
 async fn test_list() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
-        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -168,9 +167,8 @@ async fn test_list() {
 async fn test_invalid_token() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
-        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -195,9 +193,8 @@ async fn test_invalid_token() {
 async fn test_list_item() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
-        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -306,9 +303,8 @@ async fn test_list_item() {
 async fn test_list_delete() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
-        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -364,9 +360,8 @@ async fn test_list_delete() {
 async fn test_register_twice() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
-        run_server(pool, pg_pool, MockAuth, port).await.unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
