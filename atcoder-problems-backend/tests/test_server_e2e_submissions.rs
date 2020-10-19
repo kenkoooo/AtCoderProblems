@@ -4,7 +4,7 @@
 // use async_std::task;
 // use async_trait::async_trait;
 // use atcoder_problems_backend::server::GitHubUserResponse;
-// use atcoder_problems_backend::server::{initialize_pool, run_server, Authentication};
+// use atcoder_problems_backend::server::{run_server, Authentication};
 // use rand::Rng;
 // use sql_client::models::Submission;
 //
