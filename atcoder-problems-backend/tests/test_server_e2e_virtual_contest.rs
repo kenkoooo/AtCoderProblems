@@ -36,15 +36,15 @@ fn url(path: &str, port: u16) -> String {
     format!("http://localhost:{}{}", port, path)
 }
 
-fn setup() -> u16 {
-    utils::initialize_and_connect_to_test_sql();
+async fn setup() -> u16 {
+    utils::initialize_and_connect_to_test_sql().await;
     let mut rng = rand::thread_rng();
     rng.gen::<u16>() % 30000 + 30000
 }
 
 #[async_std::test]
 async fn test_virtual_contest() {
-    let port = setup();
+    let port = setup().await;
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
@@ -308,7 +308,7 @@ async fn test_virtual_contest() {
 
 #[async_std::test]
 async fn test_virtual_contest_visibility() {
-    let port = setup();
+    let port = setup().await;
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();

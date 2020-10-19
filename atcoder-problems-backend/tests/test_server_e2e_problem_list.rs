@@ -38,15 +38,15 @@ fn url(path: &str, port: u16) -> String {
     format!("http://localhost:{}{}", port, path)
 }
 
-fn setup() -> u16 {
-    utils::initialize_and_connect_to_test_sql();
+async fn setup() -> u16 {
+    utils::initialize_and_connect_to_test_sql().await;
     let mut rng = rand::thread_rng();
     rng.gen::<u16>() % 30000 + 30000
 }
 
 #[async_std::test]
 async fn test_list() {
-    let port = setup();
+    let port = setup().await;
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
@@ -166,7 +166,7 @@ async fn test_list() {
 }
 #[async_std::test]
 async fn test_invalid_token() {
-    let port = setup();
+    let port = setup().await;
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
@@ -193,7 +193,7 @@ async fn test_invalid_token() {
 
 #[async_std::test]
 async fn test_list_item() {
-    let port = setup();
+    let port = setup().await;
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
@@ -304,7 +304,7 @@ async fn test_list_item() {
 
 #[async_std::test]
 async fn test_list_delete() {
-    let port = setup();
+    let port = setup().await;
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
@@ -362,7 +362,7 @@ async fn test_list_delete() {
 
 #[async_std::test]
 async fn test_register_twice() {
-    let port = setup();
+    let port = setup().await;
     let server = task::spawn(async move {
         let pool = initialize_pool(utils::SQL_URL).unwrap();
         let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();

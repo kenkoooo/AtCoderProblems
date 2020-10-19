@@ -10,10 +10,11 @@ pub mod problem_info;
 pub mod problems_submissions;
 pub mod rated_point_sum;
 pub mod simple_client;
-pub mod submission_client;
 pub mod streak;
+pub mod submission_client;
 
 pub type PgPool = sqlx::postgres::PgPool;
+pub use sqlx::query;
 
 const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
 const UNRATED_STATE: &str = "-";
