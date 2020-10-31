@@ -2,6 +2,7 @@ import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
 import { List } from "immutable";
+import { useHistory, useLocation } from "react-router-dom";
 import * as Url from "../../utils/Url";
 import { ContestLink } from "../../components/ContestLink";
 import { ProblemLink } from "../../components/ProblemLink";
@@ -43,6 +44,9 @@ interface Props {
   toDifficulty: number;
   rowData: List<ProblemRowData>;
   userRatingInfo: RatingInfo | null;
+  sortBy: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sortOrder: any;
 }
 
 export const ListTable: React.FC<Props> = (props) => {
@@ -376,6 +380,9 @@ export const ListTable: React.FC<Props> = (props) => {
     },
   ];
 
+  const location = useLocation();
+  const history = useHistory();
+
   return (
     <BootstrapTable
       pagination
@@ -474,6 +481,15 @@ export const ListTable: React.FC<Props> = (props) => {
           paginationPanelProps: any
         ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;
+        },
+        defaultSortName: props.sortBy,
+        defaultSortOrder: props.sortOrder,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSortChange: function (sortName: any, sortOrder: string): void {
+          const params = new URLSearchParams(location.search);
+          params.set("sortBy", sortName);
+          params.set("sortOrder", sortOrder);
+          history.push({ ...location, search: params.toString() });
         },
       }}
     >
