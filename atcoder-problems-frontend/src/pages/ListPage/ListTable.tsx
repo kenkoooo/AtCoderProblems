@@ -45,8 +45,7 @@ interface Props {
   rowData: List<ProblemRowData>;
   userRatingInfo: RatingInfo | null;
   sortBy: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sortOrder: any;
+  sortOrder: "asc" | "desc";
 }
 
 export const ListTable: React.FC<Props> = (props) => {

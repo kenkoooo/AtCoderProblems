@@ -162,7 +162,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
   };
 
   const sortBy = convertToSortName(searchParams.get("sortBy"));
-  const sortOrder = searchParams.get("sortOrder") || "desc";
+  const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
   const {
     mergedProblemsFetch,
