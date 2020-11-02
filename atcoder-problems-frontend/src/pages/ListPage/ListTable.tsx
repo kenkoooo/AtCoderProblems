@@ -18,9 +18,12 @@ import ProblemModel, {
   isProblemModelWithTimeModel,
 } from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
-import { ListPaginationPanel } from "../../components/ListPaginationPanel";
+import {
+  ListPaginationPanel,
+  ListPaginationPanelProps,
+} from "../../components/ListPaginationPanel";
 import { RatingInfo } from "../../utils/RatingInfo";
-import { INF_POINT, ProblemRowData } from "./index";
+import { INF_POINT, ProblemRowData, ProblemRowDataField } from "./index";
 
 export const statusFilters = [
   "All",
@@ -44,7 +47,7 @@ interface Props {
   toDifficulty: number;
   rowData: List<ProblemRowData>;
   userRatingInfo: RatingInfo | null;
-  sortBy: string;
+  sortBy: ProblemRowDataField;
   sortOrder: "asc" | "desc";
 }
 
@@ -93,7 +96,7 @@ export const ListTable: React.FC<Props> = (props) => {
 
   const columns: {
     header: string;
-    dataField: string;
+    dataField: ProblemRowDataField;
     dataSort?: boolean;
     dataAlign?: "center";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -148,7 +151,7 @@ export const ListTable: React.FC<Props> = (props) => {
     },
     {
       header: "Result",
-      dataField: "a",
+      dataField: "status",
       dataAlign: "center",
       dataFormat: (_: string, row): string | React.ReactElement => {
         const { status } = row;
@@ -238,7 +241,7 @@ export const ListTable: React.FC<Props> = (props) => {
     },
     {
       header: "Solve Prob",
-      dataField: "prob",
+      dataField: "solveProbability",
       dataSort: true,
       sortFunc: (a, b, order): number => {
         const aPred = predictSolveProbabilityOfRow(a);
@@ -259,7 +262,7 @@ export const ListTable: React.FC<Props> = (props) => {
     },
     {
       header: "Time",
-      dataField: "a",
+      dataField: "timeEstimation",
       dataSort: true,
       sortFunc: (a, b, order): number => {
         const aPred = predictSolveTimeOfRow(a);
@@ -423,8 +426,8 @@ export const ListTable: React.FC<Props> = (props) => {
             case "AC after Contest":
               return isSuccess && !isSubmittedInContest;
           }
-        }) // eslint-disable-next-line
-        .filter((row) => {
+        })
+        .filter((row): boolean => {
           const isRated = !!row.mergedProblem.point;
           const hasDifficulty = isProblemModelWithDifficultyModel(
             row.problemModel
@@ -476,8 +479,7 @@ export const ListTable: React.FC<Props> = (props) => {
           },
         ],
         paginationPanel: function DataFormat(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          paginationPanelProps: any
+          paginationPanelProps: ListPaginationPanelProps
         ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;
         },
