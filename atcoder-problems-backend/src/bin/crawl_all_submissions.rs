@@ -1,9 +1,10 @@
 use algorithm_problem_client::AtCoderClient;
 use anyhow::Result;
 use atcoder_problems_backend::crawler::WholeContestCrawler;
-use atcoder_problems_backend::sql::models::Contest;
-use atcoder_problems_backend::sql::{connect, SimpleClient};
 use log::{error, info};
+use sql_client::initialize_pool;
+use sql_client::models::Contest;
+use sql_client::simple_client::SimpleClient;
 use std::{env, thread, time};
 
 #[async_std::main]
@@ -15,7 +16,7 @@ async fn main() {
     loop {
         info!("Start new loop");
 
-        match load_contest(&url) {
+        match load_contest(&url).await {
             Ok(contests) => {
                 for contest in contests.into_iter() {
                     finish_one_contest(&url, &contest.id).await;
@@ -46,15 +47,15 @@ async fn finish_one_contest(url: &str, contest_id: &str) {
 }
 
 async fn crawl_one_contest(url: &str, contest_id: &str) -> Result<()> {
-    let db = connect(url)?;
+    let db = initialize_pool(url).await?;
     let crawler = WholeContestCrawler::new(db, AtCoderClient::default(), contest_id);
     crawler.crawl().await?;
     Ok(())
 }
 
-fn load_contest(url: &str) -> Result<Vec<Contest>> {
-    let db = connect(url)?;
-    let contests = db.load_contests()?;
+async fn load_contest(url: &str) -> Result<Vec<Contest>> {
+    let db = initialize_pool(url).await?;
+    let contests = db.load_contests().await?;
     Ok(contests)
 }
 

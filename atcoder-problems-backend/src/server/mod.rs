@@ -14,7 +14,6 @@ use crate::server::problem_list::{
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use sql_client::PgPool;
-use std::time::Duration;
 use tide::StatusCode;
 
 pub(crate) mod internal_user;
@@ -27,12 +26,11 @@ pub(crate) mod user_submissions;
 pub(crate) mod utils;
 pub(crate) mod virtual_contest;
 
-pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
-pub async fn run_server<A>(pool: Pool, pg_pool: PgPool, authentication: A, port: u16) -> Result<()>
+pub async fn run_server<A>(pg_pool: PgPool, authentication: A, port: u16) -> Result<()>
 where
     A: Authentication + Send + Sync + 'static + Clone,
 {
-    let app_data = AppData::new(pool, pg_pool, authentication);
+    let app_data = AppData::new(pg_pool, authentication);
     let mut api = tide::with_state(app_data.clone());
     api.with(LogMiddleware);
     api.at("/internal-api").nest({
@@ -113,15 +111,6 @@ where
     Ok(())
 }
 
-pub fn initialize_pool<S: Into<String>>(database_url: S) -> Result<Pool> {
-    let manager = diesel::r2d2::ConnectionManager::<diesel::PgConnection>::new(database_url);
-    let pool = diesel::r2d2::Pool::builder()
-        .max_lifetime(Some(Duration::from_secs(60 * 5)))
-        .max_size(15)
-        .build(manager)?;
-    Ok(pool)
-}
-
 pub(crate) trait CommonResponse {
     fn ok() -> Self;
     fn json<S: serde::Serialize>(body: &S) -> anyhow::Result<Self>
@@ -159,7 +148,6 @@ impl CommonResponse for tide::Response {
 }
 
 pub(crate) struct AppData<A> {
-    pub(crate) pool: Pool,
     pub(crate) authentication: A,
     pub(crate) pg_pool: PgPool,
 }
@@ -167,7 +155,6 @@ pub(crate) struct AppData<A> {
 impl<A: Clone> Clone for AppData<A> {
     fn clone(&self) -> Self {
         Self {
-            pool: self.pool.clone(),
             pg_pool: self.pg_pool.clone(),
             authentication: self.authentication.clone(),
         }
@@ -175,9 +162,8 @@ impl<A: Clone> Clone for AppData<A> {
 }
 
 impl<A> AppData<A> {
-    fn new(pool: Pool, pg_pool: PgPool, authentication: A) -> Self {
+    fn new(pg_pool: PgPool, authentication: A) -> Self {
         Self {
-            pool,
             pg_pool,
             authentication,
         }

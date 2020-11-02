@@ -29,7 +29,7 @@ impl S3Client {
                 Vec::new()
             });
         if old_data != data {
-            log::info!("Uploading new data ...");
+            log::info!("Uploading new data to {} ...", path);
             let (data, status) =
                 self.bucket
                     .put_object(path, &data, "application/json;charset=utf-8")?;
