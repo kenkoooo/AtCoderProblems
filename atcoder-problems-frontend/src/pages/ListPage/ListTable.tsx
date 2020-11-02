@@ -1,4 +1,8 @@
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import {
+  BootstrapTable,
+  Options,
+  TableHeaderColumn,
+} from "react-bootstrap-table";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
 import { List } from "immutable";
@@ -384,6 +388,49 @@ export const ListTable: React.FC<Props> = (props) => {
 
   const location = useLocation();
   const history = useHistory();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const options: Options<{ [key in ProblemRowDataField]: any }> = {
+    paginationPosition: "top",
+    sizePerPage: 20,
+    sizePerPageList: [
+      {
+        text: "20",
+        value: 20,
+      },
+      {
+        text: "50",
+        value: 50,
+      },
+      {
+        text: "100",
+        value: 100,
+      },
+      {
+        text: "200",
+        value: 200,
+      },
+      {
+        text: "All",
+        value: props.rowData.size,
+      },
+    ],
+    paginationPanel: function DataFormat(
+      paginationPanelProps: ListPaginationPanelProps
+    ): React.ReactElement {
+      return <ListPaginationPanel {...paginationPanelProps} />;
+    },
+    defaultSortName: props.sortBy,
+    defaultSortOrder: props.sortOrder,
+    onSortChange: function (
+      sortName: ProblemRowDataField,
+      sortOrder: "asc" | "desc"
+    ): void {
+      const params = new URLSearchParams(location.search);
+      params.set("sortBy", sortName);
+      params.set("sortOrder", sortOrder);
+      history.push({ ...location, search: params.toString() });
+    },
+  };
 
   return (
     <BootstrapTable
@@ -426,7 +473,7 @@ export const ListTable: React.FC<Props> = (props) => {
             case "AC after Contest":
               return isSuccess && !isSubmittedInContest;
           }
-        })
+        }) // eslint-disable-next-line
         .filter((row): boolean => {
           const isRated = !!row.mergedProblem.point;
           const hasDifficulty = isProblemModelWithDifficultyModel(
@@ -453,46 +500,7 @@ export const ListTable: React.FC<Props> = (props) => {
           );
         })
         .toArray()}
-      options={{
-        paginationPosition: "top",
-        sizePerPage: 20,
-        sizePerPageList: [
-          {
-            text: "20",
-            value: 20,
-          },
-          {
-            text: "50",
-            value: 50,
-          },
-          {
-            text: "100",
-            value: 100,
-          },
-          {
-            text: "200",
-            value: 200,
-          },
-          {
-            text: "All",
-            value: props.rowData.size,
-          },
-        ],
-        paginationPanel: function DataFormat(
-          paginationPanelProps: ListPaginationPanelProps
-        ): React.ReactElement {
-          return <ListPaginationPanel {...paginationPanelProps} />;
-        },
-        defaultSortName: props.sortBy,
-        defaultSortOrder: props.sortOrder,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onSortChange: function (sortName: any, sortOrder: string): void {
-          const params = new URLSearchParams(location.search);
-          params.set("sortBy", sortName);
-          params.set("sortOrder", sortOrder);
-          history.push({ ...location, search: params.toString() });
-        },
-      }}
+      options={options}
     >
       {columns.map((c) => (
         <TableHeaderColumn
