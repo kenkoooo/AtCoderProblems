@@ -270,10 +270,8 @@ dependencies = [
  "async-trait",
  "chrono",
  "cookie 0.14.1",
- "diesel",
  "futures 0.3.5",
  "log",
- "r2d2",
  "rand 0.7.3",
  "regex",
  "rust-s3",
@@ -283,7 +281,6 @@ dependencies = [
  "sql-client",
  "surf 2.0.0",
  "tide",
- "uuid 0.8.1",
 ]
 
 [[package]]
@@ -798,30 +795,6 @@ name = "derive_more"
 version = "0.99.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "298998b1cf6b5b2c8a7b023dfd45821825ce3ba8a8af55c921a0e734e4653f76"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "diesel"
-version = "1.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e2de9deab977a153492a1468d1b1c0662c1cf39e5ea87d0c060ecd59ef18d8c"
-dependencies = [
- "bitflags",
- "byteorder",
- "diesel_derives",
- "pq-sys",
- "r2d2",
-]
-
-[[package]]
-name = "diesel_derives"
-version = "1.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45f5098f628d02a7a0f68ddba586fb61e80edec3bdc1be3b921f4ceec60858d3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2045,18 +2018,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f842b1982eb6c2fe34036a4fbfb06dd185a3f5c8edfaacdf7d1ea10b07de6252"
 dependencies = [
  "lock_api",
- "parking_lot_core 0.6.2",
+ "parking_lot_core",
  "rustc_version",
-]
-
-[[package]]
-name = "parking_lot"
-version = "0.10.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3a704eb390aafdc107b0e392f56a82b668e3a71366993b5340f5833fd62505e"
-dependencies = [
- "lock_api",
- "parking_lot_core 0.7.2",
 ]
 
 [[package]]
@@ -2071,20 +2034,6 @@ dependencies = [
  "redox_syscall",
  "rustc_version",
  "smallvec 0.6.13",
- "winapi 0.3.9",
-]
-
-[[package]]
-name = "parking_lot_core"
-version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d58c7c768d4ba344e3e8d72518ac13e259d7c7ade24167003b8488e10b6740a3"
-dependencies = [
- "cfg-if",
- "cloudabi",
- "libc",
- "redox_syscall",
- "smallvec 1.4.0",
  "winapi 0.3.9",
 ]
 
@@ -2209,15 +2158,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "237a5ed80e274dbc66f86bd59c1e25edc039660be53194b5fe0a482e0f2612ea"
 
 [[package]]
-name = "pq-sys"
-version = "0.4.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ac25eee5a0582f45a67e837e350d784e7003bd29a5f460796772061ca49ffda"
-dependencies = [
- "vcpkg",
-]
-
-[[package]]
 name = "precomputed-hash"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2264,17 +2204,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aa563d17ecb180e500da1cfd2b028310ac758de548efdd203e18f283af693f37"
 dependencies = [
  "proc-macro2",
-]
-
-[[package]]
-name = "r2d2"
-version = "0.8.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1497e40855348e4a8a40767d8e55174bce1e445a3ac9254ad44ad468ee0485af"
-dependencies = [
- "log",
- "parking_lot 0.10.2",
- "scheduled-thread-pool",
 ]
 
 [[package]]
@@ -2597,15 +2526,6 @@ checksum = "8f05ba609c234e60bee0d547fe94a4c7e9da733d1c962cf6e59efa4cd9c8bc75"
 dependencies = [
  "lazy_static",
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "scheduled-thread-pool"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0988d7fdf88d5e5fcf5923a0f1e8ab345f3e98ab4bc6bc45a2d5ff7f7458fbf6"
-dependencies = [
- "parking_lot 0.10.2",
 ]
 
 [[package]]
@@ -3460,7 +3380,7 @@ dependencies = [
  "log",
  "mio",
  "num_cpus",
- "parking_lot 0.9.0",
+ "parking_lot",
  "slab",
  "tokio-executor",
  "tokio-io",
