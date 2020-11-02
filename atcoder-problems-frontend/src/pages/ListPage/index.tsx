@@ -60,6 +60,11 @@ export interface ProblemRowData {
   readonly status: ProblemStatus;
 }
 
+export type ProblemRowDataField =
+  | keyof ProblemRowData
+  | "solveProbability"
+  | "timeEstimation";
+
 const convertToValidStatusFilterState = (
   value: string | null
 ): StatusFilter => {
@@ -79,15 +84,7 @@ const RATED_FILTERS = [
   "Only Unrated without Difficulty",
 ] as const;
 type RatedFilter = typeof RATED_FILTERS[number];
-const convertToValidRatedFilter = (value: string | null): RatedFilter => {
-  for (const filter of RATED_FILTERS) {
-    if (value === filter) {
-      return value;
-    }
-  }
 
-  return "All";
-};
 const FilterParams = {
   FromPoint: "fromPo",
   ToPoint: "toPo",
@@ -96,6 +93,31 @@ const FilterParams = {
   FromDifficulty: "fromDiff",
   ToDifficulty: "toDiff",
 } as const;
+
+const convertSortByParam = (value: string | null): ProblemRowDataField => {
+  return (
+    ([
+      "id",
+      "title",
+      "contest",
+      "contestDate",
+      "contestTitle",
+      "lastAcceptedDate",
+      "solverCount",
+      "point",
+      "problemModel",
+      "firstUserId",
+      "executionTime",
+      "codeLength",
+      "mergedProblem",
+      "shortestUserId",
+      "fastestUserId",
+      "status",
+      "solveProbability",
+      "timeEstimation",
+    ] as const).find((v) => v === value) ?? "contestDate"
+  );
+};
 
 const InnerListPage: React.FC<InnerProps> = (props) => {
   const location = useLocation();
@@ -119,9 +141,9 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
   const statusFilterState: StatusFilter = convertToValidStatusFilterState(
     searchParams.get(FilterParams.Status)
   );
-  const ratedFilterState: RatedFilter = convertToValidRatedFilter(
-    searchParams.get(FilterParams.Rated)
-  );
+  const ratedFilterState: RatedFilter =
+    RATED_FILTERS.find((x) => x === searchParams.get(FilterParams.Rated)) ??
+    "All";
   const fromDifficulty = parseInt(
     searchParams.get(FilterParams.FromDifficulty) || "-1",
     10
@@ -136,6 +158,9 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     params.set(FilterParams.ToDifficulty, to.toString());
     history.push({ ...location, search: params.toString() });
   };
+
+  const sortBy = convertSortByParam(searchParams.get("sortBy"));
+  const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
   const {
     mergedProblemsFetch,
@@ -433,6 +458,8 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
           toDifficulty={toDifficulty}
           rowData={rowData}
           userRatingInfo={userRatingInfo}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
         />
       </Row>
     </div>
