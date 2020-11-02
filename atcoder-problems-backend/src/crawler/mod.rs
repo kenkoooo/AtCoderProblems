@@ -11,11 +11,11 @@ pub use recent_crawler::RecentCrawler;
 pub use virtual_contest_crawler::VirtualContestCrawler;
 pub use whole_contest_crawler::WholeContestCrawler;
 
-use crate::sql::models::{Contest, ContestProblem, Problem, Submission};
 use algorithm_problem_client::{AtCoderClient, AtCoderProblem, AtCoderSubmission};
 use anyhow::Result;
 use async_trait::async_trait;
 use log::info;
+use sql_client::models::{Contest, ContestProblem, Problem, Submission};
 
 #[async_trait]
 pub trait AtCoderFetcher {
