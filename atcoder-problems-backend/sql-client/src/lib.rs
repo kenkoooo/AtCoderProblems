@@ -13,8 +13,8 @@ pub mod simple_client;
 pub mod streak;
 pub mod submission_client;
 
-pub type PgPool = sqlx::postgres::PgPool;
-pub use sqlx::query;
+pub use sqlx::postgres::{PgPool, PgRow};
+pub use sqlx::{query, Row};
 
 const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
 const UNRATED_STATE: &str = "-";
