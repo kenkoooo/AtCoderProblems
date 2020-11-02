@@ -9,7 +9,10 @@ import * as Url from "../utils/Url";
 import { ProblemId } from "../interfaces/Status";
 import { RatingInfo } from "../utils/RatingInfo";
 import { ProblemLink } from "./ProblemLink";
-import { ListPaginationPanel } from "./ListPaginationPanel";
+import {
+  ListPaginationPanel,
+  ListPaginationPanelProps,
+} from "./ListPaginationPanel";
 import { NewTabLink } from "./NewTabLink";
 
 interface Props {
@@ -87,8 +90,7 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
           },
         ],
         paginationPanel: function DataFormat(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          paginationPanelProps: any
+          paginationPanelProps: ListPaginationPanelProps
         ): React.ReactElement {
           return <ListPaginationPanel {...paginationPanelProps} />;
         },

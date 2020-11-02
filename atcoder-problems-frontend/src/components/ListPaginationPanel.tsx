@@ -8,7 +8,7 @@ import {
   PaginationLink,
 } from "reactstrap";
 
-interface Props extends PaginationPanelProps {
+export interface ListPaginationPanelProps extends PaginationPanelProps {
   totalPages: number;
 }
 
@@ -56,7 +56,9 @@ const pageList = (
   return pageNumbers;
 };
 
-export const ListPaginationPanel: React.FC<Props> = (props) => {
+export const ListPaginationPanel: React.FC<ListPaginationPanelProps> = (
+  props
+) => {
   const pageNumbers = pageList(
     props.currPage,
     props.pageStartIndex,
