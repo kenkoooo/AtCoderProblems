@@ -97,6 +97,30 @@ const FilterParams = {
   ToDifficulty: "toDiff",
 } as const;
 
+const LIST_SORT_NAME = [
+  "contestDate",
+  "title",
+  "contest",
+  "lastAcceptedDate",
+  "solverCount",
+  "point",
+  "problemModel",
+  "prob",
+  "a",
+  "executionTime",
+  "codeLength",
+  "firstUserId",
+] as const;
+type SortName = typeof LIST_SORT_NAME[number];
+const convertToSortName = (value: string | null): SortName => {
+  for (const name of LIST_SORT_NAME) {
+    if (value === name) {
+      return value;
+    }
+  }
+  return "contestDate";
+};
+
 const InnerListPage: React.FC<InnerProps> = (props) => {
   const location = useLocation();
   const history = useHistory();
@@ -136,6 +160,9 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     params.set(FilterParams.ToDifficulty, to.toString());
     history.push({ ...location, search: params.toString() });
   };
+
+  const sortBy = convertToSortName(searchParams.get("sortBy"));
+  const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
   const {
     mergedProblemsFetch,
@@ -433,6 +460,8 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
           toDifficulty={toDifficulty}
           rowData={rowData}
           userRatingInfo={userRatingInfo}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
         />
       </Row>
     </div>
