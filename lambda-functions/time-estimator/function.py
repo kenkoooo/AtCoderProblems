@@ -68,86 +68,47 @@ def safe_sigmoid(x):
     return 1. / (1. + math.exp(min(-x, 750)))
 
 
+def _fit_1plm_binary_search(xs, positive_count):
+    discrimination = math.log(6.) / 400.
+    lb, ub = -10000, 10000
+    accepts = positive_count
+    while ub - lb > 1:
+        m = (ub + lb) // 2
+        expected_accepts = 0
+        for x in xs:
+            expected_accepts += 1. / (1. + (6. ** ((m - x) / 400.)))
+        if expected_accepts < accepts:
+            ub = m
+        else:
+            lb = m
+    difficulty = lb
+    return difficulty, discrimination
+
+
 def fit_2plm_irt(xs, ys):
-    random.seed(20191019)
+    return _fit_1plm_binary_search(xs, sum(ys))
 
-    iter_n = max(100000 // len(xs), 1)
 
-    eta = 1.
-    x_scale = 1000.
-
-    scxs = [x / x_scale for x in xs]
-    samples = list(zip(scxs, ys))
-
-    a, b = 0., 0.
-    r_a, r_b = 1., 1.
-    iterations = []
-    for iteration in range(iter_n):
-        logl = 0.
-        for x, y in samples:
-            p = safe_sigmoid(a * x + b)
-            logl += safe_log(p if y == 1. else (1 - p))
-        iterations.append((logl, a, b))
-
-        random.shuffle(samples)
-        for x, y in samples:
-            p = safe_sigmoid(a * x + b)
-            grad_a = x * (y - p)
-            grad_b = (y - p)
-            r_a += grad_a ** 2
-            r_b += grad_b ** 2
-            a += eta * grad_a / r_a ** 0.5
-            b += eta * grad_b / r_b ** 0.5
-    best_logl, a, b = max(iterations)
-    a /= x_scale
-    return -b / a, a
+def frange(start: float, end: float, step: float):
+    v = start
+    while (start - end) * (v - end) > 0:
+        yield v
+        v += step
 
 
 def fit_3plm_irt(xs, ys):
-    random.seed(20191019)
-
-    iter_n = max(100000 // len(xs), 1)
-
-    eta = 1.
-    x_scale = 1000.
-
-    scxs = [x / x_scale for x in xs]
-    samples = list(zip(scxs, ys))
-
-    a, b, c = 0., 0., 0.
-    r_a, r_b, r_c = 1., 1., 1.
+    # grid search over retreat_proba
+    accepts = sum(ys)
     iterations = []
-    for iteration in range(iter_n):
+    for retreat_proba in frange(0., 0.5, 0.025):
+        participate_proba = 1 - retreat_proba
+        difficulty, discrimination = _fit_1plm_binary_search(xs, accepts / participate_proba)
         logl = 0.
-        for x, y in samples:
-            cp = safe_sigmoid(c)
-            p = cp * safe_sigmoid(a * x + b)
-            logl += safe_log(cp) + safe_log(p if y == 1. else (1 - p))
-        iterations.append((logl, a, b, c))
-
-        random.shuffle(samples)
-        for x, y in samples:
-            cp = safe_sigmoid(c)
-            s = safe_sigmoid(a * x + b)
-            if y == 1.:
-                grad_b = 1. - s
-                grad_c = 1. - cp
-            else:
-                grad_b = -cp * s * (1 - s) / (1 - cp * s)
-                grad_c = -s * cp * (1 - cp) / (1 - cp * s)
-            grad_a = grad_b * x
-            r_a += grad_a ** 2
-            r_b += grad_b ** 2
-            r_c += grad_c ** 2
-            a += eta * grad_a / r_a ** 0.5
-            b += eta * grad_b / r_b ** 0.5
-            c += eta * grad_c / r_c ** 0.5
-    best_logl, a, b, c = max(iterations)
-    a /= x_scale
-    difficulty = -b / a
-    discrimination = a
-    retreat_proba = 1 - safe_sigmoid(c)
-    return difficulty, discrimination, retreat_proba
+        for x, y in zip(xs, ys):
+            p = participate_proba * safe_sigmoid(discrimination * (x - difficulty))
+            logl += safe_log(p if y == 1. else (1 - p))
+        iterations.append((logl, difficulty, discrimination, retreat_proba))
+    return max(iterations)[1:4]
 
 
 def evaluate_2plm_irt(xs, ys, difficulty, discrimination):
@@ -284,13 +245,13 @@ def fit_problem_model(user_results, task_screen_name):
     return model
 
 
-def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, session):
+def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, session, skip_if_no_user_has_rating):
     try:
         results = session.get(
             "https://atcoder.jp/contests/{}/standings/json".format(contest_name)).json()
     except json.JSONDecodeError as e:
         print(f"{e}")
-        return {}
+        return {}, []
     task_names = {task["TaskScreenName"]: task["TaskName"]
                   for task in results["TaskInfo"]}
 
@@ -337,10 +298,10 @@ def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, sess
                          ".ac"] = float(task_result["Status"] == 1)
         user_results.append(user_row)
 
-    if len(user_results) == 0 or all(user_row["rating"] == 0 for user_row in user_results):
+    if len(user_results) == 0 or (all(user_row["rating"] == 0 for user_row in user_results) and skip_if_no_user_has_rating):
         print(
             f"There are no participants/submissions for contest {contest_name}. Ignoring.")
-        return {}
+        return {}, standings
 
     user_results_by_problem = defaultdict(list)
     for task_screen_name in task_names.keys():
@@ -424,7 +385,7 @@ def run(target, overwrite, session):
             continue
         is_old_contest = not contest_type.is_rated
         user_results_by_problem, standings = fetch_dataset_for_contest(
-            contest, contest_type, existing_problems, session)
+            contest, contest_type, existing_problems, session, not recompute_history)
         for problem, data_points in user_results_by_problem.items():
             if recompute_history:
                 # overwrite competition history, and rating if necessary
