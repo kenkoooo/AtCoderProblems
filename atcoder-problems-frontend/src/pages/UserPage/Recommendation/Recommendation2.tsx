@@ -93,11 +93,8 @@ export const Recommendation2: React.FC<Props> = (props) => {
     .filter((p) => problemModels.has(p.id))
     .map((p) => ({
       ...p,
-      difficulty: problemModels.getIn([p.id, "difficulty"], undefined),
-      is_experimental: problemModels.getIn(
-        [p.id, "is_experimental"],
-        undefined
-      ),
+      difficulty: problemModels.get(p.id)?.difficulty,
+      is_experimental: problemModels.get(p.id)?.is_experimental ?? false,
     }))
     .filter((p) => includeExperimental || !p.is_experimental)
     .filter((p) => p.difficulty !== undefined)
