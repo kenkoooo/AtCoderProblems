@@ -38,7 +38,7 @@ interface InnerProps extends OuterProps {
   userInfoFetch: PromiseState<UserResponse | null>;
   problemListFetch: PromiseState<ProblemList>;
   updateList: (name: string) => void;
-  updateListResponse: PromiseState<{} | null>;
+  updateListResponse: PromiseState<Record<string, unknown> | null>;
   problems: PromiseState<Map<ProblemId, Problem>>;
 
   addItem: (problemId: string) => void;

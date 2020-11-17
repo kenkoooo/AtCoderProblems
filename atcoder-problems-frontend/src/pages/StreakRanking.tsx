@@ -27,7 +27,7 @@ const InnerStreakRanking: React.FC<Props> = (props) => (
   />
 );
 
-export const StreakRanking = connect<{}, Props>(() => ({
+export const StreakRanking = connect<unknown, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: CachedApiClient.cachedStreaksRanking,

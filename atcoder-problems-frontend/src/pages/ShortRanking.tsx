@@ -18,7 +18,7 @@ const InnerShortRanking: React.FC<Props> = (props) => (
   />
 );
 
-export const ShortRanking = connect<{}, Props>(() => ({
+export const ShortRanking = connect<unknown, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: CachedApiClient.cachedShortRanking,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // eslint-disable-next-line import/no-default-export
 export default interface MergedProblem {
   // Basic information
@@ -26,8 +27,10 @@ export default interface MergedProblem {
   readonly point?: number | null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export const isMergedProblem = (obj: any): obj is MergedProblem =>
+  typeof obj === "object" &&
+  obj !== null &&
   typeof obj.id === "string" &&
   typeof obj.contest_id === "string" &&
   typeof obj.title === "string" &&

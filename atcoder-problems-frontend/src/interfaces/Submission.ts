@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // eslint-disable-next-line import/no-default-export
 export default interface Submission {
   readonly execution_time: number | null;
@@ -12,7 +13,7 @@ export default interface Submission {
   readonly length: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export const isSubmission = (obj: any): obj is Submission =>
   (typeof obj.execution_time === "number" || obj.execution_time === null) &&
   typeof obj.point === "number" &&

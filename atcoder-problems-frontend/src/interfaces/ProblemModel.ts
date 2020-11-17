@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // eslint-disable-next-line import/no-default-export
 export default interface ProblemModel {
   readonly slope: number | undefined;
@@ -9,7 +10,7 @@ export default interface ProblemModel {
   readonly variance: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export const isProblemModel = (obj: any): obj is ProblemModel =>
   (typeof obj.slope === "number" || typeof obj.slope === "undefined") &&
   (typeof obj.intercept === "number" || typeof obj.intercept === "undefined") &&
@@ -31,7 +32,7 @@ export interface ProblemModelWithDifficultyModel {
 }
 
 export const isProblemModelWithDifficultyModel = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
   obj: any
 ): obj is ProblemModelWithDifficultyModel =>
   obj !== undefined &&
@@ -53,7 +54,7 @@ export interface ProblemModelWithTimeModel {
 }
 
 export const isProblemModelWithTimeModel = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
   obj: any
 ): obj is ProblemModelWithTimeModel =>
   obj !== undefined &&

@@ -274,7 +274,7 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
                     props.expectedParticipantUserIds.map(cachedSubmissions)
                   ).then((userSubmissions) => {
                     return List(userSubmissions)
-                      .flatten(true)
+                      .flatMap((x) => x)
                       .filter((submission) => isAccepted(submission.result))
                       .map((submission) => submission.problem_id)
                       .toSet();
