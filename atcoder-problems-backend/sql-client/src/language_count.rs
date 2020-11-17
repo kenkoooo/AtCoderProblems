@@ -9,14 +9,22 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[async_trait]
 pub trait LanguageCountClient {
-    async fn update_language_count(&self, submissions: &[Submission]) -> Result<()>;
+    async fn update_language_count(
+        &self,
+        submissions: &[Submission],
+        current_counts: &[UserLanguageCount],
+    ) -> Result<()>;
     async fn load_language_count(&self) -> Result<Vec<UserLanguageCount>>;
 }
 
 #[async_trait]
 impl LanguageCountClient for PgPool {
-    async fn update_language_count(&self, submissions: &[Submission]) -> Result<()> {
-        let language_count = submissions
+    async fn update_language_count(
+        &self,
+        submissions: &[Submission],
+        current_counts: &[UserLanguageCount],
+    ) -> Result<()> {
+        let mut language_count = submissions
             .iter()
             .map(|s| {
                 (
@@ -36,9 +44,25 @@ impl LanguageCountClient for PgPool {
                 },
             )
             .into_iter()
-            .map(|((user_id, language), set)| (user_id, language, set.len() as i32))
-            .collect::<Vec<_>>();
+            .map(|((user_id, language), set)| ((user_id, language), set.len() as i32))
+            .collect::<BTreeMap<_, _>>();
 
+        for old_count in current_counts {
+            let key = &(
+                old_count.user_id.as_str(),
+                old_count.simplified_language.clone(),
+            );
+            if let Some(&new_count) = language_count.get(key) {
+                if new_count == old_count.problem_count {
+                    assert_eq!(language_count.remove(key), Some(new_count));
+                }
+            }
+        }
+
+        let language_count = language_count
+            .into_iter()
+            .map(|((user_id, language), count)| (user_id, language, count))
+            .collect::<Vec<_>>();
         for chunk in language_count.chunks(MAX_INSERT_ROWS) {
             let (user_ids, languages, counts) = chunk.iter().fold(
                 (vec![], vec![], vec![]),

@@ -6,7 +6,7 @@ mod utils;
 #[async_std::test]
 async fn test_language_count() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
-    let submissions = [
+    let mut submissions = vec![
         Submission {
             id: 1,
             problem_id: "problem1".to_owned(),
@@ -57,7 +57,7 @@ async fn test_language_count() {
             ..Default::default()
         },
     ];
-    pool.update_language_count(&submissions).await.unwrap();
+    pool.update_language_count(&submissions, &[]).await.unwrap();
 
     let language_count = pool.load_language_count().await.unwrap();
     assert_eq!(
@@ -87,6 +87,47 @@ async fn test_language_count() {
                 user_id: "user3".to_owned(),
                 simplified_language: "Perl6".to_owned(),
                 problem_count: 1
+            }
+        ]
+    );
+    submissions.push(Submission {
+        id: 8,
+        problem_id: "problem4".to_owned(),
+        user_id: "user3".to_owned(),
+        language: "Perl6".to_owned(),
+        ..Default::default()
+    });
+    pool.update_language_count(&submissions, &language_count)
+        .await
+        .unwrap();
+    let language_count = pool.load_language_count().await.unwrap();
+    assert_eq!(
+        language_count,
+        vec![
+            UserLanguageCount {
+                user_id: "user1".to_owned(),
+                simplified_language: "language1".to_owned(),
+                problem_count: 2
+            },
+            UserLanguageCount {
+                user_id: "user1".to_owned(),
+                simplified_language: "language2".to_owned(),
+                problem_count: 1
+            },
+            UserLanguageCount {
+                user_id: "user2".to_owned(),
+                simplified_language: "language1".to_owned(),
+                problem_count: 1
+            },
+            UserLanguageCount {
+                user_id: "user3".to_owned(),
+                simplified_language: "Perl".to_owned(),
+                problem_count: 1
+            },
+            UserLanguageCount {
+                user_id: "user3".to_owned(),
+                simplified_language: "Perl6".to_owned(),
+                problem_count: 2
             }
         ]
     );

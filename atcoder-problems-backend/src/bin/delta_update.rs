@@ -47,7 +47,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .await?;
 
     info!("Executing update_language_count...");
-    conn.update_language_count(&user_accepted_submissions)
+    conn.update_language_count(&user_accepted_submissions, &[])
         .await?;
 
     info!("Executing update_streak_count...");
