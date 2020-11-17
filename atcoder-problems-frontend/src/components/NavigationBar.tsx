@@ -183,7 +183,7 @@ const InnerNavigationBar: React.FC<InnerProps> = (props) => {
   );
 };
 
-export const NavigationBar = connect<{}, InnerProps>(() => ({
+export const NavigationBar = connect<unknown, InnerProps>(() => ({
   loginState: {
     url: USER_GET,
   },
