@@ -85,7 +85,7 @@ interface InnerProps extends OuterProps {
     request: CreateContestRequest,
     problems: VirtualContestItem[]
   ) => void;
-  updateResponse: PromiseState<{} | null>;
+  updateResponse: PromiseState<unknown | null>;
 }
 
 export const ContestCreatePage = connect<OuterProps, InnerProps>(() => ({

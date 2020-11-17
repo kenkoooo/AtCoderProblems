@@ -17,9 +17,9 @@ import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
 interface Props {
   progressResetList: PromiseState<ProgressResetList | null>;
   addResetProgress: (problemId: string) => void;
-  addResetProgressResponse: PromiseState<{} | null>;
+  addResetProgressResponse: PromiseState<Record<string, unknown> | null>;
   deleteResetProgress: (problemId: string) => void;
-  deleteResetProgressResponse: PromiseState<{} | null>;
+  deleteResetProgressResponse: PromiseState<Record<string, unknown> | null>;
 
   problems: PromiseState<Problem[]>;
 }
@@ -98,7 +98,7 @@ const InnerResetProgress: React.FC<Props> = (props) => {
   );
 };
 
-export const ResetProgress = connect<{}, Props>(() => ({
+export const ResetProgress = connect<unknown, Props>(() => ({
   progressResetList: {
     url: PROGRESS_RESET_LIST,
   },

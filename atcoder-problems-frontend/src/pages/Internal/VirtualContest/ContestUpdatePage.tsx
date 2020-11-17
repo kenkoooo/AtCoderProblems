@@ -29,7 +29,7 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   contestInfoFetch: PromiseState<VirtualContestDetails | null>;
-  updateResponse: PromiseState<{} | null>;
+  updateResponse: PromiseState<unknown | null>;
   updateContest: (request: Request, problems: VirtualContestItem[]) => void;
 }
 

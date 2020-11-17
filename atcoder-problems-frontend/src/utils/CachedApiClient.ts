@@ -75,6 +75,7 @@ const fetchContestProblemPairs = (): Promise<
   fetchTypedList(
     STATIC_API_BASE_URL + "/contest-problem.json",
     (obj): obj is { contest_id: string; problem_id: string } =>
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       typeof obj.contest_id === "string" && typeof obj.problem_id === "string"
   );
 
@@ -145,7 +146,7 @@ export const fetchVirtualContestSubmission = (
   toSecond: number
 ): Promise<List<Submission>> => {
   if (users.length === 0) {
-    return Promise.resolve(List());
+    return Promise.resolve(List<Submission>());
   }
 
   const userList = users.join(",");

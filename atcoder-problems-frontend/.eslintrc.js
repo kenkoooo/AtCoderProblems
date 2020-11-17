@@ -33,6 +33,9 @@ module.exports = {
     // explicit return types are no longer required.
     "@typescript-eslint/explicit-function-return-type": "off",
 
+    // We will never publish it.
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+
     // Returning any is not allowed in this project.
     // Passing any to functions is allowed,
     // only when the function is a type checker or it's required to use JS function.
