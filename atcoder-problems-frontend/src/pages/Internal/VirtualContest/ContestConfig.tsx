@@ -34,8 +34,8 @@ import { HelpBadgeModal } from "../../../components/HelpBadgeModal";
 import { ContestConfigProblemList } from "./ContestConfigProblemList";
 
 const toUnixSecond = (date: string, hour: number, minute: number): number => {
-  const hh = hour < 10 ? "0" + hour : "" + hour;
-  const mm = minute < 10 ? "0" + minute : "" + minute;
+  const hh = hour < 10 ? `0${hour}` : hour.toString();
+  const mm = minute < 10 ? `0${minute}` : minute.toString();
   const s = `${date}T${hh}:${mm}:00`;
   return moment(s).unix();
 };
@@ -422,7 +422,7 @@ interface OuterProps {
 interface InnerProps extends OuterProps {
   problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-  loginState: PromiseState<{} | null>;
+  loginState: PromiseState<unknown | null>;
 }
 
 export const ContestConfig = connect<OuterProps, InnerProps>(() => ({

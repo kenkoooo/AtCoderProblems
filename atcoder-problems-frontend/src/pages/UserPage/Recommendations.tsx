@@ -198,8 +198,8 @@ export const Recommendations: React.FC<Props> = (props) => {
     .filter((p) => problemModels.has(p.id))
     .map((p) => ({
       ...p,
-      difficulty: problemModels.getIn([p.id, "difficulty"], undefined),
-      is_experimental: problemModels.getIn([p.id, "is_experimental"], false),
+      difficulty: problemModels.get(p.id)?.difficulty,
+      is_experimental: problemModels.get(p.id)?.is_experimental ?? false,
     }))
     .filter((p) => recommendExperimental || !p.is_experimental)
     .filter((p) => p.difficulty !== undefined)
@@ -211,15 +211,7 @@ export const Recommendations: React.FC<Props> = (props) => {
         predictedSolveTime = null;
         predictedSolveProbability = -1;
       } else {
-        const problemModel: ProblemModel = problemModels.get(p.id, {
-          slope: undefined,
-          difficulty: undefined,
-          rawDifficulty: undefined,
-          intercept: undefined,
-          discrimination: undefined,
-          is_experimental: false,
-          variance: undefined,
-        });
+        const problemModel: ProblemModel | undefined = problemModels.get(p.id);
         if (isProblemModelWithTimeModel(problemModel)) {
           predictedSolveTime = predictSolveTime(problemModel, internalRating);
         } else {
@@ -251,7 +243,7 @@ export const Recommendations: React.FC<Props> = (props) => {
         p.predictedSolveProbability < recommendingRange.upperBound
     )
     .slice(0, recommendNum)
-    .sort((a, b) => b.difficulty - a.difficulty)
+    .sort((a, b) => (b.difficulty ?? 0) - (a.difficulty ?? 0))
     .toArray();
 
   return (

@@ -15,7 +15,7 @@ const InnerACRanking: React.FC<InnerProps> = (props) => (
   />
 );
 
-export const ACRanking = connect<{}, InnerProps>(() => ({
+export const ACRanking = connect<unknown, InnerProps>(() => ({
   rankingFetch: {
     comparison: null,
     value: (): Promise<RankingEntry[]> => CachedApiClient.cachedACRanking(),

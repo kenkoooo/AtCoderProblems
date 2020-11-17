@@ -7,6 +7,7 @@ import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
 import { List } from "immutable";
 import { useHistory, useLocation } from "react-router-dom";
+import Contest from "../../interfaces/Contest";
 import * as Url from "../../utils/Url";
 import { ContestLink } from "../../components/ContestLink";
 import { ProblemLink } from "../../components/ProblemLink";
@@ -139,7 +140,10 @@ export const ListTable: React.FC<Props> = (props) => {
       header: "Contest",
       dataField: "contest",
       dataSort: true,
-      dataFormat: function DataFormat(contest, row): React.ReactElement {
+      dataFormat: function DataFormat(
+        contest: Contest | undefined,
+        row
+      ): React.ReactElement {
         return contest ? (
           <ContestLink contest={contest} />
         ) : (
