@@ -76,7 +76,7 @@ const InnerLanguageOwners: React.FC<Props> = (props) => {
   );
 };
 
-export const LanguageOwners = connect<{}, Props>(() => ({
+export const LanguageOwners = connect<unknown, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: (): Promise<ImmutableMap<string, List<LangRankingEntry>>> =>

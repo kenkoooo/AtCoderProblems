@@ -18,7 +18,7 @@ const InnerFastestRanking: React.FC<Props> = (props) => (
   />
 );
 
-export const FastestRanking = connect<{}, Props>(() => ({
+export const FastestRanking = connect<unknown, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: CachedApiClient.cachedFastRanking,

@@ -54,15 +54,19 @@ const App: React.FC = () => {
               <Route
                 path="/user/:userIds([a-zA-Z0-9_]+)+"
                 render={({ match }): React.ReactElement => {
-                  const userIds: string | undefined = match.params.userIds;
-                  const userId: string = (userIds ?? "").split("/")[0];
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { userIds: string } = match.params;
+                  const userIds: string = params.userIds;
+                  const userId: string = userIds.split("/")[0];
                   return <UserPage userId={userId} />;
                 }}
               />
               <Route
                 path="/table/:userIds([a-zA-Z0-9_]*)*"
                 render={({ match }): React.ReactElement => {
-                  const userIds: string | undefined = match.params.userIds;
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { userIds?: string } = match.params;
+                  const userIds = params.userIds;
                   const userId = (userIds ?? "").split("/")[0];
                   const rivals = (userIds ?? "/").split("/");
                   const rivalList = List(rivals)
@@ -74,7 +78,9 @@ const App: React.FC = () => {
               <Route
                 path="/list/:userIds([a-zA-Z0-9_]*)*"
                 render={({ match }): React.ReactElement => {
-                  const userIds: string | undefined = match.params.userIds;
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { userIds?: string } = match.params;
+                  const userIds: string | undefined = params.userIds;
                   const userId = (userIds ?? "").split("/")[0];
                   const rivals = (userIds ?? "/").split("/");
                   const rivalList = List(rivals)
@@ -88,8 +94,9 @@ const App: React.FC = () => {
               <Route
                 path="/contest/show/:contestId([a-zA-Z0-9_-]+)"
                 render={({ match }): React.ReactElement => {
-                  const contestId: string = match.params.contestId ?? "";
-                  return <ShowContest contestId={contestId} />;
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { contestId: string } = match.params;
+                  return <ShowContest contestId={params.contestId} />;
                 }}
               />
               <Route
@@ -99,8 +106,9 @@ const App: React.FC = () => {
               <Route
                 path="/contest/update/:contestId([a-zA-Z0-9_-]+)"
                 render={({ match }): React.ReactElement => {
-                  const contestId: string = match.params.contestId ?? "";
-                  return <ContestUpdatePage contestId={contestId} />;
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { contestId: string } = match.params;
+                  return <ContestUpdatePage contestId={params.contestId} />;
                 }}
               />
               <Route path="/contest/recent" component={RecentContestList} />
@@ -112,8 +120,9 @@ const App: React.FC = () => {
               <Route
                 path="/problemlist/:listId([a-zA-Z0-9_-]+)"
                 render={({ match }): React.ReactElement => {
-                  const listId: string = match.params.listId ?? "";
-                  return <SingleProblemList listId={listId} />;
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { listId: string } = match.params;
+                  return <SingleProblemList listId={params.listId} />;
                 }}
               />
               <Route path="/submissions/recent" component={RecentSubmissions} />

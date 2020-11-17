@@ -58,9 +58,9 @@ interface InnerProps extends OuterProps {
   contestInfoFetch: PromiseState<VirtualContestDetails>;
   userInfoGet: PromiseState<UserResponse | null>;
   joinContest: () => void;
-  joinContestPost: PromiseState<{} | null>;
+  joinContestPost: PromiseState<unknown | null>;
   leaveContest: () => void;
-  leaveContestPost: PromiseState<{} | null>;
+  leaveContestPost: PromiseState<unknown | null>;
   problemMapFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
   problemModelGet: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
