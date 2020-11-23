@@ -68,23 +68,28 @@ where
                 log::info!("Fetching from {} {} ...", contest, page);
                 let submissions = self.fetcher.fetch_submissions(&contest, page).await;
                 if submissions.is_empty() {
+                    log::info!("No submission is fetched");
                     break;
                 }
                 let fetched_ids = submissions.iter().map(|s| s.id).collect::<Vec<_>>();
                 let stored_submissions =
                     self.db_pool.count_stored_submissions(&fetched_ids).await?;
 
+                log::info!("{} submissions are already stored.", stored_submissions);
                 if fetched_ids.len() == stored_submissions {
                     streak += 1;
                 } else {
                     streak = 0;
                 }
 
+                log::info!("Updating submissions ...");
                 self.db_pool.update_submissions(&submissions).await?;
+                log::info!("Updated");
 
                 if streak >= CRAWLED_STREAK {
                     break;
                 }
+                log::info!("Sleeping for 200ms");
                 thread::sleep(time::Duration::from_millis(200));
             }
             log::info!("Finished {}", contest);
