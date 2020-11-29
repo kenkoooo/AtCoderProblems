@@ -140,6 +140,16 @@ const InnerNavigationBar: React.FC<InnerProps> = (props) => {
                 </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
+
+            <NavItem>
+              <NavLink
+                href="https://github.com/sponsors/kenkoooo"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Send a tip
+              </NavLink>
+            </NavItem>
           </Nav>
 
           <Nav className="ml-auto" navbar>
