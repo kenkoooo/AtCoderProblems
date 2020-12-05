@@ -75,7 +75,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
       const problemStatus = new Map(
         problemStatusList.map((status) => {
           const list = status.problem.title.split(".");
-          const alphabet = list.length == 0 ? "" : list[0];
+          const alphabet = list.length === 0 ? "" : list[0];
           return [alphabet, status];
         })
       );
