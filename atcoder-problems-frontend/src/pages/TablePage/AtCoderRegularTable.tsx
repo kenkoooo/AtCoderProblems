@@ -38,30 +38,52 @@ interface Props {
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
   const { colorMode, selectedLanguages, showPenalties, userRatingInfo } = props;
-  const contests = props.contests
+  interface OneContest {
+    contest: Contest;
+    id: string;
+    problemStatus: Map<
+      string,
+      {
+        problem: Problem;
+        status: ProblemStatus;
+        model: ProblemModel | undefined;
+        cellColor: TableColor;
+      }
+    >;
+    solvedAll: boolean;
+    rowColor: TableColor;
+  }
+  const contests: OneContest[] = props.contests
     .map((contest) => {
       const problems = props.contestToProblems
         .get(contest.id, List<Problem>())
         .sort((a, b) => a.id.localeCompare(b.id));
-      const problemStatus = problems.map((problem) => ({
-        problem,
-        status: props.statusLabelMap.get(problem.id) ?? noneStatus(),
-        model: props.problemModels.get(problem.id),
-      }));
-      const cellColorList = problems.map((problem) => {
+      const problemStatusList = problems.map((problem) => {
         const status = props.statusLabelMap.get(problem.id) ?? noneStatus();
-        return statusToTableColor({
-          colorMode,
+        return {
+          problem,
           status,
-          contest,
-          selectedLanguages,
-        });
+          model: props.problemModels.get(problem.id),
+          cellColor: statusToTableColor({
+            colorMode,
+            status,
+            contest,
+            selectedLanguages,
+          }),
+        };
       });
+      const problemStatus = new Map(
+        problemStatusList.map((status) => {
+          const list = status.problem.title.split(".");
+          const alphabet = list.length == 0 ? "" : list[0];
+          return [alphabet, status];
+        })
+      );
       const rowColor = combineTableColorList({
         colorMode,
-        colorList: cellColorList,
+        colorList: problemStatusList.map(({ cellColor }) => cellColor),
       });
-      const solvedAll = problemStatus.every(
+      const solvedAll = problemStatusList.every(
         ({ status }) => status.label === StatusLabel.Success
       );
       return {
@@ -70,25 +92,14 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
         problemStatus,
         solvedAll,
         rowColor,
-        cellColorList,
-      };
+      } as OneContest;
     })
-    .filter(({ solvedAll }) => !props.hideCompletedContest || !solvedAll)
+    .filter(
+      ({ solvedAll }: OneContest) => !props.hideCompletedContest || !solvedAll
+    )
     .sort(
       (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
     );
-  interface OneContest {
-    contest: Contest;
-    id: string;
-    problemStatus: List<{
-      problem: Problem;
-      status: ProblemStatus;
-      model: ProblemModel | undefined;
-    }>;
-    solvedAll: boolean;
-    rowColor: TableColor;
-    cellColorList: List<TableColor>;
-  }
   const maxProblemCount = contests.reduce(
     (currentCount, { problemStatus }) =>
       Math.max(problemStatus.size, currentCount),
@@ -114,27 +125,23 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
         >
           Contest
         </TableHeaderColumn>
-        {header.map((c, i) => (
+        {header.map((c) => (
           <TableHeaderColumn
             dataField={c}
             key={c}
             className={() =>
               contests.every(({ problemStatus }) => {
-                const current = problemStatus.get(i)?.status;
+                const current = problemStatus.get(c)?.status;
                 return !current || current.label === StatusLabel.Success;
               })
                 ? TableColor.Success
                 : TableColor.None
             }
-            columnClassName={(
-              _,
-              { problemStatus, cellColorList }: OneContest
-            ): string => {
-              const problem = problemStatus.get(i);
-              const cellColor = cellColorList.get(i, TableColor.None);
+            columnClassName={(_, { problemStatus }: OneContest): string => {
+              const problem = problemStatus.get(c);
               return [
                 "table-problem",
-                !problem ? "table-problem-empty" : cellColor,
+                !problem ? "table-problem-empty" : problem.cellColor,
               ]
                 .filter((nm) => nm)
                 .join(" ");
@@ -143,7 +150,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
               _,
               { contest, problemStatus }: OneContest
             ): string | React.ReactElement => {
-              const problem = problemStatus.get(i);
+              const problem = problemStatus.get(c);
               const model = problem ? problem.model : undefined;
               if (problem) {
                 return (
