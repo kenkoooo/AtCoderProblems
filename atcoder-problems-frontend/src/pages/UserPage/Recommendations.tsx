@@ -91,14 +91,14 @@ const isIncluded = (
   }
 };
 
-const isNotSubmitted = (
+const excludeSubmittedproblem = (
   problemId: string,
   excludeOption: ExcludeOption,
-  submitted: Array<string>
+  submitted: { [_: string]: Array<number> }
 ): boolean => {
   switch (excludeOption) {
     case "Exclude submitted":
-      return !submitted.includes(problemId);
+      return !(problemId in submitted);
     default:
       return true;
   }
@@ -208,12 +208,19 @@ export const Recommendations: React.FC<Props> = (props) => {
   const recommendingRange = getRecommendProbabilityRange(recommendOption);
 
   const currentSecond = Math.floor(new Date().getTime() / 1000);
-  const submittedProblemId = userSubmissions.map((s) => s.problem_id);
+  const submittedProblemIdTable = userSubmissions
+    .map((s) => s.problem_id)
+    .reduce((m, a, i) => {
+      m[a] = (m[a] || []).concat(i);
+      return m;
+    }, {} as { [_: string]: Array<number> });
   const recommendedProblems = problems
     .filter((p) =>
       isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
     )
-    .filter((p) => isNotSubmitted(p.id, excludeOption, submittedProblemId))
+    .filter((p) =>
+      excludeSubmittedproblem(p.id, excludeOption, submittedProblemIdTable)
+    )
     .filter((p) => problemModels.has(p.id))
     .map((p) => ({
       ...p,
