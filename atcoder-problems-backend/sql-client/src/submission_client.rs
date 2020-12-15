@@ -180,7 +180,7 @@ impl SubmissionClient for PgPool {
         let count = sqlx::query(
             r"
             SELECT count FROM submission_count
-            WHERE LOWER(user_id) = LOWER($1)
+            WHERE user_id = $1
             ",
         )
         .bind(user_id)
