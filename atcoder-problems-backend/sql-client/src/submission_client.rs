@@ -159,7 +159,7 @@ impl SubmissionClient for PgPool {
                 sqlx::query_as(
                     r"
                     SELECT * FROM submissions
-                    WHERE LOWER(user_id) = ANY($1)
+                    WHERE user_id = ANY($1)
                     AND problem_id = ANY($2)
                     AND epoch_second >= $3
                     AND epoch_second <= $4
