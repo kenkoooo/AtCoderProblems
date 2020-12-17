@@ -44,7 +44,7 @@ pub(crate) async fn get_users_time_submissions<A>(
 
     let conn = request.state().pg_pool.clone();
     let query = request.query::<Query>().map_anyhow()?;
-    let user_ids = query.users.split(',').map(|s| s.trim().to_lowercase()).collect::<Vec<_>>();
+    let user_ids = query.users.split(',').map(|s| s.trim()).collect::<Vec<_>>();
     let problem_ids = query
         .problems
         .split(',')
