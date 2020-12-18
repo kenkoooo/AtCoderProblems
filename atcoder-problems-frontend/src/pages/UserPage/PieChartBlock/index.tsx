@@ -21,44 +21,38 @@ const solvedCountForPieChart = (
   rejected: number;
   solved: number;
 }[] => {
-  const mapProblemPosition = (contestId: string, problemId: string): number => {
-    const contestPrefix = contestId.substring(0, 3);
-    const problemPrefix = problemId.substring(0, 3);
-    const shift = contestPrefix === "abc" && problemPrefix === "arc";
-    switch (problemId.substring(7, 8)) {
-      case "1":
-      case "a": {
-        return shift ? 2 : 0;
+  const mapProblemPosition = (problemTitle: string): number => {
+    switch (problemTitle.split(".")[0]) {
+      case "A": {
+        return 0;
       }
-      case "2":
-      case "b": {
-        return shift ? 3 : 1;
+      case "B": {
+        return 1;
       }
-      case "3":
-      case "c": {
+      case "C": {
         return 2;
       }
-      case "4":
-      case "d": {
+      case "D": {
         return 3;
       }
-      case "e": {
+      case "E": {
         return 4;
       }
-      case "f": {
+      case "F":
+      case "F2": {
         return 5;
       }
       default: {
         // tslint:disable-next-line
-        console.error(`Unsupported problemId: ${contestId}/${problemId}`);
+        console.error(`Unsupported problemTitle: ${problemTitle}`);
         return 0;
       }
     }
   };
 
   const statusCount = contestToProblems
-    .map(([contestId, problems]) => {
-      const idStatus = problems.map((problem) => {
+    .map(([, problems]) => {
+      const titleStatus = problems.map((problem) => {
         const validSubmissions = submissions
           .get(problem.id)
           ?.filter((s) => s.user_id === userId && isValidResult(s.result));
@@ -67,13 +61,13 @@ const solvedCountForPieChart = (
           : validSubmissions?.find((s) => isAccepted(s.result))
           ? SubmissionStatus.ACCEPTED
           : SubmissionStatus.REJECTED;
-        return { id: problem.id, status };
+        return { title: problem.title, status };
       });
-      return { contestId, idStatus };
+      return { titleStatus };
     })
-    .map(({ contestId, idStatus }) =>
-      idStatus.map(({ id, status }) => ({
-        position: mapProblemPosition(contestId, id),
+    .map(({ titleStatus }) =>
+      titleStatus.map(({ title, status }) => ({
+        position: mapProblemPosition(title),
         status,
       }))
     )
@@ -90,12 +84,12 @@ const solvedCountForPieChart = (
       }
     );
   const totalCount = contestToProblems
-    .map(([contestId, problems]) => {
-      const problemIds = problems.map((problem) => problem.id);
-      return { contestId, problemIds };
+    .map(([, problems]) => {
+      const problemTitles = problems.map((problem) => problem.title);
+      return { problemTitles };
     })
-    .map(({ problemIds, contestId }) =>
-      problemIds.map((problemId) => mapProblemPosition(contestId, problemId))
+    .map(({ problemTitles }) =>
+      problemTitles.map((problemTitle) => mapProblemPosition(problemTitle))
     )
     .flatMap((list) => list)
     .reduce(
