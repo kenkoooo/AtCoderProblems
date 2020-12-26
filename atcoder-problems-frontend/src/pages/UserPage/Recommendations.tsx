@@ -92,9 +92,9 @@ const isIncluded = (
 };
 
 const excludeSubmittedproblem = (
-  problemId: string,
+  problemId: ProblemId,
   excludeOption: ExcludeOption,
-  submitted: Set<string>
+  submitted: Set<ProblemId>
 ): boolean => {
   switch (excludeOption) {
     case "Exclude submitted":
@@ -211,7 +211,7 @@ export const Recommendations: React.FC<Props> = (props) => {
   const submittedSet = userSubmissions.reduce((set, s) => {
     set.add(s.problem_id);
     return set;
-  }, new Set<string>());
+  }, new Set<ProblemId>());
   const recommendedProblems = problems
     .filter((p) =>
       isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
