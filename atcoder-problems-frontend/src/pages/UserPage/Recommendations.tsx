@@ -34,6 +34,7 @@ import { ProblemId } from "../../interfaces/Status";
 
 const ExcludeOptions = [
   "Exclude",
+  "Exclude submitted",
   "1 Week",
   "2 Weeks",
   "4 Weeks",
@@ -56,6 +57,8 @@ const formatExcludeOption = (excludeOption: ExcludeOption): string => {
       return "Exclude all the solved problems";
     case "Don't exclude":
       return "Don't exclude solved problems.";
+    case "Exclude submitted":
+      return "Exclude all the submitted problems";
   }
 };
 
@@ -70,6 +73,7 @@ const isIncluded = (
     const seconds = currentSecond - lastSolvedTime;
     switch (excludeOption) {
       case "Exclude":
+      case "Exclude submitted":
         return false;
       case "1 Week":
         return seconds > 3600 * 24 * 7;
@@ -84,6 +88,19 @@ const isIncluded = (
     }
   } else {
     return true;
+  }
+};
+
+const excludeSubmittedproblem = (
+  problemId: ProblemId,
+  excludeOption: ExcludeOption,
+  submitted: Set<ProblemId>
+): boolean => {
+  switch (excludeOption) {
+    case "Exclude submitted":
+      return !submitted.has(problemId);
+    default:
+      return true;
   }
 };
 
@@ -191,10 +208,15 @@ export const Recommendations: React.FC<Props> = (props) => {
   const recommendingRange = getRecommendProbabilityRange(recommendOption);
 
   const currentSecond = Math.floor(new Date().getTime() / 1000);
+  const submittedSet = userSubmissions.reduce((set, s) => {
+    set.add(s.problem_id);
+    return set;
+  }, new Set<ProblemId>());
   const recommendedProblems = problems
     .filter((p) =>
       isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
     )
+    .filter((p) => excludeSubmittedproblem(p.id, excludeOption, submittedSet))
     .filter((p) => problemModels.has(p.id))
     .map((p) => ({
       ...p,
