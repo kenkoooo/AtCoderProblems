@@ -8,7 +8,11 @@ use sql_client::models::UserSum;
 use sql_client::simple_client::SimpleClient;
 use sql_client::{initialize_pool, PgRow};
 use sql_client::{query, Row};
+use std::cmp::Reverse;
+use std::collections::BTreeMap;
 use std::env;
+
+const LANGUAGE_COUNT_LIMIT: usize = 1000;
 
 #[async_std::main]
 async fn main() -> Result<()> {
@@ -43,8 +47,31 @@ async fn main() -> Result<()> {
             .await?;
     client.update(sums.serialize_to_bytes()?, "/resources/sums.json")?;
 
-    let mut language_count = pg_pool.load_language_count().await?;
-    language_count.sort_by_key(|l| (l.user_id.clone(), l.simplified_language.clone()));
+    let language_count = pg_pool.load_language_count().await?;
+    let mut reduced_language_count = BTreeMap::new();
+    for entry in &language_count {
+        reduced_language_count
+            .entry(entry.simplified_language.as_str())
+            .or_insert_with(Vec::new)
+            .push((entry.problem_count, entry));
+    }
+
+    for vec in reduced_language_count.values_mut() {
+        vec.sort_by_key(|e| Reverse(e.0));
+        vec.truncate(LANGUAGE_COUNT_LIMIT);
+    }
+
+    let mut language_count = reduced_language_count
+        .into_iter()
+        .flat_map(|(_, v)| v.into_iter())
+        .map(|(_, e)| e)
+        .collect::<Vec<_>>();
+    language_count.sort_by(|a, b| {
+        a.user_id
+            .cmp(&b.user_id)
+            .then_with(|| a.simplified_language.cmp(&b.simplified_language))
+    });
+
     client.update(language_count.serialize_to_bytes()?, "/resources/lang.json")?;
 
     let mut contest_problem = pg_pool.load_contest_problem().await?;
