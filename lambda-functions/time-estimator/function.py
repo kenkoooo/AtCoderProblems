@@ -12,23 +12,57 @@ import requests
 from rating import RatingSystem, ContestType
 
 
-old_sponsored_contests = {"code-festival-2014-exhibition", "code-festival-2014-final",
-                          "code-festival-2014-morning-easy", "code-festival-2014-morning-hard",
-                          "code-festival-2014-morning-middle", "code-festival-2014-quala", "code-festival-2014-qualb",
-                          "code-festival-2015-exhibition", "code-festival-2015-morning-easy",
-                          "code-festival-2015-morning-hard", "code-festival-2015-morning-middle",
-                          "code-festival-2015-quala", "code-festival-2015-qualb", "code-formula-2014-final",
-                          "code-formula-2014-quala", "code-formula-2014-qualb", "digitalarts2012",
-                          "discovery2016-final", "discovery2016-qual", "donuts-2015", "dwango2015-finals",
-                          "dwango2015-prelims", "dwango2016-finals", "dwango2016-prelims", "indeednow-quala",
-                          "indeednow-qualb", "mujin-pc-2016", "tenka1-2012-final", "tenka1-2012-qualA",
-                          "tenka1-2012-qualB", "tenka1-2012-qualC", "tenka1-2013-final", "tenka1-2013-quala",
-                          "tenka1-2013-qualb", "tenka1-2014-final", "tenka1-2014-quala", "tenka1-2014-qualb",
-                          "tenka1-2015-final", "tenka1-2015-quala", "tenka1-2015-qualb"}
+old_sponsored_contests = {
+    "code-festival-2014-exhibition",
+    "code-festival-2014-final",
+    "code-festival-2014-morning-easy",
+    "code-festival-2014-morning-hard",
+    "code-festival-2014-morning-middle",
+    "code-festival-2014-quala",
+    "code-festival-2014-qualb",
+    "code-festival-2015-exhibition",
+    "code-festival-2015-morning-easy",
+    "code-festival-2015-morning-hard",
+    "code-festival-2015-morning-middle",
+    "code-festival-2015-quala",
+    "code-festival-2015-qualb",
+    "code-formula-2014-final",
+    "code-formula-2014-quala",
+    "code-formula-2014-qualb",
+    "digitalarts2012",
+    "discovery2016-final",
+    "discovery2016-qual",
+    "donuts-2015",
+    "dwango2015-finals",
+    "dwango2015-prelims",
+    "dwango2016-finals",
+    "dwango2016-prelims",
+    "indeednow-quala",
+    "indeednow-qualb",
+    "mujin-pc-2016",
+    "tenka1-2012-final",
+    "tenka1-2012-qualA",
+    "tenka1-2012-qualB",
+    "tenka1-2012-qualC",
+    "tenka1-2013-final",
+    "tenka1-2013-quala",
+    "tenka1-2013-qualb",
+    "tenka1-2014-final",
+    "tenka1-2014-quala",
+    "tenka1-2014-qualb",
+    "tenka1-2015-final",
+    "tenka1-2015-quala",
+    "tenka1-2015-qualb",
+}
 
 
-prohibited_problem_ids = {"codefestival_2016_final_j",
-                          "discovery_2016_final_e", "arc047_d", "arc022_4", "tenka1_2013_qualB_d"}
+prohibited_problem_ids = {
+    "codefestival_2016_final_j",
+    "discovery_2016_final_e",
+    "arc047_d",
+    "arc022_4",
+    "tenka1_2013_qualB_d",
+}
 
 
 class AtCoderCSRFExtractor(HTMLParser):
@@ -65,18 +99,18 @@ def safe_log(x):
 
 
 def safe_sigmoid(x):
-    return 1. / (1. + math.exp(min(-x, 750)))
+    return 1.0 / (1.0 + math.exp(min(-x, 750)))
 
 
 def _fit_1plm_binary_search(xs, positive_count):
-    discrimination = math.log(6.) / 400.
+    discrimination = math.log(6.0) / 400.0
     lb, ub = -10000, 10000
     accepts = positive_count
     while ub - lb > 1:
         m = (ub + lb) // 2
         expected_accepts = 0
         for x in xs:
-            expected_accepts += 1. / (1. + (6. ** ((m - x) / 400.)))
+            expected_accepts += 1.0 / (1.0 + (6.0 ** ((m - x) / 400.0)))
         if expected_accepts < accepts:
             ub = m
         else:
@@ -100,13 +134,15 @@ def fit_3plm_irt(xs, ys):
     # grid search over retreat_proba
     accepts = sum(ys)
     iterations = []
-    for retreat_proba in frange(0., 0.5, 0.025):
+    for retreat_proba in frange(0.0, 0.5, 0.025):
         participate_proba = 1 - retreat_proba
-        difficulty, discrimination = _fit_1plm_binary_search(xs, accepts / participate_proba)
-        logl = 0.
+        difficulty, discrimination = _fit_1plm_binary_search(
+            xs, accepts / participate_proba
+        )
+        logl = 0.0
         for x, y in zip(xs, ys):
             p = participate_proba * safe_sigmoid(discrimination * (x - difficulty))
-            logl += safe_log(p if y == 1. else (1 - p))
+            logl += safe_log(p if y == 1.0 else (1 - p))
         iterations.append((logl, difficulty, discrimination, retreat_proba))
     return max(iterations)[1:4]
 
@@ -119,7 +155,7 @@ def evaluate_2plm_irt(xs, ys, difficulty, discrimination):
         logl = 0
         for x, y in zip(xs, ys):
             p = safe_sigmoid(discrimination * (x - difficulty))
-            logl += safe_log(p if y == 1. else (1 - p))
+            logl += safe_log(p if y == 1.0 else (1 - p))
     return logl, n
 
 
@@ -137,13 +173,20 @@ def inverse_adjust_rating(rating, prev_contests):
         return float("nan")
     if rating <= 400:
         rating = 400 * (1 - math.log(400 / rating))
-    adjustment = (math.sqrt(1 - (0.9 ** (2 * prev_contests))) /
-                  (1 - 0.9 ** prev_contests) - 1) / (math.sqrt(19) - 1) * 1200
+    adjustment = (
+        (math.sqrt(1 - (0.9 ** (2 * prev_contests))) / (1 - 0.9 ** prev_contests) - 1)
+        / (math.sqrt(19) - 1)
+        * 1200
+    )
     return rating + adjustment
 
 
 def is_very_easy_problem(task_screen_name):
-    return task_screen_name.startswith("abc") and task_screen_name[-1] in {"a", "b"} and int(task_screen_name[3:6]) >= 42
+    return (
+        task_screen_name.startswith("abc")
+        and task_screen_name[-1] in {"a", "b"}
+        and int(task_screen_name[3:6]) >= 42
+    )
 
 
 def is_agc_easiest_problem(task_screen_name):
@@ -151,79 +194,111 @@ def is_agc_easiest_problem(task_screen_name):
 
 
 def fit_problem_model(user_results, task_screen_name):
-    max_score = max(task_result[task_screen_name + ".score"]
-                    for task_result in user_results)
-    if max_score == 0.:
+    max_score = max(
+        task_result[task_screen_name + ".score"] for task_result in user_results
+    )
+    if max_score == 0.0:
         print(
-            f"The problem {task_screen_name} is not solved by any competitors. skipping.")
+            f"The problem {task_screen_name} is not solved by any competitors. skipping."
+        )
         return {}
     for task_result in user_results:
-        task_result[task_screen_name +
-                    ".ac"] *= float(task_result[task_screen_name + ".score"] == max_score)
-    elapsed = [task_result[task_screen_name + ".elapsed"]
-               for task_result in user_results]
+        task_result[task_screen_name + ".ac"] *= float(
+            task_result[task_screen_name + ".score"] == max_score
+        )
+    elapsed = [
+        task_result[task_screen_name + ".elapsed"] for task_result in user_results
+    ]
     first_ac = min(elapsed)
 
     recurring_users = [
-        task_result for task_result in user_results if task_result["prev_contests"] > 0 and task_result["rating"] > 0]
+        task_result
+        for task_result in user_results
+        if task_result["prev_contests"] > 0 and task_result["rating"] > 0
+    ]
     for task_result in recurring_users:
         task_result["raw_rating"] = inverse_adjust_rating(
-            task_result["rating"], task_result["prev_contests"])
-    time_model_sample_users = [task_result for task_result in recurring_users
-                               if task_result[task_screen_name + ".time"] > first_ac / 2 and task_result[
-                                   task_screen_name + ".ac"] == 1.]
+            task_result["rating"], task_result["prev_contests"]
+        )
+    time_model_sample_users = [
+        task_result
+        for task_result in recurring_users
+        if task_result[task_screen_name + ".time"] > first_ac / 2
+        and task_result[task_screen_name + ".ac"] == 1.0
+    ]
     model = {}
     if len(time_model_sample_users) < 40:
         print(
-            f"{task_screen_name}: insufficient data ({len(time_model_sample_users)} users). skip estimating time model.")
+            f"{task_screen_name}: insufficient data ({len(time_model_sample_users)} users). skip estimating time model."
+        )
     else:
-        raw_ratings = [task_result["raw_rating"]
-                       for task_result in time_model_sample_users]
-        time_secs = [task_result[task_screen_name + ".time"] /
-                     (10 ** 9) for task_result in time_model_sample_users]
+        raw_ratings = [
+            task_result["raw_rating"] for task_result in time_model_sample_users
+        ]
+        time_secs = [
+            task_result[task_screen_name + ".time"] / (10 ** 9)
+            for task_result in time_model_sample_users
+        ]
         time_logs = [math.log(t) for t in time_secs]
         slope, intercept = single_regression(raw_ratings, time_logs)
         print(
-            f"{task_screen_name}: time [sec] = exp({slope} * raw_rating + {intercept})")
+            f"{task_screen_name}: time [sec] = exp({slope} * raw_rating + {intercept})"
+        )
         if slope > 0:
             print("slope is positive. ignoring unreliable estimation.")
         else:
             model["slope"] = slope
             model["intercept"] = intercept
-            model["variance"] = statistics.variance([slope * rating + intercept - time_log
-                                                     for rating, time_log in zip(raw_ratings, time_logs)])
+            model["variance"] = statistics.variance(
+                [
+                    slope * rating + intercept - time_log
+                    for rating, time_log in zip(raw_ratings, time_logs)
+                ]
+            )
 
     if is_very_easy_problem(task_screen_name):
         # ad-hoc. excluding high-rating competitors from abc-a/abc-b dataset. They often skip these problems.
         difficulty_dataset = [
-            task_result for task_result in recurring_users if task_result["is_rated"] and not task_result["retreated"]]
+            task_result
+            for task_result in recurring_users
+            if task_result["is_rated"] and not task_result["retreated"]
+        ]
     elif is_agc_easiest_problem(task_screen_name):
         # ad-hoc. AGC-A usually have missing data for negative samples.
         difficulty_dataset = recurring_users
     else:
         # normal. using all participants with at least one submissions
         difficulty_dataset = [
-            task_result for task_result in recurring_users if not task_result["retreated"]]
+            task_result
+            for task_result in recurring_users
+            if not task_result["retreated"]
+        ]
     if len(difficulty_dataset) < 40:
         print(
-            f"{task_screen_name}: insufficient data ({len(difficulty_dataset)} users). skip estimating difficulty model.")
-    elif all(task_result[task_screen_name + ".ac"] for task_result in difficulty_dataset):
+            f"{task_screen_name}: insufficient data ({len(difficulty_dataset)} users). skip estimating difficulty model."
+        )
+    elif all(
+        task_result[task_screen_name + ".ac"] for task_result in difficulty_dataset
+    ):
         print("all contestants got AC. skip estimating difficulty model.")
-    elif not any(task_result[task_screen_name + ".ac"] for task_result in difficulty_dataset):
+    elif not any(
+        task_result[task_screen_name + ".ac"] for task_result in difficulty_dataset
+    ):
         print("no contestants got AC. skip estimating difficulty model.")
     else:
-        d_raw_ratings = [task_result["raw_rating"]
-                         for task_result in difficulty_dataset]
-        d_accepteds = [task_result[task_screen_name + ".ac"]
-                       for task_result in difficulty_dataset]
+        d_raw_ratings = [
+            task_result["raw_rating"] for task_result in difficulty_dataset
+        ]
+        d_accepteds = [
+            task_result[task_screen_name + ".ac"] for task_result in difficulty_dataset
+        ]
         if is_agc_easiest_problem(task_screen_name):
             difficulty, discrimination, retreat_proba = fit_3plm_irt(
-                d_raw_ratings, d_accepteds)
+                d_raw_ratings, d_accepteds
+            )
         else:
-            difficulty, discrimination = fit_2plm_irt(
-                d_raw_ratings, d_accepteds)
-        print(
-            f"difficulty: {difficulty}, discrimination: {discrimination}")
+            difficulty, discrimination = fit_2plm_irt(d_raw_ratings, d_accepteds)
+        print(f"difficulty: {difficulty}, discrimination: {discrimination}")
         if discrimination < 0:
             print("discrimination is negative. ignoring unreliable estimation.")
         elif difficulty > 6000:
@@ -233,27 +308,34 @@ def fit_problem_model(user_results, task_screen_name):
             model["discrimination"] = discrimination
         if is_agc_easiest_problem(task_screen_name):
             # evaluate difficulty and discrimination using 2plm data.
-            d_retreateds = [task_result["retreated"]
-                            for task_result in difficulty_dataset]
+            d_retreateds = [
+                task_result["retreated"] for task_result in difficulty_dataset
+            ]
             loglikelihood, users = evaluate_3plm_irt(
-                d_raw_ratings, d_accepteds, difficulty, discrimination, d_retreateds)
+                d_raw_ratings, d_accepteds, difficulty, discrimination, d_retreateds
+            )
         else:
             loglikelihood, users = evaluate_2plm_irt(
-                d_raw_ratings, d_accepteds, difficulty, discrimination)
+                d_raw_ratings, d_accepteds, difficulty, discrimination
+            )
         model["irt_loglikelihood"] = loglikelihood
         model["irt_users"] = users
     return model
 
 
-def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, session, skip_if_no_user_has_rating):
+def fetch_dataset_for_contest(
+    contest_name, contest_type, existing_problem, session, skip_if_no_user_has_rating
+):
     try:
         results = session.get(
-            "https://atcoder.jp/contests/{}/standings/json".format(contest_name)).json()
+            "https://atcoder.jp/contests/{}/standings/json".format(contest_name)
+        ).json()
     except json.JSONDecodeError as e:
         print(f"{e}")
         return {}, []
-    task_names = {task["TaskScreenName"]: task["TaskName"]
-                  for task in results["TaskInfo"]}
+    task_names = {
+        task["TaskScreenName"]: task["TaskName"] for task in results["TaskInfo"]
+    }
 
     user_results = []
     standings_data = results["StandingsData"]
@@ -275,16 +357,19 @@ def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, sess
             "rating": rating,
             "prev_contests": prev_contests,
             "user_name": user_name,
-            "retreated": retreated
+            "retreated": retreated,
         }
         for task_name in task_names:
-            user_row[task_name + ".score"] = 0.
-            user_row[task_name + ".time"] = -1.
+            user_row[task_name + ".score"] = 0.0
+            user_row[task_name + ".time"] = -1.0
             user_row[task_name + ".elapsed"] = 10 ** 200
-            user_row[task_name + ".ac"] = 0.
+            user_row[task_name + ".ac"] = 0.0
 
-        prev_accepted_times = [0] + [task_result["Elapsed"]
-                                     for task_result in result_row["TaskResults"].values() if task_result["Score"] > 0]
+        prev_accepted_times = [0] + [
+            task_result["Elapsed"]
+            for task_result in result_row["TaskResults"].values()
+            if task_result["Score"] > 0
+        ]
         user_row["last_ac"] = max(prev_accepted_times)
         for task_screen_name, task_result in result_row["TaskResults"].items():
             user_row[task_screen_name + ".score"] = task_result["Score"]
@@ -292,22 +377,27 @@ def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, sess
                 elapsed = task_result["Elapsed"]
                 penalty = task_result["Penalty"] * 5 * 60 * (10 ** 9)
                 user_row[task_screen_name + ".elapsed"] = elapsed
-                user_row[task_screen_name + ".time"] = penalty + elapsed - \
-                    max(t for t in prev_accepted_times if t < elapsed)
-                user_row[task_screen_name +
-                         ".ac"] = float(task_result["Status"] == 1)
+                user_row[task_screen_name + ".time"] = (
+                    penalty
+                    + elapsed
+                    - max(t for t in prev_accepted_times if t < elapsed)
+                )
+                user_row[task_screen_name + ".ac"] = float(task_result["Status"] == 1)
         user_results.append(user_row)
 
-    if len(user_results) == 0 or (all(user_row["rating"] == 0 for user_row in user_results) and skip_if_no_user_has_rating):
+    if len(user_results) == 0 or (
+        all(user_row["rating"] == 0 for user_row in user_results)
+        and skip_if_no_user_has_rating
+    ):
         print(
-            f"There are no participants/submissions for contest {contest_name}. Ignoring.")
+            f"There are no participants/submissions for contest {contest_name}. Ignoring."
+        )
         return {}, standings
 
     user_results_by_problem = defaultdict(list)
     for task_screen_name in task_names.keys():
         if task_screen_name in existing_problem:
-            print(
-                f"The problem model for {task_screen_name} already exists. skipping.")
+            print(f"The problem model for {task_screen_name} already exists. skipping.")
             continue
         user_results_by_problem[task_screen_name] += user_results
     return user_results_by_problem, standings
@@ -315,14 +405,20 @@ def fetch_dataset_for_contest(contest_name, contest_type, existing_problem, sess
 
 def get_current_models():
     try:
-        return requests.get("https://kenkoooo.com/atcoder/resources/problem-models.json").json()
+        return requests.get(
+            "https://kenkoooo.com/atcoder/resources/problem-models.json"
+        ).json()
     except Exception as e:
         print(f"Failed to fetch existing models.\n{e}")
         return {}
 
 
 def infer_contest_type(contest) -> ContestType:
-    if contest["rate_change"] == "All" or contest["rate_change"] == "1200 ~ ":
+    if (
+        contest["rate_change"] == "All"
+        or contest["rate_change"] == "1200 ~ "
+        or contest["rate_change"] == "2000 ~ "
+    ):
         return ContestType.AGC
     elif contest["rate_change"] == " ~ 2799" or contest["rate_change"] == "1200 ~ 2799":
         return ContestType.NEW_ARC
@@ -345,20 +441,33 @@ def all_rated_contests():
     # Gets all contest IDs and their contest type
     # The result is ordered by the start time.
     contests = requests.get(
-        "https://kenkoooo.com/atcoder/resources/contests.json").json()
+        "https://kenkoooo.com/atcoder/resources/contests.json"
+    ).json()
     contests.sort(key=lambda contest: contest["start_epoch_second"])
-    contests_and_types = [(contest["id"], infer_contest_type(contest))
-                          for contest in contests]
-    return [(contest_id, contest_type) for contest_id, contest_type in contests_and_types if contest_type != ContestType.UNRATED]
+    contests_and_types = [
+        (contest["id"], infer_contest_type(contest)) for contest in contests
+    ]
+    return [
+        (contest_id, contest_type)
+        for contest_id, contest_type in contests_and_types
+        if contest_type != ContestType.UNRATED
+    ]
 
 
 def all_contest_problems():
     problems = requests.get(
-        "https://kenkoooo.com/atcoder/resources/problems.json").json()
+        "https://kenkoooo.com/atcoder/resources/problems.json"
+    ).json()
     # exclude marathon-like problems
-    problems = [problem for problem in problems if problem["id"]
-                not in prohibited_problem_ids]
-    return {contest_id: set(problem["id"] for problem in problems) for contest_id, problems in itertools.groupby(problems, key=lambda problem: problem["contest_id"])}
+    problems = [
+        problem for problem in problems if problem["id"] not in prohibited_problem_ids
+    ]
+    return {
+        contest_id: set(problem["id"] for problem in problems)
+        for contest_id, problems in itertools.groupby(
+            problems, key=lambda problem: problem["contest_id"]
+        )
+    }
 
 
 def run(target, overwrite, session):
@@ -381,11 +490,16 @@ def run(target, overwrite, session):
     for contest, contest_type in target:
         problems = set(contest_problems.get(contest, []))
         if not overwrite and existing_problems & problems == problems:
-            print("All problem models of contest {} are already estimated. specify overwrite = True if you want to update the model.".format(contest))
+            print(
+                "All problem models of contest {} are already estimated. specify overwrite = True if you want to update the model.".format(
+                    contest
+                )
+            )
             continue
         is_old_contest = not contest_type.is_rated
         user_results_by_problem, standings = fetch_dataset_for_contest(
-            contest, contest_type, existing_problems, session, not recompute_history)
+            contest, contest_type, existing_problems, session, not recompute_history
+        )
         for problem, data_points in user_results_by_problem.items():
             if recompute_history:
                 # overwrite competition history, and rating if necessary
@@ -394,10 +508,14 @@ def run(target, overwrite, session):
                     experimental_problems.add(problem)
                     for data_point in data_points:
                         prev_contests = rating_system.competition_count(
-                            data_point["user_name"])
+                            data_point["user_name"]
+                        )
                         data_point["prev_contests"] = prev_contests
-                        data_point["rating"] = rating_system.calc_rating(
-                            data_point["user_name"]) if prev_contests > 0 else 0
+                        data_point["rating"] = (
+                            rating_system.calc_rating(data_point["user_name"])
+                            if prev_contests > 0
+                            else 0
+                        )
                 else:
                     # contests after official rating system. using the official rating
                     if contest_type.is_rated:
@@ -408,12 +526,12 @@ def run(target, overwrite, session):
                         if data_point["rating"] == 0:
                             # AtCoder returns 0 for OldRating if the user has no submission in the contest.
                             # It is not ideal when these users is also a part of dataset (e.g. AGC-A workaround)
-                            data_point["rating"] = last_nonzero_rating.get(
-                                user_name, 0)
+                            data_point["rating"] = last_nonzero_rating.get(user_name, 0)
                         else:
                             last_nonzero_rating[user_name] = data_point["rating"]
-                        data_point["prev_contests"] = len(
-                            competition_history_by_id[user_name]) - 1
+                        data_point["prev_contests"] = (
+                            len(competition_history_by_id[user_name]) - 1
+                        )
             dataset_by_problem[problem] += data_points
         if recompute_history and is_old_contest:
             print("Updating user rating with the result of {}".format(contest))
@@ -432,11 +550,7 @@ def login(user_id, password):
     get_response = session.get("https://atcoder.jp/login")
     extractor = AtCoderCSRFExtractor()
     csrf = extractor.extract(get_response.text)
-    form_values = {
-        "username": user_id,
-        "password": password,
-        "csrf_token": csrf
-    }
+    form_values = {"username": user_id, "password": password, "csrf_token": csrf}
     post_response = session.post("https://atcoder.jp/login", data=form_values)
     if post_response.status_code != 200:
         raise Exception(str(post_response))
@@ -458,6 +572,7 @@ def handler(event, context):
     session = login(atcoder_user, atcoder_pass)
     results = run(target, overwrite, session)
     print("Estimation completed. Saving results in S3")
-    s3 = boto3.resource('s3')
-    s3.Object(bucket, object_key).put(Body=json.dumps(
-        results), ContentType="application/json")
+    s3 = boto3.resource("s3")
+    s3.Object(bucket, object_key).put(
+        Body=json.dumps(results), ContentType="application/json"
+    )
