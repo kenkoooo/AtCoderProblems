@@ -7,6 +7,8 @@ use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::BTreeMap;
 
+const SUBMISSION_LIMIT: i64 = 10000;
+
 pub enum SubmissionRequest<'a> {
     UserAll {
         user_id: &'a str,
@@ -60,119 +62,105 @@ pub trait SubmissionClient {
 impl SubmissionClient for PgPool {
     async fn get_submissions<'a>(&self, request: SubmissionRequest<'a>) -> Result<Vec<Submission>> {
         let submissions = match request {
-            SubmissionRequest::UserAll { user_id } => {
-                sqlx::query_as(
-                    r"
+            SubmissionRequest::UserAll { user_id } => sqlx::query_as(
+                r"
                     SELECT * FROM submissions
                     WHERE user_id = $1
                     ",
-                )
-                .bind(user_id)
-                .fetch_all(self)
-            }
-            SubmissionRequest::FromTime { from_second, count } => {
-                sqlx::query_as(
-                    r"
+            )
+            .bind(user_id)
+            .fetch_all(self),
+            SubmissionRequest::FromTime { from_second, count } => sqlx::query_as(
+                r"
                          SELECT * FROM submissions
                          WHERE epoch_second >= $1
                          ORDER BY epoch_second ASC
                          LIMIT $2
                          ",
-                )
-                .bind(from_second)
-                .bind(count)
-                .fetch_all(self)
-            }
-            SubmissionRequest::RecentAccepted { count } => {
-                sqlx::query_as(
-                    r"
+            )
+            .bind(from_second)
+            .bind(count)
+            .fetch_all(self),
+            SubmissionRequest::RecentAccepted { count } => sqlx::query_as(
+                r"
                     SELECT * FROM submissions
                     WHERE result = 'AC'
                     ORDER BY id DESC
                     LIMIT $1
                     ",
-                )
-                .bind(count)
-                .fetch_all(self)
-            }
-            SubmissionRequest::RecentAll { count } => {
-                sqlx::query_as(
-                    r"
+            )
+            .bind(count)
+            .fetch_all(self),
+            SubmissionRequest::RecentAll { count } => sqlx::query_as(
+                r"
                     SELECT * FROM submissions
                     ORDER BY id DESC
                     LIMIT $1
                     ",
-                )
-                .bind(count)
-                .fetch_all(self)
-            }
-            SubmissionRequest::UsersAccepted { user_ids } => {
-                sqlx::query_as(
-                    r"
+            )
+            .bind(count)
+            .fetch_all(self),
+            SubmissionRequest::UsersAccepted { user_ids } => sqlx::query_as(
+                r"
                     SELECT * FROM submissions
                     WHERE result = 'AC'
                     AND user_id = ANY($1)
                     ",
-                )
-                .bind(user_ids)
-                .fetch_all(self)
-            }
-            SubmissionRequest::AllAccepted => {
-                sqlx::query_as(
-                    r"
+            )
+            .bind(user_ids)
+            .fetch_all(self),
+            SubmissionRequest::AllAccepted => sqlx::query_as(
+                r"
                     SELECT * FROM submissions
                     WHERE result = 'AC'
                     ",
-                )
-                .fetch_all(self)
-            }
-            SubmissionRequest::InvalidResult { from_second } => {
-                sqlx::query_as(
-                    r"
+            )
+            .fetch_all(self),
+            SubmissionRequest::InvalidResult { from_second } => sqlx::query_as(
+                r"
                     SELECT * FROM submissions
                     WHERE 
-                        result != ALL(ARRAY['AC', 'WA', 'TLE', 'CE', 'RE', 'MLE', 'OLE', 'QLE', 'IE', 'NG'])
+                        result != ALL(
+                            ARRAY['AC', 'WA', 'TLE', 'CE', 'RE', 'MLE', 'OLE', 'QLE', 'IE', 'NG']
+                        )
                     AND 
                         epoch_second >= $1
                     ORDER BY id DESC
-                    "
-                )
-                .bind(from_second)
-                .fetch_all(self)
-            }
-            SubmissionRequest::ByIds { ids } => {
-                sqlx::query_as(
-                    r"
+                    ",
+            )
+            .bind(from_second)
+            .fetch_all(self),
+            SubmissionRequest::ByIds { ids } => sqlx::query_as(
+                r"
                     SELECT * FROM submissions
                     WHERE id = ANY($1)
                     ",
-                )
-                .bind(ids)
-                .fetch_all(self)
-            }
+            )
+            .bind(ids)
+            .fetch_all(self),
             SubmissionRequest::UsersProblemsTime {
                 user_ids,
                 problem_ids,
                 from_second,
                 to_second,
-            } => {
-                sqlx::query_as(
-                    r"
+            } => sqlx::query_as(
+                r"
                     SELECT * FROM submissions
                     WHERE user_id = ANY($1)
                     AND problem_id = ANY($2)
                     AND epoch_second >= $3
                     AND epoch_second <= $4
-                    LIMIT 2000
-                    "
-                )
-                .bind(user_ids)
-                .bind(problem_ids)
-                .bind(from_second)
-                .bind(to_second)
-                .fetch_all(self)
-            }
-        }.await?;
+                    LIMIT $5
+                    ",
+            )
+            .bind(user_ids)
+            .bind(problem_ids)
+            .bind(from_second)
+            .bind(to_second)
+            .bind(SUBMISSION_LIMIT)
+            .fetch_all(self),
+        }
+        .await?;
         Ok(submissions)
     }
 
