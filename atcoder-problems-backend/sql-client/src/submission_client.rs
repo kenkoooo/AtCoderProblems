@@ -65,7 +65,7 @@ impl SubmissionClient for PgPool {
             SubmissionRequest::UserAll { user_id } => sqlx::query_as(
                 r"
                     SELECT * FROM submissions
-                    WHERE user_id = $1
+                    WHERE LOWER(user_id) = LOWER($1)
                     ",
             )
             .bind(user_id)
