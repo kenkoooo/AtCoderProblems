@@ -23,7 +23,7 @@ async fn test_submission_client() {
     .await
     .unwrap();
 
-    let request = SubmissionRequest::UserAll { user_id: "user1" };
+    let request = SubmissionRequest::UserAll { user_id: "usEr1" };
     let submissions = pool.get_submissions(request).await.unwrap();
     assert_eq!(submissions.len(), 3);
 
