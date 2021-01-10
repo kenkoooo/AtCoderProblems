@@ -85,7 +85,7 @@ async fn test_language_count() {
             },
             UserLanguageCount {
                 user_id: "user3".to_owned(),
-                simplified_language: "Perl6".to_owned(),
+                simplified_language: "Raku".to_owned(),
                 problem_count: 1
             }
         ]
@@ -126,7 +126,7 @@ async fn test_language_count() {
             },
             UserLanguageCount {
                 user_id: "user3".to_owned(),
-                simplified_language: "Perl6".to_owned(),
+                simplified_language: "Raku".to_owned(),
                 problem_count: 2
             }
         ]

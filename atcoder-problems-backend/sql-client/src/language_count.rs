@@ -125,7 +125,7 @@ impl LanguageCountClient for PgPool {
 fn simplify_language(lang: &str) -> String {
     let re = Regex::new(r"\d*\s*\(.*\)").unwrap();
     if lang.starts_with("Perl6") {
-        "Perl6".to_string()
+        "Raku".to_string()
     } else {
         re.replace(lang, "").to_string()
     }
@@ -139,7 +139,7 @@ mod tests {
     fn test_simplify_language() {
         assert_eq!(simplify_language("language1"), "language1");
         assert_eq!(simplify_language("Perl (5)"), "Perl");
-        assert_eq!(simplify_language("Perl6"), "Perl6");
+        assert_eq!(simplify_language("Perl6"), "Raku");
         assert_eq!(simplify_language("Fortran(GNU Fortran 9.2.1)"), "Fortran");
         assert_eq!(simplify_language("Ada2012 (GNAT 9.2.1)"), "Ada");
         assert_eq!(simplify_language("PyPy2 (7.3.0)"), "PyPy");
