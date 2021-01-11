@@ -2,7 +2,11 @@ import { Col, Row } from "reactstrap";
 import React from "react";
 import Problem from "../../../interfaces/Problem";
 import Submission from "../../../interfaces/Submission";
-import { isAccepted, isValidResult } from "../../../utils";
+import {
+  caseInsensitiveUserId,
+  isAccepted,
+  isValidResult,
+} from "../../../utils";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import { SmallPieChart } from "./SmallPieChart";
 
@@ -55,7 +59,11 @@ const solvedCountForPieChart = (
       const titleStatus = problems.map((problem) => {
         const validSubmissions = submissions
           .get(problem.id)
-          ?.filter((s) => s.user_id === userId && isValidResult(s.result));
+          ?.filter(
+            (s) =>
+              caseInsensitiveUserId(s.user_id) === userId &&
+              isValidResult(s.result)
+          );
         const status = !validSubmissions
           ? SubmissionStatus.TRYING
           : validSubmissions?.find((s) => isAccepted(s.result))
