@@ -7,7 +7,7 @@ import { connect, PromiseState } from "react-refetch";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
-import { isAccepted } from "../../utils";
+import { caseInsensitiveUserId, isAccepted } from "../../utils";
 import { ContestId, ProblemId } from "../../interfaces/Status";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import ProblemModel from "../../interfaces/ProblemModel";
@@ -113,8 +113,10 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   const userSubmissions = submissions
     .valueSeq()
     .flatMap((list) => list)
-    .filter((s) => s.user_id === userId)
+    .filter((s) => caseInsensitiveUserId(s.user_id) === userId)
     .toArray();
+  const actualUserId =
+    userSubmissions.length > 0 ? userSubmissions[0].user_id : userId;
   const dailyCount = countUniqueAcByDate(userSubmissions);
   const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
     dailyCount
@@ -145,7 +147,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   return (
     <div>
       <Row className="my-2 border-bottom">
-        <UserNameLabel userId={userId} big showRating />
+        <UserNameLabel userId={actualUserId} big showRating />
       </Row>
       <Nav tabs>
         {userPageTabs.map((tab) => (

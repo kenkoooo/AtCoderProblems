@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
-import { ordinalSuffixOf } from "../../../utils";
+import { caseInsensitiveUserId, ordinalSuffixOf } from "../../../utils";
 import { formatMomentDate, getToday } from "../../../utils/DateUtil";
 import { RankingEntry } from "../../../interfaces/RankingEntry";
 import {
@@ -22,7 +22,7 @@ const findFromRanking = (
 } => {
   const entry = ranking
     .sort((a, b) => b.problem_count - a.problem_count)
-    .find((r) => r.user_id === userId);
+    .find((r) => caseInsensitiveUserId(r.user_id) === userId);
   if (entry) {
     const count = entry.problem_count;
     const rank = ranking.filter((e) => e.problem_count > count).length;
