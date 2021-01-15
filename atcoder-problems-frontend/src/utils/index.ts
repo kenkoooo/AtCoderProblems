@@ -22,6 +22,9 @@ export const normalizeUserId = (userId: string): string => {
   const trimmedUserId = userId.trim();
   return ATCODER_USER_REGEXP.exec(trimmedUserId) ? trimmedUserId : "";
 };
+export const caseInsensitiveUserId = (userId: string): string => {
+  return userId.toLowerCase();
+};
 
 export const isAccepted = (result: string): boolean => result === "AC";
 export const isValidResult = (result: string): boolean =>

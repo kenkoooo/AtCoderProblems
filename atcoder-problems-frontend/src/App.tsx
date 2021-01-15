@@ -29,6 +29,7 @@ import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { caseInsensitiveUserId } from "./utils";
 
 const App: React.FC = () => {
   return (
@@ -57,7 +58,9 @@ const App: React.FC = () => {
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                   const params: { userIds: string } = match.params;
                   const userIds: string = params.userIds;
-                  const userId: string = userIds.split("/")[0];
+                  const userId: string = caseInsensitiveUserId(
+                    userIds.split("/")[0]
+                  );
                   return <UserPage userId={userId} />;
                 }}
               />
@@ -67,11 +70,14 @@ const App: React.FC = () => {
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                   const params: { userIds?: string } = match.params;
                   const userIds = params.userIds;
-                  const userId = (userIds ?? "").split("/")[0];
+                  const userId = caseInsensitiveUserId(
+                    (userIds ?? "").split("/")[0]
+                  );
                   const rivals = (userIds ?? "/").split("/");
                   const rivalList = List(rivals)
                     .skip(1)
-                    .filter((x) => x.length > 0);
+                    .filter((x) => x.length > 0)
+                    .map((x) => caseInsensitiveUserId(x));
                   return <TablePage userId={userId} rivals={rivalList} />;
                 }}
               />
@@ -81,11 +87,14 @@ const App: React.FC = () => {
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                   const params: { userIds?: string } = match.params;
                   const userIds: string | undefined = params.userIds;
-                  const userId = (userIds ?? "").split("/")[0];
+                  const userId = caseInsensitiveUserId(
+                    (userIds ?? "").split("/")[0]
+                  );
                   const rivals = (userIds ?? "/").split("/");
                   const rivalList = List(rivals)
                     .skip(1)
-                    .filter((x) => x.length > 0);
+                    .filter((x) => x.length > 0)
+                    .map((x) => caseInsensitiveUserId(x));
                   return <ListPage userId={userId} rivals={rivalList} />;
                 }}
               />

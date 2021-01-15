@@ -1,4 +1,5 @@
 import Submission from "../../interfaces/Submission";
+import { caseInsensitiveUserId } from "../../utils";
 
 export interface UserResponse {
   readonly internal_user_id: string;
@@ -81,7 +82,10 @@ export const filterResetProgress = (
   userId: string
 ): Submission[] =>
   submissions.filter((submission) => {
-    if (submission.user_id !== userId) {
+    if (
+      caseInsensitiveUserId(submission.user_id) !==
+      caseInsensitiveUserId(userId)
+    ) {
       return true;
     }
     const resetEpochSecond =
