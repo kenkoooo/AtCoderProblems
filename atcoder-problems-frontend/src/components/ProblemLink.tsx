@@ -79,8 +79,8 @@ export const ProblemLink: React.FC<Props> = (props) => {
       ) : null}
       <a
         href={Url.formatProblemUrl(problemId, contestId)}
-        target="_blank" // eslint-disable-line react/jsx-no-target-blank
-        rel="noopener"
+        target="_blank"
+        rel="noopener noreferrer"
         className={ratingColorClass}
       >
         {problemTitle}

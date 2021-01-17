@@ -9,8 +9,8 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
 export const NewTabLink: React.FC<Props> = (props) => (
   <a
     href={props.href}
-    target="_blank" // eslint-disable-line react/jsx-no-target-blank
-    rel="noopener"
+    target="_blank"
+    rel="noopener noreferrer"
     className={props.className}
   >
     {props.children}
