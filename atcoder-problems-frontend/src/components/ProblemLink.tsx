@@ -79,8 +79,11 @@ export const ProblemLink: React.FC<Props> = (props) => {
       ) : null}
       <a
         href={Url.formatProblemUrl(problemId, contestId)}
+        // Don't add rel="noreferrer" to AtCoder links
+        // to allow AtCoder get the referral information.
+        // eslint-disable-next-line react/jsx-no-target-blank
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener"
         className={ratingColorClass}
       >
         {problemTitle}
