@@ -227,7 +227,7 @@ def fit_problem_model(user_results, task_screen_name):
         and task_result[task_screen_name + ".ac"] == 1.0
     ]
     model = {}
-    if len(time_model_sample_users) < 40:
+    if len(time_model_sample_users) < 5:
         print(
             f"{task_screen_name}: insufficient data ({len(time_model_sample_users)} users). skip estimating time model."
         )
