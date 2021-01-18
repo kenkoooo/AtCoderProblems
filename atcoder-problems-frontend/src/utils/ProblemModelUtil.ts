@@ -26,6 +26,13 @@ export const predictSolveTime = (
   return Math.exp(logTime);
 };
 
+export const calculateTopPlayerEquivalentEffort = (
+  problemModel: ProblemModelWithTimeModel
+): number => {
+  const topPlayerRating = 4000;
+  return predictSolveTime(problemModel, topPlayerRating);
+};
+
 export const formatPredictedSolveTime = (
   predictedSolveTime: number | null
 ): string => {

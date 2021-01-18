@@ -10,7 +10,9 @@ import Contest from "../../interfaces/Contest";
 import { caseInsensitiveUserId, isAccepted } from "../../utils";
 import { ContestId, ProblemId } from "../../interfaces/Status";
 import * as CachedApiClient from "../../utils/CachedApiClient";
-import ProblemModel from "../../interfaces/ProblemModel";
+import ProblemModel, {
+  isProblemModelWithTimeModel,
+} from "../../interfaces/ProblemModel";
 import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import Problem from "../../interfaces/Problem";
 import { SubmissionListTable } from "../../components/SubmissionListTable";
@@ -19,6 +21,7 @@ import { generatePathWithParams } from "../../utils/QueryString";
 import { calcStreak, countUniqueAcByDate } from "../../utils/StreakCounter";
 import { isRatedContest } from "../TablePage/ContestClassifier";
 import { UserNameLabel } from "../../components/UserNameLabel";
+import { calculateTopPlayerEquivalentEffort } from "../../utils/ProblemModelUtil";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
@@ -143,6 +146,12 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
     (sum, point) => sum + point,
     0
   );
+  const topPlayerEquivalentEffort = solvedProblemIds
+    .map((problemId: ProblemId) => problemModels.get(problemId))
+    .filter((model: ProblemModel | undefined) => model !== undefined)
+    .filter(isProblemModelWithTimeModel)
+    .map(calculateTopPlayerEquivalentEffort)
+    .reduce((a: number, b: number) => a + b, 0);
 
   return (
     <div>
@@ -171,6 +180,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           currentStreak={currentStreak}
           prevDateLabel={prevDateLabel}
           streakSum={dailyCount.length}
+          topPlayerEquivalentEffort={topPlayerEquivalentEffort}
         />
       )}
       {(userPageTab === "All" || userPageTab === "AtCoder Pie Charts") && (

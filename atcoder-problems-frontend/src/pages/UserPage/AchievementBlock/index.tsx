@@ -40,6 +40,7 @@ interface OuterProps {
   currentStreak: number;
   prevDateLabel: string;
   streakSum: number;
+  topPlayerEquivalentEffort: number;
 }
 
 interface InnerProps extends OuterProps {
@@ -52,7 +53,13 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
-  const { longestStreak, currentStreak, prevDateLabel, streakSum } = props;
+  const {
+    longestStreak,
+    currentStreak,
+    prevDateLabel,
+    streakSum,
+    topPlayerEquivalentEffort,
+  } = props;
   const shortRanking = props.shortestRanking.fulfilled
     ? props.shortestRanking.value
     : ([] as RankingEntry[]);
@@ -158,6 +165,20 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
         <Col key="Streak Sum" className="text-center" xs="6" md="3">
           <h6>Streak Sum</h6>
           <h3>{streakSum} days</h3>
+        </Col>
+        <Col key="TEE" className="text-center" xs="6" md="3">
+          <h6>
+            TEE{" "}
+            <Badge pill id="teeToolTip">
+              ?
+            </Badge>
+            <UncontrolledTooltip target="teeToolTip" placement="right">
+              <strong>Top player-Equivalent Effort</strong>. The estimated time
+              in seconds required for a contestant with 4000 rating to solve all
+              the problems this contestant have solved.
+            </UncontrolledTooltip>
+          </h6>
+          <h3>{Math.round(topPlayerEquivalentEffort)}</h3>
         </Col>
         <Col />
       </Row>
