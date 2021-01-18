@@ -32,6 +32,17 @@ const findFromRanking = (
   }
 };
 
+const formatTEE = (topPlayerEquivalentEffort: number): string => {
+  const days = Math.floor(topPlayerEquivalentEffort / (3600 * 24));
+  const hours = Math.floor((topPlayerEquivalentEffort / 3600) % 24);
+  const minutes = Math.floor((topPlayerEquivalentEffort / 60) % 60);
+  const seconds = Math.floor(topPlayerEquivalentEffort % 60);
+  const pad = (num: number): string => `0${num}`.slice(-2);
+  return `${days > 0 ? `${days}d ` : ""}${hours}:${pad(minutes)}:${pad(
+    seconds
+  )}`;
+};
+
 interface OuterProps {
   userId: string;
   solvedCount: number;
@@ -179,6 +190,7 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
             </UncontrolledTooltip>
           </h6>
           <h3>{Math.round(topPlayerEquivalentEffort)}</h3>
+          <h6 className="text-muted">{formatTEE(topPlayerEquivalentEffort)}</h6>
         </Col>
         <Col />
       </Row>
