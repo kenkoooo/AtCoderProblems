@@ -100,11 +100,10 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
     .sort(
       (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
     );
-  const maxProblemCount = contests.reduce(
-    (currentCount, { problemStatus }) =>
-      Math.max(problemStatus.size, currentCount),
-    0
-  );
+  const maxProblemCount = props.contests.reduce((currentCount, contest) => {
+    const problems = props.contestToProblems.get(contest.id, List<Problem>());
+    return Math.max(problems.size, currentCount);
+  }, 0);
   const header = ["A", "B", "C", "D", "E", "F", "F2"].slice(0, maxProblemCount);
   return (
     <Row className="my-4">
