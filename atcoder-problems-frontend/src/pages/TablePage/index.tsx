@@ -166,17 +166,6 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
               ? "ABC-Like Contest"
               : "ARC-Like Contest"
           }
-          maxProblemCount={
-            activeTab === "ABC"
-              ? 6
-              : activeTab === "ARC"
-              ? 6
-              : activeTab === "AGC"
-              ? 7
-              : activeTab === "ABC-Like"
-              ? 6
-              : 6
-          }
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
           showPenalties={showPenalties}
