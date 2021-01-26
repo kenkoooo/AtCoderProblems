@@ -29,6 +29,7 @@ interface Props {
   showDifficulty: boolean;
   colorMode: ColorMode;
   title: string;
+  maxProblemCount: number;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
   showPenalties: boolean;
@@ -100,12 +101,10 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
     .sort(
       (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
     );
-  const maxProblemCount = contests.reduce(
-    (currentCount, { problemStatus }) =>
-      Math.max(problemStatus.size, currentCount),
-    0
+  const header = ["A", "B", "C", "D", "E", "F", "F2"].slice(
+    0,
+    props.maxProblemCount
   );
-  const header = ["A", "B", "C", "D", "E", "F", "F2"].slice(0, maxProblemCount);
   return (
     <Row className="my-4">
       <h2>{props.title}</h2>
