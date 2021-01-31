@@ -109,45 +109,48 @@ const InnerLockoutContestTable: React.FC<InnerProps> = (props) => {
           ))}
         </tbody>
       </Table>
-      {table.map((row, i) => (
-        <Row key={i}>
-          {row.map(({ problem, status }, j) => (
-            <Col key={j}>
-              {problem ? (
-                <Card
-                  inverse={!!status}
-                  color={status ? status.color : undefined}
-                >
-                  <CardHeader tag="h3">
-                    {problem.title && problem.contestId ? (
-                      <ProblemLink
-                        problemId={problem.item.id}
-                        contestId={problem.contestId}
-                        problemTitle={problem.title}
-                        className={status ? "text-white" : "text-link"}
-                      />
-                    ) : (
-                      problem.title
-                    )}
-                  </CardHeader>
-                  <CardBody className="text-center">
-                    {status ? (
-                      <h3>
-                        <p>{status.userId}</p>
-                        <p>+ {status.point} pt</p>
-                      </h3>
-                    ) : (
-                      <h3>
-                        {problem.item.point ? `${problem.item.point} pt` : null}
-                      </h3>
-                    )}
-                  </CardBody>
-                </Card>
-              ) : null}
-            </Col>
-          ))}
-        </Row>
-      ))}
+      {props.showProblems &&
+        table.map((row, i) => (
+          <Row key={i}>
+            {row.map(({ problem, status }, j) => (
+              <Col key={j}>
+                {problem ? (
+                  <Card
+                    inverse={!!status}
+                    color={status ? status.color : undefined}
+                  >
+                    <CardHeader tag="h3">
+                      {problem.title && problem.contestId ? (
+                        <ProblemLink
+                          problemId={problem.item.id}
+                          contestId={problem.contestId}
+                          problemTitle={problem.title}
+                          className={status ? "text-white" : "text-link"}
+                        />
+                      ) : (
+                        problem.title
+                      )}
+                    </CardHeader>
+                    <CardBody className="text-center">
+                      {status ? (
+                        <h3>
+                          <p>{status.userId}</p>
+                          <p>+ {status.point} pt</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          {problem.item.point
+                            ? `${problem.item.point} pt`
+                            : null}
+                        </h3>
+                      )}
+                    </CardBody>
+                  </Card>
+                ) : null}
+              </Col>
+            ))}
+          </Row>
+        ))}
     </>
   );
 };
