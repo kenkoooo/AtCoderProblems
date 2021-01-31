@@ -97,14 +97,14 @@ export const statusToTableColor = ({
       if (
         status.label === StatusLabel.Success &&
         status.epoch !== void 0 &&
-        status.epoch <= contest.start_epoch_second + contest.duration_second
+        status.epoch < contest.start_epoch_second + contest.duration_second
       ) {
         return status.epoch < contest.start_epoch_second
           ? TableColor.SuccessBeforeContest
           : TableColor.SuccessIntime;
       } else if (
         status.label === StatusLabel.Warning &&
-        status.epoch <= contest.start_epoch_second + contest.duration_second
+        status.epoch < contest.start_epoch_second + contest.duration_second
       ) {
         return TableColor.WarningIntime;
       } else {
