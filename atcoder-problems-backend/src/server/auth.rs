@@ -1,13 +1,11 @@
-use crate::error::ToAnyhowError;
 use crate::server::AppData;
-use anyhow::Result;
 use async_trait::async_trait;
 use cookie::Cookie;
 use serde::{Deserialize, Serialize};
 use sql_client::internal::user_manager::UserManager;
 use tide::http::headers::LOCATION;
 use tide::StatusCode;
-use tide::{Request, Response};
+use tide::{Request, Response, Result};
 
 #[async_trait]
 pub trait Authentication {
@@ -49,10 +47,9 @@ impl Authentication for GitHubAuthentication {
         };
         let response: TokenResponse = surf::post("https://github.com/login/oauth/access_token")
             .header("Accept", "application/json")
-            .body(surf::Body::from_json(&request).map_anyhow()?)
+            .body(surf::Body::from_json(&request)?)
             .recv_json()
-            .await
-            .map_anyhow()?;
+            .await?;
         Ok(response.access_token)
     }
     async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
@@ -60,8 +57,7 @@ impl Authentication for GitHubAuthentication {
         let response: GitHubUserResponse = surf::get("https://api.github.com/user")
             .header("Authorization", token_header)
             .recv_json()
-            .await
-            .map_anyhow()?;
+            .await?;
         Ok(response)
     }
 }
@@ -83,7 +79,7 @@ struct Query {
 pub(crate) async fn get_token<A: Authentication + Clone>(
     request: Request<AppData<A>>,
 ) -> Result<Response> {
-    let query = request.query::<Query>().map_anyhow()?;
+    let query = request.query::<Query>()?;
     let client = request.state().authentication.clone();
     let conn = request.state().pg_pool.clone();
 

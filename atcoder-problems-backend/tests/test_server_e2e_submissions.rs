@@ -1,4 +1,3 @@
-use anyhow::Result;
 use async_std::future::ready;
 use async_std::prelude::*;
 use async_std::task;
@@ -8,6 +7,7 @@ use atcoder_problems_backend::server::{run_server, Authentication};
 use rand::Rng;
 use sql_client::models::Submission;
 use sql_client::PgPool;
+use tide::Result;
 
 pub mod utils;
 
@@ -130,7 +130,7 @@ async fn test_invalid_path() {
     assert_eq!(response.status(), 404);
 
     let response = surf::get(url("/atcoder-api/results", port)).await.unwrap();
-    assert_eq!(response.status(), 500);
+    assert_eq!(response.status(), 400);
 
     let response = surf::get(url("/", port)).await.unwrap();
     assert_eq!(response.status(), 404);
