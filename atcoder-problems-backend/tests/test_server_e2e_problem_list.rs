@@ -1,4 +1,3 @@
-use anyhow::Result;
 use atcoder_problems_backend::server::{run_server, Authentication};
 
 use async_std::future::ready;
@@ -9,6 +8,7 @@ use atcoder_problems_backend::server::GitHubUserResponse;
 use rand::Rng;
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
+use tide::Result;
 
 pub mod utils;
 
@@ -23,13 +23,13 @@ impl Authentication for MockAuth {
     async fn get_token(&self, code: &str) -> Result<String> {
         match code {
             VALID_CODE => Ok(VALID_TOKEN.to_owned()),
-            _ => Err(anyhow::anyhow!("error")),
+            _ => Err(anyhow::anyhow!("error").into()),
         }
     }
     async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse> {
         match token {
             VALID_TOKEN => Ok(GitHubUserResponse::default()),
-            _ => Err(anyhow::anyhow!("error")),
+            _ => Err(anyhow::anyhow!("error").into()),
         }
     }
 }

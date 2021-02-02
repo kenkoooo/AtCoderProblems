@@ -1,9 +1,8 @@
 use crate::server::utils::RequestUnpack;
 use crate::server::{AppData, Authentication, CommonResponse};
-use anyhow::Result;
 use serde::Deserialize;
 use sql_client::internal::problem_list_manager::ProblemListManager;
-use tide::{Request, Response};
+use tide::{Request, Response, Result};
 
 pub(crate) async fn get_own_lists<A>(request: Request<AppData<A>>) -> Result<Response>
 where
@@ -20,7 +19,7 @@ pub(crate) async fn get_single_list<A>(request: Request<AppData<A>>) -> Result<R
 where
     A: Authentication + Clone + Send + Sync + 'static,
 {
-    let list_id = request.param::<String>("list_id")?;
+    let list_id = request.param("list_id")?;
     let conn = request.state().pg_pool.clone();
     let list = conn.get_single_list(&list_id).await?;
     let response = Response::json(&list)?;

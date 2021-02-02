@@ -1,4 +1,3 @@
-use anyhow::Result;
 use async_std::prelude::*;
 use async_std::task;
 use async_trait::async_trait;
@@ -6,6 +5,7 @@ use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserRes
 use rand::Rng;
 use serde_json::{json, Value};
 use std::time::Duration;
+use tide::Result;
 
 pub mod utils;
 

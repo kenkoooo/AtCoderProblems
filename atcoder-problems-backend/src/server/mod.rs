@@ -1,10 +1,8 @@
-use crate::error::{ToAnyhowError, ToTideError};
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
     get_recent_submissions, get_user_submissions, get_users_time_submissions,
 };
-use anyhow::Result;
 pub(crate) mod auth;
 use crate::server::middleware::LogMiddleware;
 use crate::server::problem_list::{
@@ -14,7 +12,7 @@ use crate::server::problem_list::{
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use sql_client::PgPool;
-use tide::StatusCode;
+use tide::{Result, StatusCode};
 
 pub(crate) mod internal_user;
 pub(crate) mod middleware;
@@ -113,7 +111,7 @@ where
 
 pub(crate) trait CommonResponse {
     fn ok() -> Self;
-    fn json<S: serde::Serialize>(body: &S) -> anyhow::Result<Self>
+    fn json<S: serde::Serialize>(body: &S) -> tide::Result<Self>
     where
         Self: Sized;
     fn empty_json() -> Self;
@@ -124,13 +122,13 @@ impl CommonResponse for tide::Response {
     fn ok() -> Self {
         Self::new(StatusCode::Ok)
     }
-    fn json<S: serde::Serialize>(body: &S) -> anyhow::Result<Self>
+    fn json<S: serde::Serialize>(body: &S) -> tide::Result<Self>
     where
         Self: Sized,
     {
         let response = Self::builder(tide::StatusCode::Ok)
             .content_type(tide::http::mime::JSON)
-            .body(tide::Body::from_json(body).map_anyhow()?)
+            .body(tide::Body::from_json(body)?)
             .build();
         Ok(response)
     }
@@ -170,23 +168,23 @@ impl<A> AppData<A> {
     }
 }
 
-/// This trait extends [Route] to handle a function which returns anyhow::Result<Response>
-trait AnyhowRouteExt<F> {
+/// This trait extends [Route] to handle a function which returns tide::Result<Response>
+trait RouteExt<F> {
     fn get_ah(&mut self, endpoint: F) -> &mut Self;
     fn post_ah(&mut self, endpoint: F) -> &mut Self;
 }
 
-impl<'a, State, Fut, F> AnyhowRouteExt<F> for tide::Route<'a, State>
+impl<'a, State, Fut, F> RouteExt<F> for tide::Route<'a, State>
 where
     State: Send + Sync + 'static + Clone,
     F: Fn(tide::Request<State>) -> Fut + Sync + Send + 'static,
-    Fut: std::future::Future<Output = anyhow::Result<tide::Response>> + Send + 'static,
+    Fut: std::future::Future<Output = tide::Result<tide::Response>> + Send + 'static,
 {
     fn get_ah(&mut self, endpoint: F) -> &mut Self {
         self.get(move |request| {
             let fut = endpoint(request);
             Box::pin(async move {
-                let response = fut.await.map_tide_err()?;
+                let response = fut.await?;
                 Ok(response)
             })
         })
@@ -195,7 +193,7 @@ where
         self.post(move |request| {
             let fut = endpoint(request);
             Box::pin(async move {
-                let response = fut.await.map_tide_err()?;
+                let response = fut.await?;
                 Ok(response)
             })
         })
