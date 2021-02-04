@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import {
+  BootstrapTable,
+  SelectRow,
+  SelectRowMode,
+  TableHeaderColumn,
+} from "react-bootstrap-table";
 import { List, Map as ImmutableMap } from "immutable";
 import {
   Button,
@@ -7,6 +12,9 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
+  Input,
+  InputGroup,
+  InputGroupAddon,
   Row,
   UncontrolledDropdown,
 } from "reactstrap";
@@ -31,6 +39,27 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
 import { ProblemId } from "../../interfaces/Status";
+
+interface RecommendationCommonProps {
+  readonly problems: List<Problem>;
+  readonly contests: ImmutableMap<string, Contest>;
+  readonly problemModels: ImmutableMap<string, ProblemModel>;
+  readonly userRatingInfo: RatingInfo;
+}
+
+interface RecommendationProps extends RecommendationCommonProps {
+  readonly userSubmissions: Submission[];
+}
+
+interface RecommendationTableProps extends RecommendationCommonProps {
+  readonly lastSolvedTimeMap: Map<ProblemId, number>;
+  readonly submittedSet: Set<ProblemId>;
+  readonly selectedProblemIdSet: Set<ProblemId>;
+  readonly isNothingSelected: boolean;
+  readonly addProblemIds: (id: ProblemId[]) => void;
+  readonly deleteProblemIds: (id: ProblemId[]) => void;
+  readonly clearSelectedProblemIdSet: () => void;
+}
 
 const ExcludeOptions = [
   "Exclude",
@@ -169,49 +198,28 @@ const getRecommendProbabilityRange = (
   }
 };
 
-interface Props {
-  readonly userSubmissions: Submission[];
-  readonly problems: List<Problem>;
-  readonly contests: ImmutableMap<string, Contest>;
-  readonly problemModels: ImmutableMap<string, ProblemModel>;
-  readonly userRatingInfo: RatingInfo;
-}
-
-export const Recommendations: React.FC<Props> = (props) => {
+const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
   const {
-    userSubmissions,
     problems,
     contests,
     problemModels,
     userRatingInfo,
+    lastSolvedTimeMap,
+    submittedSet,
   } = props;
 
-  const [recommendNum, setRecommendNum] = useState(10);
   const [recommendOption, setRecommendOption] = useState<RecommendOption>(
     "Moderate"
   );
   const [recommendExperimental, setRecommendExperimental] = useState(true);
   const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
+  const [recommendNum, setRecommendNum] = useState(10);
 
-  if (userSubmissions.length === 0) {
-    return null;
-  }
-  const lastSolvedTimeMap = new Map<ProblemId, number>();
-  userSubmissions
-    .filter((s) => isAccepted(s.result))
-    .forEach((s) => {
-      const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
-      lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
-    });
+  const currentSecond = Math.floor(new Date().getTime() / 1000);
 
   const recommendingProbability = getRecommendProbability(recommendOption);
   const recommendingRange = getRecommendProbabilityRange(recommendOption);
 
-  const currentSecond = Math.floor(new Date().getTime() / 1000);
-  const submittedSet = userSubmissions.reduce((set, s) => {
-    set.add(s.problem_id);
-    return set;
-  }, new Set<ProblemId>());
   const recommendedProblems = problems
     .filter((p) =>
       isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
@@ -267,6 +275,30 @@ export const Recommendations: React.FC<Props> = (props) => {
     .slice(0, recommendNum)
     .sort((a, b) => (b.difficulty ?? 0) - (a.difficulty ?? 0))
     .toArray();
+
+  interface HasProblemId {
+    id: ProblemId;
+  }
+  const selectRowProps = {
+    mode: "checkbox" as SelectRowMode,
+    selected: Array.from(props.selectedProblemIdSet),
+    onSelect: (row: HasProblemId, isSelected) => {
+      if (isSelected) {
+        props.addProblemIds([row.id]);
+      } else {
+        props.deleteProblemIds([row.id]);
+      }
+    },
+    onSelectAll: (isSelected, rows: HasProblemId[]) => {
+      const ids = rows.map(({ id }) => id);
+      if (isSelected) {
+        props.addProblemIds(ids);
+      } else {
+        props.deleteProblemIds(ids);
+      }
+      return Array.from(props.selectedProblemIdSet);
+    },
+  } as SelectRow;
 
   return (
     <>
@@ -346,6 +378,24 @@ export const Recommendations: React.FC<Props> = (props) => {
           </DropdownMenu>
         </UncontrolledDropdown>
       </Row>
+      <Row>
+        <InputGroup>
+          <InputGroupAddon addonType="prepend">
+            <Button
+              color="danger"
+              outline
+              disabled={props.isNothingSelected}
+              onClick={() => props.clearSelectedProblemIdSet()}
+            >
+              Clear problem selection
+            </Button>
+          </InputGroupAddon>
+          <Input placeholder="MyList name" />
+          <InputGroupAddon addonType="append">
+            <Button color="success">Create new MyList</Button>
+          </InputGroupAddon>
+        </InputGroup>
+      </Row>
       <Row className="my-3">
         <BootstrapTable
           data={recommendedProblems}
@@ -353,6 +403,7 @@ export const Recommendations: React.FC<Props> = (props) => {
           height="auto"
           hover
           striped
+          selectRow={selectRowProps}
         >
           <TableHeaderColumn
             dataField="title"
@@ -431,5 +482,123 @@ export const Recommendations: React.FC<Props> = (props) => {
         </BootstrapTable>
       </Row>
     </>
+  );
+};
+
+type ProblemIdSetActionType = "add" | "delete" | "clear";
+interface ProblemIdSetState {
+  problemIdSet: Set<ProblemId>;
+  isEmpty: boolean;
+}
+interface ProblemIdSetAction {
+  type: ProblemIdSetActionType;
+  ids?: ProblemId[];
+}
+
+const initialProblemIdSetState = (): ProblemIdSetState => {
+  return {
+    problemIdSet: new Set<ProblemId>(),
+    isEmpty: true,
+  };
+};
+
+const problemIdSetReducer = (
+  state: ProblemIdSetState,
+  action: ProblemIdSetAction
+): ProblemIdSetState => {
+  switch (action.type) {
+    case "add": {
+      if (action.ids) {
+        const newProblemIdSet = state.problemIdSet;
+        for (const id of action.ids) {
+          newProblemIdSet.add(id);
+        }
+        return {
+          problemIdSet: newProblemIdSet,
+          isEmpty: newProblemIdSet.size == 0,
+        };
+      }
+      break;
+    }
+    case "delete": {
+      if (action.ids) {
+        const newProblemIdSet = state.problemIdSet;
+        for (const id of action.ids) {
+          newProblemIdSet.delete(id);
+        }
+        return {
+          problemIdSet: newProblemIdSet,
+          isEmpty: newProblemIdSet.size == 0,
+        };
+      }
+      break;
+    }
+    case "clear":
+      return initialProblemIdSetState();
+  }
+  return state;
+};
+
+const useProblemIdSet = (): [
+  ProblemIdSetState,
+  {
+    addProblemIds: (ids: ProblemId[]) => void;
+    deleteProblemIds: (ids: ProblemId[]) => void;
+    clearProblemIds: () => void;
+  }
+] => {
+  const [state, dispatch] = React.useReducer(
+    problemIdSetReducer,
+    initialProblemIdSetState()
+  );
+
+  const addProblemIds = React.useCallback(
+    (ids: ProblemId[]) => dispatch({ type: "add", ids: ids }),
+    []
+  );
+  const deleteProblemIds = React.useCallback(
+    (ids: ProblemId[]) => dispatch({ type: "delete", ids: ids }),
+    []
+  );
+  const clearProblemIds = React.useCallback(
+    () => dispatch({ type: "clear" }),
+    []
+  );
+
+  return [state, { addProblemIds, deleteProblemIds, clearProblemIds }];
+};
+
+export const Recommendations: React.FC<RecommendationProps> = (props) => {
+  const { userSubmissions } = props;
+
+  const [problemIdSetState, problemIdSetAction] = useProblemIdSet();
+
+  if (userSubmissions.length === 0) {
+    return null;
+  }
+
+  const lastSolvedTimeMap = new Map<ProblemId, number>();
+  userSubmissions
+    .filter((s) => isAccepted(s.result))
+    .forEach((s) => {
+      const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
+      lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
+    });
+  const submittedSet = new Set(userSubmissions.map((s) => s.problem_id));
+
+  return (
+    <RecommendationTable
+      problems={props.problems}
+      problemModels={props.problemModels}
+      userRatingInfo={props.userRatingInfo}
+      contests={props.contests}
+      lastSolvedTimeMap={lastSolvedTimeMap}
+      submittedSet={submittedSet}
+      selectedProblemIdSet={problemIdSetState.problemIdSet}
+      isNothingSelected={problemIdSetState.isEmpty}
+      addProblemIds={problemIdSetAction.addProblemIds}
+      deleteProblemIds={problemIdSetAction.deleteProblemIds}
+      clearSelectedProblemIdSet={problemIdSetAction.clearProblemIds}
+    />
   );
 };
