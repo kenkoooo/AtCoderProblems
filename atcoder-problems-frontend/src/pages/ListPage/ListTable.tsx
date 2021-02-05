@@ -463,8 +463,7 @@ export const ListTable: React.FC<Props> = (props) => {
           const isSubmittedInContest =
             status.label === StatusLabel.Success &&
             contest !== undefined &&
-            status.epoch <=
-              contest.start_epoch_second + contest.duration_second;
+            status.epoch < contest.start_epoch_second + contest.duration_second;
           switch (props.statusFilterState) {
             case "All":
               return true;
