@@ -1,9 +1,8 @@
 use crate::server::utils::RequestUnpack;
 use crate::server::{AppData, Authentication, CommonResponse};
-use anyhow::Result;
 use serde::Deserialize;
 use sql_client::internal::user_manager::UserManager;
-use tide::{Request, Response};
+use tide::{Request, Response, Result};
 
 pub(crate) async fn update<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,

@@ -1,11 +1,9 @@
 use crate::server::{AppData, CommonResponse};
 
-use crate::error::ToAnyhowError;
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::rated_point_sum::RatedPointSumClient;
-use tide::{Request, Response};
+use tide::{Request, Response, Result};
 
 #[derive(Deserialize)]
 struct Query {
@@ -22,7 +20,7 @@ struct UserInfo {
 
 pub(crate) async fn get_user_info<A>(request: Request<AppData<A>>) -> Result<Response> {
     let conn = request.state().pg_pool.clone();
-    let query = request.query::<Query>().map_anyhow()?;
+    let query = request.query::<Query>()?;
     let user_id = query.user;
     let accepted_count = conn.get_users_accepted_count(&user_id).await.unwrap_or(0);
     let accepted_count_rank = conn.get_accepted_count_rank(accepted_count).await?;

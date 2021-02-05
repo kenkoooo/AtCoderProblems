@@ -24,13 +24,13 @@ serde_json = "1.0"
 sql-client = { path = "./sql-client" }
 
 # Web framework
-tide = "0.13"
+tide = "0.16"
 cookie = "0.14"
 surf = "2.0.0"
 
 async-trait = "0.1.30"
 
-async-std = { version = "1.6", features = ["attributes"] }
+async-std = { version = "1.9.0", features = ["attributes"] }
 anyhow = "1.0.32"
 futures = "0.3.5"
 

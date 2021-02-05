@@ -1,10 +1,8 @@
-use crate::error::ToAnyhowError;
 use crate::server::{AppData, Authentication};
 use anyhow::Context;
-use anyhow::Result;
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
-use tide::Request;
+use tide::{Request, Result};
 
 #[async_trait]
 pub(crate) trait RequestUnpack {
@@ -31,7 +29,7 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         Body: DeserializeOwned + Send + Sync + 'static,
     {
         let mut request = self;
-        let body: Body = request.body_json().await.map_anyhow()?;
+        let body: Body = request.body_json().await?;
         Ok(body)
     }
 }
