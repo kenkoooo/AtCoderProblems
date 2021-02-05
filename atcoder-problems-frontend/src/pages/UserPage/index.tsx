@@ -22,6 +22,9 @@ import { calcStreak, countUniqueAcByDate } from "../../utils/StreakCounter";
 import { isRatedContest } from "../TablePage/ContestClassifier";
 import { UserNameLabel } from "../../components/UserNameLabel";
 import { calculateTopPlayerEquivalentEffort } from "../../utils/ProblemModelUtil";
+import { UserResponse } from "../Internal/types";
+import { USER_GET } from "../Internal/ApiUrl";
+import { isLoggedIn } from "../../utils/UserState";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
@@ -57,6 +60,7 @@ interface InnerProps extends OuterProps {
   contestsFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
   contestToProblemsFetch: PromiseState<ImmutableMap<ContestId, List<Problem>>>;
   problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
+  loginState: PromiseState<UserResponse | null>;
 }
 
 const InnerUserPage: React.FC<InnerProps> = (props) => {
@@ -257,6 +261,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             contests={contests}
             problemModels={problemModels}
             userRatingInfo={userRatingInfo}
+            isLoggedIn={isLoggedIn(props.loginState)}
           />
         </>
       )}
@@ -294,4 +299,5 @@ export const UserPage = connect<OuterProps, InnerProps>(({ userId }) => ({
     value: (): Promise<ImmutableMap<string, List<Problem>>> =>
       CachedApiClient.cachedContestToProblemMap(),
   },
+  loginState: USER_GET,
 }))(InnerUserPage);

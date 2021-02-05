@@ -30,6 +30,7 @@ import { RatingInfo } from "../../utils/RatingInfo";
 import { generatePathWithParams } from "../../utils/QueryString";
 import { fetchUserSubmissions } from "../../utils/Api";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
+import { loggedInUserId } from "../../utils/UserState";
 import {
   filterResetProgress,
   ProgressResetList,
@@ -181,12 +182,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     : Map<ProblemId, ProblemModel>();
   const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
 
-  const loginUserId =
-    props.loginState.fulfilled &&
-    props.loginState.value &&
-    props.loginState.value.atcoder_user_id
-      ? props.loginState.value.atcoder_user_id
-      : undefined;
+  const loginUserId = loggedInUserId(props.loginState, undefined);
   const progressReset =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value
