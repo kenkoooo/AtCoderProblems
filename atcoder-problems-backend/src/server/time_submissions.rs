@@ -1,10 +1,9 @@
 use crate::server::{AppData, CommonResponse};
-use anyhow::Result;
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
-use tide::{Request, Response};
+use tide::{Request, Response, Result};
 
 pub(crate) async fn get_time_submissions<A>(request: Request<AppData<A>>) -> Result<Response> {
-    let from = request.param::<String>("from")?;
+    let from = request.param("from")?;
     let from_epoch_second = from.parse::<i64>()?;
     let conn = request.state().pg_pool.clone();
     let submissions: Vec<_> = conn

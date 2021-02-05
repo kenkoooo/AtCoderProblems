@@ -1,10 +1,8 @@
-use crate::error::ToAnyhowError;
 use crate::server::{AppData, CommonResponse};
-use anyhow::Result;
 use serde::Deserialize;
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 use tide::http::headers::CACHE_CONTROL;
-use tide::{Request, Response};
+use tide::{Request, Response, Result};
 
 pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Result<Response> {
     #[derive(Deserialize, Debug)]
@@ -12,7 +10,7 @@ pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Res
         user: String,
     }
     let conn = request.state().pg_pool.clone();
-    let query = request.query::<Query>().map_anyhow()?;
+    let query = request.query::<Query>()?;
     let user_id = &query.user;
     let submissions = conn
         .get_submissions(SubmissionRequest::UserAll { user_id })
@@ -43,7 +41,7 @@ pub(crate) async fn get_users_time_submissions<A>(
     }
 
     let conn = request.state().pg_pool.clone();
-    let query = request.query::<Query>().map_anyhow()?;
+    let query = request.query::<Query>()?;
     let user_ids = query.users.split(',').map(|s| s.trim()).collect::<Vec<_>>();
     let problem_ids = query
         .problems

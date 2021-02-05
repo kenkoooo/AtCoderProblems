@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 use sql_client::internal::virtual_contest_manager::{
     VirtualContestInfo, VirtualContestItem, VirtualContestManager,
 };
-use tide::{Request, Response};
+use tide::{Request, Response, Result};
 
-pub(crate) async fn create_contest<A>(request: Request<AppData<A>>) -> anyhow::Result<Response>
+pub(crate) async fn create_contest<A>(request: Request<AppData<A>>) -> Result<Response>
 where
     A: Authentication + Clone + Send + Sync + 'static,
 {
@@ -42,7 +42,7 @@ where
     Ok(response)
 }
 
-pub(crate) async fn update_contest<A>(request: Request<AppData<A>>) -> anyhow::Result<Response>
+pub(crate) async fn update_contest<A>(request: Request<AppData<A>>) -> Result<Response>
 where
     A: Authentication + Clone + Send + Sync + 'static,
 {
@@ -78,7 +78,7 @@ where
 
 pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> anyhow::Result<Response> {
+) -> Result<Response> {
     #[derive(Deserialize)]
     struct Q {
         contest_id: String,
@@ -96,7 +96,7 @@ pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'stat
 
 pub(crate) async fn get_my_contests<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> anyhow::Result<Response> {
+) -> Result<Response> {
     let user_id = request.get_authorized_id().await?;
     let conn = request.state().pg_pool.clone();
     let contests = conn.get_own_contests(&user_id).await?;
@@ -106,7 +106,7 @@ pub(crate) async fn get_my_contests<A: Authentication + Clone + Send + Sync + 's
 
 pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> anyhow::Result<Response> {
+) -> Result<Response> {
     let user_id = request.get_authorized_id().await?;
     let conn = request.state().pg_pool.clone();
     let contests = conn.get_participated_contests(&user_id).await?;
@@ -114,7 +114,7 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
     Ok(response)
 }
 
-pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> anyhow::Result<Response>
+pub(crate) async fn get_single_contest<A>(request: Request<AppData<A>>) -> Result<Response>
 where
     A: Authentication + Clone + Send + Sync + 'static,
 {
@@ -126,7 +126,7 @@ where
     }
 
     let conn = request.state().pg_pool.clone();
-    let contest_id = request.param::<String>("contest_id")?;
+    let contest_id = request.param("contest_id")?;
 
     let info = conn.get_single_contest_info(&contest_id).await?;
     let participants = conn.get_single_contest_participants(&contest_id).await?;
@@ -140,9 +140,7 @@ where
     Ok(response)
 }
 
-pub(crate) async fn get_recent_contests<A>(
-    request: Request<AppData<A>>,
-) -> anyhow::Result<Response> {
+pub(crate) async fn get_recent_contests<A>(request: Request<AppData<A>>) -> Result<Response> {
     let conn = request.state().pg_pool.clone();
     let contest = conn.get_recent_contest_info().await?;
     let response = Response::json(&contest)?;
@@ -151,7 +149,7 @@ pub(crate) async fn get_recent_contests<A>(
 
 pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> anyhow::Result<Response> {
+) -> Result<Response> {
     #[derive(Deserialize)]
     struct Q {
         contest_id: String,
@@ -166,7 +164,7 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
 
 pub(crate) async fn leave_contest<A: Authentication + Clone + Send + Sync + 'static>(
     request: Request<AppData<A>>,
-) -> anyhow::Result<Response> {
+) -> Result<Response> {
     #[derive(Deserialize)]
     struct Q {
         contest_id: String,
