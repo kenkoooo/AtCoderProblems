@@ -21,6 +21,7 @@ import {
 } from "../Internal/types";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
 import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
+import { loggedInUserId } from "../../utils/UserState";
 import { classifyContest, ContestCategory } from "./ContestClassifier";
 import { TableTabButtons } from "./TableTab";
 import { Options } from "./Options";
@@ -99,12 +100,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     ? props.submissions.value
     : [];
 
-  const loginUserId =
-    props.loginState.fulfilled &&
-    props.loginState.value &&
-    props.loginState.value.atcoder_user_id
-      ? props.loginState.value.atcoder_user_id
-      : undefined;
+  const loginUserId = loggedInUserId(props.loginState, undefined);
   const progressReset =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value

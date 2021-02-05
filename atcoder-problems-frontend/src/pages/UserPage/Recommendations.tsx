@@ -9,12 +9,14 @@ import { List, Map as ImmutableMap } from "immutable";
 import {
   Button,
   ButtonGroup,
+  CustomInput,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
   Input,
   InputGroup,
   InputGroupAddon,
+  InputGroupText,
   Row,
   UncontrolledDropdown,
 } from "reactstrap";
@@ -40,25 +42,21 @@ import { ContestLink } from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
 import { ProblemId } from "../../interfaces/Status";
 
-interface RecommendationCommonProps {
+interface CommonProps {
   readonly problems: List<Problem>;
   readonly contests: ImmutableMap<string, Contest>;
   readonly problemModels: ImmutableMap<string, ProblemModel>;
   readonly userRatingInfo: RatingInfo;
+  readonly isLoggedIn?: boolean;
 }
 
-interface RecommendationProps extends RecommendationCommonProps {
+interface Props extends CommonProps {
   readonly userSubmissions: Submission[];
 }
 
-interface RecommendationTableProps extends RecommendationCommonProps {
+interface TableProps extends CommonProps {
   readonly lastSolvedTimeMap: Map<ProblemId, number>;
   readonly submittedSet: Set<ProblemId>;
-  readonly selectedProblemIdSet: Set<ProblemId>;
-  readonly isNothingSelected: boolean;
-  readonly addProblemIds: (id: ProblemId[]) => void;
-  readonly deleteProblemIds: (id: ProblemId[]) => void;
-  readonly clearSelectedProblemIdSet: () => void;
 }
 
 const ExcludeOptions = [
@@ -120,7 +118,7 @@ const isIncluded = (
   }
 };
 
-const excludeSubmittedproblem = (
+const excludeSubmittedProblem = (
   problemId: ProblemId,
   excludeOption: ExcludeOption,
   submitted: Set<ProblemId>
@@ -156,7 +154,8 @@ const RECOMMEND_NUM_OPTIONS = [
   },
 ];
 
-type RecommendOption = "Easy" | "Moderate" | "Difficult";
+const RecommendOptions = ["Easy", "Moderate", "Difficult"] as const;
+type RecommendOption = typeof RecommendOptions[number];
 
 const getRecommendProbability = (option: RecommendOption): number => {
   switch (option) {
@@ -198,7 +197,47 @@ const getRecommendProbabilityRange = (
   }
 };
 
-const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
+const useProblemIdSet = (): [
+  Set<ProblemId>,
+  {
+    addProblemIds: (ids: ProblemId[]) => void;
+    deleteProblemIds: (ids: ProblemId[]) => void;
+    clear: () => void;
+  }
+] => {
+  const [problemIdSet, setProblemIdSet] = React.useState(new Set<ProblemId>());
+
+  const addProblemIds = React.useCallback(
+    (ids: ProblemId[]) =>
+      setProblemIdSet((prev) => {
+        const newProblemIdSet = prev;
+        for (const id of ids) {
+          newProblemIdSet.add(id);
+        }
+        return newProblemIdSet;
+      }),
+    []
+  );
+  const deleteProblemIds = React.useCallback(
+    (ids: ProblemId[]) =>
+      setProblemIdSet((prev) => {
+        const newProblemIdSet = prev;
+        for (const id of ids) {
+          newProblemIdSet.delete(id);
+        }
+        return newProblemIdSet;
+      }),
+    []
+  );
+  const clear = React.useCallback(
+    () => setProblemIdSet(new Set<ProblemId>()),
+    []
+  );
+
+  return [problemIdSet, { addProblemIds, deleteProblemIds, clear }];
+};
+
+const RecommendationTable: React.FC<TableProps> = (props) => {
   const {
     problems,
     contests,
@@ -215,6 +254,8 @@ const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
   const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
   const [recommendNum, setRecommendNum] = useState(10);
 
+  const [selectedProblemIdSet, updateSelectedProblemIdSet] = useProblemIdSet();
+
   const currentSecond = Math.floor(new Date().getTime() / 1000);
 
   const recommendingProbability = getRecommendProbability(recommendOption);
@@ -224,7 +265,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
     .filter((p) =>
       isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
     )
-    .filter((p) => excludeSubmittedproblem(p.id, excludeOption, submittedSet))
+    .filter((p) => excludeSubmittedProblem(p.id, excludeOption, submittedSet))
     .filter((p) => problemModels.has(p.id))
     .map((p) => ({
       ...p,
@@ -279,72 +320,47 @@ const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
   interface HasProblemId {
     id: ProblemId;
   }
-  const selectRowProps = {
-    mode: "checkbox" as SelectRowMode,
-    selected: Array.from(props.selectedProblemIdSet),
-    onSelect: (row: HasProblemId, isSelected) => {
-      if (isSelected) {
-        props.addProblemIds([row.id]);
-      } else {
-        props.deleteProblemIds([row.id]);
-      }
-    },
-    onSelectAll: (isSelected, rows: HasProblemId[]) => {
-      const ids = rows.map(({ id }) => id);
-      if (isSelected) {
-        props.addProblemIds(ids);
-      } else {
-        props.deleteProblemIds(ids);
-      }
-      return Array.from(props.selectedProblemIdSet);
-    },
-  } as SelectRow;
+  const selectRowProps = !props.isLoggedIn
+    ? undefined
+    : ({
+        mode: "checkbox" as SelectRowMode,
+        selected: Array.from(selectedProblemIdSet),
+        onSelect: (row: HasProblemId, isSelected) => {
+          if (isSelected) {
+            updateSelectedProblemIdSet.addProblemIds([row.id]);
+          } else {
+            updateSelectedProblemIdSet.deleteProblemIds([row.id]);
+          }
+        },
+        onSelectAll: (isSelected, rows: HasProblemId[]) => {
+          const ids = rows.map(({ id }) => id);
+          if (isSelected) {
+            updateSelectedProblemIdSet.addProblemIds(ids);
+          } else {
+            updateSelectedProblemIdSet.deleteProblemIds(ids);
+          }
+          return Array.from(selectedProblemIdSet);
+        },
+      } as SelectRow);
+
+  const isLoggedInDevelop = true;
 
   return (
     <>
       <Row className="my-3 d-flex justify-content-between">
         <div>
-          <ButtonGroup>
-            <Button
-              onClick={(): void => setRecommendOption("Easy")}
-              active={recommendOption === "Easy"}
-            >
-              Easy
-            </Button>
-            <Button
-              onClick={(): void => setRecommendOption("Moderate")}
-              active={recommendOption === "Moderate"}
-            >
-              Moderate
-            </Button>
-            <Button
-              onClick={(): void => setRecommendOption("Difficult")}
-              active={recommendOption === "Difficult"}
-            >
-              Difficult
-            </Button>
+          <ButtonGroup className="mr-3">
+            {RecommendOptions.map((type) => (
+              <Button
+                key={type}
+                active={recommendOption === type}
+                onClick={(): void => setRecommendOption(type)}
+              >
+                {type}
+              </Button>
+            ))}
           </ButtonGroup>
-          <ButtonGroup className="mx-3">
-            <Button
-              onClick={(): void => setRecommendExperimental(true)}
-              active={recommendExperimental}
-            >
-              Show
-              <span role="img" aria-label="experimental">
-                🧪
-              </span>
-            </Button>
-            <Button
-              onClick={(): void => setRecommendExperimental(false)}
-              active={!recommendExperimental}
-            >
-              Hide
-              <span role="img" aria-label="experimental">
-                🧪
-              </span>
-            </Button>
-          </ButtonGroup>
-          <ButtonGroup>
+          <ButtonGroup className="mr-3">
             <UncontrolledDropdown>
               <DropdownToggle caret>
                 {formatExcludeOption(excludeOption)}
@@ -361,6 +377,18 @@ const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
               </DropdownMenu>
             </UncontrolledDropdown>
           </ButtonGroup>
+          <CustomInput
+            type="switch"
+            id="switchRecommendExperimental"
+            inline
+            label={
+              <span role="img" aria-label="experimental">
+                🧪
+              </span>
+            }
+            checked={recommendExperimental}
+            onChange={() => setRecommendExperimental(!recommendExperimental)}
+          />
         </div>
         <UncontrolledDropdown direction="left">
           <DropdownToggle caret>
@@ -380,19 +408,30 @@ const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
       </Row>
       <Row>
         <InputGroup>
-          <InputGroupAddon addonType="prepend">
-            <Button
-              color="danger"
-              outline
-              disabled={props.isNothingSelected}
-              onClick={() => props.clearSelectedProblemIdSet()}
-            >
-              Clear problem selection
-            </Button>
-          </InputGroupAddon>
-          <Input placeholder="MyList name" />
+          {isLoggedInDevelop ? (
+            <InputGroupAddon addonType="prepend">
+              <Button
+                color="danger"
+                outline
+                disabled={selectedProblemIdSet.size == 0}
+                onClick={() => updateSelectedProblemIdSet.clear()}
+              >
+                Clear problem selection
+              </Button>
+            </InputGroupAddon>
+          ) : (
+            <InputGroupAddon addonType="prepend">
+              <InputGroupText>Login to enable problem selection</InputGroupText>
+            </InputGroupAddon>
+          )}
+          <Input disabled={!isLoggedInDevelop} placeholder="New MyList name" />
           <InputGroupAddon addonType="append">
-            <Button color="success">Create new MyList</Button>
+            <Button
+              color="success"
+              disabled={!isLoggedInDevelop || selectedProblemIdSet.size == 0}
+            >
+              Create new MyList
+            </Button>
           </InputGroupAddon>
         </InputGroup>
       </Row>
@@ -456,6 +495,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
             }}
           >
             <span>Difficulty</span>
+            &nbsp;
             <HelpBadgeTooltip id="difficulty">
               Internal rating to have 50% Solve Probability
             </HelpBadgeTooltip>
@@ -465,6 +505,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
             dataFormat={formatPredictedSolveProbability}
           >
             <span>Solve Probability</span>
+            &nbsp;
             <HelpBadgeTooltip id="probability">
               Estimated probability that you could solve this problem if you
               competed in the contest.
@@ -475,6 +516,7 @@ const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
             dataFormat={formatPredictedSolveTime}
           >
             <span>Median Solve Time</span>
+            &nbsp;
             <HelpBadgeTooltip id="solvetime">
               Estimated time required to solve this problem.
             </HelpBadgeTooltip>
@@ -485,93 +527,8 @@ const RecommendationTable: React.FC<RecommendationTableProps> = (props) => {
   );
 };
 
-type ProblemIdSetActionType = "add" | "delete" | "clear";
-interface ProblemIdSetState {
-  problemIdSet: Set<ProblemId>;
-  isEmpty: boolean;
-}
-interface ProblemIdSetAction {
-  type: ProblemIdSetActionType;
-  ids?: ProblemId[];
-}
-
-const initialProblemIdSetState = (): ProblemIdSetState => {
-  return {
-    problemIdSet: new Set<ProblemId>(),
-    isEmpty: true,
-  };
-};
-
-const problemIdSetReducer = (
-  state: ProblemIdSetState,
-  action: ProblemIdSetAction
-): ProblemIdSetState => {
-  switch (action.type) {
-    case "add": {
-      if (action.ids) {
-        const newProblemIdSet = state.problemIdSet;
-        for (const id of action.ids) {
-          newProblemIdSet.add(id);
-        }
-        return {
-          problemIdSet: newProblemIdSet,
-          isEmpty: newProblemIdSet.size == 0,
-        };
-      }
-      break;
-    }
-    case "delete": {
-      if (action.ids) {
-        const newProblemIdSet = state.problemIdSet;
-        for (const id of action.ids) {
-          newProblemIdSet.delete(id);
-        }
-        return {
-          problemIdSet: newProblemIdSet,
-          isEmpty: newProblemIdSet.size == 0,
-        };
-      }
-      break;
-    }
-    case "clear":
-      return initialProblemIdSetState();
-  }
-  return state;
-};
-
-const useProblemIdSet = (): [
-  ProblemIdSetState,
-  {
-    addProblemIds: (ids: ProblemId[]) => void;
-    deleteProblemIds: (ids: ProblemId[]) => void;
-    clearProblemIds: () => void;
-  }
-] => {
-  const [state, dispatch] = React.useReducer(
-    problemIdSetReducer,
-    initialProblemIdSetState()
-  );
-
-  const addProblemIds = React.useCallback(
-    (ids: ProblemId[]) => dispatch({ type: "add", ids: ids }),
-    []
-  );
-  const deleteProblemIds = React.useCallback(
-    (ids: ProblemId[]) => dispatch({ type: "delete", ids: ids }),
-    []
-  );
-  const clearProblemIds = React.useCallback(
-    () => dispatch({ type: "clear" }),
-    []
-  );
-
-  return [state, { addProblemIds, deleteProblemIds, clearProblemIds }];
-};
-
-export const Recommendations: React.FC<RecommendationProps> = (props) => {
+export const Recommendations: React.FC<Props> = (props) => {
   const { userSubmissions } = props;
-
-  const [problemIdSetState, problemIdSetAction] = useProblemIdSet();
 
   if (userSubmissions.length === 0) {
     return null;
@@ -592,13 +549,9 @@ export const Recommendations: React.FC<RecommendationProps> = (props) => {
       problemModels={props.problemModels}
       userRatingInfo={props.userRatingInfo}
       contests={props.contests}
+      isLoggedIn={props.isLoggedIn}
       lastSolvedTimeMap={lastSolvedTimeMap}
       submittedSet={submittedSet}
-      selectedProblemIdSet={problemIdSetState.problemIdSet}
-      isNothingSelected={problemIdSetState.isEmpty}
-      addProblemIds={problemIdSetAction.addProblemIds}
-      deleteProblemIds={problemIdSetAction.deleteProblemIds}
-      clearSelectedProblemIdSet={problemIdSetAction.clearProblemIds}
     />
   );
 };
