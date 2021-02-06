@@ -70,7 +70,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
   const pathUserId = pathState?.userId;
   const pathRivalIdString = pathState?.rivalIdString;
 
-  const loggedInUserId = UserState.loggedInUserId(props.loginState, "");
+  const loggedInUserId = UserState.loggedInUserId(props.loginState) ?? "";
 
   const [userId, setUserId] = React.useState(pathUserId ?? "");
   const [rivalIdString, setRivalIdString] = React.useState(

@@ -182,7 +182,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     : Map<ProblemId, ProblemModel>();
   const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
 
-  const loginUserId = loggedInUserId(props.loginState, undefined);
+  const loginUserId = loggedInUserId(props.loginState);
   const progressReset =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value

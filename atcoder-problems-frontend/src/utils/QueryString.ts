@@ -1,5 +1,4 @@
 import { Location } from "history";
-import { ProblemId } from "../interfaces/Status";
 
 export const generatePathWithParams = (
   location: Location,
@@ -11,14 +10,4 @@ export const generatePathWithParams = (
   return `${location.pathname}?${searchParams.toString()}`;
 };
 
-export const separateSymbol = "~";
-
-export const generateProblemIdsToString = (ids: ProblemId[] | undefined) => {
-  if (!ids) return "";
-  let qs = "";
-  for (const id of ids) {
-    if (qs.length > 0) qs += separateSymbol;
-    qs += id;
-  }
-  return qs;
-};
+export const problemIdSeparateSymbol = "~";
