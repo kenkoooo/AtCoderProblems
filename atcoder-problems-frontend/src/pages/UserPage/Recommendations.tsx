@@ -13,13 +13,10 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  Input,
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
   Row,
   UncontrolledDropdown,
 } from "reactstrap";
+import { useHistory } from "react-router-dom";
 import { isAccepted } from "../../utils";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
@@ -41,22 +38,15 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
 import { ProblemId } from "../../interfaces/Status";
+import { generateProblemIdsToString } from "../../utils/QueryString";
 
-interface CommonProps {
+interface Props {
+  readonly userSubmissions: Submission[];
   readonly problems: List<Problem>;
   readonly contests: ImmutableMap<string, Contest>;
   readonly problemModels: ImmutableMap<string, ProblemModel>;
   readonly userRatingInfo: RatingInfo;
   readonly isLoggedIn?: boolean;
-}
-
-interface Props extends CommonProps {
-  readonly userSubmissions: Submission[];
-}
-
-interface TableProps extends CommonProps {
-  readonly lastSolvedTimeMap: Map<ProblemId, number>;
-  readonly submittedSet: Set<ProblemId>;
 }
 
 const ExcludeOptions = [
@@ -197,6 +187,41 @@ const getRecommendProbabilityRange = (
   }
 };
 
+type ProblemIdSetActionType = "ADD" | "DELETE" | "CLEAR";
+interface ProblemIdSetAction {
+  type: ProblemIdSetActionType;
+  ids?: ProblemId[];
+}
+const problemIdSetInit = () => new Set<ProblemId>();
+const problemIdSetReducer = (
+  state: Set<ProblemId>,
+  action: ProblemIdSetAction
+): Set<ProblemId> => {
+  switch (action.type) {
+    case "ADD": {
+      if (action.ids) {
+        const newSet = new Set(state);
+        for (const id of action.ids) {
+          newSet.add(id);
+        }
+        return newSet;
+      }
+      return state;
+    }
+    case "DELETE": {
+      if (action.ids) {
+        const newSet = new Set(state);
+        for (const id of action.ids) {
+          newSet.delete(id);
+        }
+        return newSet;
+      }
+      return state;
+    }
+    case "CLEAR":
+      return problemIdSetInit();
+  }
+};
 const useProblemIdSet = (): [
   Set<ProblemId>,
   {
@@ -205,47 +230,34 @@ const useProblemIdSet = (): [
     clear: () => void;
   }
 ] => {
-  const [problemIdSet, setProblemIdSet] = React.useState(new Set<ProblemId>());
+  const [problemIdSet, dispatch] = React.useReducer(
+    problemIdSetReducer,
+    problemIdSetInit()
+  );
 
   const addProblemIds = React.useCallback(
-    (ids: ProblemId[]) =>
-      setProblemIdSet((prev) => {
-        const newProblemIdSet = prev;
-        for (const id of ids) {
-          newProblemIdSet.add(id);
-        }
-        return newProblemIdSet;
-      }),
+    (ids: ProblemId[]) => dispatch({ type: "ADD", ids: ids }),
     []
   );
   const deleteProblemIds = React.useCallback(
-    (ids: ProblemId[]) =>
-      setProblemIdSet((prev) => {
-        const newProblemIdSet = prev;
-        for (const id of ids) {
-          newProblemIdSet.delete(id);
-        }
-        return newProblemIdSet;
-      }),
+    (ids: ProblemId[]) => dispatch({ type: "DELETE", ids: ids }),
     []
   );
-  const clear = React.useCallback(
-    () => setProblemIdSet(new Set<ProblemId>()),
-    []
-  );
+  const clear = React.useCallback(() => dispatch({ type: "CLEAR" }), []);
 
   return [problemIdSet, { addProblemIds, deleteProblemIds, clear }];
 };
 
-const RecommendationTable: React.FC<TableProps> = (props) => {
+export const Recommendations: React.FC<Props> = (props) => {
   const {
+    userSubmissions,
     problems,
     contests,
     problemModels,
     userRatingInfo,
-    lastSolvedTimeMap,
-    submittedSet,
   } = props;
+
+  const history = useHistory();
 
   const [recommendOption, setRecommendOption] = useState<RecommendOption>(
     "Moderate"
@@ -256,94 +268,138 @@ const RecommendationTable: React.FC<TableProps> = (props) => {
 
   const [selectedProblemIdSet, updateSelectedProblemIdSet] = useProblemIdSet();
 
-  const currentSecond = Math.floor(new Date().getTime() / 1000);
+  const fullRecommendedProblems = React.useMemo(
+    () =>
+      problems
+        .filter((p) => problemModels.has(p.id))
+        .map((p) => ({
+          ...p,
+          difficulty: problemModels.get(p.id)?.difficulty,
+          is_experimental: problemModels.get(p.id)?.is_experimental ?? false,
+        }))
+        .filter((p) => p.difficulty !== undefined)
+        .map((p) => {
+          const internalRating = userRatingInfo.internalRating;
+          let predictedSolveTime: number | null;
+          let predictedSolveProbability: number;
+          if (internalRating === null) {
+            predictedSolveTime = null;
+            predictedSolveProbability = -1;
+          } else {
+            const problemModel: ProblemModel | undefined = problemModels.get(
+              p.id
+            );
+            if (isProblemModelWithTimeModel(problemModel)) {
+              predictedSolveTime = predictSolveTime(
+                problemModel,
+                internalRating
+              );
+            } else {
+              predictedSolveTime = null;
+            }
+            if (isProblemModelWithDifficultyModel(problemModel)) {
+              predictedSolveProbability = predictSolveProbability(
+                problemModel,
+                internalRating
+              );
+            } else {
+              predictedSolveProbability = -1;
+            }
+          }
+          return { ...p, predictedSolveTime, predictedSolveProbability };
+        }),
+    [problems, problemModels, userRatingInfo.internalRating]
+  );
 
-  const recommendingProbability = getRecommendProbability(recommendOption);
-  const recommendingRange = getRecommendProbabilityRange(recommendOption);
+  const [lastSolvedTimeMap, submittedSet] = React.useMemo(() => {
+    const lastSolvedTimeMap = new Map<ProblemId, number>();
+    userSubmissions
+      .filter((s) => isAccepted(s.result))
+      .forEach((s) => {
+        const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
+        lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
+      });
+    const submittedSet = new Set(userSubmissions.map((s) => s.problem_id));
+    return [lastSolvedTimeMap, submittedSet];
+  }, [userSubmissions]);
 
-  const recommendedProblems = problems
-    .filter((p) =>
-      isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
-    )
-    .filter((p) => excludeSubmittedProblem(p.id, excludeOption, submittedSet))
-    .filter((p) => problemModels.has(p.id))
-    .map((p) => ({
-      ...p,
-      difficulty: problemModels.get(p.id)?.difficulty,
-      is_experimental: problemModels.get(p.id)?.is_experimental ?? false,
-    }))
-    .filter((p) => recommendExperimental || !p.is_experimental)
-    .filter((p) => p.difficulty !== undefined)
-    .map((p) => {
-      const internalRating = userRatingInfo.internalRating;
-      let predictedSolveTime: number | null;
-      let predictedSolveProbability: number;
-      if (internalRating === null) {
-        predictedSolveTime = null;
-        predictedSolveProbability = -1;
-      } else {
-        const problemModel: ProblemModel | undefined = problemModels.get(p.id);
-        if (isProblemModelWithTimeModel(problemModel)) {
-          predictedSolveTime = predictSolveTime(problemModel, internalRating);
-        } else {
-          predictedSolveTime = null;
-        }
-        if (isProblemModelWithDifficultyModel(problemModel)) {
-          predictedSolveProbability = predictSolveProbability(
-            problemModel,
-            internalRating
-          );
-        } else {
-          predictedSolveProbability = -1;
-        }
-      }
-      return { ...p, predictedSolveTime, predictedSolveProbability };
-    })
-    .sort((a, b) => {
-      const da = Math.abs(
-        a.predictedSolveProbability - recommendingProbability
-      );
-      const db = Math.abs(
-        b.predictedSolveProbability - recommendingProbability
-      );
-      return da - db;
-    })
-    .filter(
-      (p) =>
-        recommendingRange.lowerBound <= p.predictedSolveProbability &&
-        p.predictedSolveProbability < recommendingRange.upperBound
-    )
-    .slice(0, recommendNum)
-    .sort((a, b) => (b.difficulty ?? 0) - (a.difficulty ?? 0))
-    .toArray();
+  const recommendedProblems = React.useMemo(() => {
+    const currentSecond = Math.floor(new Date().getTime() / 1000);
+    const recommendingProbability = getRecommendProbability(recommendOption);
+    const recommendingRange = getRecommendProbabilityRange(recommendOption);
+    return fullRecommendedProblems
+      .filter((p) =>
+        isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
+      )
+      .filter((p) => excludeSubmittedProblem(p.id, excludeOption, submittedSet))
+      .filter((p) => recommendExperimental || !p.is_experimental)
+      .filter(
+        (p) =>
+          recommendingRange.lowerBound <= p.predictedSolveProbability &&
+          p.predictedSolveProbability < recommendingRange.upperBound
+      )
+      .sort((a, b) => {
+        const da = Math.abs(
+          a.predictedSolveProbability - recommendingProbability
+        );
+        const db = Math.abs(
+          b.predictedSolveProbability - recommendingProbability
+        );
+        return da - db;
+      })
+      .slice(0, recommendNum)
+      .sort((a, b) => (b.difficulty ?? 0) - (a.difficulty ?? 0))
+      .toArray();
+  }, [
+    fullRecommendedProblems,
+    lastSolvedTimeMap,
+    submittedSet,
+    recommendOption,
+    excludeOption,
+    recommendExperimental,
+    recommendNum,
+  ]);
 
-  interface HasProblemId {
-    id: ProblemId;
+  const [selectRowProps, createContestLocation] = React.useMemo(() => {
+    const selectedProblemIds = Array.from(selectedProblemIdSet);
+    interface HasProblemId {
+      id: ProblemId;
+    }
+    const selectRowProps = !props.isLoggedIn
+      ? undefined
+      : ({
+          mode: "checkbox" as SelectRowMode,
+          selected: selectedProblemIds,
+          onSelect: (row: HasProblemId, isSelected) => {
+            if (isSelected) {
+              updateSelectedProblemIdSet.addProblemIds([row.id]);
+            } else {
+              updateSelectedProblemIdSet.deleteProblemIds([row.id]);
+            }
+          },
+          onSelectAll: (isSelected, rows: HasProblemId[]) => {
+            const ids = rows.map(({ id }) => id);
+            if (isSelected) {
+              updateSelectedProblemIdSet.addProblemIds(ids);
+            } else {
+              updateSelectedProblemIdSet.deleteProblemIds(ids);
+            }
+            return Array.from(selectedProblemIdSet);
+          },
+        } as SelectRow);
+
+    const problemIdToString = generateProblemIdsToString(selectedProblemIds);
+    const createContestLocation = {
+      pathname: "/contest/create",
+      search: !problemIdToString ? "" : "?problemIds=" + problemIdToString,
+    };
+
+    return [selectRowProps, createContestLocation];
+  }, [props.isLoggedIn, selectedProblemIdSet, updateSelectedProblemIdSet]);
+
+  if (userSubmissions.length === 0) {
+    return null;
   }
-  const selectRowProps = !props.isLoggedIn
-    ? undefined
-    : ({
-        mode: "checkbox" as SelectRowMode,
-        selected: Array.from(selectedProblemIdSet),
-        onSelect: (row: HasProblemId, isSelected) => {
-          if (isSelected) {
-            updateSelectedProblemIdSet.addProblemIds([row.id]);
-          } else {
-            updateSelectedProblemIdSet.deleteProblemIds([row.id]);
-          }
-        },
-        onSelectAll: (isSelected, rows: HasProblemId[]) => {
-          const ids = rows.map(({ id }) => id);
-          if (isSelected) {
-            updateSelectedProblemIdSet.addProblemIds(ids);
-          } else {
-            updateSelectedProblemIdSet.deleteProblemIds(ids);
-          }
-          return Array.from(selectedProblemIdSet);
-        },
-      } as SelectRow);
-
-  const isLoggedInDevelop = true;
 
   return (
     <>
@@ -407,33 +463,31 @@ const RecommendationTable: React.FC<TableProps> = (props) => {
         </UncontrolledDropdown>
       </Row>
       <Row>
-        <InputGroup>
-          {isLoggedInDevelop ? (
-            <InputGroupAddon addonType="prepend">
-              <Button
-                color="danger"
-                outline
-                disabled={selectedProblemIdSet.size == 0}
-                onClick={() => updateSelectedProblemIdSet.clear()}
-              >
-                Clear problem selection
-              </Button>
-            </InputGroupAddon>
-          ) : (
-            <InputGroupAddon addonType="prepend">
-              <InputGroupText>Login to enable problem selection</InputGroupText>
-            </InputGroupAddon>
-          )}
-          <Input disabled={!isLoggedInDevelop} placeholder="New MyList name" />
-          <InputGroupAddon addonType="append">
+        <ButtonGroup>
+          {props.isLoggedIn ? (
             <Button
-              color="success"
-              disabled={!isLoggedInDevelop || selectedProblemIdSet.size == 0}
+              color="danger"
+              outline
+              disabled={selectedProblemIdSet.size == 0}
+              onClick={updateSelectedProblemIdSet.clear}
             >
-              Create new MyList
+              Clear problem selection
             </Button>
-          </InputGroupAddon>
-        </InputGroup>
+          ) : (
+            <Button color="secondary" outline disabled>
+              Please login to enable problem selection
+            </Button>
+          )}
+          <Button
+            color="success"
+            disabled={!props.isLoggedIn || selectedProblemIdSet.size == 0}
+            onClick={() => {
+              history.push(createContestLocation);
+            }}
+          >
+            Create Virtual Contest
+          </Button>
+        </ButtonGroup>
       </Row>
       <Row className="my-3">
         <BootstrapTable
@@ -524,34 +578,5 @@ const RecommendationTable: React.FC<TableProps> = (props) => {
         </BootstrapTable>
       </Row>
     </>
-  );
-};
-
-export const Recommendations: React.FC<Props> = (props) => {
-  const { userSubmissions } = props;
-
-  if (userSubmissions.length === 0) {
-    return null;
-  }
-
-  const lastSolvedTimeMap = new Map<ProblemId, number>();
-  userSubmissions
-    .filter((s) => isAccepted(s.result))
-    .forEach((s) => {
-      const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
-      lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
-    });
-  const submittedSet = new Set(userSubmissions.map((s) => s.problem_id));
-
-  return (
-    <RecommendationTable
-      problems={props.problems}
-      problemModels={props.problemModels}
-      userRatingInfo={props.userRatingInfo}
-      contests={props.contests}
-      isLoggedIn={props.isLoggedIn}
-      lastSolvedTimeMap={lastSolvedTimeMap}
-      submittedSet={submittedSet}
-    />
   );
 };
