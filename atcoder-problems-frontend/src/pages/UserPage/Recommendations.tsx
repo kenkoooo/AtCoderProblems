@@ -38,7 +38,7 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
 import { ProblemId } from "../../interfaces/Status";
-import { generateProblemIdsToString } from "../../utils/QueryString";
+import { problemIdSeparateSymbol } from "../../utils/QueryString";
 
 interface Props {
   readonly userSubmissions: Submission[];
@@ -388,7 +388,7 @@ export const Recommendations: React.FC<Props> = (props) => {
           },
         } as SelectRow);
 
-    const problemIdToString = generateProblemIdsToString(selectedProblemIds);
+    const problemIdToString = selectedProblemIds.join(problemIdSeparateSymbol);
     const createContestLocation = {
       pathname: "/contest/create",
       search: !problemIdToString ? "" : "?problemIds=" + problemIdToString,

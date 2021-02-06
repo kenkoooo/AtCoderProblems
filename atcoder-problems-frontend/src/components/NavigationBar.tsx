@@ -28,7 +28,7 @@ interface InnerProps {
 
 const InnerNavigationBar: React.FC<InnerProps> = (props) => {
   const isLoggedIn = UserState.isLoggedIn(props.loginState);
-  const loggedInUserId = UserState.loggedInUserId(props.loginState, "");
+  const loggedInUserId = UserState.loggedInUserId(props.loginState) ?? "";
 
   const [isOpen, setIsOpen] = React.useState(false);
 

@@ -100,7 +100,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     ? props.submissions.value
     : [];
 
-  const loginUserId = loggedInUserId(props.loginState, undefined);
+  const loginUserId = loggedInUserId(props.loginState);
   const progressReset =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value
