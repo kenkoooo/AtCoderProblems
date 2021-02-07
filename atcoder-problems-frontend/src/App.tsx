@@ -30,7 +30,7 @@ import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { caseInsensitiveUserId } from "./utils";
-import { problemIdSeparateSymbol } from "./utils/QueryString";
+import { PROBLEMID_SEPARATE_SYMBOL } from "./utils/QueryString";
 
 const App: React.FC = () => {
   return (
@@ -115,7 +115,7 @@ const App: React.FC = () => {
                   const query = new URLSearchParams(location.search);
                   const items = query
                     .get("problemIds")
-                    ?.split(problemIdSeparateSymbol)
+                    ?.split(PROBLEMID_SEPARATE_SYMBOL)
                     .map((id) => ({
                       id: id,
                       point: null,

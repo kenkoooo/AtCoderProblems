@@ -10,4 +10,4 @@ export const generatePathWithParams = (
   return `${location.pathname}?${searchParams.toString()}`;
 };
 
-export const problemIdSeparateSymbol = "~";
+export const PROBLEMID_SEPARATE_SYMBOL = "~";

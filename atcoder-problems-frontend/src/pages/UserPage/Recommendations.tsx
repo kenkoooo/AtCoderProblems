@@ -38,7 +38,7 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
 import { ProblemId } from "../../interfaces/Status";
-import { problemIdSeparateSymbol } from "../../utils/QueryString";
+import { PROBLEMID_SEPARATE_SYMBOL } from "../../utils/QueryString";
 
 interface Props {
   readonly userSubmissions: Submission[];
@@ -187,7 +187,7 @@ const getRecommendProbabilityRange = (
   }
 };
 
-type ProblemIdSetActionType = "ADD" | "DELETE" | "CLEAR";
+type ProblemIdSetActionType = "ADD" | "DELETE";
 interface ProblemIdSetAction {
   type: ProblemIdSetActionType;
   ids?: ProblemId[];
@@ -218,34 +218,7 @@ const problemIdSetReducer = (
       }
       return state;
     }
-    case "CLEAR":
-      return problemIdSetInit();
   }
-};
-const useProblemIdSet = (): [
-  Set<ProblemId>,
-  {
-    addProblemIds: (ids: ProblemId[]) => void;
-    deleteProblemIds: (ids: ProblemId[]) => void;
-    clear: () => void;
-  }
-] => {
-  const [problemIdSet, dispatch] = React.useReducer(
-    problemIdSetReducer,
-    problemIdSetInit()
-  );
-
-  const addProblemIds = React.useCallback(
-    (ids: ProblemId[]) => dispatch({ type: "ADD", ids: ids }),
-    []
-  );
-  const deleteProblemIds = React.useCallback(
-    (ids: ProblemId[]) => dispatch({ type: "DELETE", ids: ids }),
-    []
-  );
-  const clear = React.useCallback(() => dispatch({ type: "CLEAR" }), []);
-
-  return [problemIdSet, { addProblemIds, deleteProblemIds, clear }];
 };
 
 export const Recommendations: React.FC<Props> = (props) => {
@@ -266,7 +239,14 @@ export const Recommendations: React.FC<Props> = (props) => {
   const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
   const [recommendNum, setRecommendNum] = useState(10);
 
-  const [selectedProblemIdSet, updateSelectedProblemIdSet] = useProblemIdSet();
+  const [selectedProblemIdSet, selectedProblemIdSetDispatch] = React.useReducer(
+    problemIdSetReducer,
+    problemIdSetInit()
+  );
+  const selectProblemIds = (ids: ProblemId[]) =>
+    selectedProblemIdSetDispatch({ type: "ADD", ids: ids });
+  const deselectProblemIds = (ids: ProblemId[]) =>
+    selectedProblemIdSetDispatch({ type: "DELETE", ids: ids });
 
   const fullRecommendedProblems = React.useMemo(
     () =>
@@ -323,7 +303,7 @@ export const Recommendations: React.FC<Props> = (props) => {
     return [lastSolvedTimeMap, submittedSet];
   }, [userSubmissions]);
 
-  const recommendedProblems = React.useMemo(() => {
+  const filteredRecommendedProblems = React.useMemo(() => {
     const currentSecond = Math.floor(new Date().getTime() / 1000);
     const recommendingProbability = getRecommendProbability(recommendOption);
     const recommendingRange = getRecommendProbabilityRange(recommendOption);
@@ -372,30 +352,32 @@ export const Recommendations: React.FC<Props> = (props) => {
           selected: selectedProblemIds,
           onSelect: (row: HasProblemId, isSelected) => {
             if (isSelected) {
-              updateSelectedProblemIdSet.addProblemIds([row.id]);
+              selectProblemIds([row.id]);
             } else {
-              updateSelectedProblemIdSet.deleteProblemIds([row.id]);
+              deselectProblemIds([row.id]);
             }
           },
           onSelectAll: (isSelected, rows: HasProblemId[]) => {
             const ids = rows.map(({ id }) => id);
             if (isSelected) {
-              updateSelectedProblemIdSet.addProblemIds(ids);
+              selectProblemIds(ids);
             } else {
-              updateSelectedProblemIdSet.deleteProblemIds(ids);
+              deselectProblemIds(ids);
             }
             return Array.from(selectedProblemIdSet);
           },
         } as SelectRow);
 
-    const problemIdToString = selectedProblemIds.join(problemIdSeparateSymbol);
+    const problemIdToString = selectedProblemIds.join(
+      PROBLEMID_SEPARATE_SYMBOL
+    );
     const createContestLocation = {
       pathname: "/contest/create",
       search: !problemIdToString ? "" : "?problemIds=" + problemIdToString,
     };
 
     return [selectRowProps, createContestLocation];
-  }, [props.isLoggedIn, selectedProblemIdSet, updateSelectedProblemIdSet]);
+  }, [props.isLoggedIn, selectedProblemIdSet]);
 
   if (userSubmissions.length === 0) {
     return null;
@@ -462,36 +444,24 @@ export const Recommendations: React.FC<Props> = (props) => {
           </DropdownMenu>
         </UncontrolledDropdown>
       </Row>
-      <Row>
-        <ButtonGroup>
-          {props.isLoggedIn ? (
+      {props.isLoggedIn && (
+        <Row>
+          <ButtonGroup>
             <Button
-              color="danger"
-              outline
+              color="success"
               disabled={selectedProblemIdSet.size == 0}
-              onClick={updateSelectedProblemIdSet.clear}
+              onClick={() => {
+                history.push(createContestLocation);
+              }}
             >
-              Clear problem selection
+              Create Virtual Contest
             </Button>
-          ) : (
-            <Button color="secondary" outline disabled>
-              Please login to enable problem selection
-            </Button>
-          )}
-          <Button
-            color="success"
-            disabled={!props.isLoggedIn || selectedProblemIdSet.size == 0}
-            onClick={() => {
-              history.push(createContestLocation);
-            }}
-          >
-            Create Virtual Contest
-          </Button>
-        </ButtonGroup>
-      </Row>
+          </ButtonGroup>
+        </Row>
+      )}
       <Row className="my-3">
         <BootstrapTable
-          data={recommendedProblems}
+          data={filteredRecommendedProblems}
           keyField="id"
           height="auto"
           hover
