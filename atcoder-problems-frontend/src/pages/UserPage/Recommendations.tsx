@@ -248,140 +248,110 @@ export const Recommendations: React.FC<Props> = (props) => {
   const deselectProblemIds = (ids: ProblemId[]) =>
     selectedProblemIdSetDispatch({ type: "DELETE", ids: ids });
 
-  const fullRecommendedProblems = React.useMemo(
-    () =>
-      problems
-        .filter((p) => problemModels.has(p.id))
-        .map((p) => ({
-          ...p,
-          difficulty: problemModels.get(p.id)?.difficulty,
-          is_experimental: problemModels.get(p.id)?.is_experimental ?? false,
-        }))
-        .filter((p) => p.difficulty !== undefined)
-        .map((p) => {
-          const internalRating = userRatingInfo.internalRating;
-          let predictedSolveTime: number | null;
-          let predictedSolveProbability: number;
-          if (internalRating === null) {
-            predictedSolveTime = null;
-            predictedSolveProbability = -1;
-          } else {
-            const problemModel: ProblemModel | undefined = problemModels.get(
-              p.id
-            );
-            if (isProblemModelWithTimeModel(problemModel)) {
-              predictedSolveTime = predictSolveTime(
-                problemModel,
-                internalRating
-              );
-            } else {
-              predictedSolveTime = null;
-            }
-            if (isProblemModelWithDifficultyModel(problemModel)) {
-              predictedSolveProbability = predictSolveProbability(
-                problemModel,
-                internalRating
-              );
-            } else {
-              predictedSolveProbability = -1;
-            }
-          }
-          return { ...p, predictedSolveTime, predictedSolveProbability };
-        }),
-    [problems, problemModels, userRatingInfo.internalRating]
-  );
-
-  const [lastSolvedTimeMap, submittedSet] = React.useMemo(() => {
-    const lastSolvedTimeMap = new Map<ProblemId, number>();
-    userSubmissions
-      .filter((s) => isAccepted(s.result))
-      .forEach((s) => {
-        const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
-        lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
-      });
-    const submittedSet = new Set(userSubmissions.map((s) => s.problem_id));
-    return [lastSolvedTimeMap, submittedSet];
-  }, [userSubmissions]);
-
-  const filteredRecommendedProblems = React.useMemo(() => {
-    const currentSecond = Math.floor(new Date().getTime() / 1000);
-    const recommendingProbability = getRecommendProbability(recommendOption);
-    const recommendingRange = getRecommendProbabilityRange(recommendOption);
-    return fullRecommendedProblems
-      .filter((p) =>
-        isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
-      )
-      .filter((p) => excludeSubmittedProblem(p.id, excludeOption, submittedSet))
-      .filter((p) => recommendExperimental || !p.is_experimental)
-      .filter(
-        (p) =>
-          recommendingRange.lowerBound <= p.predictedSolveProbability &&
-          p.predictedSolveProbability < recommendingRange.upperBound
-      )
-      .sort((a, b) => {
-        const da = Math.abs(
-          a.predictedSolveProbability - recommendingProbability
-        );
-        const db = Math.abs(
-          b.predictedSolveProbability - recommendingProbability
-        );
-        return da - db;
-      })
-      .slice(0, recommendNum)
-      .sort((a, b) => (b.difficulty ?? 0) - (a.difficulty ?? 0))
-      .toArray();
-  }, [
-    fullRecommendedProblems,
-    lastSolvedTimeMap,
-    submittedSet,
-    recommendOption,
-    excludeOption,
-    recommendExperimental,
-    recommendNum,
-  ]);
-
-  const [selectRowProps, createContestLocation] = React.useMemo(() => {
-    const selectedProblemIds = Array.from(selectedProblemIdSet);
-    interface HasProblemId {
-      id: ProblemId;
-    }
-    const selectRowProps = !props.isLoggedIn
-      ? undefined
-      : ({
-          mode: "checkbox" as SelectRowMode,
-          selected: selectedProblemIds,
-          onSelect: (row: HasProblemId, isSelected) => {
-            if (isSelected) {
-              selectProblemIds([row.id]);
-            } else {
-              deselectProblemIds([row.id]);
-            }
-          },
-          onSelectAll: (isSelected, rows: HasProblemId[]) => {
-            const ids = rows.map(({ id }) => id);
-            if (isSelected) {
-              selectProblemIds(ids);
-            } else {
-              deselectProblemIds(ids);
-            }
-            return Array.from(selectedProblemIdSet);
-          },
-        } as SelectRow);
-
-    const problemIdToString = selectedProblemIds.join(
-      PROBLEMID_SEPARATE_SYMBOL
-    );
-    const createContestLocation = {
-      pathname: "/contest/create",
-      search: !problemIdToString ? "" : "?problemIds=" + problemIdToString,
-    };
-
-    return [selectRowProps, createContestLocation];
-  }, [props.isLoggedIn, selectedProblemIdSet]);
-
   if (userSubmissions.length === 0) {
     return null;
   }
+
+  const lastSolvedTimeMap = new Map<ProblemId, number>();
+  userSubmissions
+    .filter((s) => isAccepted(s.result))
+    .forEach((s) => {
+      const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
+      lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
+    });
+  const submittedSet = new Set(userSubmissions.map((s) => s.problem_id));
+
+  const currentSecond = Math.floor(new Date().getTime() / 1000);
+  const recommendingProbability = getRecommendProbability(recommendOption);
+  const recommendingRange = getRecommendProbabilityRange(recommendOption);
+
+  const filteredRecommendedProblems = problems
+    .filter((p) =>
+      isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
+    )
+    .filter((p) => excludeSubmittedProblem(p.id, excludeOption, submittedSet))
+    .filter((p) => problemModels.has(p.id))
+    .map((p) => ({
+      ...p,
+      difficulty: problemModels.get(p.id)?.difficulty,
+      is_experimental: problemModels.get(p.id)?.is_experimental ?? false,
+    }))
+    .filter((p) => p.difficulty !== undefined)
+    .filter((p) => recommendExperimental || !p.is_experimental)
+    .map((p) => {
+      const internalRating = userRatingInfo.internalRating;
+      let predictedSolveTime: number | null;
+      let predictedSolveProbability: number;
+      if (internalRating === null) {
+        predictedSolveTime = null;
+        predictedSolveProbability = -1;
+      } else {
+        const problemModel: ProblemModel | undefined = problemModels.get(p.id);
+        if (isProblemModelWithTimeModel(problemModel)) {
+          predictedSolveTime = predictSolveTime(problemModel, internalRating);
+        } else {
+          predictedSolveTime = null;
+        }
+        if (isProblemModelWithDifficultyModel(problemModel)) {
+          predictedSolveProbability = predictSolveProbability(
+            problemModel,
+            internalRating
+          );
+        } else {
+          predictedSolveProbability = -1;
+        }
+      }
+      return { ...p, predictedSolveTime, predictedSolveProbability };
+    })
+    .filter(
+      (p) =>
+        recommendingRange.lowerBound <= p.predictedSolveProbability &&
+        p.predictedSolveProbability < recommendingRange.upperBound
+    )
+    .sort((a, b) => {
+      const da = Math.abs(
+        a.predictedSolveProbability - recommendingProbability
+      );
+      const db = Math.abs(
+        b.predictedSolveProbability - recommendingProbability
+      );
+      return da - db;
+    })
+    .slice(0, recommendNum)
+    .sort((a, b) => (b.difficulty ?? 0) - (a.difficulty ?? 0))
+    .toArray();
+
+  const selectedProblemIds = Array.from(selectedProblemIdSet);
+  interface HasProblemId {
+    id: ProblemId;
+  }
+  const selectRowProps = !props.isLoggedIn
+    ? undefined
+    : ({
+        mode: "checkbox" as SelectRowMode,
+        selected: selectedProblemIds,
+        onSelect: (row: HasProblemId, isSelected) => {
+          if (isSelected) {
+            selectProblemIds([row.id]);
+          } else {
+            deselectProblemIds([row.id]);
+          }
+        },
+        onSelectAll: (isSelected, rows: HasProblemId[]) => {
+          const ids = rows.map(({ id }) => id);
+          if (isSelected) {
+            selectProblemIds(ids);
+          } else {
+            deselectProblemIds(ids);
+          }
+          return Array.from(selectedProblemIdSet);
+        },
+      } as SelectRow);
+  const problemIdToString = selectedProblemIds.join(PROBLEMID_SEPARATE_SYMBOL);
+  const createContestLocation = {
+    pathname: "/contest/create",
+    search: !problemIdToString ? "" : "?problemIds=" + problemIdToString,
+  };
 
   return (
     <>
