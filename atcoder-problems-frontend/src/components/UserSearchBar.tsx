@@ -15,6 +15,7 @@ import {
 } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
 import { extractRivalsParam, normalizeUserId } from "../utils";
+import * as UserState from "../utils/UserState";
 import { USER_GET } from "../pages/Internal/ApiUrl";
 import { UserResponse } from "../pages/Internal/types";
 
@@ -69,12 +70,7 @@ const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
   const pathUserId = pathState?.userId;
   const pathRivalIdString = pathState?.rivalIdString;
 
-  const loggedInUserId =
-    props.loginState.fulfilled &&
-    props.loginState.value &&
-    props.loginState.value.atcoder_user_id
-      ? props.loginState.value.atcoder_user_id
-      : "";
+  const loggedInUserId = UserState.loggedInUserId(props.loginState) ?? "";
 
   const [userId, setUserId] = React.useState(pathUserId ?? "");
   const [rivalIdString, setRivalIdString] = React.useState(
