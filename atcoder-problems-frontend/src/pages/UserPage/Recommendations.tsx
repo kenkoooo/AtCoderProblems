@@ -1,15 +1,22 @@
 import React, { useState } from "react";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import {
+  BootstrapTable,
+  SelectRow,
+  SelectRowMode,
+  TableHeaderColumn,
+} from "react-bootstrap-table";
 import { List, Map as ImmutableMap } from "immutable";
 import {
   Button,
   ButtonGroup,
+  CustomInput,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
   Row,
   UncontrolledDropdown,
 } from "reactstrap";
+import { useHistory } from "react-router-dom";
 import { isAccepted } from "../../utils";
 import * as Url from "../../utils/Url";
 import Submission from "../../interfaces/Submission";
@@ -31,6 +38,16 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
 import { ProblemId } from "../../interfaces/Status";
+import { PROBLEMID_SEPARATE_SYMBOL } from "../../utils/QueryString";
+
+interface Props {
+  readonly userSubmissions: Submission[];
+  readonly problems: List<Problem>;
+  readonly contests: ImmutableMap<string, Contest>;
+  readonly problemModels: ImmutableMap<string, ProblemModel>;
+  readonly userRatingInfo: RatingInfo;
+  readonly isLoggedIn?: boolean;
+}
 
 const ExcludeOptions = [
   "Exclude",
@@ -91,7 +108,7 @@ const isIncluded = (
   }
 };
 
-const excludeSubmittedproblem = (
+const excludeSubmittedProblem = (
   problemId: ProblemId,
   excludeOption: ExcludeOption,
   submitted: Set<ProblemId>
@@ -127,7 +144,8 @@ const RECOMMEND_NUM_OPTIONS = [
   },
 ];
 
-type RecommendOption = "Easy" | "Moderate" | "Difficult";
+const RecommendOptions = ["Easy", "Moderate", "Difficult"] as const;
+type RecommendOption = typeof RecommendOptions[number];
 
 const getRecommendProbability = (option: RecommendOption): number => {
   switch (option) {
@@ -169,13 +187,39 @@ const getRecommendProbabilityRange = (
   }
 };
 
-interface Props {
-  readonly userSubmissions: Submission[];
-  readonly problems: List<Problem>;
-  readonly contests: ImmutableMap<string, Contest>;
-  readonly problemModels: ImmutableMap<string, ProblemModel>;
-  readonly userRatingInfo: RatingInfo;
+type ProblemIdSetActionType = "ADD" | "DELETE";
+interface ProblemIdSetAction {
+  type: ProblemIdSetActionType;
+  ids?: ProblemId[];
 }
+const problemIdSetInit = () => new Set<ProblemId>();
+const problemIdSetReducer = (
+  state: Set<ProblemId>,
+  action: ProblemIdSetAction
+): Set<ProblemId> => {
+  switch (action.type) {
+    case "ADD": {
+      if (action.ids) {
+        const newSet = new Set(state);
+        for (const id of action.ids) {
+          newSet.add(id);
+        }
+        return newSet;
+      }
+      return state;
+    }
+    case "DELETE": {
+      if (action.ids) {
+        const newSet = new Set(state);
+        for (const id of action.ids) {
+          newSet.delete(id);
+        }
+        return newSet;
+      }
+      return state;
+    }
+  }
+};
 
 export const Recommendations: React.FC<Props> = (props) => {
   const {
@@ -186,16 +230,28 @@ export const Recommendations: React.FC<Props> = (props) => {
     userRatingInfo,
   } = props;
 
-  const [recommendNum, setRecommendNum] = useState(10);
+  const history = useHistory();
+
   const [recommendOption, setRecommendOption] = useState<RecommendOption>(
     "Moderate"
   );
   const [recommendExperimental, setRecommendExperimental] = useState(true);
   const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
+  const [recommendNum, setRecommendNum] = useState(10);
+
+  const [selectedProblemIdSet, selectedProblemIdSetDispatch] = React.useReducer(
+    problemIdSetReducer,
+    problemIdSetInit()
+  );
+  const selectProblemIds = (ids: ProblemId[]) =>
+    selectedProblemIdSetDispatch({ type: "ADD", ids: ids });
+  const deselectProblemIds = (ids: ProblemId[]) =>
+    selectedProblemIdSetDispatch({ type: "DELETE", ids: ids });
 
   if (userSubmissions.length === 0) {
     return null;
   }
+
   const lastSolvedTimeMap = new Map<ProblemId, number>();
   userSubmissions
     .filter((s) => isAccepted(s.result))
@@ -203,28 +259,25 @@ export const Recommendations: React.FC<Props> = (props) => {
       const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
       lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
     });
+  const submittedSet = new Set(userSubmissions.map((s) => s.problem_id));
 
+  const currentSecond = Math.floor(new Date().getTime() / 1000);
   const recommendingProbability = getRecommendProbability(recommendOption);
   const recommendingRange = getRecommendProbabilityRange(recommendOption);
 
-  const currentSecond = Math.floor(new Date().getTime() / 1000);
-  const submittedSet = userSubmissions.reduce((set, s) => {
-    set.add(s.problem_id);
-    return set;
-  }, new Set<ProblemId>());
-  const recommendedProblems = problems
+  const filteredRecommendedProblems = problems
     .filter((p) =>
       isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
     )
-    .filter((p) => excludeSubmittedproblem(p.id, excludeOption, submittedSet))
+    .filter((p) => excludeSubmittedProblem(p.id, excludeOption, submittedSet))
     .filter((p) => problemModels.has(p.id))
     .map((p) => ({
       ...p,
       difficulty: problemModels.get(p.id)?.difficulty,
       is_experimental: problemModels.get(p.id)?.is_experimental ?? false,
     }))
-    .filter((p) => recommendExperimental || !p.is_experimental)
     .filter((p) => p.difficulty !== undefined)
+    .filter((p) => recommendExperimental || !p.is_experimental)
     .map((p) => {
       const internalRating = userRatingInfo.internalRating;
       let predictedSolveTime: number | null;
@@ -250,6 +303,11 @@ export const Recommendations: React.FC<Props> = (props) => {
       }
       return { ...p, predictedSolveTime, predictedSolveProbability };
     })
+    .filter(
+      (p) =>
+        recommendingRange.lowerBound <= p.predictedSolveProbability &&
+        p.predictedSolveProbability < recommendingRange.upperBound
+    )
     .sort((a, b) => {
       const da = Math.abs(
         a.predictedSolveProbability - recommendingProbability
@@ -259,60 +317,58 @@ export const Recommendations: React.FC<Props> = (props) => {
       );
       return da - db;
     })
-    .filter(
-      (p) =>
-        recommendingRange.lowerBound <= p.predictedSolveProbability &&
-        p.predictedSolveProbability < recommendingRange.upperBound
-    )
     .slice(0, recommendNum)
     .sort((a, b) => (b.difficulty ?? 0) - (a.difficulty ?? 0))
     .toArray();
+
+  const selectedProblemIds = Array.from(selectedProblemIdSet);
+  interface HasProblemId {
+    id: ProblemId;
+  }
+  const selectRowProps = !props.isLoggedIn
+    ? undefined
+    : ({
+        mode: "checkbox" as SelectRowMode,
+        selected: selectedProblemIds,
+        onSelect: (row: HasProblemId, isSelected) => {
+          if (isSelected) {
+            selectProblemIds([row.id]);
+          } else {
+            deselectProblemIds([row.id]);
+          }
+        },
+        onSelectAll: (isSelected, rows: HasProblemId[]) => {
+          const ids = rows.map(({ id }) => id);
+          if (isSelected) {
+            selectProblemIds(ids);
+          } else {
+            deselectProblemIds(ids);
+          }
+          return Array.from(selectedProblemIdSet);
+        },
+      } as SelectRow);
+  const problemIdToString = selectedProblemIds.join(PROBLEMID_SEPARATE_SYMBOL);
+  const createContestLocation = {
+    pathname: "/contest/create",
+    search: !problemIdToString ? "" : "?problemIds=" + problemIdToString,
+  };
 
   return (
     <>
       <Row className="my-3 d-flex justify-content-between">
         <div>
-          <ButtonGroup>
-            <Button
-              onClick={(): void => setRecommendOption("Easy")}
-              active={recommendOption === "Easy"}
-            >
-              Easy
-            </Button>
-            <Button
-              onClick={(): void => setRecommendOption("Moderate")}
-              active={recommendOption === "Moderate"}
-            >
-              Moderate
-            </Button>
-            <Button
-              onClick={(): void => setRecommendOption("Difficult")}
-              active={recommendOption === "Difficult"}
-            >
-              Difficult
-            </Button>
+          <ButtonGroup className="mr-3">
+            {RecommendOptions.map((type) => (
+              <Button
+                key={type}
+                active={recommendOption === type}
+                onClick={(): void => setRecommendOption(type)}
+              >
+                {type}
+              </Button>
+            ))}
           </ButtonGroup>
-          <ButtonGroup className="mx-3">
-            <Button
-              onClick={(): void => setRecommendExperimental(true)}
-              active={recommendExperimental}
-            >
-              Show
-              <span role="img" aria-label="experimental">
-                🧪
-              </span>
-            </Button>
-            <Button
-              onClick={(): void => setRecommendExperimental(false)}
-              active={!recommendExperimental}
-            >
-              Hide
-              <span role="img" aria-label="experimental">
-                🧪
-              </span>
-            </Button>
-          </ButtonGroup>
-          <ButtonGroup>
+          <ButtonGroup className="mr-3">
             <UncontrolledDropdown>
               <DropdownToggle caret>
                 {formatExcludeOption(excludeOption)}
@@ -329,6 +385,18 @@ export const Recommendations: React.FC<Props> = (props) => {
               </DropdownMenu>
             </UncontrolledDropdown>
           </ButtonGroup>
+          <CustomInput
+            type="switch"
+            id="switchRecommendExperimental"
+            inline
+            label={
+              <span role="img" aria-label="experimental">
+                🧪
+              </span>
+            }
+            checked={recommendExperimental}
+            onChange={() => setRecommendExperimental(!recommendExperimental)}
+          />
         </div>
         <UncontrolledDropdown direction="left">
           <DropdownToggle caret>
@@ -346,13 +414,29 @@ export const Recommendations: React.FC<Props> = (props) => {
           </DropdownMenu>
         </UncontrolledDropdown>
       </Row>
+      {props.isLoggedIn && (
+        <Row>
+          <ButtonGroup>
+            <Button
+              color="success"
+              disabled={selectedProblemIdSet.size == 0}
+              onClick={() => {
+                history.push(createContestLocation);
+              }}
+            >
+              Create Virtual Contest
+            </Button>
+          </ButtonGroup>
+        </Row>
+      )}
       <Row className="my-3">
         <BootstrapTable
-          data={recommendedProblems}
+          data={filteredRecommendedProblems}
           keyField="id"
           height="auto"
           hover
           striped
+          selectRow={selectRowProps}
         >
           <TableHeaderColumn
             dataField="title"
@@ -405,6 +489,7 @@ export const Recommendations: React.FC<Props> = (props) => {
             }}
           >
             <span>Difficulty</span>
+            &nbsp;
             <HelpBadgeTooltip id="difficulty">
               Internal rating to have 50% Solve Probability
             </HelpBadgeTooltip>
@@ -414,6 +499,7 @@ export const Recommendations: React.FC<Props> = (props) => {
             dataFormat={formatPredictedSolveProbability}
           >
             <span>Solve Probability</span>
+            &nbsp;
             <HelpBadgeTooltip id="probability">
               Estimated probability that you could solve this problem if you
               competed in the contest.
@@ -424,6 +510,7 @@ export const Recommendations: React.FC<Props> = (props) => {
             dataFormat={formatPredictedSolveTime}
           >
             <span>Median Solve Time</span>
+            &nbsp;
             <HelpBadgeTooltip id="solvetime">
               Estimated time required to solve this problem.
             </HelpBadgeTooltip>

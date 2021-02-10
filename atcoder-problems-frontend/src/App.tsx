@@ -30,6 +30,7 @@ import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { caseInsensitiveUserId } from "./utils";
+import { PROBLEMID_SEPARATE_SYMBOL } from "./utils/QueryString";
 
 const App: React.FC = () => {
   return (
@@ -110,7 +111,19 @@ const App: React.FC = () => {
               />
               <Route
                 path="/contest/create"
-                render={() => <ContestCreatePage />}
+                render={({ location }) => {
+                  const query = new URLSearchParams(location.search);
+                  const items = query
+                    .get("problemIds")
+                    ?.split(PROBLEMID_SEPARATE_SYMBOL)
+                    .map((id) => ({
+                      id: id,
+                      point: null,
+                      order: null,
+                    }));
+                  const itemList = items ? List(items) : undefined;
+                  return <ContestCreatePage initialProblems={itemList} />;
+                }}
               />
               <Route
                 path="/contest/update/:contestId([a-zA-Z0-9_-]+)"
