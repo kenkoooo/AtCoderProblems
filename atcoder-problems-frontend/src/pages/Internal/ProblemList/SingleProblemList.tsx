@@ -118,7 +118,10 @@ const InnerSingleProblemList = (props: InnerProps) => {
       </Row>
       <Row className="my-2">
         <Col sm="12">
-          <Button onClick={(): void => setCreatingContest(true)}>
+          <Button
+            color="success"
+            onClick={(): void => setCreatingContest(true)}
+          >
             Create Virtual Contest
           </Button>
         </Col>
