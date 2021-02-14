@@ -41,19 +41,19 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v1
     - name: Install dependencies
-      working-directory: ./atcoder-problems-backend
+      working-directory: ./atcoder-problems-frontend
       run: yarn
     - name: build
-      working-directory: ./atcoder-problems-backend
+      working-directory: ./atcoder-problems-frontend
       run: yarn build
     - name: test
-      working-directory: ./atcoder-problems-backend
+      working-directory: ./atcoder-problems-frontend
       run: yarn test
     - name: lint
-      working-directory: ./atcoder-problems-backend
+      working-directory: ./atcoder-problems-frontend
       run: yarn lint
     - name: Integration test
-      working-directory: ./atcoder-problems-backend
+      working-directory: ./atcoder-problems-frontend
       run: |
         yarn prepare-ci
         yarn start:ci &
