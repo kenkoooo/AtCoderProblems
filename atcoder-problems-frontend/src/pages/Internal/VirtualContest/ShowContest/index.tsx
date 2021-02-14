@@ -176,7 +176,14 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
         <Col lg="6" md="12">
           <Table className="mb-0">
             <tbody>
-              {start < now && now < end ? (
+              {now < start ? (
+                <tr>
+                  <th>Begin in</th>
+                  <td>
+                    <Timer end={start} />
+                  </td>
+                </tr>
+              ) : now < end ? (
                 <tr>
                   <th>Remaining</th>
                   <td>
