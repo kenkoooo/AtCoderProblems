@@ -2,7 +2,6 @@ use crate::models::Submission;
 use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
-use sqlx::postgres::PgQueryAs;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::BTreeMap;
@@ -288,7 +287,7 @@ impl SubmissionClient for PgPool {
         .bind(execution_times)
         .execute(self)
         .await?;
-        Ok(count as usize)
+        Ok(count.rows_affected() as usize)
     }
 
     async fn update_submission_count(&self) -> Result<()> {
