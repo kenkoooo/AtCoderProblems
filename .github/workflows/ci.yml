@@ -8,6 +8,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  RUST_TEST_THREADS: 1
 
 jobs:
   backend_test:
@@ -29,7 +30,7 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       working-directory: ./atcoder-problems-backend
-      run: cargo test --workspace -- --test-threads=1
+      run: cargo test --verbose --workspace -- --test-threads=1
   
   frontend_test:
     name: Run frontend tests
