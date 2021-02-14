@@ -7,7 +7,7 @@ use sqlx::Row;
 use std::result::Result as StdResult;
 use uuid::Uuid;
 
-pub const MAX_PROBLEM_NUM_PER_CONTEST: usize = 100;
+pub const MAX_PROBLEM_NUM_PER_CONTEST: usize = 300;
 pub const RECENT_CONTEST_NUM: i64 = 1000;
 
 #[derive(Serialize, Debug, PartialEq, Eq, Clone)]
