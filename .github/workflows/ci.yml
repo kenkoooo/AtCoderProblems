@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  backend_test:
+    name: Run backend tests
+    runs-on: ubuntu-latest
+    services:
+      postgres: 
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: pass
+          POSTGRES_USER: kenkoooo
+          POSTGRES_DB: test
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose --workspace -- --test-threads=1 
