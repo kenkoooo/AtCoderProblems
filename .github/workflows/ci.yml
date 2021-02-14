@@ -30,3 +30,29 @@ jobs:
     - name: Run tests
       working-directory: ./atcoder-problems-backend
       run: cargo test --verbose --workspace -- --test-threads=1
+  
+  frontend_test:
+    name: Run frontend tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+    - name: Install dependencies
+      working-directory: ./atcoder-problems-backend
+      run: yarn
+    - name: build
+      working-directory: ./atcoder-problems-backend
+      run: yarn build
+    - name: test
+      working-directory: ./atcoder-problems-backend
+      run: yarn test
+    - name: lint
+      working-directory: ./atcoder-problems-backend
+      run: yarn lint
+    - name: Integration test
+      working-directory: ./atcoder-problems-backend
+      run: |
+        yarn prepare-ci
+        yarn start:ci &
+        yarn cy:run
