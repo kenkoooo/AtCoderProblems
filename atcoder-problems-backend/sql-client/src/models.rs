@@ -40,8 +40,8 @@ pub struct Submission {
     pub execution_time: Option<i32>,
 }
 
-impl<'c> FromRow<'c, PgRow<'c>> for Submission {
-    fn from_row(row: &PgRow<'c>) -> sqlx::Result<Self> {
+impl FromRow<'_, PgRow> for Submission {
+    fn from_row(row: &PgRow) -> sqlx::Result<Self> {
         let id: i64 = row.try_get("id")?;
         let epoch_second: i64 = row.try_get("epoch_second")?;
         let problem_id: String = row.try_get("problem_id")?;
