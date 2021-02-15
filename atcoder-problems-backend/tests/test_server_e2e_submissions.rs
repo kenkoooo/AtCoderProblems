@@ -72,7 +72,9 @@ async fn setup() -> u16 {
 async fn test_user_submissions() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+            .await
+            .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
@@ -100,7 +102,9 @@ async fn test_user_submissions() {
 async fn test_time_submissions() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+            .await
+            .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
@@ -121,7 +125,9 @@ async fn test_time_submissions() {
 async fn test_invalid_path() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+            .await
+            .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
@@ -142,7 +148,9 @@ async fn test_invalid_path() {
 async fn test_health_check() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+            .await
+            .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
@@ -156,7 +164,9 @@ async fn test_health_check() {
 async fn test_cors() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+            .await
+            .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
@@ -192,7 +202,9 @@ async fn test_cors() {
 async fn test_users_and_time() {
     let port = setup().await;
     let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::SQL_URL).await.unwrap();
+        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+            .await
+            .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;

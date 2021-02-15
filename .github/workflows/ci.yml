@@ -35,6 +35,8 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       working-directory: ./atcoder-problems-backend
+      env:
+        SQL_URL: postgres://kenkoooo:pass@postgres:5432/test
       run: cargo test --verbose --workspace -- --test-threads=1
   
   frontend_test:
