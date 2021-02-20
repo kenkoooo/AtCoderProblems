@@ -113,8 +113,11 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     (problemId) => pointOverrideMap.get(problemId)
   );
 
+  const currentSecond = Math.floor(new Date().getTime() / 1000);
   const showEstimatedPerformances =
-    props.enableEstimatedPerformances && modelArray.length === problems.length;
+    props.enableEstimatedPerformances &&
+    modelArray.length === problems.length &&
+    currentSecond >= start;
   const botRunnerIds = new Set<UserId>();
   const ratingMap = new Map<UserId, number>();
   if (showEstimatedPerformances) {
