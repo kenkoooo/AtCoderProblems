@@ -64,7 +64,7 @@ impl SimpleClient for PgPool {
         .execute(self)
         .await?;
 
-        Ok(result as usize)
+        Ok(result.rows_affected() as usize)
     }
 
     async fn insert_problems(&self, values: &[Problem]) -> Result<usize> {
@@ -96,7 +96,7 @@ impl SimpleClient for PgPool {
         .execute(self)
         .await?;
 
-        Ok(result as usize)
+        Ok(result.rows_affected() as usize)
     }
 
     async fn load_problems(&self) -> Result<Vec<Problem>> {
