@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
-import { ordinalSuffixOf } from "../../../utils";
+import { caseInsensitiveUserId, ordinalSuffixOf } from "../../../utils";
 import { formatMomentDate, getToday } from "../../../utils/DateUtil";
 import { RankingEntry } from "../../../interfaces/RankingEntry";
 import {
@@ -22,7 +22,7 @@ const findFromRanking = (
 } => {
   const entry = ranking
     .sort((a, b) => b.problem_count - a.problem_count)
-    .find((r) => r.user_id === userId);
+    .find((r) => caseInsensitiveUserId(r.user_id) === userId);
   if (entry) {
     const count = entry.problem_count;
     const rank = ranking.filter((e) => e.problem_count > count).length;
@@ -40,6 +40,7 @@ interface OuterProps {
   currentStreak: number;
   prevDateLabel: string;
   streakSum: number;
+  topPlayerEquivalentEffort: number;
 }
 
 interface InnerProps extends OuterProps {
@@ -52,7 +53,13 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
-  const { longestStreak, currentStreak, prevDateLabel, streakSum } = props;
+  const {
+    longestStreak,
+    currentStreak,
+    prevDateLabel,
+    streakSum,
+    topPlayerEquivalentEffort,
+  } = props;
   const shortRanking = props.shortestRanking.fulfilled
     ? props.shortestRanking.value
     : ([] as RankingEntry[]);
@@ -158,6 +165,20 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
         <Col key="Streak Sum" className="text-center" xs="6" md="3">
           <h6>Streak Sum</h6>
           <h3>{streakSum} days</h3>
+        </Col>
+        <Col key="TEE" className="text-center" xs="6" md="3">
+          <h6>
+            TEE{" "}
+            <Badge pill id="teeToolTip">
+              ?
+            </Badge>
+            <UncontrolledTooltip target="teeToolTip" placement="right">
+              <strong>Top player-Equivalent Effort</strong>. The estimated time
+              in seconds required for a contestant with 4000 rating to solve all
+              the problems this contestant have solved.
+            </UncontrolledTooltip>
+          </h6>
+          <h3>{Math.round(topPlayerEquivalentEffort)}</h3>
         </Col>
         <Col />
       </Row>

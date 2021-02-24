@@ -15,7 +15,7 @@ const InnerSumRanking: React.FC<Props> = (props) => (
   />
 );
 
-export const SumRanking = connect<{}, Props>(() => ({
+export const SumRanking = connect<unknown, Props>(() => ({
   rankingFetch: {
     comparison: null,
     value: CachedApiClient.cachedSumRanking,

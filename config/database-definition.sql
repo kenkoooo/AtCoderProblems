@@ -17,6 +17,7 @@ CREATE TABLE submissions (
   PRIMARY KEY (id)
 );
 CREATE INDEX ON submissions (user_id);
+CREATE INDEX ON submissions (LOWER(user_id));
 CREATE INDEX ON submissions (epoch_second);
 
 DROP TABLE IF EXISTS problems;

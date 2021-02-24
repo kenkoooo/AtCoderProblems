@@ -81,7 +81,7 @@ const InnerMyContestList: React.FC<Props> = (props) => {
   );
 };
 
-export const MyContestList = connect<{}, Props>(() => ({
+export const MyContestList = connect<unknown, Props>(() => ({
   ownedContestsGet: {
     url: CONTEST_MY,
   },

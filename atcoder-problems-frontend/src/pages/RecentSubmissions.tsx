@@ -47,7 +47,7 @@ const InnerRecentSubmissions: React.FC<Props> = (props) => {
   );
 };
 
-export const RecentSubmissions = connect<{}, Props>(() => ({
+export const RecentSubmissions = connect<unknown, Props>(() => ({
   submissions: {
     comparison: null,
     value: fetchRecentSubmissions,

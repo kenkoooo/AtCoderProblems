@@ -1,9 +1,8 @@
 use crate::server::utils::RequestUnpack;
 use crate::server::{AppData, Authentication, CommonResponse};
-use anyhow::Result;
 use serde::Deserialize;
 use sql_client::internal::progress_reset_manager::ProgressResetManager;
-use tide::{Request, Response};
+use tide::{Request, Response, Result};
 
 pub(crate) async fn get_progress_reset_list<A>(request: Request<AppData<A>>) -> Result<Response>
 where

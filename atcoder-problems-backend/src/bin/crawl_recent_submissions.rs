@@ -1,11 +1,11 @@
 use algorithm_problem_client::AtCoderClient;
 use anyhow::Result;
 use atcoder_problems_backend::crawler::RecentCrawler;
-use atcoder_problems_backend::sql::connect;
+use sql_client::initialize_pool;
 use std::{env, thread, time};
 
 async fn crawl(url: &str) -> Result<()> {
-    let db = connect(url)?;
+    let db = initialize_pool(url).await?;
     let crawler = RecentCrawler::new(db, AtCoderClient::default());
     crawler.crawl().await
 }

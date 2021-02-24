@@ -1,23 +1,21 @@
-use super::models::Submission;
-use super::schema::max_streaks;
-use crate::sql::MAX_INSERT_ROWS;
-use crate::utils::SplitToSegments;
+use crate::models::Submission;
+use crate::{PgPool, MAX_INSERT_ROWS};
 use anyhow::Result;
+use async_trait::async_trait;
 
 use chrono::Duration;
 use chrono::{DateTime, Datelike, FixedOffset, TimeZone, Utc};
-use diesel::pg::upsert::excluded;
-use diesel::prelude::*;
-use diesel::{insert_into, PgConnection};
 use std::cmp;
 use std::collections::BTreeMap;
 
+#[async_trait]
 pub trait StreakUpdater {
-    fn update_streak_count(&self, submissions: &[Submission]) -> Result<()>;
+    async fn update_streak_count(&self, submissions: &[Submission]) -> Result<()>;
 }
 
-impl StreakUpdater for PgConnection {
-    fn update_streak_count(&self, ac_submissions: &[Submission]) -> Result<()> {
+#[async_trait]
+impl StreakUpdater for PgPool {
+    async fn update_streak_count(&self, ac_submissions: &[Submission]) -> Result<()> {
         let mut submissions = ac_submissions
             .iter()
             .map(|s| {
@@ -44,24 +42,29 @@ impl StreakUpdater for PgConnection {
             .into_iter()
             .map(|(user_id, m)| {
                 let max_streak = get_max_streak(m.into_iter().map(|(_, utc)| utc).collect());
-                (
-                    max_streaks::user_id.eq(user_id),
-                    max_streaks::streak.eq(max_streak),
-                )
+                (user_id, max_streak)
             })
             .collect::<Vec<_>>();
 
-        for segment in user_max_streak
-            .split_into_segments(MAX_INSERT_ROWS)
-            .into_iter()
-        {
-            insert_into(max_streaks::table)
-                .values(segment)
-                .on_conflict(max_streaks::user_id)
-                .do_update()
-                .set(max_streaks::streak.eq(excluded(max_streaks::streak)))
-                .execute(self)?;
+        for chunk in user_max_streak.chunks(MAX_INSERT_ROWS) {
+            let (user_ids, max_streaks): (Vec<&str>, Vec<i64>) = chunk.iter().copied().unzip();
+            sqlx::query(
+                r"
+                INSERT INTO max_streaks (user_id, streak)
+                VALUES (
+                    UNNEST($1::VARCHAR(255)[]),
+                    UNNEST($2::BIGINT[])
+                )
+                ON CONFLICT (user_id)
+                DO UPDATE SET streak = EXCLUDED.streak
+                ",
+            )
+            .bind(user_ids)
+            .bind(max_streaks)
+            .execute(self)
+            .await?;
         }
+
         Ok(())
     }
 }

@@ -30,12 +30,13 @@ import { RatingInfo } from "../../utils/RatingInfo";
 import { generatePathWithParams } from "../../utils/QueryString";
 import { fetchUserSubmissions } from "../../utils/Api";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
+import { loggedInUserId } from "../../utils/UserState";
 import {
   filterResetProgress,
   ProgressResetList,
   UserResponse,
 } from "../Internal/types";
-import { ListTable } from "./ListTable";
+import { ListTable, StatusFilter, statusFilters } from "./ListTable";
 import { DifficultyTable } from "./DifficultyTable";
 import { SmallTable } from "./SmallTable";
 
@@ -60,8 +61,11 @@ export interface ProblemRowData {
   readonly status: ProblemStatus;
 }
 
-const statusFilters = ["All", "Only Trying", "Only AC"] as const;
-type StatusFilter = typeof statusFilters[number];
+export type ProblemRowDataField =
+  | keyof ProblemRowData
+  | "solveProbability"
+  | "timeEstimation";
+
 const convertToValidStatusFilterState = (
   value: string | null
 ): StatusFilter => {
@@ -81,15 +85,7 @@ const RATED_FILTERS = [
   "Only Unrated without Difficulty",
 ] as const;
 type RatedFilter = typeof RATED_FILTERS[number];
-const convertToValidRatedFilter = (value: string | null): RatedFilter => {
-  for (const filter of RATED_FILTERS) {
-    if (value === filter) {
-      return value;
-    }
-  }
 
-  return "All";
-};
 const FilterParams = {
   FromPoint: "fromPo",
   ToPoint: "toPo",
@@ -98,6 +94,31 @@ const FilterParams = {
   FromDifficulty: "fromDiff",
   ToDifficulty: "toDiff",
 } as const;
+
+const convertSortByParam = (value: string | null): ProblemRowDataField => {
+  return (
+    ([
+      "id",
+      "title",
+      "contest",
+      "contestDate",
+      "contestTitle",
+      "lastAcceptedDate",
+      "solverCount",
+      "point",
+      "problemModel",
+      "firstUserId",
+      "executionTime",
+      "codeLength",
+      "mergedProblem",
+      "shortestUserId",
+      "fastestUserId",
+      "status",
+      "solveProbability",
+      "timeEstimation",
+    ] as const).find((v) => v === value) ?? "contestDate"
+  );
+};
 
 const InnerListPage: React.FC<InnerProps> = (props) => {
   const location = useLocation();
@@ -121,9 +142,9 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
   const statusFilterState: StatusFilter = convertToValidStatusFilterState(
     searchParams.get(FilterParams.Status)
   );
-  const ratedFilterState: RatedFilter = convertToValidRatedFilter(
-    searchParams.get(FilterParams.Rated)
-  );
+  const ratedFilterState: RatedFilter =
+    RATED_FILTERS.find((x) => x === searchParams.get(FilterParams.Rated)) ??
+    "All";
   const fromDifficulty = parseInt(
     searchParams.get(FilterParams.FromDifficulty) || "-1",
     10
@@ -138,6 +159,9 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     params.set(FilterParams.ToDifficulty, to.toString());
     history.push({ ...location, search: params.toString() });
   };
+
+  const sortBy = convertSortByParam(searchParams.get("sortBy"));
+  const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
   const {
     mergedProblemsFetch,
@@ -158,12 +182,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     : Map<ProblemId, ProblemModel>();
   const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
 
-  const loginUserId =
-    props.loginState.fulfilled &&
-    props.loginState.value &&
-    props.loginState.value.atcoder_user_id
-      ? props.loginState.value.atcoder_user_id
-      : undefined;
+  const loginUserId = loggedInUserId(props.loginState);
   const progressReset =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value
@@ -435,6 +454,8 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
           toDifficulty={toDifficulty}
           rowData={rowData}
           userRatingInfo={userRatingInfo}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
         />
       </Row>
     </div>

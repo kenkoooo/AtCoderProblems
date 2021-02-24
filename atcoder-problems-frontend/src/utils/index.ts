@@ -22,6 +22,9 @@ export const normalizeUserId = (userId: string): string => {
   const trimmedUserId = userId.trim();
   return ATCODER_USER_REGEXP.exec(trimmedUserId) ? trimmedUserId : "";
 };
+export const caseInsensitiveUserId = (userId: string): string => {
+  return userId.toLowerCase();
+};
 
 export const isAccepted = (result: string): boolean => result === "AC";
 export const isValidResult = (result: string): boolean =>
@@ -129,20 +132,22 @@ export const getRatingColorCode = (
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const shuffleList = (list: List<any>, k?: number): List<any> => {
-  let shuffledList = List();
+export function shuffleList<T>(list: List<T>, k?: number): List<T> {
+  const shuffledArray = [] as T[];
+  const array = list.toArray();
   const size = k === undefined ? list.size : Math.min(k, list.size);
   for (let i = 0; i < size; ++i) {
     const index = Math.floor(Math.random() * (list.size - i)) + i;
-    shuffledList = shuffledList.push(list.get(index));
-    list = list.set(index, list.get(i));
+    shuffledArray.push(array[index]);
+    array[index] = array[i];
   }
-  return shuffledList;
-};
+  return List(shuffledArray);
+}
 
-export const mapToObject = (map: Map<RatingColor, number>): {} =>
+export const mapToObject = (
+  map: Map<RatingColor, number>
+): { [key: string]: number } =>
   Array.from(map.entries()).reduce(
     (l, [k, v]) => Object.assign(l, { [k]: v }),
-    {}
+    {} as { [key: string]: number }
   );

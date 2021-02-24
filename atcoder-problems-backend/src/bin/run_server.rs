@@ -1,7 +1,7 @@
 use std::env;
 
+use atcoder_problems_backend::server::run_server;
 use atcoder_problems_backend::server::GitHubAuthentication;
-use atcoder_problems_backend::server::{initialize_pool, run_server};
 
 #[async_std::main]
 async fn main() {
@@ -13,12 +13,10 @@ async fn main() {
     let client_secret = env::var("CLIENT_SECRET").unwrap_or_else(|_| String::new());
 
     let auth = GitHubAuthentication::new(&client_id, &client_secret);
-
-    let pool = initialize_pool(&database_url).expect("Failed to initialize the connection pool");
     let pg_pool = sql_client::initialize_pool(&database_url)
         .await
         .expect("Failed to initialize the connection pool");
-    run_server(pool, pg_pool, auth, port)
+    run_server(pg_pool, auth, port)
         .await
         .expect("Failed to run server");
 }

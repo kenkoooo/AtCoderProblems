@@ -29,6 +29,8 @@ import { RecentSubmissions } from "./pages/RecentSubmissions";
 import { TrainingPage } from "./pages/TrainingPage";
 import { ACCOUNT_INFO } from "./utils/RouterPath";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { caseInsensitiveUserId } from "./utils";
+import { PROBLEM_ID_SEPARATE_SYMBOL } from "./utils/QueryString";
 
 const App: React.FC = () => {
   return (
@@ -54,32 +56,46 @@ const App: React.FC = () => {
               <Route
                 path="/user/:userIds([a-zA-Z0-9_]+)+"
                 render={({ match }): React.ReactElement => {
-                  const userIds: string | undefined = match.params.userIds;
-                  const userId: string = (userIds ?? "").split("/")[0];
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { userIds: string } = match.params;
+                  const userIds: string = params.userIds;
+                  const userId: string = caseInsensitiveUserId(
+                    userIds.split("/")[0]
+                  );
                   return <UserPage userId={userId} />;
                 }}
               />
               <Route
                 path="/table/:userIds([a-zA-Z0-9_]*)*"
                 render={({ match }): React.ReactElement => {
-                  const userIds: string | undefined = match.params.userIds;
-                  const userId = (userIds ?? "").split("/")[0];
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { userIds?: string } = match.params;
+                  const userIds = params.userIds;
+                  const userId = caseInsensitiveUserId(
+                    (userIds ?? "").split("/")[0]
+                  );
                   const rivals = (userIds ?? "/").split("/");
                   const rivalList = List(rivals)
                     .skip(1)
-                    .filter((x) => x.length > 0);
+                    .filter((x) => x.length > 0)
+                    .map((x) => caseInsensitiveUserId(x));
                   return <TablePage userId={userId} rivals={rivalList} />;
                 }}
               />
               <Route
                 path="/list/:userIds([a-zA-Z0-9_]*)*"
                 render={({ match }): React.ReactElement => {
-                  const userIds: string | undefined = match.params.userIds;
-                  const userId = (userIds ?? "").split("/")[0];
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { userIds?: string } = match.params;
+                  const userIds: string | undefined = params.userIds;
+                  const userId = caseInsensitiveUserId(
+                    (userIds ?? "").split("/")[0]
+                  );
                   const rivals = (userIds ?? "/").split("/");
                   const rivalList = List(rivals)
                     .skip(1)
-                    .filter((x) => x.length > 0);
+                    .filter((x) => x.length > 0)
+                    .map((x) => caseInsensitiveUserId(x));
                   return <ListPage userId={userId} rivals={rivalList} />;
                 }}
               />
@@ -88,19 +104,33 @@ const App: React.FC = () => {
               <Route
                 path="/contest/show/:contestId([a-zA-Z0-9_-]+)"
                 render={({ match }): React.ReactElement => {
-                  const contestId: string = match.params.contestId ?? "";
-                  return <ShowContest contestId={contestId} />;
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { contestId: string } = match.params;
+                  return <ShowContest contestId={params.contestId} />;
                 }}
               />
               <Route
                 path="/contest/create"
-                render={() => <ContestCreatePage />}
+                render={({ location }) => {
+                  const query = new URLSearchParams(location.search);
+                  const items = query
+                    .get("problemIds")
+                    ?.split(PROBLEM_ID_SEPARATE_SYMBOL)
+                    .map((id) => ({
+                      id: id,
+                      point: null,
+                      order: null,
+                    }));
+                  const itemList = items ? List(items) : undefined;
+                  return <ContestCreatePage initialProblems={itemList} />;
+                }}
               />
               <Route
                 path="/contest/update/:contestId([a-zA-Z0-9_-]+)"
                 render={({ match }): React.ReactElement => {
-                  const contestId: string = match.params.contestId ?? "";
-                  return <ContestUpdatePage contestId={contestId} />;
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { contestId: string } = match.params;
+                  return <ContestUpdatePage contestId={params.contestId} />;
                 }}
               />
               <Route path="/contest/recent" component={RecentContestList} />
@@ -112,8 +142,9 @@ const App: React.FC = () => {
               <Route
                 path="/problemlist/:listId([a-zA-Z0-9_-]+)"
                 render={({ match }): React.ReactElement => {
-                  const listId: string = match.params.listId ?? "";
-                  return <SingleProblemList listId={listId} />;
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  const params: { listId: string } = match.params;
+                  return <SingleProblemList listId={params.listId} />;
                 }}
               />
               <Route path="/submissions/recent" component={RecentSubmissions} />

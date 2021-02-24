@@ -14,14 +14,25 @@ export default interface ContestParticipation {
   readonly EndTime: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export const isContestParticipation = (obj: any): obj is ContestParticipation =>
+  typeof obj === "object" &&
+  obj !== null &&
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   typeof obj.IsRated === "boolean" &&
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   typeof obj.Place === "number" &&
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   typeof obj.OldRating === "number" &&
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   typeof obj.NewRating === "number" &&
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   typeof obj.Performance === "number" &&
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   typeof obj.InnerPerformance === "number" &&
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   typeof obj.ContestScreenName === "string" &&
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   typeof obj.ContestName === "string" &&
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   typeof obj.EndTime === "string";

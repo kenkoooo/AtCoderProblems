@@ -1,15 +1,17 @@
+use crate::{PgPool, FIRST_AGC_EPOCH_SECOND};
 use anyhow::Result;
-use diesel::connection::SimpleConnection;
-use diesel::PgConnection;
+use async_trait::async_trait;
 
+#[async_trait]
 pub trait ProblemInfoUpdater {
-    fn update_solver_count(&self) -> Result<()>;
-    fn update_problem_points(&self) -> Result<()>;
+    async fn update_solver_count(&self) -> Result<()>;
+    async fn update_problem_points(&self) -> Result<()>;
 }
 
-impl ProblemInfoUpdater for PgConnection {
-    fn update_solver_count(&self) -> Result<()> {
-        self.batch_execute(
+#[async_trait]
+impl ProblemInfoUpdater for PgPool {
+    async fn update_solver_count(&self) -> Result<()> {
+        sqlx::query(
             r"
                 INSERT INTO solver (user_count, problem_id)
                     SELECT COUNT(DISTINCT(user_id)), problem_id
@@ -19,24 +21,29 @@ impl ProblemInfoUpdater for PgConnection {
                 ON CONFLICT (problem_id) DO UPDATE
                 SET user_count = EXCLUDED.user_count;
             ",
-        )?;
+        )
+        .execute(self)
+        .await?;
         Ok(())
     }
 
-    fn update_problem_points(&self) -> Result<()> {
-        self.batch_execute(
+    async fn update_problem_points(&self) -> Result<()> {
+        sqlx::query(
             r"
                 INSERT INTO points (problem_id, point)
                     SELECT submissions.problem_id, MAX(submissions.point)
                     FROM submissions
                     INNER JOIN contests ON contests.id = submissions.contest_id
-                    WHERE contests.start_epoch_second >= 1468670400
+                    WHERE contests.start_epoch_second >= $1
                     AND contests.rate_change != '-'
                     GROUP BY submissions.problem_id
                 ON CONFLICT (problem_id) DO UPDATE
                 SET point = EXCLUDED.point;
             ",
-        )?;
+        )
+        .bind(FIRST_AGC_EPOCH_SECOND)
+        .execute(self)
+        .await?;
         Ok(())
     }
 }

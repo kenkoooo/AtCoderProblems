@@ -77,14 +77,22 @@ export const ProblemLink: React.FC<Props> = (props) => {
           </Tooltip>
         </>
       ) : null}
-      <a
-        href={Url.formatProblemUrl(problemId, contestId)}
-        target="_blank" // eslint-disable-line react/jsx-no-target-blank
-        rel="noopener"
-        className={ratingColorClass}
-      >
-        {problemTitle}
-      </a>
+      {
+        // Don't add rel="noreferrer" to AtCoder links
+        // to allow AtCoder get the referral information.
+        // eslint-disable-next-line react/jsx-no-target-blank
+        <a
+          href={Url.formatProblemUrl(problemId, contestId)}
+          // Don't add rel="noreferrer" to AtCoder links
+          // to allow AtCoder get the referral information.
+          // eslint-disable-next-line react/jsx-no-target-blank
+          target="_blank"
+          rel="noopener"
+          className={ratingColorClass}
+        >
+          {problemTitle}
+        </a>
+      }
     </>
   );
 };

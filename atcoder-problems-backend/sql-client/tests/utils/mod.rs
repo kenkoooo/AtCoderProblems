@@ -4,9 +4,10 @@ use std::fs::File;
 use std::io::prelude::*;
 
 const SQL_FILE: &str = "../../config/database-definition.sql";
-pub const SQL_URL: &str = "postgresql://kenkoooo:pass@localhost/test";
+const SQL_URL_ENV_KEY: &str = "SQL_URL";
 
 #[cfg(test)]
+#[allow(dead_code)]
 pub async fn setup_internal_user(pool: &PgPool, internal_user_id: &str, atcoder_user_id: &str) {
     sqlx::query(
         r"
@@ -22,7 +23,8 @@ pub async fn setup_internal_user(pool: &PgPool, internal_user_id: &str, atcoder_
 }
 
 pub async fn initialize_and_connect_to_test_sql() -> PgPool {
-    let pool = sql_client::initialize_pool(SQL_URL).await.unwrap();
+    let sql_url = std::env::var(SQL_URL_ENV_KEY).unwrap();
+    let pool = sql_client::initialize_pool(sql_url).await.unwrap();
     initialize(&pool).await;
     pool
 }
