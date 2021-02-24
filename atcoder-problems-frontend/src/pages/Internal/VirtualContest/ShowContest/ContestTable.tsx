@@ -25,7 +25,7 @@ import {
 } from "../../../../utils/RatingSystem";
 import { convertMap } from "../../../../utils/ImmutableMigration";
 import { TweetButton } from "../../../../components/TweetButton";
-import { getNowMillis } from "../../../../utils/DateUtil";
+import { getCurrentUnixtimeInSecond } from "../../../../utils/DateUtil";
 import {
   calcUserTotalResult,
   compareTotalResult,
@@ -216,7 +216,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     ...p.item,
   }));
 
-  const now = getNowMillis();
+  const now = getCurrentUnixtimeInSecond();
 
   const loginUserRank = loginUserIndex + 1;
   const tweetButton =

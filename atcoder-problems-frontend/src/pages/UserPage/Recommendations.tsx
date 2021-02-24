@@ -31,6 +31,7 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
 import { NewTabLink } from "../../components/NewTabLink";
 import { ProblemId } from "../../interfaces/Status";
+import { getCurrentUnixtimeInSecond } from "../../utils/DateUtil";
 
 const ExcludeOptions = [
   "Exclude",
@@ -190,7 +191,7 @@ export const Recommendations: React.FC<Props> = (props) => {
   const recommendingProbability = getRecommendProbability(recommendOption);
   const recommendingRange = getRecommendProbabilityRange(recommendOption);
 
-  const currentSecond = Math.floor(new Date().getTime() / 1000);
+  const currentSecond = getCurrentUnixtimeInSecond();
   const recommendedProblems = problems
     .filter((p) =>
       isIncluded(p.id, excludeOption, currentSecond, lastSolvedTimeMap)
