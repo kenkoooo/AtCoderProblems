@@ -1,4 +1,4 @@
-import { isAccepted } from "../utils";
+import { caseInsensitiveUserId, isAccepted } from "../utils";
 import Submission from "./Submission";
 export type ContestId = string;
 export type ProblemId = string;
@@ -82,13 +82,13 @@ export const constructStatusLabelMap = (
   Array.from(submissionMap.keys()).forEach((problemId) => {
     const list = submissionMap.get(problemId) ?? [];
     const userAccepted = list
-      .filter((s) => s.user_id === userId)
+      .filter((s) => caseInsensitiveUserId(s.user_id) === userId)
       .filter((s) => isAccepted(s.result));
     const userRejected = list
-      .filter((s) => s.user_id === userId)
+      .filter((s) => caseInsensitiveUserId(s.user_id) === userId)
       .filter((s) => !isAccepted(s.result));
     const rivalAccepted = list
-      .filter((s) => s.user_id !== userId)
+      .filter((s) => caseInsensitiveUserId(s.user_id) !== userId)
       .filter((s) => isAccepted(s.result));
 
     const rejectedEpochSeconds = userRejected.map(

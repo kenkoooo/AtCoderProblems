@@ -9,10 +9,10 @@ import { VirtualContestInfo } from "../types";
 
 interface InnerProps {
   contestListGet: PromiseState<VirtualContestInfo[]>;
-  userInfoGet: PromiseState<{} | null>;
+  userInfoGet: PromiseState<unknown | null>;
 }
 
-export const RecentContestList = connect<{}, InnerProps>(() => ({
+export const RecentContestList = connect<unknown, InnerProps>(() => ({
   contestListGet: {
     url: CONTEST_RECENT,
   },

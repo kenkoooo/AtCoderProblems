@@ -18,6 +18,7 @@ import { USER_GET } from "../pages/Internal/ApiUrl";
 import { UserResponse } from "../pages/Internal/types";
 import { GITHUB_LOGIN_LINK } from "../utils/Url";
 import { ACCOUNT_INFO } from "../utils/RouterPath";
+import * as UserState from "../utils/UserState";
 import { UserSearchBar } from "./UserSearchBar";
 import { ThemeSelector } from "./ThemeSelector";
 
@@ -26,16 +27,8 @@ interface InnerProps {
 }
 
 const InnerNavigationBar: React.FC<InnerProps> = (props) => {
-  const isLoggedIn =
-    props.loginState.fulfilled &&
-    props.loginState.value &&
-    props.loginState.value.internal_user_id.length > 0;
-  const loggedInUserId =
-    props.loginState.fulfilled &&
-    props.loginState.value &&
-    props.loginState.value.atcoder_user_id
-      ? props.loginState.value.atcoder_user_id
-      : "";
+  const isLoggedIn = UserState.isLoggedIn(props.loginState);
+  const loggedInUserId = UserState.loggedInUserId(props.loginState) ?? "";
 
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -140,6 +133,16 @@ const InnerNavigationBar: React.FC<InnerProps> = (props) => {
                 </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
+
+            <NavItem>
+              <NavLink
+                href="https://github.com/sponsors/kenkoooo"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Send a tip
+              </NavLink>
+            </NavItem>
           </Nav>
 
           <Nav className="ml-auto" navbar>
@@ -183,7 +186,7 @@ const InnerNavigationBar: React.FC<InnerProps> = (props) => {
   );
 };
 
-export const NavigationBar = connect<{}, InnerProps>(() => ({
+export const NavigationBar = connect<unknown, InnerProps>(() => ({
   loginState: {
     url: USER_GET,
   },

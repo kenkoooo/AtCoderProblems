@@ -10,11 +10,13 @@ import {
   Spinner,
   Table,
   Badge,
+  Form,
   FormGroup,
-  Label,
   CustomInput,
+  Collapse,
 } from "reactstrap";
 import { Map as ImmutableMap } from "immutable";
+import Octicon, { ChevronDown, ChevronUp } from "@primer/octicons-react";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
 import {
@@ -35,15 +37,18 @@ import {
   UserResponse,
   VirtualContestDetails,
   formatPublicState,
+  VirtualContestItem,
 } from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { useLocalStorage } from "../../../../utils/LocalStorage";
+import { ProblemLink } from "../../../../components/ProblemLink";
 import { ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
+import { compareProblem } from "./util";
 
 interface OuterProps {
   contestId: string;
@@ -53,9 +58,9 @@ interface InnerProps extends OuterProps {
   contestInfoFetch: PromiseState<VirtualContestDetails>;
   userInfoGet: PromiseState<UserResponse | null>;
   joinContest: () => void;
-  joinContestPost: PromiseState<{} | null>;
+  joinContestPost: PromiseState<unknown | null>;
   leaveContest: () => void;
-  leaveContestPost: PromiseState<{} | null>;
+  leaveContestPost: PromiseState<unknown | null>;
   problemMapFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
   problemModelGet: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
@@ -64,6 +69,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [showRating, setShowRating] = useLocalStorage("showRating", false);
   const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
+  const [showProblemTable, setShowProblemTable] = useState(true);
   const history = useHistory();
   const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
 
@@ -106,7 +112,11 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const enableEstimatedPerformances = contestProblems.length < 10;
 
   const showProblems = start < now;
-  const problems = contestProblems.map((item) => {
+  const problems = contestProblems.map((item): {
+    item: VirtualContestItem;
+    contestId?: string;
+    title?: string;
+  } => {
     const problem = problemMap.get(item.id);
     if (problem) {
       return {
@@ -118,9 +128,18 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
       return { item };
     }
   });
+
+  const sortedItems = problems
+    .map((p) => ({
+      contestId: p.contestId,
+      title: p.title,
+      ...p.item,
+    }))
+    .sort(compareProblem);
+
   return (
     <>
-      <Row>
+      <Row className="mb-2">
         <Col md="auto">
           <h1>{contestInfo.title}</h1>
         </Col>
@@ -137,8 +156,8 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
         </Col>
       </Row>
       <Row className="my-2">
-        <Col>
-          <Table>
+        <Col lg="6" md="12">
+          <Table className="mb-0">
             <tbody>
               <tr>
                 <th>Time</th>
@@ -151,22 +170,20 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
                 <th>Penalty</th>
                 <td>{penaltySecond} seconds for each wrong submission</td>
               </tr>
-
-              {start < now && now < end ? (
-                <tr>
-                  <th>Remaining</th>
-                  <td>
-                    <Timer end={end} />
-                  </td>
-                </tr>
-              ) : null}
             </tbody>
           </Table>
         </Col>
-        <Col>
-          <Table>
+        <Col lg="6" md="12">
+          <Table className="mb-0">
             <tbody>
-              {start < now && now < end ? (
+              {now < start ? (
+                <tr>
+                  <th>Begin in</th>
+                  <td>
+                    <Timer end={start} />
+                  </td>
+                </tr>
+              ) : now < end ? (
                 <tr>
                   <th>Remaining</th>
                   <td>
@@ -178,6 +195,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
           </Table>
         </Col>
       </Row>
+
       <Row className="my-2">
         <Col sm="12">
           {!isLoggedIn ? (
@@ -217,88 +235,160 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
             >
               Tweet
             </TweetButton>
-          </ButtonGroup>{" "}
-          <span className="ml-2">
-            <FormGroup check inline>
-              <Label check>
+          </ButtonGroup>
+        </Col>
+      </Row>
+
+      {showProblems && formatMode(contestInfo.mode) === "Normal" && (
+        <div className="my-2">
+          <Row>
+            <Col>
+              <div
+                style={{
+                  display: "flex",
+                  flexFlow: "row wrap",
+                  alignItems: "center",
+                }}
+              >
+                <h3>Problems</h3>
+                <Button
+                  color="secondary"
+                  size="sm"
+                  onClick={() => setShowProblemTable(!showProblemTable)}
+                  className="mx-3"
+                >
+                  <Octicon icon={showProblemTable ? ChevronUp : ChevronDown} />
+                </Button>
+              </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Collapse isOpen={showProblemTable}>
+                <Table striped size="sm">
+                  <thead>
+                    <tr>
+                      <th> </th>
+                      <th>Problem Name</th>
+                      <th className="text-center">Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedItems.map((p, i) => (
+                      <tr key={i}>
+                        <th className="text-center">
+                          {p.contestId && p.title ? (
+                            <ProblemLink
+                              problemId={p.id}
+                              contestId={p.contestId}
+                              problemTitle={`${i + 1}`}
+                            />
+                          ) : (
+                            i + 1
+                          )}
+                        </th>
+                        <td>
+                          {p.contestId && p.title ? (
+                            <ProblemLink
+                              problemId={p.id}
+                              contestId={p.contestId}
+                              problemTitle={p.title}
+                            />
+                          ) : (
+                            p.id
+                          )}
+                        </td>
+                        <td className="text-center">
+                          {p.point !== null && p.point}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </Collapse>
+            </Col>
+          </Row>
+        </div>
+      )}
+
+      <div className="my-2">
+        <Row>
+          <Col>
+            <Form inline>
+              <h3>Standings</h3>
+              <FormGroup inline className="ml-3">
                 <CustomInput
                   type="switch"
                   id="autoRefresh"
                   label="Auto Refresh"
+                  inline
                   checked={autoRefresh}
                   onChange={(): void => setAutoRefresh(!autoRefresh)}
                 />
-              </Label>
-            </FormGroup>
-            <FormGroup check inline>
-              <Label check>
                 <CustomInput
                   type="switch"
                   id="showRating"
                   label="Show Rating"
+                  inline
                   checked={showRating}
                   onChange={(): void => setShowRating(!showRating)}
                 />
-              </Label>
-            </FormGroup>
-            {alreadyJoined ? (
-              <FormGroup check inline>
-                <Label check>
+                {alreadyJoined && (
                   <CustomInput
                     type="switch"
                     id="pinMe"
                     label="Pin me"
+                    inline
                     checked={pinMe}
                     onChange={(): void => setPinMe(!pinMe)}
                   />
-                </Label>
+                )}
               </FormGroup>
-            ) : null}
-          </span>
-        </Col>
-      </Row>
-
-      <Row className="my-2">
-        <Col sm="12">
-          {contestInfo.mode === "lockout" ? (
-            <LockoutContestTable
-              showRating={showRating}
-              showProblems={showProblems}
-              problems={problems}
-              participants={contestParticipants}
-              enableAutoRefresh={autoRefresh}
-              start={start}
-              end={end}
-            />
-          ) : contestInfo.mode === "training" ? (
-            <TrainingContestTable
-              showRating={showRating}
-              showProblems={showProblems}
-              problems={problems}
-              users={contestParticipants}
-              start={start}
-              end={end}
-              enableAutoRefresh={autoRefresh}
-            />
-          ) : (
-            <ContestTable
-              contestId={contestInfo.id}
-              contestTitle={contestInfo.title}
-              showRating={showRating}
-              showProblems={showProblems}
-              problems={problems}
-              users={contestParticipants}
-              enableEstimatedPerformances={enableEstimatedPerformances}
-              start={start}
-              end={end}
-              enableAutoRefresh={autoRefresh}
-              atCoderUserId={atCoderUserId}
-              pinMe={pinMe}
-              penaltySecond={penaltySecond}
-            />
-          )}
-        </Col>
-      </Row>
+            </Form>
+          </Col>
+        </Row>
+        <Row>
+          <Col sm="12">
+            {contestInfo.mode === "lockout" ? (
+              <LockoutContestTable
+                showRating={showRating}
+                showProblems={showProblems}
+                problems={problems}
+                participants={contestParticipants}
+                enableAutoRefresh={autoRefresh}
+                start={start}
+                end={end}
+              />
+            ) : contestInfo.mode === "training" ? (
+              <TrainingContestTable
+                showRating={showRating}
+                showProblems={showProblems}
+                problems={problems}
+                users={contestParticipants}
+                start={start}
+                end={end}
+                enableAutoRefresh={autoRefresh}
+              />
+            ) : (
+              <ContestTable
+                contestId={contestInfo.id}
+                contestTitle={contestInfo.title}
+                showRating={showRating}
+                showProblems={showProblems}
+                problems={problems}
+                users={contestParticipants}
+                enableEstimatedPerformances={enableEstimatedPerformances}
+                start={start}
+                end={end}
+                enableAutoRefresh={autoRefresh}
+                atCoderUserId={atCoderUserId}
+                pinMe={pinMe}
+                penaltySecond={penaltySecond}
+              />
+            )}
+          </Col>
+        </Row>
+      </div>
     </>
   );
 };

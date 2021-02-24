@@ -3,10 +3,12 @@ services:
   postgresql:
     container_name: postgresql
     image: postgres:12.3
+    ports:
+      - "5432:5432"
     environment:
-      POSTGRES_USER: db_user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: db
+      POSTGRES_USER: kenkoooo
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: test
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
     volumes:
       - ../config/database-definition.sql:/docker-entrypoint-initdb.d/init.sql
@@ -17,7 +19,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SQL_URL: postgres://db_user:password@postgresql:5432/db
+      SQL_URL: postgres://kenkoooo:pass@postgresql:5432/test
       CLIENT_ID: a
       CLIENT_SECRET: b
     command: run_server

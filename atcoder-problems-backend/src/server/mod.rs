@@ -1,10 +1,8 @@
-use crate::error::{ToAnyhowError, ToTideError};
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
     get_recent_submissions, get_user_submissions, get_users_time_submissions,
 };
-use anyhow::Result;
 pub(crate) mod auth;
 use crate::server::middleware::LogMiddleware;
 use crate::server::problem_list::{
@@ -14,8 +12,7 @@ use crate::server::problem_list::{
 use auth::get_token;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use sql_client::PgPool;
-use std::time::Duration;
-use tide::StatusCode;
+use tide::{Result, StatusCode};
 
 pub(crate) mod internal_user;
 pub(crate) mod middleware;
@@ -27,12 +24,11 @@ pub(crate) mod user_submissions;
 pub(crate) mod utils;
 pub(crate) mod virtual_contest;
 
-pub(crate) type Pool = diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::PgConnection>>;
-pub async fn run_server<A>(pool: Pool, pg_pool: PgPool, authentication: A, port: u16) -> Result<()>
+pub async fn run_server<A>(pg_pool: PgPool, authentication: A, port: u16) -> Result<()>
 where
     A: Authentication + Send + Sync + 'static + Clone,
 {
-    let app_data = AppData::new(pool, pg_pool, authentication);
+    let app_data = AppData::new(pg_pool, authentication);
     let mut api = tide::with_state(app_data.clone());
     api.with(LogMiddleware);
     api.at("/internal-api").nest({
@@ -113,18 +109,9 @@ where
     Ok(())
 }
 
-pub fn initialize_pool<S: Into<String>>(database_url: S) -> Result<Pool> {
-    let manager = diesel::r2d2::ConnectionManager::<diesel::PgConnection>::new(database_url);
-    let pool = diesel::r2d2::Pool::builder()
-        .max_lifetime(Some(Duration::from_secs(60 * 5)))
-        .max_size(15)
-        .build(manager)?;
-    Ok(pool)
-}
-
 pub(crate) trait CommonResponse {
     fn ok() -> Self;
-    fn json<S: serde::Serialize>(body: &S) -> anyhow::Result<Self>
+    fn json<S: serde::Serialize>(body: &S) -> tide::Result<Self>
     where
         Self: Sized;
     fn empty_json() -> Self;
@@ -135,13 +122,13 @@ impl CommonResponse for tide::Response {
     fn ok() -> Self {
         Self::new(StatusCode::Ok)
     }
-    fn json<S: serde::Serialize>(body: &S) -> anyhow::Result<Self>
+    fn json<S: serde::Serialize>(body: &S) -> tide::Result<Self>
     where
         Self: Sized,
     {
         let response = Self::builder(tide::StatusCode::Ok)
             .content_type(tide::http::mime::JSON)
-            .body(tide::Body::from_json(body).map_anyhow()?)
+            .body(tide::Body::from_json(body)?)
             .build();
         Ok(response)
     }
@@ -159,7 +146,6 @@ impl CommonResponse for tide::Response {
 }
 
 pub(crate) struct AppData<A> {
-    pub(crate) pool: Pool,
     pub(crate) authentication: A,
     pub(crate) pg_pool: PgPool,
 }
@@ -167,7 +153,6 @@ pub(crate) struct AppData<A> {
 impl<A: Clone> Clone for AppData<A> {
     fn clone(&self) -> Self {
         Self {
-            pool: self.pool.clone(),
             pg_pool: self.pg_pool.clone(),
             authentication: self.authentication.clone(),
         }
@@ -175,32 +160,31 @@ impl<A: Clone> Clone for AppData<A> {
 }
 
 impl<A> AppData<A> {
-    fn new(pool: Pool, pg_pool: PgPool, authentication: A) -> Self {
+    fn new(pg_pool: PgPool, authentication: A) -> Self {
         Self {
-            pool,
             pg_pool,
             authentication,
         }
     }
 }
 
-/// This trait extends [Route] to handle a function which returns anyhow::Result<Response>
-trait AnyhowRouteExt<F> {
+/// This trait extends [Route] to handle a function which returns tide::Result<Response>
+trait RouteExt<F> {
     fn get_ah(&mut self, endpoint: F) -> &mut Self;
     fn post_ah(&mut self, endpoint: F) -> &mut Self;
 }
 
-impl<'a, State, Fut, F> AnyhowRouteExt<F> for tide::Route<'a, State>
+impl<'a, State, Fut, F> RouteExt<F> for tide::Route<'a, State>
 where
     State: Send + Sync + 'static + Clone,
     F: Fn(tide::Request<State>) -> Fut + Sync + Send + 'static,
-    Fut: std::future::Future<Output = anyhow::Result<tide::Response>> + Send + 'static,
+    Fut: std::future::Future<Output = tide::Result<tide::Response>> + Send + 'static,
 {
     fn get_ah(&mut self, endpoint: F) -> &mut Self {
         self.get(move |request| {
             let fut = endpoint(request);
             Box::pin(async move {
-                let response = fut.await.map_tide_err()?;
+                let response = fut.await?;
                 Ok(response)
             })
         })
@@ -209,7 +193,7 @@ where
         self.post(move |request| {
             let fut = endpoint(request);
             Box::pin(async move {
-                let response = fut.await.map_tide_err()?;
+                let response = fut.await?;
                 Ok(response)
             })
         })

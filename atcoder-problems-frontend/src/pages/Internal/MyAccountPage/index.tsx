@@ -19,7 +19,7 @@ import { UserIdUpdate } from "./UserIdUpdate";
 interface InnerProps {
   userInfoGet: PromiseState<UserResponse | null>;
   updateUserInfo: (atcoderUser: string) => void;
-  updateUserInfoResponse: PromiseState<{} | null>;
+  updateUserInfoResponse: PromiseState<Record<string, unknown> | null>;
 }
 
 const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
@@ -109,7 +109,7 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
   }
 };
 
-export const MyAccountPage = connect<{}, InnerProps>(() => ({
+export const MyAccountPage = connect<unknown, InnerProps>(() => ({
   userInfoGet: {
     url: USER_GET,
   },

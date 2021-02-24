@@ -8,7 +8,7 @@ interface Props {
   tooltipText?: React.ReactNode;
 }
 
-export const HelpBadgeModal = (props: Props) => {
+export const HelpBadgeModal = (props: Props): JSX.Element => {
   const { title, children, id, tooltipText } = props;
   const [isModalOpen, setModalOpen] = useState(false);
   const [isTooltipOpen, setTooltipOpen] = useState(false);

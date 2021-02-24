@@ -7,7 +7,7 @@ const LocalStorageKeys = [
   "showDifficulty",
   "colorMode",
   "showPenalties",
-  "showAccepted",
+  "hideCompletedContest",
   "dailyEffortBarChartActiveTab",
   "dailyEffortYRange",
   "climbingLineChartActiveTab",

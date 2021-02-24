@@ -4,7 +4,9 @@ import { connect, PromiseState } from "react-refetch";
 import { getRatingColor, getRatingColorClass } from "../utils";
 import { RatingInfo } from "../utils/RatingInfo";
 import * as CachedApiClient from "../utils/CachedApiClient";
+import * as Url from "../utils/Url";
 import { TopcoderLikeCircle } from "./TopcoderLikeCircle";
+import { NewTabLink } from "./NewTabLink";
 
 interface OuterProps {
   userId: string;
@@ -48,7 +50,12 @@ const InnerColoredUserNameLabel: React.FC<InnerProps> = (props) => {
         {`Rating: ${userRating}`}
       </Tooltip>
       &nbsp;
-      {userId}
+      <NewTabLink
+        href={Url.formatUserUrl(userId)}
+        className={getRatingColorClass(userRating)}
+      >
+        {userId}
+      </NewTabLink>
     </span>
   );
 };
@@ -64,7 +71,9 @@ export const UserNameLabel: React.FC<OuterProps> = (props) => {
   const label = props.showRating ? (
     <ColoredUserNameLabel {...props} />
   ) : (
-    <>{props.userId}</>
+    <NewTabLink href={Url.formatUserUrl(props.userId)}>
+      {props.userId}
+    </NewTabLink>
   );
   return props.big ? <h1>{label}</h1> : label;
 };

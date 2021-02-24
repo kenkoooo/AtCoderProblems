@@ -23,21 +23,21 @@ const getStyleOptions = (
 ) => {
   if (color === "Bronze" || color === "Silver" || color === "Gold") {
     const metalColor = getRatingMetalColorCode(color);
-    return Object({
+    return {
       borderColor: metalColor.base,
       background: `linear-gradient(to right, \
         ${metalColor.base}, ${metalColor.highlight}, ${metalColor.base})`,
-    });
+    };
   } else {
     const colorCode = getRatingColorCode(color, theme);
-    return Object({
+    return {
       borderColor: colorCode,
       background: `linear-gradient(to top, \
         ${colorCode} 0%, \
         ${colorCode} ${fillRatio * 100}%, \
         rgba(0,0,0,0) ${fillRatio * 100}%, \
         rgba(0,0,0,0) 100%)`,
-    });
+    };
   }
 };
 
@@ -56,7 +56,7 @@ export const TopcoderLikeCircle: React.FC<Props> = (props) => {
   const styleOptions = getStyleOptions(color, fillRatio, theme);
   return (
     <span
-      className={`${className} ${props.className}`}
+      className={`${className} ${props.className ?? ""}`}
       id={props.id}
       style={styleOptions}
     />

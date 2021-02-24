@@ -38,7 +38,7 @@ interface InnerProps extends OuterProps {
   userInfoFetch: PromiseState<UserResponse | null>;
   problemListFetch: PromiseState<ProblemList>;
   updateList: (name: string) => void;
-  updateListResponse: PromiseState<{} | null>;
+  updateListResponse: PromiseState<Record<string, unknown> | null>;
   problems: PromiseState<Map<ProblemId, Problem>>;
 
   addItem: (problemId: string) => void;
@@ -118,7 +118,10 @@ const InnerSingleProblemList = (props: InnerProps) => {
       </Row>
       <Row className="my-2">
         <Col sm="12">
-          <Button onClick={(): void => setCreatingContest(true)}>
+          <Button
+            color="success"
+            onClick={(): void => setCreatingContest(true)}
+          >
             Create Virtual Contest
           </Button>
         </Col>

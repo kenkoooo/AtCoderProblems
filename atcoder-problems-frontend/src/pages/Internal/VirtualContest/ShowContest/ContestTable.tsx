@@ -33,7 +33,11 @@ import {
   UserTotalResult,
 } from "./ResultCalcUtil";
 import { ContestTableRow } from "./ContestTableRow";
-import { getPointOverrideMap, getResultsByUserMap } from "./util";
+import {
+  compareProblem,
+  getPointOverrideMap,
+  getResultsByUserMap,
+} from "./util";
 
 interface OuterProps {
   readonly contestId: string;
@@ -59,16 +63,6 @@ interface InnerProps extends OuterProps {
   submissions: PromiseState<Submission[]>;
   problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
   problemMap: PromiseState<Map<ProblemId, MergedProblem>>;
-}
-
-export function compareProblem<T extends { id: string; order: number | null }>(
-  a: T,
-  b: T
-): number {
-  if (a.order !== null && b.order !== null) {
-    return a.order - b.order;
-  }
-  return a.id.localeCompare(b.id);
 }
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
@@ -119,8 +113,11 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     (problemId) => pointOverrideMap.get(problemId)
   );
 
+  const currentSecond = Math.floor(new Date().getTime() / 1000);
   const showEstimatedPerformances =
-    props.enableEstimatedPerformances && modelArray.length === problems.length;
+    props.enableEstimatedPerformances &&
+    modelArray.length === problems.length &&
+    currentSecond >= start;
   const botRunnerIds = new Set<UserId>();
   const ratingMap = new Map<UserId, number>();
   if (showEstimatedPerformances) {
@@ -210,11 +207,13 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     (userId) => userId === atCoderUserId
   );
 
-  const items = problems.map((p) => ({
-    contestId: p.contestId,
-    title: p.title,
-    ...p.item,
-  }));
+  const sortedItems = problems
+    .map((p) => ({
+      contestId: p.contestId,
+      title: p.title,
+      ...p.item,
+    }))
+    .sort(compareProblem);
 
   const now = getCurrentUnixtimeInSecond();
 
@@ -223,9 +222,9 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     end < now ? (
       <TweetButton
         id={contestId}
-        text={`${atCoderUserId} took ${
-          loginUserRank + ordinalSuffixOf(loginUserRank)
-        } place in ${contestTitle}!`}
+        text={`${atCoderUserId} took ${loginUserRank}${ordinalSuffixOf(
+          loginUserRank
+        )} place in ${contestTitle}!`}
         color="link"
       >
         Share it!
@@ -233,34 +232,27 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     ) : undefined;
 
   return (
-    <Table striped>
+    <Table striped bordered size="sm">
       <thead>
-        <tr>
+        <tr className="text-center">
           <th>#</th>
           <th>Participant</th>
-          {showProblems
-            ? items.sort(compareProblem).map((p, i) => {
-                return (
-                  <th key={i}>
-                    {`${i + 1}. `}
-                    {p.contestId && p.title ? (
-                      <ProblemLink
-                        problemId={p.id}
-                        contestId={p.contestId}
-                        problemTitle={p.title}
-                      />
-                    ) : (
-                      p.id
-                    )}
-                    {p.point !== null ? ` (${p.point})` : null}
-                  </th>
-                );
-              })
-            : null}
-          <th style={{ textAlign: "center" }}>Score</th>
-          {showEstimatedPerformances ? (
-            <th style={{ textAlign: "center" }}>Estimated Performance</th>
-          ) : null}
+          <th>Score</th>
+          {showProblems &&
+            sortedItems.map((p, i) => (
+              <th key={i}>
+                {p.contestId && p.title ? (
+                  <ProblemLink
+                    problemId={p.id}
+                    contestId={p.contestId}
+                    problemTitle={`${i + 1}`}
+                  />
+                ) : (
+                  i + 1
+                )}
+              </th>
+            ))}
+          {showEstimatedPerformances && <th>Estimated Performance</th>}
         </tr>
       </thead>
       <tbody>
@@ -269,7 +261,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
             tweetButton={tweetButton}
             userId={atCoderUserId}
             rank={loginUserIndex}
-            items={items}
+            sortedItems={sortedItems}
             showRating={showRating}
             showProblems={showProblems}
             start={start}
@@ -289,7 +281,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
               key={userId}
               userId={userId}
               rank={i}
-              items={items}
+              sortedItems={sortedItems}
               showRating={showRating}
               showProblems={showProblems}
               start={start}

@@ -45,8 +45,11 @@ const InnerTrainingList: React.FC<Props> = (props) => {
         <Route
           path={`${path}/:courseTitle/:setListOrder?`}
           render={({ match }): React.ReactNode => {
-            const courseTitle = match.params.courseTitle;
-            const setListOrder = match.params.setListOrder;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const params: { courseTitle: string; setListOrder?: string } =
+              match.params;
+            const courseTitle = params.courseTitle;
+            const setListOrder = params.setListOrder;
             const course = courses.find((c) => c.title === courseTitle);
             if (course) {
               const defaultSetListOrder = course.set_list[0].order;
@@ -70,7 +73,7 @@ const InnerTrainingList: React.FC<Props> = (props) => {
   );
 };
 
-export const TrainingPage = connect<{}, Props>(() => ({
+export const TrainingPage = connect<unknown, Props>(() => ({
   courses: {
     comparison: null,
     value: (): Promise<Course[]> => loadCourses(),

@@ -25,10 +25,10 @@ interface Props {
   createListFetch: PromiseState<{ internal_list_id: string } | null>;
   createNewList: () => void;
   deleteList: (internalListId: string) => void;
-  deleteResponse: PromiseState<{} | null>;
+  deleteResponse: PromiseState<unknown | null>;
 }
 
-export const UserProblemListPage = connect<{}, Props>(() => ({
+export const UserProblemListPage = connect<unknown, Props>(() => ({
   myListFetch: LIST_MY,
   createListFetch: { value: null },
   createNewList: () => ({

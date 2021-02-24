@@ -16,7 +16,7 @@ const formatTimespan = (sec: number): string => {
     sign = "-";
     sec *= -1;
   }
-  return `${sign}${Math.floor(sec / 60)}:${("0" + (sec % 60)).slice(-2)}`;
+  return `${sign}${Math.floor(sec / 60)}:${`0${sec % 60}`.slice(-2)}`;
 };
 
 export const SubmitTimespan: React.FC<Props> = (props) => {

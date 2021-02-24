@@ -17,7 +17,10 @@ export function reduceUserContestResult<
     point: number;
     epoch_second: number;
   }
->(submissions: S[], pointOverride: (problemId: string) => number | undefined) {
+>(
+  submissions: S[],
+  pointOverride: (problemId: string) => number | undefined
+): Map<string, ReducedProblemResult> {
   const result = new Map<ProblemId, ReducedProblemResult>();
   submissions
     .sort((a, b) => a.id - b.id)
@@ -77,7 +80,7 @@ export const compareTotalResult = (
   aResult: UserTotalResult,
   bResult: UserTotalResult,
   penaltySecond = 0
-) => {
+): number => {
   const aPoint = aResult.point;
   const bPoint = bResult.point;
   if (aPoint !== bPoint) {

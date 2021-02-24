@@ -1,7 +1,13 @@
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import {
+  BootstrapTable,
+  Options,
+  TableHeaderColumn,
+} from "react-bootstrap-table";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
 import { List } from "immutable";
+import { useHistory, useLocation } from "react-router-dom";
+import Contest from "../../interfaces/Contest";
 import * as Url from "../../utils/Url";
 import { ContestLink } from "../../components/ContestLink";
 import { ProblemLink } from "../../components/ProblemLink";
@@ -17,14 +23,26 @@ import ProblemModel, {
   isProblemModelWithTimeModel,
 } from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
-import { ListPaginationPanel } from "../../components/ListPaginationPanel";
+import {
+  ListPaginationPanel,
+  ListPaginationPanelProps,
+} from "../../components/ListPaginationPanel";
 import { RatingInfo } from "../../utils/RatingInfo";
-import { INF_POINT, ProblemRowData } from "./index";
+import { INF_POINT, ProblemRowData, ProblemRowDataField } from "./index";
+
+export const statusFilters = [
+  "All",
+  "Only Trying",
+  "Only AC",
+  "AC during Contest",
+  "AC after Contest",
+] as const;
+export type StatusFilter = typeof statusFilters[number];
 
 interface Props {
   fromPoint: number;
   toPoint: number;
-  statusFilterState: "All" | "Only Trying" | "Only AC";
+  statusFilterState: StatusFilter;
   ratedFilterState:
     | "All"
     | "Only Rated"
@@ -34,6 +52,8 @@ interface Props {
   toDifficulty: number;
   rowData: List<ProblemRowData>;
   userRatingInfo: RatingInfo | null;
+  sortBy: ProblemRowDataField;
+  sortOrder: "asc" | "desc";
 }
 
 export const ListTable: React.FC<Props> = (props) => {
@@ -81,7 +101,7 @@ export const ListTable: React.FC<Props> = (props) => {
 
   const columns: {
     header: string;
-    dataField: string;
+    dataField: ProblemRowDataField;
     dataSort?: boolean;
     dataAlign?: "center";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,7 +140,10 @@ export const ListTable: React.FC<Props> = (props) => {
       header: "Contest",
       dataField: "contest",
       dataSort: true,
-      dataFormat: function DataFormat(contest, row): React.ReactElement {
+      dataFormat: function DataFormat(
+        contest: Contest | undefined,
+        row
+      ): React.ReactElement {
         return contest ? (
           <ContestLink contest={contest} />
         ) : (
@@ -136,7 +159,7 @@ export const ListTable: React.FC<Props> = (props) => {
     },
     {
       header: "Result",
-      dataField: "a",
+      dataField: "status",
       dataAlign: "center",
       dataFormat: (_: string, row): string | React.ReactElement => {
         const { status } = row;
@@ -226,7 +249,7 @@ export const ListTable: React.FC<Props> = (props) => {
     },
     {
       header: "Solve Prob",
-      dataField: "prob",
+      dataField: "solveProbability",
       dataSort: true,
       sortFunc: (a, b, order): number => {
         const aPred = predictSolveProbabilityOfRow(a);
@@ -247,7 +270,7 @@ export const ListTable: React.FC<Props> = (props) => {
     },
     {
       header: "Time",
-      dataField: "a",
+      dataField: "timeEstimation",
       dataSort: true,
       sortFunc: (a, b, order): number => {
         const aPred = predictSolveTimeOfRow(a);
@@ -367,6 +390,52 @@ export const ListTable: React.FC<Props> = (props) => {
     },
   ];
 
+  const location = useLocation();
+  const history = useHistory();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const options: Options<{ [key in ProblemRowDataField]: any }> = {
+    paginationPosition: "top",
+    sizePerPage: 20,
+    sizePerPageList: [
+      {
+        text: "20",
+        value: 20,
+      },
+      {
+        text: "50",
+        value: 50,
+      },
+      {
+        text: "100",
+        value: 100,
+      },
+      {
+        text: "200",
+        value: 200,
+      },
+      {
+        text: "All",
+        value: props.rowData.size,
+      },
+    ],
+    paginationPanel: function DataFormat(
+      paginationPanelProps: ListPaginationPanelProps
+    ): React.ReactElement {
+      return <ListPaginationPanel {...paginationPanelProps} />;
+    },
+    defaultSortName: props.sortBy,
+    defaultSortOrder: props.sortOrder,
+    onSortChange: function (
+      sortName: ProblemRowDataField,
+      sortOrder: "asc" | "desc"
+    ): void {
+      const params = new URLSearchParams(location.search);
+      params.set("sortBy", sortName);
+      params.set("sortOrder", sortOrder);
+      history.push({ ...location, search: params.toString() });
+    },
+  };
+
   return (
     <BootstrapTable
       pagination
@@ -389,16 +458,26 @@ export const ListTable: React.FC<Props> = (props) => {
           (row) => props.fromPoint <= row.point && row.point <= props.toPoint
         ) // eslint-disable-next-line
         .filter((row) => {
+          const { status, contest } = row;
+          const isSuccess = status.label === StatusLabel.Success;
+          const isSubmittedInContest =
+            status.label === StatusLabel.Success &&
+            contest !== undefined &&
+            status.epoch < contest.start_epoch_second + contest.duration_second;
           switch (props.statusFilterState) {
             case "All":
               return true;
             case "Only AC":
-              return row.status.label === StatusLabel.Success;
+              return isSuccess;
             case "Only Trying":
-              return row.status.label !== StatusLabel.Success;
+              return !isSuccess;
+            case "AC during Contest":
+              return isSuccess && isSubmittedInContest;
+            case "AC after Contest":
+              return isSuccess && !isSubmittedInContest;
           }
         }) // eslint-disable-next-line
-        .filter((row) => {
+        .filter((row): boolean => {
           const isRated = !!row.mergedProblem.point;
           const hasDifficulty = isProblemModelWithDifficultyModel(
             row.problemModel
@@ -424,38 +503,7 @@ export const ListTable: React.FC<Props> = (props) => {
           );
         })
         .toArray()}
-      options={{
-        paginationPosition: "top",
-        sizePerPage: 20,
-        sizePerPageList: [
-          {
-            text: "20",
-            value: 20,
-          },
-          {
-            text: "50",
-            value: 50,
-          },
-          {
-            text: "100",
-            value: 100,
-          },
-          {
-            text: "200",
-            value: 200,
-          },
-          {
-            text: "All",
-            value: props.rowData.size,
-          },
-        ],
-        paginationPanel: function DataFormat(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          paginationPanelProps: any
-        ): React.ReactElement {
-          return <ListPaginationPanel {...paginationPanelProps} />;
-        },
-      }}
+      options={options}
     >
       {columns.map((c) => (
         <TableHeaderColumn

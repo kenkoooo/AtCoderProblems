@@ -15,7 +15,7 @@ import { isRatedContest } from "./ContestClassifier";
 interface Props {
   contests: Contest[];
   contestToProblems: ImmutableMap<string, List<Problem>>;
-  showSolved: boolean;
+  hideCompletedContest: boolean;
   showDifficulty: boolean;
   colorMode: ColorMode;
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
@@ -30,7 +30,7 @@ export const ContestTable: React.FC<Props> = (props) => {
   const {
     contests,
     contestToProblems,
-    showSolved,
+    hideCompletedContest,
     statusLabelMap,
     colorMode,
     problemModels,
@@ -55,7 +55,7 @@ export const ContestTable: React.FC<Props> = (props) => {
     })
     .filter(
       ({ problemStatus }) =>
-        showSolved ||
+        !hideCompletedContest ||
         !problemStatus.every(
           ({ status }) => !!status && status.label === StatusLabel.Success
         )

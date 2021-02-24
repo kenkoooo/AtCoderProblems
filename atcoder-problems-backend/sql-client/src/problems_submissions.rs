@@ -1,7 +1,29 @@
+use crate::PgPool;
 use anyhow::Result;
+use async_trait::async_trait;
+use futures::try_join;
 
-use diesel::connection::SimpleConnection;
-use diesel::PgConnection;
+#[async_trait]
+pub trait ProblemsSubmissionUpdater {
+    async fn update_submissions_of_problems(&self) -> Result<()>;
+}
+
+#[async_trait]
+impl ProblemsSubmissionUpdater for PgPool {
+    async fn update_submissions_of_problems(&self) -> Result<()> {
+        let first_sql = generate_query("first", "id");
+        let fastest_sql = generate_query("fastest", "execution_time");
+        let shortest_sql = generate_query("shortest", "length");
+
+        try_join!(
+            sqlx::query(&first_sql).execute(self),
+            sqlx::query(&fastest_sql).execute(self),
+            sqlx::query(&shortest_sql).execute(self),
+        )?;
+
+        Ok(())
+    }
+}
 
 fn generate_query(table: &str, column: &str) -> String {
     format!(
@@ -33,17 +55,4 @@ fn generate_query(table: &str, column: &str) -> String {
         table = table,
         column = column
     )
-}
-
-pub trait ProblemsSubmissionUpdater {
-    fn update_submissions_of_problems(&self) -> Result<()>;
-}
-
-impl ProblemsSubmissionUpdater for PgConnection {
-    fn update_submissions_of_problems(&self) -> Result<()> {
-        self.batch_execute(&generate_query("first", "id"))?;
-        self.batch_execute(&generate_query("fastest", "execution_time"))?;
-        self.batch_execute(&generate_query("shortest", "length"))?;
-        Ok(())
-    }
 }

@@ -21,6 +21,7 @@ import {
 } from "../Internal/types";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
 import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
+import { loggedInUserId } from "../../utils/UserState";
 import { classifyContest, ContestCategory } from "./ContestClassifier";
 import { TableTabButtons } from "./TableTab";
 import { Options } from "./Options";
@@ -62,7 +63,10 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     "contestTableTab",
     "ABC"
   );
-  const [showAccepted, setShowAccepted] = useLocalStorage("showAccepted", true);
+  const [hideCompletedContest, setHideCompletedContest] = useLocalStorage(
+    "hideCompletedContest",
+    false
+  );
   const [showDifficulty, setShowDifficulty] = useLocalStorage(
     "showDifficulty",
     true
@@ -96,12 +100,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     ? props.submissions.value
     : [];
 
-  const loginUserId =
-    props.loginState.fulfilled &&
-    props.loginState.value &&
-    props.loginState.value.atcoder_user_id
-      ? props.loginState.value.atcoder_user_id
-      : undefined;
+  const loginUserId = loggedInUserId(props.loginState);
   const progressReset =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value
@@ -124,8 +123,10 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
   return (
     <div>
       <Options
-        showAccepted={showAccepted}
-        toggleShowAccepted={(): void => setShowAccepted(!showAccepted)}
+        hideCompletedContest={hideCompletedContest}
+        toggleHideCompletedContest={(): void =>
+          setHideCompletedContest(!hideCompletedContest)
+        }
         showDifficulties={showDifficulty}
         toggleShowDifficulties={(): void => setShowDifficulty(!showDifficulty)}
         colorMode={colorMode}
@@ -143,11 +144,11 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
         }
       />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
-      {["ABC", "ARC", "AGC"].includes(activeTab) ? (
+      {["ABC", "ARC", "AGC", "ABC-Like", "ARC-Like"].includes(activeTab) ? (
         <AtCoderRegularTable
           problemModels={problemModels}
           showDifficulty={showDifficulty}
-          showSolved={showAccepted}
+          hideCompletedContest={hideCompletedContest}
           colorMode={colorMode}
           contests={filteredContests}
           title={
@@ -155,7 +156,11 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
               ? "AtCoder Beginner Contest"
               : activeTab === "ARC"
               ? "AtCoder Regular Contest"
-              : "AtCoder Grand Contest"
+              : activeTab === "AGC"
+              ? "AtCoder Grand Contest"
+              : activeTab === "ABC-Like"
+              ? "ABC-Like Contest"
+              : "ARC-Like Contest"
           }
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
@@ -170,7 +175,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
           contests={filteredContests}
           title={activeTab}
           contestToProblems={contestToProblems}
-          showSolved={showAccepted}
+          hideCompletedContest={hideCompletedContest}
           colorMode={colorMode}
           statusLabelMap={statusLabelMap}
           showPenalties={showPenalties}

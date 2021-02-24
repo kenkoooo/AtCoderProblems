@@ -16,6 +16,7 @@ import {
   RatingColor,
   RatingColors,
   isAccepted,
+  caseInsensitiveUserId,
 } from "../../../utils";
 import {
   formatMomentDate,
@@ -132,7 +133,10 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
   const dateColorCountMap = Array.from(submissions.values())
     .map((submissionList) =>
       submissionList
-        .filter((s) => s.user_id === userId && isAccepted(s.result))
+        .filter(
+          (s) =>
+            caseInsensitiveUserId(s.user_id) === userId && isAccepted(s.result)
+        )
         .sort((a, b) => a.epoch_second - b.epoch_second)
         .find(() => true)
     )

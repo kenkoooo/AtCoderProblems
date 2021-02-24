@@ -1,23 +1,20 @@
-use diesel::connection::SimpleConnection;
-use diesel::prelude::*;
-use diesel::PgConnection;
-
-use std::fs::File;
-use std::io::prelude::*;
+use sql_client::{initialize_pool, PgPool};
+use std::fs::read_to_string;
 
 const SQL_FILE: &str = "../config/database-definition.sql";
-pub const SQL_URL: &str = "postgresql://kenkoooo:pass@localhost/test";
+const SQL_URL_ENV_KEY: &str = "SQL_URL";
 
 #[cfg(test)]
-pub fn initialize_and_connect_to_test_sql() -> PgConnection {
-    let conn = PgConnection::establish(SQL_URL).unwrap();
-    initialize(&conn);
-    conn
+pub fn get_sql_url_from_env() -> String {
+    std::env::var(SQL_URL_ENV_KEY).unwrap()
 }
 
-fn initialize(conn: &PgConnection) {
-    let mut file = File::open(SQL_FILE).unwrap();
-    let mut sql = String::new();
-    file.read_to_string(&mut sql).unwrap();
-    conn.batch_execute(&sql).unwrap();
+#[cfg(test)]
+pub async fn initialize_and_connect_to_test_sql() -> PgPool {
+    let conn = initialize_pool(get_sql_url_from_env()).await.unwrap();
+
+    for query_str in read_to_string(SQL_FILE).unwrap().split(";") {
+        sql_client::query(query_str).execute(&conn).await.unwrap();
+    }
+    conn
 }
