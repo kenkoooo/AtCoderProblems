@@ -34,4 +34,4 @@ export const formatDuration = (durationSecond: number): string => {
   return `${hours}:${mm}:${ss}`;
 };
 
-export const getNowMillis = () => Math.floor(Date.now() / 1000);
+export const getCurrentUnixtimeInSecond = () => Math.floor(Date.now() / 1000);
