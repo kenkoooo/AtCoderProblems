@@ -120,7 +120,7 @@ export const ResetProgress = connect<unknown, Props>(() => ({
       method: "POST",
       body: JSON.stringify({
         problem_id: problemId,
-        reset_epoch_second: getCurrentUnixtimeInSecond,
+        reset_epoch_second: getCurrentUnixtimeInSecond(),
       }),
       andThen: () => ({
         progressResetList: {
