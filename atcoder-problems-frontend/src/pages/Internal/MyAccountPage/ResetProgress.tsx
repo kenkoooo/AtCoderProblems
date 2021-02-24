@@ -12,7 +12,11 @@ import {
 } from "../ApiUrl";
 import { cachedProblemMap } from "../../../utils/CachedApiClient";
 import { ProblemLink } from "../../../components/ProblemLink";
-import { formatMomentDateTime, parseSecond, getCurrentUnixtimeInSecond } from "../../../utils/DateUtil";
+import {
+  formatMomentDateTime,
+  parseSecond,
+  getCurrentUnixtimeInSecond,
+} from "../../../utils/DateUtil";
 
 interface Props {
   progressResetList: PromiseState<ProgressResetList | null>;

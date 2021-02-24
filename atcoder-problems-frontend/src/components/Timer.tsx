@@ -6,7 +6,9 @@ interface Props {
 }
 
 export const Timer: React.FC<Props> = (props) => {
-  const [timeLeft, setTimeLeft] = useState(props.end - getCurrentUnixtimeInSecond());
+  const [timeLeft, setTimeLeft] = useState(
+    props.end - getCurrentUnixtimeInSecond()
+  );
   useEffect(() => {
     if (timeLeft <= 0) {
       return;
