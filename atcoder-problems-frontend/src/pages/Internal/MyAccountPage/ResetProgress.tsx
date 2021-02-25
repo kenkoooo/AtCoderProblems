@@ -12,7 +12,11 @@ import {
 } from "../ApiUrl";
 import { cachedProblemMap } from "../../../utils/CachedApiClient";
 import { ProblemLink } from "../../../components/ProblemLink";
-import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
+import {
+  formatMomentDateTime,
+  parseSecond,
+  getCurrentUnixtimeInSecond,
+} from "../../../utils/DateUtil";
 
 interface Props {
   progressResetList: PromiseState<ProgressResetList | null>;
@@ -116,7 +120,7 @@ export const ResetProgress = connect<unknown, Props>(() => ({
       method: "POST",
       body: JSON.stringify({
         problem_id: problemId,
-        reset_epoch_second: Math.floor(new Date().getTime() / 1000),
+        reset_epoch_second: getCurrentUnixtimeInSecond(),
       }),
       andThen: () => ({
         progressResetList: {
