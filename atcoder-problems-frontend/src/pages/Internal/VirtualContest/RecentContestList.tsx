@@ -2,7 +2,7 @@ import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Button, Col, Row } from "reactstrap";
 import { useHistory } from "react-router-dom";
-import { getNowMillis } from "../../../utils/DateUtil";
+import { getCurrentUnixtimeInSecond } from "../../../utils/DateUtil";
 import { VirtualContestTable } from "../VirtualContestTable";
 import { CONTEST_RECENT, USER_GET } from "../ApiUrl";
 import { VirtualContestInfo } from "../types";
@@ -26,7 +26,7 @@ export const RecentContestList = connect<unknown, InnerProps>(() => ({
         (a, b) => b.start_epoch_second - a.start_epoch_second
       )
     : [];
-  const now = getNowMillis();
+  const now = getCurrentUnixtimeInSecond();
   const future = contests.filter((c) => c.start_epoch_second > now);
   const current = contests.filter(
     (c) =>

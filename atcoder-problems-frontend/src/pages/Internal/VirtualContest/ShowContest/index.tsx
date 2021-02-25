@@ -29,7 +29,7 @@ import MergedProblem from "../../../../interfaces/MergedProblem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 import {
   formatMomentDateTimeDay,
-  getNowMillis,
+  getCurrentUnixtimeInSecond,
   parseSecond,
 } from "../../../../utils/DateUtil";
 import {
@@ -105,7 +105,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const penaltySecond = contestInfo.penalty_second;
   const alreadyJoined =
     userIdIsSet && contestParticipants.includes(atCoderUserId);
-  const now = getNowMillis();
+  const now = getCurrentUnixtimeInSecond();
   const canJoin = !alreadyJoined && userIdIsSet && now < end;
   const canLeave = alreadyJoined && userIdIsSet && now < start;
   const isOwner = contestInfo.owner_user_id === internalUserId;
