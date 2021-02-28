@@ -139,11 +139,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
         <AchievementBlock userId={userId} />
       )}
       {(userPageTab === "All" || userPageTab === "AtCoder Pie Charts") && (
-        <PieChartBlock
-          contestToProblems={contestToProblems}
-          userId={userId}
-          submissions={convertMap(submissions.map((list) => list.toArray()))}
-        />
+        <PieChartBlock userId={userId} />
       )}
       {(userPageTab === "All" || userPageTab === "Difficulty Pies") && (
         <>
