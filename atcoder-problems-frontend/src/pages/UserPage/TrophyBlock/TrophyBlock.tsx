@@ -1,26 +1,53 @@
 import Octicon, { Verified } from "@primer/octicons-react";
 import React, { useState } from "react";
 import { Table, Row, Col, ListGroup, ListGroupItem, Badge } from "reactstrap";
+import { connect, PromiseState } from "react-refetch";
+import { List, Map as ImmutableMap } from "immutable";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
+import {
+  cachedContestMap,
+  cachedContestToProblemMap,
+  cachedProblemModels,
+  cachedSubmissions,
+} from "../../../utils/CachedApiClient";
+import { convertMap } from "../../../utils/ImmutableMigration";
 import { generateACCountTrophies } from "./ACCountTrophyGenerator";
 import { generateACProblemsTrophies } from "./ACProblemsTrophyGenerator";
 import { generateStreakTrophies } from "./StreakTrophyGenerator";
 import { generateCompleteContestTrophies } from "./CompleteContestTrophyGenerator";
 import { Trophy, TrophyGroup, TrophyGroups } from "./Trophy";
 
-interface Props {
-  submissions: Submission[];
-  problemModels: Map<ProblemId, ProblemModel>;
-  contests: Map<string, Contest>;
-  contestToProblems: Map<ContestId, Problem[]>;
+interface OuterProps {
+  userId: string;
 }
 
-export const TrophyBlock = (props: Props): JSX.Element => {
-  const { submissions, problemModels, contests, contestToProblems } = props;
+interface InnerProps extends OuterProps {
+  submissionsFetch: PromiseState<List<Submission>>;
+  problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
+  contestMapFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
+  contestToProblemsFetch: PromiseState<ImmutableMap<ContestId, List<Problem>>>;
+}
+
+const InnerTrophyBlock: React.FC<InnerProps> = (props) => {
+  const submissions = props.submissionsFetch.fulfilled
+    ? props.submissionsFetch.value.toArray()
+    : [];
+  const problemModels = props.problemModelsFetch.fulfilled
+    ? props.problemModelsFetch.value
+    : ImmutableMap<ProblemId, ProblemModel>();
+  const contestMap = props.contestMapFetch.fulfilled
+    ? convertMap(props.contestMapFetch.value)
+    : new Map<ContestId, Contest>();
+  const contestToProblems = props.contestToProblemsFetch.fulfilled
+    ? convertMap(
+        props.contestToProblemsFetch.value.map((list) => list.toArray())
+      )
+    : new Map<ContestId, Problem[]>();
+
   const trophySubmissions = submissions.map((submission) => {
     const problemModel = problemModels.get(submission.problem_id);
     return { submission, problemModel };
@@ -33,7 +60,7 @@ export const TrophyBlock = (props: Props): JSX.Element => {
   trophies.push(
     ...generateCompleteContestTrophies(
       trophySubmissions,
-      contests,
+      contestMap,
       contestToProblems
     )
   );
@@ -96,3 +123,19 @@ export const TrophyBlock = (props: Props): JSX.Element => {
     </>
   );
 };
+
+export const TrophyBlock = connect<OuterProps, InnerProps>(({ userId }) => ({
+  submissionsFetch: {
+    comparison: userId,
+    value: cachedSubmissions(userId),
+  },
+  problemModelsFetch: {
+    value: cachedProblemModels(),
+  },
+  contestMapFetch: {
+    value: cachedContestMap(),
+  },
+  contestToProblemsFetch: {
+    value: cachedContestToProblemMap(),
+  },
+}))(InnerTrophyBlock);

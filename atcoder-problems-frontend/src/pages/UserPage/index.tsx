@@ -15,7 +15,6 @@ import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import { ContestId, ProblemId } from "../../interfaces/Status";
 import ProblemModel from "../../interfaces/ProblemModel";
-import Problem from "../../interfaces/Problem";
 import { UserNameLabel } from "../../components/UserNameLabel";
 import { UserResponse } from "../Internal/types";
 import { USER_GET } from "../Internal/ApiUrl";
@@ -54,7 +53,6 @@ interface InnerProps extends OuterProps {
   mergedProblemsFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
   submissionsFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
   contestsFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
-  contestToProblemsFetch: PromiseState<ImmutableMap<ContestId, List<Problem>>>;
   problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
   loginState: PromiseState<UserResponse | null>;
 }
@@ -70,7 +68,6 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
     userRatingInfoFetch,
     submissionsFetch,
     mergedProblemsFetch,
-    contestToProblemsFetch,
     contestsFetch,
     problemModelsFetch,
   } = props;
@@ -94,9 +91,6 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   const submissions = submissionsFetch.fulfilled
     ? submissionsFetch.value
     : ImmutableMap<ProblemId, List<Submission>>();
-  const contestToProblems = contestToProblemsFetch.fulfilled
-    ? convertMap(contestToProblemsFetch.value.map((list) => list.toArray()))
-    : new Map<ContestId, Problem[]>();
 
   if (userId.length === 0 || submissions.isEmpty()) {
     return <Alert color="danger">User not found!</Alert>;
@@ -176,12 +170,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <Row className="my-2 border-bottom">
             <h1>Trophy [beta]</h1>
           </Row>
-          <TrophyBlock
-            submissions={userSubmissions}
-            problemModels={convertMap(problemModels)}
-            contests={convertMap(contests)}
-            contestToProblems={contestToProblems}
-          />
+          <TrophyBlock userId={userId} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Recommendation") && (
@@ -227,11 +216,6 @@ export const UserPage = connect<OuterProps, InnerProps>(({ userId }) => ({
   userRatingInfoFetch: {
     comparison: userId,
     value: (): Promise<RatingInfo> => CachedApiClient.cachedRatingInfo(userId),
-  },
-  contestToProblemsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, List<Problem>>> =>
-      CachedApiClient.cachedContestToProblemMap(),
   },
   loginState: USER_GET,
 }))(InnerUserPage);
