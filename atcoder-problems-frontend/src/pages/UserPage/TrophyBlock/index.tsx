@@ -8,12 +8,7 @@ import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
-import {
-  cachedContestMap,
-  cachedContestToProblemMap,
-  cachedProblemModels,
-  cachedSubmissions,
-} from "../../../utils/CachedApiClient";
+import * as CachedApiClient from "../../../utils/CachedApiClient";
 import { convertMap } from "../../../utils/ImmutableMigration";
 import { generateACCountTrophies } from "./ACCountTrophyGenerator";
 import { generateACProblemsTrophies } from "./ACProblemsTrophyGenerator";
@@ -127,15 +122,15 @@ const InnerTrophyBlock: React.FC<InnerProps> = (props) => {
 export const TrophyBlock = connect<OuterProps, InnerProps>(({ userId }) => ({
   submissionsFetch: {
     comparison: userId,
-    value: cachedSubmissions(userId),
+    value: CachedApiClient.cachedSubmissions(userId),
   },
   problemModelsFetch: {
-    value: cachedProblemModels(),
+    value: CachedApiClient.cachedProblemModels(),
   },
   contestMapFetch: {
-    value: cachedContestMap(),
+    value: CachedApiClient.cachedContestMap(),
   },
   contestToProblemsFetch: {
-    value: cachedContestToProblemMap(),
+    value: CachedApiClient.cachedContestToProblemMap(),
   },
 }))(InnerTrophyBlock);
