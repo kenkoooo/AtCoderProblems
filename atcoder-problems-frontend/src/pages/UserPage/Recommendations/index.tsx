@@ -27,13 +27,7 @@ import { RatingInfo, ratingInfoOf } from "../../../utils/RatingInfo";
 import * as Url from "../../../utils/Url";
 import { UserResponse } from "../../Internal/types";
 import { USER_GET } from "../../Internal/ApiUrl";
-import {
-  cachedContestMap,
-  cachedMergedProblemMap,
-  cachedProblemModels,
-  cachedRatingInfo,
-  cachedSubmissions,
-} from "../../../utils/CachedApiClient";
+import * as CachedApiClient from "../../../utils/CachedApiClient";
 import MergedProblem from "../../../interfaces/MergedProblem";
 import * as UserState from "../../../utils/UserState";
 import { recommendProblems } from "./RecommendProblems";
@@ -327,20 +321,20 @@ export const Recommendations = connect<OuterProps, InnerProps>(
   ({ userId }) => ({
     userSubmissionsFetch: {
       comparison: userId,
-      value: cachedSubmissions(userId),
+      value: CachedApiClient.cachedSubmissions(userId),
     },
     mergedProblemMapFetch: {
-      value: cachedMergedProblemMap(),
+      value: CachedApiClient.cachedMergedProblemMap(),
     },
     contestMapFetch: {
-      value: cachedContestMap(),
+      value: CachedApiClient.cachedContestMap(),
     },
     problemModelsFetch: {
-      value: cachedProblemModels(),
+      value: CachedApiClient.cachedProblemModels(),
     },
     userRatingInfoFetch: {
       comparison: userId,
-      value: cachedRatingInfo(userId),
+      value: CachedApiClient.cachedRatingInfo(userId),
     },
     loginStateFetch: USER_GET,
   })

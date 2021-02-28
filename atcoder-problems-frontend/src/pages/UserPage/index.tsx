@@ -2,13 +2,11 @@ import React from "react";
 import { Alert, Nav, NavItem, NavLink, Row, Spinner } from "reactstrap";
 import { NavLink as RouterLink, useLocation } from "react-router-dom";
 
-import { List, Map as ImmutableMap } from "immutable";
+import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { generatePathWithParams } from "../../utils/QueryString";
-import { caseInsensitiveUserId } from "../../utils";
 import Submission from "../../interfaces/Submission";
-import { ProblemId } from "../../interfaces/Status";
 import { UserNameLabel } from "../../components/UserNameLabel";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
@@ -16,7 +14,7 @@ import { ProgressChartBlock } from "./ProgressChartBlock";
 import { Recommendations } from "./Recommendations";
 import { LanguageCount } from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
-import { TrophyBlock } from "./TrophyBlock/TrophyBlock";
+import { TrophyBlock } from "./TrophyBlock";
 import { Submissions } from "./Submissions";
 
 const userPageTabs = [
@@ -40,7 +38,7 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissionsFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
+  submissionsFetch: PromiseState<List<Submission>>;
 }
 
 const InnerUserPage: React.FC<InnerProps> = (props) => {
@@ -57,24 +55,13 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
 
   const submissions = submissionsFetch.fulfilled
     ? submissionsFetch.value
-    : ImmutableMap<ProblemId, List<Submission>>();
+    : List<Submission>();
 
   if (userId.length === 0 || submissions.isEmpty()) {
     return <Alert color="danger">User not found!</Alert>;
   }
 
-  /* eslint-disable */
-  const actualUserId = (() => {
-    for (const subs of Array.from(submissions.values())) {
-      for (const s of Array.from(subs)) {
-        if (caseInsensitiveUserId(s.user_id) == userId) {
-          return s.user_id;
-        }
-      }
-    }
-    return userId;
-  })();
-  /* eslint-disable */
+  const actualUserId = submissions.get(0)?.user_id ?? "";
 
   return (
     <div>
@@ -150,7 +137,6 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
 export const UserPage = connect<OuterProps, InnerProps>(({ userId }) => ({
   submissionsFetch: {
     comparison: userId,
-    value: (): Promise<ImmutableMap<string, List<Submission>>> =>
-      CachedApiClient.cachedUsersSubmissionMap(List([userId])),
+    value: CachedApiClient.cachedSubmissions(userId),
   },
 }))(InnerUserPage);
