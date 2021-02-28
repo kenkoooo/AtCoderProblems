@@ -7,24 +7,19 @@ import { connect, PromiseState } from "react-refetch";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
-import { caseInsensitiveUserId, isAccepted } from "../../utils";
 import { ContestId, ProblemId } from "../../interfaces/Status";
 import * as CachedApiClient from "../../utils/CachedApiClient";
-import ProblemModel, {
-  isProblemModelWithTimeModel,
-} from "../../interfaces/ProblemModel";
+import ProblemModel from "../../interfaces/ProblemModel";
 import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import Problem from "../../interfaces/Problem";
 import { SubmissionListTable } from "../../components/SubmissionListTable";
 import { convertMap } from "../../utils/ImmutableMigration";
 import { generatePathWithParams } from "../../utils/QueryString";
-import { calcStreak, countUniqueAcByDate } from "../../utils/StreakCounter";
-import { isRatedContest } from "../TablePage/ContestClassifier";
 import { UserNameLabel } from "../../components/UserNameLabel";
-import { calculateTopPlayerEquivalentEffort } from "../../utils/ProblemModelUtil";
 import { UserResponse } from "../Internal/types";
 import { USER_GET } from "../Internal/ApiUrl";
 import { isLoggedIn } from "../../utils/UserState";
+import { caseInsensitiveUserId } from "../../utils";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
@@ -32,6 +27,7 @@ import { Recommendations } from "./Recommendations";
 import { LanguageCount } from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
 import { TrophyBlock } from "./TrophyBlock/TrophyBlock";
+import * as UserUtil from "./common";
 
 const userPageTabs = [
   "Achievement",
@@ -106,56 +102,20 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
     return <Alert color="danger">User not found!</Alert>;
   }
 
-  const ratedProblemIds = new Set(
-    contests
-      .valueSeq()
-      .flatMap((contest) => {
-        const isRated = isRatedContest(contest);
-        const contestProblems = contestToProblems.get(contest.id);
-        return isRated && contestProblems ? contestProblems : [];
-      })
-      .map((problem) => problem.id)
-  );
+  /* eslint-disable */
+  const actualUserId = (() => {
+    for (const subs of Array.from(submissions.values())) {
+      for (const s of Array.from(subs)) {
+        if (caseInsensitiveUserId(s.user_id) == userId) {
+          return s.user_id;
+        }
+      }
+    }
+    return userId;
+  })();
+  /* eslint-disable */
 
-  const userSubmissions = submissions
-    .valueSeq()
-    .flatMap((list) => list)
-    .filter((s) => caseInsensitiveUserId(s.user_id) === userId)
-    .toArray();
-  const actualUserId =
-    userSubmissions.length > 0 ? userSubmissions[0].user_id : userId;
-  const dailyCount = countUniqueAcByDate(userSubmissions);
-  const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
-    dailyCount
-  );
-  const solvedProblemIds = submissions
-    .entrySeq()
-    .filter(([, submissionList]) =>
-      submissionList.find((submission) => isAccepted(submission.result))
-    )
-    .map(([problemId]) => problemId)
-    .toArray();
-  const ratedPointMap = new Map<ProblemId, number>();
-  const acceptedRatedSubmissions = submissions
-    .valueSeq()
-    .flatMap((a) => a)
-    .filter((s) => isAccepted(s.result))
-    .filter((s) => ratedProblemIds.has(s.problem_id))
-    .toArray();
-  acceptedRatedSubmissions.sort((a, b) => a.id - b.id);
-  acceptedRatedSubmissions.forEach((s) => {
-    ratedPointMap.set(s.problem_id, s.point);
-  });
-  const ratedPointSum = Array.from(ratedPointMap.values()).reduce(
-    (sum, point) => sum + point,
-    0
-  );
-  const topPlayerEquivalentEffort = solvedProblemIds
-    .map((problemId: ProblemId) => problemModels.get(problemId))
-    .filter((model: ProblemModel | undefined) => model !== undefined)
-    .filter(isProblemModelWithTimeModel)
-    .map(calculateTopPlayerEquivalentEffort)
-    .reduce((a: number, b: number) => a + b, 0);
+  const userSubmissions = UserUtil.userSubmissions(submissions, userId);
 
   return (
     <div>
@@ -176,16 +136,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
         ))}
       </Nav>
       {(userPageTab === "All" || userPageTab === "Achievement") && (
-        <AchievementBlock
-          userId={userId}
-          solvedCount={solvedProblemIds.length}
-          ratedPointSum={ratedPointSum}
-          longestStreak={longestStreak}
-          currentStreak={currentStreak}
-          prevDateLabel={prevDateLabel}
-          streakSum={dailyCount.length}
-          topPlayerEquivalentEffort={topPlayerEquivalentEffort}
-        />
+        <AchievementBlock userId={userId} />
       )}
       {(userPageTab === "All" || userPageTab === "AtCoder Pie Charts") && (
         <PieChartBlock
@@ -200,20 +151,15 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
             <h1>Difficulty Pies</h1>
           </Row>
           <DifficultyPieChart
+            userId={userId}
             problemModels={convertMap(problemModels)}
-            solvedProblemIds={solvedProblemIds}
           />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Progress Charts") && (
         <ProgressChartBlock
           problemModels={convertMap(problemModels)}
-          submissions={convertMap(
-            submissions.map((submissionList) => submissionList.toArray())
-          )}
           userId={userId}
-          dailyCount={dailyCount}
-          userSubmissions={userSubmissions}
         />
       )}
       {(userPageTab === "All" || userPageTab === "Submissions") && (

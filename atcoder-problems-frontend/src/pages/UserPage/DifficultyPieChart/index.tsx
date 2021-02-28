@@ -1,5 +1,7 @@
+import { List, Map as ImmutableMap } from "immutable";
 import React from "react";
 import { Row, Col } from "reactstrap";
+import { connect, PromiseState } from "react-refetch";
 import { ProblemId } from "../../../interfaces/Status";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import {
@@ -9,13 +11,20 @@ import {
   RatingColors,
 } from "../../../utils";
 import { SinglePieChart } from "../../../components/SinglePieChart";
+import { solvedProblemIds } from "../common";
+import Submission from "../../../interfaces/Submission";
+import { cachedUsersSubmissionMap } from "../../../utils/CachedApiClient";
 
-interface Props {
+interface OuterProps {
+  userId: string;
   problemModels: Map<ProblemId, ProblemModel>;
-  solvedProblemIds: ProblemId[];
 }
 
-export const DifficultyPieChart: React.FC<Props> = (props) => {
+interface Props extends OuterProps {
+  submissionsFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
+}
+
+const InnerDifficultyPieChart: React.FC<Props> = (props) => {
   const colorCount = new Map<RatingColor, number>();
   props.problemModels.forEach((model) => {
     if (model.difficulty !== undefined) {
@@ -25,7 +34,10 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
     }
   });
 
-  const solvedCount = props.solvedProblemIds.reduce((map, problemId) => {
+  const submissions = props.submissionsFetch.fulfilled
+    ? props.submissionsFetch.value
+    : ImmutableMap<ProblemId, List<Submission>>();
+  const solvedCount = solvedProblemIds(submissions).reduce((map, problemId) => {
     const model = props.problemModels.get(problemId);
     if (model?.difficulty !== undefined) {
       const color = getRatingColor(model.difficulty);
@@ -69,3 +81,11 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
     </div>
   );
 };
+
+export const DifficultyPieChart = connect<OuterProps, Props>((props) => ({
+  submissionsFetch: {
+    comparison: null,
+    value: (): Promise<ImmutableMap<ProblemId, List<Submission>>> =>
+      cachedUsersSubmissionMap(List([props.userId])),
+  },
+}))(InnerDifficultyPieChart);
