@@ -27,7 +27,7 @@ import { Recommendations } from "./Recommendations";
 import { LanguageCount } from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
 import { TrophyBlock } from "./TrophyBlock/TrophyBlock";
-import * as UserUtil from "./common";
+import * as UserUtil from "./UserUtils";
 
 const userPageTabs = [
   "Achievement",
@@ -115,7 +115,10 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   })();
   /* eslint-disable */
 
-  const userSubmissions = UserUtil.userSubmissions(submissions, userId);
+  const userSubmissions = UserUtil.userSubmissions(
+    convertMap(submissions.map((list) => list.toArray())),
+    userId
+  );
 
   return (
     <div>
@@ -146,10 +149,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <Row className="my-2 border-bottom">
             <h1>Difficulty Pies</h1>
           </Row>
-          <DifficultyPieChart
-            userId={userId}
-            problemModels={convertMap(problemModels)}
-          />
+          <DifficultyPieChart userId={userId} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Progress Charts") && (

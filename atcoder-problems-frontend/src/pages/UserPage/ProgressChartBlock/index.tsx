@@ -31,7 +31,8 @@ import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemId } from "../../../interfaces/Status";
 import { cachedUsersSubmissionMap } from "../../../utils/CachedApiClient";
 import { countUniqueAcByDate } from "../../../utils/StreakCounter";
-import * as UserUtil from "../common";
+import * as UserUtils from "../UserUtils";
+import { convertMap } from "../../../utils/ImmutableMigration";
 import { DailyEffortBarChart } from "./DailyEffortBarChart";
 import { DailyEffortStackedBarChart } from "./DailyEffortStackedBarChart";
 import { ClimbingLineChart } from "./ClimbingLineChart";
@@ -121,9 +122,9 @@ const InnerProgressChartBlock: React.FC<Props> = (props) => {
   const { problemModels, userId } = props;
 
   const submissionsMap = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value
-    : ImmutableMap<ProblemId, List<Submission>>();
-  const userSubmissions = UserUtil.userSubmissions(submissionsMap, userId);
+    ? convertMap(props.submissionsFetch.value.map((list) => list.toArray()))
+    : new Map<ProblemId, Submission[]>();
+  const userSubmissions = UserUtils.userSubmissions(submissionsMap, userId);
   const dailyCount = countUniqueAcByDate(userSubmissions);
 
   const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
