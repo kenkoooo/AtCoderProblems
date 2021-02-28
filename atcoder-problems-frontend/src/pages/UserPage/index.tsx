@@ -4,22 +4,21 @@ import { NavLink as RouterLink, useLocation } from "react-router-dom";
 
 import { List, Map as ImmutableMap } from "immutable";
 import { connect, PromiseState } from "react-refetch";
+import * as CachedApiClient from "../../utils/CachedApiClient";
+import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
+import { convertMap } from "../../utils/ImmutableMigration";
+import { generatePathWithParams } from "../../utils/QueryString";
+import { isLoggedIn } from "../../utils/UserState";
+import { caseInsensitiveUserId } from "../../utils";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import Contest from "../../interfaces/Contest";
 import { ContestId, ProblemId } from "../../interfaces/Status";
-import * as CachedApiClient from "../../utils/CachedApiClient";
 import ProblemModel from "../../interfaces/ProblemModel";
-import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import Problem from "../../interfaces/Problem";
-import { SubmissionListTable } from "../../components/SubmissionListTable";
-import { convertMap } from "../../utils/ImmutableMigration";
-import { generatePathWithParams } from "../../utils/QueryString";
 import { UserNameLabel } from "../../components/UserNameLabel";
 import { UserResponse } from "../Internal/types";
 import { USER_GET } from "../Internal/ApiUrl";
-import { isLoggedIn } from "../../utils/UserState";
-import { caseInsensitiveUserId } from "../../utils";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
@@ -27,6 +26,7 @@ import { Recommendations } from "./Recommendations";
 import { LanguageCount } from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
 import { TrophyBlock } from "./TrophyBlock/TrophyBlock";
+import { Submissions } from "./Submissions";
 import * as UserUtil from "./UserUtils";
 
 const userPageTabs = [
@@ -160,12 +160,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <Row className="my-2 border-bottom">
             <h1>Submissions</h1>
           </Row>
-          <SubmissionListTable
-            problemModels={convertMap(problemModels)}
-            problems={mergedProblems.valueSeq().toArray()}
-            submissions={userSubmissions}
-            userRatingInfo={userRatingInfo}
-          />
+          <Submissions userId={userId} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Languages") && (
