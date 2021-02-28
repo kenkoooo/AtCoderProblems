@@ -26,13 +26,16 @@ import {
   parseDateLabel,
 } from "../../../utils/DateUtil";
 import { useLocalStorage } from "../../../utils/LocalStorage";
+import {
+  cachedProblemModels,
+  cachedUsersSubmissionMap,
+} from "../../../utils/CachedApiClient";
+import { countUniqueAcByDate } from "../../../utils/StreakCounter";
+import { convertMap } from "../../../utils/ImmutableMigration";
+import * as UserUtils from "../UserUtils";
 import Submission from "../../../interfaces/Submission";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemId } from "../../../interfaces/Status";
-import { cachedUsersSubmissionMap } from "../../../utils/CachedApiClient";
-import { countUniqueAcByDate } from "../../../utils/StreakCounter";
-import * as UserUtils from "../UserUtils";
-import { convertMap } from "../../../utils/ImmutableMigration";
 import { DailyEffortBarChart } from "./DailyEffortBarChart";
 import { DailyEffortStackedBarChart } from "./DailyEffortStackedBarChart";
 import { ClimbingLineChart } from "./ClimbingLineChart";
@@ -40,12 +43,12 @@ import { ClimbingAreaChart } from "./ClimbingAreaChart";
 import { FilteringHeatmap } from "./FilteringHeatmap";
 
 interface OuterProps {
-  problemModels: Map<ProblemId, ProblemModel>;
   userId: string;
 }
 
-interface Props extends OuterProps {
-  submissionsFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
+interface InnerProps extends OuterProps {
+  submissionsMapFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
+  problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
 const chartTypes = ["Simple", "Colored"] as const;
@@ -102,7 +105,7 @@ const YRangeTabButtons: React.FC<YRangeTabProps> = (props) => {
   );
 };
 
-const InnerProgressChartBlock: React.FC<Props> = (props) => {
+const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
   const [
     dailyEffortBarChartActiveTab,
     setDailyEffortBarChartActiveTab,
@@ -119,11 +122,15 @@ const InnerProgressChartBlock: React.FC<Props> = (props) => {
     "climbingLineChartReverseColorOrder",
     false
   );
-  const { problemModels, userId } = props;
+  const { userId } = props;
 
-  const submissionsMap = props.submissionsFetch.fulfilled
-    ? convertMap(props.submissionsFetch.value.map((list) => list.toArray()))
+  const submissionsMap = props.submissionsMapFetch.fulfilled
+    ? convertMap(props.submissionsMapFetch.value.map((list) => list.toArray()))
     : new Map<ProblemId, Submission[]>();
+  const problemModels = props.problemModelsFetch.fulfilled
+    ? props.problemModelsFetch.value
+    : ImmutableMap<ProblemId, ProblemModel>();
+
   const userSubmissions = UserUtils.userSubmissions(submissionsMap, userId);
   const dailyCount = countUniqueAcByDate(userSubmissions);
 
@@ -275,10 +282,14 @@ const InnerProgressChartBlock: React.FC<Props> = (props) => {
   );
 };
 
-export const ProgressChartBlock = connect<OuterProps, Props>((props) => ({
-  submissionsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<ProblemId, List<Submission>>> =>
-      cachedUsersSubmissionMap(List([props.userId])),
-  },
-}))(InnerProgressChartBlock);
+export const ProgressChartBlock = connect<OuterProps, InnerProps>(
+  ({ userId }) => ({
+    submissionsMapFetch: {
+      comparison: userId,
+      value: cachedUsersSubmissionMap(List([userId])),
+    },
+    problemModelsFetch: {
+      value: cachedProblemModels(),
+    },
+  })
+)(InnerProgressChartBlock);

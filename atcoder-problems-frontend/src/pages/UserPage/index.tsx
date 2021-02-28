@@ -153,10 +153,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Progress Charts") && (
-        <ProgressChartBlock
-          problemModels={convertMap(problemModels)}
-          userId={userId}
-        />
+        <ProgressChartBlock userId={userId} />
       )}
       {(userPageTab === "All" || userPageTab === "Submissions") && (
         <>
