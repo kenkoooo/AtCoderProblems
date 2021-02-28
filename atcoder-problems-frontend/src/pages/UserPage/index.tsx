@@ -5,19 +5,11 @@ import { NavLink as RouterLink, useLocation } from "react-router-dom";
 import { List, Map as ImmutableMap } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../utils/CachedApiClient";
-import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
-import { convertMap } from "../../utils/ImmutableMigration";
 import { generatePathWithParams } from "../../utils/QueryString";
-import { isLoggedIn } from "../../utils/UserState";
 import { caseInsensitiveUserId } from "../../utils";
 import Submission from "../../interfaces/Submission";
-import MergedProblem from "../../interfaces/MergedProblem";
-import Contest from "../../interfaces/Contest";
-import { ContestId, ProblemId } from "../../interfaces/Status";
-import ProblemModel from "../../interfaces/ProblemModel";
+import { ProblemId } from "../../interfaces/Status";
 import { UserNameLabel } from "../../components/UserNameLabel";
-import { UserResponse } from "../Internal/types";
-import { USER_GET } from "../Internal/ApiUrl";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
@@ -26,7 +18,6 @@ import { LanguageCount } from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
 import { TrophyBlock } from "./TrophyBlock/TrophyBlock";
 import { Submissions } from "./Submissions";
-import * as UserUtil from "./UserUtils";
 
 const userPageTabs = [
   "Achievement",
@@ -49,12 +40,7 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  userRatingInfoFetch: PromiseState<RatingInfo>;
-  mergedProblemsFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
   submissionsFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
-  contestsFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
-  problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
-  loginState: PromiseState<UserResponse | null>;
 }
 
 const InnerUserPage: React.FC<InnerProps> = (props) => {
@@ -63,31 +49,12 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   const userPageTab: UserPageTab =
     userPageTabs.find((t) => t === param) || "Achievement";
 
-  const {
-    userId,
-    userRatingInfoFetch,
-    submissionsFetch,
-    mergedProblemsFetch,
-    contestsFetch,
-    problemModelsFetch,
-  } = props;
+  const { userId, submissionsFetch } = props;
 
   if (submissionsFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }
 
-  const userRatingInfo = userRatingInfoFetch.fulfilled
-    ? userRatingInfoFetch.value
-    : ratingInfoOf(List());
-  const mergedProblems = mergedProblemsFetch.fulfilled
-    ? mergedProblemsFetch.value
-    : ImmutableMap<ProblemId, MergedProblem>();
-  const contests = contestsFetch.fulfilled
-    ? contestsFetch.value
-    : ImmutableMap<string, Contest>();
-  const problemModels = problemModelsFetch.fulfilled
-    ? problemModelsFetch.value
-    : ImmutableMap<ProblemId, ProblemModel>();
   const submissions = submissionsFetch.fulfilled
     ? submissionsFetch.value
     : ImmutableMap<ProblemId, List<Submission>>();
@@ -108,11 +75,6 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
     return userId;
   })();
   /* eslint-disable */
-
-  const userSubmissions = UserUtil.userSubmissions(
-    convertMap(submissions.map((list) => list.toArray())),
-    userId
-  );
 
   return (
     <div>
@@ -178,14 +140,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <Row className="my-2 border-bottom">
             <h1>Recommendation</h1>
           </Row>
-          <Recommendations
-            userSubmissions={userSubmissions}
-            problems={mergedProblems.valueSeq().toList()}
-            contests={contests}
-            problemModels={problemModels}
-            userRatingInfo={userRatingInfo}
-            isLoggedIn={isLoggedIn(props.loginState)}
-          />
+          <Recommendations userId={userId} />
         </>
       )}
     </div>
@@ -198,24 +153,4 @@ export const UserPage = connect<OuterProps, InnerProps>(({ userId }) => ({
     value: (): Promise<ImmutableMap<string, List<Submission>>> =>
       CachedApiClient.cachedUsersSubmissionMap(List([userId])),
   },
-  mergedProblemsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, MergedProblem>> =>
-      CachedApiClient.cachedMergedProblemMap(),
-  },
-  problemModelsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, ProblemModel>> =>
-      CachedApiClient.cachedProblemModels(),
-  },
-  contestsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, Contest>> =>
-      CachedApiClient.cachedContestMap(),
-  },
-  userRatingInfoFetch: {
-    comparison: userId,
-    value: (): Promise<RatingInfo> => CachedApiClient.cachedRatingInfo(userId),
-  },
-  loginState: USER_GET,
 }))(InnerUserPage);
