@@ -30,8 +30,9 @@ import ProblemModel, {
 } from "../../../interfaces/ProblemModel";
 import { calculateTopPlayerEquivalentEffort } from "../../../utils/ProblemModelUtil";
 import Problem from "../../../interfaces/Problem";
-import * as UserUtil from "../common";
+import * as UserUtils from "../UserUtils";
 import { calcStreak, countUniqueAcByDate } from "../../../utils/StreakCounter";
+import { convertMap } from "../../../utils/ImmutableMigration";
 
 const findFromRanking = (
   ranking: RankingEntry[],
@@ -59,7 +60,7 @@ interface OuterProps {
 interface InnerProps extends OuterProps {
   contestsFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
   contestToProblemsFetch: PromiseState<ImmutableMap<ContestId, List<Problem>>>;
-  submissionsFetch: PromiseState<ImmutableMap<string, List<Submission>>>;
+  submissionsMapFetch: PromiseState<ImmutableMap<string, List<Submission>>>;
   problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
   shortestRanking: PromiseState<RankingEntry[]>;
   fastestRanking: PromiseState<RankingEntry[]>;
@@ -76,14 +77,17 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
   const contestToProblems = props.contestToProblemsFetch.fulfilled
     ? props.contestToProblemsFetch.value
     : ImmutableMap<ContestId, List<Problem>>();
-  const submissions = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value
-    : ImmutableMap<string, List<Submission>>();
+  const submissionsMap = props.submissionsMapFetch.fulfilled
+    ? convertMap(props.submissionsMapFetch.value.map((list) => list.toArray()))
+    : new Map<ProblemId, Submission[]>();
   const problemModels = props.problemModelsFetch.fulfilled
     ? props.problemModelsFetch.value
     : ImmutableMap<ProblemId, ProblemModel>();
 
-  const userSubmissions = UserUtil.userSubmissions(submissions, props.userId);
+  const userSubmissions = UserUtils.userSubmissions(
+    submissionsMap,
+    props.userId
+  );
   const dailyCount = countUniqueAcByDate(userSubmissions);
   const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
     dailyCount
@@ -99,7 +103,7 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
     ? props.firstRanking.value
     : ([] as RankingEntry[]);
 
-  const solvedProblemIds = UserUtil.solvedProblemIds(submissions);
+  const solvedProblemIds = UserUtils.solvedProblemIds(submissionsMap);
 
   const solvedCount = solvedProblemIds.length;
   const acRank = props.cachedACRankingFetch.fulfilled
@@ -121,12 +125,10 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
       })
       .map((problem) => problem.id)
   );
-  const acceptedRatedSubmissions = submissions
-    .valueSeq()
+  const acceptedRatedSubmissions = Array.from(submissionsMap.values())
     .flatMap((a) => a)
     .filter((s) => isAccepted(s.result))
-    .filter((s) => ratedProblemIds.has(s.problem_id))
-    .toArray();
+    .filter((s) => ratedProblemIds.has(s.problem_id));
   acceptedRatedSubmissions.sort((a, b) => a.id - b.id);
   const ratedPointMap = new Map<ProblemId, number>();
   acceptedRatedSubmissions.forEach((s) => {
@@ -277,7 +279,7 @@ export const AchievementBlock = connect<OuterProps, InnerProps>((props) => ({
     value: (): Promise<ImmutableMap<ContestId, List<Problem>>> =>
       cachedContestToProblemMap(),
   },
-  submissionsFetch: {
+  submissionsMapFetch: {
     comparison: props.userId,
     value: (): Promise<ImmutableMap<string, List<Submission>>> =>
       cachedUsersSubmissionMap(List([props.userId])),
