@@ -168,7 +168,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <Row className="my-2 border-bottom">
             <h1>Languages</h1>
           </Row>
-          <LanguageCount submissions={userSubmissions} />
+          <LanguageCount userId={userId} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Trophy") && (
