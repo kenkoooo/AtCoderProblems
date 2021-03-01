@@ -24,6 +24,7 @@ import {
 import { PROBLEM_ID_SEPARATE_SYMBOL } from "../../../utils/QueryString";
 import { RatingInfo } from "../../../utils/RatingInfo";
 import * as Url from "../../../utils/Url";
+import { useLocalStorage } from "../../../utils/LocalStorage";
 import {
   ExcludeOption,
   RecommendController,
@@ -96,11 +97,17 @@ export const Recommendations: React.FC<Props> = (props) => {
 
   const history = useHistory();
 
-  const [recommendOption, setRecommendOption] = useState<RecommendOption>(
-    "Moderate"
+  const [recommendOption, setRecommendOption] = useLocalStorage<
+    RecommendOption
+  >("recommendOption", "Moderate");
+  const [recommendExperimental, setRecommendExperimental] = useLocalStorage<
+    boolean
+  >("recommendExperimental", true);
+  const [excludeOption, setExcludeOption] = useLocalStorage<ExcludeOption>(
+    "recoomendExcludeOption",
+    "Exclude"
   );
-  const [recommendExperimental, setRecommendExperimental] = useState(true);
-  const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
+
   const [recommendNum, setRecommendNum] = useState(10);
   const [selectedProblemIdSet, setSelectedProblemIdSet] = useState<
     Set<ProblemId>
