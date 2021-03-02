@@ -14,6 +14,9 @@ const LocalStorageKeys = [
   "climbingLineChartReverseColorOrder",
   "pinMe",
   "showRating",
+  "recommendOption",
+  "recommendExperimental",
+  "recoomendExcludeOption",
 ] as const;
 type LocalStorageKey = typeof LocalStorageKeys[number];
 
