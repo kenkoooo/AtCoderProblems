@@ -17,6 +17,7 @@ import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
+import MergedProblem from "../../../interfaces/MergedProblem";
 import { isAccepted } from "../../../utils";
 import {
   formatPredictedSolveProbability,
@@ -25,11 +26,11 @@ import {
 import { PROBLEM_ID_SEPARATE_SYMBOL } from "../../../utils/QueryString";
 import { RatingInfo, ratingInfoOf } from "../../../utils/RatingInfo";
 import * as Url from "../../../utils/Url";
+import * as CachedApiClient from "../../../utils/CachedApiClient";
+import * as UserState from "../../../utils/UserState";
+import { useLocalStorage } from "../../../utils/LocalStorage";
 import { UserResponse } from "../../Internal/types";
 import { USER_GET } from "../../Internal/ApiUrl";
-import * as CachedApiClient from "../../../utils/CachedApiClient";
-import MergedProblem from "../../../interfaces/MergedProblem";
-import * as UserState from "../../../utils/UserState";
 import { recommendProblems } from "./RecommendProblems";
 import {
   ExcludeOption,
@@ -96,30 +97,19 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerRecommendations: React.FC<InnerProps> = (props) => {
-  const userSubmissions = props.userSubmissionsFetch.fulfilled
-    ? props.userSubmissionsFetch.value.toArray()
-    : [];
-  const problems = props.mergedProblemMapFetch.fulfilled
-    ? props.mergedProblemMapFetch.value.valueSeq().toArray()
-    : [];
-  const contestMap = props.contestMapFetch.fulfilled
-    ? props.contestMapFetch.value
-    : ImmutableMap<ContestId, Contest>();
-  const problemModels = props.problemModelsFetch.fulfilled
-    ? props.problemModelsFetch.value
-    : ImmutableMap<ProblemId, ProblemModel>();
-  const userRatingInfo = props.userRatingInfoFetch.fulfilled
-    ? props.userRatingInfoFetch.value
-    : ratingInfoOf(List());
-  const isLoggedIn = UserState.isLoggedIn(props.loginStateFetch);
-
   const history = useHistory();
 
-  const [recommendOption, setRecommendOption] = useState<RecommendOption>(
-    "Moderate"
+  const [recommendOption, setRecommendOption] = useLocalStorage<
+    RecommendOption
+  >("recommendOption", "Moderate");
+  const [recommendExperimental, setRecommendExperimental] = useLocalStorage<
+    boolean
+  >("recommendExperimental", true);
+  const [excludeOption, setExcludeOption] = useLocalStorage<ExcludeOption>(
+    "recoomendExcludeOption",
+    "Exclude"
   );
-  const [recommendExperimental, setRecommendExperimental] = useState(true);
-  const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
+
   const [recommendNum, setRecommendNum] = useState(10);
   const [selectedProblemIdSet, setSelectedProblemIdSet] = useState<
     Set<ProblemId>
@@ -136,6 +126,23 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     ids.forEach((problemId) => newSet.delete(problemId));
     setSelectedProblemIdSet(newSet);
   };
+
+  const userSubmissions = props.userSubmissionsFetch.fulfilled
+    ? props.userSubmissionsFetch.value.toArray()
+    : [];
+  const problems = props.mergedProblemMapFetch.fulfilled
+    ? props.mergedProblemMapFetch.value.valueSeq().toArray()
+    : [];
+  const contestMap = props.contestMapFetch.fulfilled
+    ? props.contestMapFetch.value
+    : ImmutableMap<ContestId, Contest>();
+  const problemModels = props.problemModelsFetch.fulfilled
+    ? props.problemModelsFetch.value
+    : ImmutableMap<ProblemId, ProblemModel>();
+  const userRatingInfo = props.userRatingInfoFetch.fulfilled
+    ? props.userRatingInfoFetch.value
+    : ratingInfoOf(List());
+  const isLoggedIn = UserState.isLoggedIn(props.loginStateFetch);
 
   if (userSubmissions.length === 0) {
     return null;
