@@ -2,7 +2,6 @@ import React from "react";
 import { Alert, Nav, NavItem, NavLink, Row, Spinner } from "reactstrap";
 import { NavLink as RouterLink, useLocation } from "react-router-dom";
 
-import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { generatePathWithParams } from "../../utils/QueryString";
@@ -38,7 +37,7 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissionsFetch: PromiseState<List<Submission>>;
+  submissionsFetch: PromiseState<Submission[]>;
 }
 
 const InnerUserPage: React.FC<InnerProps> = (props) => {
@@ -53,15 +52,13 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }
 
-  const submissions = submissionsFetch.fulfilled
-    ? submissionsFetch.value
-    : List<Submission>();
+  const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
 
-  if (userId.length === 0 || submissions.isEmpty()) {
+  if (userId.length === 0 || submissions.length === 0) {
     return <Alert color="danger">User not found!</Alert>;
   }
 
-  const actualUserId = submissions.get(0)?.user_id ?? "";
+  const actualUserId = submissions[0].user_id;
 
   return (
     <div>
@@ -137,6 +134,8 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
 export const UserPage = connect<OuterProps, InnerProps>(({ userId }) => ({
   submissionsFetch: {
     comparison: userId,
-    value: CachedApiClient.cachedSubmissions(userId),
+    value: CachedApiClient.cachedSubmissions(userId).then((list) =>
+      list.toArray()
+    ),
   },
 }))(InnerUserPage);
