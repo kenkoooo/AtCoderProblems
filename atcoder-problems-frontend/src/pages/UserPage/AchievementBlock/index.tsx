@@ -1,5 +1,5 @@
 import React from "react";
-import { List, Map as ImmutableMap } from "immutable";
+import { List } from "immutable";
 import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
 import {
@@ -21,7 +21,10 @@ import { calculateTopPlayerEquivalentEffort } from "../../../utils/ProblemModelU
 import Problem from "../../../interfaces/Problem";
 import * as UserUtils from "../UserUtils";
 import { calcStreak, countUniqueAcByDate } from "../../../utils/StreakCounter";
-import { convertMap } from "../../../utils/ImmutableMigration";
+import {
+  convertMap,
+  convertMapOfLists,
+} from "../../../utils/ImmutableMigration";
 
 const findFromRanking = (
   ranking: RankingEntry[],
@@ -47,11 +50,11 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  contestsFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
-  contestToProblemsFetch: PromiseState<ImmutableMap<ContestId, List<Problem>>>;
-  submissionsFetch: PromiseState<List<Submission>>;
-  submissionsMapFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
-  problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
+  contestMapFetch: PromiseState<Map<ContestId, Contest>>;
+  contestToProblemsFetch: PromiseState<Map<ContestId, Problem[]>>;
+  submissionsFetch: PromiseState<Submission[]>;
+  submissionsMapFetch: PromiseState<Map<ProblemId, Submission[]>>;
+  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   shortestRanking: PromiseState<RankingEntry[]>;
   fastestRanking: PromiseState<RankingEntry[]>;
   firstRanking: PromiseState<RankingEntry[]>;
@@ -61,21 +64,21 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
-  const contests = props.contestsFetch.fulfilled
-    ? props.contestsFetch.value
-    : ImmutableMap<ContestId, Contest>();
+  const contestMap = props.contestMapFetch.fulfilled
+    ? props.contestMapFetch.value
+    : new Map<ContestId, Contest>();
   const contestToProblems = props.contestToProblemsFetch.fulfilled
     ? props.contestToProblemsFetch.value
-    : ImmutableMap<ContestId, List<Problem>>();
+    : new Map<ContestId, Problem[]>();
   const userSubmissions = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value.toArray()
+    ? props.submissionsFetch.value
     : [];
   const submissionsMap = props.submissionsMapFetch.fulfilled
-    ? convertMap(props.submissionsMapFetch.value.map((list) => list.toArray()))
+    ? props.submissionsMapFetch.value
     : new Map<ProblemId, Submission[]>();
   const problemModels = props.problemModelsFetch.fulfilled
     ? props.problemModelsFetch.value
-    : ImmutableMap<ProblemId, ProblemModel>();
+    : new Map<ProblemId, ProblemModel>();
 
   const dailyCount = countUniqueAcByDate(userSubmissions);
   const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
@@ -105,8 +108,7 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
   const fastRank = findFromRanking(fastRanking, props.userId);
 
   const ratedProblemIds = new Set(
-    contests
-      .valueSeq()
+    Array.from(contestMap.values())
       .flatMap((contest) => {
         const isRated = isRatedContest(contest);
         const contestProblems = contestToProblems.get(contest.id);
@@ -259,38 +261,44 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
 
 export const AchievementBlock = connect<OuterProps, InnerProps>(
   ({ userId }) => ({
-    contestsFetch: {
-      value: CachedApiClient.cachedContestMap(),
+    contestMapFetch: {
+      comparison: null,
+      value: CachedApiClient.cachedContestMap().then((map) => convertMap(map)),
     },
     contestToProblemsFetch: {
-      value: CachedApiClient.cachedContestToProblemMap(),
+      value: CachedApiClient.cachedContestToProblemMap().then((map) =>
+        convertMapOfLists(map)
+      ),
     },
     submissionsFetch: {
       comparison: userId,
-      value: CachedApiClient.cachedSubmissions(userId),
+      value: CachedApiClient.cachedSubmissions(userId).then((list) =>
+        list.toArray()
+      ),
     },
     submissionsMapFetch: {
       comparison: userId,
-      value: (): Promise<ImmutableMap<string, List<Submission>>> =>
-        CachedApiClient.cachedUsersSubmissionMap(List([userId])),
+      value: CachedApiClient.cachedUsersSubmissionMap(
+        List([userId])
+      ).then((map) => convertMapOfLists(map)),
     },
     problemModelsFetch: {
-      value: CachedApiClient.cachedProblemModels(),
+      value: CachedApiClient.cachedProblemModels().then((map) =>
+        convertMap(map)
+      ),
     },
     shortestRanking: {
-      comparison: null,
-      value: (): Promise<RankingEntry[]> =>
-        CachedApiClient.cachedShortRanking().then((list) => list.toArray()),
+      value: CachedApiClient.cachedShortRanking().then((list) =>
+        list.toArray()
+      ),
     },
     fastestRanking: {
-      comparison: null,
-      value: (): Promise<RankingEntry[]> =>
-        CachedApiClient.cachedFastRanking().then((list) => list.toArray()),
+      value: CachedApiClient.cachedFastRanking().then((list) => list.toArray()),
     },
     firstRanking: {
-      comparison: null,
-      value: (): Promise<RankingEntry[]> =>
-        CachedApiClient.cachedFirstRanking().then((list) => list.toArray()),
+      value: CachedApiClient.cachedFirstRanking().then((list) =>
+        list.toArray()
+      ),
     },
     cachedACRankingFetch: {
       value: CachedApiClient.cachedACRanking(),
