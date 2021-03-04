@@ -10,6 +10,7 @@ import {
 import { formatMomentDate, getToday } from "../../../utils/DateUtil";
 import { RankingEntry } from "../../../interfaces/RankingEntry";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
+import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import { isRatedContest } from "../../TablePage/ContestClassifier";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import Contest from "../../../interfaces/Contest";
@@ -21,10 +22,6 @@ import { calculateTopPlayerEquivalentEffort } from "../../../utils/ProblemModelU
 import Problem from "../../../interfaces/Problem";
 import * as UserUtils from "../UserUtils";
 import { calcStreak, countUniqueAcByDate } from "../../../utils/StreakCounter";
-import {
-  convertMap,
-  convertMapOfLists,
-} from "../../../utils/ImmutableMigration";
 
 const findFromRanking = (
   ranking: RankingEntry[],
@@ -263,11 +260,13 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(
   ({ userId }) => ({
     contestMapFetch: {
       comparison: null,
-      value: CachedApiClient.cachedContestMap().then((map) => convertMap(map)),
+      value: CachedApiClient.cachedContestMap().then((map) =>
+        ImmutableMigration.convertMap(map)
+      ),
     },
     contestToProblemsFetch: {
       value: CachedApiClient.cachedContestToProblemMap().then((map) =>
-        convertMapOfLists(map)
+        ImmutableMigration.convertMapOfLists(map)
       ),
     },
     submissionsFetch: {
@@ -280,11 +279,11 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(
       comparison: userId,
       value: CachedApiClient.cachedUsersSubmissionMap(
         List([userId])
-      ).then((map) => convertMapOfLists(map)),
+      ).then((map) => ImmutableMigration.convertMapOfLists(map)),
     },
     problemModelsFetch: {
       value: CachedApiClient.cachedProblemModels().then((map) =>
-        convertMap(map)
+        ImmutableMigration.convertMap(map)
       ),
     },
     shortestRanking: {

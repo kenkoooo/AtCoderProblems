@@ -1,7 +1,6 @@
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Row, Col } from "reactstrap";
-import { List } from "immutable";
 import Submission from "../../interfaces/Submission";
 import { ProblemId } from "../../interfaces/Status";
 import { isAccepted } from "../../utils";
@@ -16,12 +15,12 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissionsFetch: PromiseState<List<Submission>>;
+  submissionsFetch: PromiseState<Submission[]>;
 }
 
 const InnerLanguageCount: React.FC<InnerProps> = (props) => {
   const submissions = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value.toArray()
+    ? props.submissionsFetch.value
     : [];
 
   const submissionsByLanguage = groupBy(submissions, (s) =>
@@ -86,6 +85,6 @@ const InnerLanguageCount: React.FC<InnerProps> = (props) => {
 export const LanguageCount = connect<OuterProps, InnerProps>(({ userId }) => ({
   submissionsFetch: {
     comparison: userId,
-    value: cachedSubmissions(userId),
+    value: cachedSubmissions(userId).then((list) => list.toArray()),
   },
 }))(InnerLanguageCount);

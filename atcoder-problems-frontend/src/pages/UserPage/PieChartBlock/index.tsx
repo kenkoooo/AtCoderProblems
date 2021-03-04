@@ -1,4 +1,4 @@
-import { List, Map as ImmutableMap } from "immutable";
+import { List } from "immutable";
 import { Col, Row } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
@@ -11,7 +11,7 @@ import {
   isValidResult,
 } from "../../../utils";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
-import { convertMap } from "../../../utils/ImmutableMigration";
+import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import { SmallPieChart } from "./SmallPieChart";
 
 enum SubmissionStatus {
@@ -125,18 +125,16 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissionsMapFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
-  contestToProblemsFetch: PromiseState<ImmutableMap<ContestId, List<Problem>>>;
+  submissionsMapFetch: PromiseState<Map<ProblemId, Submission[]>>;
+  contestToProblemsFetch: PromiseState<Map<ContestId, Problem[]>>;
 }
 
 const InnerPieChartBlock: React.FC<InnerProps> = (props) => {
   const submissionsMap = props.submissionsMapFetch.fulfilled
-    ? convertMap(props.submissionsMapFetch.value.map((list) => list.toArray()))
+    ? props.submissionsMapFetch.value
     : new Map<ProblemId, Submission[]>();
   const contestToProblems = props.contestToProblemsFetch.fulfilled
-    ? convertMap(
-        props.contestToProblemsFetch.value.map((list) => list.toArray())
-      )
+    ? props.contestToProblemsFetch.value
     : new Map<ContestId, Problem[]>();
 
   const abcSolved = solvedCountForPieChart(
@@ -172,10 +170,14 @@ const InnerPieChartBlock: React.FC<InnerProps> = (props) => {
 export const PieChartBlock = connect<OuterProps, InnerProps>(({ userId }) => ({
   submissionsMapFetch: {
     comparison: userId,
-    value: CachedApiClient.cachedUsersSubmissionMap(List([userId])),
+    value: CachedApiClient.cachedUsersSubmissionMap(
+      List([userId])
+    ).then((map) => ImmutableMigration.convertMapOfLists(map)),
   },
   contestToProblemsFetch: {
-    value: CachedApiClient.cachedContestToProblemMap(),
+    value: CachedApiClient.cachedContestToProblemMap().then((map) =>
+      ImmutableMigration.convertMapOfLists(map)
+    ),
   },
 }))(InnerPieChartBlock);
 

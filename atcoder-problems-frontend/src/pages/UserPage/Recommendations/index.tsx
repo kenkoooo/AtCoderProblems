@@ -1,4 +1,4 @@
-import { List, Map as ImmutableMap } from "immutable";
+import { List } from "immutable";
 import React, { useState } from "react";
 import {
   BootstrapTable,
@@ -27,6 +27,7 @@ import { PROBLEM_ID_SEPARATE_SYMBOL } from "../../../utils/QueryString";
 import { RatingInfo, ratingInfoOf } from "../../../utils/RatingInfo";
 import * as Url from "../../../utils/Url";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
+import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import * as UserState from "../../../utils/UserState";
 import { useLocalStorage } from "../../../utils/LocalStorage";
 import { UserResponse } from "../../Internal/types";
@@ -88,10 +89,10 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  userSubmissionsFetch: PromiseState<List<Submission>>;
-  mergedProblemMapFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
-  contestMapFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
-  problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
+  userSubmissionsFetch: PromiseState<Submission[]>;
+  mergedProblemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;
+  contestMapFetch: PromiseState<Map<ContestId, Contest>>;
+  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   userRatingInfoFetch: PromiseState<RatingInfo>;
   loginStateFetch: PromiseState<UserResponse>;
 }
@@ -128,17 +129,17 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
   };
 
   const userSubmissions = props.userSubmissionsFetch.fulfilled
-    ? props.userSubmissionsFetch.value.toArray()
+    ? props.userSubmissionsFetch.value
     : [];
   const problems = props.mergedProblemMapFetch.fulfilled
-    ? props.mergedProblemMapFetch.value.valueSeq().toArray()
+    ? Array.from(props.mergedProblemMapFetch.value.values())
     : [];
   const contestMap = props.contestMapFetch.fulfilled
     ? props.contestMapFetch.value
-    : ImmutableMap<ContestId, Contest>();
+    : new Map<ContestId, Contest>();
   const problemModels = props.problemModelsFetch.fulfilled
     ? props.problemModelsFetch.value
-    : ImmutableMap<ProblemId, ProblemModel>();
+    : new Map<ProblemId, ProblemModel>();
   const userRatingInfo = props.userRatingInfoFetch.fulfilled
     ? props.userRatingInfoFetch.value
     : ratingInfoOf(List());
@@ -257,7 +258,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
                 problemId={id}
                 problemTitle={title}
                 contestId={contest_id}
-                problemModel={problemModels.get(id, null)}
+                problemModel={problemModels.get(id) ?? null}
                 userRatingInfo={userRatingInfo}
               />
             )}
@@ -328,16 +329,24 @@ export const Recommendations = connect<OuterProps, InnerProps>(
   ({ userId }) => ({
     userSubmissionsFetch: {
       comparison: userId,
-      value: CachedApiClient.cachedSubmissions(userId),
+      value: CachedApiClient.cachedSubmissions(userId).then((list) =>
+        list.toArray()
+      ),
     },
     mergedProblemMapFetch: {
-      value: CachedApiClient.cachedMergedProblemMap(),
+      value: CachedApiClient.cachedMergedProblemMap().then((map) =>
+        ImmutableMigration.convertMap(map)
+      ),
     },
     contestMapFetch: {
-      value: CachedApiClient.cachedContestMap(),
+      value: CachedApiClient.cachedContestMap().then((map) =>
+        ImmutableMigration.convertMap(map)
+      ),
     },
     problemModelsFetch: {
-      value: CachedApiClient.cachedProblemModels(),
+      value: CachedApiClient.cachedProblemModels().then((map) =>
+        ImmutableMigration.convertMap(map)
+      ),
     },
     userRatingInfoFetch: {
       comparison: userId,

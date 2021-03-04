@@ -1,4 +1,4 @@
-import { List, Map as ImmutableMap } from "immutable";
+import { List } from "immutable";
 import React from "react";
 import {
   Row,
@@ -27,8 +27,8 @@ import {
 } from "../../../utils/DateUtil";
 import { useLocalStorage } from "../../../utils/LocalStorage";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
+import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import { countUniqueAcByDate } from "../../../utils/StreakCounter";
-import { convertMap } from "../../../utils/ImmutableMigration";
 import Submission from "../../../interfaces/Submission";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemId } from "../../../interfaces/Status";
@@ -97,9 +97,9 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissionsFetch: PromiseState<List<Submission>>;
-  submissionsMapFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
-  problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
+  submissionsFetch: PromiseState<Submission[]>;
+  submissionsMapFetch: PromiseState<Map<ProblemId, Submission[]>>;
+  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
@@ -122,14 +122,14 @@ const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
   const { userId } = props;
 
   const userSubmissions = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value.toArray()
+    ? props.submissionsFetch.value
     : [];
   const submissionsMap = props.submissionsMapFetch.fulfilled
-    ? convertMap(props.submissionsMapFetch.value.map((list) => list.toArray()))
+    ? props.submissionsMapFetch.value
     : new Map<ProblemId, Submission[]>();
   const problemModels = props.problemModelsFetch.fulfilled
     ? props.problemModelsFetch.value
-    : ImmutableMap<ProblemId, ProblemModel>();
+    : new Map<ProblemId, ProblemModel>();
 
   const dailyCount = countUniqueAcByDate(userSubmissions);
 
@@ -285,14 +285,20 @@ export const ProgressChartBlock = connect<OuterProps, InnerProps>(
   ({ userId }) => ({
     submissionsFetch: {
       comparison: userId,
-      value: CachedApiClient.cachedSubmissions(userId),
+      value: CachedApiClient.cachedSubmissions(userId).then((list) =>
+        list.toArray()
+      ),
     },
     submissionsMapFetch: {
       comparison: userId,
-      value: CachedApiClient.cachedUsersSubmissionMap(List([userId])),
+      value: CachedApiClient.cachedUsersSubmissionMap(
+        List([userId])
+      ).then((map) => ImmutableMigration.convertMapOfLists(map)),
     },
     problemModelsFetch: {
-      value: CachedApiClient.cachedProblemModels(),
+      value: CachedApiClient.cachedProblemModels().then((map) =>
+        ImmutableMigration.convertMap(map)
+      ),
     },
   })
 )(InnerProgressChartBlock);
