@@ -1,5 +1,6 @@
 import { Map, Range, Set } from "immutable";
 import React from "react";
+import { connect, PromiseState } from "react-refetch";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import {
   Button,
@@ -16,7 +17,15 @@ import MergedProblem from "../../interfaces/MergedProblem";
 import { ProblemId } from "../../interfaces/Status";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { generatePathWithParams } from "../../utils/QueryString";
+import * as UserState from "../../utils/UserState";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
+import {
+  createContestLocationFromProblemIds,
+  selectRowPropsForProblemSelection,
+  useProblemIdSelection,
+} from "../../utils/ProblemSelection";
+import { UserResponse } from "../Internal/types";
+import { USER_GET } from "../Internal/ApiUrl";
 import { INF_POINT, ListTable, StatusFilter, statusFilters } from "./ListTable";
 
 export const FilterParams = {
@@ -47,16 +56,32 @@ const RATED_FILTERS = [
 ] as const;
 type RatedFilter = typeof RATED_FILTERS[number];
 
-interface Props {
+interface OuterProps {
   userId: string;
   submissions: Submission[];
   mergedProblemMap: Map<ProblemId, MergedProblem>;
   problemModels: Map<ProblemId, ProblemModel>;
 }
 
-export const ProblemList: React.FC<Props> = (props) => {
+interface InnerProps extends OuterProps {
+  userResponseFetch: PromiseState<UserResponse>;
+}
+
+const InnerProblemList: React.FC<InnerProps> = (props) => {
   const location = useLocation();
   const history = useHistory();
+
+  const [getSelectedIds, selectIds, deselectIds] = useProblemIdSelection();
+  const selectedIds = getSelectedIds();
+  const createContest = () =>
+    history.push(createContestLocationFromProblemIds(selectedIds));
+  const selectRowProps = selectRowPropsForProblemSelection(
+    selectedIds,
+    getSelectedIds,
+    selectIds,
+    deselectIds
+  );
+
   const searchParams = new URLSearchParams(location.search);
 
   const fromPoint = parseInt(
@@ -94,12 +119,14 @@ export const ProblemList: React.FC<Props> = (props) => {
     }))
     .toList();
 
+  const isLoggedIn = UserState.isLoggedIn(props.userResponseFetch);
+
   return (
     <>
       <Row className="my-2 border-bottom">
         <h1>Problem List</h1>
       </Row>
-      <Row>
+      <Row className="my-3">
         <ButtonGroup className="mr-4">
           <UncontrolledButtonDropdown>
             <DropdownToggle caret>
@@ -251,6 +278,17 @@ export const ProblemList: React.FC<Props> = (props) => {
           Reset
         </Button>
       </Row>
+      {isLoggedIn && (
+        <Row>
+          <Button
+            color="success"
+            disabled={selectedIds.length === 0}
+            onClick={createContest}
+          >
+            Create Virtual Contest
+          </Button>
+        </Row>
+      )}
       <Row className="mt-3">
         <ListTable
           userId={props.userId}
@@ -263,8 +301,13 @@ export const ProblemList: React.FC<Props> = (props) => {
           filteredSubmissions={props.submissions}
           mergedProblemMap={props.mergedProblemMap}
           problemModels={props.problemModels}
+          selectRow={isLoggedIn ? selectRowProps : undefined}
         />
       </Row>
     </>
   );
 };
+
+export const ProblemList = connect<OuterProps, InnerProps>(() => ({
+  userResponseFetch: USER_GET,
+}))(InnerProblemList);

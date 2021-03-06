@@ -1,6 +1,7 @@
 import {
   BootstrapTable,
   Options,
+  SelectRow,
   TableHeaderColumn,
 } from "react-bootstrap-table";
 import { Badge } from "reactstrap";
@@ -119,6 +120,7 @@ interface OuterProps {
   filteredSubmissions: Submission[];
   mergedProblemMap: Map<ProblemId, MergedProblem>;
   problemModels: Map<ProblemId, ProblemModel>;
+  selectRow?: SelectRow;
 }
 
 interface InnerProps extends OuterProps {
@@ -587,6 +589,7 @@ const InnerListTable: React.FC<InnerProps> = (props) => {
       hover
       striped
       search
+      selectRow={props.selectRow}
       tableContainerClass="list-table"
       trClassName={(row: ProblemRowData): string => {
         const { status, contest } = row;
