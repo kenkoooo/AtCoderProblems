@@ -1,10 +1,6 @@
 import { List } from "immutable";
 import React, { useState } from "react";
-import {
-  BootstrapTable,
-  SelectRowMode,
-  TableHeaderColumn,
-} from "react-bootstrap-table";
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
@@ -23,13 +19,17 @@ import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
 } from "../../../utils/ProblemModelUtil";
-import { PROBLEM_ID_SEPARATE_SYMBOL } from "../../../utils/QueryString";
 import { RatingInfo, ratingInfoOf } from "../../../utils/RatingInfo";
 import * as Url from "../../../utils/Url";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
 import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import * as UserState from "../../../utils/UserState";
 import { useLocalStorage } from "../../../utils/LocalStorage";
+import {
+  createContestLocationFromProblemIds,
+  selectRowPropsForProblemSelection,
+  useProblemIdSelection,
+} from "../../../utils/ProblemSelection";
 import { UserResponse } from "../../Internal/types";
 import { USER_GET } from "../../Internal/ApiUrl";
 import { recommendProblems } from "./RecommendProblems";
@@ -110,23 +110,13 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     "recoomendExcludeOption",
     "Exclude"
   );
-
   const [recommendNum, setRecommendNum] = useState(10);
-  const [selectedProblemIdSet, setSelectedProblemIdSet] = useState<
-    Set<ProblemId>
-  >(new Set());
 
-  const selectProblemIds = (ids: ProblemId[]) => {
-    const newSet = new Set<ProblemId>(selectedProblemIdSet);
-    ids.forEach((problemId) => newSet.add(problemId));
-    setSelectedProblemIdSet(newSet);
-  };
-
-  const deselectProblemIds = (ids: ProblemId[]) => {
-    const newSet = new Set<ProblemId>(selectedProblemIdSet);
-    ids.forEach((problemId) => newSet.delete(problemId));
-    setSelectedProblemIdSet(newSet);
-  };
+  const [
+    getSelectedProblemIds,
+    selectProblemIds,
+    deselectProblemIds,
+  ] = useProblemIdSelection();
 
   const userSubmissions = props.userSubmissionsFetch.fulfilled
     ? props.userSubmissionsFetch.value
@@ -149,6 +139,18 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     return null;
   }
 
+  const selectedProblemIds = getSelectedProblemIds();
+  const isNoProblemSelected = selectedProblemIds.length === 0;
+  const createContest = () => {
+    history.push(createContestLocationFromProblemIds(selectedProblemIds));
+  };
+  const selectRowProps = selectRowPropsForProblemSelection(
+    selectedProblemIds,
+    getSelectedProblemIds,
+    selectProblemIds,
+    deselectProblemIds
+  );
+
   const lastSolvedTimeMap = getLastSolvedTimeMap(userSubmissions);
   const submittedSet = new Set(userSubmissions.map((s) => s.problem_id));
   const currentSecond = Math.floor(new Date().getTime() / 1000);
@@ -169,38 +171,6 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     recommendOption,
     recommendNum
   );
-
-  const selectedProblemIds = Array.from(selectedProblemIdSet);
-  interface HasProblemId {
-    id: ProblemId;
-  }
-  const selectRowProps = !isLoggedIn
-    ? undefined
-    : {
-        mode: "checkbox" as SelectRowMode,
-        selected: selectedProblemIds,
-        onSelect: (row: HasProblemId, isSelected: boolean) => {
-          if (isSelected) {
-            selectProblemIds([row.id]);
-          } else {
-            deselectProblemIds([row.id]);
-          }
-        },
-        onSelectAll: (isSelected: boolean, rows: HasProblemId[]) => {
-          const ids = rows.map(({ id }) => id);
-          if (isSelected) {
-            selectProblemIds(ids);
-          } else {
-            deselectProblemIds(ids);
-          }
-          return Array.from(selectedProblemIdSet);
-        },
-      };
-  const problemIdToString = selectedProblemIds.join(PROBLEM_ID_SEPARATE_SYMBOL);
-  const createContestLocation = {
-    pathname: "/contest/create",
-    search: !problemIdToString ? "" : "?problemIds=" + problemIdToString,
-  };
 
   return (
     <>
@@ -223,10 +193,8 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
           <ButtonGroup>
             <Button
               color="success"
-              disabled={selectedProblemIdSet.size == 0}
-              onClick={() => {
-                history.push(createContestLocation);
-              }}
+              disabled={isNoProblemSelected}
+              onClick={createContest}
             >
               Create Virtual Contest
             </Button>
@@ -240,7 +208,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
           height="auto"
           hover
           striped
-          selectRow={selectRowProps}
+          selectRow={isLoggedIn ? selectRowProps : undefined}
         >
           <TableHeaderColumn
             dataField="title"
