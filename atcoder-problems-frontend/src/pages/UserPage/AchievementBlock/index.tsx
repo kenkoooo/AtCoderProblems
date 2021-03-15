@@ -3,6 +3,11 @@ import { List } from "immutable";
 import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
 import {
+  useACRanking,
+  useStreakRanking,
+  useSumRanking,
+} from "../../../api/APIClient";
+import {
   caseInsensitiveUserId,
   isAccepted,
   ordinalSuffixOf,
@@ -55,9 +60,6 @@ interface InnerProps extends OuterProps {
   shortestRanking: PromiseState<RankingEntry[]>;
   fastestRanking: PromiseState<RankingEntry[]>;
   firstRanking: PromiseState<RankingEntry[]>;
-  cachedACRankingFetch: PromiseState<RankingEntry[]>;
-  cachedSumRankingFetch: PromiseState<RankingEntry[]>;
-  cachedStreaksRanking: PromiseState<RankingEntry[]>;
 }
 
 const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
@@ -81,7 +83,6 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
   const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
     dailyCount
   );
-
   const shortRanking = props.shortestRanking.fulfilled
     ? props.shortestRanking.value
     : ([] as RankingEntry[]);
@@ -93,12 +94,10 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
     : ([] as RankingEntry[]);
 
   const solvedProblemIds = UserUtils.solvedProblemIds(submissionsMap);
-
   const solvedCount = solvedProblemIds.length;
-  const acRank = props.cachedACRankingFetch.fulfilled
-    ? props.cachedACRankingFetch.value.filter(
-        (entry) => entry.problem_count > solvedCount
-      ).length
+  const { data: acRanking } = useACRanking();
+  const acRank = acRanking
+    ? acRanking.filter((entry) => entry.problem_count > solvedCount).length
     : undefined;
   const shortRank = findFromRanking(shortRanking, props.userId);
   const firstRank = findFromRanking(firstRanking, props.userId);
@@ -125,10 +124,9 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
     (sum, point) => sum + point,
     0
   );
-  const sumRank = props.cachedSumRankingFetch.fulfilled
-    ? props.cachedSumRankingFetch.value.filter(
-        (entry) => entry.problem_count > ratedPointSum
-      ).length
+  const { data: sumRanking } = useSumRanking();
+  const sumRank = sumRanking
+    ? sumRanking.filter((entry) => entry.problem_count > ratedPointSum).length
     : undefined;
 
   const achievements = [
@@ -161,10 +159,9 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
 
   const yesterdayLabel = formatMomentDate(getToday().add(-1, "day"));
   const isIncreasing = prevDateLabel >= yesterdayLabel;
-  const longestStreakRank = props.cachedStreaksRanking.fulfilled
-    ? props.cachedStreaksRanking.value.filter(
-        (e) => e.problem_count > longestStreak
-      ).length
+  const { data: streakRanking } = useStreakRanking();
+  const longestStreakRank = streakRanking
+    ? streakRanking.filter((e) => e.problem_count > longestStreak).length
     : undefined;
 
   const streakSum = dailyCount.length;
@@ -298,15 +295,6 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(
       value: CachedApiClient.cachedFirstRanking().then((list) =>
         list.toArray()
       ),
-    },
-    cachedACRankingFetch: {
-      value: CachedApiClient.cachedACRanking(),
-    },
-    cachedSumRankingFetch: {
-      value: CachedApiClient.cachedSumRanking(),
-    },
-    cachedStreaksRanking: {
-      value: CachedApiClient.cachedStreaksRanking(),
     },
   })
 )(InnerAchievementBlock);

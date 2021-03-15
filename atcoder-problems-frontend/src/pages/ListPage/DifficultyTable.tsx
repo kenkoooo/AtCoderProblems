@@ -11,7 +11,7 @@ import { DifficultyCircle } from "../../components/DifficultyCircle";
 import { ProblemId } from "../../interfaces/Status";
 
 interface Props {
-  mergedProblems: ImmutableMap<ProblemId, MergedProblem>;
+  mergedProblems: Map<ProblemId, MergedProblem>;
   submissions: Submission[];
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
   setFilterFunc: (from: number, to: number) => void;
@@ -87,17 +87,17 @@ export const DifficultyTable: React.FC<Props> = (props) => {
     return { userId, diffCount };
   });
 
-  const totalCount = mergedProblems
+  const totalCountMap = Array.from(mergedProblems.values())
     .map((problem) =>
       problemToDifficultyLevel(problem, problemModels, includingExperimental)
     )
     .filter((d): d is number => d !== undefined)
-    .reduce(
-      (countMap, difficultyLevel) =>
-        countMap.update(difficultyLevel, 0, (count) => count + 1),
-      ImmutableMap<number, number>()
-    )
-    .entrySeq()
+    .reduce((countMap, difficultyLevel) => {
+      const current = countMap.get(difficultyLevel) ?? 0;
+      countMap.set(difficultyLevel, current + 1);
+      return countMap;
+    }, new Map<number, number>());
+  const totalCount = Array.from(totalCountMap.entries())
     .map(([difficultyLevel, count]) => ({ difficultyLevel, count }))
     .sort((a, b) => a.difficultyLevel - b.difficultyLevel);
 
