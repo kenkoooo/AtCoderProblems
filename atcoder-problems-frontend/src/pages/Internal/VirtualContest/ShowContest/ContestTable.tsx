@@ -2,6 +2,7 @@ import { Table } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
+import { useMergedProblemMap } from "../../../../api/APIClient";
 import MergedProblem from "../../../../interfaces/MergedProblem";
 import { clipDifficulty, ordinalSuffixOf } from "../../../../utils";
 import { VirtualContestItem } from "../../types";
@@ -62,7 +63,6 @@ interface OuterProps {
 interface InnerProps extends OuterProps {
   submissions: PromiseState<Submission[]>;
   problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
-  problemMap: PromiseState<Map<ProblemId, MergedProblem>>;
 }
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
@@ -85,9 +85,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   const problemModels = props.problemModels.fulfilled
     ? props.problemModels.value
     : new Map<ProblemId, ProblemModel>();
-  const problemMap = props.problemMap.fulfilled
-    ? props.problemMap.value
-    : new Map<ProblemId, MergedProblem>();
+  const { data: problemMap } = useMergedProblemMap();
 
   const modelArray = [] as {
     problemModel: ProblemModelWithDifficultyModel & ProblemModelWithTimeModel;
@@ -96,7 +94,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   }[];
   problems.forEach(({ item }) => {
     const problemId = item.id;
-    const point = item.point ?? problemMap.get(problemId)?.point ?? 100;
+    const point = item.point ?? problemMap?.get(problemId)?.point ?? 100;
     const problemModel = problemModels.get(problemId);
     if (
       isProblemModelWithTimeModel(problemModel) &&
@@ -312,10 +310,6 @@ export const ContestTable = connect<OuterProps, InnerProps>((props) => ({
       ).then((submissions) => submissions.toArray()),
     refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
     force: props.enableAutoRefresh,
-  },
-  problemMap: {
-    comparison: null,
-    value: () => cachedMergedProblemMap().then((map) => convertMap(map)),
   },
   problemModels: {
     comparison: null,

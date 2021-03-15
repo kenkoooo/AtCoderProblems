@@ -8,6 +8,7 @@ import {
 import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
+import { useMergedProblemMap } from "../../../api/APIClient";
 import { ContestLink } from "../../../components/ContestLink";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { NewTabLink } from "../../../components/NewTabLink";
@@ -17,7 +18,6 @@ import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
-import MergedProblem from "../../../interfaces/MergedProblem";
 import { isAccepted } from "../../../utils";
 import {
   formatPredictedSolveProbability,
@@ -90,7 +90,6 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   userSubmissionsFetch: PromiseState<Submission[]>;
-  mergedProblemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;
   contestMapFetch: PromiseState<Map<ContestId, Contest>>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   userRatingInfoFetch: PromiseState<RatingInfo>;
@@ -131,8 +130,9 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
   const userSubmissions = props.userSubmissionsFetch.fulfilled
     ? props.userSubmissionsFetch.value
     : [];
-  const problems = props.mergedProblemMapFetch.fulfilled
-    ? Array.from(props.mergedProblemMapFetch.value.values())
+  const { data: mergedProblemsMap } = useMergedProblemMap();
+  const problems = mergedProblemsMap
+    ? Array.from(mergedProblemsMap.values())
     : [];
   const contestMap = props.contestMapFetch.fulfilled
     ? props.contestMapFetch.value
@@ -331,11 +331,6 @@ export const Recommendations = connect<OuterProps, InnerProps>(
       comparison: userId,
       value: CachedApiClient.cachedSubmissions(userId).then((list) =>
         list.toArray()
-      ),
-    },
-    mergedProblemMapFetch: {
-      value: CachedApiClient.cachedMergedProblemMap().then((map) =>
-        ImmutableMigration.convertMap(map)
       ),
     },
     contestMapFetch: {

@@ -7,19 +7,15 @@ import Problem, { isProblem } from "../interfaces/Problem";
 import Submission, { isSubmission } from "../interfaces/Submission";
 import {
   isLangRankingEntry,
-  isRankingEntry,
-  isStreakRankingEntry,
-  isSumRankingEntry,
   LangRankingEntry,
   RankingEntry,
-  StreakRankingEntry,
 } from "../interfaces/RankingEntry";
 import ContestParticipation, {
   isContestParticipation,
 } from "../interfaces/ContestParticipation";
 import { RatingInfo, ratingInfoOf } from "./RatingInfo";
 import { isBlockedProblem } from "./BlockList";
-import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "./index";
+import { clipDifficulty, isValidResult } from "./index";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
@@ -36,19 +32,6 @@ function fetchTypedList<T>(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .then((array: any[]) => array.filter(typeGuardFn))
       .then((array) => List(array))
-  );
-}
-
-function fetchTypedArray<T>(
-  url: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  typeGuardFn: (obj: any) => obj is T
-): Promise<T[]> {
-  return (
-    fetch(url)
-      .then((r) => r.json())
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then((array: any[]) => array.filter(typeGuardFn))
   );
 }
 
@@ -127,9 +110,6 @@ const fetchRatingInfo = async (user: string): Promise<RatingInfo> => {
       : List<ContestParticipation>();
   return ratingInfoOf(history);
 };
-
-const fetchStreaks = (): Promise<StreakRankingEntry[]> =>
-  fetchTypedArray(STATIC_API_BASE_URL + "/streaks.json", isStreakRankingEntry);
 
 const fetchContestMap = (): Promise<Map<string, Contest>> =>
   fetchContests().then((contests) =>
@@ -273,32 +253,6 @@ export const cachedUsersSubmissionMap = (
     )
   );
 
-let STREAK_RANKING: Promise<RankingEntry[]> | undefined;
-export const cachedStreaksRanking = (): Promise<RankingEntry[]> => {
-  if (STREAK_RANKING === undefined) {
-    STREAK_RANKING = fetchStreaks().then((x) =>
-      x.map((r) => ({
-        problem_count: r.streak,
-        user_id: r.user_id,
-      }))
-    );
-  }
-  return STREAK_RANKING;
-};
-
-let AC_RANKING: Promise<RankingEntry[]> | undefined;
-export const cachedACRanking = (): Promise<RankingEntry[]> => {
-  if (AC_RANKING === undefined) {
-    AC_RANKING = fetchTypedArray(
-      STATIC_API_BASE_URL + "/ac.json",
-      isRankingEntry
-    ).then((ranking) =>
-      ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
-    );
-  }
-  return AC_RANKING;
-};
-
 const generateRanking = (
   problems: List<MergedProblem>,
   property: "fastest_user_id" | "shortest_user_id" | "first_user_id"
@@ -368,26 +322,6 @@ export const cachedSelectableLanguages = (
     ).then((submissions) => submissions.map((s) => s.language).toSet());
   }
   return SELECTABLE_LANGUAGES.selectableLanguages;
-};
-
-let SUM_RANKING: undefined | Promise<RankingEntry[]>;
-export const cachedSumRanking = (): Promise<RankingEntry[]> => {
-  if (SUM_RANKING === undefined) {
-    SUM_RANKING = fetchTypedArray(
-      STATIC_API_BASE_URL + "/sums.json",
-      isSumRankingEntry
-    )
-      .then((ranking) =>
-        ranking.map((r) => ({
-          problem_count: r.point_sum,
-          user_id: r.user_id,
-        }))
-      )
-      .then((ranking) =>
-        ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
-      );
-  }
-  return SUM_RANKING;
 };
 
 let RATING_INFO_MAP = Map<string, Promise<RatingInfo>>();

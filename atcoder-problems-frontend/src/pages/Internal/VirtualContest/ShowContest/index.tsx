@@ -17,6 +17,7 @@ import {
 } from "reactstrap";
 import { Map as ImmutableMap } from "immutable";
 import Octicon, { ChevronDown, ChevronUp } from "@primer/octicons-react";
+import { useMergedProblemMap } from "../../../../api/APIClient";
 import * as CachedApi from "../../../../utils/CachedApiClient";
 import { ProblemId } from "../../../../interfaces/Status";
 import {
@@ -61,7 +62,6 @@ interface InnerProps extends OuterProps {
   joinContestPost: PromiseState<unknown | null>;
   leaveContest: () => void;
   leaveContestPost: PromiseState<unknown | null>;
-  problemMapFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
   problemModelGet: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
@@ -71,17 +71,15 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
   const [showProblemTable, setShowProblemTable] = useState(true);
   const history = useHistory();
-  const { contestInfoFetch, userInfoGet, problemMapFetch } = props;
+  const { contestInfoFetch, userInfoGet } = props;
 
+  const { data: problemMap } = useMergedProblemMap();
   if (contestInfoFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else if (contestInfoFetch.rejected) {
     return <Alert color="danger">Failed to fetch contest info.</Alert>;
   }
 
-  const problemMap = problemMapFetch.fulfilled
-    ? problemMapFetch.value
-    : ImmutableMap<ProblemId, MergedProblem>();
   const {
     info: contestInfo,
     participants: contestParticipants,
@@ -117,7 +115,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
     contestId?: string;
     title?: string;
   } => {
-    const problem = problemMap.get(item.id);
+    const problem = problemMap?.get(item.id);
     if (problem) {
       return {
         item,
@@ -407,11 +405,6 @@ export const ShowContest = connect<OuterProps, InnerProps>(
       contestInfoFetch: {
         force: true,
         url: contestGetUrl(props.contestId),
-      },
-      problemMapFetch: {
-        comparison: null,
-        value: (): Promise<ImmutableMap<string, MergedProblem>> =>
-          CachedApi.cachedMergedProblemMap(),
       },
       joinContest: () => ({
         joinContestPost: {
