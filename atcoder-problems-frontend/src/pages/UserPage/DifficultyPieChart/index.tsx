@@ -1,5 +1,7 @@
+import { List } from "immutable";
 import React from "react";
 import { Row, Col } from "reactstrap";
+import { connect, PromiseState } from "react-refetch";
 import { ProblemId } from "../../../interfaces/Status";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import {
@@ -9,15 +11,33 @@ import {
   RatingColors,
 } from "../../../utils";
 import { SinglePieChart } from "../../../components/SinglePieChart";
+import { solvedProblemIds } from "../UserUtils";
+import Submission from "../../../interfaces/Submission";
+import {
+  cachedProblemModels,
+  cachedUsersSubmissionMap,
+} from "../../../utils/CachedApiClient";
+import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 
-interface Props {
-  problemModels: Map<ProblemId, ProblemModel>;
-  solvedProblemIds: ProblemId[];
+interface OuterProps {
+  userId: string;
 }
 
-export const DifficultyPieChart: React.FC<Props> = (props) => {
+interface InnerProps extends OuterProps {
+  submissionsMapFetch: PromiseState<Map<ProblemId, Submission[]>>;
+  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
+}
+
+const InnerDifficultyPieChart: React.FC<InnerProps> = (props) => {
+  const submissionsMap = props.submissionsMapFetch.fulfilled
+    ? props.submissionsMapFetch.value
+    : new Map<ProblemId, Submission[]>();
+  const problemModels = props.problemModelsFetch.fulfilled
+    ? props.problemModelsFetch.value
+    : new Map<ProblemId, ProblemModel>();
+
   const colorCount = new Map<RatingColor, number>();
-  props.problemModels.forEach((model) => {
+  problemModels.forEach((model) => {
     if (model.difficulty !== undefined) {
       const color = getRatingColor(model.difficulty);
       const curCount = colorCount.get(color) ?? 0;
@@ -25,16 +45,19 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
     }
   });
 
-  const solvedCount = props.solvedProblemIds.reduce((map, problemId) => {
-    const model = props.problemModels.get(problemId);
-    if (model?.difficulty !== undefined) {
-      const color = getRatingColor(model.difficulty);
-      const curCount = map.get(color) ?? 0;
-      map.set(color, curCount + 1);
+  const solvedCount = solvedProblemIds(submissionsMap).reduce(
+    (map, problemId) => {
+      const model = problemModels.get(problemId);
+      if (model?.difficulty !== undefined) {
+        const color = getRatingColor(model.difficulty);
+        const curCount = map.get(color) ?? 0;
+        map.set(color, curCount + 1);
+        return map;
+      }
       return map;
-    }
-    return map;
-  }, new Map<RatingColor, number>());
+    },
+    new Map<RatingColor, number>()
+  );
 
   const data = RatingColors.filter(
     (ratingColor) => ratingColor !== "Black"
@@ -69,3 +92,19 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
     </div>
   );
 };
+
+export const DifficultyPieChart = connect<OuterProps, InnerProps>(
+  ({ userId }) => ({
+    submissionsMapFetch: {
+      comparison: userId,
+      value: cachedUsersSubmissionMap(List([userId])).then((map) =>
+        ImmutableMigration.convertMapOfLists(map)
+      ),
+    },
+    problemModelsFetch: {
+      value: cachedProblemModels().then((map) =>
+        ImmutableMigration.convertMap(map)
+      ),
+    },
+  })
+)(InnerDifficultyPieChart);
