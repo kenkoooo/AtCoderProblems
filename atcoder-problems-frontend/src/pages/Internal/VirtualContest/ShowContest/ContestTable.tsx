@@ -3,7 +3,6 @@ import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
 import { useMergedProblemMap } from "../../../../api/APIClient";
-import MergedProblem from "../../../../interfaces/MergedProblem";
 import { clipDifficulty, ordinalSuffixOf } from "../../../../utils";
 import { VirtualContestItem } from "../../types";
 import { ProblemLink } from "../../../../components/ProblemLink";
@@ -16,7 +15,6 @@ import ProblemModel, {
 } from "../../../../interfaces/ProblemModel";
 import Submission from "../../../../interfaces/Submission";
 import {
-  cachedMergedProblemMap,
   cachedProblemModels,
   fetchVirtualContestSubmission,
 } from "../../../../utils/CachedApiClient";

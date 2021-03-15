@@ -1,9 +1,11 @@
 import useSWR from "swr";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import {
+  isLangRankingEntry,
   isRankingEntry,
   isStreakRankingEntry,
   isSumRankingEntry,
+  LangRankingEntry,
   RankingEntry,
   StreakRankingEntry,
 } from "../interfaces/RankingEntry";
@@ -14,6 +16,27 @@ import { isBlockedProblem } from "../utils/BlockList";
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
 const ATCODER_API_URL = process.env.REACT_APP_ATCODER_API_URL;
+
+const generateRanking = (
+  mergedProblemMap: Map<ProblemId, MergedProblem>,
+  property: "fastest_user_id" | "shortest_user_id" | "first_user_id"
+): RankingEntry[] => {
+  const countByUser = Array.from(mergedProblemMap.values())
+    .map((problem) => problem[property])
+    .reduce((map, userId) => {
+      if (userId) {
+        map.set(userId, (map.get(userId) ?? 0) + 1);
+      }
+      return map;
+    }, new Map<string, number>());
+
+  return Array.from(countByUser.entries()).map(
+    ([user_id, problem_count]): RankingEntry => ({
+      user_id,
+      problem_count,
+    })
+  );
+};
 
 function fetchTypedArray<T>(
   url: string,
@@ -90,4 +113,34 @@ export const useMergedProblemMap = () => {
         }, new Map<ProblemId, MergedProblem>())
       )
   );
+};
+
+export const useLangRanking = () => {
+  const url = STATIC_API_BASE_URL + "/lang.json";
+  return useStaticData(url, (url) =>
+    fetchTypedArray(url, isLangRankingEntry).then((ranking) =>
+      ranking.reduce((map, entry) => {
+        const list = map.get(entry.language) ?? [];
+        list.push(entry);
+        map.set(
+          entry.language,
+          list.sort((a, b) => b.count - a.count)
+        );
+        return map;
+      }, new Map<string, LangRankingEntry[]>())
+    )
+  );
+};
+
+export const useShortRanking = () => {
+  const map = useMergedProblemMap().data;
+  return map ? generateRanking(map, "shortest_user_id") : undefined;
+};
+export const useFastRanking = () => {
+  const map = useMergedProblemMap().data;
+  return map ? generateRanking(map, "fastest_user_id") : undefined;
+};
+export const useFirstRanking = () => {
+  const map = useMergedProblemMap().data;
+  return map ? generateRanking(map, "first_user_id") : undefined;
 };
