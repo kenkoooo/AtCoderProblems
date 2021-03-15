@@ -2,36 +2,19 @@ import React from "react";
 import { Alert, Nav, NavItem, NavLink, Row, Spinner } from "reactstrap";
 import { NavLink as RouterLink, useLocation } from "react-router-dom";
 
-import { List, Map as ImmutableMap } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import Submission from "../../interfaces/Submission";
-import MergedProblem from "../../interfaces/MergedProblem";
-import Contest from "../../interfaces/Contest";
-import { caseInsensitiveUserId, isAccepted } from "../../utils";
-import { ContestId, ProblemId } from "../../interfaces/Status";
 import * as CachedApiClient from "../../utils/CachedApiClient";
-import ProblemModel, {
-  isProblemModelWithTimeModel,
-} from "../../interfaces/ProblemModel";
-import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
-import Problem from "../../interfaces/Problem";
-import { SubmissionListTable } from "../../components/SubmissionListTable";
-import { convertMap } from "../../utils/ImmutableMigration";
 import { generatePathWithParams } from "../../utils/QueryString";
-import { calcStreak, countUniqueAcByDate } from "../../utils/StreakCounter";
-import { isRatedContest } from "../TablePage/ContestClassifier";
+import Submission from "../../interfaces/Submission";
 import { UserNameLabel } from "../../components/UserNameLabel";
-import { calculateTopPlayerEquivalentEffort } from "../../utils/ProblemModelUtil";
-import { UserResponse } from "../Internal/types";
-import { USER_GET } from "../Internal/ApiUrl";
-import { isLoggedIn } from "../../utils/UserState";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
 import { ProgressChartBlock } from "./ProgressChartBlock";
 import { Recommendations } from "./Recommendations";
 import { LanguageCount } from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
-import { TrophyBlock } from "./TrophyBlock/TrophyBlock";
+import { TrophyBlock } from "./TrophyBlock";
+import { Submissions } from "./Submissions";
 
 const userPageTabs = [
   "Achievement",
@@ -54,13 +37,7 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  userRatingInfoFetch: PromiseState<RatingInfo>;
-  mergedProblemsFetch: PromiseState<ImmutableMap<ProblemId, MergedProblem>>;
-  submissionsFetch: PromiseState<ImmutableMap<ProblemId, List<Submission>>>;
-  contestsFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
-  contestToProblemsFetch: PromiseState<ImmutableMap<ContestId, List<Problem>>>;
-  problemModelsFetch: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
-  loginState: PromiseState<UserResponse | null>;
+  submissionsFetch: PromiseState<Submission[]>;
 }
 
 const InnerUserPage: React.FC<InnerProps> = (props) => {
@@ -69,93 +46,19 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
   const userPageTab: UserPageTab =
     userPageTabs.find((t) => t === param) || "Achievement";
 
-  const {
-    userId,
-    userRatingInfoFetch,
-    submissionsFetch,
-    mergedProblemsFetch,
-    contestToProblemsFetch,
-    contestsFetch,
-    problemModelsFetch,
-  } = props;
+  const { userId, submissionsFetch } = props;
 
   if (submissionsFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }
 
-  const userRatingInfo = userRatingInfoFetch.fulfilled
-    ? userRatingInfoFetch.value
-    : ratingInfoOf(List());
-  const mergedProblems = mergedProblemsFetch.fulfilled
-    ? mergedProblemsFetch.value
-    : ImmutableMap<ProblemId, MergedProblem>();
-  const contests = contestsFetch.fulfilled
-    ? contestsFetch.value
-    : ImmutableMap<string, Contest>();
-  const problemModels = problemModelsFetch.fulfilled
-    ? problemModelsFetch.value
-    : ImmutableMap<ProblemId, ProblemModel>();
-  const submissions = submissionsFetch.fulfilled
-    ? submissionsFetch.value
-    : ImmutableMap<ProblemId, List<Submission>>();
-  const contestToProblems = contestToProblemsFetch.fulfilled
-    ? convertMap(contestToProblemsFetch.value.map((list) => list.toArray()))
-    : new Map<ContestId, Problem[]>();
+  const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
 
-  if (userId.length === 0 || submissions.isEmpty()) {
+  if (userId.length === 0 || submissions.length === 0) {
     return <Alert color="danger">User not found!</Alert>;
   }
 
-  const ratedProblemIds = new Set(
-    contests
-      .valueSeq()
-      .flatMap((contest) => {
-        const isRated = isRatedContest(contest);
-        const contestProblems = contestToProblems.get(contest.id);
-        return isRated && contestProblems ? contestProblems : [];
-      })
-      .map((problem) => problem.id)
-  );
-
-  const userSubmissions = submissions
-    .valueSeq()
-    .flatMap((list) => list)
-    .filter((s) => caseInsensitiveUserId(s.user_id) === userId)
-    .toArray();
-  const actualUserId =
-    userSubmissions.length > 0 ? userSubmissions[0].user_id : userId;
-  const dailyCount = countUniqueAcByDate(userSubmissions);
-  const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
-    dailyCount
-  );
-  const solvedProblemIds = submissions
-    .entrySeq()
-    .filter(([, submissionList]) =>
-      submissionList.find((submission) => isAccepted(submission.result))
-    )
-    .map(([problemId]) => problemId)
-    .toArray();
-  const ratedPointMap = new Map<ProblemId, number>();
-  const acceptedRatedSubmissions = submissions
-    .valueSeq()
-    .flatMap((a) => a)
-    .filter((s) => isAccepted(s.result))
-    .filter((s) => ratedProblemIds.has(s.problem_id))
-    .toArray();
-  acceptedRatedSubmissions.sort((a, b) => a.id - b.id);
-  acceptedRatedSubmissions.forEach((s) => {
-    ratedPointMap.set(s.problem_id, s.point);
-  });
-  const ratedPointSum = Array.from(ratedPointMap.values()).reduce(
-    (sum, point) => sum + point,
-    0
-  );
-  const topPlayerEquivalentEffort = solvedProblemIds
-    .map((problemId: ProblemId) => problemModels.get(problemId))
-    .filter((model: ProblemModel | undefined) => model !== undefined)
-    .filter(isProblemModelWithTimeModel)
-    .map(calculateTopPlayerEquivalentEffort)
-    .reduce((a: number, b: number) => a + b, 0);
+  const actualUserId = submissions[0].user_id;
 
   return (
     <div>
@@ -176,57 +79,28 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
         ))}
       </Nav>
       {(userPageTab === "All" || userPageTab === "Achievement") && (
-        <AchievementBlock
-          userId={userId}
-          solvedCount={solvedProblemIds.length}
-          ratedPointSum={ratedPointSum}
-          longestStreak={longestStreak}
-          currentStreak={currentStreak}
-          prevDateLabel={prevDateLabel}
-          streakSum={dailyCount.length}
-          topPlayerEquivalentEffort={topPlayerEquivalentEffort}
-        />
+        <AchievementBlock userId={userId} />
       )}
       {(userPageTab === "All" || userPageTab === "AtCoder Pie Charts") && (
-        <PieChartBlock
-          contestToProblems={contestToProblems}
-          userId={userId}
-          submissions={convertMap(submissions.map((list) => list.toArray()))}
-        />
+        <PieChartBlock userId={userId} />
       )}
       {(userPageTab === "All" || userPageTab === "Difficulty Pies") && (
         <>
           <Row className="my-2 border-bottom">
             <h1>Difficulty Pies</h1>
           </Row>
-          <DifficultyPieChart
-            problemModels={convertMap(problemModels)}
-            solvedProblemIds={solvedProblemIds}
-          />
+          <DifficultyPieChart userId={userId} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Progress Charts") && (
-        <ProgressChartBlock
-          problemModels={convertMap(problemModels)}
-          submissions={convertMap(
-            submissions.map((submissionList) => submissionList.toArray())
-          )}
-          userId={userId}
-          dailyCount={dailyCount}
-          userSubmissions={userSubmissions}
-        />
+        <ProgressChartBlock userId={userId} />
       )}
       {(userPageTab === "All" || userPageTab === "Submissions") && (
         <>
           <Row className="my-2 border-bottom">
             <h1>Submissions</h1>
           </Row>
-          <SubmissionListTable
-            problemModels={convertMap(problemModels)}
-            problems={mergedProblems.valueSeq().toArray()}
-            submissions={userSubmissions}
-            userRatingInfo={userRatingInfo}
-          />
+          <Submissions userId={userId} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Languages") && (
@@ -234,7 +108,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <Row className="my-2 border-bottom">
             <h1>Languages</h1>
           </Row>
-          <LanguageCount submissions={userSubmissions} />
+          <LanguageCount userId={userId} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Trophy") && (
@@ -242,12 +116,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <Row className="my-2 border-bottom">
             <h1>Trophy [beta]</h1>
           </Row>
-          <TrophyBlock
-            submissions={userSubmissions}
-            problemModels={convertMap(problemModels)}
-            contests={convertMap(contests)}
-            contestToProblems={contestToProblems}
-          />
+          <TrophyBlock userId={userId} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Recommendation") && (
@@ -255,14 +124,7 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
           <Row className="my-2 border-bottom">
             <h1>Recommendation</h1>
           </Row>
-          <Recommendations
-            userSubmissions={userSubmissions}
-            problems={mergedProblems.valueSeq().toList()}
-            contests={contests}
-            problemModels={problemModels}
-            userRatingInfo={userRatingInfo}
-            isLoggedIn={isLoggedIn(props.loginState)}
-          />
+          <Recommendations userId={userId} />
         </>
       )}
     </div>
@@ -272,32 +134,8 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
 export const UserPage = connect<OuterProps, InnerProps>(({ userId }) => ({
   submissionsFetch: {
     comparison: userId,
-    value: (): Promise<ImmutableMap<string, List<Submission>>> =>
-      CachedApiClient.cachedUsersSubmissionMap(List([userId])),
+    value: CachedApiClient.cachedSubmissions(userId).then((list) =>
+      list.toArray()
+    ),
   },
-  mergedProblemsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, MergedProblem>> =>
-      CachedApiClient.cachedMergedProblemMap(),
-  },
-  problemModelsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, ProblemModel>> =>
-      CachedApiClient.cachedProblemModels(),
-  },
-  contestsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, Contest>> =>
-      CachedApiClient.cachedContestMap(),
-  },
-  userRatingInfoFetch: {
-    comparison: userId,
-    value: (): Promise<RatingInfo> => CachedApiClient.cachedRatingInfo(userId),
-  },
-  contestToProblemsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, List<Problem>>> =>
-      CachedApiClient.cachedContestToProblemMap(),
-  },
-  loginState: USER_GET,
 }))(InnerUserPage);
