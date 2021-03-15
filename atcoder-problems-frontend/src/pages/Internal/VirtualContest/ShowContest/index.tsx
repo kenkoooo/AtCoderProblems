@@ -26,7 +26,6 @@ import {
   contestGetUrl,
   USER_GET,
 } from "../../ApiUrl";
-import MergedProblem from "../../../../interfaces/MergedProblem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 import {
   formatMomentDateTimeDay,

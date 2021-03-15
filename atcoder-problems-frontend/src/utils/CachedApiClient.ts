@@ -1,15 +1,9 @@
 import { List, Map, Set } from "immutable";
 import { ContestId, ProblemId } from "../interfaces/Status";
-import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import Contest, { isContest } from "../interfaces/Contest";
 import Problem, { isProblem } from "../interfaces/Problem";
 import Submission, { isSubmission } from "../interfaces/Submission";
-import {
-  isLangRankingEntry,
-  LangRankingEntry,
-  RankingEntry,
-} from "../interfaces/RankingEntry";
 import ContestParticipation, {
   isContestParticipation,
 } from "../interfaces/ContestParticipation";
@@ -67,12 +61,6 @@ const fetchContests = (): Promise<List<Contest>> =>
 
 const fetchProblems = (): Promise<List<Problem>> =>
   fetchTypedList(STATIC_API_BASE_URL + "/problems.json", isProblem);
-
-const fetchMergedProblems = (): Promise<List<MergedProblem>> =>
-  fetchTypedList(
-    STATIC_API_BASE_URL + "/merged-problems.json",
-    isMergedProblem
-  );
 
 const fetchProblemModels = (): Promise<Map<string, ProblemModel>> =>
   fetchTypedMap(
@@ -133,33 +121,6 @@ export const fetchVirtualContestSubmission = (
   const problemList = problems.join(",");
   const url = `${ATCODER_API_URL}/v3/users_and_time?users=${userList}&problems=${problemList}&from=${fromSecond}&to=${toSecond}`;
   return fetchTypedList(url, isSubmission);
-};
-
-let MERGED_PROBLEMS: Promise<List<MergedProblem>> | undefined;
-const cachedMergedProblems = (): Promise<List<MergedProblem>> => {
-  if (MERGED_PROBLEMS === undefined) {
-    MERGED_PROBLEMS = fetchMergedProblems().then((problems) =>
-      problems.filter((p) => !isBlockedProblem(p.id))
-    );
-  }
-  return MERGED_PROBLEMS;
-};
-
-let CACHED_MERGED_PROBLEM_MAP:
-  | Promise<Map<ProblemId, MergedProblem>>
-  | undefined;
-export const cachedMergedProblemMap = (): Promise<
-  Map<string, MergedProblem>
-> => {
-  if (CACHED_MERGED_PROBLEM_MAP === undefined) {
-    CACHED_MERGED_PROBLEM_MAP = cachedMergedProblems().then((list) =>
-      list.reduce(
-        (map, problem) => map.set(problem.id, problem),
-        Map<string, MergedProblem>()
-      )
-    );
-  }
-  return CACHED_MERGED_PROBLEM_MAP;
 };
 
 let CACHED_PROBLEM_MODELS: undefined | Promise<Map<ProblemId, ProblemModel>>;
@@ -252,58 +213,6 @@ export const cachedUsersSubmissionMap = (
       Map<ProblemId, List<Submission>>()
     )
   );
-
-const generateRanking = (
-  problems: List<MergedProblem>,
-  property: "fastest_user_id" | "shortest_user_id" | "first_user_id"
-): List<RankingEntry> =>
-  problems
-    .map((problem) => problem[property])
-    .reduce(
-      (map, userId) => (userId ? map.update(userId, 0, (c) => c + 1) : map),
-      Map<string, number>()
-    )
-    .entrySeq()
-    .map(
-      ([i, c]): RankingEntry => {
-        return { user_id: i, problem_count: c };
-      }
-    )
-    .toList();
-
-export const cachedShortRanking = (): Promise<List<RankingEntry>> =>
-  cachedMergedProblems().then((list) =>
-    generateRanking(list, "shortest_user_id")
-  );
-export const cachedFastRanking = (): Promise<List<RankingEntry>> =>
-  cachedMergedProblems().then((list) =>
-    generateRanking(list, "fastest_user_id")
-  );
-export const cachedFirstRanking = (): Promise<List<RankingEntry>> =>
-  cachedMergedProblems().then((list) => generateRanking(list, "first_user_id"));
-
-let LANGUAGE_RANKING: undefined | Promise<Map<string, List<LangRankingEntry>>>;
-export const cachedLangRanking = (): Promise<
-  Map<string, List<LangRankingEntry>>
-> => {
-  if (LANGUAGE_RANKING === undefined) {
-    LANGUAGE_RANKING = fetchTypedList(
-      STATIC_API_BASE_URL + "/lang.json",
-      isLangRankingEntry
-    ).then((ranking) =>
-      ranking
-        .reduce(
-          (map, entry) =>
-            map.update(entry.language, List<LangRankingEntry>(), (list) =>
-              list.push(entry)
-            ),
-          Map<string, List<LangRankingEntry>>()
-        )
-        .map((list) => list.sort((a, b) => b.count - a.count))
-    );
-  }
-  return LANGUAGE_RANKING;
-};
 
 const SELECTABLE_LANGUAGES: {
   userId: string;

@@ -4,6 +4,9 @@ import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
 import {
   useACRanking,
+  useFastRanking,
+  useFirstRanking,
+  useShortRanking,
   useStreakRanking,
   useSumRanking,
 } from "../../../api/APIClient";
@@ -57,9 +60,6 @@ interface InnerProps extends OuterProps {
   submissionsFetch: PromiseState<Submission[]>;
   submissionsMapFetch: PromiseState<Map<ProblemId, Submission[]>>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-  shortestRanking: PromiseState<RankingEntry[]>;
-  fastestRanking: PromiseState<RankingEntry[]>;
-  firstRanking: PromiseState<RankingEntry[]>;
 }
 
 const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
@@ -83,15 +83,9 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
   const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
     dailyCount
   );
-  const shortRanking = props.shortestRanking.fulfilled
-    ? props.shortestRanking.value
-    : ([] as RankingEntry[]);
-  const fastRanking = props.fastestRanking.fulfilled
-    ? props.fastestRanking.value
-    : ([] as RankingEntry[]);
-  const firstRanking = props.firstRanking.fulfilled
-    ? props.firstRanking.value
-    : ([] as RankingEntry[]);
+  const shortRanking = useShortRanking() ?? [];
+  const fastRanking = useFastRanking() ?? [];
+  const firstRanking = useFirstRanking() ?? [];
 
   const solvedProblemIds = UserUtils.solvedProblemIds(submissionsMap);
   const solvedCount = solvedProblemIds.length;
@@ -281,19 +275,6 @@ export const AchievementBlock = connect<OuterProps, InnerProps>(
     problemModelsFetch: {
       value: CachedApiClient.cachedProblemModels().then((map) =>
         ImmutableMigration.convertMap(map)
-      ),
-    },
-    shortestRanking: {
-      value: CachedApiClient.cachedShortRanking().then((list) =>
-        list.toArray()
-      ),
-    },
-    fastestRanking: {
-      value: CachedApiClient.cachedFastRanking().then((list) => list.toArray()),
-    },
-    firstRanking: {
-      value: CachedApiClient.cachedFirstRanking().then((list) =>
-        list.toArray()
       ),
     },
   })
