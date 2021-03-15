@@ -1,13 +1,17 @@
+import { List } from "immutable";
 import { Col, Row } from "reactstrap";
 import React from "react";
+import { connect, PromiseState } from "react-refetch";
 import Problem from "../../../interfaces/Problem";
 import Submission from "../../../interfaces/Submission";
+import { ContestId, ProblemId } from "../../../interfaces/Status";
 import {
   caseInsensitiveUserId,
   isAccepted,
   isValidResult,
 } from "../../../utils";
-import { ContestId, ProblemId } from "../../../interfaces/Status";
+import * as CachedApiClient from "../../../utils/CachedApiClient";
+import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import { SmallPieChart } from "./SmallPieChart";
 
 enum SubmissionStatus {
@@ -116,33 +120,42 @@ const solvedCountForPieChart = (
     .filter((x) => x.total > 0);
 };
 
-interface Props {
+interface OuterProps {
   userId: string;
-  submissions: Map<ProblemId, Submission[]>;
-  contestToProblems: Map<ContestId, Problem[]>;
 }
 
-export const PieChartBlock: React.FC<Props> = (props) => {
-  const { contestToProblems } = props;
+interface InnerProps extends OuterProps {
+  submissionsMapFetch: PromiseState<Map<ProblemId, Submission[]>>;
+  contestToProblemsFetch: PromiseState<Map<ContestId, Problem[]>>;
+}
+
+const InnerPieChartBlock: React.FC<InnerProps> = (props) => {
+  const submissionsMap = props.submissionsMapFetch.fulfilled
+    ? props.submissionsMapFetch.value
+    : new Map<ProblemId, Submission[]>();
+  const contestToProblems = props.contestToProblemsFetch.fulfilled
+    ? props.contestToProblemsFetch.value
+    : new Map<ContestId, Problem[]>();
+
   const abcSolved = solvedCountForPieChart(
     Array.from(contestToProblems).filter(([contestId]) =>
       contestId.startsWith("abc")
     ),
-    props.submissions,
+    submissionsMap,
     props.userId
   );
   const arcSolved = solvedCountForPieChart(
     Array.from(contestToProblems).filter(([contestId]) =>
       contestId.startsWith("arc")
     ),
-    props.submissions,
+    submissionsMap,
     props.userId
   );
   const agcSolved = solvedCountForPieChart(
     Array.from(contestToProblems).filter(([contestId]) =>
       contestId.startsWith("agc")
     ),
-    props.submissions,
+    submissionsMap,
     props.userId
   );
   return (
@@ -153,6 +166,20 @@ export const PieChartBlock: React.FC<Props> = (props) => {
     </>
   );
 };
+
+export const PieChartBlock = connect<OuterProps, InnerProps>(({ userId }) => ({
+  submissionsMapFetch: {
+    comparison: userId,
+    value: CachedApiClient.cachedUsersSubmissionMap(
+      List([userId])
+    ).then((map) => ImmutableMigration.convertMapOfLists(map)),
+  },
+  contestToProblemsFetch: {
+    value: CachedApiClient.cachedContestToProblemMap().then((map) =>
+      ImmutableMigration.convertMapOfLists(map)
+    ),
+  },
+}))(InnerPieChartBlock);
 
 interface PieChartsProps {
   problems: { total: number; solved: number; rejected: number }[];
