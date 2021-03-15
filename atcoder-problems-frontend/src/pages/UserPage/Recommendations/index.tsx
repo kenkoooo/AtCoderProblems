@@ -1,4 +1,4 @@
-import { List, Map as ImmutableMap } from "immutable";
+import { List } from "immutable";
 import React, { useState } from "react";
 import {
   BootstrapTable,
@@ -7,6 +7,7 @@ import {
 } from "react-bootstrap-table";
 import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row } from "reactstrap";
+import { connect, PromiseState } from "react-refetch";
 import { ContestLink } from "../../../components/ContestLink";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { NewTabLink } from "../../../components/NewTabLink";
@@ -14,32 +15,29 @@ import { ProblemLink } from "../../../components/ProblemLink";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
-import { ProblemId } from "../../../interfaces/Status";
+import { ContestId, ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
+import MergedProblem from "../../../interfaces/MergedProblem";
 import { isAccepted } from "../../../utils";
 import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
 } from "../../../utils/ProblemModelUtil";
 import { PROBLEM_ID_SEPARATE_SYMBOL } from "../../../utils/QueryString";
-import { RatingInfo } from "../../../utils/RatingInfo";
+import { RatingInfo, ratingInfoOf } from "../../../utils/RatingInfo";
 import * as Url from "../../../utils/Url";
+import * as CachedApiClient from "../../../utils/CachedApiClient";
+import * as ImmutableMigration from "../../../utils/ImmutableMigration";
+import * as UserState from "../../../utils/UserState";
 import { useLocalStorage } from "../../../utils/LocalStorage";
+import { UserResponse } from "../../Internal/types";
+import { USER_GET } from "../../Internal/ApiUrl";
+import { recommendProblems } from "./RecommendProblems";
 import {
   ExcludeOption,
   RecommendController,
   RecommendOption,
 } from "./RecommendController";
-import { recommendProblems } from "./RecommendProblems";
-
-interface Props {
-  readonly userSubmissions: Submission[];
-  readonly problems: List<Problem>;
-  readonly contests: ImmutableMap<string, Contest>;
-  readonly problemModels: ImmutableMap<string, ProblemModel>;
-  readonly userRatingInfo: RatingInfo;
-  readonly isLoggedIn?: boolean;
-}
 
 const isIncluded = (
   problemId: string,
@@ -86,15 +84,20 @@ const getLastSolvedTimeMap = (userSubmissions: Submission[]) => {
   return lastSolvedTimeMap;
 };
 
-export const Recommendations: React.FC<Props> = (props) => {
-  const {
-    userSubmissions,
-    problems,
-    contests,
-    problemModels,
-    userRatingInfo,
-  } = props;
+interface OuterProps {
+  userId: string;
+}
 
+interface InnerProps extends OuterProps {
+  userSubmissionsFetch: PromiseState<Submission[]>;
+  mergedProblemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;
+  contestMapFetch: PromiseState<Map<ContestId, Contest>>;
+  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
+  userRatingInfoFetch: PromiseState<RatingInfo>;
+  loginStateFetch: PromiseState<UserResponse>;
+}
+
+const InnerRecommendations: React.FC<InnerProps> = (props) => {
   const history = useHistory();
 
   const [recommendOption, setRecommendOption] = useLocalStorage<
@@ -125,6 +128,23 @@ export const Recommendations: React.FC<Props> = (props) => {
     setSelectedProblemIdSet(newSet);
   };
 
+  const userSubmissions = props.userSubmissionsFetch.fulfilled
+    ? props.userSubmissionsFetch.value
+    : [];
+  const problems = props.mergedProblemMapFetch.fulfilled
+    ? Array.from(props.mergedProblemMapFetch.value.values())
+    : [];
+  const contestMap = props.contestMapFetch.fulfilled
+    ? props.contestMapFetch.value
+    : new Map<ContestId, Contest>();
+  const problemModels = props.problemModelsFetch.fulfilled
+    ? props.problemModelsFetch.value
+    : new Map<ProblemId, ProblemModel>();
+  const userRatingInfo = props.userRatingInfoFetch.fulfilled
+    ? props.userRatingInfoFetch.value
+    : ratingInfoOf(List());
+  const isLoggedIn = UserState.isLoggedIn(props.loginStateFetch);
+
   if (userSubmissions.length === 0) {
     return null;
   }
@@ -134,7 +154,7 @@ export const Recommendations: React.FC<Props> = (props) => {
   const currentSecond = Math.floor(new Date().getTime() / 1000);
 
   const filteredRecommendedProblems = recommendProblems(
-    problems.toArray(),
+    problems,
     (problemId: ProblemId) =>
       isIncluded(
         problemId,
@@ -154,7 +174,7 @@ export const Recommendations: React.FC<Props> = (props) => {
   interface HasProblemId {
     id: ProblemId;
   }
-  const selectRowProps = !props.isLoggedIn
+  const selectRowProps = !isLoggedIn
     ? undefined
     : {
         mode: "checkbox" as SelectRowMode,
@@ -198,7 +218,7 @@ export const Recommendations: React.FC<Props> = (props) => {
           onChangeShowCount={(value) => setRecommendNum(value)}
         />
       </Row>
-      {props.isLoggedIn && (
+      {isLoggedIn && (
         <Row>
           <ButtonGroup>
             <Button
@@ -238,7 +258,7 @@ export const Recommendations: React.FC<Props> = (props) => {
                 problemId={id}
                 problemTitle={title}
                 contestId={contest_id}
-                problemModel={problemModels.get(id, null)}
+                problemModel={problemModels.get(id) ?? null}
                 userRatingInfo={userRatingInfo}
               />
             )}
@@ -251,7 +271,7 @@ export const Recommendations: React.FC<Props> = (props) => {
               contestId: string,
               problem: Problem
             ): React.ReactElement => {
-              const contest = contests.get(contestId);
+              const contest = contestMap.get(contestId);
               return contest ? (
                 <ContestLink contest={contest} />
               ) : (
@@ -304,3 +324,34 @@ export const Recommendations: React.FC<Props> = (props) => {
     </>
   );
 };
+
+export const Recommendations = connect<OuterProps, InnerProps>(
+  ({ userId }) => ({
+    userSubmissionsFetch: {
+      comparison: userId,
+      value: CachedApiClient.cachedSubmissions(userId).then((list) =>
+        list.toArray()
+      ),
+    },
+    mergedProblemMapFetch: {
+      value: CachedApiClient.cachedMergedProblemMap().then((map) =>
+        ImmutableMigration.convertMap(map)
+      ),
+    },
+    contestMapFetch: {
+      value: CachedApiClient.cachedContestMap().then((map) =>
+        ImmutableMigration.convertMap(map)
+      ),
+    },
+    problemModelsFetch: {
+      value: CachedApiClient.cachedProblemModels().then((map) =>
+        ImmutableMigration.convertMap(map)
+      ),
+    },
+    userRatingInfoFetch: {
+      comparison: userId,
+      value: CachedApiClient.cachedRatingInfo(userId),
+    },
+    loginStateFetch: USER_GET,
+  })
+)(InnerRecommendations);
