@@ -50,13 +50,13 @@ interface Props {
   fromDifficulty: number;
   toDifficulty: number;
   rowData: ProblemRowData[];
-  userRatingInfo: RatingInfo | null;
+  userRatingInfo: RatingInfo;
   sortBy: ProblemRowDataField;
   sortOrder: "asc" | "desc";
 }
 
 export const ListTable: React.FC<Props> = (props) => {
-  const userInternalRating = props.userRatingInfo?.internalRating ?? null;
+  const userInternalRating = props.userRatingInfo.internalRating;
   const readDifficultyAsNumber: (row: ProblemRowData) => number = (row) => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {

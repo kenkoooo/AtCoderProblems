@@ -1,5 +1,8 @@
 import useSWR from "swr";
+import Contest, { isContest } from "../interfaces/Contest";
+import { isContestParticipation } from "../interfaces/ContestParticipation";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
+import Problem, { isProblem } from "../interfaces/Problem";
 import {
   isLangRankingEntry,
   isRankingEntry,
@@ -9,9 +12,11 @@ import {
   RankingEntry,
   StreakRankingEntry,
 } from "../interfaces/RankingEntry";
-import { ProblemId } from "../interfaces/Status";
-import { isVJudgeOrLuogu } from "../utils";
+import { ContestId, ProblemId } from "../interfaces/Status";
+import { isSubmission } from "../interfaces/Submission";
+import { isValidResult, isVJudgeOrLuogu } from "../utils";
 import { isBlockedProblem } from "../utils/BlockList";
+import { ratingInfoOf } from "../utils/RatingInfo";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
@@ -51,10 +56,7 @@ function fetchTypedArray<T>(
   );
 }
 
-const useStaticData = <T>(
-  url: string,
-  fetcher: (url: string) => Promise<T>
-) => {
+const useSWRData = <T>(url: string, fetcher: (url: string) => Promise<T>) => {
   const response = useSWR(url, fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -66,7 +68,7 @@ const useStaticData = <T>(
 
 export const useACRanking = () => {
   const url = STATIC_API_BASE_URL + "/ac.json";
-  return useStaticData(url, (url) =>
+  return useSWRData(url, (url) =>
     fetchTypedArray<RankingEntry>(url, isRankingEntry).then((ranking) =>
       ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
     )
@@ -75,7 +77,7 @@ export const useACRanking = () => {
 
 export const useStreakRanking = () => {
   const url = STATIC_API_BASE_URL + "/streaks.json";
-  return useStaticData<RankingEntry[]>(url, (url) =>
+  return useSWRData<RankingEntry[]>(url, (url) =>
     fetchTypedArray<StreakRankingEntry>(url, isStreakRankingEntry).then((x) =>
       x.map((r) => ({
         problem_count: r.streak,
@@ -87,7 +89,7 @@ export const useStreakRanking = () => {
 
 export const useSumRanking = () => {
   const url = STATIC_API_BASE_URL + "/sums.json";
-  return useStaticData<RankingEntry[]>(url, (url) =>
+  return useSWRData<RankingEntry[]>(url, (url) =>
     fetchTypedArray(url, isSumRankingEntry)
       .then((x) =>
         x.map((r) => ({
@@ -103,7 +105,7 @@ export const useSumRanking = () => {
 
 export const useMergedProblemMap = () => {
   const url = STATIC_API_BASE_URL + "/merged-problems.json";
-  return useStaticData(url, (url) =>
+  return useSWRData(url, (url) =>
     fetchTypedArray(url, isMergedProblem)
       .then((problems) => problems.filter((p) => !isBlockedProblem(p.id)))
       .then((problems) =>
@@ -117,7 +119,7 @@ export const useMergedProblemMap = () => {
 
 export const useLangRanking = () => {
   const url = STATIC_API_BASE_URL + "/lang.json";
-  return useStaticData(url, (url) =>
+  return useSWRData(url, (url) =>
     fetchTypedArray(url, isLangRankingEntry).then((ranking) =>
       ranking.reduce((map, entry) => {
         const list = map.get(entry.language) ?? [];
@@ -143,4 +145,74 @@ export const useFastRanking = () => {
 export const useFirstRanking = () => {
   const map = useMergedProblemMap().data;
   return map ? generateRanking(map, "first_user_id") : undefined;
+};
+
+export const useRatingInfo = (user: string) => {
+  const url = `${PROXY_API_URL}/users/${user}/history/json`;
+  const history =
+    useSWRData(url, (url) => fetchTypedArray(url, isContestParticipation))
+      ?.data ?? [];
+  return ratingInfoOf(history);
+};
+
+export const useUserSubmission = (user: string) => {
+  const url = `${ATCODER_API_URL}/results?user=${user}`;
+  return useSWRData(url, (url) =>
+    user.length > 0
+      ? fetchTypedArray(url, isSubmission).then((submissions) =>
+          submissions.filter((submission) => isValidResult(submission.result))
+        )
+      : Promise.resolve(undefined)
+  ).data;
+};
+
+export const useContests = () => {
+  const url = STATIC_API_BASE_URL + "/contests.json";
+  return useSWRData(url, (url) => fetchTypedArray(url, isContest));
+};
+
+export const useProblems = () => {
+  const url = STATIC_API_BASE_URL + "/problems.json";
+  return useSWRData(url, (url) => fetchTypedArray(url, isProblem));
+};
+
+export const useContestToProblems = () => {
+  const url = STATIC_API_BASE_URL + "/contest-problem.json";
+  const contestIdToProblemIdArray = useSWRData(url, (url) =>
+    fetchTypedArray(
+      url,
+      (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        typeof obj.contest_id === "string" && typeof obj.problem_id === "string"
+    )
+  );
+  const problemMap = useProblemMap();
+  return contestIdToProblemIdArray.data?.reduce(
+    (map, { contest_id, problem_id }) => {
+      const problem = problemMap?.get(problem_id);
+      if (problem) {
+        const problems = map.get(contest_id) ?? [];
+        problems.push(problem);
+        map.set(contest_id, problems);
+      }
+      return map;
+    },
+    new Map<ContestId, Problem[]>()
+  );
+};
+
+export const useContestMap = () => {
+  const contests = useContests().data;
+  return contests?.reduce((map, contest) => {
+    map.set(contest.id, contest);
+    return map;
+  }, new Map<ContestId, Contest>());
+};
+
+export const useProblemMap = () => {
+  const problems = useProblems().data;
+  return problems?.reduce((map, problem) => {
+    map.set(problem.id, problem);
+    return map;
+  }, new Map<ProblemId, Problem>());
 };

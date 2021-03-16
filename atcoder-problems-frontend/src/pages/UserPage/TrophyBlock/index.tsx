@@ -2,11 +2,15 @@ import Octicon, { Verified } from "@primer/octicons-react";
 import React, { useState } from "react";
 import { Table, Row, Col, ListGroup, ListGroupItem, Badge } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
+import {
+  useContestMap,
+  useContestToProblems,
+  useUserSubmission,
+} from "../../../api/APIClient";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
-import Submission from "../../../interfaces/Submission";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
 import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import { generateACCountTrophies } from "./ACCountTrophyGenerator";
@@ -20,25 +24,17 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissionsFetch: PromiseState<Submission[]>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-  contestMapFetch: PromiseState<Map<ContestId, Contest>>;
-  contestToProblemsFetch: PromiseState<Map<ContestId, Problem[]>>;
 }
 
 const InnerTrophyBlock: React.FC<InnerProps> = (props) => {
-  const submissions = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value
-    : [];
+  const submissions = useUserSubmission(props.userId) ?? [];
   const problemModels = props.problemModelsFetch.fulfilled
     ? props.problemModelsFetch.value
     : new Map<ProblemId, ProblemModel>();
-  const contestMap = props.contestMapFetch.fulfilled
-    ? props.contestMapFetch.value
-    : new Map<ContestId, Contest>();
-  const contestToProblems = props.contestToProblemsFetch.fulfilled
-    ? props.contestToProblemsFetch.value
-    : new Map<ContestId, Problem[]>();
+  const contestMap = useContestMap();
+  const contestToProblems =
+    useContestToProblems() ?? new Map<ContestId, Problem[]>();
 
   const trophySubmissions = submissions.map((submission) => {
     const problemModel = problemModels.get(submission.problem_id);
@@ -52,7 +48,7 @@ const InnerTrophyBlock: React.FC<InnerProps> = (props) => {
   trophies.push(
     ...generateCompleteContestTrophies(
       trophySubmissions,
-      contestMap,
+      contestMap ?? new Map<ContestId, Contest>(),
       contestToProblems
     )
   );
@@ -116,26 +112,10 @@ const InnerTrophyBlock: React.FC<InnerProps> = (props) => {
   );
 };
 
-export const TrophyBlock = connect<OuterProps, InnerProps>(({ userId }) => ({
-  submissionsFetch: {
-    comparison: userId,
-    value: CachedApiClient.cachedSubmissions(userId).then((list) =>
-      list.toArray()
-    ),
-  },
+export const TrophyBlock = connect<OuterProps, InnerProps>(() => ({
   problemModelsFetch: {
     value: CachedApiClient.cachedProblemModels().then((map) =>
       ImmutableMigration.convertMap(map)
-    ),
-  },
-  contestMapFetch: {
-    value: CachedApiClient.cachedContestMap().then((map) =>
-      ImmutableMigration.convertMap(map)
-    ),
-  },
-  contestToProblemsFetch: {
-    value: CachedApiClient.cachedContestToProblemMap().then((map) =>
-      ImmutableMigration.convertMapOfLists(map)
     ),
   },
 }))(InnerTrophyBlock);

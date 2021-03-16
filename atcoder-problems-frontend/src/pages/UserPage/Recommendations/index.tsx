@@ -1,4 +1,3 @@
-import { List } from "immutable";
 import React, { useState } from "react";
 import {
   BootstrapTable,
@@ -8,15 +7,18 @@ import {
 import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
-import { useMergedProblemMap } from "../../../api/APIClient";
+import {
+  useContestMap,
+  useMergedProblemMap,
+  useRatingInfo,
+} from "../../../api/APIClient";
 import { ContestLink } from "../../../components/ContestLink";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { NewTabLink } from "../../../components/NewTabLink";
 import { ProblemLink } from "../../../components/ProblemLink";
-import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
 import ProblemModel from "../../../interfaces/ProblemModel";
-import { ContestId, ProblemId } from "../../../interfaces/Status";
+import { ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
 import { isAccepted } from "../../../utils";
 import {
@@ -24,7 +26,6 @@ import {
   formatPredictedSolveTime,
 } from "../../../utils/ProblemModelUtil";
 import { PROBLEM_ID_SEPARATE_SYMBOL } from "../../../utils/QueryString";
-import { RatingInfo, ratingInfoOf } from "../../../utils/RatingInfo";
 import * as Url from "../../../utils/Url";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
 import * as ImmutableMigration from "../../../utils/ImmutableMigration";
@@ -90,9 +91,7 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   userSubmissionsFetch: PromiseState<Submission[]>;
-  contestMapFetch: PromiseState<Map<ContestId, Contest>>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-  userRatingInfoFetch: PromiseState<RatingInfo>;
   loginStateFetch: PromiseState<UserResponse>;
 }
 
@@ -110,6 +109,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     "Exclude"
   );
 
+  const userRatingInfo = useRatingInfo(props.userId);
   const [recommendNum, setRecommendNum] = useState(10);
   const [selectedProblemIdSet, setSelectedProblemIdSet] = useState<
     Set<ProblemId>
@@ -134,15 +134,10 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
   const problems = mergedProblemsMap
     ? Array.from(mergedProblemsMap.values())
     : [];
-  const contestMap = props.contestMapFetch.fulfilled
-    ? props.contestMapFetch.value
-    : new Map<ContestId, Contest>();
+  const contestMap = useContestMap();
   const problemModels = props.problemModelsFetch.fulfilled
     ? props.problemModelsFetch.value
     : new Map<ProblemId, ProblemModel>();
-  const userRatingInfo = props.userRatingInfoFetch.fulfilled
-    ? props.userRatingInfoFetch.value
-    : ratingInfoOf(List());
   const isLoggedIn = UserState.isLoggedIn(props.loginStateFetch);
 
   if (userSubmissions.length === 0) {
@@ -271,7 +266,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
               contestId: string,
               problem: Problem
             ): React.ReactElement => {
-              const contest = contestMap.get(contestId);
+              const contest = contestMap?.get(contestId);
               return contest ? (
                 <ContestLink contest={contest} />
               ) : (
@@ -333,19 +328,10 @@ export const Recommendations = connect<OuterProps, InnerProps>(
         list.toArray()
       ),
     },
-    contestMapFetch: {
-      value: CachedApiClient.cachedContestMap().then((map) =>
-        ImmutableMigration.convertMap(map)
-      ),
-    },
     problemModelsFetch: {
       value: CachedApiClient.cachedProblemModels().then((map) =>
         ImmutableMigration.convertMap(map)
       ),
-    },
-    userRatingInfoFetch: {
-      comparison: userId,
-      value: CachedApiClient.cachedRatingInfo(userId),
     },
     loginStateFetch: USER_GET,
   })

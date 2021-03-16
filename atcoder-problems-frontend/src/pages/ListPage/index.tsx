@@ -12,7 +12,11 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
 import { List, Map as ImmutableMap, Range } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import { useMergedProblemMap } from "../../api/APIClient";
+import {
+  useContestMap,
+  useMergedProblemMap,
+  useRatingInfo,
+} from "../../api/APIClient";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
 import ProblemModel from "../../interfaces/ProblemModel";
 import {
@@ -27,7 +31,6 @@ import Contest from "../../interfaces/Contest";
 import MergedProblem from "../../interfaces/MergedProblem";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import * as CachedApiClient from "../../utils/CachedApiClient";
-import { RatingInfo } from "../../utils/RatingInfo";
 import { generatePathWithParams } from "../../utils/QueryString";
 import { fetchUserSubmissions } from "../../utils/Api";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
@@ -164,18 +167,12 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
   const sortBy = convertSortByParam(searchParams.get("sortBy"));
   const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
-  const {
-    problemModelsFetch,
-    submissionsFetch,
-    contestsFetch,
-    userRatingInfoFetch,
-  } = props;
+  const { problemModelsFetch, submissionsFetch } = props;
 
   const mergedProblems =
     useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
-  const contests = contestsFetch.fulfilled
-    ? contestsFetch.value
-    : ImmutableMap<string, Contest>();
+
+  const contests = useContestMap();
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
     : ImmutableMap<ProblemId, ProblemModel>();
@@ -195,15 +192,11 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     filteredSubmissions,
     props.userId
   );
-
-  const userRatingInfo = userRatingInfoFetch.fulfilled
-    ? userRatingInfoFetch.value
-    : null;
-
+  const userRatingInfo = useRatingInfo(props.userId);
   const rowData = Array.from(mergedProblems.values())
     .map(
       (p: MergedProblem): ProblemRowData => {
-        const contest = contests.get(p.contest_id);
+        const contest = contests?.get(p.contest_id);
         const contestDate = contest
           ? formatMomentDate(parseSecond(contest.start_epoch_second))
           : "";
@@ -470,8 +463,6 @@ interface InnerProps extends OuterProps {
   readonly problemModelsFetch: PromiseState<
     ImmutableMap<ProblemId, ProblemModel>
   >;
-  readonly contestsFetch: PromiseState<ImmutableMap<string, Contest>>;
-  readonly userRatingInfoFetch: PromiseState<RatingInfo>;
 
   readonly loginState: PromiseState<UserResponse | null>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
@@ -489,16 +480,6 @@ export const ListPage = connect<OuterProps, InnerProps>((props) => ({
     comparison: null,
     value: (): Promise<ImmutableMap<string, ProblemModel>> =>
       CachedApiClient.cachedProblemModels(),
-  },
-  contestsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, Contest>> =>
-      CachedApiClient.cachedContestMap(),
-  },
-  userRatingInfoFetch: {
-    comparison: props.userId,
-    value: (): Promise<RatingInfo> =>
-      CachedApiClient.cachedRatingInfo(props.userId),
   },
   loginState: USER_GET,
   progressResetList: PROGRESS_RESET_LIST,
