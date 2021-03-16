@@ -1,7 +1,7 @@
-import { List } from "immutable";
 import React from "react";
 import { Row, Col } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
+import { useUserSubmission } from "../../../api/APIClient";
 import { ProblemId } from "../../../interfaces/Status";
 import ProblemModel from "../../../interfaces/ProblemModel";
 import {
@@ -11,12 +11,8 @@ import {
   RatingColors,
 } from "../../../utils";
 import { SinglePieChart } from "../../../components/SinglePieChart";
-import { solvedProblemIds } from "../UserUtils";
-import Submission from "../../../interfaces/Submission";
-import {
-  cachedProblemModels,
-  cachedUsersSubmissionMap,
-} from "../../../utils/CachedApiClient";
+import { solvedProblemIdsFromArray } from "../UserUtils";
+import { cachedProblemModels } from "../../../utils/CachedApiClient";
 import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 
 interface OuterProps {
@@ -24,14 +20,11 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  submissionsMapFetch: PromiseState<Map<ProblemId, Submission[]>>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 const InnerDifficultyPieChart: React.FC<InnerProps> = (props) => {
-  const submissionsMap = props.submissionsMapFetch.fulfilled
-    ? props.submissionsMapFetch.value
-    : new Map<ProblemId, Submission[]>();
+  const submissions = useUserSubmission(props.userId) ?? [];
   const problemModels = props.problemModelsFetch.fulfilled
     ? props.problemModelsFetch.value
     : new Map<ProblemId, ProblemModel>();
@@ -45,7 +38,7 @@ const InnerDifficultyPieChart: React.FC<InnerProps> = (props) => {
     }
   });
 
-  const solvedCount = solvedProblemIds(submissionsMap).reduce(
+  const solvedCount = solvedProblemIdsFromArray(submissions).reduce(
     (map, problemId) => {
       const model = problemModels.get(problemId);
       if (model?.difficulty !== undefined) {
@@ -93,18 +86,10 @@ const InnerDifficultyPieChart: React.FC<InnerProps> = (props) => {
   );
 };
 
-export const DifficultyPieChart = connect<OuterProps, InnerProps>(
-  ({ userId }) => ({
-    submissionsMapFetch: {
-      comparison: userId,
-      value: cachedUsersSubmissionMap(List([userId])).then((map) =>
-        ImmutableMigration.convertMapOfLists(map)
-      ),
-    },
-    problemModelsFetch: {
-      value: cachedProblemModels().then((map) =>
-        ImmutableMigration.convertMap(map)
-      ),
-    },
-  })
-)(InnerDifficultyPieChart);
+export const DifficultyPieChart = connect<OuterProps, InnerProps>(() => ({
+  problemModelsFetch: {
+    value: cachedProblemModels().then((map) =>
+      ImmutableMigration.convertMap(map)
+    ),
+  },
+}))(InnerDifficultyPieChart);

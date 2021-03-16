@@ -1,4 +1,4 @@
-import { List, Map as ImmutableMap, Set } from "immutable";
+import { Map as ImmutableMap, Set as ImmutableSet } from "immutable";
 import { Row } from "reactstrap";
 import React from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
@@ -24,7 +24,7 @@ import { RatingInfo } from "../../utils/RatingInfo";
 
 interface Props {
   contests: Contest[];
-  contestToProblems: ImmutableMap<string, List<Problem>>;
+  contestToProblems: Map<string, Problem[]>;
   hideCompletedContest: boolean;
   showDifficulty: boolean;
   colorMode: ColorMode;
@@ -32,7 +32,7 @@ interface Props {
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   problemModels: ImmutableMap<ProblemId, ProblemModel>;
   showPenalties: boolean;
-  selectedLanguages: Set<string>;
+  selectedLanguages: ImmutableSet<string>;
   userRatingInfo: RatingInfo;
 }
 
@@ -55,9 +55,9 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
   }
   const contests: OneContest[] = props.contests
     .map((contest) => {
-      const problems = props.contestToProblems
-        .get(contest.id, List<Problem>())
-        .sort((a, b) => a.id.localeCompare(b.id));
+      const problems = (
+        props.contestToProblems.get(contest.id) ?? []
+      ).sort((a, b) => a.id.localeCompare(b.id));
       const problemStatusList = problems.map((problem) => {
         const status = props.statusLabelMap.get(problem.id) ?? noneStatus();
         return {
@@ -101,8 +101,8 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
       (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
     );
   const maxProblemCount = props.contests.reduce((currentCount, contest) => {
-    const problems = props.contestToProblems.get(contest.id, List<Problem>());
-    return Math.max(problems.size, currentCount);
+    const problems = props.contestToProblems.get(contest.id) ?? [];
+    return Math.max(problems.length, currentCount);
   }, 0);
   const header = ["A", "B", "C", "D", "E", "F", "F2"].slice(0, maxProblemCount);
   return (

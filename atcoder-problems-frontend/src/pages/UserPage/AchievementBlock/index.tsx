@@ -1,14 +1,16 @@
 import React from "react";
-import { List } from "immutable";
 import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
 import {
   useACRanking,
+  useContests,
+  useContestToProblems,
   useFastRanking,
   useFirstRanking,
   useShortRanking,
   useStreakRanking,
   useSumRanking,
+  useUserSubmission,
 } from "../../../api/APIClient";
 import {
   caseInsensitiveUserId,
@@ -21,8 +23,6 @@ import * as CachedApiClient from "../../../utils/CachedApiClient";
 import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import { isRatedContest } from "../../TablePage/ContestClassifier";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
-import Contest from "../../../interfaces/Contest";
-import Submission from "../../../interfaces/Submission";
 import ProblemModel, {
   isProblemModelWithTimeModel,
 } from "../../../interfaces/ProblemModel";
@@ -55,26 +55,14 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  contestMapFetch: PromiseState<Map<ContestId, Contest>>;
-  contestToProblemsFetch: PromiseState<Map<ContestId, Problem[]>>;
-  submissionsFetch: PromiseState<Submission[]>;
-  submissionsMapFetch: PromiseState<Map<ProblemId, Submission[]>>;
   problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
-  const contestMap = props.contestMapFetch.fulfilled
-    ? props.contestMapFetch.value
-    : new Map<ContestId, Contest>();
-  const contestToProblems = props.contestToProblemsFetch.fulfilled
-    ? props.contestToProblemsFetch.value
-    : new Map<ContestId, Problem[]>();
-  const userSubmissions = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value
-    : [];
-  const submissionsMap = props.submissionsMapFetch.fulfilled
-    ? props.submissionsMapFetch.value
-    : new Map<ProblemId, Submission[]>();
+  const contests = useContests().data ?? [];
+  const contestToProblems =
+    useContestToProblems() ?? new Map<ContestId, Problem[]>();
+  const userSubmissions = useUserSubmission(props.userId) ?? [];
   const problemModels = props.problemModelsFetch.fulfilled
     ? props.problemModelsFetch.value
     : new Map<ProblemId, ProblemModel>();
@@ -87,7 +75,7 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
   const fastRanking = useFastRanking() ?? [];
   const firstRanking = useFirstRanking() ?? [];
 
-  const solvedProblemIds = UserUtils.solvedProblemIds(submissionsMap);
+  const solvedProblemIds = UserUtils.solvedProblemIdsFromArray(userSubmissions);
   const solvedCount = solvedProblemIds.length;
   const { data: acRanking } = useACRanking();
   const acRank = acRanking
@@ -98,7 +86,7 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
   const fastRank = findFromRanking(fastRanking, props.userId);
 
   const ratedProblemIds = new Set(
-    Array.from(contestMap.values())
+    contests
       .flatMap((contest) => {
         const isRated = isRatedContest(contest);
         const contestProblems = contestToProblems.get(contest.id);
@@ -247,35 +235,10 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
   );
 };
 
-export const AchievementBlock = connect<OuterProps, InnerProps>(
-  ({ userId }) => ({
-    contestMapFetch: {
-      comparison: null,
-      value: CachedApiClient.cachedContestMap().then((map) =>
-        ImmutableMigration.convertMap(map)
-      ),
-    },
-    contestToProblemsFetch: {
-      value: CachedApiClient.cachedContestToProblemMap().then((map) =>
-        ImmutableMigration.convertMapOfLists(map)
-      ),
-    },
-    submissionsFetch: {
-      comparison: userId,
-      value: CachedApiClient.cachedSubmissions(userId).then((list) =>
-        list.toArray()
-      ),
-    },
-    submissionsMapFetch: {
-      comparison: userId,
-      value: CachedApiClient.cachedUsersSubmissionMap(
-        List([userId])
-      ).then((map) => ImmutableMigration.convertMapOfLists(map)),
-    },
-    problemModelsFetch: {
-      value: CachedApiClient.cachedProblemModels().then((map) =>
-        ImmutableMigration.convertMap(map)
-      ),
-    },
-  })
-)(InnerAchievementBlock);
+export const AchievementBlock = connect<OuterProps, InnerProps>(() => ({
+  problemModelsFetch: {
+    value: CachedApiClient.cachedProblemModels().then((map) =>
+      ImmutableMigration.convertMap(map)
+    ),
+  },
+}))(InnerAchievementBlock);

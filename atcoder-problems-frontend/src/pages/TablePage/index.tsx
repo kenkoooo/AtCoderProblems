@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
-import { List, Map as ImmutableMap, Set } from "immutable";
+import { List, Map as ImmutableMap, Set as ImmutableSet } from "immutable";
+import {
+  useContests,
+  useContestToProblems,
+  useRatingInfo,
+  useUserSubmission,
+} from "../../api/APIClient";
+import Problem from "../../interfaces/Problem";
 import {
   constructStatusLabelMap,
   ContestId,
   ProblemId,
 } from "../../interfaces/Status";
-import Problem from "../../interfaces/Problem";
-import Contest from "../../interfaces/Contest";
 import ProblemModel from "../../interfaces/ProblemModel";
 import * as CachedApiClient from "../../utils/CachedApiClient";
 import { useLocalStorage } from "../../utils/LocalStorage";
@@ -20,7 +25,6 @@ import {
   UserResponse,
 } from "../Internal/types";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
-import { RatingInfo, ratingInfoOf } from "../../utils/RatingInfo";
 import { loggedInUserId } from "../../utils/UserState";
 import { classifyContest, ContestCategory } from "./ContestClassifier";
 import { TableTabButtons } from "./TableTab";
@@ -34,30 +38,16 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  readonly contestsFetch: PromiseState<ImmutableMap<ContestId, Contest>>;
-  readonly contestToProblemsFetch: PromiseState<
-    ImmutableMap<ContestId, List<Problem>>
-  >;
-  readonly problemsFetch: PromiseState<ImmutableMap<ProblemId, Problem>>;
   readonly problemModelsFetch: PromiseState<
     ImmutableMap<ProblemId, ProblemModel>
   >;
-  readonly selectableLanguagesFetch: PromiseState<Set<string>>;
   readonly submissions: PromiseState<Submission[]>;
   readonly loginState: PromiseState<UserResponse | null>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
-
-  readonly userRatingInfoFetch: PromiseState<RatingInfo>;
 }
 
 const InnerTablePage: React.FC<InnerProps> = (props) => {
-  const {
-    contestsFetch,
-    contestToProblemsFetch,
-    problemModelsFetch,
-    selectableLanguagesFetch,
-    userRatingInfoFetch,
-  } = props;
+  const { problemModelsFetch } = props;
 
   const [activeTab, setActiveTab] = useLocalStorage<ContestCategory>(
     "contestTableTab",
@@ -79,23 +69,19 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     "showPenalties",
     false
   );
-  const [selectedLanguages, setSelectedLanguages] = useState(Set<string>());
-
-  const userRatingInfo = userRatingInfoFetch.fulfilled
-    ? userRatingInfoFetch.value
-    : ratingInfoOf(List());
+  const [selectedLanguages, setSelectedLanguages] = useState(
+    ImmutableSet<string>()
+  );
+  const userRatingInfo = useRatingInfo(props.userId);
   const problemModels = problemModelsFetch.fulfilled
     ? problemModelsFetch.value
     : ImmutableMap<ProblemId, ProblemModel>();
-  const contestToProblems = contestToProblemsFetch.fulfilled
-    ? contestToProblemsFetch.value
-    : ImmutableMap<ContestId, List<Problem>>();
-  const contests = contestsFetch.fulfilled
-    ? contestsFetch.value
-    : ImmutableMap<ContestId, Contest>();
-  const selectableLanguages = selectableLanguagesFetch.fulfilled
-    ? selectableLanguagesFetch.value
-    : Set<string>();
+  const contestToProblems =
+    useContestToProblems() ?? new Map<ContestId, Problem[]>();
+  const { data: contests } = useContests();
+  const selectableLanguages = new Set(
+    useUserSubmission(props.userId)?.map((s) => s.language) ?? []
+  );
   const submissions = props.submissions.fulfilled
     ? props.submissions.value
     : [];
@@ -115,10 +101,8 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     filteredSubmissions,
     props.userId
   );
-  const filteredContests = contests
-    .valueSeq()
-    .toArray()
-    .filter((c) => classifyContest(c) === activeTab);
+  const filteredContests =
+    contests?.filter((c) => classifyContest(c) === activeTab) ?? [];
 
   return (
     <div>
@@ -192,31 +176,6 @@ export const TablePage = connect<OuterProps, InnerProps>((props) => ({
     comparison: null,
     value: (): Promise<ImmutableMap<string, ProblemModel>> =>
       CachedApiClient.cachedProblemModels(),
-  },
-  contestsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, Contest>> =>
-      CachedApiClient.cachedContestMap(),
-  },
-  problemsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, Problem>> =>
-      CachedApiClient.cachedProblemMap(),
-  },
-  contestToProblemsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, List<Problem>>> =>
-      CachedApiClient.cachedContestToProblemMap(),
-  },
-  selectableLanguagesFetch: {
-    comparison: props.userId,
-    value: (): Promise<Set<string>> =>
-      CachedApiClient.cachedSelectableLanguages(props.userId),
-  },
-  userRatingInfoFetch: {
-    comparison: props.userId,
-    value: (): Promise<RatingInfo> =>
-      CachedApiClient.cachedRatingInfo(props.userId),
   },
   submissions: {
     comparison: [props.userId, props.rivals],

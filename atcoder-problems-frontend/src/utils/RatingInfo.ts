@@ -1,4 +1,3 @@
-import { List } from "immutable";
 import ContestParticipation from "../interfaces/ContestParticipation";
 
 export class RatingInfo {
@@ -31,12 +30,14 @@ export class RatingInfo {
   }
 }
 
-export const ratingInfoOf = (
-  contestHistory: List<ContestParticipation>
-): RatingInfo => {
-  const latestRating = contestHistory.last({ NewRating: 0 }).NewRating;
-  const ratedCount = contestHistory
-    .filter((participation) => participation.IsRated)
-    .count();
-  return new RatingInfo(latestRating, ratedCount);
+export const ratingInfoOf = (contestHistory: ContestParticipation[]) => {
+  if (contestHistory.length === 0) {
+    return new RatingInfo(0, 0);
+  } else {
+    const latestRating = contestHistory[contestHistory.length - 1].NewRating;
+    const ratedCount = contestHistory.filter(
+      (participation) => participation.IsRated
+    ).length;
+    return new RatingInfo(latestRating, ratedCount);
+  }
 };
