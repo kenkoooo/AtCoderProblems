@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Table from "reactstrap/lib/Table";
-import { List, Map as ImmutableMap, Range } from "immutable";
+import { List, Range } from "immutable";
 import { Button, ButtonGroup } from "reactstrap";
+import { useMergedProblemMap, useProblemModelMap } from "../../api/APIClient";
 import { isAccepted } from "../../utils";
 import { TableColor } from "../../utils/TableColor";
 import Submission from "../../interfaces/Submission";
@@ -11,9 +12,7 @@ import { DifficultyCircle } from "../../components/DifficultyCircle";
 import { ProblemId } from "../../interfaces/Status";
 
 interface Props {
-  mergedProblems: Map<ProblemId, MergedProblem>;
   submissions: Submission[];
-  problemModels: ImmutableMap<ProblemId, ProblemModel>;
   setFilterFunc: (from: number, to: number) => void;
 }
 
@@ -23,10 +22,10 @@ const DIFF_MAX = 4000;
 
 const problemToDifficultyLevel = (
   problem: MergedProblem,
-  problemModels: ImmutableMap<ProblemId, ProblemModel>,
+  problemModels: Map<ProblemId, ProblemModel> | undefined,
   showExperimental: boolean
 ): number | undefined => {
-  const problemModel = problemModels.get(problem.id);
+  const problemModel = problemModels?.get(problem.id);
   if (problemModel === undefined) {
     return undefined;
   }
@@ -41,8 +40,11 @@ const problemToDifficultyLevel = (
 };
 
 export const DifficultyTable: React.FC<Props> = (props) => {
-  const { submissions, mergedProblems, problemModels, setFilterFunc } = props;
+  const { submissions, setFilterFunc } = props;
   const [includingExperimental, setIncludingExperimental] = useState(true);
+  const problemModels = useProblemModelMap();
+  const mergedProblems =
+    useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
   const difficulties: List<{ from: number; to: number }> = Range(
     0,
     4400,

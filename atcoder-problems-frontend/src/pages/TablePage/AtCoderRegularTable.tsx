@@ -1,7 +1,8 @@
-import { Map as ImmutableMap, Set as ImmutableSet } from "immutable";
+import { Set as ImmutableSet } from "immutable";
 import { Row } from "reactstrap";
 import React from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import { useProblemModelMap } from "../../api/APIClient";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import {
@@ -30,7 +31,6 @@ interface Props {
   colorMode: ColorMode;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
-  problemModels: ImmutableMap<ProblemId, ProblemModel>;
   showPenalties: boolean;
   selectedLanguages: ImmutableSet<string>;
   userRatingInfo: RatingInfo;
@@ -38,6 +38,7 @@ interface Props {
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
   const { colorMode, selectedLanguages, showPenalties, userRatingInfo } = props;
+  const problemModels = useProblemModelMap();
   interface OneContest {
     contest: Contest;
     id: string;
@@ -63,7 +64,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
         return {
           problem,
           status,
-          model: props.problemModels.get(problem.id),
+          model: problemModels?.get(problem.id),
           cellColor: statusToTableColor({
             colorMode,
             status,

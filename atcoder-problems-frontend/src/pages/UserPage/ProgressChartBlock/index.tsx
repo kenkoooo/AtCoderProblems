@@ -11,8 +11,7 @@ import {
   CustomInput,
   UncontrolledDropdown,
 } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
-import { useUserSubmission } from "../../../api/APIClient";
+import { useProblemModelMap, useUserSubmission } from "../../../api/APIClient";
 import {
   getRatingColor,
   RatingColor,
@@ -25,11 +24,8 @@ import {
   parseDateLabel,
 } from "../../../utils/DateUtil";
 import { useLocalStorage } from "../../../utils/LocalStorage";
-import * as CachedApiClient from "../../../utils/CachedApiClient";
-import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import { countUniqueAcByDate } from "../../../utils/StreakCounter";
 import Submission from "../../../interfaces/Submission";
-import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemId } from "../../../interfaces/Status";
 import { DailyEffortBarChart } from "./DailyEffortBarChart";
 import { DailyEffortStackedBarChart } from "./DailyEffortStackedBarChart";
@@ -91,15 +87,11 @@ const YRangeTabButtons: React.FC<YRangeTabProps> = (props) => {
   );
 };
 
-interface OuterProps {
+interface Props {
   userId: string;
 }
 
-interface InnerProps extends OuterProps {
-  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-}
-
-const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
+export const ProgressChartBlock: React.FC<Props> = (props) => {
   const [
     dailyEffortBarChartActiveTab,
     setDailyEffortBarChartActiveTab,
@@ -124,10 +116,7 @@ const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
     map.set(s.problem_id, submissions);
     return map;
   }, new Map<ProblemId, Submission[]>());
-  const problemModels = props.problemModelsFetch.fulfilled
-    ? props.problemModelsFetch.value
-    : new Map<ProblemId, ProblemModel>();
-
+  const problemModels = useProblemModelMap();
   const dailyCount = countUniqueAcByDate(userSubmissions);
 
   const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
@@ -160,7 +149,7 @@ const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
           new Map<RatingColor, number>(
             RatingColors.map((ratingColor) => [ratingColor, 0])
           );
-        const model = problemModels.get(submission.problem_id);
+        const model = problemModels?.get(submission.problem_id);
         const color =
           model?.difficulty !== undefined
             ? getRatingColor(model.difficulty)
@@ -274,11 +263,3 @@ const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
     </>
   );
 };
-
-export const ProgressChartBlock = connect<OuterProps, InnerProps>(() => ({
-  problemModelsFetch: {
-    value: CachedApiClient.cachedProblemModels().then((map) =>
-      ImmutableMigration.convertMap(map)
-    ),
-  },
-}))(InnerProgressChartBlock);

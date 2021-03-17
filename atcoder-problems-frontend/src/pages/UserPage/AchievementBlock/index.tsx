@@ -1,12 +1,12 @@
 import React from "react";
 import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
 import {
   useACRanking,
   useContests,
   useContestToProblems,
   useFastRanking,
   useFirstRanking,
+  useProblemModelMap,
   useShortRanking,
   useStreakRanking,
   useSumRanking,
@@ -19,8 +19,6 @@ import {
 } from "../../../utils";
 import { formatMomentDate, getToday } from "../../../utils/DateUtil";
 import { RankingEntry } from "../../../interfaces/RankingEntry";
-import * as CachedApiClient from "../../../utils/CachedApiClient";
-import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import { isRatedContest } from "../../TablePage/ContestClassifier";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import ProblemModel, {
@@ -50,23 +48,16 @@ const findFromRanking = (
   }
 };
 
-interface OuterProps {
+interface Props {
   userId: string;
 }
 
-interface InnerProps extends OuterProps {
-  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-}
-
-const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
+export const AchievementBlock: React.FC<Props> = (props) => {
   const contests = useContests().data ?? [];
   const contestToProblems =
     useContestToProblems() ?? new Map<ContestId, Problem[]>();
   const userSubmissions = useUserSubmission(props.userId) ?? [];
-  const problemModels = props.problemModelsFetch.fulfilled
-    ? props.problemModelsFetch.value
-    : new Map<ProblemId, ProblemModel>();
-
+  const problemModels = useProblemModelMap();
   const dailyCount = countUniqueAcByDate(userSubmissions);
   const { longestStreak, currentStreak, prevDateLabel } = calcStreak(
     dailyCount
@@ -149,7 +140,7 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
   const streakSum = dailyCount.length;
 
   const topPlayerEquivalentEffort = solvedProblemIds
-    .map((problemId: ProblemId) => problemModels.get(problemId))
+    .map((problemId: ProblemId) => problemModels?.get(problemId))
     .filter((model: ProblemModel | undefined) => model !== undefined)
     .filter(isProblemModelWithTimeModel)
     .map(calculateTopPlayerEquivalentEffort)
@@ -234,11 +225,3 @@ const InnerAchievementBlock: React.FC<InnerProps> = (props) => {
     </>
   );
 };
-
-export const AchievementBlock = connect<OuterProps, InnerProps>(() => ({
-  problemModelsFetch: {
-    value: CachedApiClient.cachedProblemModels().then((map) =>
-      ImmutableMigration.convertMap(map)
-    ),
-  },
-}))(InnerAchievementBlock);

@@ -10,11 +10,12 @@ import {
 } from "reactstrap";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
-import { List, Map as ImmutableMap, Range } from "immutable";
+import { List, Range } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import {
   useContestMap,
   useMergedProblemMap,
+  useProblemModelMap,
   useRatingInfo,
 } from "../../api/APIClient";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
@@ -30,7 +31,6 @@ import Submission from "../../interfaces/Submission";
 import Contest from "../../interfaces/Contest";
 import MergedProblem from "../../interfaces/MergedProblem";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
-import * as CachedApiClient from "../../utils/CachedApiClient";
 import { generatePathWithParams } from "../../utils/QueryString";
 import { fetchUserSubmissions } from "../../utils/Api";
 import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
@@ -167,15 +167,13 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
   const sortBy = convertSortByParam(searchParams.get("sortBy"));
   const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
-  const { problemModelsFetch, submissionsFetch } = props;
+  const { submissionsFetch } = props;
 
   const mergedProblems =
     useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
 
   const contests = useContestMap();
-  const problemModels = problemModelsFetch.fulfilled
-    ? problemModelsFetch.value
-    : ImmutableMap<ProblemId, ProblemModel>();
+  const problemModels = useProblemModelMap();
   const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
 
   const loginUserId = loggedInUserId(props.loginState);
@@ -216,7 +214,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
           : INF_POINT;
         const shortestUserId = p.shortest_user_id ? p.shortest_user_id : "";
         const fastestUserId = p.fastest_user_id ? p.fastest_user_id : "";
-        const problemModel = problemModels.get(p.id);
+        const problemModel = problemModels?.get(p.id);
         return {
           id: p.id,
           title: p.title,
@@ -273,9 +271,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
       </Row>
       <Row>
         <DifficultyTable
-          mergedProblems={mergedProblems}
           submissions={filteredSubmissions}
-          problemModels={problemModels}
           setFilterFunc={setDifficultyFilter}
         />
       </Row>
@@ -460,9 +456,6 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   readonly submissionsFetch: PromiseState<Submission[]>;
-  readonly problemModelsFetch: PromiseState<
-    ImmutableMap<ProblemId, ProblemModel>
-  >;
 
   readonly loginState: PromiseState<UserResponse | null>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
@@ -475,11 +468,6 @@ export const ListPage = connect<OuterProps, InnerProps>((props) => ({
       Promise.all(
         props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
       ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
-  },
-  problemModelsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, ProblemModel>> =>
-      CachedApiClient.cachedProblemModels(),
   },
   loginState: USER_GET,
   progressResetList: PROGRESS_RESET_LIST,

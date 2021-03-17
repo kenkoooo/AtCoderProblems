@@ -1,12 +1,11 @@
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { Badge } from "reactstrap";
 import React from "react";
+import { useProblemModelMap, useProblems } from "../api/APIClient";
 import Submission from "../interfaces/Submission";
-import ProblemModel from "../interfaces/ProblemModel";
 import { formatMomentDateTime, parseSecond } from "../utils/DateUtil";
 import { isAccepted } from "../utils";
 import * as Url from "../utils/Url";
-import { ProblemId } from "../interfaces/Status";
 import { RatingInfo } from "../utils/RatingInfo";
 import { ProblemLink } from "./ProblemLink";
 import {
@@ -17,13 +16,13 @@ import { NewTabLink } from "./NewTabLink";
 
 interface Props {
   submissions: Submission[];
-  problems: { id: string; title: string }[];
-  problemModels: Map<ProblemId, ProblemModel>;
   userRatingInfo?: RatingInfo;
 }
 
 export const SubmissionListTable: React.FC<Props> = (props) => {
-  const { submissions, problems, problemModels, userRatingInfo } = props;
+  const { submissions, userRatingInfo } = props;
+  const problems = useProblems() ?? [];
+  const problemModels = useProblemModelMap();
   const titleMap = problems.reduce((map, p) => {
     map.set(p.id, p.title);
     return map;
@@ -115,13 +114,13 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
         ): React.ReactElement => (
           <ProblemLink
             isExperimentalDifficulty={
-              problemModels.get(problem_id)?.is_experimental
+              problemModels?.get(problem_id)?.is_experimental
             }
             showDifficulty={true}
             problemId={problem_id}
             problemTitle={title || ""}
             contestId={contest_id}
-            problemModel={problemModels.get(problem_id) ?? null}
+            problemModel={problemModels?.get(problem_id) ?? null}
             userRatingInfo={userRatingInfo}
           />
         )}

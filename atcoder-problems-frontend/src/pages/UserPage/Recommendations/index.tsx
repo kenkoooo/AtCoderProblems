@@ -10,6 +10,7 @@ import { connect, PromiseState } from "react-refetch";
 import {
   useContestMap,
   useMergedProblemMap,
+  useProblemModelMap,
   useRatingInfo,
 } from "../../../api/APIClient";
 import { ContestLink } from "../../../components/ContestLink";
@@ -17,7 +18,6 @@ import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { NewTabLink } from "../../../components/NewTabLink";
 import { ProblemLink } from "../../../components/ProblemLink";
 import Problem from "../../../interfaces/Problem";
-import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
 import { isAccepted } from "../../../utils";
@@ -28,7 +28,6 @@ import {
 import { PROBLEM_ID_SEPARATE_SYMBOL } from "../../../utils/QueryString";
 import * as Url from "../../../utils/Url";
 import * as CachedApiClient from "../../../utils/CachedApiClient";
-import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import * as UserState from "../../../utils/UserState";
 import { useLocalStorage } from "../../../utils/LocalStorage";
 import { UserResponse } from "../../Internal/types";
@@ -91,7 +90,6 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   userSubmissionsFetch: PromiseState<Submission[]>;
-  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   loginStateFetch: PromiseState<UserResponse>;
 }
 
@@ -135,9 +133,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     ? Array.from(mergedProblemsMap.values())
     : [];
   const contestMap = useContestMap();
-  const problemModels = props.problemModelsFetch.fulfilled
-    ? props.problemModelsFetch.value
-    : new Map<ProblemId, ProblemModel>();
+  const problemModels = useProblemModelMap();
   const isLoggedIn = UserState.isLoggedIn(props.loginStateFetch);
 
   if (userSubmissions.length === 0) {
@@ -158,7 +154,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
         lastSolvedTimeMap,
         submittedSet
       ),
-    (problemId: ProblemId) => problemModels.get(problemId),
+    (problemId: ProblemId) => problemModels?.get(problemId),
     recommendExperimental,
     userRatingInfo.internalRating,
     recommendOption,
@@ -253,7 +249,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
                 problemId={id}
                 problemTitle={title}
                 contestId={contest_id}
-                problemModel={problemModels.get(id) ?? null}
+                problemModel={problemModels?.get(id) ?? null}
                 userRatingInfo={userRatingInfo}
               />
             )}
@@ -326,11 +322,6 @@ export const Recommendations = connect<OuterProps, InnerProps>(
       comparison: userId,
       value: CachedApiClient.cachedSubmissions(userId).then((list) =>
         list.toArray()
-      ),
-    },
-    problemModelsFetch: {
-      value: CachedApiClient.cachedProblemModels().then((map) =>
-        ImmutableMigration.convertMap(map)
       ),
     },
     loginStateFetch: USER_GET,

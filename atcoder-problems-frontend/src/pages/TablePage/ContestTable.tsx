@@ -1,13 +1,13 @@
-import { Map as ImmutableMap, Set } from "immutable";
+import { Set } from "immutable";
 import { Row, Table } from "reactstrap";
 import React from "react";
+import { useProblemModelMap } from "../../api/APIClient";
 import Contest from "../../interfaces/Contest";
 import Problem from "../../interfaces/Problem";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
-import ProblemModel from "../../interfaces/ProblemModel";
 import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { isRatedContest } from "./ContestClassifier";
@@ -18,7 +18,6 @@ interface Props {
   hideCompletedContest: boolean;
   showDifficulty: boolean;
   colorMode: ColorMode;
-  problemModels: ImmutableMap<ProblemId, ProblemModel>;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   showPenalties: boolean;
   selectedLanguages: Set<string>;
@@ -33,11 +32,11 @@ export const ContestTable: React.FC<Props> = (props) => {
     hideCompletedContest,
     statusLabelMap,
     colorMode,
-    problemModels,
     showPenalties,
     selectedLanguages,
     userRatingInfo,
   } = props;
+  const problemModels = useProblemModelMap();
   const mergedContests = contests
     .sort((a, b) => b.start_epoch_second - a.start_epoch_second)
     .map((contest) => ({
@@ -62,7 +61,7 @@ export const ContestTable: React.FC<Props> = (props) => {
     )
     .map(({ contest, problemStatus }) => {
       const problemInfo = problemStatus.map(({ problem, status }) => {
-        const model = problemModels.get(problem.id);
+        const model = problemModels?.get(problem.id);
         return { problem, status, model };
       });
       return { contest, problemInfo };
