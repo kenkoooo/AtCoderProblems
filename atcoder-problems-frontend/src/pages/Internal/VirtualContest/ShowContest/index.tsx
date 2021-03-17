@@ -15,18 +15,14 @@ import {
   CustomInput,
   Collapse,
 } from "reactstrap";
-import { Map as ImmutableMap } from "immutable";
 import Octicon, { ChevronDown, ChevronUp } from "@primer/octicons-react";
 import { useMergedProblemMap } from "../../../../api/APIClient";
-import * as CachedApi from "../../../../utils/CachedApiClient";
-import { ProblemId } from "../../../../interfaces/Status";
 import {
   CONTEST_JOIN,
   CONTEST_LEAVE,
   contestGetUrl,
   USER_GET,
 } from "../../ApiUrl";
-import ProblemModel from "../../../../interfaces/ProblemModel";
 import {
   formatMomentDateTimeDay,
   getCurrentUnixtimeInSecond,
@@ -61,7 +57,6 @@ interface InnerProps extends OuterProps {
   joinContestPost: PromiseState<unknown | null>;
   leaveContest: () => void;
   leaveContestPost: PromiseState<unknown | null>;
-  problemModelGet: PromiseState<ImmutableMap<ProblemId, ProblemModel>>;
 }
 
 const InnerShowContest: React.FC<InnerProps> = (props) => {
@@ -393,11 +388,6 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
 export const ShowContest = connect<OuterProps, InnerProps>(
   (props: OuterProps) => {
     return {
-      problemModelGet: {
-        comparison: null,
-        value: (): Promise<ImmutableMap<string, ProblemModel>> =>
-          CachedApi.cachedProblemModels(),
-      },
       userInfoGet: {
         url: USER_GET,
       },

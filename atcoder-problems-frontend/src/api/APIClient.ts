@@ -3,6 +3,7 @@ import Contest, { isContest } from "../interfaces/Contest";
 import { isContestParticipation } from "../interfaces/ContestParticipation";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
+import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import {
   isLangRankingEntry,
   isRankingEntry,
@@ -14,7 +15,7 @@ import {
 } from "../interfaces/RankingEntry";
 import { ContestId, ProblemId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
-import { isValidResult, isVJudgeOrLuogu } from "../utils";
+import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
 import { isBlockedProblem } from "../utils/BlockList";
 import { ratingInfoOf } from "../utils/RatingInfo";
 
@@ -173,7 +174,9 @@ export const useContests = () => {
 
 export const useProblems = () => {
   const url = STATIC_API_BASE_URL + "/problems.json";
-  return useSWRData(url, (url) => fetchTypedArray(url, isProblem));
+  return useSWRData(url, (url) => fetchTypedArray(url, isProblem)).data?.filter(
+    (problem) => !isBlockedProblem(problem.id)
+  );
 };
 
 export const useContestToProblems = () => {
@@ -210,9 +213,39 @@ export const useContestMap = () => {
 };
 
 export const useProblemMap = () => {
-  const problems = useProblems().data;
+  const problems = useProblems();
   return problems?.reduce((map, problem) => {
     map.set(problem.id, problem);
     return map;
   }, new Map<ProblemId, Problem>());
+};
+
+export const useProblemModelMap = () => {
+  const fetcher = (url: string) =>
+    fetch(url)
+      .then((r) => r.json())
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .then((obj: { [p: string]: any }) =>
+        Object.entries(obj)
+          .filter((entry): entry is [string, ProblemModel] =>
+            isProblemModel(entry[1])
+          )
+          .reduce((map, [problemId, problemModel]) => {
+            if (problemModel.difficulty === undefined) {
+              map.set(problemId, problemModel);
+            } else {
+              map.set(problemId, {
+                ...problemModel,
+                difficulty: clipDifficulty(problemModel.difficulty),
+                rawDifficulty: problemModel.difficulty,
+              });
+            }
+            return map;
+          }, new Map<ProblemId, ProblemModel>())
+      );
+  const url = STATIC_API_BASE_URL + "/problem-models.json";
+  return useSWR(url, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  }).data;
 };

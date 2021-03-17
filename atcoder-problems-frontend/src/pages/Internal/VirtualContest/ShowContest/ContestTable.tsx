@@ -2,27 +2,26 @@ import { Table } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
-import { useMergedProblemMap } from "../../../../api/APIClient";
+import {
+  useMergedProblemMap,
+  useProblemModelMap,
+} from "../../../../api/APIClient";
 import { clipDifficulty, ordinalSuffixOf } from "../../../../utils";
 import { VirtualContestItem } from "../../types";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import { ProblemId, UserId } from "../../../../interfaces/Status";
-import ProblemModel, {
+import {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel,
   ProblemModelWithDifficultyModel,
   ProblemModelWithTimeModel,
 } from "../../../../interfaces/ProblemModel";
 import Submission from "../../../../interfaces/Submission";
-import {
-  cachedProblemModels,
-  fetchVirtualContestSubmission,
-} from "../../../../utils/CachedApiClient";
+import { fetchVirtualContestSubmission } from "../../../../utils/CachedApiClient";
 import {
   calculatePerformances,
   makeBotRunners,
 } from "../../../../utils/RatingSystem";
-import { convertMap } from "../../../../utils/ImmutableMigration";
 import { TweetButton } from "../../../../components/TweetButton";
 import { getCurrentUnixtimeInSecond } from "../../../../utils/DateUtil";
 import {
@@ -60,7 +59,6 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   submissions: PromiseState<Submission[]>;
-  problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 const InnerContestTable: React.FC<InnerProps> = (props) => {
@@ -79,10 +77,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   } = props;
   const query = new URLSearchParams(useLocation().search);
   const showBots = !!query.get("bot");
-
-  const problemModels = props.problemModels.fulfilled
-    ? props.problemModels.value
-    : new Map<ProblemId, ProblemModel>();
+  const problemModels = useProblemModelMap();
   const { data: problemMap } = useMergedProblemMap();
 
   const modelArray = [] as {
@@ -93,7 +88,7 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   problems.forEach(({ item }) => {
     const problemId = item.id;
     const point = item.point ?? problemMap?.get(problemId)?.point ?? 100;
-    const problemModel = problemModels.get(problemId);
+    const problemModel = problemModels?.get(problemId);
     if (
       isProblemModelWithTimeModel(problemModel) &&
       isProblemModelWithDifficultyModel(problemModel)
@@ -308,9 +303,5 @@ export const ContestTable = connect<OuterProps, InnerProps>((props) => ({
       ).then((submissions) => submissions.toArray()),
     refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
     force: props.enableAutoRefresh,
-  },
-  problemModels: {
-    comparison: null,
-    value: () => cachedProblemModels().then((map) => convertMap(map)),
   },
 }))(InnerContestTable);

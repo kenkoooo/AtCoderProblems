@@ -1,4 +1,4 @@
-import { List, Map } from "immutable";
+import { List } from "immutable";
 import {
   Button,
   Col,
@@ -15,16 +15,13 @@ import {
   UncontrolledDropdown,
 } from "reactstrap";
 import React, { useState } from "react";
+import { useProblemModelMap, useProblems } from "../api/APIClient";
 import Problem from "../interfaces/Problem";
-import { isAccepted, shuffleList } from "../utils";
-import ProblemModel, {
-  isProblemModelWithDifficultyModel,
-} from "../interfaces/ProblemModel";
+import { isAccepted, shuffleArray } from "../utils";
+import { isProblemModelWithDifficultyModel } from "../interfaces/ProblemModel";
 import { cachedSubmissions } from "../utils/CachedApiClient";
 
 interface Props {
-  problems: List<Problem>;
-  problemModels: Map<string, ProblemModel>;
   selectProblem: (...problems: Problem[]) => void;
   expectedParticipantUserIds: string[];
   addButtonDisabled: boolean;
@@ -86,6 +83,8 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
     setExcludeAlreadySolvedProblems,
   ] = useState(true);
   const [selectedPreset, setSelectedPreset] = useState(ABC_PRESET);
+  const problems = useProblems() ?? [];
+  const problemModels = useProblemModelMap();
 
   return (
     <Form className={"w-100"}>
@@ -254,9 +253,9 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
             onClick={async (): Promise<void> => {
               const nProblems = problemSelectionParamsList.length;
 
-              let candidateProblems = props.problems.map((problem) => ({
+              let candidateProblems = problems.map((problem) => ({
                 problem,
-                model: props.problemModels.get(problem.id),
+                model: problemModels?.get(problem.id),
               }));
 
               if (excludeExperimental) {
@@ -291,7 +290,7 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
                 }
               }
 
-              candidateProblems = shuffleList(candidateProblems).toList();
+              candidateProblems = shuffleArray(candidateProblems);
 
               const selectedProblems: Problem[] = [];
               const alreadySelectedProblemIds = new Set<string>();

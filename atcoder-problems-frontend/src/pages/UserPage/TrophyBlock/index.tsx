@@ -1,18 +1,15 @@
 import Octicon, { Verified } from "@primer/octicons-react";
 import React, { useState } from "react";
 import { Table, Row, Col, ListGroup, ListGroupItem, Badge } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
 import {
   useContestMap,
   useContestToProblems,
+  useProblemModelMap,
   useUserSubmission,
 } from "../../../api/APIClient";
 import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
-import ProblemModel from "../../../interfaces/ProblemModel";
-import { ContestId, ProblemId } from "../../../interfaces/Status";
-import * as CachedApiClient from "../../../utils/CachedApiClient";
-import * as ImmutableMigration from "../../../utils/ImmutableMigration";
+import { ContestId } from "../../../interfaces/Status";
 import { generateACCountTrophies } from "./ACCountTrophyGenerator";
 import { generateACProblemsTrophies } from "./ACProblemsTrophyGenerator";
 import { generateStreakTrophies } from "./StreakTrophyGenerator";
@@ -23,21 +20,15 @@ interface OuterProps {
   userId: string;
 }
 
-interface InnerProps extends OuterProps {
-  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-}
-
-const InnerTrophyBlock: React.FC<InnerProps> = (props) => {
+export const TrophyBlock: React.FC<OuterProps> = (props) => {
   const submissions = useUserSubmission(props.userId) ?? [];
-  const problemModels = props.problemModelsFetch.fulfilled
-    ? props.problemModelsFetch.value
-    : new Map<ProblemId, ProblemModel>();
+  const problemModels = useProblemModelMap();
   const contestMap = useContestMap();
   const contestToProblems =
     useContestToProblems() ?? new Map<ContestId, Problem[]>();
 
   const trophySubmissions = submissions.map((submission) => {
-    const problemModel = problemModels.get(submission.problem_id);
+    const problemModel = problemModels?.get(submission.problem_id);
     return { submission, problemModel };
   });
 
@@ -111,11 +102,3 @@ const InnerTrophyBlock: React.FC<InnerProps> = (props) => {
     </>
   );
 };
-
-export const TrophyBlock = connect<OuterProps, InnerProps>(() => ({
-  problemModelsFetch: {
-    value: CachedApiClient.cachedProblemModels().then((map) =>
-      ImmutableMigration.convertMap(map)
-    ),
-  },
-}))(InnerTrophyBlock);

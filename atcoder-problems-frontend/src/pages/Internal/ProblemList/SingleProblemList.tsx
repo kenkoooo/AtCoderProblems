@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
-import { Map, List } from "immutable";
+import { List } from "immutable";
 import {
   Alert,
   Button,
@@ -14,6 +14,7 @@ import {
   Row,
   Spinner,
 } from "reactstrap";
+import { useProblems } from "../../../api/APIClient";
 import {
   LIST_ITEM_ADD,
   LIST_ITEM_DELETE,
@@ -22,9 +23,7 @@ import {
   listGetUrl,
   USER_GET,
 } from "../ApiUrl";
-import * as CachedApi from "../../../utils/CachedApiClient";
 import Problem from "../../../interfaces/Problem";
-import { ProblemId } from "../../../interfaces/Status";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { formatProblemUrl } from "../../../utils/Url";
 import { ProblemList, ProblemListItem, UserResponse } from "../types";
@@ -39,7 +38,6 @@ interface InnerProps extends OuterProps {
   problemListFetch: PromiseState<ProblemList>;
   updateList: (name: string) => void;
   updateListResponse: PromiseState<Record<string, unknown> | null>;
-  problems: PromiseState<Map<ProblemId, Problem>>;
 
   addItem: (problemId: string) => void;
   deleteItem: (problemId: string) => void;
@@ -49,6 +47,7 @@ interface InnerProps extends OuterProps {
 const InnerSingleProblemList = (props: InnerProps) => {
   const [adding, setAdding] = useState(false);
   const [creatingContest, setCreatingContest] = useState(false);
+  const problems = useProblems() ?? [];
 
   const { problemListFetch, userInfoFetch } = props;
   const internalUserId =
@@ -62,9 +61,6 @@ const InnerSingleProblemList = (props: InnerProps) => {
   }
   const listInfo = problemListFetch.value;
   const modifiable = listInfo.internal_user_id === internalUserId;
-  const problems = props.problems.fulfilled
-    ? props.problems.value.valueSeq().toArray()
-    : [];
 
   return creatingContest ? (
     <>
@@ -163,10 +159,6 @@ export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
     },
   }),
   updateListResponse: { value: null },
-  problems: {
-    comparison: null,
-    value: () => CachedApi.cachedProblemMap(),
-  },
   addItem: (problemId: string) => ({
     problemListFetch: {
       url: LIST_ITEM_ADD,

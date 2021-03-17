@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect, PromiseState } from "react-refetch";
-import { List, Map as ImmutableMap, Set as ImmutableSet } from "immutable";
+import { List, Set as ImmutableSet } from "immutable";
 import {
   useContests,
   useContestToProblems,
@@ -8,13 +8,7 @@ import {
   useUserSubmission,
 } from "../../api/APIClient";
 import Problem from "../../interfaces/Problem";
-import {
-  constructStatusLabelMap,
-  ContestId,
-  ProblemId,
-} from "../../interfaces/Status";
-import ProblemModel from "../../interfaces/ProblemModel";
-import * as CachedApiClient from "../../utils/CachedApiClient";
+import { constructStatusLabelMap, ContestId } from "../../interfaces/Status";
 import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
 import Submission from "../../interfaces/Submission";
@@ -38,17 +32,12 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  readonly problemModelsFetch: PromiseState<
-    ImmutableMap<ProblemId, ProblemModel>
-  >;
   readonly submissions: PromiseState<Submission[]>;
   readonly loginState: PromiseState<UserResponse | null>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
 const InnerTablePage: React.FC<InnerProps> = (props) => {
-  const { problemModelsFetch } = props;
-
   const [activeTab, setActiveTab] = useLocalStorage<ContestCategory>(
     "contestTableTab",
     "ABC"
@@ -73,9 +62,6 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     ImmutableSet<string>()
   );
   const userRatingInfo = useRatingInfo(props.userId);
-  const problemModels = problemModelsFetch.fulfilled
-    ? problemModelsFetch.value
-    : ImmutableMap<ProblemId, ProblemModel>();
   const contestToProblems =
     useContestToProblems() ?? new Map<ContestId, Problem[]>();
   const { data: contests } = useContests();
@@ -130,7 +116,6 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
       {["ABC", "ARC", "AGC", "ABC-Like", "ARC-Like"].includes(activeTab) ? (
         <AtCoderRegularTable
-          problemModels={problemModels}
           showDifficulty={showDifficulty}
           hideCompletedContest={hideCompletedContest}
           colorMode={colorMode}
@@ -154,7 +139,6 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
         />
       ) : (
         <ContestTable
-          problemModels={problemModels}
           showDifficulty={showDifficulty}
           contests={filteredContests}
           title={activeTab}
@@ -172,11 +156,6 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
 };
 
 export const TablePage = connect<OuterProps, InnerProps>((props) => ({
-  problemModelsFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, ProblemModel>> =>
-      CachedApiClient.cachedProblemModels(),
-  },
   submissions: {
     comparison: [props.userId, props.rivals],
     value: (): Promise<Submission[]> =>

@@ -12,12 +12,11 @@ import {
   Row,
   UncontrolledDropdown,
 } from "reactstrap";
-import { List, Map, Range } from "immutable";
+import { List, Range } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import moment from "moment";
 import { Redirect } from "react-router";
-import * as CachedApiClient from "../../../utils/CachedApiClient";
-import { ProblemId } from "../../../interfaces/Status";
+import { useProblemModelMap, useProblems } from "../../../api/APIClient";
 import Problem from "../../../interfaces/Problem";
 import { USER_GET } from "../ApiUrl";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
@@ -27,7 +26,6 @@ import {
   VirtualContestMode,
   formatPublicState,
 } from "../types";
-import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { HelpBadgeModal } from "../../../components/HelpBadgeModal";
@@ -72,16 +70,16 @@ const InnerContestConfig: React.FC<InnerProps> = (props) => {
       ? expectedParticipantUserIdsText.split(" ")
       : [];
 
+  const problems = useProblems();
+  const problemModels = useProblemModelMap();
+
   if (props.loginState.rejected) {
     return <Redirect to="/" />;
   }
 
-  const { problemMapFetch, problemModelsFetch } = props;
-  if (!problemMapFetch.fulfilled || !problemModelsFetch.fulfilled) {
+  if (!problems || !problemModels) {
     return null;
   }
-  const problemMap = problemMapFetch.value;
-  const problemModelMap = problemModelsFetch.value;
 
   const startSecond = toUnixSecond(startDate, startHour, startMinute);
   const endSecond = toUnixSecond(endDate, endHour, endMinute);
@@ -312,8 +310,6 @@ const InnerContestConfig: React.FC<InnerProps> = (props) => {
             onSolvedProblemsFetchFinished={(errorMessage): void => {
               setExpectedParticipantsInputErrorMessage(errorMessage || "");
             }}
-            problemModelMap={problemModelMap}
-            problemMap={problemMap}
             problemSet={problemSet}
             setProblemSet={setProblemSet}
             expectedParticipantUserIds={expectedParticipantUserIds}
@@ -324,7 +320,7 @@ const InnerContestConfig: React.FC<InnerProps> = (props) => {
       <Row className="my-2">
         <Col>
           <ProblemSearchBox
-            problems={problemMap.valueSeq().toArray()}
+            problems={problems}
             selectProblem={addProblemsIfNotSelected}
           />
         </Col>
@@ -347,8 +343,6 @@ const InnerContestConfig: React.FC<InnerProps> = (props) => {
             <Row className="my-2">
               <Col>
                 <ProblemSetGenerator
-                  problems={problemMap.valueSeq().toList()}
-                  problemModels={problemModelMap}
                   selectProblem={addProblemsIfNotSelected}
                   expectedParticipantUserIds={expectedParticipantUserIds}
                   addButtonDisabled={hasExpectedParticipantsInputError}
@@ -420,22 +414,10 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  problemMapFetch: PromiseState<Map<ProblemId, Problem>>;
-  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
   loginState: PromiseState<unknown | null>;
 }
 
 export const ContestConfig = connect<OuterProps, InnerProps>(() => ({
-  problemMapFetch: {
-    comparison: null,
-    value: (): Promise<Map<string, Problem>> =>
-      CachedApiClient.cachedProblemMap(),
-  },
-  problemModelsFetch: {
-    comparison: null,
-    value: (): Promise<Map<string, ProblemModel>> =>
-      CachedApiClient.cachedProblemModels(),
-  },
   loginState: {
     url: USER_GET,
   },
