@@ -11,8 +11,9 @@ export const ContestCategories = [
   "PAST",
   "JOI",
   "JAG",
-  "Marathon",
   "Other Contests",
+  "AHC",
+  "Other Marathons",
 ] as const;
 export type ContestCategory = typeof ContestCategories[number];
 
@@ -60,6 +61,10 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   if (/^(jag|JAG)/.exec(contest.id)) {
     return "JAG";
   }
+
+  if (/^ahc\d{3}$/.exec(contest.id)) {
+    return "AHC";
+  }
   if (
     /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
       contest.title
@@ -72,7 +77,7 @@ export const classifyContest = (contest: Contest): ContestCategory => {
       "wn2017_1",
     ].includes(contest.id)
   ) {
-    return "Marathon";
+    return "Other Marathons";
   }
 
   return "Other Contests";
