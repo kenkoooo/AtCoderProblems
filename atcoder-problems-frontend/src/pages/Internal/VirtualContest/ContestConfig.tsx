@@ -73,7 +73,7 @@ export const ContestConfig: React.FC<Props> = (props) => {
   const problems = useProblems();
   const problemModels = useProblemModelMap();
 
-  if (loginState.failed) {
+  if (loginState.error) {
     return <Redirect to="/" />;
   }
 

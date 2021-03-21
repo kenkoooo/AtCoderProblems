@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { NavLink, useHistory } from "react-router-dom";
-import { connect, PromiseState } from "react-refetch";
 import {
   Alert,
   Button,
@@ -17,55 +16,45 @@ import {
 } from "reactstrap";
 import Octicon, { ChevronDown, ChevronUp } from "@primer/octicons-react";
 import { useMergedProblemMap } from "../../../../api/APIClient";
-import { useLoginState } from "../../../../api/InternalAPIClient";
-import { CONTEST_JOIN, CONTEST_LEAVE, contestGetUrl } from "../../ApiUrl";
+import {
+  useLoginState,
+  useVirtualContest,
+} from "../../../../api/InternalAPIClient";
 import {
   formatMomentDateTimeDay,
   getCurrentUnixtimeInSecond,
   parseSecond,
 } from "../../../../utils/DateUtil";
-import {
-  formatMode,
-  VirtualContestDetails,
-  formatPublicState,
-  VirtualContestItem,
-} from "../../types";
+import { formatMode, formatPublicState, VirtualContestItem } from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
 import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
 import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { useLocalStorage } from "../../../../utils/LocalStorage";
 import { ProblemLink } from "../../../../components/ProblemLink";
+import { joinContest, leaveContest } from "../ApiClient";
 import { ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
 import { compareProblem } from "./util";
 
-interface OuterProps {
+interface Props {
   contestId: string;
 }
 
-interface InnerProps extends OuterProps {
-  contestInfoFetch: PromiseState<VirtualContestDetails>;
-  joinContest: () => void;
-  joinContestPost: PromiseState<unknown | null>;
-  leaveContest: () => void;
-  leaveContestPost: PromiseState<unknown | null>;
-}
-
-const InnerShowContest: React.FC<InnerProps> = (props) => {
+export const ShowContest = (props: Props) => {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const loginState = useLoginState();
   const [showRating, setShowRating] = useLocalStorage("showRating", false);
   const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
   const [showProblemTable, setShowProblemTable] = useState(true);
   const history = useHistory();
-  const { contestInfoFetch } = props;
-
+  const virtualContestResponse = useVirtualContest(props.contestId);
   const { data: problemMap } = useMergedProblemMap();
-  if (contestInfoFetch.pending) {
+
+  if (!virtualContestResponse.data && !virtualContestResponse.error) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
-  } else if (contestInfoFetch.rejected) {
+  } else if (!virtualContestResponse.data) {
     return <Alert color="danger">Failed to fetch contest info.</Alert>;
   }
 
@@ -73,7 +62,7 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
     info: contestInfo,
     participants: contestParticipants,
     problems: contestProblems,
-  } = contestInfoFetch.value;
+  } = virtualContestResponse.data;
   const rawAtCoderUserId = loginState.data?.atcoder_user_id;
   const internalUserId = loginState?.data?.internal_user_id;
 
@@ -193,10 +182,24 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
           ) : null}
           <ButtonGroup>
             {canJoin ? (
-              <Button onClick={(): void => props.joinContest()}>Join</Button>
+              <Button
+                onClick={async () => {
+                  await joinContest(props.contestId);
+                  await virtualContestResponse.revalidate();
+                }}
+              >
+                Join
+              </Button>
             ) : null}
             {canLeave ? (
-              <Button onClick={(): void => props.leaveContest()}>Leave</Button>
+              <Button
+                onClick={async () => {
+                  await leaveContest(props.contestId);
+                  await virtualContestResponse.revalidate();
+                }}
+              >
+                Leave
+              </Button>
             ) : null}
             {isOwner ? (
               <Button
@@ -373,50 +376,3 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
     </>
   );
 };
-
-export const ShowContest = connect<OuterProps, InnerProps>(
-  (props: OuterProps) => {
-    return {
-      contestInfoFetch: {
-        force: true,
-        url: contestGetUrl(props.contestId),
-      },
-      joinContest: () => ({
-        joinContestPost: {
-          url: CONTEST_JOIN,
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ contest_id: props.contestId }),
-          andThen: () => ({
-            contestInfoFetch: {
-              url: contestGetUrl(props.contestId),
-              force: true,
-            },
-          }),
-          force: true,
-        },
-      }),
-      joinContestPost: { value: null },
-      leaveContest: () => ({
-        leaveContestPost: {
-          url: CONTEST_LEAVE,
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ contest_id: props.contestId }),
-          andThen: () => ({
-            contestInfoFetch: {
-              url: contestGetUrl(props.contestId),
-              force: true,
-            },
-          }),
-          force: true,
-        },
-      }),
-      leaveContestPost: { value: null },
-    };
-  }
-)(InnerShowContest);
