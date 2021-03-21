@@ -13,12 +13,11 @@ import {
   UncontrolledDropdown,
 } from "reactstrap";
 import { List, Range } from "immutable";
-import { connect, PromiseState } from "react-refetch";
 import moment from "moment";
 import { Redirect } from "react-router";
 import { useProblemModelMap, useProblems } from "../../../api/APIClient";
+import { useLoginState } from "../../../api/InternalAPIClient";
 import Problem from "../../../interfaces/Problem";
-import { USER_GET } from "../ApiUrl";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import {
   formatMode,
@@ -38,7 +37,8 @@ const toUnixSecond = (date: string, hour: number, minute: number): number => {
   return moment(s).unix();
 };
 
-const InnerContestConfig: React.FC<InnerProps> = (props) => {
+export const ContestConfig: React.FC<Props> = (props) => {
+  const loginState = useLoginState();
   const [title, setTitle] = useState(props.initialTitle);
   const [memo, setMemo] = useState(props.initialMemo);
 
@@ -73,7 +73,7 @@ const InnerContestConfig: React.FC<InnerProps> = (props) => {
   const problems = useProblems();
   const problemModels = useProblemModelMap();
 
-  if (props.loginState.rejected) {
+  if (loginState.failed) {
     return <Redirect to="/" />;
   }
 
@@ -394,7 +394,7 @@ interface ContestInfo {
   problems: List<VirtualContestItem>;
 }
 
-interface OuterProps {
+interface Props {
   initialProblems: List<VirtualContestItem>;
   pageTitle: string;
   initialTitle: string;
@@ -412,13 +412,3 @@ interface OuterProps {
   buttonPush: (contest: ContestInfo) => void;
   buttonTitle: string;
 }
-
-interface InnerProps extends OuterProps {
-  loginState: PromiseState<unknown | null>;
-}
-
-export const ContestConfig = connect<OuterProps, InnerProps>(() => ({
-  loginState: {
-    url: USER_GET,
-  },
-}))(InnerContestConfig);

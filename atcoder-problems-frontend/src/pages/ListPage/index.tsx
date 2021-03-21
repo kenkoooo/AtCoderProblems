@@ -18,6 +18,7 @@ import {
   useProblemModelMap,
   useRatingInfo,
 } from "../../api/APIClient";
+import { useLoginState } from "../../api/InternalAPIClient";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
 import ProblemModel from "../../interfaces/ProblemModel";
 import {
@@ -33,13 +34,9 @@ import MergedProblem from "../../interfaces/MergedProblem";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import { generatePathWithParams } from "../../utils/QueryString";
 import { fetchUserSubmissions } from "../../utils/Api";
-import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
+import { PROGRESS_RESET_LIST } from "../Internal/ApiUrl";
 import { loggedInUserId } from "../../utils/UserState";
-import {
-  filterResetProgress,
-  ProgressResetList,
-  UserResponse,
-} from "../Internal/types";
+import { filterResetProgress, ProgressResetList } from "../Internal/types";
 import { ListTable, StatusFilter, statusFilters } from "./ListTable";
 import { DifficultyTable } from "./DifficultyTable";
 import { SmallTable } from "./SmallTable";
@@ -127,6 +124,7 @@ const convertSortByParam = (value: string | null): ProblemRowDataField => {
 const InnerListPage: React.FC<InnerProps> = (props) => {
   const location = useLocation();
   const history = useHistory();
+  const loginState = useLoginState().data;
   const searchParams = new URLSearchParams(location.search);
 
   const fromPoint = parseInt(
@@ -176,7 +174,7 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
   const problemModels = useProblemModelMap();
   const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
 
-  const loginUserId = loggedInUserId(props.loginState);
+  const loginUserId = loggedInUserId(loginState);
   const progressReset =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value
@@ -456,8 +454,6 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   readonly submissionsFetch: PromiseState<Submission[]>;
-
-  readonly loginState: PromiseState<UserResponse | null>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
@@ -469,6 +465,5 @@ export const ListPage = connect<OuterProps, InnerProps>((props) => ({
         props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
       ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
   },
-  loginState: USER_GET,
   progressResetList: PROGRESS_RESET_LIST,
 }))(InnerListPage);

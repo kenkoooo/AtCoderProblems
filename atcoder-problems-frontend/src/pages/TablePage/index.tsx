@@ -7,18 +7,15 @@ import {
   useRatingInfo,
   useUserSubmission,
 } from "../../api/APIClient";
+import { useLoginState } from "../../api/InternalAPIClient";
 import Problem from "../../interfaces/Problem";
 import { constructStatusLabelMap, ContestId } from "../../interfaces/Status";
 import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
 import Submission from "../../interfaces/Submission";
 import { fetchUserSubmissions } from "../../utils/Api";
-import {
-  filterResetProgress,
-  ProgressResetList,
-  UserResponse,
-} from "../Internal/types";
-import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
+import { filterResetProgress, ProgressResetList } from "../Internal/types";
+import { PROGRESS_RESET_LIST } from "../Internal/ApiUrl";
 import { loggedInUserId } from "../../utils/UserState";
 import { classifyContest, ContestCategory } from "./ContestClassifier";
 import { TableTabButtons } from "./TableTab";
@@ -33,7 +30,6 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   readonly submissions: PromiseState<Submission[]>;
-  readonly loginState: PromiseState<UserResponse | null>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
@@ -71,8 +67,8 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
   const submissions = props.submissions.fulfilled
     ? props.submissions.value
     : [];
-
-  const loginUserId = loggedInUserId(props.loginState);
+  const loginState = useLoginState().data;
+  const loginUserId = loggedInUserId(loginState);
   const progressReset =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value
@@ -163,6 +159,5 @@ export const TablePage = connect<OuterProps, InnerProps>((props) => ({
         props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
       ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
   },
-  loginState: USER_GET,
   progressResetList: PROGRESS_RESET_LIST,
 }))(InnerTablePage);

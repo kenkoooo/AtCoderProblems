@@ -6,13 +6,14 @@ import {
 } from "react-bootstrap-table";
 import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
 import {
   useContestMap,
   useMergedProblemMap,
   useProblemModelMap,
   useRatingInfo,
+  useUserSubmission,
 } from "../../../api/APIClient";
+import { useLoginState } from "../../../api/InternalAPIClient";
 import { ContestLink } from "../../../components/ContestLink";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { NewTabLink } from "../../../components/NewTabLink";
@@ -27,11 +28,8 @@ import {
 } from "../../../utils/ProblemModelUtil";
 import { PROBLEM_ID_SEPARATE_SYMBOL } from "../../../utils/QueryString";
 import * as Url from "../../../utils/Url";
-import * as CachedApiClient from "../../../utils/CachedApiClient";
 import * as UserState from "../../../utils/UserState";
 import { useLocalStorage } from "../../../utils/LocalStorage";
-import { UserResponse } from "../../Internal/types";
-import { USER_GET } from "../../Internal/ApiUrl";
 import { recommendProblems } from "./RecommendProblems";
 import {
   ExcludeOption,
@@ -84,17 +82,14 @@ const getLastSolvedTimeMap = (userSubmissions: Submission[]) => {
   return lastSolvedTimeMap;
 };
 
-interface OuterProps {
+interface Props {
   userId: string;
 }
 
-interface InnerProps extends OuterProps {
-  userSubmissionsFetch: PromiseState<Submission[]>;
-  loginStateFetch: PromiseState<UserResponse>;
-}
-
-const InnerRecommendations: React.FC<InnerProps> = (props) => {
+export const Recommendations = (props: Props) => {
   const history = useHistory();
+  const loginState = useLoginState().data;
+  const userSubmissions = useUserSubmission(props.userId) ?? [];
 
   const [recommendOption, setRecommendOption] = useLocalStorage<
     RecommendOption
@@ -124,17 +119,13 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     ids.forEach((problemId) => newSet.delete(problemId));
     setSelectedProblemIdSet(newSet);
   };
-
-  const userSubmissions = props.userSubmissionsFetch.fulfilled
-    ? props.userSubmissionsFetch.value
-    : [];
   const { data: mergedProblemsMap } = useMergedProblemMap();
   const problems = mergedProblemsMap
     ? Array.from(mergedProblemsMap.values())
     : [];
   const contestMap = useContestMap();
   const problemModels = useProblemModelMap();
-  const isLoggedIn = UserState.isLoggedIn(props.loginStateFetch);
+  const isLoggedIn = UserState.isLoggedIn(loginState);
 
   if (userSubmissions.length === 0) {
     return null;
@@ -315,15 +306,3 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     </>
   );
 };
-
-export const Recommendations = connect<OuterProps, InnerProps>(
-  ({ userId }) => ({
-    userSubmissionsFetch: {
-      comparison: userId,
-      value: CachedApiClient.cachedSubmissions(userId).then((list) =>
-        list.toArray()
-      ),
-    },
-    loginStateFetch: USER_GET,
-  })
-)(InnerRecommendations);

@@ -17,12 +17,8 @@ import {
 } from "reactstrap";
 import Octicon, { ChevronDown, ChevronUp } from "@primer/octicons-react";
 import { useMergedProblemMap } from "../../../../api/APIClient";
-import {
-  CONTEST_JOIN,
-  CONTEST_LEAVE,
-  contestGetUrl,
-  USER_GET,
-} from "../../ApiUrl";
+import { useLoginState } from "../../../../api/InternalAPIClient";
+import { CONTEST_JOIN, CONTEST_LEAVE, contestGetUrl } from "../../ApiUrl";
 import {
   formatMomentDateTimeDay,
   getCurrentUnixtimeInSecond,
@@ -30,7 +26,6 @@ import {
 } from "../../../../utils/DateUtil";
 import {
   formatMode,
-  UserResponse,
   VirtualContestDetails,
   formatPublicState,
   VirtualContestItem,
@@ -52,7 +47,6 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   contestInfoFetch: PromiseState<VirtualContestDetails>;
-  userInfoGet: PromiseState<UserResponse | null>;
   joinContest: () => void;
   joinContestPost: PromiseState<unknown | null>;
   leaveContest: () => void;
@@ -61,11 +55,12 @@ interface InnerProps extends OuterProps {
 
 const InnerShowContest: React.FC<InnerProps> = (props) => {
   const [autoRefresh, setAutoRefresh] = useState(false);
+  const loginState = useLoginState();
   const [showRating, setShowRating] = useLocalStorage("showRating", false);
   const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
   const [showProblemTable, setShowProblemTable] = useState(true);
   const history = useHistory();
-  const { contestInfoFetch, userInfoGet } = props;
+  const { contestInfoFetch } = props;
 
   const { data: problemMap } = useMergedProblemMap();
   if (contestInfoFetch.pending) {
@@ -79,14 +74,8 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
     participants: contestParticipants,
     problems: contestProblems,
   } = contestInfoFetch.value;
-  const rawAtCoderUserId =
-    userInfoGet.fulfilled && userInfoGet.value
-      ? userInfoGet.value.atcoder_user_id
-      : null;
-  const internalUserId =
-    userInfoGet.fulfilled && userInfoGet.value
-      ? userInfoGet.value.internal_user_id
-      : null;
+  const rawAtCoderUserId = loginState.data?.atcoder_user_id;
+  const internalUserId = loginState?.data?.internal_user_id;
 
   const atCoderUserId = rawAtCoderUserId ? rawAtCoderUserId : "";
   const isLoggedIn = internalUserId !== null;
@@ -388,9 +377,6 @@ const InnerShowContest: React.FC<InnerProps> = (props) => {
 export const ShowContest = connect<OuterProps, InnerProps>(
   (props: OuterProps) => {
     return {
-      userInfoGet: {
-        url: USER_GET,
-      },
       contestInfoFetch: {
         force: true,
         url: contestGetUrl(props.contestId),
