@@ -11,9 +11,9 @@ export const ContestCategories = [
   "PAST",
   "JOI",
   "JAG",
-  "Other Contests",
   "AHC",
-  "Other Marathons",
+  "Marathon",
+  "Other Contests",
 ] as const;
 export type ContestCategory = typeof ContestCategories[number];
 
@@ -77,7 +77,7 @@ export const classifyContest = (contest: Contest): ContestCategory => {
       "wn2017_1",
     ].includes(contest.id)
   ) {
-    return "Other Marathons";
+    return "Marathon";
   }
 
   return "Other Contests";
