@@ -2,13 +2,9 @@ const BASE_URL = process.env.REACT_APP_INTERNAL_API_URL;
 
 export const USER_UPDATE = `${BASE_URL}/user/update`;
 
-export const contestGetUrl = (contestId: string): string =>
-  `${BASE_URL}/contest/get/${contestId}`;
-export const CONTEST_MY = `${BASE_URL}/contest/my`;
 export const CONTEST_UPDATE = `${BASE_URL}/contest/update`;
 export const CONTEST_JOIN = `${BASE_URL}/contest/join`;
 export const CONTEST_LEAVE = `${BASE_URL}/contest/leave`;
-export const CONTEST_JOINED = `${BASE_URL}/contest/joined`;
 export const CONTEST_CREATE = `${BASE_URL}/contest/create`;
 export const CONTEST_RECENT = `${BASE_URL}/contest/recent`;
 export const CONTEST_ITEM_UPDATE = `${BASE_URL}/contest/item/update`;

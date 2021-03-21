@@ -30,14 +30,14 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (loginState.fulfilled && loginState.data) {
+    if (loginState.data) {
       setUserId(loginState.data.atcoder_user_id ?? "");
     }
     // We only want to set the userId when the userInfoGet promise is first fulfilled.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loginState.fulfilled]);
+  }, [!!loginState.data]);
 
-  if (loginState.failed || updateUserInfoResponse.rejected) {
+  if (loginState.error || updateUserInfoResponse.rejected) {
     return <Redirect to="/" />;
   } else if (!loginState.data) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;

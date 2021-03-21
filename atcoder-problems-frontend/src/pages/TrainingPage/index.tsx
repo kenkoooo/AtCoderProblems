@@ -13,13 +13,13 @@ export const TrainingPage = () => {
   const courses = useCourses();
   const loginState = useLoginState();
   const submissions = useUserSubmission(loginState.data?.atcoder_user_id ?? "");
-  if (courses.failed) {
+  if (courses.error) {
     return <Alert color="danger">Failed to fetch course info.</Alert>;
   }
   if (!courses.data) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }
-  const loading = !loginState.fulfilled || !submissions;
+  const loading = (!loginState.data && !loginState.error) || !submissions;
 
   return (
     <>

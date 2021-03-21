@@ -5,12 +5,9 @@ export const useSWRData = <T>(
   fetcher: (url: string) => Promise<T>,
   config: SWRConfiguration<T> = {}
 ) => {
-  const response = useSWR(url, fetcher, {
+  return useSWR(url, fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     ...config,
   });
-  const failed = !!response.error;
-  const fulfilled = !!response.data || !!response.error;
-  return { failed, fulfilled, ...response };
 };

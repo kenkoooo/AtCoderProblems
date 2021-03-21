@@ -37,7 +37,7 @@ export const RecentContestList = connect<unknown, InnerProps>(() => ({
 
   return (
     <>
-      {loginState.fulfilled && loginState.data ? (
+      {loginState.data ? (
         <Row className="my-2">
           <Col sm="12">
             <Button
