@@ -15,18 +15,18 @@ import {
   Spinner,
 } from "reactstrap";
 import { useProblems } from "../../../api/APIClient";
+import { useLoginState } from "../../../api/InternalAPIClient";
 import {
   LIST_ITEM_ADD,
   LIST_ITEM_DELETE,
   LIST_ITEM_UPDATE,
   LIST_UPDATE,
   listGetUrl,
-  USER_GET,
 } from "../ApiUrl";
 import Problem from "../../../interfaces/Problem";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { formatProblemUrl } from "../../../utils/Url";
-import { ProblemList, ProblemListItem, UserResponse } from "../types";
+import { ProblemList, ProblemListItem } from "../types";
 import { NewTabLink } from "../../../components/NewTabLink";
 import { ContestCreatePage } from "../VirtualContest/ContestCreatePage";
 
@@ -34,7 +34,6 @@ interface OuterProps {
   listId: string;
 }
 interface InnerProps extends OuterProps {
-  userInfoFetch: PromiseState<UserResponse | null>;
   problemListFetch: PromiseState<ProblemList>;
   updateList: (name: string) => void;
   updateListResponse: PromiseState<Record<string, unknown> | null>;
@@ -45,15 +44,13 @@ interface InnerProps extends OuterProps {
 }
 
 const InnerSingleProblemList = (props: InnerProps) => {
+  const loginState = useLoginState();
   const [adding, setAdding] = useState(false);
   const [creatingContest, setCreatingContest] = useState(false);
   const problems = useProblems() ?? [];
 
-  const { problemListFetch, userInfoFetch } = props;
-  const internalUserId =
-    userInfoFetch.fulfilled && userInfoFetch.value
-      ? userInfoFetch.value.internal_user_id
-      : null;
+  const { problemListFetch } = props;
+  const internalUserId = loginState.data?.internal_user_id;
   if (problemListFetch.pending) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else if (problemListFetch.rejected || !problemListFetch.value) {
@@ -148,7 +145,6 @@ const InnerSingleProblemList = (props: InnerProps) => {
 };
 
 export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
-  userInfoFetch: USER_GET,
   problemListFetch: listGetUrl(props.listId),
   updateList: (name: string) => ({
     updateListResponse: {

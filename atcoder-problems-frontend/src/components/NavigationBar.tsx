@@ -13,22 +13,17 @@ import {
   NavbarToggler,
   UncontrolledDropdown,
 } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
-import { USER_GET } from "../pages/Internal/ApiUrl";
-import { UserResponse } from "../pages/Internal/types";
+import { useLoginState } from "../api/InternalAPIClient";
 import { GITHUB_LOGIN_LINK } from "../utils/Url";
 import { ACCOUNT_INFO } from "../utils/RouterPath";
 import * as UserState from "../utils/UserState";
 import { UserSearchBar } from "./UserSearchBar";
 import { ThemeSelector } from "./ThemeSelector";
 
-interface InnerProps {
-  loginState: PromiseState<UserResponse | null>;
-}
-
-const InnerNavigationBar: React.FC<InnerProps> = (props) => {
-  const isLoggedIn = UserState.isLoggedIn(props.loginState);
-  const loggedInUserId = UserState.loggedInUserId(props.loginState) ?? "";
+export const NavigationBar = () => {
+  const loginState = useLoginState().data;
+  const isLoggedIn = UserState.isLoggedIn(loginState);
+  const loggedInUserId = UserState.loggedInUserId(loginState) ?? "";
 
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -185,9 +180,3 @@ const InnerNavigationBar: React.FC<InnerProps> = (props) => {
     </>
   );
 };
-
-export const NavigationBar = connect<unknown, InnerProps>(() => ({
-  loginState: {
-    url: USER_GET,
-  },
-}))(InnerNavigationBar);

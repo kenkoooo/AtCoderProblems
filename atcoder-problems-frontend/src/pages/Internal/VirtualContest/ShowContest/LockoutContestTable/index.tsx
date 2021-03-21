@@ -1,11 +1,9 @@
 import React from "react";
-import { connect, PromiseState } from "react-refetch";
 import { Table, Row, Col, Card, CardHeader, CardBody } from "reactstrap";
-import Submission from "../../../../../interfaces/Submission";
+import { useVirtualContestSubmissions } from "../../../../../api/APIClient";
 import { VirtualContestItem } from "../../../types";
 import { isAccepted } from "../../../../../utils";
-import { ProblemId } from "../../../../../interfaces/Status";
-import { fetchVirtualContestSubmission } from "../../../../../utils/CachedApiClient";
+import { ProblemId, UserId } from "../../../../../interfaces/Status";
 import { ProblemLink } from "../../../../../components/ProblemLink";
 import { UserNameLabel } from "../../../../../components/UserNameLabel";
 
@@ -18,10 +16,10 @@ interface LockoutStatus {
   color: string;
 }
 
-interface OuterProps {
+interface Props {
   readonly showRating: boolean;
   readonly showProblems: boolean;
-  readonly participants: string[];
+  readonly participants: UserId[];
   readonly start: number;
   readonly end: number;
   readonly enableAutoRefresh: boolean;
@@ -32,14 +30,17 @@ interface OuterProps {
   }[];
 }
 
-interface InnerProps extends OuterProps {
-  submissions: PromiseState<Submission[]>;
-}
-
-const InnerLockoutContestTable: React.FC<InnerProps> = (props) => {
-  const submissions = props.submissions.fulfilled
-    ? props.submissions.value.slice().sort((a, b) => a.id - b.id)
-    : ([] as Submission[]);
+export const LockoutContestTable: React.FC<Props> = (props) => {
+  const submissions =
+    useVirtualContestSubmissions(
+      props.participants,
+      props.problems.map((p) => p.item.id),
+      props.start,
+      props.end,
+      props.enableAutoRefresh ? 60_000 : 1_000_000_000
+    )
+      ?.slice()
+      .sort((a, b) => a.id - b.id) ?? [];
 
   const colorMap = new Map<string, string>();
   for (let i = 0; i < props.participants.length; i++) {
@@ -154,18 +155,3 @@ const InnerLockoutContestTable: React.FC<InnerProps> = (props) => {
     </>
   );
 };
-
-export const LockoutContestTable = connect<OuterProps, InnerProps>((props) => ({
-  submissions: {
-    comparison: null,
-    value: (): Promise<Submission[]> =>
-      fetchVirtualContestSubmission(
-        props.participants,
-        props.problems.map((p) => p.item.id),
-        props.start,
-        props.end
-      ).then((submissions) => submissions.toArray()),
-    refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
-    force: props.enableAutoRefresh,
-  },
-}))(InnerLockoutContestTable);

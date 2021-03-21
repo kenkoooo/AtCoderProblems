@@ -2,25 +2,23 @@ import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import { Button, Col, Row } from "reactstrap";
 import { useHistory } from "react-router-dom";
+import { useLoginState } from "../../../api/InternalAPIClient";
 import { getCurrentUnixtimeInSecond } from "../../../utils/DateUtil";
 import { VirtualContestTable } from "../VirtualContestTable";
-import { CONTEST_RECENT, USER_GET } from "../ApiUrl";
+import { CONTEST_RECENT } from "../ApiUrl";
 import { VirtualContestInfo } from "../types";
 
 interface InnerProps {
   contestListGet: PromiseState<VirtualContestInfo[]>;
-  userInfoGet: PromiseState<unknown | null>;
 }
 
 export const RecentContestList = connect<unknown, InnerProps>(() => ({
   contestListGet: {
     url: CONTEST_RECENT,
   },
-  userInfoGet: {
-    url: USER_GET,
-  },
 }))((props) => {
   const history = useHistory();
+  const loginState = useLoginState();
   const contests = props.contestListGet.fulfilled
     ? props.contestListGet.value.sort(
         (a, b) => b.start_epoch_second - a.start_epoch_second
@@ -39,7 +37,7 @@ export const RecentContestList = connect<unknown, InnerProps>(() => ({
 
   return (
     <>
-      {props.userInfoGet.fulfilled && props.userInfoGet.value ? (
+      {loginState.fulfilled && loginState.data ? (
         <Row className="my-2">
           <Col sm="12">
             <Button

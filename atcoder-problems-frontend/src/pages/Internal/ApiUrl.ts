@@ -1,6 +1,5 @@
 const BASE_URL = process.env.REACT_APP_INTERNAL_API_URL;
 
-export const USER_GET = `${BASE_URL}/user/get`;
 export const USER_UPDATE = `${BASE_URL}/user/update`;
 
 export const contestGetUrl = (contestId: string): string =>

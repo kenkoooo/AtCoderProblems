@@ -1,10 +1,10 @@
 import { Table } from "reactstrap";
 import React from "react";
-import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
 import {
   useMergedProblemMap,
   useProblemModelMap,
+  useVirtualContestSubmissions,
 } from "../../../../api/APIClient";
 import { clipDifficulty, ordinalSuffixOf } from "../../../../utils";
 import { VirtualContestItem } from "../../types";
@@ -16,8 +16,6 @@ import {
   ProblemModelWithDifficultyModel,
   ProblemModelWithTimeModel,
 } from "../../../../interfaces/ProblemModel";
-import Submission from "../../../../interfaces/Submission";
-import { fetchVirtualContestSubmission } from "../../../../utils/CachedApiClient";
 import {
   calculatePerformances,
   makeBotRunners,
@@ -37,7 +35,7 @@ import {
   getResultsByUserMap,
 } from "./util";
 
-interface OuterProps {
+interface Props {
   readonly contestId: string;
   readonly contestTitle: string;
   readonly showRating: boolean;
@@ -57,11 +55,7 @@ interface OuterProps {
   readonly penaltySecond: number;
 }
 
-interface InnerProps extends OuterProps {
-  submissions: PromiseState<Submission[]>;
-}
-
-const InnerContestTable: React.FC<InnerProps> = (props) => {
+export const ContestTable = (props: Props) => {
   const {
     contestId,
     contestTitle,
@@ -97,9 +91,17 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     }
   });
 
+  const submissions = useVirtualContestSubmissions(
+    props.users,
+    problems.map((p) => p.item.id),
+    start,
+    end,
+    props.enableAutoRefresh ? 60_000 : 1_000_000_000
+  );
+
   const pointOverrideMap = getPointOverrideMap(problems);
   const resultsByUser = getResultsByUserMap(
-    props.submissions.fulfilled ? props.submissions.value : [],
+    submissions ?? [],
     users,
     (problemId) => pointOverrideMap.get(problemId)
   );
@@ -290,18 +292,3 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     </Table>
   );
 };
-
-export const ContestTable = connect<OuterProps, InnerProps>((props) => ({
-  submissions: {
-    comparison: null,
-    value: (): Promise<Submission[]> =>
-      fetchVirtualContestSubmission(
-        props.users,
-        props.problems.map((p) => p.item.id),
-        props.start,
-        props.end
-      ).then((submissions) => submissions.toArray()),
-    refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
-    force: props.enableAutoRefresh,
-  },
-}))(InnerContestTable);

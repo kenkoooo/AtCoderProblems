@@ -1,4 +1,3 @@
-import useSWR from "swr";
 import Contest, { isContest } from "../interfaces/Contest";
 import { isContestParticipation } from "../interfaces/ContestParticipation";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
@@ -13,11 +12,12 @@ import {
   RankingEntry,
   StreakRankingEntry,
 } from "../interfaces/RankingEntry";
-import { ContestId, ProblemId } from "../interfaces/Status";
+import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
 import { isBlockedProblem } from "../utils/BlockList";
 import { ratingInfoOf } from "../utils/RatingInfo";
+import { useSWRData } from "./index";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
@@ -56,16 +56,6 @@ function fetchTypedArray<T>(
       .then((array: any[]) => array.filter(typeGuardFn))
   );
 }
-
-const useSWRData = <T>(url: string, fetcher: (url: string) => Promise<T>) => {
-  const response = useSWR(url, fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
-  const failed = !!response.error;
-  const data = response.data;
-  return { data, failed };
-};
 
 export const useACRanking = () => {
   const url = STATIC_API_BASE_URL + "/ac.json";
@@ -163,7 +153,7 @@ export const useUserSubmission = (user: string) => {
       ? fetchTypedArray(url, isSubmission).then((submissions) =>
           submissions.filter((submission) => isValidResult(submission.result))
         )
-      : Promise.resolve(undefined)
+      : Promise.resolve([])
   ).data;
 };
 
@@ -244,8 +234,29 @@ export const useProblemModelMap = () => {
           }, new Map<ProblemId, ProblemModel>())
       );
   const url = STATIC_API_BASE_URL + "/problem-models.json";
-  return useSWR(url, fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  }).data;
+  return useSWRData(url, fetcher).data;
+};
+
+export const useVirtualContestSubmissions = (
+  users: UserId[],
+  problems: ProblemId[],
+  fromSecond: number,
+  toSecond: number,
+  refreshInterval: number
+) => {
+  const userList = users.join(",");
+  const problemList = problems.join(",");
+  const url = `${ATCODER_API_URL}/v3/users_and_time?users=${userList}&problems=${problemList}&from=${fromSecond}&to=${toSecond}`;
+  return useSWRData(
+    url,
+    (url) =>
+      userList.length > 0
+        ? fetchTypedArray(url, isSubmission).then((submissions) =>
+            submissions.filter((submission) => isValidResult(submission.result))
+          )
+        : Promise.resolve([]),
+    {
+      refreshInterval,
+    }
+  ).data;
 };
