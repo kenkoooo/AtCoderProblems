@@ -5,7 +5,6 @@ import {
 } from "react-bootstrap-table";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
-import { List } from "immutable";
 import { useHistory, useLocation } from "react-router-dom";
 import Contest from "../../interfaces/Contest";
 import * as Url from "../../utils/Url";
@@ -50,14 +49,14 @@ interface Props {
     | "Only Unrated without Difficulty";
   fromDifficulty: number;
   toDifficulty: number;
-  rowData: List<ProblemRowData>;
-  userRatingInfo: RatingInfo | null;
+  rowData: ProblemRowData[];
+  userRatingInfo: RatingInfo;
   sortBy: ProblemRowDataField;
   sortOrder: "asc" | "desc";
 }
 
 export const ListTable: React.FC<Props> = (props) => {
-  const userInternalRating = props.userRatingInfo?.internalRating ?? null;
+  const userInternalRating = props.userRatingInfo.internalRating;
   const readDifficultyAsNumber: (row: ProblemRowData) => number = (row) => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
@@ -415,7 +414,7 @@ export const ListTable: React.FC<Props> = (props) => {
       },
       {
         text: "All",
-        value: props.rowData.size,
+        value: props.rowData.length,
       },
     ],
     paginationPanel: function DataFormat(
@@ -501,8 +500,7 @@ export const ListTable: React.FC<Props> = (props) => {
             props.fromDifficulty <= difficulty &&
             difficulty <= props.toDifficulty
           );
-        })
-        .toArray()}
+        })}
       options={options}
     >
       {columns.map((c) => (

@@ -2,15 +2,14 @@ import { Button, Col, Row, Table } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
 import Octicon, { Trashcan } from "@primer/octicons-react";
+import { useProblems } from "../../../api/APIClient";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { ProgressResetList } from "../types";
-import Problem from "../../../interfaces/Problem";
 import {
   PROGRESS_RESET_ADD,
   PROGRESS_RESET_DELETE,
   PROGRESS_RESET_LIST,
 } from "../ApiUrl";
-import { cachedProblemMap } from "../../../utils/CachedApiClient";
 import { ProblemLink } from "../../../components/ProblemLink";
 import {
   formatMomentDateTime,
@@ -24,8 +23,6 @@ interface Props {
   addResetProgressResponse: PromiseState<Record<string, unknown> | null>;
   deleteResetProgress: (problemId: string) => void;
   deleteResetProgressResponse: PromiseState<Record<string, unknown> | null>;
-
-  problems: PromiseState<Problem[]>;
 }
 
 const InnerResetProgress: React.FC<Props> = (props) => {
@@ -34,7 +31,7 @@ const InnerResetProgress: React.FC<Props> = (props) => {
       ? props.progressResetList.value.items
       : [];
   progressResetList.sort((a, b) => a.reset_epoch_second - b.reset_epoch_second);
-  const problems = props.problems.fulfilled ? props.problems.value : [];
+  const problems = useProblems() ?? [];
   return (
     <>
       <Row className="my-2">
@@ -105,11 +102,6 @@ const InnerResetProgress: React.FC<Props> = (props) => {
 export const ResetProgress = connect<unknown, Props>(() => ({
   progressResetList: {
     url: PROGRESS_RESET_LIST,
-  },
-  problems: {
-    comparison: null,
-    value: (): Promise<Problem[]> =>
-      cachedProblemMap().then((map) => map.valueSeq().toArray()),
   },
   addResetProgressResponse: { value: null },
   addResetProgress: (problemId: string) => ({

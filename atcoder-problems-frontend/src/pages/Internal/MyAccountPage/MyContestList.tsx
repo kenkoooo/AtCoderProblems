@@ -1,23 +1,16 @@
 import { Button, Col, Row } from "reactstrap";
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { connect, PromiseState } from "react-refetch";
+import {
+  useJoinedContests,
+  useMyContests,
+} from "../../../api/InternalAPIClient";
 import { VirtualContestTable } from "../VirtualContestTable";
-import { VirtualContestInfo } from "../types";
-import { CONTEST_JOINED, CONTEST_MY } from "../ApiUrl";
 
-interface Props {
-  ownedContestsGet: PromiseState<VirtualContestInfo[] | null>;
-  joinedContestsGet: PromiseState<VirtualContestInfo[] | null>;
-}
-const InnerMyContestList: React.FC<Props> = (props) => {
+export const MyContestList = () => {
   const history = useHistory();
-  const joinedContests = props.joinedContestsGet.fulfilled
-    ? props.joinedContestsGet.value
-    : [];
-  const ownedContests = props.ownedContestsGet.fulfilled
-    ? props.ownedContestsGet.value
-    : [];
+  const joinedContests = useJoinedContests().data ?? [];
+  const ownedContests = useMyContests().data ?? [];
   return (
     <>
       <Row className="my-2">
@@ -80,12 +73,3 @@ const InnerMyContestList: React.FC<Props> = (props) => {
     </>
   );
 };
-
-export const MyContestList = connect<unknown, Props>(() => ({
-  ownedContestsGet: {
-    url: CONTEST_MY,
-  },
-  joinedContestsGet: {
-    url: CONTEST_JOINED,
-  },
-}))(InnerMyContestList);
