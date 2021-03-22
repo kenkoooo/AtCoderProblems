@@ -1,65 +1,58 @@
 import React from "react";
 import { Table } from "reactstrap";
+import { ProblemId } from "../../interfaces/Status";
 import { isAccepted } from "../../utils";
+import { countBy, groupBy } from "../../utils/GroupBy";
 import { TableColor } from "../../utils/TableColor";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 
 interface Props {
-  mergedProblems: Map<string, MergedProblem>;
+  mergedProblems: Map<ProblemId, MergedProblem>;
   submissions: Submission[];
   setFilterFunc: (point: number) => void;
 }
+
+export const getTotalCount = (
+  mergedProblems: Map<ProblemId, MergedProblem>
+) => {
+  const totalCountMap = countBy(
+    Array.from(mergedProblems.values()),
+    (p) => p.point
+  );
+  return Array.from(totalCountMap.entries())
+    .filter(
+      (pair: [number | null | undefined, number]): pair is [number, number] =>
+        typeof pair[0] === "number"
+    )
+    .map(([point, count]) => ({ point, count }))
+    .sort((a, b) => a.point - b.point);
+};
+export const getUserPointCounts = (
+  mergedProblems: Map<ProblemId, MergedProblem>,
+  submissions: Submission[]
+) => {
+  const acceptedSubmissions = submissions.filter((s) => isAccepted(s.result));
+  const acByUserId = groupBy(acceptedSubmissions, (s) => s.user_id);
+  return Array.from(acByUserId.entries())
+    .map(([userId, userSubmissions]) => {
+      const problemIds = new Set(userSubmissions.map((s) => s.problem_id));
+      const countByPoint = countBy(
+        Array.from(problemIds),
+        (problemId) => mergedProblems.get(problemId)?.point
+      );
+      return { userId, countByPoint };
+    })
+    .sort((a, b) => a.userId.localeCompare(b.userId));
+};
 
 export const SmallTable: React.FC<Props> = ({
   submissions,
   mergedProblems,
   setFilterFunc,
 }) => {
-  const userProblemIdSet = new Map<string, Set<string>>();
-  submissions
-    .filter((s) => isAccepted(s.result))
-    .forEach((submission) => {
-      const problemIdSet =
-        userProblemIdSet.get(submission.user_id) ?? new Set<string>();
-      problemIdSet.add(submission.problem_id);
-      userProblemIdSet.set(submission.user_id, problemIdSet);
-    });
-
-  const userPointCountMap = Array.from(userProblemIdSet.keys()).map(
-    (userId) => {
-      const problemIdSet = userProblemIdSet.get(userId) ?? new Set<string>();
-      const pointCountMap = new Map<number, number>();
-      Array.from(problemIdSet).forEach((problemId) => {
-        const point = mergedProblems.get(problemId)?.point;
-        if (point) {
-          const count = pointCountMap.get(point) ?? 0;
-          pointCountMap.set(point, count + 1);
-        }
-      });
-      return { userId, pointCountMap };
-    }
-  );
-
-  const totalCountMap = Array.from(mergedProblems.values()).reduce(
-    (map, problem) => {
-      if (!problem.point) {
-        return map;
-      }
-      const current = map.get(problem.point);
-      if (current) {
-        map.set(problem.point, current + 1);
-      } else {
-        map.set(problem.point, 1);
-      }
-      return map;
-    },
-    new Map<number, number>()
-  );
-  const totalCount = Array.from(
-    totalCountMap.entries()
-  ).map(([point, count]) => ({ point, count }));
-
+  const userPointCountMap = getUserPointCounts(mergedProblems, submissions);
+  const totalCount = getTotalCount(mergedProblems);
   return (
     <Table striped bordered hover responsive>
       <thead>
@@ -84,19 +77,19 @@ export const SmallTable: React.FC<Props> = ({
         </tr>
       </thead>
       <tbody>
-        {userPointCountMap.map(({ userId, pointCountMap }) => (
+        {userPointCountMap.map(({ userId, countByPoint }) => (
           <tr key={userId}>
             <td>{userId}</td>
             {totalCount.map(({ point, count }) => (
               <td
                 key={point}
                 className={
-                  pointCountMap.get(point) === count
+                  countByPoint.get(point) === count
                     ? TableColor.Success
                     : TableColor.None
                 }
               >
-                {pointCountMap.get(point) ?? 0}
+                {countByPoint.get(point) ?? 0}
               </td>
             ))}
           </tr>
