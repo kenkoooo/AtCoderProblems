@@ -1,28 +1,19 @@
 import React from "react";
-import { connect, PromiseState } from "react-refetch";
 import { Row, Col } from "reactstrap";
-import Submission from "../../interfaces/Submission";
+import { useUserSubmission } from "../../api/APIClient";
 import { ProblemId } from "../../interfaces/Status";
 import { isAccepted } from "../../utils";
 import { normalizeLanguage } from "../../utils/LanguageNormalizer";
 import { groupBy } from "../../utils/GroupBy";
 import { countUniqueAcByDate, calcStreak } from "../../utils/StreakCounter";
 import { formatMomentDate, getToday } from "../../utils/DateUtil";
-import { cachedSubmissions } from "../../utils/CachedApiClient";
 
-interface OuterProps {
+interface Props {
   userId: string;
 }
 
-interface InnerProps extends OuterProps {
-  submissionsFetch: PromiseState<Submission[]>;
-}
-
-const InnerLanguageCount: React.FC<InnerProps> = (props) => {
-  const submissions = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value
-    : [];
-
+export const LanguageCount = (props: Props) => {
+  const submissions = useUserSubmission(props.userId) ?? [];
   const submissionsByLanguage = groupBy(submissions, (s) =>
     normalizeLanguage(s.language)
   );
@@ -81,10 +72,3 @@ const InnerLanguageCount: React.FC<InnerProps> = (props) => {
     </Row>
   );
 };
-
-export const LanguageCount = connect<OuterProps, InnerProps>(({ userId }) => ({
-  submissionsFetch: {
-    comparison: userId,
-    value: cachedSubmissions(userId).then((list) => list.toArray()),
-  },
-}))(InnerLanguageCount);

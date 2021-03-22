@@ -1,4 +1,3 @@
-import { List } from "immutable";
 import React from "react";
 import {
   Row,
@@ -12,13 +11,12 @@ import {
   CustomInput,
   UncontrolledDropdown,
 } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
+import { useProblemModelMap, useUserSubmission } from "../../../api/APIClient";
 import {
   getRatingColor,
   RatingColor,
   RatingColors,
   isAccepted,
-  caseInsensitiveUserId,
 } from "../../../utils";
 import {
   formatMomentDate,
@@ -26,11 +24,8 @@ import {
   parseDateLabel,
 } from "../../../utils/DateUtil";
 import { useLocalStorage } from "../../../utils/LocalStorage";
-import * as CachedApiClient from "../../../utils/CachedApiClient";
-import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import { countUniqueAcByDate } from "../../../utils/StreakCounter";
 import Submission from "../../../interfaces/Submission";
-import ProblemModel from "../../../interfaces/ProblemModel";
 import { ProblemId } from "../../../interfaces/Status";
 import { DailyEffortBarChart } from "./DailyEffortBarChart";
 import { DailyEffortStackedBarChart } from "./DailyEffortStackedBarChart";
@@ -92,17 +87,11 @@ const YRangeTabButtons: React.FC<YRangeTabProps> = (props) => {
   );
 };
 
-interface OuterProps {
+interface Props {
   userId: string;
 }
 
-interface InnerProps extends OuterProps {
-  submissionsFetch: PromiseState<Submission[]>;
-  submissionsMapFetch: PromiseState<Map<ProblemId, Submission[]>>;
-  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-}
-
-const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
+export const ProgressChartBlock: React.FC<Props> = (props) => {
   const [
     dailyEffortBarChartActiveTab,
     setDailyEffortBarChartActiveTab,
@@ -120,17 +109,14 @@ const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
     false
   );
   const { userId } = props;
-
-  const userSubmissions = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value
-    : [];
-  const submissionsMap = props.submissionsMapFetch.fulfilled
-    ? props.submissionsMapFetch.value
-    : new Map<ProblemId, Submission[]>();
-  const problemModels = props.problemModelsFetch.fulfilled
-    ? props.problemModelsFetch.value
-    : new Map<ProblemId, ProblemModel>();
-
+  const userSubmissions = useUserSubmission(userId) ?? [];
+  const submissionsByProblem = userSubmissions.reduce((map, s) => {
+    const submissions = map.get(s.problem_id) ?? [];
+    submissions.push(s);
+    map.set(s.problem_id, submissions);
+    return map;
+  }, new Map<ProblemId, Submission[]>());
+  const problemModels = useProblemModelMap();
   const dailyCount = countUniqueAcByDate(userSubmissions);
 
   const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
@@ -144,16 +130,13 @@ const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
     return list;
   }, [] as { dateSecond: number; count: number }[]);
 
-  const dateColorCountMap = Array.from(submissionsMap.values())
-    .map((submissionList) =>
-      submissionList
-        .filter(
-          (s) =>
-            caseInsensitiveUserId(s.user_id) === userId && isAccepted(s.result)
-        )
-        .sort((a, b) => a.epoch_second - b.epoch_second)
-        .find(() => true)
-    )
+  const dateColorCountMap = Array.from(submissionsByProblem.values())
+    .map((submissionsOfProblem) => {
+      const accepted = submissionsOfProblem
+        .filter((s) => isAccepted(s.result))
+        .sort((a, b) => a.epoch_second - b.epoch_second);
+      return accepted.length === 0 ? undefined : accepted[0];
+    })
     .filter(
       (submission: Submission | undefined): submission is Submission =>
         submission !== undefined
@@ -166,7 +149,7 @@ const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
           new Map<RatingColor, number>(
             RatingColors.map((ratingColor) => [ratingColor, 0])
           );
-        const model = problemModels.get(submission.problem_id);
+        const model = problemModels?.get(submission.problem_id);
         const color =
           model?.difficulty !== undefined
             ? getRatingColor(model.difficulty)
@@ -280,25 +263,3 @@ const InnerProgressChartBlock: React.FC<InnerProps> = (props) => {
     </>
   );
 };
-
-export const ProgressChartBlock = connect<OuterProps, InnerProps>(
-  ({ userId }) => ({
-    submissionsFetch: {
-      comparison: userId,
-      value: CachedApiClient.cachedSubmissions(userId).then((list) =>
-        list.toArray()
-      ),
-    },
-    submissionsMapFetch: {
-      comparison: userId,
-      value: CachedApiClient.cachedUsersSubmissionMap(
-        List([userId])
-      ).then((map) => ImmutableMigration.convertMapOfLists(map)),
-    },
-    problemModelsFetch: {
-      value: CachedApiClient.cachedProblemModels().then((map) =>
-        ImmutableMigration.convertMap(map)
-      ),
-    },
-  })
-)(InnerProgressChartBlock);

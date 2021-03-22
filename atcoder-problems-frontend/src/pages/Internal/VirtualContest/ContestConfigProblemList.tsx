@@ -8,18 +8,19 @@ import {
   ListGroupItem,
   ButtonGroup,
 } from "reactstrap";
-import { List, Map, Set } from "immutable";
+import { List, Set } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import Octicon, { ChevronUp, ChevronDown } from "@primer/octicons-react";
+import { useProblemMap, useProblemModelMap } from "../../../api/APIClient";
 import { cachedSubmissions } from "../../../utils/CachedApiClient";
-import Problem from "../../../interfaces/Problem";
 import { VirtualContestItem } from "../types";
 import { ProblemLink } from "../../../components/ProblemLink";
-import ProblemModel from "../../../interfaces/ProblemModel";
 import { isAccepted } from "../../../utils";
 
 const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
   const { problemSet } = props;
+  const problemMap = useProblemMap();
+  const problemModels = useProblemModelMap();
   return (
     <ListGroup>
       {problemSet.isEmpty() && (
@@ -31,7 +32,7 @@ const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
 
       {problemSet.valueSeq().map((p, i) => {
         const problemId = p.id;
-        const problem = props.problemMap.get(problemId);
+        const problem = problemMap?.get(problemId);
 
         const solvedUsers =
           problem && props.userSolvedProblemsMapFetch.fulfilled
@@ -61,9 +62,9 @@ const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
                 contestId={problem.contest_id}
                 problemTitle={problem.title}
                 showDifficulty={true}
-                problemModel={props.problemModelMap.get(problemId)}
+                problemModel={problemModels?.get(problemId)}
                 isExperimentalDifficulty={
-                  props.problemModelMap.get(problemId)?.is_experimental
+                  problemModels?.get(problemId)?.is_experimental
                 }
               />
             ) : (
@@ -157,8 +158,6 @@ const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
 };
 
 interface OuterProps {
-  problemModelMap: Map<string, ProblemModel>;
-  problemMap: Map<string, Problem>;
   problemSet: List<VirtualContestItem>;
   setProblemSet: (newProblemSet: List<VirtualContestItem>) => void;
   expectedParticipantUserIds: string[];

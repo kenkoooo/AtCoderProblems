@@ -3,9 +3,9 @@ import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
 import { Redirect } from "react-router-dom";
 import { Alert, Spinner } from "reactstrap";
+import { useVirtualContest } from "../../../api/InternalAPIClient";
 import * as DateUtil from "../../../utils/DateUtil";
-import { contestGetUrl } from "../ApiUrl";
-import { VirtualContestItem, VirtualContestDetails } from "../types";
+import { VirtualContestItem } from "../types";
 import {
   updateVirtualContestInfo,
   updateVirtualContestItems,
@@ -28,22 +28,22 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  contestInfoFetch: PromiseState<VirtualContestDetails | null>;
   updateResponse: PromiseState<unknown | null>;
   updateContest: (request: Request, problems: VirtualContestItem[]) => void;
 }
 
 const InnerContestUpdatePage = (props: InnerProps) => {
-  const { contestId, contestInfoFetch, updateResponse } = props;
-  if (contestInfoFetch.pending) {
+  const { contestId, updateResponse } = props;
+  const contestResponse = useVirtualContest(contestId);
+  if (!contestResponse.data && !contestResponse.error) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
-  } else if (contestInfoFetch.rejected || !contestInfoFetch.value) {
+  } else if (contestResponse.error || !contestResponse.data) {
     return <Alert color="danger">Failed to fetch contest info.</Alert>;
   }
-  const {
-    info: contestInfo,
-    problems: contestProblems,
-  } = contestInfoFetch.value;
+
+  const contestInfo = contestResponse.data.info;
+  const contestProblems = contestResponse.data.problems;
+
   if (updateResponse.fulfilled && updateResponse.value !== null) {
     return <Redirect to={`/contest/show/${contestId}`} />;
   }
@@ -105,9 +105,6 @@ const InnerContestUpdatePage = (props: InnerProps) => {
 };
 
 export const ContestUpdatePage = connect<OuterProps, InnerProps>((props) => ({
-  contestInfoFetch: {
-    url: contestGetUrl(props.contestId),
-  },
   updateContest: (request: Request, problems: VirtualContestItem[]) => ({
     updateResponse: {
       comparison: null,

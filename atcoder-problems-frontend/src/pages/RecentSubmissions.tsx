@@ -3,20 +3,10 @@ import { Alert, Row, Spinner } from "reactstrap";
 import { connect, PromiseState } from "react-refetch";
 import Submission from "../interfaces/Submission";
 import { fetchRecentSubmissions } from "../utils/Api";
-import { ProblemId } from "../interfaces/Status";
-import ProblemModel from "../interfaces/ProblemModel";
-import {
-  cachedProblemMap,
-  cachedProblemModels,
-} from "../utils/CachedApiClient";
-import { convertMap } from "../utils/ImmutableMigration";
-import Problem from "../interfaces/Problem";
 import { SubmissionListTable } from "../components/SubmissionListTable";
 
 interface Props {
   submissions: PromiseState<Submission[]>;
-  problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
-  problems: PromiseState<Problem[]>;
 }
 
 const InnerRecentSubmissions: React.FC<Props> = (props) => {
@@ -28,21 +18,10 @@ const InnerRecentSubmissions: React.FC<Props> = (props) => {
   }
 
   const submissions = props.submissions.value.sort((a, b) => b.id - a.id);
-  const problems = props.problems.fulfilled
-    ? props.problems.value
-    : ([] as Problem[]);
-  const problemModels = props.problemModels.fulfilled
-    ? props.problemModels.value
-    : new Map<ProblemId, ProblemModel>();
-
   return (
     <Row>
       <h1>Recent Submissions</h1>
-      <SubmissionListTable
-        submissions={submissions}
-        problems={problems}
-        problemModels={problemModels}
-      />
+      <SubmissionListTable submissions={submissions} />
     </Row>
   );
 };
@@ -51,15 +30,5 @@ export const RecentSubmissions = connect<unknown, Props>(() => ({
   submissions: {
     comparison: null,
     value: fetchRecentSubmissions,
-  },
-  problemModels: {
-    comparison: null,
-    value: (): Promise<Map<string, ProblemModel>> =>
-      cachedProblemModels().then((map) => convertMap(map)),
-  },
-  problems: {
-    comparison: null,
-    value: (): Promise<Problem[]> =>
-      cachedProblemMap().then((map) => map.valueSeq().toArray()),
   },
 }))(InnerRecentSubmissions);

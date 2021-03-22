@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Table from "reactstrap/lib/Table";
-import { List, Map as ImmutableMap, Range } from "immutable";
+import { List, Range } from "immutable";
 import { Button, ButtonGroup } from "reactstrap";
+import { useMergedProblemMap, useProblemModelMap } from "../../api/APIClient";
 import { isAccepted } from "../../utils";
 import { TableColor } from "../../utils/TableColor";
 import Submission from "../../interfaces/Submission";
@@ -11,9 +12,7 @@ import { DifficultyCircle } from "../../components/DifficultyCircle";
 import { ProblemId } from "../../interfaces/Status";
 
 interface Props {
-  mergedProblems: ImmutableMap<ProblemId, MergedProblem>;
   submissions: Submission[];
-  problemModels: ImmutableMap<ProblemId, ProblemModel>;
   setFilterFunc: (from: number, to: number) => void;
 }
 
@@ -23,10 +22,10 @@ const DIFF_MAX = 4000;
 
 const problemToDifficultyLevel = (
   problem: MergedProblem,
-  problemModels: ImmutableMap<ProblemId, ProblemModel>,
+  problemModels: Map<ProblemId, ProblemModel> | undefined,
   showExperimental: boolean
 ): number | undefined => {
-  const problemModel = problemModels.get(problem.id);
+  const problemModel = problemModels?.get(problem.id);
   if (problemModel === undefined) {
     return undefined;
   }
@@ -41,8 +40,11 @@ const problemToDifficultyLevel = (
 };
 
 export const DifficultyTable: React.FC<Props> = (props) => {
-  const { submissions, mergedProblems, problemModels, setFilterFunc } = props;
+  const { submissions, setFilterFunc } = props;
   const [includingExperimental, setIncludingExperimental] = useState(true);
+  const problemModels = useProblemModelMap();
+  const mergedProblems =
+    useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
   const difficulties: List<{ from: number; to: number }> = Range(
     0,
     4400,
@@ -87,17 +89,17 @@ export const DifficultyTable: React.FC<Props> = (props) => {
     return { userId, diffCount };
   });
 
-  const totalCount = mergedProblems
+  const totalCountMap = Array.from(mergedProblems.values())
     .map((problem) =>
       problemToDifficultyLevel(problem, problemModels, includingExperimental)
     )
     .filter((d): d is number => d !== undefined)
-    .reduce(
-      (countMap, difficultyLevel) =>
-        countMap.update(difficultyLevel, 0, (count) => count + 1),
-      ImmutableMap<number, number>()
-    )
-    .entrySeq()
+    .reduce((countMap, difficultyLevel) => {
+      const current = countMap.get(difficultyLevel) ?? 0;
+      countMap.set(difficultyLevel, current + 1);
+      return countMap;
+    }, new Map<number, number>());
+  const totalCount = Array.from(totalCountMap.entries())
     .map(([difficultyLevel, count]) => ({ difficultyLevel, count }))
     .sort((a, b) => a.difficultyLevel - b.difficultyLevel);
 

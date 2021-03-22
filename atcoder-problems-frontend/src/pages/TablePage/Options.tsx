@@ -12,7 +12,7 @@ import {
   DropdownItem,
   Card,
 } from "reactstrap";
-import { Set } from "immutable";
+import { Set as ImmutableSet } from "immutable";
 import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
 import { ColorMode } from "../../utils/TableColor";
 
@@ -26,7 +26,7 @@ interface Props {
   showPenalties: boolean;
   toggleShowPenalties: () => void;
   selectableLanguages: Set<string>;
-  selectedLanguages: Set<string>;
+  selectedLanguages: ImmutableSet<string>;
   toggleLanguage: (language: string) => void;
 }
 
@@ -104,13 +104,12 @@ export const Options: React.FC<Props> = (props) => {
         </UncontrolledDropdown>
       </Row>
       {props.colorMode === ColorMode.Language &&
-        !props.selectableLanguages.isEmpty() && (
+        props.selectableLanguages.size > 0 && (
           <Row className="my-4">
             <Col className="px-0">
               <Card body>
                 <FormGroup check className="m-0 p-0">
-                  {props.selectableLanguages
-                    .toArray()
+                  {Array.from(props.selectableLanguages)
                     .sort()
                     .map((language) => (
                       <Label

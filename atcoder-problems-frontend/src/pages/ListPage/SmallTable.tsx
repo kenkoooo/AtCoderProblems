@@ -1,13 +1,12 @@
 import React from "react";
-import Table from "reactstrap/lib/Table";
-import { Map as ImmutableMap } from "immutable";
+import { Table } from "reactstrap";
 import { isAccepted } from "../../utils";
 import { TableColor } from "../../utils/TableColor";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 
 interface Props {
-  mergedProblems: ImmutableMap<string, MergedProblem>;
+  mergedProblems: Map<string, MergedProblem>;
   submissions: Submission[];
   setFilterFunc: (point: number) => void;
 }
@@ -42,15 +41,24 @@ export const SmallTable: React.FC<Props> = ({
     }
   );
 
-  const totalCount = mergedProblems
-    .reduce(
-      (map, p) =>
-        p.point ? map.update(p.point, 0, (count) => count + 1) : map,
-      ImmutableMap<number, number>()
-    )
-    .entrySeq()
-    .map(([point, count]) => ({ point, count }))
-    .sort((a, b) => a.point - b.point);
+  const totalCountMap = Array.from(mergedProblems.values()).reduce(
+    (map, problem) => {
+      if (!problem.point) {
+        return map;
+      }
+      const current = map.get(problem.point);
+      if (current) {
+        map.set(problem.point, current + 1);
+      } else {
+        map.set(problem.point, 1);
+      }
+      return map;
+    },
+    new Map<number, number>()
+  );
+  const totalCount = Array.from(
+    totalCountMap.entries()
+  ).map(([point, count]) => ({ point, count }));
 
   return (
     <Table striped bordered hover responsive>

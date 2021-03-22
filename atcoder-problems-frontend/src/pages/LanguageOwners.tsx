@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import { Row, Col, ButtonGroup, Button } from "reactstrap";
 
-import { connect, PromiseState } from "react-refetch";
-import { List, Map as ImmutableMap } from "immutable";
+import { useLangRanking } from "../api/APIClient";
 import { LangRankingEntry } from "../interfaces/RankingEntry";
 import { ordinalSuffixOf } from "../utils";
-import * as CachedApiClient from "../utils/CachedApiClient";
 
 interface OneOwnerProps {
   language: string;
-  ranking: List<LangRankingEntry>;
+  ranking: LangRankingEntry[];
   size: number;
 }
 
@@ -32,16 +30,15 @@ const OneOwner: React.FC<OneOwnerProps> = (props) => (
 
 const OWNERS_NUM_OPTIONS = [3, 5, 10, 20];
 
-interface Props {
-  rankingFetch: PromiseState<ImmutableMap<string, List<LangRankingEntry>>>;
-}
-
-const InnerLanguageOwners: React.FC<Props> = (props) => {
+export const LanguageOwners = () => {
   const [ownersNum, setOwnersNum] = useState(3);
+  const rankingMap =
+    useLangRanking().data ?? new Map<string, LangRankingEntry[]>();
+  const ranking = Array.from(
+    rankingMap.entries()
+  ).map(([language, entries]) => ({ language, entries }));
+  ranking.sort((a, b) => a.language.localeCompare(b.language));
 
-  const ranking = props.rankingFetch.fulfilled
-    ? props.rankingFetch.value
-    : ImmutableMap<string, List<LangRankingEntry>>();
   return (
     <>
       <div className="clearfix">
@@ -59,27 +56,15 @@ const InnerLanguageOwners: React.FC<Props> = (props) => {
         </ButtonGroup>
       </div>
       <div>
-        {ranking
-          .sortBy((value, key) => key)
-          .map((list, language) => (
-            <OneOwner
-              key={language}
-              language={language}
-              ranking={list}
-              size={ownersNum}
-            />
-          ))
-          .valueSeq()
-          .toArray()}
+        {ranking.map(({ entries, language }) => (
+          <OneOwner
+            key={language}
+            language={language}
+            ranking={entries}
+            size={ownersNum}
+          />
+        ))}
       </div>
     </>
   );
 };
-
-export const LanguageOwners = connect<unknown, Props>(() => ({
-  rankingFetch: {
-    comparison: null,
-    value: (): Promise<ImmutableMap<string, List<LangRankingEntry>>> =>
-      CachedApiClient.cachedLangRanking(),
-  },
-}))(InnerLanguageOwners);
