@@ -11,6 +11,7 @@ export const ContestCategories = [
   "PAST",
   "JOI",
   "JAG",
+  "AHC",
   "Marathon",
   "Other Contests",
 ] as const;
@@ -59,6 +60,10 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   }
   if (/^(jag|JAG)/.exec(contest.id)) {
     return "JAG";
+  }
+
+  if (/^ahc\d{3}$/.exec(contest.id)) {
+    return "AHC";
   }
   if (
     /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
