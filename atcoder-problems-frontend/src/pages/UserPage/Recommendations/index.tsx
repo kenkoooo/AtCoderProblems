@@ -1,28 +1,28 @@
-import { List } from "immutable";
 import React, { useState } from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
+import {
+  useContestMap,
+  useMergedProblemMap,
+  useProblemModelMap,
+  useRatingInfo,
+  useUserSubmission,
+} from "../../../api/APIClient";
+import { useLoginState } from "../../../api/InternalAPIClient";
 import { ContestLink } from "../../../components/ContestLink";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { NewTabLink } from "../../../components/NewTabLink";
 import { ProblemLink } from "../../../components/ProblemLink";
-import Contest from "../../../interfaces/Contest";
 import Problem from "../../../interfaces/Problem";
-import ProblemModel from "../../../interfaces/ProblemModel";
-import { ContestId, ProblemId } from "../../../interfaces/Status";
+import { ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
-import MergedProblem from "../../../interfaces/MergedProblem";
 import { isAccepted } from "../../../utils";
 import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
 } from "../../../utils/ProblemModelUtil";
-import { RatingInfo, ratingInfoOf } from "../../../utils/RatingInfo";
 import * as Url from "../../../utils/Url";
-import * as CachedApiClient from "../../../utils/CachedApiClient";
-import * as ImmutableMigration from "../../../utils/ImmutableMigration";
 import * as UserState from "../../../utils/UserState";
 import { useLocalStorage } from "../../../utils/LocalStorage";
 import {
@@ -30,8 +30,6 @@ import {
   selectRowPropsForProblemSelection,
   useProblemIdSelection,
 } from "../../../utils/ProblemSelection";
-import { UserResponse } from "../../Internal/types";
-import { USER_GET } from "../../Internal/ApiUrl";
 import { recommendProblems } from "./RecommendProblems";
 import {
   ExcludeOption,
@@ -84,20 +82,11 @@ const getLastSolvedTimeMap = (userSubmissions: Submission[]) => {
   return lastSolvedTimeMap;
 };
 
-interface OuterProps {
+interface Props {
   userId: string;
 }
 
-interface InnerProps extends OuterProps {
-  userSubmissionsFetch: PromiseState<Submission[]>;
-  mergedProblemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;
-  contestMapFetch: PromiseState<Map<ContestId, Contest>>;
-  problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-  userRatingInfoFetch: PromiseState<RatingInfo>;
-  loginStateFetch: PromiseState<UserResponse>;
-}
-
-const InnerRecommendations: React.FC<InnerProps> = (props) => {
+export const Recommendations = (props: Props) => {
   const history = useHistory();
 
   const [recommendOption, setRecommendOption] = useLocalStorage<
@@ -118,22 +107,17 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     deselectProblemIds,
   ] = useProblemIdSelection();
 
-  const userSubmissions = props.userSubmissionsFetch.fulfilled
-    ? props.userSubmissionsFetch.value
+  const userSubmissions = useUserSubmission(props.userId) ?? [];
+  const { data: mergedProblemsMap } = useMergedProblemMap();
+  const problems = mergedProblemsMap
+    ? Array.from(mergedProblemsMap.values())
     : [];
-  const problems = props.mergedProblemMapFetch.fulfilled
-    ? Array.from(props.mergedProblemMapFetch.value.values())
-    : [];
-  const contestMap = props.contestMapFetch.fulfilled
-    ? props.contestMapFetch.value
-    : new Map<ContestId, Contest>();
-  const problemModels = props.problemModelsFetch.fulfilled
-    ? props.problemModelsFetch.value
-    : new Map<ProblemId, ProblemModel>();
-  const userRatingInfo = props.userRatingInfoFetch.fulfilled
-    ? props.userRatingInfoFetch.value
-    : ratingInfoOf(List());
-  const isLoggedIn = UserState.isLoggedIn(props.loginStateFetch);
+  const contestMap = useContestMap();
+  const problemModels = useProblemModelMap();
+  const loginState = useLoginState().data;
+  const isLoggedIn = UserState.isLoggedIn(loginState);
+
+  const userRatingInfo = useRatingInfo(props.userId);
 
   if (userSubmissions.length === 0) {
     return null;
@@ -165,7 +149,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
         lastSolvedTimeMap,
         submittedSet
       ),
-    (problemId: ProblemId) => problemModels.get(problemId),
+    (problemId: ProblemId) => problemModels?.get(problemId),
     recommendExperimental,
     userRatingInfo.internalRating,
     recommendOption,
@@ -226,7 +210,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
                 problemId={id}
                 problemTitle={title}
                 contestId={contest_id}
-                problemModel={problemModels.get(id) ?? null}
+                problemModel={problemModels?.get(id) ?? null}
                 userRatingInfo={userRatingInfo}
               />
             )}
@@ -239,7 +223,7 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
               contestId: string,
               problem: Problem
             ): React.ReactElement => {
-              const contest = contestMap.get(contestId);
+              const contest = contestMap?.get(contestId);
               return contest ? (
                 <ContestLink contest={contest} />
               ) : (
@@ -292,34 +276,3 @@ const InnerRecommendations: React.FC<InnerProps> = (props) => {
     </>
   );
 };
-
-export const Recommendations = connect<OuterProps, InnerProps>(
-  ({ userId }) => ({
-    userSubmissionsFetch: {
-      comparison: userId,
-      value: CachedApiClient.cachedSubmissions(userId).then((list) =>
-        list.toArray()
-      ),
-    },
-    mergedProblemMapFetch: {
-      value: CachedApiClient.cachedMergedProblemMap().then((map) =>
-        ImmutableMigration.convertMap(map)
-      ),
-    },
-    contestMapFetch: {
-      value: CachedApiClient.cachedContestMap().then((map) =>
-        ImmutableMigration.convertMap(map)
-      ),
-    },
-    problemModelsFetch: {
-      value: CachedApiClient.cachedProblemModels().then((map) =>
-        ImmutableMigration.convertMap(map)
-      ),
-    },
-    userRatingInfoFetch: {
-      comparison: userId,
-      value: CachedApiClient.cachedRatingInfo(userId),
-    },
-    loginStateFetch: USER_GET,
-  })
-)(InnerRecommendations);

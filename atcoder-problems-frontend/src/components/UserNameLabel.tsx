@@ -1,28 +1,21 @@
 import React, { useState } from "react";
 import { Tooltip } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
+import { useRatingInfo } from "../api/APIClient";
 import { getRatingColor, getRatingColorClass } from "../utils";
-import { RatingInfo } from "../utils/RatingInfo";
-import * as CachedApiClient from "../utils/CachedApiClient";
 import * as Url from "../utils/Url";
 import { TopcoderLikeCircle } from "./TopcoderLikeCircle";
 import { NewTabLink } from "./NewTabLink";
 
-interface OuterProps {
+interface Props {
   userId: string;
   big?: boolean;
   showRating?: boolean;
 }
 
-interface InnerProps extends OuterProps {
-  userRatingInfoFetch: PromiseState<RatingInfo>;
-}
-
-const InnerColoredUserNameLabel: React.FC<InnerProps> = (props) => {
-  const { userId, userRatingInfoFetch } = props;
-  const userRating = userRatingInfoFetch.fulfilled
-    ? userRatingInfoFetch.value.rating
-    : 0;
+const ColoredUserNameLabel = (props: Props) => {
+  const { userId } = props;
+  const userRatingInfo = useRatingInfo(userId);
+  const userRating = userRatingInfo.rating;
   const color =
     userRating < 3200
       ? getRatingColor(userRating)
@@ -60,14 +53,7 @@ const InnerColoredUserNameLabel: React.FC<InnerProps> = (props) => {
   );
 };
 
-const ColoredUserNameLabel = connect<OuterProps, InnerProps>(({ userId }) => ({
-  userRatingInfoFetch: {
-    comparison: userId,
-    value: (): Promise<RatingInfo> => CachedApiClient.cachedRatingInfo(userId),
-  },
-}))(InnerColoredUserNameLabel);
-
-export const UserNameLabel: React.FC<OuterProps> = (props) => {
+export const UserNameLabel: React.FC<Props> = (props) => {
   const label = props.showRating ? (
     <ColoredUserNameLabel {...props} />
   ) : (

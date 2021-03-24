@@ -1,6 +1,5 @@
-import { Map, Range, Set } from "immutable";
+import { Range } from "immutable";
 import React from "react";
-import { connect, PromiseState } from "react-refetch";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import {
   Button,
@@ -15,7 +14,6 @@ import ButtonGroup from "reactstrap/lib/ButtonGroup";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import { ProblemId } from "../../interfaces/Status";
-import ProblemModel from "../../interfaces/ProblemModel";
 import { generatePathWithParams } from "../../utils/QueryString";
 import * as UserState from "../../utils/UserState";
 import { DifficultyCircle } from "../../components/DifficultyCircle";
@@ -24,8 +22,8 @@ import {
   selectRowPropsForProblemSelection,
   useProblemIdSelection,
 } from "../../utils/ProblemSelection";
-import { UserResponse } from "../Internal/types";
-import { USER_GET } from "../Internal/ApiUrl";
+import { useLoginState } from "../../api/InternalAPIClient";
+import { useMergedProblemMap } from "../../api/APIClient";
 import { INF_POINT, ListTable, StatusFilter, statusFilters } from "./ListTable";
 
 export const FilterParams = {
@@ -56,18 +54,12 @@ const RATED_FILTERS = [
 ] as const;
 type RatedFilter = typeof RATED_FILTERS[number];
 
-interface OuterProps {
+interface Props {
   userId: string;
   submissions: Submission[];
-  mergedProblemMap: Map<ProblemId, MergedProblem>;
-  problemModels: Map<ProblemId, ProblemModel>;
 }
 
-interface InnerProps extends OuterProps {
-  userResponseFetch: PromiseState<UserResponse>;
-}
-
-const InnerProblemList: React.FC<InnerProps> = (props) => {
+export const ProblemList: React.FC<Props> = (props) => {
   const location = useLocation();
   const history = useHistory();
 
@@ -106,12 +98,15 @@ const InnerProblemList: React.FC<InnerProps> = (props) => {
     searchParams.get(FilterParams.ToDifficulty) || INF_POINT.toString(),
     10
   );
-  const points = props.mergedProblemMap
-    .valueSeq()
-    .map((p) => p.point)
-    .reduce((set, point) => (point ? set.add(point) : set), Set<number>())
-    .toList()
-    .sort();
+  const mergedProblemMap =
+    useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
+  const points = Array.from(
+    new Set(
+      Array.from(mergedProblemMap.values())
+        .map((p) => p.point)
+        .filter((p): p is number => !!p)
+    )
+  );
   const difficulties = Range(0, 4400, 400)
     .map((from) => ({
       from,
@@ -119,7 +114,8 @@ const InnerProblemList: React.FC<InnerProps> = (props) => {
     }))
     .toList();
 
-  const isLoggedIn = UserState.isLoggedIn(props.userResponseFetch);
+  const loginState = useLoginState().data;
+  const isLoggedIn = UserState.isLoggedIn(loginState);
 
   return (
     <>
@@ -299,15 +295,9 @@ const InnerProblemList: React.FC<InnerProps> = (props) => {
           fromDifficulty={fromDifficulty}
           toDifficulty={toDifficulty}
           filteredSubmissions={props.submissions}
-          mergedProblemMap={props.mergedProblemMap}
-          problemModels={props.problemModels}
           selectRow={isLoggedIn ? selectRowProps : undefined}
         />
       </Row>
     </>
   );
 };
-
-export const ProblemList = connect<OuterProps, InnerProps>(() => ({
-  userResponseFetch: USER_GET,
-}))(InnerProblemList);

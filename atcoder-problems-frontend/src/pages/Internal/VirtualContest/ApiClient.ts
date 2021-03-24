@@ -1,4 +1,10 @@
-import { CONTEST_CREATE, CONTEST_ITEM_UPDATE, CONTEST_UPDATE } from "../ApiUrl";
+import {
+  CONTEST_CREATE,
+  CONTEST_ITEM_UPDATE,
+  CONTEST_JOIN,
+  CONTEST_LEAVE,
+  CONTEST_UPDATE,
+} from "../ApiUrl";
 import { VirtualContestItem, VirtualContestMode } from "../types";
 
 export interface CreateContestRequest {
@@ -61,3 +67,21 @@ export const updateVirtualContestItems = (
       })),
     }),
   }).then(() => ({}));
+
+export const joinContest = (contestId: string) =>
+  fetch(CONTEST_JOIN, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ contest_id: contestId }),
+  }).then(() => ({}));
+
+export const leaveContest = (contestId: string) =>
+  fetch(CONTEST_LEAVE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ contest_id: contestId }),
+  });

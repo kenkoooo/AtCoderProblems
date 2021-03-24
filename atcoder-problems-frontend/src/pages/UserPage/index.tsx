@@ -2,10 +2,8 @@ import React from "react";
 import { Alert, Nav, NavItem, NavLink, Row, Spinner } from "reactstrap";
 import { NavLink as RouterLink, useLocation } from "react-router-dom";
 
-import { connect, PromiseState } from "react-refetch";
-import * as CachedApiClient from "../../utils/CachedApiClient";
+import { useUserSubmission } from "../../api/APIClient";
 import { generatePathWithParams } from "../../utils/QueryString";
-import Submission from "../../interfaces/Submission";
 import { UserNameLabel } from "../../components/UserNameLabel";
 import { PieChartBlock } from "./PieChartBlock";
 import { AchievementBlock } from "./AchievementBlock";
@@ -32,27 +30,22 @@ const TAB_PARAM = "userPageTab";
 
 type UserPageTab = typeof userPageTabs[number];
 
-interface OuterProps {
+interface Props {
   userId: string;
 }
 
-interface InnerProps extends OuterProps {
-  submissionsFetch: PromiseState<Submission[]>;
-}
-
-const InnerUserPage: React.FC<InnerProps> = (props) => {
+export const UserPage = (props: Props) => {
   const location = useLocation();
   const param = new URLSearchParams(location.search).get(TAB_PARAM);
   const userPageTab: UserPageTab =
     userPageTabs.find((t) => t === param) || "Achievement";
 
-  const { userId, submissionsFetch } = props;
+  const { userId } = props;
+  const submissions = useUserSubmission(userId);
 
-  if (submissionsFetch.pending) {
+  if (!submissions) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   }
-
-  const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
 
   if (userId.length === 0 || submissions.length === 0) {
     return <Alert color="danger">User not found!</Alert>;
@@ -130,12 +123,3 @@ const InnerUserPage: React.FC<InnerProps> = (props) => {
     </div>
   );
 };
-
-export const UserPage = connect<OuterProps, InnerProps>(({ userId }) => ({
-  submissionsFetch: {
-    comparison: userId,
-    value: CachedApiClient.cachedSubmissions(userId).then((list) =>
-      list.toArray()
-    ),
-  },
-}))(InnerUserPage);

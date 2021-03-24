@@ -1,29 +1,25 @@
 import { Table } from "reactstrap";
 import React from "react";
-import { connect, PromiseState } from "react-refetch";
 import { useLocation } from "react-router-dom";
-import MergedProblem from "../../../../interfaces/MergedProblem";
+import {
+  useMergedProblemMap,
+  useProblemModelMap,
+  useVirtualContestSubmissions,
+} from "../../../../api/APIClient";
 import { clipDifficulty, ordinalSuffixOf } from "../../../../utils";
 import { VirtualContestItem } from "../../types";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import { ProblemId, UserId } from "../../../../interfaces/Status";
-import ProblemModel, {
+import {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel,
   ProblemModelWithDifficultyModel,
   ProblemModelWithTimeModel,
 } from "../../../../interfaces/ProblemModel";
-import Submission from "../../../../interfaces/Submission";
-import {
-  cachedMergedProblemMap,
-  cachedProblemModels,
-  fetchVirtualContestSubmission,
-} from "../../../../utils/CachedApiClient";
 import {
   calculatePerformances,
   makeBotRunners,
 } from "../../../../utils/RatingSystem";
-import { convertMap } from "../../../../utils/ImmutableMigration";
 import { TweetButton } from "../../../../components/TweetButton";
 import { getCurrentUnixtimeInSecond } from "../../../../utils/DateUtil";
 import {
@@ -39,7 +35,7 @@ import {
   getResultsByUserMap,
 } from "./util";
 
-interface OuterProps {
+interface Props {
   readonly contestId: string;
   readonly contestTitle: string;
   readonly showRating: boolean;
@@ -59,13 +55,7 @@ interface OuterProps {
   readonly penaltySecond: number;
 }
 
-interface InnerProps extends OuterProps {
-  submissions: PromiseState<Submission[]>;
-  problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
-  problemMap: PromiseState<Map<ProblemId, MergedProblem>>;
-}
-
-const InnerContestTable: React.FC<InnerProps> = (props) => {
+export const ContestTable = (props: Props) => {
   const {
     contestId,
     contestTitle,
@@ -81,13 +71,8 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   } = props;
   const query = new URLSearchParams(useLocation().search);
   const showBots = !!query.get("bot");
-
-  const problemModels = props.problemModels.fulfilled
-    ? props.problemModels.value
-    : new Map<ProblemId, ProblemModel>();
-  const problemMap = props.problemMap.fulfilled
-    ? props.problemMap.value
-    : new Map<ProblemId, MergedProblem>();
+  const problemModels = useProblemModelMap();
+  const { data: problemMap } = useMergedProblemMap();
 
   const modelArray = [] as {
     problemModel: ProblemModelWithDifficultyModel & ProblemModelWithTimeModel;
@@ -96,8 +81,8 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
   }[];
   problems.forEach(({ item }) => {
     const problemId = item.id;
-    const point = item.point ?? problemMap.get(problemId)?.point ?? 100;
-    const problemModel = problemModels.get(problemId);
+    const point = item.point ?? problemMap?.get(problemId)?.point ?? 100;
+    const problemModel = problemModels?.get(problemId);
     if (
       isProblemModelWithTimeModel(problemModel) &&
       isProblemModelWithDifficultyModel(problemModel)
@@ -106,9 +91,17 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     }
   });
 
+  const submissions = useVirtualContestSubmissions(
+    props.users,
+    problems.map((p) => p.item.id),
+    start,
+    end,
+    props.enableAutoRefresh ? 60_000 : 1_000_000_000
+  );
+
   const pointOverrideMap = getPointOverrideMap(problems);
   const resultsByUser = getResultsByUserMap(
-    props.submissions.fulfilled ? props.submissions.value : [],
+    submissions ?? [],
     users,
     (problemId) => pointOverrideMap.get(problemId)
   );
@@ -299,26 +292,3 @@ const InnerContestTable: React.FC<InnerProps> = (props) => {
     </Table>
   );
 };
-
-export const ContestTable = connect<OuterProps, InnerProps>((props) => ({
-  submissions: {
-    comparison: null,
-    value: (): Promise<Submission[]> =>
-      fetchVirtualContestSubmission(
-        props.users,
-        props.problems.map((p) => p.item.id),
-        props.start,
-        props.end
-      ).then((submissions) => submissions.toArray()),
-    refreshInterval: props.enableAutoRefresh ? 60_000 : 1_000_000_000,
-    force: props.enableAutoRefresh,
-  },
-  problemMap: {
-    comparison: null,
-    value: () => cachedMergedProblemMap().then((map) => convertMap(map)),
-  },
-  problemModels: {
-    comparison: null,
-    value: () => cachedProblemModels().then((map) => convertMap(map)),
-  },
-}))(InnerContestTable);

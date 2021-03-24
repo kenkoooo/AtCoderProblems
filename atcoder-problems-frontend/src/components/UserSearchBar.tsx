@@ -13,11 +13,9 @@ import {
   Navbar,
   Collapse,
 } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
+import { useLoginState } from "../api/InternalAPIClient";
 import { extractRivalsParam, normalizeUserId } from "../utils";
 import * as UserState from "../utils/UserState";
-import { USER_GET } from "../pages/Internal/ApiUrl";
-import { UserResponse } from "../pages/Internal/types";
 
 type PageKind = "table" | "list" | "user";
 
@@ -45,12 +43,8 @@ const extractUserIds = (
   return { userId, rivalIdString };
 };
 
-interface OuterProps {
+interface Props {
   isOpen: boolean;
-}
-
-interface InnerProps extends OuterProps {
-  loginState: PromiseState<UserResponse | null>;
 }
 
 const generatePath = (
@@ -62,15 +56,16 @@ const generatePath = (
   return "/" + kind + "/" + users.join("/");
 };
 
-const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
+export const UserSearchBar = (props: Props) => {
   const { pathname } = useLocation();
+  const loginState = useLoginState().data;
   const pageKind = extractPageKind(pathname);
 
   const pathState = pageKind ? extractUserIds(pathname) : undefined;
   const pathUserId = pathState?.userId;
   const pathRivalIdString = pathState?.rivalIdString;
 
-  const loggedInUserId = UserState.loggedInUserId(props.loginState) ?? "";
+  const loggedInUserId = UserState.loggedInUserId(loginState) ?? "";
 
   const [userId, setUserId] = React.useState(pathUserId ?? "");
   const [rivalIdString, setRivalIdString] = React.useState(
@@ -172,9 +167,3 @@ const InnerUserSearchBar: React.FC<InnerProps> = (props) => {
     </Navbar>
   );
 };
-
-export const UserSearchBar = connect<OuterProps, InnerProps>(() => ({
-  loginState: {
-    url: USER_GET,
-  },
-}))(InnerUserSearchBar);

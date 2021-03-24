@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Button, ButtonGroup, Row } from "reactstrap";
-
-import { connect, PromiseState } from "react-refetch";
 import moment from "moment";
+import { useProblemModelMap } from "../../../api/APIClient";
 import { ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
 import { getRatingColor, getRatingColorCode, isAccepted } from "../../../utils";
@@ -14,8 +13,6 @@ import {
   parseSecond,
 } from "../../../utils/DateUtil";
 import ProblemModel from "../../../interfaces/ProblemModel";
-import { cachedProblemModels } from "../../../utils/CachedApiClient";
-import { convertMap } from "../../../utils/ImmutableMigration";
 
 type ShowMode = "AC" | "Submissions" | "Unique AC" | "Max Difficulty";
 
@@ -26,7 +23,7 @@ const WEEKS = 53;
 const createTableData = (
   filteredSubmissions: Submission[],
   showMode: ShowMode,
-  problemModels: Map<ProblemId, ProblemModel>
+  problemModels: Map<ProblemId, ProblemModel> | undefined
 ): { date: string; value?: number }[] => {
   const submissionsByDate = new Map<string, Submission[]>();
   filteredSubmissions.forEach((s) => {
@@ -45,7 +42,7 @@ const createTableData = (
     if (showMode === "Max Difficulty") {
       const submissions = submissionsByDate.get(date) ?? [];
       const difficulties = submissions.map(
-        (s) => problemModels.get(s.problem_id)?.difficulty ?? -1
+        (s) => problemModels?.get(s.problem_id)?.difficulty ?? -1
       );
       if (difficulties.length > 0) {
         const value = difficulties.reduce(
@@ -64,12 +61,8 @@ const createTableData = (
   return tableData;
 };
 
-interface OuterProps {
+interface Props {
   submissions: Submission[];
-}
-
-interface InnerProps extends OuterProps {
-  problemModels: PromiseState<Map<ProblemId, ProblemModel>>;
 }
 
 export const filterSubmissions = (
@@ -111,12 +104,10 @@ const formatCountTooltip = (
   }
 };
 
-export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
+export const FilteringHeatmap: React.FC<Props> = (props) => {
   const [showMode, setShowMode] = useState<ShowMode>("Submissions");
   const { submissions } = props;
-  const problemModels = props.problemModels.fulfilled
-    ? props.problemModels.value
-    : new Map<ProblemId, ProblemModel>();
+  const problemModels = useProblemModelMap();
   const filteredSubmissions = filterSubmissions(submissions, showMode);
   const tableData = createTableData(
     filteredSubmissions,
@@ -179,11 +170,3 @@ export const InnerFilteringHeatmap: React.FC<InnerProps> = (props) => {
     </div>
   );
 };
-
-export const FilteringHeatmap = connect<OuterProps, InnerProps>(() => ({
-  problemModels: {
-    comparison: null,
-    value: (): Promise<Map<ProblemId, ProblemModel>> =>
-      cachedProblemModels().then((map) => convertMap(map)),
-  },
-}))(InnerFilteringHeatmap);
