@@ -1,27 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import { List } from "immutable";
-import { connect, PromiseState } from "react-refetch";
 import { Redirect } from "react-router-dom";
 import * as DateUtil from "../../../utils/DateUtil";
 import { VirtualContestItem } from "../types";
 import {
   CreateContestRequest,
-  CreateContestResponse,
   createVirtualContest,
   updateVirtualContestItems,
 } from "./ApiClient";
 import { ContestConfig } from "./ContestConfig";
 
-const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
-  const createResponse = props.createContestResponse.fulfilled
-    ? props.createContestResponse.value
-    : null;
-  const updateResponse = props.updateResponse.fulfilled
-    ? props.updateResponse.value
-    : null;
-  if (createResponse !== null && updateResponse !== null) {
-    const contestId = createResponse.contest_id;
-    return <Redirect to={`/contest/show/${contestId}`} />;
+const createAndUpdateContest = async (
+  createContestRequest: CreateContestRequest,
+  problems: VirtualContestItem[]
+) => {
+  const response = await createVirtualContest(createContestRequest);
+  await updateVirtualContestItems(response.contest_id, problems);
+  return response.contest_id;
+};
+
+export const ContestCreatePage: React.FC<Props> = (props) => {
+  const [createdContestId, setCreatedContestId] = useState<string | null>(null);
+  if (createdContestId) {
+    return <Redirect to={`/contest/show/${createdContestId}`} />;
   }
 
   const todayMoment = DateUtil.getToday();
@@ -47,7 +48,7 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
       initialPublicState={true}
       initialPenaltySecond={300}
       buttonTitle="Create Contest"
-      buttonPush={({
+      buttonPush={async ({
         title,
         memo,
         startSecond,
@@ -56,8 +57,8 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
         mode,
         publicState,
         penaltySecond,
-      }): void =>
-        props.createContest(
+      }) => {
+        const contestId = await createAndUpdateContest(
           {
             title,
             memo,
@@ -68,46 +69,14 @@ const InnerContestCreatePage: React.FC<InnerProps> = (props) => {
             penalty_second: penaltySecond,
           },
           problems.toArray()
-        )
-      }
+        );
+        setCreatedContestId(contestId);
+      }}
     />
   );
 };
 
-interface OuterProps {
+interface Props {
   initialTitle?: string;
   initialProblems?: List<VirtualContestItem>;
 }
-
-interface InnerProps extends OuterProps {
-  createContestResponse: PromiseState<CreateContestResponse | null>;
-  createContest: (
-    request: CreateContestRequest,
-    problems: VirtualContestItem[]
-  ) => void;
-  updateResponse: PromiseState<unknown | null>;
-}
-
-export const ContestCreatePage = connect<OuterProps, InnerProps>(() => ({
-  createContest: (
-    request: CreateContestRequest,
-    problems: VirtualContestItem[]
-  ) => ({
-    createContestResponse: {
-      comparison: null,
-      value: () => createVirtualContest(request),
-      andThen: (response: CreateContestResponse) => ({
-        updateResponse: {
-          comparison: null,
-          value: () => updateVirtualContestItems(response.contest_id, problems),
-        },
-      }),
-    },
-  }),
-  createContestResponse: {
-    value: null,
-  },
-  updateResponse: {
-    value: null,
-  },
-}))(InnerContestCreatePage);

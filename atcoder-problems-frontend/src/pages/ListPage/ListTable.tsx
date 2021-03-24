@@ -6,13 +6,10 @@ import {
 } from "react-bootstrap-table";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
-import { Map } from "immutable";
-import { connect, PromiseState } from "react-refetch";
 import { useHistory, useLocation } from "react-router-dom";
 import Contest from "../../interfaces/Contest";
 import {
   constructStatusLabelMap,
-  ContestId,
   noneStatus,
   ProblemId,
   ProblemStatus,
@@ -32,11 +29,6 @@ import {
   predictSolveProbability,
 } from "../../utils/ProblemModelUtil";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
-import { RatingInfo } from "../../utils/RatingInfo";
-import {
-  cachedContestMap,
-  cachedRatingInfo,
-} from "../../utils/CachedApiClient";
 import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
 import { ContestLink } from "../../components/ContestLink";
 import { ProblemLink } from "../../components/ProblemLink";
@@ -44,6 +36,12 @@ import {
   ListPaginationPanel,
   ListPaginationPanelProps,
 } from "../../components/ListPaginationPanel";
+import {
+  useContestMap,
+  useMergedProblemMap,
+  useProblemModelMap,
+  useRatingInfo,
+} from "../../api/APIClient";
 
 export const INF_POINT = 1e18;
 
@@ -105,7 +103,7 @@ const convertSortByParam = (value: string | null): ProblemRowDataField => {
   );
 };
 
-interface OuterProps {
+interface Props {
   userId: string;
   fromPoint: number;
   toPoint: number;
@@ -118,40 +116,29 @@ interface OuterProps {
   fromDifficulty: number;
   toDifficulty: number;
   filteredSubmissions: Submission[];
-  mergedProblemMap: Map<ProblemId, MergedProblem>;
-  problemModels: Map<ProblemId, ProblemModel>;
   selectRow?: SelectRow;
 }
 
-interface InnerProps extends OuterProps {
-  contestMapFetch: PromiseState<Map<ContestId, Contest>>;
-  userRatingInfoFetch: PromiseState<RatingInfo>;
-}
-
-const InnerListTable: React.FC<InnerProps> = (props) => {
+export const ListTable: React.FC<Props> = (props) => {
   const history = useHistory();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
 
-  const {
-    userId,
-    filteredSubmissions,
-    mergedProblemMap,
-    problemModels,
-  } = props;
-
   const sortBy = convertSortByParam(searchParams.get("sortBy"));
   const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
 
-  const contestMap = props.contestMapFetch.fulfilled
-    ? props.contestMapFetch.value
-    : Map<ContestId, Contest>();
+  const mergedProblemMap =
+    useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
+  const problemModels = useProblemModelMap();
+
+  const { userId, filteredSubmissions } = props;
+
+  const contestMap = useContestMap();
   const statusLabelMap = constructStatusLabelMap(filteredSubmissions, userId);
-  const rowData = mergedProblemMap
-    .valueSeq()
+  const rowData = Array.from(mergedProblemMap.values())
     .map(
-      (p): ProblemRowData => {
-        const contest = contestMap.get(p.contest_id);
+      (p: MergedProblem): ProblemRowData => {
+        const contest = contestMap?.get(p.contest_id);
         const contestDate = contest
           ? formatMomentDate(parseSecond(contest.start_epoch_second))
           : "";
@@ -171,7 +158,7 @@ const InnerListTable: React.FC<InnerProps> = (props) => {
           : INF_POINT;
         const shortestUserId = p.shortest_user_id ? p.shortest_user_id : "";
         const fastestUserId = p.fastest_user_id ? p.fastest_user_id : "";
-        const problemModel = problemModels.get(p.id);
+        const problemModel = problemModels?.get(p.id);
         return {
           id: p.id,
           title: p.title,
@@ -195,12 +182,10 @@ const InnerListTable: React.FC<InnerProps> = (props) => {
     .sort((a, b) => {
       const dateOrder = b.contestDate.localeCompare(a.contestDate);
       return dateOrder === 0 ? a.title.localeCompare(b.title) : dateOrder;
-    })
-    .toList();
+    });
 
-  const userInternalRating = props.userRatingInfoFetch.fulfilled
-    ? props.userRatingInfoFetch.value.internalRating
-    : null;
+  const userRatingInfo = useRatingInfo(props.userId);
+  const userInternalRating = userRatingInfo.internalRating;
   const readDifficultyAsNumber: (row: ProblemRowData) => number = (row) => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
@@ -274,11 +259,7 @@ const InnerListTable: React.FC<InnerProps> = (props) => {
             problemTitle={row.title}
             contestId={row.mergedProblem.contest_id}
             problemModel={row.problemModel}
-            userRatingInfo={
-              props.userRatingInfoFetch.fulfilled
-                ? props.userRatingInfoFetch.value
-                : null
-            }
+            userRatingInfo={userRatingInfo}
           />
         );
       },
@@ -560,7 +541,7 @@ const InnerListTable: React.FC<InnerProps> = (props) => {
       },
       {
         text: "All",
-        value: rowData.size,
+        value: rowData.length,
       },
     ],
     paginationPanel: function DataFormat(
@@ -647,8 +628,7 @@ const InnerListTable: React.FC<InnerProps> = (props) => {
             props.fromDifficulty <= difficulty &&
             difficulty <= props.toDifficulty
           );
-        })
-        .toArray()}
+        })}
       options={options}
     >
       {columns.map((c) => (
@@ -663,13 +643,3 @@ const InnerListTable: React.FC<InnerProps> = (props) => {
     </BootstrapTable>
   );
 };
-
-export const ListTable = connect<OuterProps, InnerProps>(({ userId }) => ({
-  contestMapFetch: {
-    value: cachedContestMap(),
-  },
-  userRatingInfoFetch: {
-    comparison: userId,
-    value: cachedRatingInfo(userId),
-  },
-}))(InnerListTable);

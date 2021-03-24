@@ -1,4 +1,4 @@
-import { List, Set } from "immutable";
+import { Set as ImmutableSet } from "immutable";
 import Contest from "../interfaces/Contest";
 import { ProblemStatus, StatusLabel } from "../interfaces/Status";
 
@@ -19,19 +19,19 @@ export enum TableColor {
   SuccessLanguage = "table-success-language",
 }
 
-const SUCCESS_COLOR_SET = Set.of(
+const SUCCESS_COLOR_SET = [
   TableColor.Success,
   TableColor.SuccessBeforeContest,
   TableColor.SuccessIntime,
-  TableColor.SuccessLanguage
-);
+  TableColor.SuccessLanguage,
+];
 
 export const combineTableColorList = ({
   colorMode,
   colorList,
 }: {
   colorMode: ColorMode;
-  colorList: List<TableColor>;
+  colorList: TableColor[];
 }): TableColor => {
   switch (colorMode) {
     case ColorMode.ContestResult: {
@@ -53,7 +53,7 @@ export const combineTableColorList = ({
       break;
     }
   }
-  if (colorList.isSubset(SUCCESS_COLOR_SET)) {
+  if (colorList.every((color) => SUCCESS_COLOR_SET.includes(color))) {
     return TableColor.Success;
   } else {
     return TableColor.None;
@@ -84,7 +84,7 @@ export const statusToTableColor = ({
   colorMode: ColorMode;
   status: ProblemStatus;
   contest: Contest | undefined;
-  selectedLanguages?: Set<string>;
+  selectedLanguages?: ImmutableSet<string>;
 }): TableColor => {
   switch (colorMode) {
     case ColorMode.None: {

@@ -10,3 +10,9 @@ export const solvedProblemIds = (
       submissionList.find((submission) => isAccepted(submission.result))
     )
     .map(([problemId]) => problemId);
+
+export const solvedProblemIdsFromArray = (submissions: Submission[]) => {
+  const accepted = submissions.filter((s) => isAccepted(s.result));
+  const problemIds = new Set(accepted.map((s) => s.problem_id));
+  return Array.from(problemIds);
+};

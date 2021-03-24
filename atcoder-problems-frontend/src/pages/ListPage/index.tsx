@@ -1,21 +1,14 @@
 import React from "react";
 import { Row } from "reactstrap";
 import { useHistory, useLocation } from "react-router-dom";
-import { List, Map } from "immutable";
+import { List } from "immutable";
 import { connect, PromiseState } from "react-refetch";
-import ProblemModel from "../../interfaces/ProblemModel";
-import { ProblemId } from "../../interfaces/Status";
+import { useLoginState } from "../../api/InternalAPIClient";
 import Submission from "../../interfaces/Submission";
-import MergedProblem from "../../interfaces/MergedProblem";
-import * as CachedApiClient from "../../utils/CachedApiClient";
 import { fetchUserSubmissions } from "../../utils/Api";
+import { PROGRESS_RESET_LIST } from "../Internal/ApiUrl";
 import { loggedInUserId } from "../../utils/UserState";
-import { PROGRESS_RESET_LIST, USER_GET } from "../Internal/ApiUrl";
-import {
-  filterResetProgress,
-  ProgressResetList,
-  UserResponse,
-} from "../Internal/types";
+import { filterResetProgress, ProgressResetList } from "../Internal/types";
 import { SmallTable } from "./SmallTable";
 import { DifficultyTable } from "./DifficultyTable";
 import { FilterParams, ProblemList } from "./ProblemList";
@@ -37,17 +30,12 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     history.push({ ...location, search: params.toString() });
   };
 
-  const { mergedProblemMapFetch, problemModelsFetch, submissionsFetch } = props;
+  const submissions = props.submissionsFetch.fulfilled
+    ? props.submissionsFetch.value
+    : [];
 
-  const mergedProblemMap = mergedProblemMapFetch.fulfilled
-    ? mergedProblemMapFetch.value
-    : Map<ProblemId, MergedProblem>();
-  const problemModels = problemModelsFetch.fulfilled
-    ? problemModelsFetch.value
-    : Map<ProblemId, ProblemModel>();
-  const submissions = submissionsFetch.fulfilled ? submissionsFetch.value : [];
-
-  const loginUserId = loggedInUserId(props.loginState);
+  const loginState = useLoginState().data;
+  const loginUserId = loggedInUserId(loginState);
   const progressReset =
     props.progressResetList.fulfilled && props.progressResetList.value
       ? props.progressResetList.value
@@ -64,7 +52,6 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
       </Row>
       <Row>
         <SmallTable
-          mergedProblems={mergedProblemMap}
           submissions={filteredSubmissions}
           setFilterFunc={setExactPointFilter}
         />
@@ -75,19 +62,12 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
       </Row>
       <Row>
         <DifficultyTable
-          mergedProblems={mergedProblemMap}
           submissions={filteredSubmissions}
-          problemModels={problemModels}
           setFilterFunc={setDifficultyFilter}
         />
       </Row>
 
-      <ProblemList
-        userId={props.userId}
-        submissions={filteredSubmissions}
-        mergedProblemMap={mergedProblemMap}
-        problemModels={problemModels}
-      />
+      <ProblemList userId={props.userId} submissions={filteredSubmissions} />
     </div>
   );
 };
@@ -99,10 +79,6 @@ interface OuterProps {
 
 interface InnerProps extends OuterProps {
   readonly submissionsFetch: PromiseState<Submission[]>;
-  readonly mergedProblemMapFetch: PromiseState<Map<ProblemId, MergedProblem>>;
-  readonly problemModelsFetch: PromiseState<Map<ProblemId, ProblemModel>>;
-
-  readonly loginState: PromiseState<UserResponse | null>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
@@ -113,12 +89,5 @@ export const ListPage = connect<OuterProps, InnerProps>((props) => ({
       props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
     ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
   },
-  mergedProblemMapFetch: {
-    value: CachedApiClient.cachedMergedProblemMap(),
-  },
-  problemModelsFetch: {
-    value: CachedApiClient.cachedProblemModels(),
-  },
-  loginState: USER_GET,
   progressResetList: PROGRESS_RESET_LIST,
 }))(InnerListPage);

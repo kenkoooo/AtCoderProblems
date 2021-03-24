@@ -1,16 +1,9 @@
-import { PromiseState } from "react-refetch";
 import { UserResponse } from "../pages/Internal/types";
 
-export const isLoggedIn = (
-  loginState: PromiseState<UserResponse | null>
-): boolean =>
-  loginState.fulfilled &&
-  loginState.value !== null &&
-  loginState.value.internal_user_id.length > 0;
+export const isLoggedIn = (loginState: UserResponse | undefined): boolean =>
+  !!loginState && loginState.internal_user_id.length > 0;
 
 export const loggedInUserId = (
-  loginState: PromiseState<UserResponse | null>
+  loginState: UserResponse | undefined
 ): string | undefined =>
-  loginState.fulfilled && loginState.value?.atcoder_user_id
-    ? loginState.value.atcoder_user_id
-    : undefined;
+  loginState?.atcoder_user_id != null ? loginState?.atcoder_user_id : undefined;

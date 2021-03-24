@@ -1,4 +1,3 @@
-import { List } from "immutable";
 import { Theme, ThemeLight } from "../style/theme";
 
 const userIdRegex = /[0-9a-zA-Z_]+/;
@@ -132,16 +131,16 @@ export const getRatingColorCode = (
   }
 };
 
-export function shuffleList<T>(list: List<T>, k?: number): List<T> {
+export function shuffleArray<T>(originalArray: T[], k?: number): T[] {
   const shuffledArray = [] as T[];
-  const array = list.toArray();
-  const size = k === undefined ? list.size : Math.min(k, list.size);
+  const array = [...originalArray];
+  const size = k === undefined ? array.length : Math.min(k, array.length);
   for (let i = 0; i < size; ++i) {
-    const index = Math.floor(Math.random() * (list.size - i)) + i;
+    const index = Math.floor(Math.random() * (array.length - i)) + i;
     shuffledArray.push(array[index]);
     array[index] = array[i];
   }
-  return List(shuffledArray);
+  return shuffledArray;
 }
 
 export const mapToObject = (

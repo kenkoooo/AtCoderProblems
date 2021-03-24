@@ -9,37 +9,37 @@ import {
   Link,
   useLocation,
 } from "react-router-dom";
-import { USER_GET, USER_UPDATE } from "../ApiUrl";
+import { useLoginState } from "../../../api/InternalAPIClient";
+import { USER_UPDATE } from "../ApiUrl";
 import { UserProblemListPage } from "../UserProblemListPage";
-import { UserResponse } from "../types";
 import { MyContestList } from "./MyContestList";
 import { ResetProgress } from "./ResetProgress";
 import { UserIdUpdate } from "./UserIdUpdate";
 
 interface InnerProps {
-  userInfoGet: PromiseState<UserResponse | null>;
   updateUserInfo: (atcoderUser: string) => void;
   updateUserInfoResponse: PromiseState<Record<string, unknown> | null>;
 }
 
 const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
-  const { userInfoGet, updateUserInfoResponse } = props;
+  const { updateUserInfoResponse } = props;
+  const loginState = useLoginState();
 
   const [userId, setUserId] = useState("");
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (userInfoGet.fulfilled && userInfoGet.value) {
-      setUserId(userInfoGet.value.atcoder_user_id ?? "");
+    if (loginState.data) {
+      setUserId(loginState.data.atcoder_user_id ?? "");
     }
     // We only want to set the userId when the userInfoGet promise is first fulfilled.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfoGet.fulfilled]);
+  }, [!!loginState.data]);
 
-  if (userInfoGet.rejected || updateUserInfoResponse.rejected) {
+  if (loginState.error || updateUserInfoResponse.rejected) {
     return <Redirect to="/" />;
-  } else if (userInfoGet.pending) {
+  } else if (!loginState.data) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else {
     const updating = updateUserInfoResponse.refreshing;
@@ -110,9 +110,6 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
 };
 
 export const MyAccountPage = connect<unknown, InnerProps>(() => ({
-  userInfoGet: {
-    url: USER_GET,
-  },
   updateUserInfo: (
     atcoderUser: string
   ): PropsMapInner<Pick<InnerProps, "updateUserInfoResponse">> => ({
