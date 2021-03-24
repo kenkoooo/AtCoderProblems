@@ -257,6 +257,7 @@ export const useVirtualContestSubmissions = (
         : Promise.resolve([]),
     {
       refreshInterval,
+      refreshWhenHidden: true,
     }
   ).data;
 };
