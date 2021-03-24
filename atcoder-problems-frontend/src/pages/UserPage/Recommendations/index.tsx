@@ -3,8 +3,8 @@ import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row, TabContent, TabPane } from "reactstrap";
 import {
   useContestMap,
-  useMergedProblemMap,
   useProblemModelMap,
+  useProblems,
   useRatingInfo,
   useUserSubmission,
 } from "../../../api/APIClient";
@@ -67,12 +67,8 @@ export const Recommendations = (props: Props) => {
     deselectProblemIds,
   ] = useProblemIdSelection();
 
-  const userSubmissions = useUserSubmission(props.userId) ?? [];
-  const { data: mergedProblemsMap } = useMergedProblemMap();
-  const problems = mergedProblemsMap
-    ? Array.from(mergedProblemsMap.values())
-    : [];
-
+  const userSubmissions = useUserSubmission(props.userId);
+  const problems = useProblems() ?? [];
   const problemModels = useProblemModelMap();
   const userRatingInfo = useRatingInfo(props.userId);
   const contestMap = useContestMap();
@@ -80,7 +76,7 @@ export const Recommendations = (props: Props) => {
   const loginState = useLoginState().data;
   const isLoggedIn = UserState.isLoggedIn(loginState);
 
-  if (userSubmissions.length === 0) {
+  if (!userSubmissions) {
     return null;
   }
 
