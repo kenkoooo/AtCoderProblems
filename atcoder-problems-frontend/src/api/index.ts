@@ -8,6 +8,7 @@ export const useSWRData = <T>(
   return useSWR(url, fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
+    refreshWhenHidden: true,
     ...config,
   });
 };
