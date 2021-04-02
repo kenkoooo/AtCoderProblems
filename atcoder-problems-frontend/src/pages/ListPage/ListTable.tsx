@@ -1,33 +1,73 @@
 import {
   BootstrapTable,
   Options,
+  SelectRow,
   TableHeaderColumn,
 } from "react-bootstrap-table";
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import Contest from "../../interfaces/Contest";
+import {
+  constructStatusLabelMap,
+  noneStatus,
+  ProblemId,
+  ProblemStatus,
+  StatusLabel,
+} from "../../interfaces/Status";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel,
+  isProblemModelWithTimeModel,
+} from "../../interfaces/ProblemModel";
+import MergedProblem from "../../interfaces/MergedProblem";
+import Submission from "../../interfaces/Submission";
 import * as Url from "../../utils/Url";
-import { ContestLink } from "../../components/ContestLink";
-import { ProblemLink } from "../../components/ProblemLink";
-import { StatusLabel } from "../../interfaces/Status";
 import {
   formatPredictedSolveTime,
   formatPredictedSolveProbability,
   predictSolveTime,
   predictSolveProbability,
 } from "../../utils/ProblemModelUtil";
-import ProblemModel, {
-  isProblemModelWithDifficultyModel,
-  isProblemModelWithTimeModel,
-} from "../../interfaces/ProblemModel";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
+import { formatMomentDate, parseSecond } from "../../utils/DateUtil";
+import { ContestLink } from "../../components/ContestLink";
+import { ProblemLink } from "../../components/ProblemLink";
 import {
   ListPaginationPanel,
   ListPaginationPanelProps,
 } from "../../components/ListPaginationPanel";
-import { RatingInfo } from "../../utils/RatingInfo";
-import { INF_POINT, ProblemRowData, ProblemRowDataField } from "./index";
+import {
+  useContestMap,
+  useMergedProblemMap,
+  useProblemModelMap,
+  useRatingInfo,
+} from "../../api/APIClient";
+
+export const INF_POINT = 1e18;
+
+export interface ProblemRowData {
+  readonly id: string;
+  readonly title: string;
+  readonly contest?: Contest;
+  readonly contestDate: string;
+  readonly contestTitle: string;
+  readonly lastAcceptedDate: string;
+  readonly solverCount: number;
+  readonly point: number;
+  readonly problemModel?: ProblemModel;
+  readonly firstUserId: string;
+  readonly executionTime: number;
+  readonly codeLength: number;
+  readonly mergedProblem: MergedProblem;
+  readonly shortestUserId: string;
+  readonly fastestUserId: string;
+  readonly status: ProblemStatus;
+}
+
+export type ProblemRowDataField =
+  | keyof ProblemRowData
+  | "solveProbability"
+  | "timeEstimation";
 
 export const statusFilters = [
   "All",
@@ -38,7 +78,33 @@ export const statusFilters = [
 ] as const;
 export type StatusFilter = typeof statusFilters[number];
 
+const convertSortByParam = (value: string | null): ProblemRowDataField => {
+  return (
+    ([
+      "id",
+      "title",
+      "contest",
+      "contestDate",
+      "contestTitle",
+      "lastAcceptedDate",
+      "solverCount",
+      "point",
+      "problemModel",
+      "firstUserId",
+      "executionTime",
+      "codeLength",
+      "mergedProblem",
+      "shortestUserId",
+      "fastestUserId",
+      "status",
+      "solveProbability",
+      "timeEstimation",
+    ] as const).find((v) => v === value) ?? "contestDate"
+  );
+};
+
 interface Props {
+  userId: string;
   fromPoint: number;
   toPoint: number;
   statusFilterState: StatusFilter;
@@ -49,14 +115,77 @@ interface Props {
     | "Only Unrated without Difficulty";
   fromDifficulty: number;
   toDifficulty: number;
-  rowData: ProblemRowData[];
-  userRatingInfo: RatingInfo;
-  sortBy: ProblemRowDataField;
-  sortOrder: "asc" | "desc";
+  filteredSubmissions: Submission[];
+  selectRow?: SelectRow;
 }
 
 export const ListTable: React.FC<Props> = (props) => {
-  const userInternalRating = props.userRatingInfo.internalRating;
+  const history = useHistory();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  const sortBy = convertSortByParam(searchParams.get("sortBy"));
+  const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
+
+  const mergedProblemMap =
+    useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
+  const problemModels = useProblemModelMap();
+
+  const { userId, filteredSubmissions } = props;
+
+  const contestMap = useContestMap();
+  const statusLabelMap = constructStatusLabelMap(filteredSubmissions, userId);
+  const rowData = Array.from(mergedProblemMap.values())
+    .map(
+      (p: MergedProblem): ProblemRowData => {
+        const contest = contestMap?.get(p.contest_id);
+        const contestDate = contest
+          ? formatMomentDate(parseSecond(contest.start_epoch_second))
+          : "";
+        const contestTitle = contest ? contest.title : "";
+
+        const status = statusLabelMap.get(p.id) ?? noneStatus();
+        const lastAcceptedDate =
+          status.label === StatusLabel.Success
+            ? formatMomentDate(parseSecond(status.lastAcceptedEpochSecond))
+            : "";
+        const point = p.point ?? INF_POINT;
+        const firstUserId = p.first_user_id ? p.first_user_id : "";
+        const executionTime =
+          p.execution_time != null ? p.execution_time : INF_POINT;
+        const codeLength = p.source_code_length
+          ? p.source_code_length
+          : INF_POINT;
+        const shortestUserId = p.shortest_user_id ? p.shortest_user_id : "";
+        const fastestUserId = p.fastest_user_id ? p.fastest_user_id : "";
+        const problemModel = problemModels?.get(p.id);
+        return {
+          id: p.id,
+          title: p.title,
+          contest,
+          contestDate,
+          contestTitle,
+          lastAcceptedDate,
+          solverCount: p.solver_count ? p.solver_count : 0,
+          point,
+          problemModel,
+          firstUserId,
+          executionTime,
+          codeLength,
+          mergedProblem: p,
+          shortestUserId,
+          fastestUserId,
+          status,
+        };
+      }
+    )
+    .sort((a, b) => {
+      const dateOrder = b.contestDate.localeCompare(a.contestDate);
+      return dateOrder === 0 ? a.title.localeCompare(b.title) : dateOrder;
+    });
+
+  const userRatingInfo = useRatingInfo(props.userId);
+  const userInternalRating = userRatingInfo.internalRating;
   const readDifficultyAsNumber: (row: ProblemRowData) => number = (row) => {
     const problemModel = row.problemModel;
     if (problemModel === undefined) {
@@ -130,7 +259,7 @@ export const ListTable: React.FC<Props> = (props) => {
             problemTitle={row.title}
             contestId={row.mergedProblem.contest_id}
             problemModel={row.problemModel}
-            userRatingInfo={props.userRatingInfo}
+            userRatingInfo={userRatingInfo}
           />
         );
       },
@@ -389,8 +518,6 @@ export const ListTable: React.FC<Props> = (props) => {
     },
   ];
 
-  const location = useLocation();
-  const history = useHistory();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const options: Options<{ [key in ProblemRowDataField]: any }> = {
     paginationPosition: "top",
@@ -414,7 +541,7 @@ export const ListTable: React.FC<Props> = (props) => {
       },
       {
         text: "All",
-        value: props.rowData.length,
+        value: rowData.length,
       },
     ],
     paginationPanel: function DataFormat(
@@ -422,8 +549,8 @@ export const ListTable: React.FC<Props> = (props) => {
     ): React.ReactElement {
       return <ListPaginationPanel {...paginationPanelProps} />;
     },
-    defaultSortName: props.sortBy,
-    defaultSortOrder: props.sortOrder,
+    defaultSortName: sortBy,
+    defaultSortOrder: sortOrder,
     onSortChange: function (
       sortName: ProblemRowDataField,
       sortOrder: "asc" | "desc"
@@ -443,6 +570,7 @@ export const ListTable: React.FC<Props> = (props) => {
       hover
       striped
       search
+      selectRow={props.selectRow}
       tableContainerClass="list-table"
       trClassName={(row: ProblemRowData): string => {
         const { status, contest } = row;
@@ -452,7 +580,7 @@ export const ListTable: React.FC<Props> = (props) => {
           contest,
         });
       }}
-      data={props.rowData
+      data={rowData
         .filter(
           (row) => props.fromPoint <= row.point && row.point <= props.toPoint
         ) // eslint-disable-next-line
