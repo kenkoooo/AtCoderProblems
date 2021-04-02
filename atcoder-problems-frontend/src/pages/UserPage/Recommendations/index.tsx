@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import {
-  BootstrapTable,
-  SelectRowMode,
-  TableHeaderColumn,
-} from "react-bootstrap-table";
+import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row } from "reactstrap";
 import {
@@ -26,10 +22,14 @@ import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
 } from "../../../utils/ProblemModelUtil";
-import { PROBLEM_ID_SEPARATE_SYMBOL } from "../../../utils/QueryString";
 import * as Url from "../../../utils/Url";
 import * as UserState from "../../../utils/UserState";
 import { useLocalStorage } from "../../../utils/LocalStorage";
+import {
+  createContestLocationFromProblemIds,
+  selectRowPropsForProblemSelection,
+  useProblemIdSelection,
+} from "../../../utils/ProblemSelection";
 import { recommendProblems } from "./RecommendProblems";
 import {
   ExcludeOption,
@@ -88,8 +88,6 @@ interface Props {
 
 export const Recommendations = (props: Props) => {
   const history = useHistory();
-  const loginState = useLoginState().data;
-  const userSubmissions = useUserSubmission(props.userId) ?? [];
 
   const [recommendOption, setRecommendOption] = useLocalStorage<
     RecommendOption
@@ -101,35 +99,41 @@ export const Recommendations = (props: Props) => {
     "recoomendExcludeOption",
     "Exclude"
   );
-
-  const userRatingInfo = useRatingInfo(props.userId);
   const [recommendNum, setRecommendNum] = useState(10);
-  const [selectedProblemIdSet, setSelectedProblemIdSet] = useState<
-    Set<ProblemId>
-  >(new Set());
 
-  const selectProblemIds = (ids: ProblemId[]) => {
-    const newSet = new Set<ProblemId>(selectedProblemIdSet);
-    ids.forEach((problemId) => newSet.add(problemId));
-    setSelectedProblemIdSet(newSet);
-  };
+  const [
+    getSelectedProblemIds,
+    selectProblemIds,
+    deselectProblemIds,
+  ] = useProblemIdSelection();
 
-  const deselectProblemIds = (ids: ProblemId[]) => {
-    const newSet = new Set<ProblemId>(selectedProblemIdSet);
-    ids.forEach((problemId) => newSet.delete(problemId));
-    setSelectedProblemIdSet(newSet);
-  };
+  const userSubmissions = useUserSubmission(props.userId) ?? [];
   const { data: mergedProblemsMap } = useMergedProblemMap();
   const problems = mergedProblemsMap
     ? Array.from(mergedProblemsMap.values())
     : [];
   const contestMap = useContestMap();
   const problemModels = useProblemModelMap();
+  const loginState = useLoginState().data;
   const isLoggedIn = UserState.isLoggedIn(loginState);
+
+  const userRatingInfo = useRatingInfo(props.userId);
 
   if (userSubmissions.length === 0) {
     return null;
   }
+
+  const selectedProblemIds = getSelectedProblemIds();
+  const isNoProblemSelected = selectedProblemIds.length === 0;
+  const createContest = () => {
+    history.push(createContestLocationFromProblemIds(selectedProblemIds));
+  };
+  const selectRowProps = selectRowPropsForProblemSelection(
+    selectedProblemIds,
+    getSelectedProblemIds,
+    selectProblemIds,
+    deselectProblemIds
+  );
 
   const lastSolvedTimeMap = getLastSolvedTimeMap(userSubmissions);
   const submittedSet = new Set(userSubmissions.map((s) => s.problem_id));
@@ -152,38 +156,6 @@ export const Recommendations = (props: Props) => {
     recommendNum
   );
 
-  const selectedProblemIds = Array.from(selectedProblemIdSet);
-  interface HasProblemId {
-    id: ProblemId;
-  }
-  const selectRowProps = !isLoggedIn
-    ? undefined
-    : {
-        mode: "checkbox" as SelectRowMode,
-        selected: selectedProblemIds,
-        onSelect: (row: HasProblemId, isSelected: boolean) => {
-          if (isSelected) {
-            selectProblemIds([row.id]);
-          } else {
-            deselectProblemIds([row.id]);
-          }
-        },
-        onSelectAll: (isSelected: boolean, rows: HasProblemId[]) => {
-          const ids = rows.map(({ id }) => id);
-          if (isSelected) {
-            selectProblemIds(ids);
-          } else {
-            deselectProblemIds(ids);
-          }
-          return Array.from(selectedProblemIdSet);
-        },
-      };
-  const problemIdToString = selectedProblemIds.join(PROBLEM_ID_SEPARATE_SYMBOL);
-  const createContestLocation = {
-    pathname: "/contest/create",
-    search: !problemIdToString ? "" : "?problemIds=" + problemIdToString,
-  };
-
   return (
     <>
       <Row className="my-3 d-flex justify-content-between">
@@ -205,10 +177,8 @@ export const Recommendations = (props: Props) => {
           <ButtonGroup>
             <Button
               color="success"
-              disabled={selectedProblemIdSet.size == 0}
-              onClick={() => {
-                history.push(createContestLocation);
-              }}
+              disabled={isNoProblemSelected}
+              onClick={createContest}
             >
               Create Virtual Contest
             </Button>
@@ -222,7 +192,7 @@ export const Recommendations = (props: Props) => {
           height="auto"
           hover
           striped
-          selectRow={selectRowProps}
+          selectRow={isLoggedIn ? selectRowProps : undefined}
         >
           <TableHeaderColumn
             dataField="title"

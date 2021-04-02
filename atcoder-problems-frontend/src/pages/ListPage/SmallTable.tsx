@@ -6,9 +6,9 @@ import { countBy, groupBy } from "../../utils/GroupBy";
 import { TableColor } from "../../utils/TableColor";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
+import { useMergedProblemMap } from "../../api/APIClient";
 
 interface Props {
-  mergedProblems: Map<ProblemId, MergedProblem>;
   submissions: Submission[];
   setFilterFunc: (point: number) => void;
 }
@@ -46,13 +46,11 @@ export const getUserPointCounts = (
     .sort((a, b) => a.userId.localeCompare(b.userId));
 };
 
-export const SmallTable: React.FC<Props> = ({
-  submissions,
-  mergedProblems,
-  setFilterFunc,
-}) => {
-  const userPointCountMap = getUserPointCounts(mergedProblems, submissions);
-  const totalCount = getTotalCount(mergedProblems);
+export const SmallTable: React.FC<Props> = ({ submissions, setFilterFunc }) => {
+  const mergedProblemMap =
+    useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
+  const userPointCountMap = getUserPointCounts(mergedProblemMap, submissions);
+  const totalCount = getTotalCount(mergedProblemMap);
   return (
     <Table striped bordered hover responsive>
       <thead>
