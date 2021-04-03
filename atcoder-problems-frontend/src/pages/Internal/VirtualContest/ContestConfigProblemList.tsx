@@ -8,41 +8,58 @@ import {
   ListGroupItem,
   ButtonGroup,
 } from "reactstrap";
-import { List, Set } from "immutable";
-import { connect, PromiseState } from "react-refetch";
 import Octicon, { ChevronUp, ChevronDown } from "@primer/octicons-react";
-import { useProblemMap, useProblemModelMap } from "../../../api/APIClient";
-import { cachedSubmissions } from "../../../utils/CachedApiClient";
+import {
+  useMultipleUserSubmissions,
+  useProblemMap,
+  useProblemModelMap,
+} from "../../../api/APIClient";
+import { ProblemId, UserId } from "../../../interfaces/Status";
 import { VirtualContestItem } from "../types";
 import { ProblemLink } from "../../../components/ProblemLink";
 import { isAccepted } from "../../../utils";
 
-const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
+interface Props {
+  problemSet: VirtualContestItem[];
+  setProblemSet: (newProblemSet: VirtualContestItem[]) => void;
+  expectedParticipantUserIds: string[];
+  onSolvedProblemsFetchFinished: (errorMessage?: string | null) => void;
+}
+
+export const ContestConfigProblemList: React.FC<Props> = (props) => {
   const { problemSet } = props;
   const problemMap = useProblemMap();
   const problemModels = useProblemModelMap();
+  const solvedProblemIdsByUser = (
+    useMultipleUserSubmissions(props.expectedParticipantUserIds).data ?? []
+  )
+    .filter((submission) => isAccepted(submission.result))
+    .reduce((map, submission) => {
+      const userId = submission.user_id;
+      const problemIds = map.get(userId) ?? new Set<ProblemId>();
+      problemIds.add(submission.problem_id);
+      map.set(userId, problemIds);
+      return map;
+    }, new Map<UserId, Set<ProblemId>>());
+
   return (
     <ListGroup>
-      {problemSet.isEmpty() && (
+      {problemSet.length === 0 && (
         <ListGroupItem>
           You have not added any problems yet. Use the search box below to
           search for problems to add to the contest.
         </ListGroupItem>
       )}
 
-      {problemSet.valueSeq().map((p, i) => {
+      {problemSet.map((p, i) => {
         const problemId = p.id;
         const problem = problemMap?.get(problemId);
-
         const solvedUsers =
-          problem && props.userSolvedProblemsMapFetch.fulfilled
-            ? Object.entries(props.userSolvedProblemsMapFetch.value)
-                .filter(([, solvedProblems]) =>
-                  solvedProblems.contains(problem.id)
-                )
-                .map(([user]) => user)
-            : [];
-
+          (problem &&
+            Array.from(solvedProblemIdsByUser)
+              .filter(([, problemIds]) => problemIds.has(problem.id))
+              .map(([user]) => user)) ??
+          [];
         return (
           <ListGroupItem
             key={problemId}
@@ -78,12 +95,9 @@ const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
               {p.point === null ? (
                 <Button
                   onClick={(): void => {
-                    props.setProblemSet(
-                      problemSet.update(i, (x) => ({
-                        ...x,
-                        point: 0,
-                      }))
-                    );
+                    const newProblemSet = [...problemSet];
+                    newProblemSet[i] = { ...problemSet[i], point: 0 };
+                    props.setProblemSet(newProblemSet);
                   }}
                 >
                   Set Point
@@ -92,26 +106,28 @@ const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
               <Button
                 disabled={i === 0}
                 onClick={(): void => {
-                  const nextFirst = problemSet.get(i);
-                  const nextSecond = problemSet.get(i - 1);
+                  const nextFirst = problemSet[i];
+                  const nextSecond = problemSet[i - 1];
                   if (nextFirst && nextSecond) {
-                    props.setProblemSet(
-                      problemSet.set(i - 1, nextFirst).set(i, nextSecond)
-                    );
+                    const newProblemSet = [...problemSet];
+                    newProblemSet[i - 1] = nextFirst;
+                    newProblemSet[i] = nextSecond;
+                    props.setProblemSet(newProblemSet);
                   }
                 }}
               >
                 <Octicon icon={ChevronUp} />
               </Button>
               <Button
-                disabled={i === problemSet.size - 1}
+                disabled={i === problemSet.length - 1}
                 onClick={(): void => {
-                  const nextFirst = problemSet.get(i + 1);
-                  const nextSecond = problemSet.get(i);
+                  const nextFirst = problemSet[i + 1];
+                  const nextSecond = problemSet[i];
                   if (nextFirst && nextSecond) {
-                    props.setProblemSet(
-                      problemSet.set(i, nextFirst).set(i + 1, nextSecond)
-                    );
+                    const newProblemSet = [...problemSet];
+                    newProblemSet[i] = nextFirst;
+                    newProblemSet[i + 1] = nextSecond;
+                    props.setProblemSet(newProblemSet);
                   }
                 }}
               >
@@ -126,23 +142,17 @@ const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
                   onChange={(e): void => {
                     const parse = parseInt(e.target.value, 10);
                     const point = !isNaN(parse) ? parse : 0;
-                    props.setProblemSet(
-                      problemSet.update(i, (x) => ({
-                        ...x,
-                        point,
-                      }))
-                    );
+                    const newProblemSet = [...problemSet];
+                    newProblemSet[i] = { ...problemSet[i], point };
+                    props.setProblemSet(newProblemSet);
                   }}
                 />
                 <InputGroupAddon addonType="append">
                   <Button
                     onClick={(): void => {
-                      props.setProblemSet(
-                        problemSet.update(i, (x) => ({
-                          ...x,
-                          point: null,
-                        }))
-                      );
+                      const newProblemSet = [...problemSet];
+                      newProblemSet[i] = { ...problemSet[i], point: null };
+                      props.setProblemSet(newProblemSet);
                     }}
                   >
                     Unset
@@ -156,46 +166,3 @@ const InnerContestConfigProblemList: React.FC<InnerProps> = (props) => {
     </ListGroup>
   );
 };
-
-interface OuterProps {
-  problemSet: List<VirtualContestItem>;
-  setProblemSet: (newProblemSet: List<VirtualContestItem>) => void;
-  expectedParticipantUserIds: string[];
-  onSolvedProblemsFetchFinished: (errorMessage?: string | null) => void;
-}
-
-interface InnerProps extends OuterProps {
-  userSolvedProblemsMapFetch: PromiseState<{ [user: string]: Set<string> }>;
-}
-
-export const ContestConfigProblemList = connect<OuterProps, InnerProps>(
-  (props) => ({
-    userSolvedProblemsMapFetch: {
-      comparison: props.expectedParticipantUserIds,
-      refreshing: true,
-      value: async (): Promise<{ [problem: string]: Set<string> }> => {
-        const res: { [problem: string]: Set<string> } = {};
-        const failedUserIds: string[] = [];
-        for (const userId of props.expectedParticipantUserIds) {
-          try {
-            const submissions = await cachedSubmissions(userId);
-            res[userId] = submissions
-              .filter((submission) => isAccepted(submission.result))
-              .map((submission) => submission.problem_id)
-              .toSet();
-          } catch (e) {
-            failedUserIds.push(userId);
-          }
-        }
-        if (failedUserIds.length > 0) {
-          props.onSolvedProblemsFetchFinished(
-            `Fetch Failed for ${failedUserIds.join(", ")}`
-          );
-        } else {
-          props.onSolvedProblemsFetchFinished();
-        }
-        return res;
-      },
-    },
-  })
-)(InnerContestConfigProblemList);

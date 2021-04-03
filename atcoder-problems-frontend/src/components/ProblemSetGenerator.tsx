@@ -1,4 +1,3 @@
-import { List } from "immutable";
 import {
   Button,
   Col,
@@ -15,11 +14,14 @@ import {
   UncontrolledDropdown,
 } from "reactstrap";
 import React, { useState } from "react";
-import { useProblemModelMap, useProblems } from "../api/APIClient";
+import {
+  useMultipleUserSubmissions,
+  useProblemModelMap,
+  useProblems,
+} from "../api/APIClient";
 import Problem from "../interfaces/Problem";
-import { isAccepted, shuffleArray } from "../utils";
+import { shuffleArray } from "../utils";
 import { isProblemModelWithDifficultyModel } from "../interfaces/ProblemModel";
-import { cachedSubmissions } from "../utils/CachedApiClient";
 
 interface Props {
   selectProblem: (...problems: Problem[]) => void;
@@ -85,6 +87,9 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
   const [selectedPreset, setSelectedPreset] = useState(ABC_PRESET);
   const problems = useProblems() ?? [];
   const problemModels = useProblemModelMap();
+  const submissions =
+    useMultipleUserSubmissions(props.expectedParticipantUserIds).data ?? [];
+  const alreadySolvedProblemIds = new Set(submissions.map((s) => s.problem_id));
 
   return (
     <Form className={"w-100"}>
@@ -250,9 +255,8 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
             disabled={
               problemSelectionParamsList.length === 0 || props.addButtonDisabled
             }
-            onClick={async (): Promise<void> => {
+            onClick={() => {
               const nProblems = problemSelectionParamsList.length;
-
               let candidateProblems = problems.map((problem) => ({
                 problem,
                 model: problemModels?.get(problem.id),
@@ -268,26 +272,9 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
               }
 
               if (excludeAlreadySolvedProblems) {
-                try {
-                  const alreadySolvedProblems = await Promise.all(
-                    props.expectedParticipantUserIds.map(cachedSubmissions)
-                  ).then((userSubmissions) => {
-                    return List(userSubmissions)
-                      .flatMap((x) => x)
-                      .filter((submission) => isAccepted(submission.result))
-                      .map((submission) => submission.problem_id)
-                      .toSet();
-                  });
-                  candidateProblems = candidateProblems.filter(
-                    (problem) =>
-                      !alreadySolvedProblems.contains(problem.problem.id)
-                  );
-                } catch (e) {
-                  alert(
-                    "Error happened during fetching submissions. See console."
-                  );
-                  throw e;
-                }
+                candidateProblems = candidateProblems.filter(
+                  (p) => !alreadySolvedProblemIds.has(p.problem.id)
+                );
               }
 
               candidateProblems = shuffleArray(candidateProblems);
