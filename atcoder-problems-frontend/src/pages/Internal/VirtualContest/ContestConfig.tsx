@@ -48,7 +48,7 @@ export const ContestConfig: React.FC<Props> = (props) => {
   const [endDate, setEndDate] = useState(props.initialEndDate);
   const [endHour, setEndHour] = useState(props.initialEndHour);
   const [endMinute, setEndMinute] = useState(props.initialEndMinute);
-  const [problemSet, setProblemSet] = useState(props.initialProblems);
+  const [problemSet, setProblemSet] = useState(props.initialProblems.toArray());
   const [mode, setMode] = useState(props.initialMode);
   const [publicState, setPublicState] = useState(props.initialPublicState);
   const [penaltySecond, setPenaltySecond] = useState(
@@ -86,10 +86,10 @@ export const ContestConfig: React.FC<Props> = (props) => {
   const isValid = title.length > 0 && startSecond <= endSecond;
 
   const addProblemsIfNotSelected = (...problems: Problem[]): void => {
-    let newProblemSet = problemSet;
+    const newProblemSet = [...problemSet];
     problems.forEach((problem) => {
       if (problemSet.every((p) => p.id !== problem.id)) {
-        newProblemSet = newProblemSet.push({
+        newProblemSet.push({
           id: problem.id,
           point: null,
           order: null,
@@ -368,7 +368,7 @@ export const ContestConfig: React.FC<Props> = (props) => {
                 memo,
                 startSecond,
                 endSecond,
-                problems: problemSet,
+                problems: List(problemSet),
                 mode,
                 publicState,
                 penaltySecond,

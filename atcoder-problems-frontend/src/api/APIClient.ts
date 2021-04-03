@@ -157,6 +157,19 @@ export const useUserSubmission = (user: string) => {
   ).data;
 };
 
+export const useMultipleUserSubmissions = (userIds: UserId[]) => {
+  const fetcher = async (urls: string[]) => {
+    const promises = urls.map((url) => fetchTypedArray(url, isSubmission));
+    const arrays = await Promise.all(promises);
+    return arrays.flat();
+  };
+
+  const urls = userIds
+    .filter((userId) => userId.length > 0)
+    .map((userId) => `${ATCODER_API_URL}/results?user=${userId}`);
+  return useSWRData(urls.join(","), (urls) => fetcher(urls.split(",")));
+};
+
 export const useContests = () => {
   const url = STATIC_API_BASE_URL + "/contests.json";
   return useSWRData(url, (url) => fetchTypedArray(url, isContest));
