@@ -1,6 +1,7 @@
 use algorithm_problem_client::AtCoderClient;
 use anyhow::Result;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
+use atcoder_problems_backend::utils::init_log_config;
 use chrono::Utc;
 use rand::{thread_rng, Rng};
 use sql_client::initialize_pool;
@@ -28,7 +29,7 @@ async fn crawl<R: Rng>(url: &str, rng: &mut R) -> Result<()> {
 
 #[async_std::main]
 async fn main() {
-    simple_logger::init_with_level(log::Level::Info).expect("Failed to initialize the logger.");
+    init_log_config().unwrap();
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
     log::info!("Started");
 
