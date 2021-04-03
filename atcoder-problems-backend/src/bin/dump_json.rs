@@ -1,5 +1,6 @@
 use anyhow::Result;
 use atcoder_problems_backend::s3;
+use atcoder_problems_backend::utils::init_log_config;
 use serde::Serialize;
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::contest_problem::ContestProblemClient;
@@ -16,8 +17,7 @@ const LANGUAGE_COUNT_LIMIT: usize = 1000;
 
 #[async_std::main]
 async fn main() -> Result<()> {
-    simple_logger::init_with_level(log::Level::Info)?;
-
+    init_log_config()?;
     log::info!("Started!");
     let url = env::var("SQL_URL")?;
     let pg_pool = initialize_pool(&url).await?;

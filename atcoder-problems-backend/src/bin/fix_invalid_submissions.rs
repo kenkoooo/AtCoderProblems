@@ -1,5 +1,6 @@
 use algorithm_problem_client::AtCoderClient;
 use atcoder_problems_backend::crawler::FixCrawler;
+use atcoder_problems_backend::utils::init_log_config;
 use chrono::Utc;
 use log::info;
 use sql_client::initialize_pool;
@@ -9,7 +10,7 @@ const ONE_DAY: i64 = 24 * 3600;
 
 #[async_std::main]
 async fn main() {
-    simple_logger::init_with_level(log::Level::Info).unwrap();
+    init_log_config().unwrap();
     info!("Started");
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
     let db = initialize_pool(&url).await.unwrap();
