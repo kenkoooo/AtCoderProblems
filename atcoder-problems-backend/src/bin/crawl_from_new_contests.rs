@@ -1,6 +1,7 @@
 use algorithm_problem_client::AtCoderClient;
 use anyhow::Result;
 use atcoder_problems_backend::crawler::WholeContestCrawler;
+use atcoder_problems_backend::utils::init_log_config;
 use log::info;
 use sql_client::initialize_pool;
 use sql_client::simple_client::SimpleClient;
@@ -24,7 +25,7 @@ async fn iteration(url: &str) -> Result<()> {
 
 #[async_std::main]
 async fn main() {
-    simple_logger::init_with_level(log::Level::Info).unwrap();
+    init_log_config().unwrap();
     info!("Started");
     let url = env::var("SQL_URL").expect("SQL_URL is not set.");
 

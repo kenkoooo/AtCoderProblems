@@ -1,4 +1,4 @@
-use log::{self, info};
+use atcoder_problems_backend::utils::init_log_config;
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::initialize_pool;
 use sql_client::language_count::LanguageCountClient;
@@ -13,7 +13,7 @@ use std::error::Error;
 
 #[async_std::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    simple_logger::init_with_level(log::Level::Info)?;
+    init_log_config()?;
     info!("Started!");
 
     info!("Connecting to SQL ...");
