@@ -1,4 +1,5 @@
 use atcoder_problems_backend::utils::init_log_config;
+use log::info;
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::initialize_pool;
 use sql_client::language_count::LanguageCountClient;
