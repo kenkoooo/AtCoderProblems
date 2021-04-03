@@ -26,9 +26,9 @@ sql-client = { path = "./sql-client" }
 # Web framework
 tide = "0.16"
 cookie = "0.14"
-surf = "2.0.0"
+surf = "2.2.0"
 
-async-trait = "0.1.30"
+async-trait = "0.1.48"
 
 async-std = { version = "1.9.0", features = ["attributes"] }
 anyhow = "1.0.32"
