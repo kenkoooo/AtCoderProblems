@@ -29,7 +29,7 @@ import {
   UserTotalResult,
 } from "./ResultCalcUtil";
 import { ContestTableRow } from "./ContestTableRow";
-import { FirstAcceptedRow } from "./FirstAcceptedRow";
+import { FirstAcceptanceRow } from "./FirstAcceptanceRow";
 import {
   compareProblem,
   getPointOverrideMap,
@@ -290,7 +290,7 @@ export const ContestTable = (props: Props) => {
           );
         })}
         {showProblems && (
-          <FirstAcceptedRow
+          <FirstAcceptanceRow
             start={start}
             userIds={users}
             problemIds={sortedItems.map((item) => item.id)}
