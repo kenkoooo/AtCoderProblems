@@ -1,9 +1,9 @@
 import React from "react";
 import { ProblemId, UserId } from "../../../../interfaces/Status";
 import { ReducedProblemResult } from "./ResultCalcUtil";
-import { FirstAccepted, FirstAcceptedCell } from "./FirstAcceptedCell";
+import { FirstAcceptance, FirstAcceptanceCell } from "./FirstAcceptanceCell";
 
-interface FirstAcceptedRowProps {
+interface FirstAcceptanceRowProps {
   start: number;
   userIds: UserId[];
   problemIds: string[];
@@ -11,10 +11,12 @@ interface FirstAcceptedRowProps {
   showRating: boolean;
 }
 
-export const FirstAcceptedRow: React.FC<FirstAcceptedRowProps> = (props) => {
+export const FirstAcceptanceRow: React.FC<FirstAcceptanceRowProps> = (
+  props
+) => {
   const { start, userIds, problemIds, resultsByUser, showRating } = props;
 
-  const fastestByProblem = new Map<ProblemId, FirstAccepted>();
+  const fastestByProblem = new Map<ProblemId, FirstAcceptance>();
 
   resultsByUser.forEach((resultsByProblemId, userId) => {
     if (!userIds.includes(userId)) {
@@ -29,7 +31,7 @@ export const FirstAcceptedRow: React.FC<FirstAcceptedRowProps> = (props) => {
       const currentFastest = fastestByProblem.get(problemId);
       const time = result.lastUpdatedEpochSecond - start;
       if (!currentFastest || currentFastest.time > time) {
-        const newFastest: FirstAccepted = {
+        const newFastest: FirstAcceptance = {
           userId: userId,
           time: time,
         };
@@ -45,7 +47,7 @@ export const FirstAcceptedRow: React.FC<FirstAcceptedRowProps> = (props) => {
       </th>
       {problemIds.map((problemId) => {
         return (
-          <FirstAcceptedCell
+          <FirstAcceptanceCell
             key={problemId}
             fastest={fastestByProblem.get(problemId)}
             showRating={showRating}

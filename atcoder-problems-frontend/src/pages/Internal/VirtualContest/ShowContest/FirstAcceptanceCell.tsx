@@ -3,17 +3,19 @@ import { UserId } from "../../../../interfaces/Status";
 import { formatDuration } from "../../../../utils/DateUtil";
 import { UserNameLabel } from "../../../../components/UserNameLabel";
 
-export interface FirstAccepted {
+export interface FirstAcceptance {
   userId: UserId;
   time: number;
 }
 
-interface FirstAcceptedCellProps {
-  fastest?: FirstAccepted;
+interface FirstAcceptanceCellProps {
+  fastest?: FirstAcceptance;
   showRating: boolean;
 }
 
-export const FirstAcceptedCell: React.FC<FirstAcceptedCellProps> = (props) => {
+export const FirstAcceptanceCell: React.FC<FirstAcceptanceCellProps> = (
+  props
+) => {
   const { fastest, showRating } = props;
 
   if (fastest) {
