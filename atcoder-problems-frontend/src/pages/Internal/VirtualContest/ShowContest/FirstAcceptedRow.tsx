@@ -14,7 +14,7 @@ interface FirstAcceptedRowProps {
 export const FirstAcceptedRow: React.FC<FirstAcceptedRowProps> = (props) => {
   const { start, userIds, problemIds, resultsByUser, showRating } = props;
 
-  const fastestByProblem = new Map<string, FirstAccepted>();
+  const fastestByProblem = new Map<ProblemId, FirstAccepted>();
 
   resultsByUser.forEach((resultsByProblemId, userId) => {
     if (!userIds.includes(userId)) {
@@ -22,13 +22,13 @@ export const FirstAcceptedRow: React.FC<FirstAcceptedRowProps> = (props) => {
     }
 
     resultsByProblemId.forEach((result, problemId) => {
+      if (!result.accepted) {
+        return;
+      }
+
       const currentFastest = fastestByProblem.get(problemId);
       const time = result.lastUpdatedEpochSecond - start;
-
-      if (
-        (currentFastest === undefined && result.accepted) ||
-        (currentFastest && currentFastest.time > time && result.accepted)
-      ) {
+      if (!currentFastest || currentFastest.time > time) {
         const newFastest: FirstAccepted = {
           userId: userId,
           time: time,
@@ -41,7 +41,7 @@ export const FirstAcceptedRow: React.FC<FirstAcceptedRowProps> = (props) => {
   return (
     <tr>
       <th colSpan={3} className="text-center align-middle">
-        First Accepted
+        First Acceptance
       </th>
       {problemIds.map((problemId) => {
         return (

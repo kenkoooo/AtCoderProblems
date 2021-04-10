@@ -289,17 +289,15 @@ export const ContestTable = (props: Props) => {
             />
           );
         })}
-        {showProblems ? (
+        {showProblems && (
           <FirstAcceptedRow
             start={start}
             userIds={users}
-            problemIds={sortedItems.map((item) => {
-              return item.id;
-            })}
+            problemIds={sortedItems.map((item) => item.id)}
             resultsByUser={resultsByUser}
             showRating={showRating}
           />
-        ) : null}
+        )}
       </tbody>
     </Table>
   );

@@ -9,7 +9,7 @@ export interface FirstAccepted {
 }
 
 interface FirstAcceptedCellProps {
-  fastest: FirstAccepted | undefined;
+  fastest?: FirstAccepted;
   showRating: boolean;
 }
 
@@ -20,7 +20,7 @@ export const FirstAcceptedCell: React.FC<FirstAcceptedCellProps> = (props) => {
     return (
       <td>
         <p className="font-weight-bold m-0 text-center">
-          {<UserNameLabel userId={fastest.userId} showRating={showRating} />}
+          <UserNameLabel userId={fastest.userId} showRating={showRating} />
           <br />
           <span style={{ color: "gray" }}>{formatDuration(fastest.time)}</span>
         </p>
