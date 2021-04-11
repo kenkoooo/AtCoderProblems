@@ -64,7 +64,7 @@ export const ProblemList: React.FC<Props> = (props) => {
   const location = useLocation();
   const history = useHistory();
 
-  const [getSelectedIds, selectIds, deselectIds] = useProblemIdSelection();
+  const [, getSelectedIds, selectIds, deselectIds] = useProblemIdSelection();
   const selectedIds = getSelectedIds();
   const createContest = () =>
     history.push(createContestLocationFromProblemIds(selectedIds));

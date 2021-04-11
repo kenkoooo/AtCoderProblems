@@ -61,6 +61,7 @@ export const Recommendations = (props: Props) => {
   const [recommendNum, setRecommendNum] = useState(10);
 
   const [
+    isProblemIdSelected,
     getSelectedProblemIds,
     selectProblemIds,
     deselectProblemIds,
@@ -179,6 +180,7 @@ export const Recommendations = (props: Props) => {
           <Row className="my-3">
             <RecommendTable
               filteredRecommendedProblems={filteredRecommendedProblems}
+              isLoggedIn={isLoggedIn}
               getSelectedProblemIds={getSelectedProblemIds}
               selectProblemIds={selectProblemIds}
               deselectProblemIds={deselectProblemIds}
@@ -191,7 +193,8 @@ export const Recommendations = (props: Props) => {
           <Row className="my-3">
             <RecommendGrid
               filteredRecommendedProblems={filteredRecommendedProblems}
-              getSelectedProblemIds={getSelectedProblemIds}
+              isLoggedIn={isLoggedIn}
+              isProblemIdSelected={isProblemIdSelected}
               selectProblemIds={selectProblemIds}
               deselectProblemIds={deselectProblemIds}
               formatProblemName={formatProblemName}

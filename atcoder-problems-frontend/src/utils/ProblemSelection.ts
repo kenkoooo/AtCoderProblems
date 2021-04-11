@@ -29,6 +29,7 @@ const reducer = (
 };
 
 export const useProblemIdSelection = (): [
+  (problemId: ProblemId) => boolean,
   () => ProblemId[],
   (problemIds: ProblemId[]) => void,
   (problemIds: ProblemId[]) => void
@@ -36,6 +37,11 @@ export const useProblemIdSelection = (): [
   const [selectedProblemIdSet, dispatch] = useReducer(
     reducer,
     new Set<ProblemId>()
+  );
+
+  const has = useCallback(
+    (problemId: ProblemId) => selectedProblemIdSet.has(problemId),
+    [selectedProblemIdSet]
   );
 
   const get = useCallback(() => Array.from(selectedProblemIdSet), [
@@ -51,7 +57,7 @@ export const useProblemIdSelection = (): [
     []
   );
 
-  return [get, select, deselect];
+  return [has, get, select, deselect];
 };
 
 export const createContestLocationFromProblemIds = (

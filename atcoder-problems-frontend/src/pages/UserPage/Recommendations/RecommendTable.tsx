@@ -6,14 +6,13 @@ import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
 } from "../../../utils/ProblemModelUtil";
-import * as UserState from "../../../utils/UserState";
 import { ProblemId } from "../../../interfaces/Status";
 import { selectRowPropsForProblemSelection } from "../../../utils/ProblemSelection";
-import { useLoginState } from "../../../api/InternalAPIClient";
 import { RecommendedProblem } from "./RecommendProblems";
 
 interface Props {
   filteredRecommendedProblems: RecommendedProblem[];
+  isLoggedIn: boolean;
   getSelectedProblemIds: () => ProblemId[];
   selectProblemIds: (ids: ProblemId[]) => void;
   deselectProblemIds: (ids: ProblemId[]) => void;
@@ -32,8 +31,6 @@ interface Props {
 }
 
 export const RecommendTable = (props: Props) => {
-  const isLoggedIn = UserState.isLoggedIn(useLoginState().data);
-
   const selectRowProps = selectRowPropsForProblemSelection(
     props.getSelectedProblemIds(),
     props.getSelectedProblemIds,
@@ -48,7 +45,7 @@ export const RecommendTable = (props: Props) => {
       height="auto"
       hover
       striped
-      selectRow={isLoggedIn ? selectRowProps : undefined}
+      selectRow={props.isLoggedIn ? selectRowProps : undefined}
     >
       <TableHeaderColumn dataField="title" dataFormat={props.formatProblemName}>
         Problem

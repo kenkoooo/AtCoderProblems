@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardBody, Col, Row } from "reactstrap";
+import { Card, CardBody, Col, Input, Label, Row } from "reactstrap";
 import { ProblemLink } from "../../../components/ProblemLink";
 import { HelpBadgeModal } from "../../../components/HelpBadgeModal";
 import {
@@ -12,7 +12,8 @@ import { RecommendedProblem } from "./RecommendProblems";
 
 interface Props {
   filteredRecommendedProblems: RecommendedProblem[];
-  getSelectedProblemIds: () => ProblemId[];
+  isLoggedIn: boolean;
+  isProblemIdSelected: (id: ProblemId) => boolean;
   selectProblemIds: (ids: ProblemId[]) => void;
   deselectProblemIds: (ids: ProblemId[]) => void;
   formatProblemName: (
@@ -42,11 +43,32 @@ export const RecommendGrid = (props: Props) => {
             <Col key={p.id} className="text-center my-1" md="4" sm="6" xs="12">
               <Card>
                 <CardBody>
-                  <ProblemLink
-                    problemId={p.id}
-                    contestId={p.contest_id}
-                    problemTitle={p.title}
-                  />
+                  {props.isLoggedIn ? (
+                    <Label check>
+                      <Input
+                        type="checkbox"
+                        checked={props.isProblemIdSelected(p.id)}
+                        onClick={() => {
+                          if (props.isProblemIdSelected(p.id)) {
+                            props.deselectProblemIds([p.id]);
+                          } else {
+                            props.selectProblemIds([p.id]);
+                          }
+                        }}
+                      />
+                      <ProblemLink
+                        problemId={p.id}
+                        contestId={p.contest_id}
+                        problemTitle={p.title}
+                      />
+                    </Label>
+                  ) : (
+                    <ProblemLink
+                      problemId={p.id}
+                      contestId={p.contest_id}
+                      problemTitle={p.title}
+                    />
+                  )}
                   &nbsp;
                   <HelpBadgeModal id={`ProblemBadge-${p.id}`} title={p.title}>
                     <div className="text-center">
