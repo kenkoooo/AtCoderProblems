@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, ButtonGroup, Row } from "reactstrap";
+import { Button, ButtonGroup, Row, TabContent, TabPane } from "reactstrap";
 import {
   useContestMap,
   useMergedProblemMap,
@@ -28,8 +28,13 @@ import {
   getMaximumExcludeElapsedSecond,
 } from "../../../utils/LastSolvedTime";
 import { recommendProblems } from "./RecommendProblems";
-import { RecommendController, RecommendOption } from "./RecommendController";
+import {
+  RecommendController,
+  RecommendOption,
+  ViewStyle,
+} from "./RecommendController";
 import { RecommendTable } from "./RecommendTable";
+import { RecommendGrid } from "./RecommendGrid";
 
 interface Props {
   userId: string;
@@ -47,6 +52,11 @@ export const Recommendations = (props: Props) => {
   const [excludeOption, setExcludeOption] = useLocalStorage<ExcludeOption>(
     "recoomendExcludeOption",
     "Exclude"
+  );
+
+  const [viewStyle, setViewStyle] = useLocalStorage<ViewStyle>(
+    "recommendViewStyle",
+    "List"
   );
   const [recommendNum, setRecommendNum] = useState(10);
 
@@ -147,6 +157,8 @@ export const Recommendations = (props: Props) => {
           }
           showCount={recommendNum}
           onChangeShowCount={(value) => setRecommendNum(value)}
+          viewStyle={viewStyle}
+          setViewStyle={setViewStyle}
         />
       </Row>
       {isLoggedIn && (
@@ -162,16 +174,32 @@ export const Recommendations = (props: Props) => {
           </ButtonGroup>
         </Row>
       )}
-      <Row className="my-3">
-        <RecommendTable
-          filteredRecommendedProblems={filteredRecommendedProblems}
-          getSelectedProblemIds={getSelectedProblemIds}
-          selectProblemIds={selectProblemIds}
-          deselectProblemIds={deselectProblemIds}
-          formatProblemName={formatProblemName}
-          formatContestName={formatContestName}
-        />
-      </Row>
+      <TabContent activeTab={viewStyle}>
+        <TabPane tabId="List">
+          <Row className="my-3">
+            <RecommendTable
+              filteredRecommendedProblems={filteredRecommendedProblems}
+              getSelectedProblemIds={getSelectedProblemIds}
+              selectProblemIds={selectProblemIds}
+              deselectProblemIds={deselectProblemIds}
+              formatProblemName={formatProblemName}
+              formatContestName={formatContestName}
+            />
+          </Row>
+        </TabPane>
+        <TabPane tabId="Grid">
+          <Row className="my-3">
+            <RecommendGrid
+              filteredRecommendedProblems={filteredRecommendedProblems}
+              getSelectedProblemIds={getSelectedProblemIds}
+              selectProblemIds={selectProblemIds}
+              deselectProblemIds={deselectProblemIds}
+              formatProblemName={formatProblemName}
+              formatContestName={formatContestName}
+            />
+          </Row>
+        </TabPane>
+      </TabContent>
     </>
   );
 };

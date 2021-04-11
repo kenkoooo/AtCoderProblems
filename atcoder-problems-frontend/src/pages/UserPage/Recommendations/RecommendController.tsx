@@ -8,7 +8,11 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from "reactstrap";
-import { formatExcludeOption } from "../../../utils/LastSolvedTime";
+import {
+  ExcludeOption,
+  ExcludeOptions,
+  formatExcludeOption,
+} from "../../../utils/LastSolvedTime";
 
 const RECOMMEND_NUM_OPTIONS = [
   {
@@ -34,18 +38,40 @@ const RECOMMEND_NUM_OPTIONS = [
 ];
 const RecommendOptions = ["Easy", "Moderate", "Difficult"] as const;
 export type RecommendOption = typeof RecommendOptions[number];
-const ExcludeOptions = [
-  "Exclude",
-  "Exclude submitted",
-  "2 Years",
-  "1 Year",
-  "6 Months",
-  "4 Weeks",
-  "2 Weeks",
-  "1 Week",
-  "Don't exclude",
-] as const;
-export type ExcludeOption = typeof ExcludeOptions[number];
+
+export type ViewStyle = "List" | "Grid";
+
+// Bootstrap Icons Justify
+// https://icons.getbootstrap.com/icons/justify/
+const IconList = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    fill="currentColor"
+    className="bi bi-justify"
+    viewBox="0 0 16 16"
+  >
+    <path
+      fillRule="evenodd"
+      d="M2 12.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"
+    />
+  </svg>
+);
+// Bootstrap Icons Grid
+// https://icons.getbootstrap.com/icons/grid/
+const IconGrid = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    fill="currentColor"
+    className="bi bi-grid"
+    viewBox="0 0 16 16"
+  >
+    <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z" />
+  </svg>
+);
 
 interface Props {
   recommendOption: RecommendOption;
@@ -59,6 +85,9 @@ interface Props {
 
   showCount: number;
   onChangeShowCount: (count: number) => void;
+
+  viewStyle: ViewStyle;
+  setViewStyle: (style: ViewStyle) => void;
 }
 
 export const RecommendController = (props: Props) => (
@@ -107,20 +136,38 @@ export const RecommendController = (props: Props) => (
         }
       />
     </div>
-    <UncontrolledDropdown direction="left">
-      <DropdownToggle caret>
-        {props.showCount === Number.POSITIVE_INFINITY ? "All" : props.showCount}
-      </DropdownToggle>
-      <DropdownMenu>
-        {RECOMMEND_NUM_OPTIONS.map(({ text, value }) => (
-          <DropdownItem
-            key={value}
-            onClick={(): void => props.onChangeShowCount(value)}
-          >
-            {text}
-          </DropdownItem>
-        ))}
-      </DropdownMenu>
-    </UncontrolledDropdown>
+    <div className="d-inline-flex flex-row-reverse">
+      <UncontrolledDropdown className="ml-3" direction="down">
+        <DropdownToggle caret>
+          {props.showCount === Number.POSITIVE_INFINITY
+            ? "All"
+            : props.showCount}
+        </DropdownToggle>
+        <DropdownMenu>
+          {RECOMMEND_NUM_OPTIONS.map(({ text, value }) => (
+            <DropdownItem
+              key={value}
+              onClick={(): void => props.onChangeShowCount(value)}
+            >
+              {text}
+            </DropdownItem>
+          ))}
+        </DropdownMenu>
+      </UncontrolledDropdown>
+      <ButtonGroup>
+        <Button
+          active={props.viewStyle === "List"}
+          onClick={() => props.setViewStyle("List")}
+        >
+          <IconList />
+        </Button>
+        <Button
+          active={props.viewStyle === "Grid"}
+          onClick={() => props.setViewStyle("Grid")}
+        >
+          <IconGrid />
+        </Button>
+      </ButtonGroup>
+    </div>
   </>
 );
