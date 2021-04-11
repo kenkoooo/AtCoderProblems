@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row } from "reactstrap";
 import {
@@ -11,21 +10,15 @@ import {
 } from "../../../api/APIClient";
 import { useLoginState } from "../../../api/InternalAPIClient";
 import { ContestLink } from "../../../components/ContestLink";
-import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { NewTabLink } from "../../../components/NewTabLink";
 import { ProblemLink } from "../../../components/ProblemLink";
 import Problem from "../../../interfaces/Problem";
 import { ProblemId } from "../../../interfaces/Status";
-import {
-  formatPredictedSolveProbability,
-  formatPredictedSolveTime,
-} from "../../../utils/ProblemModelUtil";
 import * as Url from "../../../utils/Url";
 import * as UserState from "../../../utils/UserState";
 import { useLocalStorage } from "../../../utils/LocalStorage";
 import {
   createContestLocationFromProblemIds,
-  selectRowPropsForProblemSelection,
   useProblemIdSelection,
 } from "../../../utils/ProblemSelection";
 import {
@@ -36,6 +29,7 @@ import {
 } from "../../../utils/LastSolvedTime";
 import { recommendProblems } from "./RecommendProblems";
 import { RecommendController, RecommendOption } from "./RecommendController";
+import { RecommendTable } from "./RecommendTable";
 
 interface Props {
   userId: string;
@@ -67,12 +61,13 @@ export const Recommendations = (props: Props) => {
   const problems = mergedProblemsMap
     ? Array.from(mergedProblemsMap.values())
     : [];
-  const contestMap = useContestMap();
+
   const problemModels = useProblemModelMap();
+  const userRatingInfo = useRatingInfo(props.userId);
+  const contestMap = useContestMap();
+
   const loginState = useLoginState().data;
   const isLoggedIn = UserState.isLoggedIn(loginState);
-
-  const userRatingInfo = useRatingInfo(props.userId);
 
   if (userSubmissions.length === 0) {
     return null;
@@ -83,12 +78,6 @@ export const Recommendations = (props: Props) => {
   const createContest = () => {
     history.push(createContestLocationFromProblemIds(selectedProblemIds));
   };
-  const selectRowProps = selectRowPropsForProblemSelection(
-    selectedProblemIds,
-    getSelectedProblemIds,
-    selectProblemIds,
-    deselectProblemIds
-  );
 
   const lastSolvedTimeMap = getLastSolvedTimeMap(userSubmissions);
   const submittedSet = new Set(userSubmissions.map((s) => s.problem_id));
@@ -111,6 +100,38 @@ export const Recommendations = (props: Props) => {
     recommendOption,
     recommendNum
   );
+
+  const formatProblemName = (
+    title: string,
+    {
+      id,
+      contest_id,
+      is_experimental,
+    }: { id: string; contest_id: string; is_experimental: boolean }
+  ): React.ReactElement => (
+    <ProblemLink
+      isExperimentalDifficulty={is_experimental}
+      showDifficulty={true}
+      problemId={id}
+      problemName={title}
+      contestId={contest_id}
+      problemModel={problemModels?.get(id) ?? null}
+      userRatingInfo={userRatingInfo}
+    />
+  );
+  const formatContestName = (
+    contestId: string,
+    problem: Problem
+  ): React.ReactElement => {
+    const contest = contestMap?.get(contestId);
+    return contest ? (
+      <ContestLink contest={contest} />
+    ) : (
+      <NewTabLink href={Url.formatContestUrl(problem.contest_id)}>
+        {contestId}
+      </NewTabLink>
+    );
+  };
 
   return (
     <>
@@ -142,92 +163,14 @@ export const Recommendations = (props: Props) => {
         </Row>
       )}
       <Row className="my-3">
-        <BootstrapTable
-          data={filteredRecommendedProblems}
-          keyField="id"
-          height="auto"
-          hover
-          striped
-          selectRow={isLoggedIn ? selectRowProps : undefined}
-        >
-          <TableHeaderColumn
-            dataField="title"
-            dataFormat={(
-              name: string,
-              {
-                id,
-                contest_id,
-                is_experimental,
-              }: { id: string; contest_id: string; is_experimental: boolean }
-            ): React.ReactElement => (
-              <ProblemLink
-                isExperimentalDifficulty={is_experimental}
-                showDifficulty={true}
-                problemId={id}
-                problemName={name}
-                contestId={contest_id}
-                problemModel={problemModels?.get(id) ?? null}
-                userRatingInfo={userRatingInfo}
-              />
-            )}
-          >
-            Problem
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="contest_id"
-            dataFormat={(
-              contestId: string,
-              problem: Problem
-            ): React.ReactElement => {
-              const contest = contestMap?.get(contestId);
-              return contest ? (
-                <ContestLink contest={contest} />
-              ) : (
-                <NewTabLink href={Url.formatContestUrl(problem.contest_id)}>
-                  {contestId}
-                </NewTabLink>
-              );
-            }}
-          >
-            Contest
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="difficulty"
-            dataFormat={(difficulty: number | null): string => {
-              if (difficulty === null) {
-                return "-";
-              }
-              return String(difficulty);
-            }}
-          >
-            <span>Difficulty</span>
-            &nbsp;
-            <HelpBadgeTooltip id="difficulty">
-              Internal rating to have 50% Solve Probability
-            </HelpBadgeTooltip>
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="predictedSolveProbability"
-            dataFormat={formatPredictedSolveProbability}
-          >
-            <span>Solve Probability</span>
-            &nbsp;
-            <HelpBadgeTooltip id="probability">
-              Estimated probability that you could solve this problem if you
-              competed in the contest.
-            </HelpBadgeTooltip>
-          </TableHeaderColumn>
-          <TableHeaderColumn
-            dataField="predictedSolveTime"
-            dataFormat={formatPredictedSolveTime}
-          >
-            <span>Median Solve Time</span>
-            &nbsp;
-            <HelpBadgeTooltip id="solvetime">
-              Estimated time required to solve this problem.
-            </HelpBadgeTooltip>
-          </TableHeaderColumn>
-        </BootstrapTable>
+        <RecommendTable
+          filteredRecommendedProblems={filteredRecommendedProblems}
+          getSelectedProblemIds={getSelectedProblemIds}
+          selectProblemIds={selectProblemIds}
+          deselectProblemIds={deselectProblemIds}
+          formatProblemName={formatProblemName}
+          formatContestName={formatContestName}
+        />
       </Row>
     </>
   );

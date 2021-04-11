@@ -55,6 +55,13 @@ const getRecommendProbabilityRange = (
   }
 };
 
+export interface RecommendedProblem extends Problem {
+  difficulty?: number;
+  is_experimental: boolean;
+  predictedSolveTime: number | null;
+  predictedSolveProbability: number;
+}
+
 export const recommendProblems = (
   problems: Problem[],
   isIncluded: (problemId: ProblemId) => boolean,
@@ -63,7 +70,7 @@ export const recommendProblems = (
   internalRating: number | null,
   recommendOption: RecommendOption,
   recommendNum: number
-) => {
+): RecommendedProblem[] => {
   const recommendProbability = getRecommendProbability(recommendOption);
   const recommendRange = getRecommendProbabilityRange(recommendOption);
   return problems
