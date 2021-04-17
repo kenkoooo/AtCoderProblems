@@ -29,6 +29,7 @@ import {
   UserTotalResult,
 } from "./ResultCalcUtil";
 import { ContestTableRow } from "./ContestTableRow";
+import { FirstAcceptanceRow } from "./FirstAcceptanceRow";
 import {
   compareProblem,
   getPointOverrideMap,
@@ -288,6 +289,15 @@ export const ContestTable = (props: Props) => {
             />
           );
         })}
+        {showProblems && (
+          <FirstAcceptanceRow
+            start={start}
+            userIds={users}
+            problemIds={sortedItems.map((item) => item.id)}
+            resultsByUser={resultsByUser}
+            showRating={showRating}
+          />
+        )}
       </tbody>
     </Table>
   );
