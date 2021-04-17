@@ -36,6 +36,11 @@ interface Props {
   userRatingInfo: RatingInfo;
 }
 
+const getProblemHeaderAlphabetFromTitle = (problem: Problem) => {
+  const list = problem.title.split(".");
+  return list.length === 0 ? "" : list[0];
+};
+
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
   const { colorMode, selectedLanguages, showPenalties, userRatingInfo } = props;
   const problemModels = useProblemModelMap();
@@ -47,7 +52,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
       {
         problem: Problem;
         status: ProblemStatus;
-        model: ProblemModel | undefined;
+        model?: ProblemModel;
         cellColor: TableColor;
       }
     >;
@@ -75,8 +80,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
       });
       const problemStatus = new Map(
         problemStatusList.map((status) => {
-          const list = status.problem.title.split(".");
-          const alphabet = list.length === 0 ? "" : list[0];
+          const alphabet = getProblemHeaderAlphabetFromTitle(status.problem);
           return [alphabet, status];
         })
       );
@@ -101,11 +105,13 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
     .sort(
       (a, b) => b.contest.start_epoch_second - a.contest.start_epoch_second
     );
-  const maxProblemCount = props.contests.reduce((currentCount, contest) => {
-    const problems = props.contestToProblems.get(contest.id) ?? [];
-    return Math.max(problems.length, currentCount);
-  }, 0);
-  const header = ["A", "B", "C", "D", "E", "F", "F2"].slice(0, maxProblemCount);
+
+  const headerList = props.contests
+    .flatMap((contest) => props.contestToProblems.get(contest.id) ?? [])
+    .map((problem) => getProblemHeaderAlphabetFromTitle(problem))
+    .filter((alphabet) => alphabet.length > 0);
+
+  const header = Array.from(new Set(headerList)).sort();
   return (
     <Row className="my-4">
       <h2>{props.title}</h2>
