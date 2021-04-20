@@ -67,7 +67,7 @@ export const ShowContest = (props: Props) => {
   const internalUserId = loginState?.data?.internal_user_id;
 
   const atCoderUserId = rawAtCoderUserId ? rawAtCoderUserId : "";
-  const isLoggedIn = internalUserId !== null;
+  const isLoggedIn = internalUserId !== undefined;
   const userIdIsSet = atCoderUserId !== "";
 
   const start = contestInfo.start_epoch_second;
