@@ -2,10 +2,15 @@ FROM rust:1.50.0 AS builder
 
 WORKDIR /app
 
+# Configure sql-client
 RUN mkdir -p ./sql-client/src
 RUN touch ./sql-client/src/lib.rs
 ADD ./sql-client/Cargo.toml ./sql-client
-ADD ./sql-client/Cargo.lock ./sql-client
+
+# Configure atcoder-client
+RUN mkdir -p ./atcoder-client/src
+RUN touch ./atcoder-client/src/lib.rs
+ADD ./atcoder-client/Cargo.toml ./atcoder-client
 
 RUN mkdir ./src
 RUN echo "fn main(){}" > ./src/main.rs
@@ -16,7 +21,8 @@ RUN cargo build --release
 
 ADD ./src ./src
 ADD ./sql-client ./sql-client
-RUN cargo clean --release -p sql-client
+ADD ./atcoder-client ./atcoder-client
+RUN cargo clean --release -p atcoder-client -p sql-client
 RUN cargo build --release
 
 FROM rust:1.50.0
