@@ -97,22 +97,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "algorithm-problem-client"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c6716524709d411c8d3a4a76d1add8cc7442f3df2c61df29de32971e37e4cefa"
-dependencies = [
- "chrono",
- "futures 0.3.5",
- "regex",
- "scraper",
- "serde",
- "serde_json",
- "surf 1.0.3",
- "thiserror",
-]
-
-[[package]]
 name = "anyhow"
 version = "1.0.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -373,7 +357,6 @@ dependencies = [
 name = "atcoder-problems-backend"
 version = "0.1.0"
 dependencies = [
- "algorithm-problem-client",
  "anyhow",
  "async-std",
  "async-trait",

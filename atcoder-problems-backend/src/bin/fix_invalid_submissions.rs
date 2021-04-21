@@ -1,4 +1,4 @@
-use algorithm_problem_client::AtCoderClient;
+use atcoder_client::AtCoderClient;
 use atcoder_problems_backend::crawler::FixCrawler;
 use atcoder_problems_backend::utils::init_log_config;
 use chrono::Utc;
