@@ -1,6 +1,7 @@
 use crate::crawler::AtCoderFetcher;
 use anyhow::Result;
 use async_trait::async_trait;
+use atcoder_client::ContestTypeSpecifier;
 use sql_client::models::{Contest, ContestProblem, Problem, Submission};
 
 pub(crate) struct MockFetcher<F: Fn(&str, u32) -> Vec<Submission>>(pub(crate) F);
@@ -14,7 +15,7 @@ where
         (self.0)(contest_id, page)
     }
 
-    async fn fetch_contests(&self, _: u32) -> Result<Vec<Contest>> {
+    async fn fetch_contests(&self, _: ContestTypeSpecifier) -> Result<Vec<Contest>> {
         unimplemented!()
     }
 

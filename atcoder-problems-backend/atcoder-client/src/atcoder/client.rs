@@ -14,10 +14,26 @@ impl Default for AtCoderClient {
 }
 
 impl AtCoderClient {
-    pub async fn fetch_atcoder_contests(&self, page: u32) -> Result<Vec<AtCoderContest>> {
+    pub async fn fetch_atcoder_contests(&self, spf: ContestTypeSpecifier) -> Result<Vec<AtCoderContest>> {
+        match spf {
+            ContestTypeSpecifier::Normal { page } => self.fetch_atcoder_normal_contests(page).await,
+            ContestTypeSpecifier::Permanent => self.fetch_atcoder_permanent_contests().await,
+            ContestTypeSpecifier::Hidden => self.fetch_atcoder_hidden_contests().await,
+        }
+    }
+
+    async fn fetch_atcoder_normal_contests(&self, page: u32) -> Result<Vec<AtCoderContest>> {
         let url = format!("{}/contests/archive?lang=ja&page={}", ATCODER_PREFIX, page);
         let html = util::get_html(&url).await?;
         contest::scrape(&html)
+    }
+
+    async fn fetch_atcoder_permanent_contests(&self) -> Result<Vec<AtCoderContest>> {
+        unimplemented!()
+    }
+
+    async fn fetch_atcoder_hidden_contests(&self) -> Result<Vec<AtCoderContest>> {
+        unimplemented!()
     }
 
     /// Fetch a list of submissions.
@@ -55,7 +71,7 @@ mod tests {
     #[test]
     fn test_fetch_contest_list() {
         let client = AtCoderClient::default();
-        let contests = block_on(client.fetch_atcoder_contests(1)).unwrap();
+        let contests = block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Normal{ page: 1 })).unwrap();
         assert_eq!(contests.len(), 50);
     }
 

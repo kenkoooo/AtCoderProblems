@@ -11,7 +11,7 @@ pub use recent_crawler::RecentCrawler;
 pub use virtual_contest_crawler::VirtualContestCrawler;
 pub use whole_contest_crawler::WholeContestCrawler;
 
-use atcoder_client::{AtCoderClient, AtCoderProblem, AtCoderSubmission};
+use atcoder_client::{AtCoderClient, AtCoderProblem, AtCoderSubmission, ContestTypeSpecifier};
 use anyhow::Result;
 use async_trait::async_trait;
 use log::info;
@@ -20,7 +20,7 @@ use sql_client::models::{Contest, ContestProblem, Problem, Submission};
 #[async_trait]
 pub trait AtCoderFetcher {
     async fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission>;
-    async fn fetch_contests(&self, page: u32) -> Result<Vec<Contest>>;
+    async fn fetch_contests(&self, spf: ContestTypeSpecifier) -> Result<Vec<Contest>>;
     async fn fetch_problems(&self, contest_id: &str)
         -> Result<(Vec<Problem>, Vec<ContestProblem>)>;
 }
@@ -47,9 +47,14 @@ impl AtCoderFetcher for AtCoderClient {
             .collect()
     }
 
-    async fn fetch_contests(&self, page: u32) -> Result<Vec<Contest>> {
-        info!("Fetching contests page-{}", page);
-        let contests = self.fetch_atcoder_contests(page).await?;
+    async fn fetch_contests(&self, spf: ContestTypeSpecifier) -> Result<Vec<Contest>> {
+        match spf {
+            ContestTypeSpecifier::Normal { page } => { info!("Fetching contests page-{}", page); },
+            ContestTypeSpecifier::Permanent => { info!("Fetching permanent contests"); },
+            ContestTypeSpecifier::Hidden => { info!("Fetching hidden contests"); },
+        };
+        
+        let contests = self.fetch_atcoder_contests(spf).await?;
         let contests = contests
             .into_iter()
             .map(|c| Contest {
