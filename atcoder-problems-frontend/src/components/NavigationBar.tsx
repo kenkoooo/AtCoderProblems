@@ -14,7 +14,7 @@ import {
   UncontrolledDropdown,
 } from "reactstrap";
 import { useLoginState } from "../api/InternalAPIClient";
-import { GITHUB_LOGIN_LINK } from "../utils/Url";
+import { useLoginLink } from "../utils/Url";
 import { ACCOUNT_INFO } from "../utils/RouterPath";
 import * as UserState from "../utils/UserState";
 import { UserSearchBar } from "./UserSearchBar";
@@ -24,6 +24,7 @@ export const NavigationBar = () => {
   const loginState = useLoginState().data;
   const isLoggedIn = UserState.isLoggedIn(loginState);
   const loggedInUserId = UserState.loggedInUserId(loginState) ?? "";
+  const loginLink = useLoginLink();
 
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -161,7 +162,7 @@ export const NavigationBar = () => {
                   Account ({loggedInUserId})
                 </NavLink>
               ) : (
-                <NavLink href={GITHUB_LOGIN_LINK}>Login</NavLink>
+                <NavLink href={loginLink}>Login</NavLink>
               )}
             </NavItem>
           </Nav>
