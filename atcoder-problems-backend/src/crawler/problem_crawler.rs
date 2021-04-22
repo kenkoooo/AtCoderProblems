@@ -1,5 +1,6 @@
 use crate::crawler::AtCoderFetcher;
 use anyhow::Result;
+use atcoder_client::ContestTypeSpecifier;
 use sql_client::contest_problem::ContestProblemClient;
 use sql_client::models::{Contest, ContestProblem, Problem};
 use sql_client::simple_client::SimpleClient;
@@ -23,7 +24,7 @@ where
         log::info!("Starting...");
         let mut contests = Vec::new();
         for page in 1.. {
-            match self.fetcher.fetch_contests(page).await {
+            match self.fetcher.fetch_contests(ContestTypeSpecifier::Normal{ page }).await {
                 Ok(c) => {
                     if c.is_empty() {
                         break;
