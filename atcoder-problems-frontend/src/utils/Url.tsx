@@ -19,7 +19,7 @@ export const formatSolversUrl = (contest: string, problem: string): string =>
 export const formatUserUrl = (userId: string): string =>
   `https://atcoder.jp/users/${userId}`;
 
-export function useLoginLink(): string {
+export const useLoginLink = (): string => {
   const currentPath = location.hash.slice(1);
   const redirectUri = `${AUTHORIZATION_CALLBACK_URL}?redirect_to=${encodeURIComponent(
     currentPath
@@ -28,4 +28,4 @@ export function useLoginLink(): string {
     redirectUri
   )}`;
   return loginLink;
-}
+};
