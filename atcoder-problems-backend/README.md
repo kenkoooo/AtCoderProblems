@@ -25,13 +25,13 @@ production backend server, you don't need to run the backend applications in mos
 
 Below are the list of files you need to modify:
 
-- `atcoder-problems-backend/src/server/auth.rs`: change `redirect_url` to `http://localhost:3000/atcoder/#/login/user`
+- `atcoder-problems-backend/src/server/auth.rs`: change `REDIRECT_URL` to `http://localhost:3000/atcoder/`
   for your backend to redirect to your frontend web app after logging in.
 - `atcoder-problems-frontend/src/setupProxy.js`: change `target` to `http://localhost:8080`
   **and** remove the `pathRewrite` section for your frontend web app to use your
   backend server.
-- `atcoder-problems-frontend/src/utils/Url.tsx`: change `GITHUB_LOGIN_LINK` to `https://github.com/login/oauth/authorize?client_id=<YOUR_CLIENT_ID>`,
-  where `<YOUR_CLIENT_ID>` is the client ID of your GitHub app.
+- `atcoder-problems-frontend/src/utils/Url.tsx`: change `CLIENT_ID` to the client ID of your GitHub app
+  **and** change `AUTHORIZATION_CALLBACK_URL` to `http://localhost:8080/internal-api/authorize`.
 - (For running backend tests) `atcoder-problems-backend/tests/utils.rs`: change `SQL_URL`
   to the correct connection URL. **Note that** it should be different from the database
   you intend to develop on.
