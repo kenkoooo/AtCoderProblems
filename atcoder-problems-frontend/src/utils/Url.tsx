@@ -1,5 +1,9 @@
 const BASE_URL = "https://atcoder.jp";
 
+const CLIENT_ID = "162a5276634fc8b970f7";
+const AUTHORIZATION_CALLBACK_URL =
+  "https://kenkoooo.com/atcoder/internal-api/authorize";
+
 export const formatContestUrl = (contest: string): string =>
   `${BASE_URL}/contests/${contest}`;
 
@@ -15,5 +19,13 @@ export const formatSolversUrl = (contest: string, problem: string): string =>
 export const formatUserUrl = (userId: string): string =>
   `https://atcoder.jp/users/${userId}`;
 
-export const GITHUB_LOGIN_LINK =
-  "https://github.com/login/oauth/authorize?client_id=162a5276634fc8b970f7";
+export function useLoginLink(): string {
+  const currentPath = location.hash.slice(1);
+  const redirectUri = `${AUTHORIZATION_CALLBACK_URL}?redirect_to=${encodeURIComponent(
+    currentPath
+  )}`;
+  const loginLink = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+    redirectUri
+  )}`;
+  return loginLink;
+}
