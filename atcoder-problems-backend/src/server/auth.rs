@@ -7,6 +7,8 @@ use tide::http::headers::LOCATION;
 use tide::StatusCode;
 use tide::{Request, Response, Result};
 
+const REDIRECT_URL: &str = "https://kenkoooo.com/atcoder/";
+
 #[async_trait]
 pub trait Authentication {
     async fn get_token(&self, code: &str) -> Result<String>;
@@ -74,6 +76,7 @@ impl GitHubAuthentication {
 #[derive(Deserialize)]
 struct Query {
     code: String,
+    redirect_to: Option<String>,
 }
 
 pub(crate) async fn get_token<A: Authentication + Clone>(
@@ -89,7 +92,10 @@ pub(crate) async fn get_token<A: Authentication + Clone>(
     conn.register_user(&internal_user_id).await?;
 
     let cookie = Cookie::build("token", token).path("/").finish();
-    let redirect_url = "https://kenkoooo.com/atcoder/#/login/user";
+    let redirect_fragment = query
+        .redirect_to
+        .unwrap_or_else(|| "/login/user".to_string());
+    let redirect_url = format!("{}#{}", REDIRECT_URL, redirect_fragment);
     let mut response = Response::builder(StatusCode::Found)
         .header(LOCATION, redirect_url)
         .build();
