@@ -1,5 +1,11 @@
 use crate::util::Problem;
 
+pub enum ContestTypeSpecifier {
+    Normal {page: u32},
+    Permanent,
+    Hidden
+}
+
 pub struct AtCoderSubmissionListResponse {
     pub max_page: u32,
     pub submissions: Vec<AtCoderSubmission>,
