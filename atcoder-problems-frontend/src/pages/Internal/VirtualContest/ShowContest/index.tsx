@@ -27,7 +27,7 @@ import {
 } from "../../../../utils/DateUtil";
 import { formatMode, formatPublicState, VirtualContestItem } from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
-import { GITHUB_LOGIN_LINK } from "../../../../utils/Url";
+import { useLoginLink } from "../../../../utils/Url";
 import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { useLocalStorage } from "../../../../utils/LocalStorage";
@@ -51,6 +51,7 @@ export const ShowContest = (props: Props) => {
   const history = useHistory();
   const virtualContestResponse = useVirtualContest(props.contestId);
   const { data: problemMap } = useMergedProblemMap();
+  const loginLink = useLoginLink();
 
   if (!virtualContestResponse.data && !virtualContestResponse.error) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
@@ -170,8 +171,7 @@ export const ShowContest = (props: Props) => {
         <Col sm="12">
           {!isLoggedIn ? (
             <Alert color="warning">
-              Please <a href={GITHUB_LOGIN_LINK}>Login</a> before you join the
-              contest.
+              Please <a href={loginLink}>Login</a> before you join the contest.
             </Alert>
           ) : !userIdIsSet ? (
             <Alert color="warning">
