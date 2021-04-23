@@ -23,6 +23,13 @@ where
     pub async fn crawl(&self) -> Result<()> {
         log::info!("Starting...");
         let mut contests = Vec::new();
+
+        match self.fetcher.fetch_contests(ContestTypeSpecifier::Permanent).await {
+            Ok(c) => { contests.extend(c); }
+            Err(e) => { log::error!("{:?}", e); }
+        }
+        thread::sleep(time::Duration::from_millis(500));
+        
         for page in 1.. {
             match self.fetcher.fetch_contests(ContestTypeSpecifier::Normal{ page }).await {
                 Ok(c) => {
