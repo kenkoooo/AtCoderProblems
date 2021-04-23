@@ -5,7 +5,7 @@ use super::AtCoderContest;
 use chrono::DateTime;
 use scraper::{Html, Selector};
 
-pub(super) fn scrape(html: &str) -> Result<Vec<AtCoderContest>> {
+pub(super) fn scrape_normal(html: &str) -> Result<Vec<AtCoderContest>> {
     Html::parse_document(html)
         .select(&Selector::parse("tbody").unwrap())
         .next()
@@ -65,6 +65,50 @@ pub(super) fn scrape(html: &str) -> Result<Vec<AtCoderContest>> {
         .collect()
 }
 
+pub(super) fn scrape_permanent(html: &str) -> Result<Vec<AtCoderContest>> {
+    Html::parse_document(html)
+        .select(&Selector::parse("#contest-table-permanent").unwrap())
+        .next()
+        .ok_or_else(|| Error::HtmlParseError)?
+        .select(&Selector::parse("tbody").unwrap())
+        .next()
+        .ok_or_else(|| Error::HtmlParseError)?
+        .select(&Selector::parse("tr").unwrap())
+        .map(|tr| {
+            let selector = Selector::parse("td").unwrap();
+            let mut tds = tr.select(&selector);
+
+            let contest = tds.next().ok_or_else(|| Error::HtmlParseError)?;
+            let contest_title = contest.select(&Selector::parse("a").unwrap()).next().ok_or_else(|| Error::HtmlParseError)?.text().next().ok_or_else(|| Error::HtmlParseError)?;
+            let contest_link = contest
+                .select(&Selector::parse("a").unwrap())
+                .next()
+                .ok_or_else(|| Error::HtmlParseError)?
+                .value()
+                .attr("href")
+                .ok_or_else(|| Error::HtmlParseError)?;
+            let contest_id = contest_link
+                .rsplit('/')
+                .next()
+                .ok_or_else(|| Error::HtmlParseError)?;
+
+            let rated = tds
+                .next()
+                .ok_or_else(|| Error::HtmlParseError)?
+                .text()
+                .next()
+                .ok_or_else(|| Error::HtmlParseError)?;
+            Ok(AtCoderContest {
+                id: contest_id.to_owned(),
+                start_epoch_second: 0,
+                duration_second: std::i64::MAX as u64,
+                title: contest_title.to_owned(),
+                rate_change: rated.to_owned(),
+            })
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -72,12 +116,22 @@ mod tests {
     use std::io::prelude::*;
 
     #[test]
-    fn test_scrape() {
-        let mut file = File::open("test_resources/contests").unwrap();
+    fn test_scrape_normal() {
+        let mut file = File::open("test_resources/contests_normal").unwrap();
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
 
-        let contests = scrape(&contents).unwrap();
+        let contests = scrape_normal(&contents).unwrap();
         assert_eq!(contests.len(), 50);
+    }
+
+    #[test]
+    fn test_scrape_permanent() {
+        let mut file = File::open("test_resources/contests_permanent").unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+
+        let contests = scrape_permanent(&contents).unwrap();
+        assert_eq!(contests.len(), 4);
     }
 }

@@ -25,11 +25,13 @@ impl AtCoderClient {
     async fn fetch_atcoder_normal_contests(&self, page: u32) -> Result<Vec<AtCoderContest>> {
         let url = format!("{}/contests/archive?lang=ja&page={}", ATCODER_PREFIX, page);
         let html = util::get_html(&url).await?;
-        contest::scrape(&html)
+        contest::scrape_normal(&html)
     }
 
     async fn fetch_atcoder_permanent_contests(&self) -> Result<Vec<AtCoderContest>> {
-        unimplemented!()
+        let url = format!("{}/contests", ATCODER_PREFIX);
+        let html = util::get_html(&url).await?;
+        contest::scrape_permanent(&html)
     }
 
     async fn fetch_atcoder_hidden_contests(&self) -> Result<Vec<AtCoderContest>> {
