@@ -4,6 +4,8 @@ pub enum Error {
     Http(#[from] surf::Exception),
     #[error("failed to parse html")]
     HtmlParseError,
+    #[error("failed to parse json")]
+    JsonParseError,
     #[error("failed to parse int")]
     ParseIntError(#[from] std::num::ParseIntError),
     #[error("failed to parse float")]

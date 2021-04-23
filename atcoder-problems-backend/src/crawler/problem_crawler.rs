@@ -29,6 +29,11 @@ where
             Err(e) => { log::error!("{:?}", e); }
         }
         thread::sleep(time::Duration::from_millis(500));
+
+        match self.fetcher.fetch_contests(ContestTypeSpecifier::Hidden).await {
+            Ok(c) => { contests.extend(c); }
+            Err(e) => { log::error!("{:?}", e); }
+        }
         
         for page in 1.. {
             match self.fetcher.fetch_contests(ContestTypeSpecifier::Normal{ page }).await {

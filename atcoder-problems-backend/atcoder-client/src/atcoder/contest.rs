@@ -2,6 +2,8 @@ use crate::{Error, Result};
 
 use super::AtCoderContest;
 
+use std::io::prelude::*;
+use std::fs::File;
 use chrono::DateTime;
 use scraper::{Html, Selector};
 
@@ -109,11 +111,25 @@ pub(super) fn scrape_permanent(html: &str) -> Result<Vec<AtCoderContest>> {
         .collect()
 }
 
+pub(super) fn scrape_hidden() -> Result<Vec<AtCoderContest>> {
+    let mut file = File::open("hidden_contest.json").unwrap();
+    let mut hidden_contests = String::new();
+    file.read_to_string(&mut hidden_contests).unwrap();
+
+    println!("{}", hidden_contests);
+    println!("{:?}", serde_json::from_str::<Vec<AtCoderContest>>(&hidden_contests));
+    
+    if let Ok(contests) = serde_json::from_str(&hidden_contests) {
+        Ok(contests)
+    } else {
+        Err(Error::JsonParseError)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs::File;
-    use std::io::prelude::*;
 
     #[test]
     fn test_scrape_normal() {
@@ -133,5 +149,11 @@ mod tests {
 
         let contests = scrape_permanent(&contents).unwrap();
         assert_eq!(contests.len(), 4);
+    }
+
+    #[test]
+    fn test_scrape_hidden() {
+        let contests = scrape_hidden().unwrap();
+        assert_eq!(contests.len(), 1);
     }
 }

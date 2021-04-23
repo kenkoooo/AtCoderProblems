@@ -35,7 +35,7 @@ impl AtCoderClient {
     }
 
     async fn fetch_atcoder_hidden_contests(&self) -> Result<Vec<AtCoderContest>> {
-        unimplemented!()
+        contest::scrape_hidden()
     }
 
     /// Fetch a list of submissions.
