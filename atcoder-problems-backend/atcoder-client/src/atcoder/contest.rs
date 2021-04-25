@@ -5,6 +5,8 @@ use super::AtCoderContest;
 use chrono::DateTime;
 use scraper::{Html, Selector};
 
+const PERMANENT_CONTEST_DURATION_SECOND: u64 = 100 * 365 * 24 * 3600;
+
 pub(super) fn scrape_normal(html: &str) -> Result<Vec<AtCoderContest>> {
     Html::parse_document(html)
         .select(&Selector::parse("tbody").unwrap())
@@ -113,7 +115,7 @@ pub(super) fn scrape_permanent(html: &str) -> Result<Vec<AtCoderContest>> {
             Ok(AtCoderContest {
                 id: contest_id.to_owned(),
                 start_epoch_second: 0,
-                duration_second: std::i64::MAX as u64,
+                duration_second: PERMANENT_CONTEST_DURATION_SECOND,
                 title: contest_title.to_owned(),
                 rate_change: rated.to_owned(),
             })
@@ -125,6 +127,7 @@ pub(super) fn scrape_permanent(html: &str) -> Result<Vec<AtCoderContest>> {
 mod tests {
     use super::*;
     use std::fs::File;
+    use std::io::Read;
 
     #[test]
     fn test_scrape_normal() {
