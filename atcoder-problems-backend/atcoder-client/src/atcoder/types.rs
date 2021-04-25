@@ -1,4 +1,5 @@
 use crate::util::Problem;
+use serde::{Serialize, Deserialize};
 
 pub enum ContestTypeSpecifier {
     Normal {page: u32},
@@ -11,7 +12,7 @@ pub struct AtCoderSubmissionListResponse {
     pub submissions: Vec<AtCoderSubmission>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AtCoderContest {
     pub id: String,
     pub start_epoch_second: u64,
