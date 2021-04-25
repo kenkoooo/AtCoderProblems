@@ -32,7 +32,7 @@ impl AtCoderClient {
     }
 
     async fn fetch_atcoder_permanent_contests(&self) -> Result<Vec<AtCoderContest>> {
-        let url = format!("{}/contests", ATCODER_PREFIX);
+        let url = format!("{}/contests/?lang=ja", ATCODER_PREFIX);
         let html = util::get_html(&url).await?;
         contest::scrape_permanent(&html)
     }
