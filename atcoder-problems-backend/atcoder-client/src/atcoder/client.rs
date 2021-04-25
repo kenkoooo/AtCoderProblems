@@ -14,7 +14,10 @@ impl Default for AtCoderClient {
 }
 
 impl AtCoderClient {
-    pub async fn fetch_atcoder_contests(&self, spf: ContestTypeSpecifier) -> Result<Vec<AtCoderContest>> {
+    pub async fn fetch_atcoder_contests(
+        &self,
+        spf: ContestTypeSpecifier,
+    ) -> Result<Vec<AtCoderContest>> {
         match spf {
             ContestTypeSpecifier::Normal { page } => self.fetch_atcoder_normal_contests(page).await,
             ContestTypeSpecifier::Permanent => self.fetch_atcoder_permanent_contests().await,
@@ -29,13 +32,14 @@ impl AtCoderClient {
     }
 
     async fn fetch_atcoder_permanent_contests(&self) -> Result<Vec<AtCoderContest>> {
-        let url = format!("{}/contests", ATCODER_PREFIX);
+        let url = format!("{}/contests/?lang=ja", ATCODER_PREFIX);
         let html = util::get_html(&url).await?;
         contest::scrape_permanent(&html)
     }
 
     async fn fetch_atcoder_hidden_contests(&self) -> Result<Vec<AtCoderContest>> {
-        contest::scrape_hidden()
+        // FIXME Currently, this function cannot fetch anything. Fix it to fetch the list of hidden contests and parse the result.
+        Ok(Vec::new())
     }
 
     /// Fetch a list of submissions.
@@ -73,7 +77,9 @@ mod tests {
     #[test]
     fn test_fetch_contest_list() {
         let client = AtCoderClient::default();
-        let contests = block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Normal{ page: 1 })).unwrap();
+        let contests =
+            block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Normal { page: 1 }))
+                .unwrap();
         assert_eq!(contests.len(), 50);
     }
 

@@ -2,10 +2,10 @@ use crate::{Error, Result};
 
 use super::AtCoderContest;
 
-use std::io::prelude::*;
-use std::fs::File;
 use chrono::DateTime;
 use scraper::{Html, Selector};
+
+const PERMANENT_CONTEST_DURATION_SECOND: u64 = 100 * 365 * 24 * 3600;
 
 pub(super) fn scrape_normal(html: &str) -> Result<Vec<AtCoderContest>> {
     Html::parse_document(html)
@@ -26,7 +26,13 @@ pub(super) fn scrape_normal(html: &str) -> Result<Vec<AtCoderContest>> {
             let start = start.timestamp() as u64;
 
             let contest = tds.next().ok_or_else(|| Error::HtmlParseError)?;
-            let contest_title = contest.select(&Selector::parse("a").unwrap()).next().ok_or_else(|| Error::HtmlParseError)?.text().next().ok_or_else(|| Error::HtmlParseError)?;
+            let contest_title = contest
+                .select(&Selector::parse("a").unwrap())
+                .next()
+                .ok_or_else(|| Error::HtmlParseError)?
+                .text()
+                .next()
+                .ok_or_else(|| Error::HtmlParseError)?;
             let contest_link = contest
                 .select(&Selector::parse("a").unwrap())
                 .next()
@@ -81,7 +87,13 @@ pub(super) fn scrape_permanent(html: &str) -> Result<Vec<AtCoderContest>> {
             let mut tds = tr.select(&selector);
 
             let contest = tds.next().ok_or_else(|| Error::HtmlParseError)?;
-            let contest_title = contest.select(&Selector::parse("a").unwrap()).next().ok_or_else(|| Error::HtmlParseError)?.text().next().ok_or_else(|| Error::HtmlParseError)?;
+            let contest_title = contest
+                .select(&Selector::parse("a").unwrap())
+                .next()
+                .ok_or_else(|| Error::HtmlParseError)?
+                .text()
+                .next()
+                .ok_or_else(|| Error::HtmlParseError)?;
             let contest_link = contest
                 .select(&Selector::parse("a").unwrap())
                 .next()
@@ -103,7 +115,7 @@ pub(super) fn scrape_permanent(html: &str) -> Result<Vec<AtCoderContest>> {
             Ok(AtCoderContest {
                 id: contest_id.to_owned(),
                 start_epoch_second: 0,
-                duration_second: std::i64::MAX as u64,
+                duration_second: PERMANENT_CONTEST_DURATION_SECOND,
                 title: contest_title.to_owned(),
                 rate_change: rated.to_owned(),
             })
@@ -111,25 +123,11 @@ pub(super) fn scrape_permanent(html: &str) -> Result<Vec<AtCoderContest>> {
         .collect()
 }
 
-pub(super) fn scrape_hidden() -> Result<Vec<AtCoderContest>> {
-    let mut file = File::open("hidden_contest.json").unwrap();
-    let mut hidden_contests = String::new();
-    file.read_to_string(&mut hidden_contests).unwrap();
-
-    println!("{}", hidden_contests);
-    println!("{:?}", serde_json::from_str::<Vec<AtCoderContest>>(&hidden_contests));
-    
-    if let Ok(contests) = serde_json::from_str(&hidden_contests) {
-        Ok(contests)
-    } else {
-        Err(Error::JsonParseError)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs::File;
+    use std::io::Read;
 
     #[test]
     fn test_scrape_normal() {
@@ -149,11 +147,5 @@ mod tests {
 
         let contests = scrape_permanent(&contents).unwrap();
         assert_eq!(contests.len(), 4);
-    }
-
-    #[test]
-    fn test_scrape_hidden() {
-        let contests = scrape_hidden().unwrap();
-        assert_eq!(contests.len(), 1);
     }
 }
