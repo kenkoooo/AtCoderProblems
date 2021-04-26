@@ -4,6 +4,3 @@ pub use atcoder::{
 };
 
 pub(crate) mod util;
-
-pub(crate) mod error;
-pub use error::{Error, Result};

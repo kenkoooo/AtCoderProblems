@@ -1,5 +1,5 @@
 use crate::util;
-use crate::Result;
+use anyhow::Result;
 
 use super::*;
 
