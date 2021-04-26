@@ -38,8 +38,8 @@ impl AtCoderClient {
     }
 
     async fn fetch_atcoder_hidden_contests(&self) -> Result<Vec<AtCoderContest>> {
-        // FIXME Currently, this function cannot fetch anything. Fix it to fetch the list of hidden contests and parse the result.
-        Ok(Vec::new())
+        let uri = "https://kenkoooo.com/atcoder/static_data/backend/hidden_contests.json";
+        util::get_json(&uri).await
     }
 
     /// Fetch a list of submissions.
@@ -81,6 +81,15 @@ mod tests {
             block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Normal { page: 1 }))
                 .unwrap();
         assert_eq!(contests.len(), 50);
+    }
+
+    #[test]
+    fn test_fetch_hidden_contest() {
+        let client = AtCoderClient::default();
+        let contests =
+            block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden))
+                .unwrap();
+        assert!(contests.len() >= 1);
     }
 
     #[test]
