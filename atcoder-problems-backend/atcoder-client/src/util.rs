@@ -10,7 +10,6 @@ pub(crate) async fn get_html(url: &str) -> Result<String> {
         .await?)
 }
 
-#[allow(dead_code)]
 pub(crate) async fn get_json<T: DeserializeOwned>(url: &str) -> Result<T> {
     Ok(surf::get(url)
         .set_header("accept", "application/json")
