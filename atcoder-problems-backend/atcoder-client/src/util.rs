@@ -1,22 +1,24 @@
-use crate::Result;
+use anyhow::{Result, anyhow};
 
 use serde::de::DeserializeOwned;
 
 pub(crate) async fn get_html(url: &str) -> Result<String> {
-    Ok(surf::get(url)
-        .set_header("accept", "text/html")
-        .set_header("accept-encoding", "gzip")
+    surf::get(url)
+        .header("accept", "text/html")
+        .header("accept-encoding", "gzip")
         .recv_string()
-        .await?)
+        .await
+        .map_err(|_| anyhow!("Failed to get html from {}", url))
 }
 
 #[allow(dead_code)]
 pub(crate) async fn get_json<T: DeserializeOwned>(url: &str) -> Result<T> {
-    Ok(surf::get(url)
-        .set_header("accept", "application/json")
-        .set_header("accept-encoding", "gzip")
+    surf::get(url)
+        .header("accept", "application/json")
+        .header("accept-encoding", "gzip")
         .recv_json()
-        .await?)
+        .await
+        .map_err(|_| anyhow!("Failed to get json from {}", url))
 }
 
 pub trait Problem {
