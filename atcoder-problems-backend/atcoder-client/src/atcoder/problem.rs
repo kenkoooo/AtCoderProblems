@@ -1,4 +1,4 @@
-use crate::{Error, Result};
+use anyhow::{Result, anyhow};
 
 use super::AtCoderProblem;
 
@@ -8,34 +8,34 @@ pub(super) fn scrape(html: &str, contest_id: &str) -> Result<Vec<AtCoderProblem>
     Html::parse_document(html)
         .select(&Selector::parse("tbody").unwrap())
         .next()
-        .ok_or_else(|| Error::HtmlParseError)?
+        .ok_or_else(|| anyhow!("Failed to parse html."))?
         .select(&Selector::parse("tr").unwrap())
         .map(|tr| {
             let selector = Selector::parse("td").unwrap();
             let mut tds = tr.select(&selector);
             let position = tds
                 .next()
-                .ok_or_else(|| Error::HtmlParseError)?
+                .ok_or_else(|| anyhow!("Failed to parse html."))?
                 .text()
                 .next()
-                .ok_or_else(|| Error::HtmlParseError)?
+                .ok_or_else(|| anyhow!("Failed to parse html."))?
                 .to_owned();
-            let problem = tds.next().ok_or_else(|| Error::HtmlParseError)?;
+            let problem = tds.next().ok_or_else(|| anyhow!("Failed to parse html."))?;
             let id = problem
                 .select(&Selector::parse("a").unwrap())
                 .next()
-                .ok_or_else(|| Error::HtmlParseError)?
+                .ok_or_else(|| anyhow!("Failed to parse html."))?
                 .value()
                 .attr("href")
-                .ok_or_else(|| Error::HtmlParseError)?
+                .ok_or_else(|| anyhow!("Failed to parse html."))?
                 .rsplit('/')
                 .next()
-                .ok_or_else(|| Error::HtmlParseError)?
+                .ok_or_else(|| anyhow!("Failed to parse html."))?
                 .to_owned();
             let title = problem
                 .text()
                 .next()
-                .ok_or_else(|| Error::HtmlParseError)?
+                .ok_or_else(|| anyhow!("Failed to parse html."))?
                 .to_owned();
             Ok(AtCoderProblem {
                 id,
