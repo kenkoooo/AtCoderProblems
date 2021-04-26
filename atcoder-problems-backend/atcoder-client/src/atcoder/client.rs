@@ -83,14 +83,14 @@ mod tests {
         assert_eq!(contests.len(), 50);
     }
 
-    #[test]
-    fn test_fetch_hidden_contest() {
-        let client = AtCoderClient::default();
-        let contests =
-            block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden))
-                .unwrap();
-        assert!(contests.len() >= 1);
-    }
+    // #[test]
+    // fn test_fetch_hidden_contest() {
+    //     let client = AtCoderClient::default();
+    //     let contests =
+    //         block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden))
+    //             .unwrap();
+    //     assert!(contests.len() >= 1);
+    // }
 
     #[test]
     fn test_fetch_problem_list() {
