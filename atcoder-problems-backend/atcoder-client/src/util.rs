@@ -18,7 +18,7 @@ pub(crate) async fn get_json<T: DeserializeOwned>(url: &str) -> Result<T> {
         .header("accept-encoding", "gzip")
         .recv_json()
         .await
-        .map_err(|_| anyhow!("Failed to get html from {}", url))
+        .map_err(|_| anyhow!("Failed to get json from {}", url))
 }
 
 pub trait Problem {
