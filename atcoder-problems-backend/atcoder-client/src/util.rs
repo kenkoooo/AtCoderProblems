@@ -11,7 +11,6 @@ pub(crate) async fn get_html(url: &str) -> Result<String> {
         .map_err(|_| anyhow!("Failed to get html from {}", url))
 }
 
-#[allow(dead_code)]
 pub(crate) async fn get_json<T: DeserializeOwned>(url: &str) -> Result<T> {
     surf::get(url)
         .header("accept", "application/json")
