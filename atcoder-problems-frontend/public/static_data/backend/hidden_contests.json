@@ -1,5 +1,26 @@
 [
   { 
+    "id": "ukuku09", 
+    "start_epoch_second": 1530939600, 
+    "duration_second": 10800, 
+    "title": "ウクーニャたんお誕生日コンテスト", 
+    "rate_change": "-"
+  }, 
+  { 
+    "id": "summerfes2018-div1", 
+    "start_epoch_second": 1535175000, 
+    "duration_second": 7200, 
+    "title": "Summer Festival Contest 2018 (Division 1)", 
+    "rate_change": "-"
+  }, 
+  { 
+    "id": "summerfes2018-div2", 
+    "start_epoch_second": 1535175000, 
+    "duration_second": 7200, 
+    "title": "Summer Festival Contest 2018 (Division 2)", 
+    "rate_change": "-"
+  }, 
+  { 
     "id": "monamieHB2021", 
     "start_epoch_second": 1618920000, 
     "duration_second": 7200, 
