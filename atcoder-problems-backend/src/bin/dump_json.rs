@@ -31,7 +31,7 @@ async fn main() -> Result<()> {
         .into_iter()
         .filter(|c| !BLOCKED_CONTESTS.contains(&(&c.id as &str)))
         .collect::<Vec<_>>();
-    
+
     contests.sort_by_key(|c| c.id.clone());
     client.update(contests.serialize_to_bytes()?, "/resources/contests.json")?;
 
@@ -105,7 +105,7 @@ async fn main() -> Result<()> {
             .await?;
     client.update(max_streaks.serialize_to_bytes()?, "/resources/streaks.json")?;
 
-    let max_streaks: Vec<MergedProblem> = query(
+    let merged_problems: Vec<MergedProblem> = query(
         r"
             SELECT
                 problems.id AS merged_problem_id,
@@ -183,9 +183,12 @@ async fn main() -> Result<()> {
         }
     })
     .fetch_all(&pg_pool)
-    .await?;
+    .await?
+    .into_iter()
+    .filter(|c| !BLOCKED_PROBLEMS.contains(&(&c.id as &str)))
+    .collect::<Vec<_>>();
     client.update(
-        max_streaks.serialize_to_bytes()?,
+        merged_problems.serialize_to_bytes()?,
         "/resources/merged-problems.json",
     )?;
 
