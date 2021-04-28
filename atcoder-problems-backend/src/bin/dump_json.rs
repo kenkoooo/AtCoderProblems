@@ -1,6 +1,7 @@
 use anyhow::Result;
 use atcoder_problems_backend::s3;
 use atcoder_problems_backend::utils::init_log_config;
+use atcoder_problems_backend::config::{ BLOCKED_CONTESTS, BLOCKED_PROBLEMS };
 use serde::Serialize;
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::contest_problem::ContestProblemClient;
@@ -24,7 +25,13 @@ async fn main() -> Result<()> {
 
     let client = s3::S3Client::new()?;
 
-    let mut contests = pg_pool.load_contests().await?;
+    let mut contests = pg_pool
+        .load_contests()
+        .await?
+        .into_iter()
+        .filter(|c| !BLOCKED_CONTESTS.contains(&(&c.id as &str)))
+        .collect::<Vec<_>>();
+    
     contests.sort_by_key(|c| c.id.clone());
     client.update(contests.serialize_to_bytes()?, "/resources/contests.json")?;
 
@@ -32,7 +39,13 @@ async fn main() -> Result<()> {
     accepted_count.sort_by_key(|c| c.user_id.clone());
     client.update(accepted_count.serialize_to_bytes()?, "/resources/ac.json")?;
 
-    let mut problems = pg_pool.load_problems().await?;
+    let mut problems = pg_pool
+        .load_problems()
+        .await?
+        .into_iter()
+        .filter(|c| !BLOCKED_PROBLEMS.contains(&(&c.id as &str)))
+        .collect::<Vec<_>>();
+
     problems.sort_by_key(|p| p.id.clone());
     client.update(problems.serialize_to_bytes()?, "/resources/problems.json")?;
 
