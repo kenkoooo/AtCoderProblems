@@ -15,7 +15,6 @@ import {
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
-import { isBlockedProblem } from "../utils/BlockList";
 import { ratingInfoOf } from "../utils/RatingInfo";
 import { useSWRData } from "./index";
 
@@ -98,7 +97,6 @@ export const useMergedProblemMap = () => {
   const url = STATIC_API_BASE_URL + "/merged-problems.json";
   return useSWRData(url, (url) =>
     fetchTypedArray(url, isMergedProblem)
-      .then((problems) => problems.filter((p) => !isBlockedProblem(p.id)))
       .then((problems) =>
         problems.reduce((map, problem) => {
           map.set(problem.id, problem);
@@ -177,9 +175,7 @@ export const useContests = () => {
 
 export const useProblems = () => {
   const url = STATIC_API_BASE_URL + "/problems.json";
-  return useSWRData(url, (url) => fetchTypedArray(url, isProblem)).data?.filter(
-    (problem) => !isBlockedProblem(problem.id)
-  );
+  return useSWRData(url, (url) => fetchTypedArray(url, isProblem));
 };
 
 export const useContestToProblems = () => {
