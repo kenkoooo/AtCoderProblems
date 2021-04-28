@@ -175,7 +175,7 @@ export const useContests = () => {
 
 export const useProblems = () => {
   const url = STATIC_API_BASE_URL + "/problems.json";
-  return useSWRData(url, (url) => fetchTypedArray(url, isProblem));
+  return useSWRData(url, (url) => fetchTypedArray(url, isProblem)).data;
 };
 
 export const useContestToProblems = () => {
