@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
         .load_contests()
         .await?
         .into_iter()
-        .filter(|c| !BLOCKED_CONTESTS.contains(&(&c.id as &str)))
+        .filter(|c| !BLOCKED_CONTESTS.contains(&c.id.as_str()))
         .collect::<Vec<_>>();
 
     contests.sort_by_key(|c| c.id.clone());
@@ -43,7 +43,7 @@ async fn main() -> Result<()> {
         .load_problems()
         .await?
         .into_iter()
-        .filter(|c| !BLOCKED_PROBLEMS.contains(&(&c.id as &str)))
+        .filter(|c| !BLOCKED_PROBLEMS.contains(&c.id.as_str()))
         .collect::<Vec<_>>();
 
     problems.sort_by_key(|p| p.id.clone());
@@ -185,7 +185,7 @@ async fn main() -> Result<()> {
     .fetch_all(&pg_pool)
     .await?
     .into_iter()
-    .filter(|c| !BLOCKED_PROBLEMS.contains(&(&c.id as &str)))
+    .filter(|c| !BLOCKED_PROBLEMS.contains(&c.id.as_str()))
     .collect::<Vec<_>>();
     client.update(
         merged_problems.serialize_to_bytes()?,
