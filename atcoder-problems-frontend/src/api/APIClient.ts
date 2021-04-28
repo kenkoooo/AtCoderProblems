@@ -96,13 +96,12 @@ export const useSumRanking = () => {
 export const useMergedProblemMap = () => {
   const url = STATIC_API_BASE_URL + "/merged-problems.json";
   return useSWRData(url, (url) =>
-    fetchTypedArray(url, isMergedProblem)
-      .then((problems) =>
-        problems.reduce((map, problem) => {
-          map.set(problem.id, problem);
-          return map;
-        }, new Map<ProblemId, MergedProblem>())
-      )
+    fetchTypedArray(url, isMergedProblem).then((problems) =>
+      problems.reduce((map, problem) => {
+        map.set(problem.id, problem);
+        return map;
+      }, new Map<ProblemId, MergedProblem>())
+    )
   );
 };
 
@@ -175,6 +174,7 @@ export const useContests = () => {
 
 export const useProblems = () => {
   const url = STATIC_API_BASE_URL + "/problems.json";
+  // blocking is moved to backend
   return useSWRData(url, (url) => fetchTypedArray(url, isProblem)).data;
 };
 
