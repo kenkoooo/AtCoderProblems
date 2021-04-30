@@ -2,7 +2,9 @@ pub const BLOCKED_CONTESTS: [&'static str; 1] = [
     "practice",
 ];
 
-pub const BLOCKED_PROBLEMS: [&'static str; 45] = [
+pub const BLOCKED_PROBLEMS: [&'static str; 47] = [
+    "future_contest_2021_final_b",
+    "future_contest_2021_qual_b",
     "future_contest_2020_final_2_b",
     "future_contest_2020_qual_b",
     "future_contest_2019_final_b",
