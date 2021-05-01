@@ -22,14 +22,11 @@ const getPieChartTitle = (ratingColor: RatingColor): string => {
     return "";
   }
   if (ratingColor === "Red") {
-    return "Difficulty 2800-";
+    return "2800-";
   }
   const index = RatingColors.indexOf(ratingColor) - 1;
   const str =
-    "Difficulty " +
-    (index * 400).toString() +
-    "-" +
-    ((index + 1) * 400 - 1).toString();
+    (index * 400).toString() + "-" + ((index + 1) * 400 - 1).toString();
   return str;
 };
 
@@ -59,15 +56,13 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
     new Map<RatingColor, number>()
   );
 
-  // eslint-disable-next-line
   const rejectedIds = rejectedProblemIdsFromArray(submissions);
   const rejectedCount = rejectedIds.reduce((map, problemId) => {
-    const model = problemModels?.get(problemId);
-    if (model?.difficulty !== undefined) {
-      const color = getRatingColor(model.difficulty);
+    const difficulty = problemModels?.get(problemId)?.difficulty;
+    if (difficulty !== undefined) {
+      const color = getRatingColor(difficulty);
       const curCount = map.get(color) ?? 0;
       map.set(color, curCount + 1);
-      return map;
     }
     return map;
   }, new Map<RatingColor, number>());
@@ -101,10 +96,7 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
                   },
                 ]}
               />
-              <h5 className="text-muted">
-                {`${e.solved} / ${e.rejected} /
-                ${e.totalCount - e.solved - e.rejected}`}
-              </h5>
+              <h5 className="text-muted">{`${e.solved} / ${e.totalCount}`}</h5>
               <h5>{e.title}</h5>
             </Col>
           ))}
