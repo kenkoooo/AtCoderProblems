@@ -13,6 +13,7 @@ export const ContestCategories = [
   "JAG",
   "AHC",
   "Marathon",
+  "Other Sponsored",
   "Other Contests",
 ] as const;
 export type ContestCategory = typeof ContestCategories[number];
@@ -78,6 +79,19 @@ export const classifyContest = (contest: Contest): ContestCategory => {
     ].includes(contest.id)
   ) {
     return "Marathon";
+  }
+  if (
+    /(ドワンゴ|^Mujin|SoundHound|^codeFlyer|^COLOCON|みんなのプロコン|CODE THANKS FESTIVAL)/.exec(
+      contest.title
+    ) ||
+    /(CODE FESTIVAL|^DISCO|日本最強プログラマー学生選手権|全国統一プログラミング王|Indeed)/.exec(
+      contest.title
+    ) ||
+    /(^Donuts|^dwango|^DigitalArts|^Code Formula|天下一プログラマーコンテスト)/.exec(
+      contest.title
+    )
+  ) {
+    return "Other Sponsored";
   }
 
   return "Other Contests";
