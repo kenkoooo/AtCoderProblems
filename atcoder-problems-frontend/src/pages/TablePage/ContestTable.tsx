@@ -41,9 +41,15 @@ export const ContestTable: React.FC<Props> = (props) => {
     .sort((a, b) => b.start_epoch_second - a.start_epoch_second)
     .map((contest) => ({
       contest,
-      problems: (contestToProblems.get(contest.id) ?? []).sort((a, b) =>
-        a.title.localeCompare(b.title)
-      ),
+      problems: (contestToProblems.get(contest.id) ?? []).sort((a, b) => {
+        if (contest.id === "APG4b") {
+          const str_a = a.title.slice(0, 1) + a.title.slice(-4);
+          const str_b = b.title.slice(0, 1) + b.title.slice(-4);
+          return str_a.localeCompare(str_b);
+        } else {
+          return a.title.localeCompare(b.title);
+        }
+      }),
     }))
     .map(({ contest, problems }) => {
       const problemStatus = problems.map((p) => ({
