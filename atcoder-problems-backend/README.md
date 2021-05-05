@@ -32,9 +32,6 @@ Below are the list of files you need to modify:
   backend server.
 - `atcoder-problems-frontend/src/utils/Url.tsx`: change `CLIENT_ID` to the client ID of your GitHub app
   **and** change `AUTHORIZATION_CALLBACK_URL` to `http://localhost:8080/internal-api/authorize`.
-- (For running backend tests) `atcoder-problems-backend/tests/utils.rs`: change `SQL_URL`
-  to the correct connection URL. **Note that** it should be different from the database
-  you intend to develop on.
 
 **Be careful** not to commit these files to the Git repository.
 
