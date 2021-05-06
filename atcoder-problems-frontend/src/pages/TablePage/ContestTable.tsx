@@ -25,6 +25,13 @@ interface Props {
   userRatingInfo: RatingInfo;
 }
 
+export function convertProblemTitleForSorting(title: string): [string, number] {
+  const idx = title.split(".")[0];
+  const str = idx.replace(/[0-9]/g, "");
+  const num = parseInt(idx.replace(/[^0-9]/g, ""), 10);
+  return [str, num];
+}
+
 export const ContestTable: React.FC<Props> = (props) => {
   const {
     contests,
@@ -42,12 +49,8 @@ export const ContestTable: React.FC<Props> = (props) => {
     .map((contest) => ({
       contest,
       problems: (contestToProblems.get(contest.id) ?? []).sort((a, b) => {
-        const idx_a = a.title.split(".")[0];
-        const str_a = idx_a.replace(/[0-9]/g, "");
-        const num_a = parseInt(idx_a.replace(/[^0-9]/g, ""), 10);
-        const idx_b = b.title.split(".")[0];
-        const str_b = idx_b.replace(/[0-9]/g, "");
-        const num_b = parseInt(idx_b.replace(/[^0-9]/g, ""), 10);
+        const [str_a, num_a] = convertProblemTitleForSorting(a.title);
+        const [str_b, num_b] = convertProblemTitleForSorting(b.title);
         const cmp = str_a.localeCompare(str_b);
         return cmp === 0 ? num_a - num_b : cmp;
       }),
