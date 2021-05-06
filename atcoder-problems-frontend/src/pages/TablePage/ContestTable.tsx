@@ -25,12 +25,14 @@ interface Props {
   userRatingInfo: RatingInfo;
 }
 
-export function convertProblemTitleForSorting(title: string): [string, number] {
+export const convertProblemTitleForSorting = (
+  title: string
+): [string, number] => {
   const idx = title.split(".")[0];
   const str = idx.replace(/[0-9]/g, "");
   const num = parseInt(idx.replace(/[^0-9]/g, ""), 10);
   return [str, num];
-}
+};
 
 export const ContestTable: React.FC<Props> = (props) => {
   const {
