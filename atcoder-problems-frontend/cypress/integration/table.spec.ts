@@ -44,6 +44,7 @@ describe("Table page", () => {
         "PAST",
         "JOI",
         "Marathon",
+        "Other Sponsored",
         "Other Contests",
       ].map((contestType) => cy.contains(contestType))
     );
