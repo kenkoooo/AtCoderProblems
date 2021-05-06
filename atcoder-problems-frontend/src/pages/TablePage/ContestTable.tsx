@@ -42,13 +42,14 @@ export const ContestTable: React.FC<Props> = (props) => {
     .map((contest) => ({
       contest,
       problems: (contestToProblems.get(contest.id) ?? []).sort((a, b) => {
-        if (contest.id === "APG4b") {
-          const str_a = a.title.slice(0, 1) + a.title.slice(-4);
-          const str_b = b.title.slice(0, 1) + b.title.slice(-4);
-          return str_a.localeCompare(str_b);
-        } else {
-          return a.title.localeCompare(b.title);
-        }
+        const idx_a = a.title.split(".")[0];
+        const str_a = idx_a.replace(/[0-9]/g, "");
+        const num_a = parseInt(idx_a.replace(/[^0-9]/g, ""), 10);
+        const idx_b = b.title.split(".")[0];
+        const str_b = idx_b.replace(/[0-9]/g, "");
+        const num_b = parseInt(idx_b.replace(/[^0-9]/g, ""), 10);
+        const cmp = str_a.localeCompare(str_b);
+        return cmp === 0 ? num_a - num_b : cmp;
       }),
     }))
     .map(({ contest, problems }) => {
