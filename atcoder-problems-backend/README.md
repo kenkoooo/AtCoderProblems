@@ -58,7 +58,7 @@ cargo run --bin crawl_for_virtual_contests
 cargo run --bin crawl_from_new_contests
 cargo run --bin crawl_problems
 cargo run --bin crawl_recent_submissions
-cargo run --bin crawl_whole_contest
+cargo run --bin crawl_whole_contest <contest_id>
 
 # Run other tools
 cargo run --bin batch_update
