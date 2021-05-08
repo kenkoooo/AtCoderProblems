@@ -25,9 +25,7 @@ const getPieChartTitle = (ratingColor: RatingColor): string => {
     return "2800-";
   }
   const index = RatingColors.indexOf(ratingColor) - 1;
-  const str =
-    (index * 400).toString() + "-" + ((index + 1) * 400 - 1).toString();
-  return str;
+  return `${index * 400}-${(index + 1) * 400 - 1}`;
 };
 
 export const DifficultyPieChart: React.FC<Props> = (props) => {
