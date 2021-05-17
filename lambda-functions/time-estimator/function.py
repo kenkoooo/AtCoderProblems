@@ -328,10 +328,10 @@ def fetch_dataset_for_contest(
 ):
     try:
         results = session.get(
-            "https://atcoder.jp/contests/{}/standings/json".format(contest_name)
+            f"https://atcoder.jp/contests/{contest_name}/standings/json"
         ).json()
     except json.JSONDecodeError as e:
-        print(f"{e}")
+        print(f"Failed to decode standings of {contest_id}: {e}")
         return {}, []
     task_names = {
         task["TaskScreenName"]: task["TaskName"] for task in results["TaskInfo"]
@@ -491,9 +491,7 @@ def run(target, overwrite, session):
         problems = set(contest_problems.get(contest, []))
         if not overwrite and existing_problems & problems == problems:
             print(
-                "All problem models of contest {} are already estimated. specify overwrite = True if you want to update the model.".format(
-                    contest
-                )
+                f"All problem models of contest {contest} are already estimated. specify overwrite = True if you want to update the model."
             )
             continue
         is_old_contest = not contest_type.is_rated
@@ -534,7 +532,7 @@ def run(target, overwrite, session):
                         )
             dataset_by_problem[problem] += data_points
         if recompute_history and is_old_contest:
-            print("Updating user rating with the result of {}".format(contest))
+            print(f"Updating user rating with the result of {contest}")
             rating_system.update(standings, contest_type)
     print(f"Estimating time models of {len(dataset_by_problem)} problems.")
     results = current_models
@@ -567,7 +565,7 @@ def handler(event, context):
 
     if atcoder_user is None or atcoder_pass is None:
         raise ValueError("AtCoder credential is required.")
-    print("Using AtCoder account {} to fetch standings data.".format(atcoder_user))
+    print(f"Using AtCoder account {atcoder_user} to fetch standings data.")
 
     session = login(atcoder_user, atcoder_pass)
     results = run(target, overwrite, session)
