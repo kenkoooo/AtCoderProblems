@@ -1,5 +1,4 @@
 use anyhow::Result;
-use atcoder_problems_backend::s3;
 use atcoder_problems_backend::utils::init_log_config;
 use atcoder_problems_backend::config::{ BLOCKED_CONTESTS, BLOCKED_PROBLEMS };
 use serde::Serialize;
@@ -13,6 +12,7 @@ use sql_client::{query, Row};
 use std::cmp::Reverse;
 use std::collections::BTreeMap;
 use std::env;
+use s3_client::s3;
 
 const LANGUAGE_COUNT_LIMIT: usize = 1000;
 

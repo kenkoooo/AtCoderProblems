@@ -18,16 +18,19 @@ impl S3Client {
         Ok(Self { bucket })
     }
 
-    pub fn update(&self, data: Vec<u8>, path: &str) -> Result<bool> {
-        log::info!("Fetching old data ...");
-        let old_data = self
-            .bucket
+    pub fn fetch_data(&self, path: &str) -> Vec<u8> {
+        self.bucket
             .get_object(path)
             .map(|(data, _)| data)
             .unwrap_or_else(|e| {
                 log::error!("{:?}", e);
                 Vec::new()
-            });
+            })
+    }
+
+    pub fn update(&self, data: Vec<u8>, path: &str) -> Result<bool> {
+        log::info!("Fetching old data ...");
+        let old_data = self.fetch_data(path);
         if old_data != data {
             log::info!("Uploading new data to {} ...", path);
             let (data, status) =

@@ -23,6 +23,9 @@ sql-client = { path = "./sql-client" }
 # Scraping
 atcoder-client = { path = "./atcoder-client" }
 
+# s3
+s3-client = { path = "./s3-client" }
+
 # Web framework
 tide = "0.16"
 cookie = "0.14"
@@ -37,4 +40,4 @@ futures = "0.3.5"
 [dev-dependencies]
 
 [workspace]
-members = ["sql-client", "atcoder-client"]
+members = ["sql-client", "atcoder-client", "s3-client"]
