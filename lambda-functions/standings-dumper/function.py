@@ -1,6 +1,6 @@
 import json
-import re
 from html.parser import HTMLParser
+from typing import List
 
 import boto3
 import requests
@@ -20,32 +20,34 @@ def all_contests_id():
 
 
 def fetch_standings(contest_id, session):
+    print(f"Fetching standings of {contest_id}")
     try:
         response = session.get(
-            "https://atcoder.jp/contests/{}/standings/json".format(contest_id)
+            f"https://atcoder.jp/contests/{contest_id}/standings/json"
         )
         # ex: kupc2020 has team standings only.
         if response.status_code != 200:
             response = session.get(
-                "https://atcoder.jp/contests/{}/standings/team/json".format(contest_id)
+                f"https://atcoder.jp/contests/{contest_id}/standings/team/json"
             )
             if response.status_code != 200:
                 print(f"Failed fetch from {contest_id}")
                 return []
         results = response.json()
     except json.JSONDecodeError as e:
-        print(f"Failed to decode standings of {contest_id}")
-        print(f"{e}")
+        print(f"Failed to decode standings of {contest_id}: {e}")
         return []
     return results
 
 
-def get_already_fetched_contests(bucket, object_dir):
+def get_already_fetched_contests(bucket, object_dir: str) -> List[str]:
     try:
-        keys = [obj.key for obj in bucket.objects.all() if obj.key.starts_with(object_dir)]
+        keys = [
+            obj.key for obj in bucket.objects.all() if obj.key.startswith(object_dir)
+        ]
         contests = [key.replace(".json", "") for key in keys]
     except Exception as e:
-        print(f"Failed to fetch.\n{e}")
+        print(f"Failed to fetch the list of JSON in S3: {e}")
         return []
     return contests
 
@@ -103,7 +105,7 @@ def handler(event, context):
     target = event.get("target")
     overwrite = event.get("overwrite", False)
     bucket = event.get("bucket", "kenkoooo.com")
-    object_dir = event.get("object_dir", STANDINGS_DIR)
+    object_dir: str = event.get("object_dir", STANDINGS_DIR)
     atcoder_user = event.get("atcoder_user")
     atcoder_pass = event.get("atcoder_pass")
 
@@ -112,12 +114,15 @@ def handler(event, context):
     print("Using AtCoder account {} to fetch standings data.".format(atcoder_user))
 
     s3 = boto3.resource("s3")
-    already_fetched_contests = get_already_fetched_contests(s3.Bucket(bucket), object_dir)
+    already_fetched_contests = get_already_fetched_contests(
+        s3.Bucket(bucket), object_dir
+    )
 
     session = login(atcoder_user, atcoder_pass)
     results = run(target, already_fetched_contests, overwrite, session)
     for contest_id, result in results:
         object_key = object_dir + contest_id + ".json"
+        print(f"Saving {object_key} in S3")
         s3.Object(bucket, object_key).put(
             Body=json.dumps(result), ContentType="application/json"
         )
