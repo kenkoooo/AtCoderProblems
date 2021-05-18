@@ -9,6 +9,11 @@ use std::collections::{BTreeMap, BTreeSet};
 #[async_trait]
 pub trait AcceptedCountClient {
     async fn load_accepted_count(&self) -> Result<Vec<UserProblemCount>>;
+    async fn load_accepted_count_with_range(
+        &self,
+        from: i32,
+        to: i32,
+    ) -> Result<Vec<UserProblemCount>>;
     async fn get_users_accepted_count(&self, user_id: &str) -> Option<i32>;
     async fn get_accepted_count_rank(&self, accepted_count: i32) -> Result<i64>;
     async fn update_accepted_count(&self, submissions: &[Submission]) -> Result<()>;
@@ -23,6 +28,34 @@ impl AcceptedCountClient for PgPool {
             ORDER BY problem_count DESC, user_id ASC
             ",
         )
+        .try_map(|row: PgRow| {
+            let user_id: String = row.try_get("user_id")?;
+            let problem_count: i32 = row.try_get("problem_count")?;
+            Ok(UserProblemCount {
+                user_id,
+                problem_count,
+            })
+        })
+        .fetch_all(self)
+        .await?;
+
+        Ok(count)
+    }
+
+    async fn load_accepted_count_with_range(
+        &self,
+        from: i32,
+        to: i32,
+    ) -> Result<Vec<UserProblemCount>> {
+        let count = sqlx::query(
+            r"
+            SELECT user_id, problem_count FROM accepted_count
+            ORDER BY problem_count DESC, user_id ASC
+            OFFSET $1 LIMIT $2;
+            ",
+        )
+        .bind(from - 1)
+        .bind(to - from + 1)
         .try_map(|row: PgRow| {
             let user_id: String = row.try_get("user_id")?;
             let problem_count: i32 = row.try_get("problem_count")?;
