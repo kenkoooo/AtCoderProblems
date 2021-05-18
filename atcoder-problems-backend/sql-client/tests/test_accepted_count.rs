@@ -61,6 +61,21 @@ async fn test_accepted_count() {
         ]
     );
 
+    let accepted_count_with_range = pool.load_accepted_count_with_range(1, 2).await.unwrap();
+    assert_eq!(
+        accepted_count_with_range,
+        vec![
+            UserProblemCount {
+                user_id: "user2".to_owned(),
+                problem_count: 3
+            },
+            UserProblemCount {
+                user_id: "user1".to_owned(),
+                problem_count: 2
+            }
+        ]
+    );
+
     assert_eq!(pool.get_users_accepted_count("user1").await.unwrap(), 2);
     assert_eq!(pool.get_users_accepted_count("user2").await.unwrap(), 3);
     assert_eq!(pool.get_accepted_count_rank(3).await.unwrap(), 0);
