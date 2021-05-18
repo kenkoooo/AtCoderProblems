@@ -2,6 +2,7 @@ use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::try_join;
+use s3_client::s3::S3Client;
 
 #[async_trait]
 pub trait ProblemsSubmissionUpdater {
@@ -55,4 +56,10 @@ fn generate_query(table: &str, column: &str) -> String {
         table = table,
         column = column
     )
+}
+
+fn fetch_all_contestants(contest_id: &str) -> Result<Vec<String>> {
+    let s3 = S3Client::new()?;
+    let standings_data = s3.fetch_data(&format!("/resource/standings/{}.json", contest_id));
+    Ok(vec![])
 }
