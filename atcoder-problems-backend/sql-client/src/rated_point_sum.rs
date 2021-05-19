@@ -1,4 +1,4 @@
-use crate::models::{ContestProblem, Submission};
+use crate::models::{ContestProblem, Submission, UserSum};
 use crate::{PgPool, FIRST_AGC_EPOCH_SECOND, MAX_INSERT_ROWS, UNRATED_STATE};
 use anyhow::Result;
 use async_trait::async_trait;
@@ -6,12 +6,14 @@ use futures::try_join;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
+use std::ops::Range;
 
 #[async_trait]
 pub trait RatedPointSumClient {
     async fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> Result<()>;
     async fn get_users_rated_point_sum(&self, user_id: &str) -> Option<f64>;
     async fn get_rated_point_sum_rank(&self, point: f64) -> Result<i64>;
+    async fn load_rated_point_sum_in_range(&self, rank_range: Range<i64>) -> Result<Vec<UserSum>>;
 }
 
 #[async_trait]
@@ -105,5 +107,30 @@ impl RatedPointSumClient for PgPool {
             .fetch_one(self)
             .await?;
         Ok(rank)
+    }
+
+    async fn load_rated_point_sum_in_range(&self, rank_range: Range<i64>) -> Result<Vec<UserSum>> {
+        if rank_range.is_empty() {
+            return Ok(Vec::new());
+        }
+        // Should we also check that the bounds are non-negative?
+        // Which kind of Error should we throw then?
+        let list = sqlx::query(
+            r"
+            SELECT * FROM rated_point_sum
+            ORDER BY point_sum DESC, user_id
+            OFFSET $1 LIMIT $2;
+        ",
+        )
+        .bind(rank_range.start)
+        .bind(rank_range.end - rank_range.start)
+        .try_map(|row: PgRow| {
+            let user_id: String = row.try_get("user_id")?;
+            let point_sum: f64 = row.try_get("point_sum")?;
+            Ok(UserSum { user_id, point_sum })
+        })
+        .fetch_all(self)
+        .await?;
+        Ok(list)
     }
 }
