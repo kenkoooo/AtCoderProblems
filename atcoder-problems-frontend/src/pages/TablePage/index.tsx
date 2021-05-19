@@ -6,14 +6,13 @@ import {
   useContestToProblems,
   useRatingInfo,
   useUserSubmission,
+  useMultipleUserSubmissions,
 } from "../../api/APIClient";
 import { useLoginState } from "../../api/InternalAPIClient";
 import Problem from "../../interfaces/Problem";
 import { constructStatusLabelMap, ContestId } from "../../interfaces/Status";
 import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
-import Submission from "../../interfaces/Submission";
-import { fetchUserSubmissions } from "../../utils/Api";
 import { filterResetProgress, ProgressResetList } from "../Internal/types";
 import { PROGRESS_RESET_LIST } from "../Internal/ApiUrl";
 import { loggedInUserId } from "../../utils/UserState";
@@ -29,7 +28,6 @@ interface OuterProps {
 }
 
 interface InnerProps extends OuterProps {
-  readonly submissions: PromiseState<Submission[]>;
   readonly progressResetList: PromiseState<ProgressResetList | null>;
 }
 
@@ -64,9 +62,9 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
   const selectableLanguages = new Set(
     useUserSubmission(props.userId)?.map((s) => s.language) ?? []
   );
-  const submissions = props.submissions.fulfilled
-    ? props.submissions.value
-    : [];
+  const submissions =
+    useMultipleUserSubmissions(props.rivals.push(props.userId).toArray())
+      .data ?? [];
   const loginState = useLoginState().data;
   const loginUserId = loggedInUserId(loginState);
   const progressReset =
@@ -151,13 +149,6 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
   );
 };
 
-export const TablePage = connect<OuterProps, InnerProps>((props) => ({
-  submissions: {
-    comparison: [props.userId, props.rivals],
-    value: (): Promise<Submission[]> =>
-      Promise.all(
-        props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
-      ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
-  },
+export const TablePage = connect<OuterProps, InnerProps>(() => ({
   progressResetList: PROGRESS_RESET_LIST,
 }))(InnerTablePage);
