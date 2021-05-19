@@ -296,4 +296,7 @@ async fn test_load_rated_point_sum_in_range() {
 
     let sums_5th_to_10th = pool.load_rated_point_sum_in_range(4..10).await.unwrap();
     assert!(sums_5th_to_10th.is_empty());
+
+    let sums_1st_to_10th = pool.load_rated_point_sum_in_range(0..10).await.unwrap();
+    assert_eq!(sums_1st_to_10th.len(), 4);
 }
