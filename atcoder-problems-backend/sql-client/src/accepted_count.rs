@@ -5,14 +5,14 @@ use async_trait::async_trait;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
+use std::ops::Range;
 
 #[async_trait]
 pub trait AcceptedCountClient {
     async fn load_accepted_count(&self) -> Result<Vec<UserProblemCount>>;
-    async fn load_accepted_count_with_range(
+    async fn load_accepted_count_in_range(
         &self,
-        from: i32,
-        to: i32,
+        rank_range: Range<i32>,
     ) -> Result<Vec<UserProblemCount>>;
     async fn get_users_accepted_count(&self, user_id: &str) -> Option<i32>;
     async fn get_accepted_count_rank(&self, accepted_count: i32) -> Result<i64>;
@@ -42,10 +42,9 @@ impl AcceptedCountClient for PgPool {
         Ok(count)
     }
 
-    async fn load_accepted_count_with_range(
+    async fn load_accepted_count_in_range(
         &self,
-        from: i32,
-        to: i32,
+        rank_range: Range<i32>,
     ) -> Result<Vec<UserProblemCount>> {
         let count = sqlx::query(
             r"
@@ -54,8 +53,8 @@ impl AcceptedCountClient for PgPool {
             OFFSET $1 LIMIT $2;
             ",
         )
-        .bind(from - 1)
-        .bind(to - from + 1)
+        .bind(rank_range.start)
+        .bind(rank_range.len() as i32)
         .try_map(|row: PgRow| {
             let user_id: String = row.try_get("user_id")?;
             let problem_count: i32 = row.try_get("problem_count")?;
