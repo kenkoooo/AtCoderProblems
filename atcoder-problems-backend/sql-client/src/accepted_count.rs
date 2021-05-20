@@ -12,7 +12,7 @@ pub trait AcceptedCountClient {
     async fn load_accepted_count(&self) -> Result<Vec<UserProblemCount>>;
     async fn load_accepted_count_in_range(
         &self,
-        rank_range: Range<i32>,
+        rank_range: Range<usize>,
     ) -> Result<Vec<UserProblemCount>>;
     async fn get_users_accepted_count(&self, user_id: &str) -> Option<i32>;
     async fn get_accepted_count_rank(&self, accepted_count: i32) -> Result<i64>;
@@ -44,7 +44,7 @@ impl AcceptedCountClient for PgPool {
 
     async fn load_accepted_count_in_range(
         &self,
-        rank_range: Range<i32>,
+        rank_range: Range<usize>,
     ) -> Result<Vec<UserProblemCount>> {
         let count = sqlx::query(
             r"
@@ -53,7 +53,7 @@ impl AcceptedCountClient for PgPool {
             OFFSET $1 LIMIT $2;
             ",
         )
-        .bind(rank_range.start)
+        .bind(rank_range.start as i32)
         .bind(rank_range.len() as i32)
         .try_map(|row: PgRow| {
             let user_id: String = row.try_get("user_id")?;
