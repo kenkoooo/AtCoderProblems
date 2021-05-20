@@ -19,7 +19,7 @@ use sql_client::models::{Contest, ContestProblem, Problem, Submission};
 
 #[async_trait]
 pub trait AtCoderFetcher {
-    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission>;
+    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> (Vec<Submission>, u32);
     async fn fetch_contests(&self, spf: ContestTypeSpecifier) -> Result<Vec<Contest>>;
     async fn fetch_problems(&self, contest_id: &str)
         -> Result<(Vec<Problem>, Vec<ContestProblem>)>;
@@ -27,9 +27,9 @@ pub trait AtCoderFetcher {
 
 #[async_trait]
 impl AtCoderFetcher for AtCoderClient {
-    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission> {
-        retry_fetch_submissions(self, 9, contest_id, page)
-            .await
+    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> (Vec<Submission>, u32) {
+        let (submissions, max_page) = retry_fetch_submissions(self, 9, contest_id, page).await;
+        let submissions = submissions
             .into_iter()
             .map(|s| Submission {
                 id: s.id as i64,
@@ -43,7 +43,8 @@ impl AtCoderFetcher for AtCoderClient {
                 result: s.result,
                 execution_time: s.execution_time.map(|t| t as i32),
             })
-            .collect()
+            .collect();
+        (submissions, max_page)
     }
 
     async fn fetch_contests(&self, spf: ContestTypeSpecifier) -> Result<Vec<Contest>> {
@@ -99,7 +100,7 @@ async fn retry_fetch_submissions(
     retry_count: usize,
     contest_id: &str,
     page: u32,
-) -> Vec<AtCoderSubmission> {
+) -> (Vec<AtCoderSubmission>, u32) {
     let mut sleep_second = 1;
     for _ in 0..retry_count {
         match client
@@ -107,7 +108,7 @@ async fn retry_fetch_submissions(
             .await
         {
             Ok(response) => {
-                return response.submissions;
+                return (response.submissions, response.max_page);
             }
             Err(e) => {
                 log::error!("Error when fetching {} {}: {:?} ", contest_id, page, e);
@@ -117,7 +118,7 @@ async fn retry_fetch_submissions(
             }
         }
     }
-    Vec::new()
+    (Vec::new(), 0)
 }
 
 fn convert_problem(p: AtCoderProblem) -> Problem {
