@@ -28,7 +28,7 @@ pub trait AtCoderFetcher {
 #[async_trait]
 impl AtCoderFetcher for AtCoderClient {
     async fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission> {
-        retry_fetch_submissions(self, 7, contest_id, page)
+        retry_fetch_submissions(self, 9, contest_id, page)
             .await
             .into_iter()
             .map(|s| Submission {
