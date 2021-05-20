@@ -54,8 +54,13 @@ impl AtCoderClient {
             ATCODER_PREFIX, contest_id, page
         );
         let html = util::get_html(&url).await?;
-        let submissions = submission::scrape(&html, contest_id)?;
-        let max_page = submission::scrape_submission_page_count(&html)?;
+
+        // HTML is successfully fetched, but it can not be parsed.
+        let submissions = submission::scrape(&html, contest_id).unwrap_or_else(|e| {
+            log::error!("Failed to parse HTML of {}: {:?}", url, e);
+            Vec::new()
+        });
+        let max_page = submission::scrape_submission_page_count(&html).unwrap_or(0);
         Ok(AtCoderSubmissionListResponse {
             max_page,
             submissions,
@@ -87,8 +92,7 @@ mod tests {
     fn test_fetch_hidden_contest() {
         let client = AtCoderClient::default();
         let contests =
-            block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden))
-                .unwrap();
+            block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden)).unwrap();
         assert!(contests.len() >= 1);
     }
 

@@ -1,14 +1,23 @@
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 
 use serde::de::DeserializeOwned;
 
 pub(crate) async fn get_html(url: &str) -> Result<String> {
-    surf::get(url)
+    let mut response = surf::get(url)
         .header("accept", "text/html")
         .header("accept-encoding", "gzip")
-        .recv_string()
+        .send()
         .await
-        .map_err(|_| anyhow!("Failed to get html from {}", url))
+        .map_err(|e| anyhow!("Connection error: {:?}", e))?;
+    if response.status().is_success() {
+        let body = response
+            .body_string()
+            .await
+            .map_err(|e| anyhow!("Failed to parse HTTP body: {:?}", e))?;
+        Ok(body)
+    } else {
+        Err(anyhow!("{:?}", response))
+    }
 }
 
 pub(crate) async fn get_json<T: DeserializeOwned>(url: &str) -> Result<T> {
