@@ -9,6 +9,9 @@ mod utils;
 const FIRST_AGC_EPOCH_SECOND: i64 = 1_468_670_400;
 const UNRATED_STATE: &str = "-";
 const USER_ID: &str = "user";
+const USER_ID2: &str = "user2";
+const USER_ID3: &str = "user3";
+const USER_ID4: &str = "user4";
 const RATED_CONTEST: &str = "rated_contest";
 const UNRATED_CONTEST1: &str = "unrated_contest1";
 const UNRATED_CONTEST2: &str = "unrated_contest2";
@@ -199,3 +202,104 @@ async fn test_update_rated_point_sum() {
         .is_none());
 }
 
+#[async_std::test]
+async fn test_load_rated_point_sum_in_range() {
+    let pool = utils::initialize_and_connect_to_test_sql().await;
+
+    setup_contests(&pool).await;
+    setup_contest_problems(&pool).await;
+
+    let submissions = vec![
+        Submission {
+            id: 0,
+            user_id: USER_ID.to_string(),
+            point: 100.0,
+            problem_id: "problem1".to_string(),
+            contest_id: RATED_CONTEST.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 1,
+            user_id: USER_ID.to_string(),
+            point: 100.0,
+            problem_id: "problem4".to_string(),
+            contest_id: RATED_CONTEST.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 2,
+            user_id: USER_ID.to_string(),
+            point: 100.0,
+            problem_id: "problem5".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 3,
+            user_id: USER_ID2.to_string(),
+            point: 100.0,
+            problem_id: "problem4".to_string(),
+            contest_id: RATED_CONTEST.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 4,
+            user_id: USER_ID2.to_string(),
+            point: 100.0,
+            problem_id: "problem5".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 5,
+            user_id: USER_ID3.to_string(),
+            point: 100.0,
+            problem_id: "problem4".to_string(),
+            contest_id: RATED_CONTEST.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 6,
+            user_id: USER_ID3.to_string(),
+            point: 100.0,
+            problem_id: "problem5".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 7,
+            user_id: USER_ID4.to_string(),
+            point: 100.0,
+            problem_id: "problem5".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+            ..Default::default()
+        },
+    ];
+
+    pool.update_rated_point_sum(&submissions).await.unwrap();
+    let sums_1st_to_4th = pool.load_rated_point_sum_in_range(0..4).await.unwrap();
+    assert_eq!(sums_1st_to_4th.len(), 4);
+    assert_eq!(sums_1st_to_4th[0].user_id, USER_ID);
+    assert_eq!(sums_1st_to_4th[0].point_sum, 300.0);
+    assert_eq!(sums_1st_to_4th[3].user_id, USER_ID4);
+    assert_eq!(sums_1st_to_4th[3].point_sum, 100.0);
+
+    let sums_1st_to_2nd = pool.load_rated_point_sum_in_range(0..2).await.unwrap();
+    assert_eq!(sums_1st_to_2nd.len(), 2);
+    assert_eq!(sums_1st_to_2nd[1].user_id, USER_ID2);
+    assert_eq!(sums_1st_to_2nd[1].point_sum, 200.0);
+
+    let sums_3rd_to_3rd = pool.load_rated_point_sum_in_range(2..3).await.unwrap();
+    assert_eq!(sums_3rd_to_3rd.len(), 1);
+    assert_eq!(sums_3rd_to_3rd[0].user_id, USER_ID3);
+    assert_eq!(sums_3rd_to_3rd[0].point_sum, 200.0);
+
+    let sums_5th_to_10th = pool.load_rated_point_sum_in_range(4..10).await.unwrap();
+    assert!(sums_5th_to_10th.is_empty());
+
+    let sums_nonsense = pool.load_rated_point_sum_in_range(5..0).await.unwrap();
+    assert!(sums_nonsense.is_empty());
+
+    let sums_1st_to_10th = pool.load_rated_point_sum_in_range(0..10).await.unwrap();
+    assert_eq!(sums_1st_to_10th.len(), 4);
+}
