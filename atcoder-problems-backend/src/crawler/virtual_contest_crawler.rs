@@ -66,7 +66,7 @@ where
             let mut streak = 0;
             for page in 1.. {
                 log::info!("Fetching from {} {} ...", contest, page);
-                let submissions = self.fetcher.fetch_submissions(&contest, page).await;
+                let (submissions, max_page) = self.fetcher.fetch_submissions(&contest, page).await;
                 if submissions.is_empty() {
                     log::info!("No submission is fetched");
                     break;
@@ -86,7 +86,7 @@ where
                 self.db_pool.update_submissions(&submissions).await?;
                 log::info!("Updated");
 
-                if streak >= CRAWLED_STREAK {
+                if streak >= CRAWLED_STREAK || page == max_page {
                     break;
                 }
                 log::info!("Sleeping for 200ms");

@@ -2,6 +2,7 @@ use crate::util;
 use anyhow::Result;
 
 use super::*;
+use surf::StatusCode;
 
 const ATCODER_PREFIX: &str = "https://atcoder.jp";
 
@@ -27,13 +28,13 @@ impl AtCoderClient {
 
     async fn fetch_atcoder_normal_contests(&self, page: u32) -> Result<Vec<AtCoderContest>> {
         let url = format!("{}/contests/archive?lang=ja&page={}", ATCODER_PREFIX, page);
-        let html = util::get_html(&url).await?;
+        let (html, _) = util::get_html(&url).await?;
         contest::scrape_normal(&html)
     }
 
     async fn fetch_atcoder_permanent_contests(&self) -> Result<Vec<AtCoderContest>> {
         let url = format!("{}/contests/?lang=ja", ATCODER_PREFIX);
-        let html = util::get_html(&url).await?;
+        let (html, _) = util::get_html(&url).await?;
         contest::scrape_permanent(&html)
     }
 
@@ -53,18 +54,34 @@ impl AtCoderClient {
             "{}/contests/{}/submissions?page={}",
             ATCODER_PREFIX, contest_id, page
         );
-        let html = util::get_html(&url).await?;
-        let submissions = submission::scrape(&html, contest_id)?;
-        let max_page = submission::scrape_submission_page_count(&html)?;
-        Ok(AtCoderSubmissionListResponse {
-            max_page,
-            submissions,
-        })
+        let (html, status) = util::get_html(&url).await?;
+
+        if status.is_success() {
+            let submissions = submission::scrape(&html, contest_id)?;
+            let max_page = submission::scrape_submission_page_count(&html)?;
+            Ok(AtCoderSubmissionListResponse {
+                max_page,
+                submissions,
+            })
+        } else if status == StatusCode::NotFound {
+            log::warn!("404: {}", url);
+            Ok(AtCoderSubmissionListResponse {
+                max_page: 0,
+                submissions: Vec::new(),
+            })
+        } else {
+            Err(anyhow::anyhow!(
+                "Failed to fetch {}: status={} body={}",
+                url,
+                status,
+                html
+            ))
+        }
     }
 
     pub async fn fetch_problem_list(&self, contest_id: &str) -> Result<Vec<AtCoderProblem>> {
         let url = format!("{}/contests/{}/tasks", ATCODER_PREFIX, contest_id);
-        let html = util::get_html(&url).await?;
+        let (html, _) = util::get_html(&url).await?;
         problem::scrape(&html, contest_id)
     }
 }
@@ -87,8 +104,7 @@ mod tests {
     fn test_fetch_hidden_contest() {
         let client = AtCoderClient::default();
         let contests =
-            block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden))
-                .unwrap();
+            block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden)).unwrap();
         assert!(contests.len() >= 1);
     }
 

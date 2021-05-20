@@ -26,7 +26,8 @@ where
         for contest in contests.into_iter() {
             for page in 1.. {
                 info!("Crawling {}-{} ...", contest.id, page);
-                let submissions = self.fetcher.fetch_submissions(&contest.id, page).await;
+                let (submissions, max_page) =
+                    self.fetcher.fetch_submissions(&contest.id, page).await;
                 if submissions.is_empty() {
                     info!("There is no submission on {}-{}", contest.id, page);
                     break;
@@ -39,6 +40,13 @@ where
 
                 if exists {
                     info!("Finished crawling {}", contest.id);
+                    break;
+                }
+                if page == max_page {
+                    info!(
+                        "Finished crawling {} since it's last page: {}",
+                        contest.id, page
+                    );
                     break;
                 }
             }

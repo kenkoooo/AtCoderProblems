@@ -49,10 +49,11 @@ where
         for (contest_id, minimum_id) in contests.into_iter() {
             for page in 1.. {
                 info!("Fetching from {}-{}", contest_id, page);
-                let submissions = self.fetcher.fetch_submissions(&contest_id, page).await;
+                let (submissions, max_page) =
+                    self.fetcher.fetch_submissions(&contest_id, page).await;
                 self.db.update_submissions(&submissions).await?;
                 let all_old = submissions.iter().all(|s| s.id <= minimum_id);
-                if all_old {
+                if all_old || max_page == page {
                     break;
                 }
             }
