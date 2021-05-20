@@ -11,8 +11,8 @@ impl<F> AtCoderFetcher for MockFetcher<F>
 where
     F: Fn(&str, u32) -> Vec<Submission> + Send + Sync,
 {
-    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission> {
-        (self.0)(contest_id, page)
+    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> (Vec<Submission>, u32) {
+        ((self.0)(contest_id, page), 0)
     }
 
     async fn fetch_contests(&self, _: ContestTypeSpecifier) -> Result<Vec<Contest>> {
