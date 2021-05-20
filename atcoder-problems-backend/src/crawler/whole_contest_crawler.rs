@@ -27,9 +27,14 @@ where
     pub async fn crawl(&self) -> Result<()> {
         for page in 1.. {
             info!("Crawling {} {} ...", self.contest_id, page);
-            let submissions = self.fetcher.fetch_submissions(&self.contest_id, page).await;
+            let (submissions, max_page) =
+                self.fetcher.fetch_submissions(&self.contest_id, page).await;
             if submissions.is_empty() {
-                info!("Empty!");
+                info!("{}-{} is empty.", self.contest_id, page);
+                break;
+            }
+            if page == max_page {
+                info!("Finished crawling {}", self.contest_id);
                 break;
             }
 

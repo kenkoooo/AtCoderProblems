@@ -11,15 +11,15 @@ pub use recent_crawler::RecentCrawler;
 pub use virtual_contest_crawler::VirtualContestCrawler;
 pub use whole_contest_crawler::WholeContestCrawler;
 
-use atcoder_client::{AtCoderClient, AtCoderProblem, AtCoderSubmission, ContestTypeSpecifier};
 use anyhow::Result;
 use async_trait::async_trait;
+use atcoder_client::{AtCoderClient, AtCoderProblem, AtCoderSubmission, ContestTypeSpecifier};
 use log::info;
 use sql_client::models::{Contest, ContestProblem, Problem, Submission};
 
 #[async_trait]
 pub trait AtCoderFetcher {
-    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission>;
+    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> (Vec<Submission>, u32);
     async fn fetch_contests(&self, spf: ContestTypeSpecifier) -> Result<Vec<Contest>>;
     async fn fetch_problems(&self, contest_id: &str)
         -> Result<(Vec<Problem>, Vec<ContestProblem>)>;
@@ -27,10 +27,9 @@ pub trait AtCoderFetcher {
 
 #[async_trait]
 impl AtCoderFetcher for AtCoderClient {
-    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> Vec<Submission> {
-        let submissions = retry_fetch_submissions(self, 5, contest_id, page);
-        submissions
-            .await
+    async fn fetch_submissions(&self, contest_id: &str, page: u32) -> (Vec<Submission>, u32) {
+        let (submissions, max_page) = retry_fetch_submissions(self, 9, contest_id, page).await;
+        let submissions = submissions
             .into_iter()
             .map(|s| Submission {
                 id: s.id as i64,
@@ -44,16 +43,23 @@ impl AtCoderFetcher for AtCoderClient {
                 result: s.result,
                 execution_time: s.execution_time.map(|t| t as i32),
             })
-            .collect()
+            .collect();
+        (submissions, max_page)
     }
 
     async fn fetch_contests(&self, spf: ContestTypeSpecifier) -> Result<Vec<Contest>> {
         match spf {
-            ContestTypeSpecifier::Normal { page } => { info!("Fetching contests page-{}", page); },
-            ContestTypeSpecifier::Permanent => { info!("Fetching permanent contests"); },
-            ContestTypeSpecifier::Hidden => { info!("Fetching hidden contests"); },
+            ContestTypeSpecifier::Normal { page } => {
+                info!("Fetching contests page-{}", page);
+            }
+            ContestTypeSpecifier::Permanent => {
+                info!("Fetching permanent contests");
+            }
+            ContestTypeSpecifier::Hidden => {
+                info!("Fetching hidden contests");
+            }
         };
-        
+
         let contests = self.fetch_atcoder_contests(spf).await?;
         let contests = contests
             .into_iter()
@@ -94,23 +100,25 @@ async fn retry_fetch_submissions(
     retry_count: usize,
     contest_id: &str,
     page: u32,
-) -> Vec<AtCoderSubmission> {
+) -> (Vec<AtCoderSubmission>, u32) {
+    let mut sleep_second = 1;
     for _ in 0..retry_count {
         match client
             .fetch_atcoder_submission_list(contest_id, Some(page))
             .await
         {
             Ok(response) => {
-                return response.submissions;
+                return (response.submissions, response.max_page);
             }
             Err(e) => {
                 log::error!("Error when fetching {} {}: {:?} ", contest_id, page, e);
-                log::info!("Sleeping 1sec before retry ...");
-                async_std::task::sleep(std::time::Duration::from_secs(1)).await;
+                log::info!("Sleeping {}s before retry ...", sleep_second);
+                async_std::task::sleep(std::time::Duration::from_secs(sleep_second)).await;
+                sleep_second *= 2;
             }
         }
     }
-    Vec::new()
+    (Vec::new(), 0)
 }
 
 fn convert_problem(p: AtCoderProblem) -> Problem {

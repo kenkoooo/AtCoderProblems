@@ -346,6 +346,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "futures 0.3.5",
+ "log",
  "regex",
  "scraper",
  "serde",
