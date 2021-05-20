@@ -110,9 +110,6 @@ impl RatedPointSumClient for PgPool {
     }
 
     async fn load_rated_point_sum_in_range(&self, rank_range: Range<usize>) -> Result<Vec<UserSum>> {
-        if rank_range.is_empty() {
-            return Ok(Vec::new());
-        }
         let list = sqlx::query(
             r"
             SELECT * FROM rated_point_sum
@@ -120,8 +117,8 @@ impl RatedPointSumClient for PgPool {
             OFFSET $1 LIMIT $2;
         ",
         )
-        .bind((rank_range.start) as i64)
-        .bind((rank_range.end - rank_range.start) as i64)
+        .bind(rank_range.start as i64)
+        .bind(rank_range.len() as i64)
         .try_map(|row: PgRow| {
             let user_id: String = row.try_get("user_id")?;
             let point_sum: f64 = row.try_get("point_sum")?;
