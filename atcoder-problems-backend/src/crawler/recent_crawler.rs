@@ -38,8 +38,15 @@ where
                 self.db.update_submissions(&submissions).await?;
                 thread::sleep(time::Duration::from_millis(200));
 
-                if exists || max_page == page {
+                if exists {
                     info!("Finished crawling {}", contest.id);
+                    break;
+                }
+                if page == max_page {
+                    info!(
+                        "Finished crawling {} since it's last page: {}",
+                        contest.id, page
+                    );
                     break;
                 }
             }
