@@ -71,9 +71,10 @@ impl AtCoderClient {
             })
         } else {
             Err(anyhow::anyhow!(
-                "Failed to fetch {}: status={}",
+                "Failed to fetch {}: status={} body={}",
                 url,
-                status
+                status,
+                html
             ))
         }
     }
