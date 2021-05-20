@@ -13,7 +13,7 @@ pub trait RatedPointSumClient {
     async fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> Result<()>;
     async fn get_users_rated_point_sum(&self, user_id: &str) -> Option<f64>;
     async fn get_rated_point_sum_rank(&self, point: f64) -> Result<i64>;
-    async fn load_rated_point_sum_in_range(&self, rank_range: Range<i64>) -> Result<Vec<UserSum>>;
+    async fn load_rated_point_sum_in_range(&self, rank_range: Range<usize>) -> Result<Vec<UserSum>>;
 }
 
 #[async_trait]
@@ -109,12 +109,10 @@ impl RatedPointSumClient for PgPool {
         Ok(rank)
     }
 
-    async fn load_rated_point_sum_in_range(&self, rank_range: Range<i64>) -> Result<Vec<UserSum>> {
+    async fn load_rated_point_sum_in_range(&self, rank_range: Range<usize>) -> Result<Vec<UserSum>> {
         if rank_range.is_empty() {
             return Ok(Vec::new());
         }
-        // Should we also check that the bounds are non-negative?
-        // Which kind of Error should we throw then?
         let list = sqlx::query(
             r"
             SELECT * FROM rated_point_sum
@@ -122,8 +120,8 @@ impl RatedPointSumClient for PgPool {
             OFFSET $1 LIMIT $2;
         ",
         )
-        .bind(rank_range.start)
-        .bind(rank_range.end - rank_range.start)
+        .bind((rank_range.start) as i64)
+        .bind((rank_range.end - rank_range.start) as i64)
         .try_map(|row: PgRow| {
             let user_id: String = row.try_get("user_id")?;
             let point_sum: f64 = row.try_get("point_sum")?;
