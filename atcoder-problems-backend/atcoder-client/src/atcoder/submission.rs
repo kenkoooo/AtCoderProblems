@@ -1,6 +1,6 @@
 use super::AtCoderSubmission;
 
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 
 use chrono::DateTime;
 use regex::Regex;
@@ -151,12 +151,11 @@ mod tests {
         let mut file = File::open("test_resources/abc107_submissions").unwrap();
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
-
         let submissions = scrape(&contents, "abc107").unwrap();
         assert_eq!(submissions.len(), 20);
         assert!(submissions.iter().all(|s| s.user_id.is_ascii()));
 
         let max_page = scrape_submission_page_count(&contents).unwrap();
-        assert_eq!(max_page, 818);
+        assert_eq!(max_page, 2208);
     }
 }
