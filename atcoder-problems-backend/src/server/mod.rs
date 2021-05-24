@@ -1,7 +1,7 @@
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
-    get_recent_submissions, get_user_submissions, get_users_time_submissions,
+    get_recent_submissions, get_user_submissions, get_user_submissions_by_fromtime, get_users_time_submissions,
 };
 pub(crate) mod auth;
 use crate::server::middleware::LogMiddleware;
@@ -90,6 +90,7 @@ where
     api.at("/atcoder-api").nest({
         let mut api = tide::with_state(app_data.clone());
         api.at("/results").get_ah(get_user_submissions);
+        api.at("/results_by_fromtime").get_ah(get_user_submissions_by_fromtime);
         api.at("/v2").nest({
             let mut api = tide::with_state(app_data.clone());
             api.at("/user_info").get_ah(get_user_info);
