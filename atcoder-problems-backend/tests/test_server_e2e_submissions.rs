@@ -99,6 +99,41 @@ async fn test_user_submissions() {
 }
 
 #[async_std::test]
+async fn test_user_submissions_fromtime() {
+    let port = setup().await;
+    let server = task::spawn(async move {
+        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+            .await
+            .unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
+    });
+    task::sleep(std::time::Duration::from_millis(1000)).await;
+
+    let submissions: Vec<Submission> = surf::get(url("/atcoder-api/results_by_fromtime?user=u1&from_second=3", port))
+        .await
+        .unwrap()
+        .body_json()
+        .await
+        .unwrap();
+    assert_eq!(submissions.len(), 2);
+    assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
+    assert_eq!(submissions[0].epoch_second, 3);
+    assert_eq!(submissions[1].epoch_second, 100);
+
+    let mut response = surf::get(url("/atcoder-api/results_by_fromtime?user=u2&from_second=6", port))
+        .await
+        .unwrap();
+    let submissions: Vec<Submission> = response.body_json().await.unwrap();
+    assert_eq!(submissions.len(), 3);
+    assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
+    assert_eq!(submissions[0].epoch_second, 6);
+    assert_eq!(submissions[1].epoch_second, 7);
+    assert_eq!(submissions[2].epoch_second, 200);
+
+    server.race(ready(())).await;
+}
+
+#[async_std::test]
 async fn test_time_submissions() {
     let port = setup().await;
     let server = task::spawn(async move {
