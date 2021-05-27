@@ -117,8 +117,6 @@ async fn test_user_submissions_fromtime() {
         .unwrap();
     assert_eq!(submissions.len(), 2);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
-    assert_eq!(submissions[0].epoch_second, 3);
-    assert_eq!(submissions[1].epoch_second, 100);
 
     let mut response = surf::get(url("/atcoder-api/results_by_fromtime?user=u2&from_second=6", port))
         .await
@@ -129,6 +127,24 @@ async fn test_user_submissions_fromtime() {
     assert_eq!(submissions[0].epoch_second, 6);
     assert_eq!(submissions[1].epoch_second, 7);
     assert_eq!(submissions[2].epoch_second, 200);
+
+    let mut response = surf::get(url("/atcoder-api/results_by_fromtime?user=u3&from_second=0", port))
+        .await
+        .unwrap();
+    let submissions: Vec<Submission> = response.body_json().await.unwrap();
+    assert_eq!(submissions.len(), 0);
+
+    let mut response = surf::get(url("/atcoder-api/results_by_fromtime?user=u1&from_second=-30", port))
+        .await
+        .unwrap();
+    let submissions: Vec<Submission> = response.body_json().await.unwrap();
+    assert_eq!(submissions.len(), 5);
+
+    let mut response = surf::get(url("/atcoder-api/results_by_fromtime?user=u2&from_second=3000", port))
+        .await
+        .unwrap();
+    let submissions: Vec<Submission> = response.body_json().await.unwrap();
+    assert_eq!(submissions.len(), 0);
 
     server.race(ready(())).await;
 }
