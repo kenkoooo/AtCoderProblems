@@ -1,13 +1,20 @@
 use crate::server::{AppData, CommonResponse};
+use serde::Deserialize;
 use sql_client::accepted_count::AcceptedCountClient;
-use std::ops::Range;
 use tide::{Request, Response, Result};
 
 const MAX_RANKING_RANGE_LENGTH: usize = 1_000;
 
+#[derive(Debug, Deserialize)]
+struct Query {
+    start: usize,
+    end: usize,
+}
+
 pub(crate) async fn get_ac_ranking<A>(request: Request<AppData<A>>) -> Result<Response> {
     let conn = request.state().pg_pool.clone();
-    let query = request.query::<Range<usize>>()?;
+    let query = request.query::<Query>()?;
+    let query = (query.start)..(query.end);
     if query.len() > MAX_RANKING_RANGE_LENGTH {
         return Ok(Response::new(400));
     }
