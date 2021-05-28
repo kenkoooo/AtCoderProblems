@@ -90,7 +90,6 @@ where
     api.at("/atcoder-api").nest({
         let mut api = tide::with_state(app_data.clone());
         api.at("/results").get_ah(get_user_submissions);
-        api.at("/results_by_fromtime").get_ah(get_user_submissions_by_fromtime);
         api.at("/v2").nest({
             let mut api = tide::with_state(app_data.clone());
             api.at("/user_info").get_ah(get_user_info);
@@ -101,6 +100,7 @@ where
             api.at("/from/:from").get_ah(get_time_submissions);
             api.at("/recent").get_ah(get_recent_submissions);
             api.at("/users_and_time").get_ah(get_users_time_submissions);
+            api.at("/user/submissions").get_ah(get_user_submissions_by_fromtime);
             api
         });
         api
