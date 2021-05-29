@@ -1,5 +1,6 @@
 import {
   ProblemList,
+  ProgressResetList,
   UserResponse,
   VirtualContestDetails,
   VirtualContestInfo,
@@ -37,5 +38,11 @@ export const useJoinedContests = () => {
 export const useProblemList = (listId: string) => {
   return useSWRData(`${BASE_URL}/list/get/${listId}`, (url) =>
     typeCastFetcher<ProblemList>(url)
+  );
+};
+
+export const useProgressResetList = () => {
+  return useSWRData(`${BASE_URL}/progress_reset/list`, (url) =>
+    typeCastFetcher<ProgressResetList>(url)
   );
 };
