@@ -265,6 +265,8 @@ export const ContestConfigProblemTable: React.FC<Props> = (props) => {
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const options: Options<{ [key in ProblemRowDataField]: any }> = {
+    noDataText:
+      "You have not added any problems yet. Use the search box below to search for problems to add to the contest.",
     onSortChange: (sortName: string, sortOrder: string) => {
       const newProblemSet = [...problemSet];
       const p = [];
