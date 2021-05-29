@@ -29,6 +29,7 @@ import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { HelpBadgeModal } from "../../../components/HelpBadgeModal";
 import { ContestConfigProblemList } from "./ContestConfigProblemList";
+import { ContestConfigProblemTable } from "./ContestConfigProblemTable";
 
 const toUnixSecond = (date: string, hour: number, minute: number): number => {
   const hh = hour < 10 ? `0${hour}` : hour.toString();
@@ -51,6 +52,7 @@ export const ContestConfig: React.FC<Props> = (props) => {
   const [problemSet, setProblemSet] = useState(props.initialProblems.toArray());
   const [mode, setMode] = useState(props.initialMode);
   const [publicState, setPublicState] = useState(props.initialPublicState);
+  const [ABTestFlag, setABTestFlag] = useState(false); // TODO monkukui: delete AB Test Flag
   const [penaltySecond, setPenaltySecond] = useState(
     props.initialPenaltySecond
   );
@@ -304,18 +306,34 @@ export const ContestConfig: React.FC<Props> = (props) => {
 
       <h2 className="my-3">Contest Problemset</h2>
 
-      <Row className="my-2">
-        <Col>
-          <ContestConfigProblemList
-            onSolvedProblemsFetchFinished={(errorMessage): void => {
-              setExpectedParticipantsInputErrorMessage(errorMessage || "");
-            }}
-            problemSet={problemSet}
-            setProblemSet={setProblemSet}
-            expectedParticipantUserIds={expectedParticipantUserIds}
-          />
-        </Col>
-      </Row>
+      <Button onClick={() => setABTestFlag(!ABTestFlag)}>ABTest Button</Button>
+      {ABTestFlag ? (
+        <Row className="my-2">
+          <Col>
+            <ContestConfigProblemTable
+              onSolvedProblemsFetchFinished={(errorMessage): void => {
+                setExpectedParticipantsInputErrorMessage(errorMessage || "");
+              }}
+              problemSet={problemSet}
+              setProblemSet={setProblemSet}
+              expectedParticipantUserIds={expectedParticipantUserIds}
+            />
+          </Col>
+        </Row>
+      ) : (
+        <Row className="my-2">
+          <Col>
+            <ContestConfigProblemList
+              onSolvedProblemsFetchFinished={(errorMessage): void => {
+                setExpectedParticipantsInputErrorMessage(errorMessage || "");
+              }}
+              problemSet={problemSet}
+              setProblemSet={setProblemSet}
+              expectedParticipantUserIds={expectedParticipantUserIds}
+            />
+          </Col>
+        </Row>
+      )}
 
       <Row className="my-2">
         <Col>
