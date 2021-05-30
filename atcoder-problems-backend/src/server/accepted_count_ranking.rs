@@ -8,12 +8,12 @@ const MAX_RANKING_RANGE_LENGTH: usize = 1_000;
 pub(crate) async fn get_ac_ranking<A>(request: Request<AppData<A>>) -> Result<Response> {
     #[derive(Debug, Deserialize)]
     struct Query {
-        start: usize,
-        end: usize,
+        from: usize,
+        to: usize,
     }
     let conn = request.state().pg_pool.clone();
     let query = request.query::<Query>()?;
-    let query = (query.start)..(query.end);
+    let query = (query.from)..(query.to);
     if query.len() > MAX_RANKING_RANGE_LENGTH {
         return Ok(Response::new(400));
     }
