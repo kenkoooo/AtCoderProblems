@@ -64,7 +64,7 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=chokudai&from_
 
 ### [Deprecated] ~~User Submissions~~
 
-This API is deprecated. Please use X instead. You can see more detail about the deprecation plan ([#961](https://github.com/kenkoooo/AtCoderProblems/issues/961)).
+This API is deprecated. Please use `/v3/user/submissions` instead. You can see more detail about the deprecation plan ([#961](https://github.com/kenkoooo/AtCoderProblems/issues/961)).
 
 #### Interface
 
