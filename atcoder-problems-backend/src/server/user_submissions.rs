@@ -20,6 +20,25 @@ pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Res
     Ok(response)
 }
 
+pub(crate) async fn get_user_submissions_by_fromtime<A>(request: Request<AppData<A>>) -> Result<Response> {
+    #[derive(Deserialize, Debug)]
+    struct Query {
+        user: String,
+        from_second: i64,
+    }
+    let conn = request.state().pg_pool.clone();
+    let query = request.query::<Query>()?;
+    let user_id = &query.user;
+    let submissions = conn
+        .get_submissions(SubmissionRequest::FromUserAndTime {
+            user_id: user_id,
+            from_second: query.from_second
+        })
+        .await?;
+    let response = Response::json(&submissions)?.make_cors();
+    Ok(response)
+}
+
 pub(crate) async fn get_recent_submissions<A>(request: Request<AppData<A>>) -> Result<Response> {
     let conn = request.state().pg_pool.clone();
     let submissions = conn
