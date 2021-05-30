@@ -1,3 +1,4 @@
+use crate::server::accepted_count_ranking::get_ac_ranking;
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
@@ -14,6 +15,7 @@ pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 use sql_client::PgPool;
 use tide::{Result, StatusCode};
 
+pub(crate) mod accepted_count_ranking;
 pub(crate) mod internal_user;
 pub(crate) mod middleware;
 pub(crate) mod problem_list;
@@ -97,6 +99,7 @@ where
         });
         api.at("/v3").nest({
             let mut api = tide::with_state(app_data.clone());
+            api.at("/ac_ranking").get_ah(get_ac_ranking);
             api.at("/from/:from").get_ah(get_time_submissions);
             api.at("/recent").get_ah(get_recent_submissions);
             api.at("/users_and_time").get_ah(get_users_time_submissions);
