@@ -4,6 +4,8 @@ use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 use tide::http::headers::CACHE_CONTROL;
 use tide::{Request, Response, Result};
 
+const USER_SUBMISSION_LIMIT: usize = 500;
+
 pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Result<Response> {
     #[derive(Deserialize, Debug)]
     struct Query {
@@ -20,7 +22,9 @@ pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Res
     Ok(response)
 }
 
-pub(crate) async fn get_user_submissions_by_fromtime<A>(request: Request<AppData<A>>) -> Result<Response> {
+pub(crate) async fn get_user_submissions_from_time<A>(
+    request: Request<AppData<A>>,
+) -> Result<Response> {
     #[derive(Deserialize, Debug)]
     struct Query {
         user: String,
@@ -31,8 +35,9 @@ pub(crate) async fn get_user_submissions_by_fromtime<A>(request: Request<AppData
     let user_id = &query.user;
     let submissions = conn
         .get_submissions(SubmissionRequest::FromUserAndTime {
-            user_id: user_id,
-            from_second: query.from_second
+            user_id,
+            from_second: query.from_second,
+            count: USER_SUBMISSION_LIMIT,
         })
         .await?;
     let response = Response::json(&submissions)?.make_cors();
