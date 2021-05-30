@@ -75,6 +75,7 @@ async fn test_submission_client() {
     let request = SubmissionRequest::FromUserAndTime {
         user_id: "usEr1",
         from_second: 300,
+        count: 1000,
     };
     let submissions = pool.get_submissions(request).await.unwrap();
     assert_eq!(submissions.len(), 2);
@@ -82,8 +83,17 @@ async fn test_submission_client() {
     assert_eq!(submissions[1].result, "AC".to_owned());
 
     let request = SubmissionRequest::FromUserAndTime {
+        user_id: "usEr1",
+        from_second: 300,
+        count: 1,
+    };
+    let submissions = pool.get_submissions(request).await.unwrap();
+    assert_eq!(submissions.len(), 1);
+
+    let request = SubmissionRequest::FromUserAndTime {
         user_id: "user3",
         from_second: 300,
+        count: 1000,
     };
     let submissions = pool.get_submissions(request).await.unwrap();
     assert_eq!(submissions.len(), 0);

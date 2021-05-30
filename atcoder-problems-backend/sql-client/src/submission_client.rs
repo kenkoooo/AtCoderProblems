@@ -22,6 +22,7 @@ pub enum SubmissionRequest<'a> {
     FromUserAndTime {
         user_id: &'a str,
         from_second: i64,
+        count: usize,
     },
     RecentAccepted {
         count: i64,
@@ -84,16 +85,22 @@ impl SubmissionClient for PgPool {
             .bind(from_second)
             .bind(count)
             .fetch_all(self),
-            SubmissionRequest::FromUserAndTime { user_id, from_second } => sqlx::query_as(
+            SubmissionRequest::FromUserAndTime {
+                user_id,
+                from_second,
+                count,
+            } => sqlx::query_as(
                 r"
                          SELECT * FROM submissions
                          WHERE LOWER(user_id) = LOWER($1)
                          AND epoch_second >= $2
                          ORDER BY epoch_second ASC
+                         LIMIT $3
                          ",
             )
             .bind(user_id)
             .bind(from_second)
+            .bind(count as i64)
             .fetch_all(self),
             SubmissionRequest::RecentAccepted { count } => sqlx::query_as(
                 r"
