@@ -2,7 +2,8 @@ use crate::server::accepted_count_ranking::get_ac_ranking;
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
-    get_recent_submissions, get_user_submissions, get_user_submissions_by_fromtime, get_users_time_submissions,
+    get_recent_submissions, get_user_submissions, get_user_submissions_from_time,
+    get_users_time_submissions,
 };
 pub(crate) mod auth;
 use crate::server::middleware::LogMiddleware;
@@ -103,7 +104,8 @@ where
             api.at("/from/:from").get_ah(get_time_submissions);
             api.at("/recent").get_ah(get_recent_submissions);
             api.at("/users_and_time").get_ah(get_users_time_submissions);
-            api.at("/user/submissions").get_ah(get_user_submissions_by_fromtime);
+            api.at("/user/submissions")
+                .get_ah(get_user_submissions_from_time);
             api
         });
         api
