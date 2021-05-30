@@ -53,7 +53,7 @@ async fn test_ac_ranking() {
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?start=0&end=10", port))
+    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=0&to=10", port))
         .recv_json::<Value>()
         .await
         .unwrap();
@@ -66,7 +66,7 @@ async fn test_ac_ranking() {
         ])
     );
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?start=1&end=3", port))
+    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=1&to=3", port))
         .recv_json::<Value>()
         .await
         .unwrap();
@@ -78,18 +78,18 @@ async fn test_ac_ranking() {
         ])
     );
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?start=10&end=0", port))
+    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=10&to=0", port))
         .recv_json::<Value>()
         .await
         .unwrap();
     assert_eq!(response.as_array().unwrap().len(), 0);
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?start=0&end=2000", port))
+    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=0&to=2000", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 400);
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?start=-1&end=10", port))
+    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=-1&to=10", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 400);
