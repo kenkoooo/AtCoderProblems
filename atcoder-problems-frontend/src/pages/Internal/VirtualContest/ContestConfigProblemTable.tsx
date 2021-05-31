@@ -5,6 +5,9 @@ import {
   BootstrapTable,
   TableHeaderColumn,
   Options,
+  CellEdit,
+  CustomEditor,
+  CustomEditorProps,
 } from "react-bootstrap-table";
 import * as Url from "../../../utils/Url";
 import ProblemModel, {
@@ -45,7 +48,7 @@ interface Props {
 }
 
 export const ContestConfigProblemTable: React.FC<Props> = (props) => {
-  const { problemSet } = props;
+  const { problemSet, setProblemSet } = props;
   const problemMap = useProblemMap();
   const problemModels = useProblemModelMap();
   const solvedProblemIdsByUser = (
@@ -86,7 +89,10 @@ export const ContestConfigProblemTable: React.FC<Props> = (props) => {
   const columns: {
     header: string;
     dataField: ProblemRowDataField;
+    width?: string;
     dataSort?: boolean;
+    customEditor?: CustomEditor<ProblemRowData, keyof ProblemRowData>;
+    editable: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dataFormat?: (cell: any, row: ProblemRowData) => ReactElement | string;
     sortFunc?: (
@@ -98,6 +104,7 @@ export const ContestConfigProblemTable: React.FC<Props> = (props) => {
     {
       header: "Problem",
       dataField: "problem",
+      editable: false,
       dataFormat: function DataFormat(_, row): ReactElement {
         return (
           <>
@@ -123,10 +130,11 @@ export const ContestConfigProblemTable: React.FC<Props> = (props) => {
     {
       header: "Contest",
       dataField: "contest",
+      editable: false,
       dataFormat: function DataFormat(
         contest: Contest | undefined,
         row: ProblemRowData
-      ): React.ReactElement {
+      ): ReactElement {
         return contest ? (
           <ContestLink contest={contest} />
         ) : (
@@ -145,13 +153,15 @@ export const ContestConfigProblemTable: React.FC<Props> = (props) => {
       },
     },
     {
-      header: "Difficulty",
+      header: "Difficulty (sortable)",
       dataField: "problemModel",
+      editable: false,
       dataSort: true,
+      width: "150px",
       sortFunc: (a, b): number => {
         return a.index - b.index;
       },
-      dataFormat: (problemModel: ProblemModel): React.ReactElement => {
+      dataFormat: (problemModel: ProblemModel): ReactElement => {
         if (!isProblemModelWithDifficultyModel(problemModel)) {
           return <>-</>;
         } else {
@@ -160,68 +170,66 @@ export const ContestConfigProblemTable: React.FC<Props> = (props) => {
       },
     },
     {
+      header: "Point (editable)",
+      dataField: "point",
+      dataSort: false,
+      editable: true,
+      width: "150px",
+      customEditor: {
+        getElement(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onUpdate: (updatedCell: any) => void,
+          props: CustomEditorProps<ProblemRowData, keyof ProblemRowData>
+        ): ReactElement {
+          // TODO monkukui: これは取り除きたい
+          // eslint-disable-next-line @typescript-eslint/unbound-method
+          const { row, onKeyDown, onBlur } = props;
+          return (
+            <InputGroup size="sm">
+              <Input
+                type="number"
+                autoFocus={true}
+                onBlur={onBlur}
+                onKeyDown={onKeyDown}
+                defaultValue={row.point ? row.point : undefined}
+                onChange={(e): void => {
+                  const parse = parseInt(e.target.value, 10);
+                  const point = !isNaN(parse) ? parse : null;
+                  const newProblemSet = [...problemSet];
+                  newProblemSet[row.index] = {
+                    ...problemSet[row.index],
+                    point,
+                  };
+                  setProblemSet(newProblemSet);
+                }}
+              />
+            </InputGroup>
+          );
+        },
+      },
+      dataFormat: function DataFormat(_, row): ReactElement {
+        if (row.point === null) {
+          return <>-</>;
+        }
+        return <>{row.point}</>;
+      },
+    },
+    {
       header: "Setting",
       dataField: "swap",
-      dataFormat: function DataFormat(_, row): React.ReactElement {
+      editable: false,
+      width: "120px",
+      dataFormat: function DataFormat(_, row): ReactElement {
         return (
           <>
             <Button
               close
               style={{ marginRight: "1rem" }}
               onClick={(): void => {
-                props.setProblemSet(problemSet.filter((x) => x.id !== row.id));
+                setProblemSet(problemSet.filter((x) => x.id !== row.id));
               }}
             />
-            <ButtonGroup
-              size="sm"
-              style={{ float: "right", marginRight: "1rem" }}
-            >
-              {row.point === null ? (
-                <Button
-                  onClick={(): void => {
-                    const newProblemSet = [...problemSet];
-                    newProblemSet[row.index] = {
-                      ...problemSet[row.index],
-                      point: 0,
-                    };
-                    props.setProblemSet(newProblemSet);
-                  }}
-                >
-                  Set Point
-                </Button>
-              ) : null}
-              {row.point !== null ? (
-                <InputGroup size="sm">
-                  <Input
-                    type="number"
-                    defaultValue={row.point}
-                    onChange={(e): void => {
-                      const parse = parseInt(e.target.value, 10);
-                      const point = !isNaN(parse) ? parse : 0;
-                      const newProblemSet = [...problemSet];
-                      newProblemSet[row.index] = {
-                        ...problemSet[row.index],
-                        point,
-                      };
-                      props.setProblemSet(newProblemSet);
-                    }}
-                  />
-                  <ButtonGroup size="sm">
-                    <Button
-                      onClick={(): void => {
-                        const newProblemSet = [...problemSet];
-                        newProblemSet[row.index] = {
-                          ...problemSet[row.index],
-                          point: null,
-                        };
-                        props.setProblemSet(newProblemSet);
-                      }}
-                    >
-                      Unset
-                    </Button>
-                  </ButtonGroup>
-                </InputGroup>
-              ) : null}
+            <ButtonGroup size="sm" style={{ marginRight: "1rem" }}>
               <Button
                 disabled={row.index === 0}
                 onClick={(): void => {
@@ -231,7 +239,7 @@ export const ContestConfigProblemTable: React.FC<Props> = (props) => {
                     const newProblemSet = [...problemSet];
                     newProblemSet[row.index - 1] = nextFirst;
                     newProblemSet[row.index] = nextSecond;
-                    props.setProblemSet(newProblemSet);
+                    setProblemSet(newProblemSet);
                   }
                 }}
               >
@@ -246,7 +254,7 @@ export const ContestConfigProblemTable: React.FC<Props> = (props) => {
                     const newProblemSet = [...problemSet];
                     newProblemSet[row.index] = nextFirst;
                     newProblemSet[row.index + 1] = nextSecond;
-                    props.setProblemSet(newProblemSet);
+                    setProblemSet(newProblemSet);
                   }
                 }}
               >
@@ -277,25 +285,32 @@ export const ContestConfigProblemTable: React.FC<Props> = (props) => {
         const aD = getDifficultyByIndex(a);
         const bD = getDifficultyByIndex(b);
         const delta = aD - bD;
-        const sign = sortOrder === "asc" ? 1 : -1;
+        const sign = sortOrder === "asc" ? -1 : 1;
         return delta * sign;
       });
 
       for (let i = 0; i < problemSet.length; i++) {
         newProblemSet[i] = problemSet[p[i]];
       }
-      props.setProblemSet(newProblemSet);
+      setProblemSet(newProblemSet);
     },
+  };
+  const cellEdit: CellEdit = {
+    mode: "click",
+    blurToEscape: true,
   };
   return (
     <>
+      <h5 className="m-6">Selected {problemSet.length} Problem</h5>
       <BootstrapTable
         keyField="id"
         tableContainerClass="list-table"
         striped
         data={rowData}
         options={options}
-        height="auto"
+        cellEdit={cellEdit}
+        hover={true}
+        maxHeight="500"
         trStyle={(row: ProblemRowData): React.CSSProperties => {
           return row && row.solvedUsers && row.solvedUsers.length > 0
             ? { backgroundColor: "#ffeeee" }
