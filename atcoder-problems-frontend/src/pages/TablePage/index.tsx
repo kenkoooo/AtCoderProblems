@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { connect, PromiseState } from "react-refetch";
 import { List, Set as ImmutableSet } from "immutable";
 import {
   useContests,
@@ -8,13 +7,15 @@ import {
   useUserSubmission,
   useMultipleUserSubmissions,
 } from "../../api/APIClient";
-import { useLoginState } from "../../api/InternalAPIClient";
+import {
+  useLoginState,
+  useProgressResetList,
+} from "../../api/InternalAPIClient";
 import Problem from "../../interfaces/Problem";
 import { constructStatusLabelMap, ContestId } from "../../interfaces/Status";
 import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
-import { filterResetProgress, ProgressResetList } from "../Internal/types";
-import { PROGRESS_RESET_LIST } from "../Internal/ApiUrl";
+import { filterResetProgress } from "../Internal/types";
 import { loggedInUserId } from "../../utils/UserState";
 import { classifyContest, ContestCategory } from "./ContestClassifier";
 import { TableTabButtons } from "./TableTab";
@@ -27,11 +28,7 @@ interface OuterProps {
   rivals: List<string>;
 }
 
-interface InnerProps extends OuterProps {
-  readonly progressResetList: PromiseState<ProgressResetList | null>;
-}
-
-const InnerTablePage: React.FC<InnerProps> = (props) => {
+export const TablePage: React.FC<OuterProps> = (props) => {
   const [activeTab, setActiveTab] = useLocalStorage<ContestCategory>(
     "contestTableTab",
     "ABC"
@@ -67,10 +64,7 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
       .data ?? [];
   const loginState = useLoginState().data;
   const loginUserId = loggedInUserId(loginState);
-  const progressReset =
-    props.progressResetList.fulfilled && props.progressResetList.value
-      ? props.progressResetList.value
-      : undefined;
+  const progressReset = useProgressResetList().data;
 
   const filteredSubmissions =
     loginUserId && progressReset
@@ -148,7 +142,3 @@ const InnerTablePage: React.FC<InnerProps> = (props) => {
     </div>
   );
 };
-
-export const TablePage = connect<OuterProps, InnerProps>(() => ({
-  progressResetList: PROGRESS_RESET_LIST,
-}))(InnerTablePage);
