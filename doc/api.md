@@ -29,7 +29,12 @@ We unofficially provide API to get information about AtCoder.
 
 ### Accepted Count
 
-- https://kenkoooo.com/atcoder/resources/ac.json
+#### Example
+```
+https://kenkoooo.com/atcoder/atcoder-api/v3/ac_ranking?from=0&to=10
+```
+
+Deprecated ~~https://kenkoooo.com/atcoder/resources/ac.json~~
 
 ### Rated Point Sum
 
