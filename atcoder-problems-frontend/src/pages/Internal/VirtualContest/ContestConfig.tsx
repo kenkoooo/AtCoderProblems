@@ -28,8 +28,8 @@ import {
 import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { HelpBadgeModal } from "../../../components/HelpBadgeModal";
+import { DraggableContestConfigProblemTable } from "./DraggableContestConfigProblemTable";
 import { ContestConfigProblemList } from "./ContestConfigProblemList";
-import { ContestConfigProblemTable } from "./ContestConfigProblemTable";
 
 const toUnixSecond = (date: string, hour: number, minute: number): number => {
   const hh = hour < 10 ? `0${hour}` : hour.toString();
@@ -310,7 +310,7 @@ export const ContestConfig: React.FC<Props> = (props) => {
       {ABTestFlag ? (
         <Row className="my-2">
           <Col>
-            <ContestConfigProblemTable
+            <DraggableContestConfigProblemTable
               onSolvedProblemsFetchFinished={(errorMessage): void => {
                 setExpectedParticipantsInputErrorMessage(errorMessage || "");
               }}
