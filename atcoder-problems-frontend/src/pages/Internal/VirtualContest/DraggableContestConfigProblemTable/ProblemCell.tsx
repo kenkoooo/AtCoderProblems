@@ -1,11 +1,14 @@
 import React from "react";
 import { ProblemLink } from "../../../../components/ProblemLink";
-import { ProblemRowData } from "./index";
+import Problem from "../../../../interfaces/Problem";
+import ProblemModel from "../../../../interfaces/ProblemModel";
 
-type ProblemCellProps = Pick<
-  ProblemRowData,
-  "id" | "problem" | "problemModel" | "solvedUsers"
->;
+interface ProblemCellProps {
+  id: string;
+  problem?: Problem;
+  problemModel?: ProblemModel;
+  solvedUsers?: string[];
+}
 export const ProblemCell: React.FC<ProblemCellProps> = ({
   id,
   problem,

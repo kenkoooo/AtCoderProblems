@@ -1,11 +1,13 @@
 import React from "react";
 import { Input, InputGroup } from "reactstrap";
-import { ProblemRowData, Props } from "./index";
+import { VirtualContestItem } from "../../types";
 
-type PointCellProps = Pick<
-  Props & ProblemRowData,
-  "index" | "point" | "problemSet" | "setProblemSet"
->;
+interface PointCellProps {
+  index: number;
+  point: number | null;
+  problemSet: VirtualContestItem[];
+  setProblemSet: (newProblemSet: VirtualContestItem[]) => void;
+}
 export const PointCell: React.FC<PointCellProps> = ({
   index,
   point,

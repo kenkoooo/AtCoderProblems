@@ -1,8 +1,10 @@
 import React from "react";
 import { ContestLink } from "../../../../components/ContestLink";
-import { ProblemRowData } from "./index";
+import Contest from "../../../../interfaces/Contest";
 
-type ContestCellProps = Pick<ProblemRowData, "contest">;
+interface ContestCellProps {
+  contest?: Contest;
+}
 export const ContestCell: React.FC<ContestCellProps> = ({ contest }) => {
   return (
     <td style={{ width: "40%" }}>
