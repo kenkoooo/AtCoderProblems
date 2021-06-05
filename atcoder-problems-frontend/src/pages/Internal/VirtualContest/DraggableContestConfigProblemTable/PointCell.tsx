@@ -4,13 +4,13 @@ import { VirtualContestItem } from "../../types";
 
 interface PointCellProps {
   index: number;
-  point: number | null;
+  currentPoint: number | null;
   problemSet: VirtualContestItem[];
   setProblemSet: (newProblemSet: VirtualContestItem[]) => void;
 }
 export const PointCell: React.FC<PointCellProps> = ({
   index,
-  point,
+  currentPoint,
   problemSet,
   setProblemSet,
 }) => {
@@ -37,7 +37,7 @@ export const PointCell: React.FC<PointCellProps> = ({
           <Input
             type="number"
             autoFocus={true}
-            defaultValue={point ? point : undefined}
+            defaultValue={currentPoint ? currentPoint : undefined}
             onBlur={() => {
               setEditCell(false);
             }}
@@ -59,7 +59,7 @@ export const PointCell: React.FC<PointCellProps> = ({
           />
         </InputGroup>
       ) : (
-        <>{point === null ? <>-</> : <>{point}</>}</>
+        <>{currentPoint !== null ? <>{currentPoint}</> : <>-</>}</>
       )}
     </td>
   );

@@ -240,7 +240,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
                         <DifficultyCell problemModel={row.problemModel} />
                         <PointCell
                           index={row.index}
-                          point={row.point}
+                          currentPoint={row.point}
                           problemSet={props.problemSet}
                           setProblemSet={props.setProblemSet}
                         />
