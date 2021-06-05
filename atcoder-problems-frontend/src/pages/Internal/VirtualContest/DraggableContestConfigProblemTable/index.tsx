@@ -239,10 +239,15 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
                         <ContestCell contest={row.contest} />
                         <DifficultyCell problemModel={row.problemModel} />
                         <PointCell
-                          index={row.index}
                           currentPoint={row.point}
-                          problemSet={props.problemSet}
-                          setProblemSet={props.setProblemSet}
+                          setProblemPoint={(point: number | null) => {
+                            const newProblemSet = [...problemSet];
+                            newProblemSet[row.index] = {
+                              ...problemSet[row.index],
+                              point,
+                            };
+                            setProblemSet(newProblemSet);
+                          }}
                         />
                         <DeleteCell
                           onDelete={() => {
