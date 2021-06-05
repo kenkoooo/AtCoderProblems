@@ -8,10 +8,10 @@ export const DifficultyCell: React.FC<DifficultyCellProps> = ({
 }) => {
   return (
     <td style={{ width: "10%" }}>
-      {!isProblemModelWithDifficultyModel(problemModel) ? (
-        <>-</>
-      ) : (
+      {isProblemModelWithDifficultyModel(problemModel) ? (
         <>{problemModel.difficulty}</>
+      ) : (
+        <>-</>
       )}
     </td>
   );
