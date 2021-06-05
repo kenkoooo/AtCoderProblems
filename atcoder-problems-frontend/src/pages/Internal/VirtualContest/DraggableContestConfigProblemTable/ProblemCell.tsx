@@ -4,13 +4,13 @@ import Problem from "../../../../interfaces/Problem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 
 interface ProblemCellProps {
-  id: string;
+  problemId: string;
   problem?: Problem;
   problemModel?: ProblemModel;
   solvedUsers?: string[];
 }
 export const ProblemCell: React.FC<ProblemCellProps> = ({
-  id,
+  problemId,
   problem,
   problemModel,
   solvedUsers,
@@ -27,7 +27,7 @@ export const ProblemCell: React.FC<ProblemCellProps> = ({
           isExperimentalDifficulty={problemModel?.is_experimental}
         />
       ) : (
-        id
+        problemId
       )}
       {solvedUsers && solvedUsers.length > 0 && (
         <> solved by {solvedUsers.join(", ")}</>

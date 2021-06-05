@@ -231,7 +231,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
                         )}
                       >
                         <ProblemCell
-                          id={row.id}
+                          problemId={row.id}
                           problem={row.problem}
                           problemModel={row.problemModel}
                           solvedUsers={row.solvedUsers}
