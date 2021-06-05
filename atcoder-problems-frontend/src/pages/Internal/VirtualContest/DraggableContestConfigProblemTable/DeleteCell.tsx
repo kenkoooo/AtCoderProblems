@@ -1,11 +1,12 @@
 import React from "react";
 import { Button } from "reactstrap";
-import { ProblemRowData, Props } from "./index";
+import { VirtualContestItem } from "../../types";
 
-type DeleteCellProps = Pick<
-  Props & ProblemRowData,
-  "id" | "problemSet" | "setProblemSet"
->;
+interface DeleteCellProps {
+  id: string;
+  problemSet: VirtualContestItem[];
+  setProblemSet: (newProblemSet: VirtualContestItem[]) => void;
+}
 export const DeleteCell: React.FC<DeleteCellProps> = ({
   id,
   problemSet,

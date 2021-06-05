@@ -1,8 +1,11 @@
 import React from "react";
-import { isProblemModelWithDifficultyModel } from "../../../../interfaces/ProblemModel";
-import { ProblemRowData } from "./index";
+import ProblemModel, {
+  isProblemModelWithDifficultyModel,
+} from "../../../../interfaces/ProblemModel";
 
-type DifficultyCellProps = Pick<ProblemRowData, "problemModel">;
+interface DifficultyCellProps {
+  problemModel?: ProblemModel;
+}
 export const DifficultyCell: React.FC<DifficultyCellProps> = ({
   problemModel,
 }) => {

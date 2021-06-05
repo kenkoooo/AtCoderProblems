@@ -1,11 +1,13 @@
 import React from "react";
 import { VirtualContestItem } from "../../types";
-import { ProblemHeaderData, Props } from "./index";
 
-type TableHeaderProps = Pick<
-  Props & ProblemHeaderData,
-  "text" | "less" | "problemSet" | "setProblemSet"
->;
+interface TableHeaderProps {
+  text: string;
+  less?: (a: VirtualContestItem, b: VirtualContestItem) => number;
+  problemSet: VirtualContestItem[];
+  setProblemSet: (newProblemSet: VirtualContestItem[]) => void;
+}
+
 export const TableHeader: React.FC<TableHeaderProps> = ({
   text,
   less,
