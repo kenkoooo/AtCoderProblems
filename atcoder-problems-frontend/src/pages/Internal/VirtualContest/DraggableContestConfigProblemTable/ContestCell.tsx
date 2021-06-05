@@ -8,7 +8,7 @@ interface ContestCellProps {
 export const ContestCell: React.FC<ContestCellProps> = ({ contest }) => {
   return (
     <td style={{ width: "40%" }}>
-      {contest ? <ContestLink contest={contest} /> : null}
+      {contest && <ContestLink contest={contest} />}
     </td>
   );
 };

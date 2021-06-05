@@ -3,12 +3,12 @@ import { Button } from "reactstrap";
 import { VirtualContestItem } from "../../types";
 
 interface DeleteCellProps {
-  id: string;
+  problemId: string;
   problemSet: VirtualContestItem[];
   setProblemSet: (newProblemSet: VirtualContestItem[]) => void;
 }
 export const DeleteCell: React.FC<DeleteCellProps> = ({
-  id,
+  problemId,
   problemSet,
   setProblemSet,
 }) => {
@@ -17,7 +17,7 @@ export const DeleteCell: React.FC<DeleteCellProps> = ({
       <Button
         close
         onClick={(): void => {
-          setProblemSet(problemSet.filter((x) => x.id !== id));
+          setProblemSet(problemSet.filter((x) => x.id !== problemId));
         }}
       />
     </td>
