@@ -245,7 +245,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
                           setProblemSet={props.setProblemSet}
                         />
                         <DeleteCell
-                          id={row.id}
+                          problemId={row.id}
                           problemSet={props.problemSet}
                           setProblemSet={props.setProblemSet}
                         />
