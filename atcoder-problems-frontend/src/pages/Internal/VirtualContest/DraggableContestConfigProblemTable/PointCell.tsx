@@ -40,7 +40,7 @@ export const PointCell: React.FC<PointCellProps> = ({
               setEditCell(false);
             }}
             onKeyPress={(target) => {
-              if (target.charCode == 13) {
+              if (target.key == "Enter") {
                 setEditCell(false);
               }
             }}
