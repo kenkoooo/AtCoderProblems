@@ -209,7 +209,8 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
                       key={index}
                       problemSet={problemSet}
                       setProblemSet={setProblemSet}
-                      {...header}
+                      text={header.text}
+                      less={header.less}
                     />
                   ))}
                 </tr>
@@ -229,11 +230,25 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
                           provided.draggableProps.style
                         )}
                       >
-                        <ProblemCell {...row} {...props} />
-                        <ContestCell {...row} {...props} />
-                        <DifficultyCell {...row} {...props} />
-                        <PointCell {...row} {...props} />
-                        <DeleteCell {...row} {...props} />
+                        <ProblemCell
+                          id={row.id}
+                          problem={row.problem}
+                          problemModel={row.problemModel}
+                          solvedUsers={row.solvedUsers}
+                        />
+                        <ContestCell contest={row.contest} />
+                        <DifficultyCell problemModel={row.problemModel} />
+                        <PointCell
+                          index={row.index}
+                          point={row.point}
+                          problemSet={props.problemSet}
+                          setProblemSet={props.setProblemSet}
+                        />
+                        <DeleteCell
+                          id={row.id}
+                          problemSet={props.problemSet}
+                          setProblemSet={props.setProblemSet}
+                        />
                       </tr>
                     )}
                   </Draggable>
