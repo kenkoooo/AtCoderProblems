@@ -7,12 +7,7 @@ interface DeleteCellProps {
 export const DeleteCell: React.FC<DeleteCellProps> = ({ onDelete }) => {
   return (
     <td style={{ width: "5px" }}>
-      <Button
-        close
-        onClick={() => {
-          onDelete();
-        }}
-      />
+      <Button close onClick={onDelete} />
     </td>
   );
 };
