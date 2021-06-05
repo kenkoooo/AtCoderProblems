@@ -1,18 +1,13 @@
 import React from "react";
 import { Input, InputGroup } from "reactstrap";
-import { VirtualContestItem } from "../../types";
 
 interface PointCellProps {
-  index: number;
   currentPoint: number | null;
-  problemSet: VirtualContestItem[];
-  setProblemSet: (newProblemSet: VirtualContestItem[]) => void;
+  setProblemPoint: (point: number | null) => void;
 }
 export const PointCell: React.FC<PointCellProps> = ({
-  index,
   currentPoint,
-  problemSet,
-  setProblemSet,
+  setProblemPoint,
 }) => {
   const [editCell, setEditCell] = React.useState<boolean>(false);
   const [mouseOver, setMouseOver] = React.useState<boolean>(false);
@@ -49,12 +44,7 @@ export const PointCell: React.FC<PointCellProps> = ({
             onChange={(e): void => {
               const parse = parseInt(e.target.value, 10);
               const point = !isNaN(parse) ? parse : null;
-              const newProblemSet = [...problemSet];
-              newProblemSet[index] = {
-                ...problemSet[index],
-                point,
-              };
-              setProblemSet(newProblemSet);
+              setProblemPoint(point);
             }}
           />
         </InputGroup>
