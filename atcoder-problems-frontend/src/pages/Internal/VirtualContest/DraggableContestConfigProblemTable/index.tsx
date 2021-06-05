@@ -201,7 +201,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
             ref={provided.innerRef}
             style={{ fontSize: "80%" }}
           >
-            <Table striped hover bordered responsive size="sm">
+            <Table hover bordered responsive size="sm">
               <thead>
                 <tr>
                   {headerData.map((header, index) => (
