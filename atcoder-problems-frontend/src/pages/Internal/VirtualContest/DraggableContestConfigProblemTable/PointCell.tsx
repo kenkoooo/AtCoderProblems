@@ -13,9 +13,19 @@ export const PointCell: React.FC<PointCellProps> = ({
   setProblemSet,
 }) => {
   const [editCell, setEditCell] = React.useState<boolean>(false);
+  const [mouseOver, setMouseOver] = React.useState<boolean>(false);
   return (
     <td
-      style={{ width: "10%" }}
+      onMouseOver={() => {
+        setMouseOver(true);
+      }}
+      onMouseLeave={() => {
+        setMouseOver(false);
+      }}
+      style={{
+        width: "10%",
+        backgroundColor: mouseOver && !editCell ? "darkgrey" : "",
+      }}
       onClick={() => {
         setEditCell(true);
       }}
@@ -28,6 +38,11 @@ export const PointCell: React.FC<PointCellProps> = ({
             defaultValue={point ? point : undefined}
             onBlur={() => {
               setEditCell(false);
+            }}
+            onKeyPress={(target) => {
+              if (target.charCode == 13) {
+                setEditCell(false);
+              }
             }}
             onChange={(e): void => {
               const parse = parseInt(e.target.value, 10);
