@@ -2,9 +2,10 @@ import React from "react";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import Problem from "../../../../interfaces/Problem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
+import { ProblemId } from "../../../../interfaces/Status";
 
 interface ProblemCellProps {
-  problemId: string;
+  problemId: ProblemId;
   problem?: Problem;
   problemModel?: ProblemModel;
   solvedUsers?: string[];
