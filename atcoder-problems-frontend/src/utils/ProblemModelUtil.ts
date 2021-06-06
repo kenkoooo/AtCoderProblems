@@ -42,7 +42,11 @@ export const formatPredictedSolveTime = (
     return "<1 min";
   } else {
     const minutes = Math.round(predictedSolveTime / 60);
-    return `${minutes} mins`;
+    if (minutes > 1) {
+      return `${minutes} mins`;
+    } else {
+      return `${minutes} min`;
+    }
   }
 };
 
