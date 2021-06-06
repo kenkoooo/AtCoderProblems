@@ -36,7 +36,7 @@ export interface ProblemHeaderData {
 
 export interface ProblemRowData {
   readonly index: number;
-  readonly id: string;
+  readonly id: ProblemId;
   readonly point: number | null;
   readonly order: number | null;
   readonly problem?: Problem;
@@ -84,42 +84,45 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
     {
       text: "Problem",
       compare: (a: VirtualContestItem, b: VirtualContestItem): number => {
-        const aProblem = problemMap?.get(a.id);
-        const bProblem = problemMap?.get(b.id);
-        const aTitle = aProblem?.title ? aProblem.title : "";
-        const bTitle = bProblem?.title ? bProblem.title : "";
+        const getTitle = (problemId: ProblemId): string => {
+          const problem = problemMap?.get(problemId);
+          const title = problem?.title ? problem.title : "";
+          return title;
+        };
+        const aTitle = getTitle(a.id);
+        const bTitle = getTitle(b.id);
         return aTitle < bTitle ? -1 : 1;
       },
     },
     {
       text: "Contest",
       compare: (a: VirtualContestItem, b: VirtualContestItem): number => {
-        const aProblem = problemMap?.get(a.id);
-        const bProblem = problemMap?.get(b.id);
-        const aContest = aProblem
-          ? contestMap?.get(aProblem.contest_id)
-          : undefined;
-        const bContest = bProblem
-          ? contestMap?.get(bProblem.contest_id)
-          : undefined;
-        const aTitle = aContest?.title ? aContest.title : "";
-        const bTitle = bContest?.title ? bContest.title : "";
+        const getTitle = (problemId: ProblemId): string => {
+          const problem = problemMap?.get(problemId);
+          const contest = problem
+            ? contestMap?.get(problem.contest_id)
+            : undefined;
+          const title = contest?.title ? contest.title : "";
+          return title;
+        };
+        const aTitle = getTitle(a.id);
+        const bTitle = getTitle(b.id);
         return aTitle < bTitle ? -1 : 1;
       },
     },
     {
       text: "Difficulty",
       compare: (a: VirtualContestItem, b: VirtualContestItem): number => {
-        const aProblemModel = problemModels?.get(a.id);
-        const bProblemModel = problemModels?.get(b.id);
-        const aDifficulty =
-          aProblemModel?.difficulty !== undefined
-            ? aProblemModel.difficulty
-            : -Infinity;
-        const bDifficulty =
-          bProblemModel?.difficulty !== undefined
-            ? bProblemModel.difficulty
-            : -Infinity;
+        const getDifficulty = (problemId: ProblemId): number => {
+          const problemModel = problemModels?.get(problemId);
+          const difficulty =
+            problemModel?.difficulty !== undefined
+              ? problemModel.difficulty
+              : -Infinity;
+          return difficulty;
+        };
+        const aDifficulty = getDifficulty(a.id);
+        const bDifficulty = getDifficulty(b.id);
         return aDifficulty - bDifficulty;
       },
     },
