@@ -3,29 +3,29 @@ import { VirtualContestItem } from "../../types";
 
 interface TableHeaderProps {
   text: string;
-  less?: (a: VirtualContestItem, b: VirtualContestItem) => number;
+  compare?: (a: VirtualContestItem, b: VirtualContestItem) => number;
   problemSet: VirtualContestItem[];
   setProblemSet: (newProblemSet: VirtualContestItem[]) => void;
 }
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
   text,
-  less,
+  compare,
   problemSet,
   setProblemSet,
 }) => {
   const [order, setOrder] = React.useState<number>(1);
   return (
     <th
-      style={{ cursor: less ? "pointer" : "" }}
+      style={{ cursor: compare ? "pointer" : "" }}
       onClick={() => {
-        if (!less) {
+        if (!compare) {
           return;
         }
         const newProblemSet = [...problemSet];
         newProblemSet.sort(
           (a: VirtualContestItem, b: VirtualContestItem): number => {
-            return less(a, b) * order;
+            return compare(a, b) * order;
           }
         );
         setProblemSet(newProblemSet);

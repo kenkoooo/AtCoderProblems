@@ -31,7 +31,7 @@ import { TableHeader } from "./TableHeader";
 
 export interface ProblemHeaderData {
   readonly text: string;
-  readonly less?: (a: VirtualContestItem, b: VirtualContestItem) => number;
+  readonly compare?: (a: VirtualContestItem, b: VirtualContestItem) => number;
 }
 
 export interface ProblemRowData {
@@ -83,7 +83,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
   const headerData: ProblemHeaderData[] = [
     {
       text: "Problem",
-      less: (a: VirtualContestItem, b: VirtualContestItem): number => {
+      compare: (a: VirtualContestItem, b: VirtualContestItem): number => {
         const aProblem = problemMap?.get(a.id);
         const bProblem = problemMap?.get(b.id);
         const aTitle = aProblem?.title ? aProblem.title : "";
@@ -93,7 +93,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
     },
     {
       text: "Contest",
-      less: (a: VirtualContestItem, b: VirtualContestItem): number => {
+      compare: (a: VirtualContestItem, b: VirtualContestItem): number => {
         const aProblem = problemMap?.get(a.id);
         const bProblem = problemMap?.get(b.id);
         const aContest = aProblem
@@ -109,7 +109,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
     },
     {
       text: "Difficulty",
-      less: (a: VirtualContestItem, b: VirtualContestItem): number => {
+      compare: (a: VirtualContestItem, b: VirtualContestItem): number => {
         const aProblemModel = problemModels?.get(a.id);
         const bProblemModel = problemModels?.get(b.id);
         const aDifficulty =
@@ -125,7 +125,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
     },
     {
       text: "Point",
-      less: (a: VirtualContestItem, b: VirtualContestItem): number => {
+      compare: (a: VirtualContestItem, b: VirtualContestItem): number => {
         const aPoint = a.point !== null ? a.point : -Infinity;
         const bPoint = b.point !== null ? b.point : -Infinity;
         return aPoint - bPoint;
@@ -210,7 +210,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
                       problemSet={problemSet}
                       setProblemSet={setProblemSet}
                       text={header.text}
-                      less={header.less}
+                      compare={header.compare}
                     />
                   ))}
                 </tr>
