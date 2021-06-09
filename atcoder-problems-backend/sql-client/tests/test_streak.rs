@@ -9,7 +9,7 @@ async fn test_streak_ranking() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     sqlx::query(
         r"
-        INSERT INTO submissions (id, epoch_second, problem_id, contest_id, user_id, language, point, length, result) VALUES 
+        INSERT INTO submissions (id, epoch_second, problem_id, contest_id, user_id, language, point, length, result) VALUES
         (1, 1570114800, 'problem_a', '', 'user1', '', 0, 0, 'AC'), -- 2019-10-04T00:00:00+09:00
         (2, 1570150800, 'problem_b', '', 'user1', '', 0, 0, 'AC'), -- 2019-10-04T10:00:00+09:00
         (3, 1570186800, 'problem_c', '', 'user1', '', 0, 0, 'AC'), -- 2019-10-04T20:00:00+09:00
@@ -33,16 +33,6 @@ async fn test_streak_ranking() {
         .await
         .unwrap();
     pool.update_streak_count(&submissions).await.unwrap();
-
-    // load streak count
-    let v = pool.load_streak_count().await.unwrap();
-    assert_eq!(v.len(), 4);
-    assert_eq!(v[0].streak, 2);
-    assert_eq!(v[1].user_id, "user2".to_owned());
-    assert_eq!(v[3], UserStreak{
-        user_id: "user5".to_owned(),
-        streak: 1
-    });
 
     // get users streak count
     assert_eq!(
@@ -87,6 +77,5 @@ async fn test_streak_ranking() {
         user_id: "user2".to_owned(),
         streak: 1
     });
-    
-}
 
+}
