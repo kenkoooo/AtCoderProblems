@@ -35,7 +35,7 @@ impl StreakClient for PgPool {
         )
         .try_map(|row: PgRow| {
             let user_id: String = row.try_get("user_id")?;
-            let streak: i64 = row.try_get("problem_count")?;
+            let streak: i64 = row.try_get("streak")?;
             Ok(UserStreak {
                 user_id,
                 streak,
@@ -62,7 +62,7 @@ impl StreakClient for PgPool {
         .bind(rank_range.len() as i32)
         .try_map(|row: PgRow| {
             let user_id: String = row.try_get("user_id")?;
-            let streak: i64 = row.try_get("problem_count")?;
+            let streak: i64 = row.try_get("streak")?;
             Ok(UserStreak {
                 user_id,
                 streak,
@@ -95,7 +95,7 @@ impl StreakClient for PgPool {
             r"
             SELECT COUNT(*) AS rank
             FROM max_streaks
-            WHERE streak_count > $1
+            WHERE streak > $1
             ",
         )
         .bind(streak_count)
