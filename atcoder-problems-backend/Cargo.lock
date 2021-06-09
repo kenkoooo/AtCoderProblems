@@ -3120,6 +3120,7 @@ dependencies = [
  "regex",
  "s3-client",
  "serde",
+ "serde_json",
  "sqlx",
  "uuid 0.8.1",
 ]

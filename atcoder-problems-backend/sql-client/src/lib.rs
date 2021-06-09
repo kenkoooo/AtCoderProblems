@@ -3,6 +3,7 @@ use std::time::Duration;
 
 pub mod accepted_count;
 pub mod contest_problem;
+pub mod first_ac_submissions;
 pub mod internal;
 pub mod language_count;
 pub mod models;

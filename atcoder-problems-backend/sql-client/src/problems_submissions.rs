@@ -2,7 +2,6 @@ use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::try_join;
-use s3_client::s3::S3Client;
 
 #[async_trait]
 pub trait ProblemsSubmissionUpdater {
@@ -12,12 +11,10 @@ pub trait ProblemsSubmissionUpdater {
 #[async_trait]
 impl ProblemsSubmissionUpdater for PgPool {
     async fn update_submissions_of_problems(&self) -> Result<()> {
-        let first_sql = generate_query("first", "id");
         let fastest_sql = generate_query("fastest", "execution_time");
         let shortest_sql = generate_query("shortest", "length");
 
         try_join!(
-            sqlx::query(&first_sql).execute(self),
             sqlx::query(&fastest_sql).execute(self),
             sqlx::query(&shortest_sql).execute(self),
         )?;
@@ -56,10 +53,4 @@ fn generate_query(table: &str, column: &str) -> String {
         table = table,
         column = column
     )
-}
-
-fn fetch_all_contestants(contest_id: &str) -> Result<Vec<String>> {
-    let s3 = S3Client::new()?;
-    let standings_data = s3.fetch_data(&format!("/resource/standings/{}.json", contest_id));
-    Ok(vec![])
 }
