@@ -34,16 +34,6 @@ async fn test_streak_ranking() {
         .unwrap();
     pool.update_streak_count(&submissions).await.unwrap();
 
-    // load streak count
-    let v = pool.load_streak_count().await.unwrap();
-    assert_eq!(v.len(), 4);
-    assert_eq!(v[0].streak, 2);
-    assert_eq!(v[1].user_id, "user2".to_owned());
-    assert_eq!(v[3], UserStreak{
-        user_id: "user5".to_owned(),
-        streak: 1
-    });
-
     // get users streak count
     assert_eq!(
         pool.get_users_streak_count("user3").await.unwrap(),

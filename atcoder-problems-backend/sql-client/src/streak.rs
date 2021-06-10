@@ -14,7 +14,6 @@ use std::ops::Range;
 
 #[async_trait]
 pub trait StreakClient {
-    async fn load_streak_count(&self) -> Result<Vec<UserStreak>>;
     async fn load_streak_count_in_range(
         &self,
         rank_range: Range<usize>
@@ -26,32 +25,11 @@ pub trait StreakClient {
 
 #[async_trait]
 impl StreakClient for PgPool {
-    async fn load_streak_count(&self) -> Result<Vec<UserStreak>> {
-        let count = sqlx::query(
-            r"
-            SELECT user_id, streak FROM max_streaks
-            ORDER BY streak DESC, user_id ASC
-            ",
-        )
-        .try_map(|row: PgRow| {
-            let user_id: String = row.try_get("user_id")?;
-            let streak: i64 = row.try_get("streak")?;
-            Ok(UserStreak {
-                user_id,
-                streak,
-            })
-        })
-        .fetch_all(self)
-        .await?;
-
-        Ok(count)
-    }
-
     async fn load_streak_count_in_range(
         &self,
         rank_range: Range<usize>
     ) -> Result<Vec<UserStreak>> {
-        let count = sqlx::query(
+        let users_streaks = sqlx::query(
             r"
             SELECT user_id, streak FROM max_streaks
             ORDER BY streak DESC, user_id ASC
@@ -71,7 +49,7 @@ impl StreakClient for PgPool {
         .fetch_all(self)
         .await?;
 
-        Ok(count)
+        Ok(users_streaks)
     }
 
     async fn get_users_streak_count(&self, user_id: &str) -> Option<i64> {
