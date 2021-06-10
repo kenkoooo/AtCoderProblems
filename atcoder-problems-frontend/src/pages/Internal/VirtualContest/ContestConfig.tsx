@@ -28,7 +28,7 @@ import {
 import { ProblemSetGenerator } from "../../../components/ProblemSetGenerator";
 import { HelpBadgeTooltip } from "../../../components/HelpBadgeTooltip";
 import { HelpBadgeModal } from "../../../components/HelpBadgeModal";
-import { ContestConfigProblemList } from "./ContestConfigProblemList";
+import { DraggableContestConfigProblemTable } from "./DraggableContestConfigProblemTable";
 
 const toUnixSecond = (date: string, hour: number, minute: number): number => {
   const hh = hour < 10 ? `0${hour}` : hour.toString();
@@ -306,7 +306,7 @@ export const ContestConfig: React.FC<Props> = (props) => {
 
       <Row className="my-2">
         <Col>
-          <ContestConfigProblemList
+          <DraggableContestConfigProblemTable
             onSolvedProblemsFetchFinished={(errorMessage): void => {
               setExpectedParticipantsInputErrorMessage(errorMessage || "");
             }}
