@@ -57,7 +57,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     conn.update_submissions_of_problems().await?;
 
     info!("Executing first_ac_of_submissions...");
-    conn.update_first_ac_of_problems(&all_accepted_submissions).await?;
+    conn.update_first_ac_of_problems(&all_accepted_submissions, &None).await?;
 
     info!("Executing update_problem_points...");
     conn.update_problem_points().await?;

@@ -8,14 +8,12 @@ use sqlx::Row;
 mod utils;
 
 enum Table {
-    First,
     Shortest,
     Fastest,
 }
 
 async fn get_from(pool: &PgPool, table: Table) -> Vec<(String, String, i64)> {
     let table = match table {
-        Table::First => "first",
         Table::Shortest => "shortest",
         Table::Fastest => "fastest",
     };
@@ -54,16 +52,6 @@ async fn setup_contests() -> PgPool {
 
 #[async_std::test]
 async fn test_problem_info_aggrefator() {
-    let ignored_submission = vec![Submission {
-        id: 0,
-        problem_id: "problem1".to_owned(),
-        contest_id: "contest1".to_owned(),
-        epoch_second: 0,
-        length: 1,
-        execution_time: Some(1),
-        result: "AC".to_owned(),
-        ..Default::default()
-    }];
     let submissions1 = vec![Submission {
         id: 1,
         problem_id: "problem1".to_owned(),
@@ -84,51 +72,6 @@ async fn test_problem_info_aggrefator() {
         result: "AC".to_owned(),
         ..Default::default()
     }];
-
-    {
-        let pool = setup_contests().await;
-
-        pool.update_submissions(&ignored_submission).await.unwrap();
-        pool.update_submissions_of_problems().await.unwrap();
-        let first = get_from(&pool, Table::First).await;
-        assert_eq!(first.len(), 0);
-
-        pool.update_submissions(&submissions1).await.unwrap();
-        pool.update_submissions_of_problems().await.unwrap();
-        let first = get_from(&pool, Table::First).await;
-        assert_eq!(first.len(), 1);
-        assert_eq!(first[0].0, submissions1[0].contest_id);
-        assert_eq!(first[0].1, submissions1[0].problem_id);
-        assert_eq!(first[0].2, submissions1[0].id);
-
-        pool.update_submissions(&submissions2).await.unwrap();
-        pool.update_submissions_of_problems().await.unwrap();
-        let first = get_from(&pool, Table::First).await;
-        assert_eq!(first.len(), 1);
-        assert_eq!(first[0].0, submissions1[0].contest_id);
-        assert_eq!(first[0].1, submissions1[0].problem_id);
-        assert_eq!(first[0].2, submissions1[0].id);
-    }
-
-    {
-        let pool = setup_contests().await;
-
-        pool.update_submissions(&submissions2).await.unwrap();
-        pool.update_submissions_of_problems().await.unwrap();
-        let first = get_from(&pool, Table::First).await;
-        assert_eq!(first.len(), 1);
-        assert_eq!(first[0].0, submissions2[0].contest_id);
-        assert_eq!(first[0].1, submissions2[0].problem_id);
-        assert_eq!(first[0].2, submissions2[0].id);
-
-        pool.update_submissions(&submissions1).await.unwrap();
-        pool.update_submissions_of_problems().await.unwrap();
-        let first = get_from(&pool, Table::First).await;
-        assert_eq!(first.len(), 1);
-        assert_eq!(first[0].0, submissions1[0].contest_id);
-        assert_eq!(first[0].1, submissions1[0].problem_id);
-        assert_eq!(first[0].2, submissions1[0].id);
-    }
 
     {
         let pool = setup_contests().await;

@@ -1,15 +1,20 @@
+use std::collections::{HashMap, HashSet};
+use std::io::Read;
+
 use crate::models::Submission;
 use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
 use s3_client::s3::S3Client;
 use serde_json::Value;
-use std::collections::{HashMap, HashSet};
 
 #[async_trait]
 pub trait FirstAcSubmissionUpdater {
-    async fn update_first_ac_of_problems(&self, all_ac_submissions: &Vec<Submission>)
-        -> Result<()>;
+    async fn update_first_ac_of_problems(
+        &self,
+        all_ac_submissions: &Vec<Submission>,
+        local_json_dir: &Option<String>,
+    ) -> Result<()>;
 }
 
 #[async_trait]
@@ -17,6 +22,7 @@ impl FirstAcSubmissionUpdater for PgPool {
     async fn update_first_ac_of_problems(
         &self,
         all_ac_submissions: &Vec<Submission>,
+        local_json_dir: &Option<String>,  // if None, fetch from s3. Default is None.
     ) -> Result<()> {
         let all_contests_id = all_ac_submissions
             .iter()
@@ -24,7 +30,7 @@ impl FirstAcSubmissionUpdater for PgPool {
             .collect::<HashSet<_>>();
         let mut contestants_for_contest = HashMap::<String, HashSet<String>>::new();
         for contest_id in all_contests_id {
-            let contestants = fetch_all_contestants(&contest_id)?;
+            let contestants = fetch_all_contestants(&contest_id, &local_json_dir)?;
             contestants_for_contest
                 .insert(contest_id, contestants.into_iter().collect::<HashSet<_>>());
         }
@@ -67,10 +73,16 @@ fn generate_query(submission: &Submission) -> String {
     )
 }
 
-fn fetch_all_contestants(contest_id: &str) -> Result<Vec<String>> {
-    let s3 = S3Client::new()?;
+fn fetch_all_contestants(contest_id: &str, local_json_dir: &Option<String>) -> Result<Vec<String>> {
     let json_url = format!("/resource/standings/{}.json", contest_id);
-    let standings_data_u8 = s3.fetch_data(&json_url);
+    let mut standings_data_u8 = vec![];
+    if let Some(dir) = local_json_dir {
+        let mut file = std::fs::File::open(format!("{}/{}.json", dir, contest_id))?;
+        file.read_to_end(&mut standings_data_u8)?;
+    } else {
+        let s3 = S3Client::new()?;
+        standings_data_u8 = s3.fetch_data(&json_url);
+    }
     let standings_data = String::from_utf8(standings_data_u8)?;
     let v: Value = serde_json::from_str(&standings_data)?;
     let standings = &v["StandingsData"];
