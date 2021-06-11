@@ -3,6 +3,7 @@ use std::io::Read;
 
 use crate::models::Submission;
 use crate::PgPool;
+use crate::simple_client::SimpleClient;
 use anyhow::Result;
 use async_trait::async_trait;
 use s3_client::s3::S3Client;
@@ -34,13 +35,23 @@ impl FirstAcSubmissionUpdater for PgPool {
             contestants_for_contest
                 .insert(contest_id, contestants.into_iter().collect::<HashSet<_>>());
         }
+
+        let contests = self.load_contests().await?;
+        let mut start_epoch_seconds_for_contest = HashMap::<String, i64>::new();
+        for contest in contests {
+            start_epoch_seconds_for_contest.insert(contest.id, contest.start_epoch_second);
+        }
+
         let mut first_ac_submissions = HashMap::<String, Submission>::new(); // contest_id, submission_id
         for submission in all_ac_submissions.iter() {
             if !contestants_for_contest[&submission.contest_id].contains(&submission.user_id) {
                 continue;
             }
+            if submission.epoch_second < start_epoch_seconds_for_contest[&submission.contest_id] {
+                continue;
+            }
             if let Some(v) = first_ac_submissions.get_mut(&submission.problem_id) {
-                if submission.epoch_second < v.epoch_second {
+                if submission.id < v.id {
                     *v = submission.clone();
                 }
             } else {
@@ -50,7 +61,8 @@ impl FirstAcSubmissionUpdater for PgPool {
         }
 
         for submission in first_ac_submissions.values() {
-            generate_query(submission);
+            let first_query = generate_query(submission);
+            sqlx::query(&first_query).execute(self).await?;
         }
         Ok(())
     }
@@ -61,7 +73,7 @@ fn generate_query(submission: &Submission) -> String {
         r"
                 INSERT INTO first
                 (submission_id, problem_id, contest_id) VALUES
-                ({submission_id}, {problem_id}, {contest_id})
+                ({submission_id}, '{problem_id}', '{contest_id}')
                 ON CONFLICT (problem_id)
                 DO UPDATE SET
                         contest_id=EXCLUDED.contest_id,
