@@ -4,7 +4,7 @@ use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::initialize_pool;
 use sql_client::language_count::LanguageCountClient;
 use sql_client::rated_point_sum::RatedPointSumClient;
-use sql_client::streak::StreakUpdater;
+use sql_client::streak::StreakClient;
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 use std::collections::BTreeSet;
 use std::env;

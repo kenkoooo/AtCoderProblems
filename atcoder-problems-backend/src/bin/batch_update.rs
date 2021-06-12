@@ -7,7 +7,7 @@ use sql_client::models::Submission;
 use sql_client::problem_info::ProblemInfoUpdater;
 use sql_client::problems_submissions::ProblemsSubmissionUpdater;
 use sql_client::rated_point_sum::RatedPointSumClient;
-use sql_client::streak::StreakUpdater;
+use sql_client::streak::StreakClient;
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 use std::env;
 use std::error::Error;

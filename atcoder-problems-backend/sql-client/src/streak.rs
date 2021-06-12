@@ -1,20 +1,89 @@
-use crate::models::Submission;
+use crate::models::{Submission, UserStreak};
 use crate::{PgPool, MAX_INSERT_ROWS};
 use anyhow::Result;
 use async_trait::async_trait;
+
+use sqlx::postgres::PgRow;
+use sqlx::Row;
 
 use chrono::Duration;
 use chrono::{DateTime, Datelike, FixedOffset, TimeZone, Utc};
 use std::cmp;
 use std::collections::BTreeMap;
+use std::ops::Range;
 
 #[async_trait]
-pub trait StreakUpdater {
+pub trait StreakClient {
+    async fn load_streak_count_in_range(
+        &self,
+        rank_range: Range<usize>
+    ) -> Result<Vec<UserStreak>>;
+    async fn get_users_streak_count(&self, user_id: &str) -> Option<i64>;
+    async fn get_streak_count_rank(&self, streak_count: i64) -> Result<i64>;
     async fn update_streak_count(&self, submissions: &[Submission]) -> Result<()>;
 }
 
 #[async_trait]
-impl StreakUpdater for PgPool {
+impl StreakClient for PgPool {
+    async fn load_streak_count_in_range(
+        &self,
+        rank_range: Range<usize>
+    ) -> Result<Vec<UserStreak>> {
+        let users_streaks = sqlx::query(
+            r"
+            SELECT user_id, streak FROM max_streaks
+            ORDER BY streak DESC, user_id ASC
+            OFFSET $1 LIMIT $2;
+            ",
+        )
+        .bind(rank_range.start as i32)
+        .bind(rank_range.len() as i32)
+        .try_map(|row: PgRow| {
+            let user_id: String = row.try_get("user_id")?;
+            let streak: i64 = row.try_get("streak")?;
+            Ok(UserStreak {
+                user_id,
+                streak,
+            })
+        })
+        .fetch_all(self)
+        .await?;
+
+        Ok(users_streaks)
+    }
+
+    async fn get_users_streak_count(&self, user_id: &str) -> Option<i64> {
+        let count = sqlx::query(
+            r"
+            SELECT streak FROM max_streaks
+            WHERE user_id = $1
+            ",
+        )
+        .bind(user_id)
+        .try_map(|row: PgRow| row.try_get::<i64, _>("streak"))
+        .fetch_one(self)
+        .await
+        .ok()?;
+
+        Some(count)
+    }
+
+    async fn get_streak_count_rank(&self, streak_count: i64) -> Result<i64> {
+        let rank = sqlx::query(
+            r"
+            SELECT COUNT(*) AS rank
+            FROM max_streaks
+            WHERE streak > $1
+            ",
+        )
+        .bind(streak_count)
+        .try_map(|row: PgRow| row.try_get::<i64, _>("rank"))
+        .fetch_one(self)
+        .await?;
+
+        Ok(rank)
+    }
+
     async fn update_streak_count(&self, ac_submissions: &[Submission]) -> Result<()> {
         let mut submissions = ac_submissions
             .iter()
