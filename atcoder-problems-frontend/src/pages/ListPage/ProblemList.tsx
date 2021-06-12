@@ -33,7 +33,7 @@ export const FilterParams = {
   Rated: "rated",
   FromDifficulty: "fromDiff",
   ToDifficulty: "toDiff",
-  SolvedLanguage: "acLang",
+  SolvedLanguage: "solvedLang",
 } as const;
 
 const convertToValidStatusFilterState = (
