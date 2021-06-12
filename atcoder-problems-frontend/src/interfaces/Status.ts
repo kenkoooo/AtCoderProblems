@@ -44,16 +44,19 @@ export const failedStatus = (
 export const warningStatus = (
   result: string,
   epoch: number,
-  rejectedEpochSeconds: number[]
+  rejectedEpochSeconds: number[],
+  submittedLanguages: Set<string>
 ): {
   label: StatusLabel.Warning;
   result: string;
   epoch: number;
+  submittedLanguages: Set<string>;
   rejectedEpochSeconds: number[];
 } => ({
   label: StatusLabel.Warning,
   result,
   epoch,
+  submittedLanguages,
   rejectedEpochSeconds,
 });
 export const noneStatus = (): {
@@ -122,9 +125,15 @@ export const constructStatusLabelMap = (
     } else if (userRejected.length > 0) {
       userRejected.sort((a, b) => b.id - a.id);
       const last = userRejected[userRejected.length - 1];
+      const languageSet = new Set(userRejected.map((s) => s.language));
       statusLabelMap.set(
         problemId,
-        warningStatus(last.result, last.epoch_second, rejectedEpochSeconds)
+        warningStatus(
+          last.result,
+          last.epoch_second,
+          rejectedEpochSeconds,
+          languageSet
+        )
       );
     } else {
       statusLabelMap.set(problemId, noneStatus());
