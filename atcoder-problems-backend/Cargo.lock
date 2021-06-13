@@ -3110,7 +3110,6 @@ dependencies = [
  "futures 0.3.5",
  "regex",
  "serde",
- "serde_json",
  "sqlx",
  "uuid 0.8.1",
 ]

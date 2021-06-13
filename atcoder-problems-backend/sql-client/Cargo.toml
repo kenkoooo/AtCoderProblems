@@ -11,7 +11,6 @@ publish = false
 sqlx = { version = "0.5.1", features = ["postgres", "runtime-async-std-rustls"] }
 async-trait = "0.1.30"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 anyhow = "1.0.32"
 async-std = { version = "1.9.0", features = ["attributes"] }

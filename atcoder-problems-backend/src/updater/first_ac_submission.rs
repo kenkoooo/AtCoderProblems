@@ -47,7 +47,7 @@ pub async fn update_first_ac_of_problems(
         }
     }
 
-    conn.update_first_ac_of_problems(&first_ac_submissions).await?;
+    conn.update_first_ac_of_problems(first_ac_submissions.values()).await?;
     Ok(())
 }
 

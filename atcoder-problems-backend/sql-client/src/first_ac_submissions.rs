@@ -2,23 +2,23 @@ use crate::models::Submission;
 use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
-use std::collections::HashMap;
+use std::collections::hash_map::Values;
 
 #[async_trait]
 pub trait FirstAcSubmissionUpdater {
-    async fn update_first_ac_of_problems(
+    async fn update_first_ac_of_problems<'a>(
         &self,
-        first_ac_submissions: &HashMap<String, Submission>,
+        first_ac_submissions: Values<'a, String, Submission>,
     ) -> Result<()>;
 }
 
 #[async_trait]
 impl FirstAcSubmissionUpdater for PgPool {
-    async fn update_first_ac_of_problems(
+    async fn update_first_ac_of_problems<'a>(
         &self,
-        first_ac_submissions: &HashMap<String, Submission>,
+        first_ac_submissions: Values<'a, String, Submission>,
     ) -> Result<()> {
-        for submission in first_ac_submissions.values() {
+        for submission in first_ac_submissions {
             let first_query = generate_query(submission);
             sqlx::query(&first_query).execute(self).await?;
         }
