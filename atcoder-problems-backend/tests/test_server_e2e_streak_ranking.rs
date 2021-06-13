@@ -53,6 +53,8 @@ async fn test_streak_ranking() {
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
+    // get_streak_ranking(from..to)
+
     let response = surf::get(url("/atcoder-api/v3/streak_ranking?from=0&to=10", port))
         .recv_json::<Value>()
         .await
@@ -93,6 +95,25 @@ async fn test_streak_ranking() {
         .await
         .unwrap();
     assert_eq!(response.status(), 400);
+
+    // get_users_streak_rank(user_id)
+
+    let response = surf::get(url("/atcoder-api/v3/user/streak_rank?user=u1", port))
+        .recv_json::<Value>()
+        .await
+        .unwrap();
+    assert_eq!(response, json!(1));
+
+    let response = surf::get(url("/atcoder-api/v3/user/streak_rank?user=u2", port))
+        .recv_json::<Value>()
+        .await
+        .unwrap();
+    assert_eq!(response, json!(0));
+
+    let response = surf::get(url("/atcoder-api/v3/user/streak_rank?user=do_not_exist", port))
+        .await
+        .unwrap();
+    assert!(!response.status().is_success());
 
     server.race(ready(())).await;
 }
