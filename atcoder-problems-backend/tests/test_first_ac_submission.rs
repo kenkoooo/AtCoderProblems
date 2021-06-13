@@ -1,6 +1,4 @@
-use std::path::{Component, Path, PathBuf};
-
-use sql_client::first_ac_submissions::FirstAcSubmissionUpdater;
+use atcoder_problems_backend::updater::first_ac_submission::update_first_ac_of_problems;
 use sql_client::models::Submission;
 use sql_client::submission_client::SubmissionClient;
 use sql_client::PgPool;
@@ -33,9 +31,9 @@ async fn setup_contests() -> PgPool {
         ('contest1', 1, 0, '', ''), ('contest2', 1, 0, '', '');
         ",
     )
-    .execute(&pool)
-    .await
-    .unwrap();
+        .execute(&pool)
+        .await
+        .unwrap();
 
     pool
 }
@@ -98,7 +96,7 @@ async fn test_first_ac_aggrefator() {
 
         pool.update_submissions(&ignored_submissions).await.unwrap();
         all_accepted_submissions.append(&mut ignored_submissions.clone());
-        pool.update_first_ac_of_problems(&all_accepted_submissions, &standings_dir)
+        update_first_ac_of_problems(&pool, &all_accepted_submissions, &standings_dir)
             .await
             .unwrap();
         let first = get_from(&pool).await;
@@ -106,7 +104,7 @@ async fn test_first_ac_aggrefator() {
 
         pool.update_submissions(&submissions1).await.unwrap();
         all_accepted_submissions.append(&mut submissions1.clone());
-        pool.update_first_ac_of_problems(&all_accepted_submissions, &standings_dir)
+        update_first_ac_of_problems(&pool, &all_accepted_submissions, &standings_dir)
             .await
             .unwrap();
         let first = get_from(&pool).await;
@@ -117,7 +115,7 @@ async fn test_first_ac_aggrefator() {
 
         pool.update_submissions(&submissions2).await.unwrap();
         all_accepted_submissions.append(&mut submissions2.clone());
-        pool.update_first_ac_of_problems(&all_accepted_submissions, &standings_dir)
+        update_first_ac_of_problems(&pool, &all_accepted_submissions, &standings_dir)
             .await
             .unwrap();
         let first = get_from(&pool).await;
@@ -133,7 +131,7 @@ async fn test_first_ac_aggrefator() {
 
         pool.update_submissions(&submissions2).await.unwrap();
         all_accepted_submissions.append(&mut submissions2.clone());
-        pool.update_first_ac_of_problems(&all_accepted_submissions, &standings_dir)
+        update_first_ac_of_problems(&pool, &all_accepted_submissions, &standings_dir)
             .await
             .unwrap();
         let first = get_from(&pool).await;
@@ -144,7 +142,7 @@ async fn test_first_ac_aggrefator() {
 
         pool.update_submissions(&submissions1).await.unwrap();
         all_accepted_submissions.append(&mut submissions1.clone());
-        pool.update_first_ac_of_problems(&all_accepted_submissions, &standings_dir)
+        update_first_ac_of_problems(&pool, &all_accepted_submissions, &standings_dir)
             .await
             .unwrap();
         let first = get_from(&pool).await;

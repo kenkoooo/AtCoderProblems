@@ -18,5 +18,3 @@ async-std = { version = "1.9.0", features = ["attributes"] }
 regex = "1"
 futures = "0.3.5"
 chrono = "0.4"
-
-s3-client = { path = "../s3-client" }

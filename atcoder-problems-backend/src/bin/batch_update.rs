@@ -1,7 +1,7 @@
 use atcoder_problems_backend::utils::init_log_config;
+use atcoder_problems_backend::updater::first_ac_submission::update_first_ac_of_problems;
 use log::info;
 use sql_client::accepted_count::AcceptedCountClient;
-use sql_client::first_ac_submissions::FirstAcSubmissionUpdater;
 use sql_client::initialize_pool;
 use sql_client::language_count::LanguageCountClient;
 use sql_client::models::Submission;
@@ -57,7 +57,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     conn.update_submissions_of_problems().await?;
 
     info!("Executing first_ac_of_submissions...");
-    conn.update_first_ac_of_problems(&all_accepted_submissions, &None).await?;
+    update_first_ac_of_problems(&conn, &all_accepted_submissions, &None).await?;
 
     info!("Executing update_problem_points...");
     conn.update_problem_points().await?;

@@ -369,11 +369,11 @@ dependencies = [
  "rand 0.7.3",
  "regex",
  "rust-s3",
- "s3-client",
  "serde",
  "serde_json",
  "simple_logger",
  "sql-client",
+ "sqlx",
  "surf",
  "tide",
 ]
@@ -2763,15 +2763,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"
 
 [[package]]
-name = "s3-client"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "log",
- "rust-s3",
-]
-
-[[package]]
 name = "schannel"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3118,7 +3109,6 @@ dependencies = [
  "chrono",
  "futures 0.3.5",
  "regex",
- "s3-client",
  "serde",
  "serde_json",
  "sqlx",
