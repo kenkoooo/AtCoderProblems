@@ -106,7 +106,7 @@ export const ProblemList: React.FC<Props> = (props) => {
         .map((p) => p.point)
         .filter((p): p is number => !!p)
     )
-  );
+  ).sort((a, b) => a - b);
   const difficulties = Range(0, 4400, 400)
     .map((from) => ({
       from,
