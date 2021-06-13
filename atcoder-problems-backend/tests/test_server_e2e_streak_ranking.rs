@@ -115,5 +115,10 @@ async fn test_streak_ranking() {
         .unwrap();
     assert_eq!(response.status(), 404);
 
+    let response = surf::get(url("/atcoder-api/v3/user/streak_rank?bad=request", port))
+    .await
+    .unwrap();
+    assert_eq!(response.status(), 400);
+
     server.race(ready(())).await;
 }
