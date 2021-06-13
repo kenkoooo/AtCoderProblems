@@ -100,9 +100,8 @@ export const ProblemList: React.FC<Props> = (props) => {
       }, new Set<string>())
     ).sort()
   );
-  type languageFilter = typeof languageFilters[number];
 
-  const languageFilterState: languageFilter =
+  const languageFilterState =
     languageFilters.find(
       (x) => x === searchParams.get(FilterParams.SolvedLanguage)
     ) ?? "All";
@@ -215,9 +214,7 @@ export const ProblemList: React.FC<Props> = (props) => {
         <ButtonGroup className="mr-4">
           <UncontrolledDropdown>
             <DropdownToggle caret>
-              {languageFilterState === "All"
-                ? "Submitted With"
-                : languageFilterState}
+              {languageFilterState === "All" ? "Language" : languageFilterState}
             </DropdownToggle>
             <DropdownMenu>
               {languageFilters.map((value) => (
