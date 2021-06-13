@@ -18,7 +18,7 @@ pub trait StreakClient {
         &self,
         rank_range: Range<usize>
     ) -> Result<Vec<UserStreak>>;
-    async fn get_users_streak_count(&self, user_id: &str) -> Result<i64>;
+    async fn get_users_streak_count(&self, user_id: &str) -> Option<i64>;
     async fn get_streak_count_rank(&self, streak_count: i64) -> Result<i64>;
     async fn update_streak_count(&self, submissions: &[Submission]) -> Result<()>;
 }
@@ -52,7 +52,7 @@ impl StreakClient for PgPool {
         Ok(users_streaks)
     }
 
-    async fn get_users_streak_count(&self, user_id: &str) -> Result<i64> {
+    async fn get_users_streak_count(&self, user_id: &str) -> Option<i64> {
         let count = sqlx::query(
             r"
             SELECT streak FROM max_streaks
@@ -62,9 +62,10 @@ impl StreakClient for PgPool {
         .bind(user_id)
         .try_map(|row: PgRow| row.try_get::<i64, _>("streak"))
         .fetch_one(self)
-        .await?;
+        .await
+        .ok()?;
 
-        Ok(count)
+        Some(count)
     }
 
     async fn get_streak_count_rank(&self, streak_count: i64) -> Result<i64> {

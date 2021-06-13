@@ -43,7 +43,7 @@ async fn test_streak_ranking() {
         pool
         .get_users_streak_count("non_existing_user")
         .await
-        .is_err()
+        .is_none()
     );
 
     // get streak count rank
