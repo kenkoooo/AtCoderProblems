@@ -18,29 +18,36 @@ impl FirstAcSubmissionUpdater for PgPool {
         &self,
         first_ac_submissions: Values<'a, String, Submission>,
     ) -> Result<()> {
-        for submission in first_ac_submissions {
-            let first_query = generate_query(submission);
-            sqlx::query(&first_query).execute(self).await?;
-        }
+        let (ids, problem_ids, contest_ids) = first_ac_submissions.fold(
+            (vec![], vec![], vec![]),
+            |(mut ids, mut problem_ids, mut contest_ids), cur| {
+                ids.push(cur.id.clone());
+                problem_ids.push(cur.problem_id.clone());
+                contest_ids.push(cur.contest_id.clone());
+                (ids, problem_ids, contest_ids)
+            },
+        );
+
+        sqlx::query(
+            r"
+        INSERT INTO first
+        (submission_id, problem_id, contest_id)
+        VALUES (
+            UNNEST($1),
+            UNNEST($2::VARCHAR(255)[]),
+            UNNEST($3::VARCHAR(255)[])
+        )
+        ON CONFLICT (problem_id)
+        DO UPDATE SET
+                contest_id=EXCLUDED.contest_id,
+                problem_id=EXCLUDED.problem_id,
+                submission_id=EXCLUDED.submission_id;",
+        )
+            .bind(ids)
+            .bind(problem_ids)
+            .bind(contest_ids)
+            .execute(self)
+            .await?;
         Ok(())
     }
 }
-
-fn generate_query(submission: &Submission) -> String {
-    format!(
-        r"
-                INSERT INTO first
-                (submission_id, problem_id, contest_id) VALUES
-                ({submission_id}, '{problem_id}', '{contest_id}')
-                ON CONFLICT (problem_id)
-                DO UPDATE SET
-                        contest_id=EXCLUDED.contest_id,
-                        problem_id=EXCLUDED.problem_id,
-                        submission_id=EXCLUDED.submission_id;",
-        submission_id = submission.id,
-        problem_id = submission.problem_id,
-        contest_id = submission.contest_id
-    )
-}
-
-
