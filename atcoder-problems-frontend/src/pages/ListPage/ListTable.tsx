@@ -117,6 +117,7 @@ interface Props {
   toDifficulty: number;
   filteredSubmissions: Submission[];
   selectRow?: SelectRow;
+  selectLanguage: string;
 }
 
 export const ListTable: React.FC<Props> = (props) => {
@@ -604,6 +605,22 @@ export const ListTable: React.FC<Props> = (props) => {
               return isSuccess && !isSubmittedInContest;
           }
         }) // eslint-disable-next-line
+        .filter((row) => {
+          const status = row.status;
+          const selectedLanguage = props.selectLanguage;
+          if (props.selectLanguage === "All") {
+            return true;
+          } else {
+            switch (status.label) {
+              case StatusLabel.Success:
+                return status.solvedLanguages.has(selectedLanguage);
+              case StatusLabel.Warning:
+                return status.submittedLanguages.has(selectedLanguage);
+              default:
+                return false;
+            }
+          }
+        })
         .filter((row): boolean => {
           const isRated = !!row.mergedProblem.point;
           const hasDifficulty = isProblemModelWithDifficultyModel(
