@@ -19,8 +19,6 @@ serde_json = "1.0"
 
 # SQL
 sql-client = { path = "./sql-client" }
-# SQL (for test)
-sqlx = { version = "0.5.1", features = ["postgres", "runtime-async-std-rustls"] }
 
 # Scraping
 atcoder-client = { path = "./atcoder-client" }

@@ -1,16 +1,14 @@
 use atcoder_problems_backend::updater::first_ac_submission::update_first_ac_of_problems;
 use sql_client::models::Submission;
 use sql_client::submission_client::SubmissionClient;
-use sql_client::PgPool;
-use sqlx::postgres::PgRow;
-use sqlx::Row;
+use sql_client::{PgPool, PgRow, Row};
 
 mod utils;
 
 async fn get_from(pool: &PgPool) -> Vec<(String, String, i64)> {
     let query = "SELECT contest_id, problem_id, submission_id FROM first";
 
-    sqlx::query(&query)
+    sql_client::query(&query)
         .bind("first")
         .map(|row: PgRow| {
             let contest_id: String = row.get("contest_id");
@@ -25,7 +23,7 @@ async fn get_from(pool: &PgPool) -> Vec<(String, String, i64)> {
 
 async fn setup_contests() -> PgPool {
     let pool = utils::initialize_and_connect_to_test_sql().await;
-    sqlx::query(
+    sql_client::query(
         r"
         INSERT INTO contests (id, start_epoch_second, duration_second, title, rate_change) VALUES
         ('contest1', 1, 0, '', ''), ('contest2', 1, 0, '', '');

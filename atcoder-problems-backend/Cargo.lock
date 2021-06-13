@@ -373,7 +373,6 @@ dependencies = [
  "serde_json",
  "simple_logger",
  "sql-client",
- "sqlx",
  "surf",
  "tide",
 ]
