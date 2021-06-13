@@ -2,26 +2,25 @@ use crate::models::Submission;
 use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
-use std::collections::hash_map::Values;
 
 #[async_trait]
 pub trait FirstAcSubmissionUpdater {
-    async fn update_first_ac_of_problems<'a>(
+    async fn update_first_ac_of_problems<'a, I: Iterator<Item = &'a Submission> + std::marker::Send>(
         &self,
-        first_ac_submissions: Values<'a, String, Submission>,
+        first_ac_submissions: I,
     ) -> Result<()>;
 }
 
 #[async_trait]
 impl FirstAcSubmissionUpdater for PgPool {
-    async fn update_first_ac_of_problems<'a>(
+    async fn update_first_ac_of_problems<'a, I: Iterator<Item = &'a Submission> + std::marker::Send> (
         &self,
-        first_ac_submissions: Values<'a, String, Submission>,
+        first_ac_submissions: I,
     ) -> Result<()> {
         let (ids, problem_ids, contest_ids) = first_ac_submissions.fold(
             (vec![], vec![], vec![]),
             |(mut ids, mut problem_ids, mut contest_ids), cur| {
-                ids.push(cur.id.clone());
+                ids.push(cur.id);
                 problem_ids.push(cur.problem_id.clone());
                 contest_ids.push(cur.contest_id.clone());
                 (ids, problem_ids, contest_ids)
