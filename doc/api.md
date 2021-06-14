@@ -41,8 +41,16 @@ Deprecated ~~https://kenkoooo.com/atcoder/resources/ac.json~~
 - https://kenkoooo.com/atcoder/resources/sums.json
 
 ### Longest Streak (JST) Count
+#### Example
+```
+https://kenkoooo.com/atcoder/atcoder-api/v3/streak_ranking?from=0&to=10
+```
+#### Exampl
+```
+https://kenkoooo.com/atcoder/atcoder-api/v3/user/streak_rank?user=kenkoooo
+```
 
-- https://kenkoooo.com/atcoder/resources/streaks.json
+Deprecated ~~https://kenkoooo.com/atcoder/resources/streaks.json~~
 
 ### Accepted Count for each language
 
