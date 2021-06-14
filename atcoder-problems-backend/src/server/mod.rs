@@ -1,4 +1,5 @@
 use crate::server::accepted_count_ranking::get_ac_ranking;
+use crate::server::streak_ranking::{get_streak_ranking, get_users_streak_rank};
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
@@ -21,6 +22,7 @@ pub(crate) mod internal_user;
 pub(crate) mod middleware;
 pub(crate) mod problem_list;
 pub(crate) mod progress_reset;
+pub(crate) mod streak_ranking;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
 pub(crate) mod user_submissions;
@@ -103,9 +105,11 @@ where
             api.at("/ac_ranking").get_ah(get_ac_ranking);
             api.at("/from/:from").get_ah(get_time_submissions);
             api.at("/recent").get_ah(get_recent_submissions);
+            api.at("/streak_ranking").get_ah(get_streak_ranking);
             api.at("/users_and_time").get_ah(get_users_time_submissions);
             api.at("/user/submissions")
                 .get_ah(get_user_submissions_from_time);
+            api.at("/user/streak_rank").get_ah(get_users_streak_rank);
             api
         });
         api
