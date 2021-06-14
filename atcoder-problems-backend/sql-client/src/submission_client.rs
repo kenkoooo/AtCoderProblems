@@ -239,13 +239,13 @@ impl SubmissionClient for PgPool {
              cur| {
                 ids.push(cur.id);
                 epoch_seconds.push(cur.epoch_second);
-                problem_ids.push(cur.problem_id.clone());
-                contest_ids.push(cur.contest_id.clone());
-                user_ids.push(cur.user_id.clone());
-                languages.push(cur.language.clone());
+                problem_ids.push(cur.problem_id.as_str());
+                contest_ids.push(cur.contest_id.as_str());
+                user_ids.push(cur.user_id.as_str());
+                languages.push(cur.language.as_str());
                 points.push(cur.point);
                 lengths.push(cur.length);
-                results.push(cur.result.clone());
+                results.push(cur.result.as_str());
                 execution_times.push(cur.execution_time);
 
                 (
