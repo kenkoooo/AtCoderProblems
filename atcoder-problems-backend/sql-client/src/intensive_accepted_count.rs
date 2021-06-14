@@ -1,11 +1,16 @@
 use crate::models::{Submission, UserProblemCount};
 use crate::{PgPool, MAX_INSERT_ROWS};
+use crate::streak::AsJst;
+
 use anyhow::Result;
 use async_trait::async_trait;
+use chrono::{DateTime, Datelike, TimeZone, Utc};
 use sqlx::postgres::PgRow;
 use sqlx::Row;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::ops::Range;
+
+const DEFAULT_DURATION: i32 = 7;
 
 #[async_trait]
 pub trait IntensiveAcceptedCountClient {
@@ -16,7 +21,7 @@ pub trait IntensiveAcceptedCountClient {
     ) -> Result<Vec<UserProblemCount>>;
     async fn get_users_intensive_accepted_count(&self, user_id: &str) -> Option<i32>;
     async fn get_intensive_accepted_count_rank(&self, intensive_accepted_count: i32) -> Result<i64>;
-    async fn update_intensive_accepted_count(&self, submissions: &[Submission]) -> Result<()>;
+    async fn update_intensive_accepted_count(&self, submissions: &[Submission], today: DateTime<Utc>) -> Result<()>;
 }
 
 #[async_trait]
@@ -73,7 +78,7 @@ impl IntensiveAcceptedCountClient for PgPool {
         let count = sqlx::query(
             r"
             SELECT problem_count FROM intensive_accepted_count
-            WHERE user_id = $1
+            WHERE LOWRE(user_id) = LOWER($1)
             ",
         )
         .bind(user_id)
@@ -101,22 +106,73 @@ impl IntensiveAcceptedCountClient for PgPool {
         Ok(rank)
     }
 
-    async fn update_intensive_accepted_count(&self, submissions: &[Submission]) -> Result<()> {
-        // copy from StreakClient
-        unimplemented!()
+    async fn update_intensive_accepted_count(&self, ac_submissions: &[Submission], today: DateTime<Utc>) -> Result<()> {
+        let mut submissions = ac_submissions
+            .iter()
+            .map(|s| {
+                (
+                    Utc.timestamp(s.epoch_second, 0),
+                    s.user_id.as_str(),
+                    s.problem_id.as_str(),
+                )
+            })
+            .collect::<Vec<_>>();
+        submissions.sort_by_key(|&(timestamp, _, _)| timestamp);
+        let first_ac_map = submissions.into_iter().fold(
+            BTreeMap::new(),
+            |mut map, (epoch_second, user_id, problem_id)| {
+                map.entry(user_id)
+                    .or_insert_with(BTreeMap::new)
+                    .entry(problem_id)
+                    .or_insert(epoch_second);
+                map
+            },
+        );
+
+        let user_intensive_accepted_count = first_ac_map
+            .into_iter()
+            .map(|(user_id, m)| {
+                let max_streak = get_intensive_accepted_count(
+                        m.into_iter().map(|(_, utc)| utc).collect(),
+                        today,
+                        DEFAULT_DURATION
+                    );
+                (user_id, max_streak)
+            })
+            .collect::<Vec<_>>();
+
+        for chunk in user_intensive_accepted_count.chunks(MAX_INSERT_ROWS) {
+            let (user_ids, intensive_accepted_counts): (Vec<&str>, Vec<i32>) = chunk.iter().copied().unzip();
+            sqlx::query(
+                r"
+                INSERT INTO intensive_accepted_count (user_id, problem_count)
+                VALUES (
+                    UNNEST($1::VARCHAR(255)[]),
+                    UNNEST($2::INTEGER[])
+                )
+                ON CONFLICT (user_id)
+                DO UPDATE SET problem_count = EXCLUDED.problem_count
+                ",
+            )
+            .bind(user_ids)
+            .bind(intensive_accepted_counts)
+            .execute(self)
+            .await?;
+        }
+
+        Ok(())
     }
 }
 
-fn get_max_streak<Tz: TimeZone>(mut v: Vec<DateTime<Tz>>) -> i64 {
-    v.sort();
-    let (_, max_streak) = (1..v.len()).fold((1, 1), |(current_streak, max_streak), i| {
-        if v[i - 1].is_same_day_in_jst(&v[i]) {
-            (current_streak, max_streak)
-        } else if (v[i - 1].clone() + Duration::days(1)).is_same_day_in_jst(&v[i]) {
-            (current_streak + 1, cmp::max(max_streak, current_streak + 1))
-        } else {
-            (1, max_streak)
-        }
-    });
-    max_streak
+fn get_intensive_accepted_count<Tz: TimeZone>(
+    v: Vec<DateTime<Tz>>, today:DateTime<Tz>, duration: i32
+) -> i32 {
+    let intensive_accepted_count = v.iter()
+        .filter(|date| 
+            today.as_jst().date().num_days_from_ce()
+            - date.as_jst().date().num_days_from_ce() 
+            <= duration
+        )
+        .count() as i32;
+    return intensive_accepted_count;
 }

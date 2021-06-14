@@ -152,7 +152,7 @@ fn get_max_streak<Tz: TimeZone>(mut v: Vec<DateTime<Tz>>) -> i64 {
     max_streak
 }
 
-trait AsJst {
+pub(crate) trait AsJst {
     fn as_jst(&self) -> DateTime<FixedOffset>;
     fn is_same_day_in_jst<T: TimeZone>(&self, rhs: &DateTime<T>) -> bool {
         let d1 = self.as_jst();
