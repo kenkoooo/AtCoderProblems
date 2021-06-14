@@ -76,6 +76,13 @@ CREATE TABLE accepted_count (
   PRIMARY KEY (user_id)
 );
 
+DROP TABLE IF EXISTS intensive_accepted_count;
+CREATE TABLE intensive_accepted_count (
+  user_id       VARCHAR(255)  NOT NULL,
+  problem_count INT           NOT NULL,
+  PRIMARY KEY (user_id)
+);
+
 DROP TABLE IF EXISTS points;
 CREATE TABLE points (
   problem_id            VARCHAR(255) NOT NULL,
