@@ -4,13 +4,13 @@ use crate::streak::AsJst;
 
 use anyhow::Result;
 use async_trait::async_trait;
-use chrono::{DateTime, Datelike, TimeZone, Utc};
+use chrono::{DateTime, Duration, TimeZone, Utc};
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::BTreeMap;
 use std::ops::Range;
 
-const DEFAULT_DURATION: i32 = 7;
+const DEFAULT_DURATION: i64 = 7;
 
 #[async_trait]
 pub trait IntensiveAcceptedCountClient {
@@ -78,7 +78,7 @@ impl IntensiveAcceptedCountClient for PgPool {
         let count = sqlx::query(
             r"
             SELECT problem_count FROM intensive_accepted_count
-            WHERE LOWRE(user_id) = LOWER($1)
+            WHERE LOWER(user_id) = LOWER($1)
             ",
         )
         .bind(user_id)
@@ -165,14 +165,12 @@ impl IntensiveAcceptedCountClient for PgPool {
 }
 
 fn get_intensive_accepted_count<Tz: TimeZone>(
-    v: Vec<DateTime<Tz>>, today:DateTime<Tz>, duration: i32
+    v: Vec<DateTime<Tz>>, today:DateTime<Tz>, duration: i64
 ) -> i32 {
+    let threshold = (today.as_jst() - Duration::days(duration))
+        .date().and_hms(0, 0, 0);
     let intensive_accepted_count = v.iter()
-        .filter(|date| 
-            today.as_jst().date().num_days_from_ce()
-            - date.as_jst().date().num_days_from_ce() 
-            <= duration
-        )
+        .filter(|&date| *date >= threshold)
         .count() as i32;
     return intensive_accepted_count;
 }

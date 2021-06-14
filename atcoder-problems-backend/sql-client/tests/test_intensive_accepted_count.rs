@@ -21,7 +21,7 @@ async fn test_streak_ranking() {
         (8, 1568473200, 'problem_a', '', 'user3', '', 0, 0, 'AC'), -- 2019-09-15T00:00:00+09:00
         (9, 1569423600, 'problem_b', '', 'user3', '', 0, 0, 'AC'), -- 2019-09-26T00:00:00+09:00
         (10, 1570114800, 'problem_a', '', 'user4', '', 0, 0, 'AC'), -- 2019-10-04T00:00:00+09:00
-        (11, 1570496400, 'problem_a', '', 'user5', '', 0, 0, 'AC'); -- 2019-10-11T10:00:00+09:00
+        (11, 1570719600, 'problem_a', '', 'user5', '', 0, 0, 'AC'); -- 2019-10-11T10:00:00+09:00
         ",
     )
     .execute(&pool)
@@ -33,6 +33,7 @@ async fn test_streak_ranking() {
         .get_submissions(SubmissionRequest::AllAccepted)
         .await
         .unwrap();
+
     let today = Utc.ymd(2019, 10, 10).and_hms(22, 32, 11); // 2019-10-11T07:32:11+09:00
     pool.update_intensive_accepted_count(&submissions, today).await.unwrap();
 
@@ -57,8 +58,7 @@ async fn test_streak_ranking() {
 
     // get streak count rank
     assert_eq!(pool.get_intensive_accepted_count_rank(4).await.unwrap(), 0);
-    assert_eq!(pool.get_intensive_accepted_count_rank(2).await.unwrap(), 1);
-    assert_eq!(pool.get_intensive_accepted_count_rank(1).await.unwrap(), 2);
+    assert_eq!(pool.get_intensive_accepted_count_rank(1).await.unwrap(), 1);
     assert_eq!(pool.get_intensive_accepted_count_rank(0).await.unwrap(), 4);
 
     // load streak count in range
@@ -76,15 +76,14 @@ async fn test_streak_ranking() {
         user_id: "user5".to_owned(),
         problem_count: 1
     });
-    assert_eq!(rank_3rd_to_8th.len(), 2);
+    assert_eq!(rank_3rd_to_8th.len(), 3);
 
     let rank_2nd_to_2nd = pool
     .load_intensive_accepted_count_in_range(1..2).await.unwrap();
     assert_eq!(rank_2nd_to_2nd.len(), 1);
     assert_eq!(rank_2nd_to_2nd[0], UserProblemCount{
         user_id: "user2".to_owned(),
-        problem_count: 2
+        problem_count: 1
     });
-    
 }
 
