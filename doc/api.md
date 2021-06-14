@@ -44,9 +44,6 @@ Deprecated ~~https://kenkoooo.com/atcoder/resources/ac.json~~
 #### Example
 ```
 https://kenkoooo.com/atcoder/atcoder-api/v3/streak_ranking?from=0&to=10
-```
-#### Exampl
-```
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/streak_rank?user=kenkoooo
 ```
 
