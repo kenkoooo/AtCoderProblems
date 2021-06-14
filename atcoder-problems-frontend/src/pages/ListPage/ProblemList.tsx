@@ -33,6 +33,7 @@ export const FilterParams = {
   Rated: "rated",
   FromDifficulty: "fromDiff",
   ToDifficulty: "toDiff",
+  SolvedLanguage: "solvedLang",
 } as const;
 
 const convertToValidStatusFilterState = (
@@ -90,6 +91,20 @@ export const ProblemList: React.FC<Props> = (props) => {
   const ratedFilterState: RatedFilter =
     RATED_FILTERS.find((x) => x === searchParams.get(FilterParams.Rated)) ??
     "All";
+
+  const languageFilters = ["All"].concat(
+    Array.from(
+      props.submissions.reduce((set, s) => {
+        set.add(s.language);
+        return set;
+      }, new Set<string>())
+    ).sort()
+  );
+
+  const languageFilterState =
+    languageFilters.find(
+      (x) => x === searchParams.get(FilterParams.SolvedLanguage)
+    ) ?? "All";
   const fromDifficulty = parseInt(
     searchParams.get(FilterParams.FromDifficulty) || "-1",
     10
@@ -106,7 +121,7 @@ export const ProblemList: React.FC<Props> = (props) => {
         .map((p) => p.point)
         .filter((p): p is number => !!p)
     )
-  );
+  ).sort((a, b) => a - b);
   const difficulties = Range(0, 4400, 400)
     .map((from) => ({
       from,
@@ -116,7 +131,6 @@ export const ProblemList: React.FC<Props> = (props) => {
 
   const loginState = useLoginState().data;
   const isLoggedIn = UserState.isLoggedIn(loginState);
-
   return (
     <>
       <Row className="my-2 border-bottom">
@@ -189,6 +203,26 @@ export const ProblemList: React.FC<Props> = (props) => {
                   tag={Link}
                   to={generatePathWithParams(location, {
                     [FilterParams.Rated]: value,
+                  })}
+                >
+                  {value}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </ButtonGroup>
+        <ButtonGroup className="mr-4">
+          <UncontrolledDropdown>
+            <DropdownToggle caret>
+              {languageFilterState === "All" ? "Language" : languageFilterState}
+            </DropdownToggle>
+            <DropdownMenu>
+              {languageFilters.map((value) => (
+                <DropdownItem
+                  key={value}
+                  tag={Link}
+                  to={generatePathWithParams(location, {
+                    [FilterParams.SolvedLanguage]: value,
                   })}
                 >
                   {value}
@@ -296,6 +330,7 @@ export const ProblemList: React.FC<Props> = (props) => {
           toDifficulty={toDifficulty}
           filteredSubmissions={props.submissions}
           selectRow={isLoggedIn ? selectRowProps : undefined}
+          selectLanguage={languageFilterState}
         />
       </Row>
     </>

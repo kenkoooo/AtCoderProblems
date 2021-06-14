@@ -21,3 +21,20 @@ pub(crate) async fn get_streak_ranking<A>(request: Request<AppData<A>>) -> Resul
     let response = Response::json(&ranking)?;
     Ok(response)
 }
+
+pub(crate) async fn get_users_streak_rank<A>(request: Request<AppData<A>>) -> Result<Response> {
+    #[derive(Debug, Deserialize)]
+    struct Query {
+        user: String
+    }
+    let conn = request.state().pg_pool.clone();
+    let query = request.query::<Query>()?;
+    let user_id = &query.user;
+    let streak_count = match conn.get_users_streak_count(user_id).await {
+        Some(number) => number,
+        None => return Ok(Response::new(404)),
+    };
+    let rank = conn.get_streak_count_rank(streak_count).await?;
+    let response = Response::json(&rank)?;
+    Ok(response)
+}

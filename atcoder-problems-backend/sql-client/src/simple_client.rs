@@ -27,11 +27,11 @@ impl SimpleClient for PgPool {
                     mut rate_changes,
                 ),
                  cur| {
-                    ids.push(cur.id.clone());
+                    ids.push(cur.id.as_str());
                     start_epoch_seconds.push(cur.start_epoch_second);
                     duration_seconds.push(cur.duration_second);
-                    titles.push(cur.title.clone());
-                    rate_changes.push(cur.rate_change.clone());
+                    titles.push(cur.title.as_str());
+                    rate_changes.push(cur.rate_change.as_str());
                     (
                         ids,
                         start_epoch_seconds,
@@ -71,9 +71,9 @@ impl SimpleClient for PgPool {
         let (ids, contest_ids, titles) = values.iter().fold(
             (vec![], vec![], vec![]),
             |(mut ids, mut contest_ids, mut titles), cur| {
-                ids.push(cur.id.clone());
-                contest_ids.push(cur.contest_id.clone());
-                titles.push(cur.title.clone());
+                ids.push(cur.id.as_str());
+                contest_ids.push(cur.contest_id.as_str());
+                titles.push(cur.title.as_str());
                 (ids, contest_ids, titles)
             },
         );

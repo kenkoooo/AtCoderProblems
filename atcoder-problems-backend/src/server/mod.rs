@@ -1,5 +1,5 @@
 use crate::server::accepted_count_ranking::get_ac_ranking;
-use crate::server::streak_ranking::get_streak_ranking;
+use crate::server::streak_ranking::{get_streak_ranking, get_users_streak_rank};
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
 use crate::server::user_submissions::{
@@ -109,6 +109,7 @@ where
             api.at("/users_and_time").get_ah(get_users_time_submissions);
             api.at("/user/submissions")
                 .get_ah(get_user_submissions_from_time);
+            api.at("/user/streak_rank").get_ah(get_users_streak_rank);
             api
         });
         api

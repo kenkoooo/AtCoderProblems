@@ -56,7 +56,7 @@ impl StreakClient for PgPool {
         let count = sqlx::query(
             r"
             SELECT streak FROM max_streaks
-            WHERE user_id = $1
+            WHERE LOWER(user_id) = LOWER($1)
             ",
         )
         .bind(user_id)
