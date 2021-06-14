@@ -6,7 +6,7 @@ use chrono::{TimeZone, Utc};
 mod utils;
 
 #[async_std::test]
-async fn test_streak_ranking() {
+async fn test_intensive_accepted_count() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     sqlx::query(
         r"

@@ -14,7 +14,6 @@ const DEFAULT_DURATION: i64 = 7;
 
 #[async_trait]
 pub trait IntensiveAcceptedCountClient {
-    async fn load_intensive_accepted_count(&self) -> Result<Vec<UserProblemCount>>;
     async fn load_intensive_accepted_count_in_range(
         &self,
         rank_range: Range<usize>,
@@ -26,27 +25,6 @@ pub trait IntensiveAcceptedCountClient {
 
 #[async_trait]
 impl IntensiveAcceptedCountClient for PgPool {
-    async fn load_intensive_accepted_count(&self) -> Result<Vec<UserProblemCount>> {
-        let count = sqlx::query(
-            r"
-            SELECT user_id, problem_count FROM intensive_accepted_count
-            ORDER BY problem_count DESC, user_id ASC
-            ",
-        )
-        .try_map(|row: PgRow| {
-            let user_id: String = row.try_get("user_id")?;
-            let problem_count: i32 = row.try_get("problem_count")?;
-            Ok(UserProblemCount {
-                user_id,
-                problem_count,
-            })
-        })
-        .fetch_all(self)
-        .await?;
-
-        Ok(count)
-    }
-
     async fn load_intensive_accepted_count_in_range(
         &self,
         rank_range: Range<usize>,
