@@ -1,5 +1,6 @@
 use crate::models::{Submission, UserStreak};
 use crate::{PgPool, MAX_INSERT_ROWS};
+use crate::utils::AsJst;
 use anyhow::Result;
 use async_trait::async_trait;
 
@@ -7,7 +8,7 @@ use sqlx::postgres::PgRow;
 use sqlx::Row;
 
 use chrono::Duration;
-use chrono::{DateTime, Datelike, FixedOffset, TimeZone, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use std::cmp;
 use std::collections::BTreeMap;
 use std::ops::Range;
@@ -152,23 +153,6 @@ fn get_max_streak<Tz: TimeZone>(mut v: Vec<DateTime<Tz>>) -> i64 {
     max_streak
 }
 
-pub(crate) trait AsJst {
-    fn as_jst(&self) -> DateTime<FixedOffset>;
-    fn is_same_day_in_jst<T: TimeZone>(&self, rhs: &DateTime<T>) -> bool {
-        let d1 = self.as_jst();
-        let d2 = rhs.as_jst();
-        d1.day() == d2.day() && d1.month() == d2.month() && d1.year() == d2.year()
-    }
-}
-
-impl<Tz> AsJst for DateTime<Tz>
-where
-    Tz: TimeZone,
-{
-    fn as_jst(&self) -> DateTime<FixedOffset> {
-        self.with_timezone(&FixedOffset::east(9 * 3600))
-    }
-}
 
 #[cfg(test)]
 mod tests {

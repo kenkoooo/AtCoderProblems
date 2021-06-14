@@ -13,6 +13,7 @@ pub mod rated_point_sum;
 pub mod simple_client;
 pub mod streak;
 pub mod submission_client;
+pub mod utils;
 
 pub use sqlx::postgres::{PgPool, PgPoolOptions, PgRow};
 pub use sqlx::{query, Row};

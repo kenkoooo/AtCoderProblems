@@ -1,6 +1,6 @@
 use crate::models::{Submission, UserProblemCount};
 use crate::{PgPool, MAX_INSERT_ROWS};
-use crate::streak::AsJst;
+use crate::utils::AsJst;
 
 use anyhow::Result;
 use async_trait::async_trait;
