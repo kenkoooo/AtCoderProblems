@@ -47,7 +47,7 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/streak_ranking?from=0&to=10
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/streak_rank?user=kenkoooo
 ```
 
-Deprecated ~~https://kenkoooo.com/atcoder/resources/streaks.json~~
+Deprecated ~~https://kenkoooo.com/atcoder/resources/streaks.json~~ This old API will be removed soon. You can see more detail about the plan ([#981](https://github.com/kenkoooo/AtCoderProblems/issues/981)).
 
 ### Accepted Count for each language
 
