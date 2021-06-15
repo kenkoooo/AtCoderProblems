@@ -5,7 +5,9 @@ use tide::{Request, Response, Result};
 
 const MAX_RANKING_RANGE_LENGTH: usize = 1000;
 
-pub(crate) async fn get_rated_point_sum_ranking<A>(request: Request<AppData<A>>) -> Result<Response> {
+pub(crate) async fn get_rated_point_sum_ranking<A>(
+    request: Request<AppData<A>>,
+) -> Result<Response> {
     #[derive(Debug, Deserialize)]
     struct Query {
         from: usize,
@@ -14,7 +16,7 @@ pub(crate) async fn get_rated_point_sum_ranking<A>(request: Request<AppData<A>>)
     let conn = request.state().pg_pool.clone();
     let query = request.query::<Query>()?;
     let query = (query.from)..(query.to);
-    if query.len() > MAX_RANKING_RANGE_LENGTH {
+    if query.len() > MAX_RANKING_RANGE_LENGTH || query.is_empty() {
         return Ok(Response::new(400));
     }
 
