@@ -16,7 +16,7 @@ pub(crate) async fn get_rated_point_sum_ranking<A>(
     let conn = request.state().pg_pool.clone();
     let query = request.query::<Query>()?;
     let query = (query.from)..(query.to);
-    if query.len() > MAX_RANKING_RANGE_LENGTH || query.is_empty() {
+    if query.len() > MAX_RANKING_RANGE_LENGTH {
         return Ok(Response::new(400));
     }
 

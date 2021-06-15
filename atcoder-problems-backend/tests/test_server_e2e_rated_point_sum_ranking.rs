@@ -116,9 +116,10 @@ async fn test_rated_point_sum_ranking() {
         "/atcoder-api/v3/rated_point_sum_ranking?from=1&to=0",
         port,
     ))
+    .recv_json::<Value>()
     .await
     .unwrap();
-    assert_eq!(response.status(), 400);
+    assert!(response.as_array().unwrap().is_empty());
 
     let response = surf::get(url(
         "/atcoder-api/v3/rated_point_sum_ranking?from=-1&to=0",
