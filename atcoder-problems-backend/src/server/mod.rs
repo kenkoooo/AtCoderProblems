@@ -1,4 +1,5 @@
 use crate::server::accepted_count_ranking::get_ac_ranking;
+use crate::server::rated_point_sum_ranking::get_rated_point_sum_ranking;
 use crate::server::streak_ranking::{get_streak_ranking, get_users_streak_rank};
 use crate::server::time_submissions::get_time_submissions;
 use crate::server::user_info::get_user_info;
@@ -22,6 +23,7 @@ pub(crate) mod internal_user;
 pub(crate) mod middleware;
 pub(crate) mod problem_list;
 pub(crate) mod progress_reset;
+pub(crate) mod rated_point_sum_ranking;
 pub(crate) mod streak_ranking;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
@@ -102,6 +104,8 @@ where
         });
         api.at("/v3").nest({
             let mut api = tide::with_state(app_data.clone());
+            api.at("/rated_point_sum_ranking")
+                .get_ah(get_rated_point_sum_ranking);
             api.at("/ac_ranking").get_ah(get_ac_ranking);
             api.at("/from/:from").get_ah(get_time_submissions);
             api.at("/recent").get_ah(get_recent_submissions);
