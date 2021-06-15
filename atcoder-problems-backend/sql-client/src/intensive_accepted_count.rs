@@ -1,16 +1,13 @@
 use crate::models::{Submission, UserProblemCount};
 use crate::{PgPool, MAX_INSERT_ROWS};
-use crate::utils::AsJst;
 
 use anyhow::Result;
 use async_trait::async_trait;
-use chrono::{DateTime, Duration, TimeZone, Utc};
+use chrono::{TimeZone, Utc};
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::BTreeMap;
 use std::ops::Range;
-
-const DEFAULT_DURATION: i64 = 7;
 
 #[async_trait]
 pub trait IntensiveAcceptedCountClient {
@@ -20,7 +17,7 @@ pub trait IntensiveAcceptedCountClient {
     ) -> Result<Vec<UserProblemCount>>;
     async fn get_users_intensive_accepted_count(&self, user_id: &str) -> Option<i32>;
     async fn get_intensive_accepted_count_rank(&self, intensive_accepted_count: i32) -> Result<i64>;
-    async fn update_intensive_accepted_count(&self, submissions: &[Submission], today: DateTime<Utc>) -> Result<()>;
+    async fn update_intensive_accepted_count(&self, submissions: &[Submission], epoch_since: i64) -> Result<()>;
 }
 
 #[async_trait]
@@ -84,7 +81,11 @@ impl IntensiveAcceptedCountClient for PgPool {
         Ok(rank)
     }
 
-    async fn update_intensive_accepted_count(&self, ac_submissions: &[Submission], today: DateTime<Utc>) -> Result<()> {
+    async fn update_intensive_accepted_count(
+        &self, ac_submissions: &[Submission],
+        epoch_since: i64
+    ) -> Result<()>
+    {
         let mut submissions = ac_submissions
             .iter()
             .map(|s| {
@@ -110,11 +111,9 @@ impl IntensiveAcceptedCountClient for PgPool {
         let user_intensive_accepted_count = first_ac_map
             .into_iter()
             .map(|(user_id, m)| {
-                let max_streak = get_intensive_accepted_count(
-                        m.into_iter().map(|(_, utc)| utc).collect(),
-                        today,
-                        DEFAULT_DURATION
-                    );
+                let max_streak = m.iter()
+                    .filter(|(_, utc)| utc.timestamp() >= epoch_since)
+                    .count() as i32;
                 (user_id, max_streak)
             })
             .collect::<Vec<_>>();
@@ -137,18 +136,6 @@ impl IntensiveAcceptedCountClient for PgPool {
             .execute(self)
             .await?;
         }
-
         Ok(())
     }
-}
-
-fn get_intensive_accepted_count<Tz: TimeZone>(
-    v: Vec<DateTime<Tz>>, today:DateTime<Tz>, duration: i64
-) -> i32 {
-    let threshold = (today.as_jst() - Duration::days(duration))
-        .date().and_hms(0, 0, 0);
-    let intensive_accepted_count = v.iter()
-        .filter(|&date| *date >= threshold)
-        .count() as i32;
-    return intensive_accepted_count;
 }

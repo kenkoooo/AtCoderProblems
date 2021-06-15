@@ -34,8 +34,8 @@ async fn test_intensive_accepted_count() {
         .await
         .unwrap();
 
-    let today = Utc.ymd(2019, 10, 10).and_hms(22, 32, 11); // 2019-10-11T07:32:11+09:00
-    pool.update_intensive_accepted_count(&submissions, today).await.unwrap();
+    let threshold = Utc.ymd(2019, 10, 3).and_hms(15, 0, 0).timestamp(); // 2019-10-04T00:00:00+09:00
+    pool.update_intensive_accepted_count(&submissions, threshold).await.unwrap();
 
     // get users IAC
     assert_eq!(
