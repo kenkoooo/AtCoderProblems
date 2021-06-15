@@ -29,13 +29,13 @@ async fn test_intensive_accepted_count() {
     .unwrap();
 
     // update IAC
+    let threshold = Utc.ymd(2019, 10, 3).and_hms(15, 0, 0).timestamp(); // 2019-10-04T00:00:00+09:00
     let submissions = pool
-        .get_submissions(SubmissionRequest::AllAccepted)
+        .get_submissions(SubmissionRequest::AcceptedFrom{ from_second: threshold })
         .await
         .unwrap();
 
-    let threshold = Utc.ymd(2019, 10, 3).and_hms(15, 0, 0).timestamp(); // 2019-10-04T00:00:00+09:00
-    pool.update_intensive_accepted_count(&submissions, threshold).await.unwrap();
+    pool.update_intensive_accepted_count(&submissions).await.unwrap();
 
     // get users IAC
     assert_eq!(
@@ -76,7 +76,7 @@ async fn test_intensive_accepted_count() {
         user_id: "user5".to_owned(),
         problem_count: 1
     });
-    assert_eq!(rank_3rd_to_8th.len(), 3);
+    assert_eq!(rank_3rd_to_8th.len(), 2);
 
     let rank_2nd_to_2nd = pool
     .load_intensive_accepted_count_in_range(1..2).await.unwrap();

@@ -17,7 +17,7 @@ pub trait IntensiveAcceptedCountClient {
     ) -> Result<Vec<UserProblemCount>>;
     async fn get_users_intensive_accepted_count(&self, user_id: &str) -> Option<i32>;
     async fn get_intensive_accepted_count_rank(&self, intensive_accepted_count: i32) -> Result<i64>;
-    async fn update_intensive_accepted_count(&self, submissions: &[Submission], epoch_since: i64) -> Result<()>;
+    async fn update_intensive_accepted_count(&self, submissions: &[Submission]) -> Result<()>;
 }
 
 #[async_trait]
@@ -81,12 +81,9 @@ impl IntensiveAcceptedCountClient for PgPool {
         Ok(rank)
     }
 
-    async fn update_intensive_accepted_count(
-        &self, ac_submissions: &[Submission],
-        epoch_since: i64
-    ) -> Result<()>
+    async fn update_intensive_accepted_count(&self, recent_ac_submissions: &[Submission]) -> Result<()>
     {
-        let mut submissions = ac_submissions
+        let mut submissions = recent_ac_submissions
             .iter()
             .map(|s| {
                 (
@@ -111,10 +108,8 @@ impl IntensiveAcceptedCountClient for PgPool {
         let user_intensive_accepted_count = first_ac_map
             .into_iter()
             .map(|(user_id, m)| {
-                let max_streak = m.iter()
-                    .filter(|(_, utc)| utc.timestamp() >= epoch_since)
-                    .count() as i32;
-                (user_id, max_streak)
+                let intensive_accepted_count = m.len() as i32;
+                (user_id, intensive_accepted_count)
             })
             .collect::<Vec<_>>();
 

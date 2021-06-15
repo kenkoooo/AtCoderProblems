@@ -34,6 +34,9 @@ pub enum SubmissionRequest<'a> {
         from_second: i64,
     },
     AllAccepted,
+    AcceptedFrom {
+        from_second: i64,
+    },
     ByIds {
         ids: &'a [i64],
     },
@@ -136,6 +139,15 @@ impl SubmissionClient for PgPool {
                     WHERE result = 'AC'
                     ",
             )
+            .fetch_all(self),
+            SubmissionRequest::AcceptedFrom { from_second } => sqlx::query_as(
+                r"
+                    SELECT * FROM submissions
+                    WHERE result = 'AC'
+                    AND epoch_second >= $1
+                    ",
+            )
+            .bind(from_second)
             .fetch_all(self),
             SubmissionRequest::InvalidResult { from_second } => sqlx::query_as(
                 r"

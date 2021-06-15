@@ -120,6 +120,13 @@ async fn test_submission_client() {
         .unwrap();
     assert_eq!(submissions.len(), 3);
 
+    let request = SubmissionRequest::AcceptedFrom {
+        from_second: 200,
+    };
+    let submissions = pool.get_submissions(request).await.unwrap();
+    assert_eq!(submissions.len(), 2);
+
+
     assert_eq!(pool.count_stored_submissions(&[1]).await.unwrap(), 1);
     assert_eq!(pool.count_stored_submissions(&[9]).await.unwrap(), 0);
 
