@@ -5,7 +5,7 @@ use tide::{Request, Response, Result};
 
 const MAX_RANKING_RANGE_LENGTH: usize = 1000;
 
-pub(crate) async fn get_rps_ranking<A>(request: Request<AppData<A>>) -> Result<Response> {
+pub(crate) async fn get_reted_point_sum_ranking<A>(request: Request<AppData<A>>) -> Result<Response> {
     #[derive(Debug, Deserialize)]
     struct Query {
         from: usize,
