@@ -41,7 +41,7 @@ async fn setup() -> u16 {
 }
 
 #[async_std::test]
-async fn test_rps_ranking() {
+async fn test_rated_point_sum_ranking() {
     let port = setup().await;
     let server = task::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
