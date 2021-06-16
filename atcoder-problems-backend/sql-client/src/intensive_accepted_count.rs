@@ -3,7 +3,6 @@ use crate::{PgPool, MAX_INSERT_ROWS};
 
 use anyhow::Result;
 use async_trait::async_trait;
-use chrono::{TimeZone, Utc};
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::BTreeMap;
@@ -87,7 +86,7 @@ impl IntensiveAcceptedCountClient for PgPool {
             .iter()
             .map(|s| {
                 (
-                    Utc.timestamp(s.epoch_second, 0),
+                    s.epoch_second,
                     s.user_id.as_str(),
                     s.problem_id.as_str(),
                 )
