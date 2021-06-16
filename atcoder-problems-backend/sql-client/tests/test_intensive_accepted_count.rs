@@ -8,6 +8,22 @@ mod utils;
 #[async_std::test]
 async fn test_intensive_accepted_count() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
+
+    // check whether old data will be rewriten properly
+    sqlx::query(
+        r"
+        INSERT INTO intensive_accepted_count (user_id, problem_count) VALUES
+        ('user1', 2), ('user2', 3), ('old_user', 4)
+        "
+    ).execute(&pool)
+    .await
+    .unwrap();
+
+    assert_eq!(
+        pool.get_users_intensive_accepted_count("old_user").await.unwrap(),
+        4
+    );
+
     sqlx::query(
         r"
         INSERT INTO submissions (id, epoch_second, problem_id, contest_id, user_id, language, point, length, result) VALUES 
@@ -50,6 +66,10 @@ async fn test_intensive_accepted_count() {
         pool.get_users_intensive_accepted_count("user4").await.unwrap(),
         1
     );
+    assert_eq!(
+        pool.get_users_intensive_accepted_count("old_user").await.unwrap(),
+        0
+    );
     assert!(
         pool.get_users_intensive_accepted_count("non_existing_user")
         .await
@@ -76,7 +96,8 @@ async fn test_intensive_accepted_count() {
         user_id: "user5".to_owned(),
         problem_count: 1
     });
-    assert_eq!(rank_3rd_to_8th.len(), 2);
+    assert_eq!(rank_3rd_to_8th.len(), 3);
+    assert_eq!(rank_3rd_to_8th[2].user_id, "old_user".to_owned());
 
     let rank_2nd_to_2nd = pool
     .load_intensive_accepted_count_in_range(1..2).await.unwrap();

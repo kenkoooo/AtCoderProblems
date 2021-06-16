@@ -93,14 +93,31 @@ impl IntensiveAcceptedCountClient for PgPool {
             })
             .collect::<Vec<_>>();
         submissions.sort_by_key(|&(timestamp, _, _)| timestamp);
-        let first_ac_map = submissions.into_iter().fold(
-            BTreeMap::new(),
-            |mut map, (epoch_second, user_id, problem_id)| {
-                map.entry(user_id)
+
+        let all_users = sqlx::query(
+            r"
+            SELECT user_id FROM intensive_accepted_count
+            "
+        ).try_map(|row: PgRow| {
+            let user_id: String = row.try_get("user_id")?;
+            Ok(user_id)
+        })
+        .fetch_all(self)
+        .await?;
+
+        let mut first_ac_map = BTreeMap::new();
+        all_users.iter().for_each(|user_id| {
+            first_ac_map
+                .entry(user_id.as_str())
+                .or_insert_with(BTreeMap::new);
+        });
+        
+        submissions.into_iter().for_each(
+            |(epoch_second, user_id, problem_id)| {
+                first_ac_map.entry(user_id)
                     .or_insert_with(BTreeMap::new)
                     .entry(problem_id)
                     .or_insert(epoch_second);
-                map
             },
         );
 
