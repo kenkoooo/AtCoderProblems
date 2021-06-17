@@ -6,6 +6,7 @@ use regex::Regex;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
+use std::ops::Range;
 
 #[async_trait]
 pub trait LanguageCountClient {
@@ -15,6 +16,7 @@ pub trait LanguageCountClient {
         current_counts: &[UserLanguageCount],
     ) -> Result<()>;
     async fn load_language_count(&self) -> Result<Vec<UserLanguageCount>>;
+    async fn load_language_count_in_range(&self, rank_range: Range<usize>) -> Result<Vec<UserLanguageCount>>;
     async fn load_users_language_count(&self, user_id: &str) -> Result<Vec<UserLanguageCount>>;
     async fn load_users_language_count_rank(
         &self,
@@ -125,6 +127,34 @@ impl LanguageCountClient for PgPool {
         .fetch_all(self)
         .await?;
         Ok(count)
+    }
+
+    async fn load_language_count_in_range(&self, rank_range: Range<usize>) -> Result<Vec<UserLanguageCount>> {
+        let list = sqlx::query(
+            r"
+            SELECT user_id, simplified_language, problem_count FROM (
+                SELECT *, ROW_NUMBER()
+                OVER(PARTITION BY simplified_language ORDER BY problem_count desc) AS rank
+                FROM language_count
+            )
+            AS inner_table WHERE rank BETWEEN $1 AND $2;
+        ",
+        )
+        .bind(rank_range.start as i64)
+        .bind(rank_range.end as i64 - 1)
+        .try_map(|row: PgRow| {
+            let user_id: String = row.try_get("user_id")?;
+            let simplified_language: String = row.try_get("simplified_language")?;
+            let problem_count: i32 = row.try_get("problem_count")?;
+            Ok(UserLanguageCount {
+                user_id,
+                simplified_language,
+                problem_count,
+            })
+        })
+        .fetch_all(self)
+        .await?;
+        Ok(list)
     }
 
     async fn load_users_language_count(&self, user_id: &str) -> Result<Vec<UserLanguageCount>> {
