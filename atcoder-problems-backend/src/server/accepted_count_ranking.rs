@@ -22,28 +22,24 @@ pub(crate) async fn get_ac_ranking<A>(request: Request<AppData<A>>) -> Result<Re
     Ok(response)
 }
 
-pub(crate) async fn get_users_ac_info<A>(request: Request<AppData<A>>) -> Result<Response> {
+pub(crate) async fn get_users_ac_rank<A>(request: Request<AppData<A>>) -> Result<Response> {
     #[derive(Debug, Deserialize)]
     struct Query {
         user: String,
     }
     #[derive(Debug, Serialize)]
     struct UsersACInfo {
-        accepted_count: i32,
-        accepted_count_rank: i64,
+        count: i32,
+        rank: i64,
     }
     let conn = request.state().pg_pool.clone();
     let query = request.query::<Query>()?;
-    let user_id = &query.user;
-    let accepted_count = match conn.get_users_accepted_count(user_id).await {
+    let count = match conn.get_users_accepted_count(&query.user).await {
         Some(number) => number,
         None => return Ok(Response::new(404)),
     };
-    let accepted_count_rank = conn.get_accepted_count_rank(accepted_count).await?;
-    let users_ac_info = UsersACInfo {
-        accepted_count,
-        accepted_count_rank,
-    };
+    let rank = conn.get_accepted_count_rank(count).await?;
+    let users_ac_info = UsersACInfo { count, rank };
     let response = Response::json(&users_ac_info)?;
     Ok(response)
 }

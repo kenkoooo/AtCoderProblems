@@ -94,34 +94,25 @@ async fn test_ac_ranking() {
         .unwrap();
     assert_eq!(response.status(), 400);
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_info?user=u1", port))
+    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=u1", port))
         .recv_json::<Value>()
         .await
         .unwrap();
-    assert_eq!(
-        response,
-        json!({"accepted_count": 1, "accepted_count_rank": 1})
-    );
+    assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_info?user=u2", port))
+    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=u2", port))
         .recv_json::<Value>()
         .await
         .unwrap();
-    assert_eq!(
-        response,
-        json!({"accepted_count": 2, "accepted_count_rank": 0})
-    );
+    assert_eq!(response, json!({"count": 2, "rank": 0}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_info?user=u3", port))
+    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=u3", port))
         .recv_json::<Value>()
         .await
         .unwrap();
-    assert_eq!(
-        response,
-        json!({"accepted_count": 1, "accepted_count_rank": 1})
-    );
+    assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_info?user=do_not_exist", port))
+    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=do_not_exist", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 404);
