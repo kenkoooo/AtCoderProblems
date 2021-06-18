@@ -79,6 +79,14 @@ pub struct UserLanguageCount {
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize)]
+pub struct UserLanguageCountRank {
+    #[serde(rename = "language")]
+    pub simplified_language: String,
+
+    pub rank: i32,
+}
+
+#[derive(Debug, Eq, PartialEq, Serialize)]
 pub struct UserProblemCount {
     pub user_id: String,
     pub problem_count: i32,
