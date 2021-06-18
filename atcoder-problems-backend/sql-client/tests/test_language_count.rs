@@ -1,5 +1,5 @@
 use sql_client::language_count::LanguageCountClient;
-use sql_client::models::{Submission, UserLanguageCount};
+use sql_client::models::{Submission, UserLanguageCount, UserLanguageCountRank};
 
 mod utils;
 
@@ -129,6 +129,44 @@ async fn test_language_count() {
                 simplified_language: "Raku".to_owned(),
                 problem_count: 2
             }
+        ]
+    );
+    let language_count_rank = pool.load_users_language_count_rank(&"user1").await.unwrap();
+    assert_eq!(
+        language_count_rank,
+        vec![
+            UserLanguageCountRank {
+                simplified_language: "language1".to_owned(),
+                rank: 1,
+            },
+            UserLanguageCountRank {
+                simplified_language: "language2".to_owned(),
+                rank: 1,
+            },
+        ]
+    );
+    let language_count_rank = pool.load_users_language_count_rank(&"user2").await.unwrap();
+    assert_eq!(
+        language_count_rank,
+        vec![
+            UserLanguageCountRank {
+                simplified_language: "language1".to_owned(),
+                rank: 2,
+            },
+        ]
+    );
+    let language_count_rank = pool.load_users_language_count_rank(&"user3").await.unwrap();
+    assert_eq!(
+        language_count_rank,
+        vec![
+            UserLanguageCountRank {
+                simplified_language: "Perl".to_owned(),
+                rank: 1,
+            },
+            UserLanguageCountRank {
+                simplified_language: "Raku".to_owned(),
+                rank: 1,
+            },
         ]
     );
 }
