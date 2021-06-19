@@ -276,7 +276,7 @@ impl VirtualContestManager for PgPool {
         .fetch_all(self)
         .await?
         .into_iter()
-        .filter_map(|participant| participant)
+        .flatten()
         .collect::<Vec<String>>();
 
         Ok(participants)

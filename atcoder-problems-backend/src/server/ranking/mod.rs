@@ -30,13 +30,13 @@ pub(crate) struct RankingResponseEntry {
 
 const MAX_RANKING_RANGE_LENGTH: usize = 1_000;
 
-pub(crate) fn ranking<'a, State, Fut, F>(f: F) -> impl tide::Endpoint<State>
+pub(crate) fn ranking<State, Fut, F>(f: F) -> impl tide::Endpoint<State>
 where
     State: Send + Sync + 'static + Clone,
     F: Sync + Send + 'static + Copy + Fn(State, Range<usize>) -> Fut,
     Fut: std::future::Future<Output = tide::Result<Vec<RankingResponseEntry>>> + Send + 'static,
 {
-    let t = move |request: tide::Request<State>| async move {
+    move |request: tide::Request<State>| async move {
         let state = request.state().clone();
         let query = request.query::<RankingRequest>()?;
         let query = (query.from)..(query.to);
@@ -46,11 +46,10 @@ where
         let ranking = f(state, query).await?;
         let response = tide::Response::json(&ranking)?;
         Ok(response)
-    };
-    t
+    }
 }
 
-pub(crate) fn user_rank<'a, State, Fut, F>(f: F) -> impl tide::Endpoint<State>
+pub(crate) fn user_rank<State, Fut, F>(f: F) -> impl tide::Endpoint<State>
 where
     State: Send + Sync + 'static + Clone,
     F: Fn(State, String) -> Fut + Sync + Send + 'static + Copy,
