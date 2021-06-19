@@ -84,8 +84,8 @@ impl ProblemListManager for PgPool {
             .map(
                 |(internal_list_id, (internal_list_name, internal_user_id, items))| ProblemList {
                     internal_list_id,
-                    internal_user_id,
                     internal_list_name,
+                    internal_user_id,
                     items,
                 },
             )
@@ -139,8 +139,8 @@ impl ProblemListManager for PgPool {
             .map(
                 |(internal_list_id, (internal_list_name, internal_user_id, items))| ProblemList {
                     internal_list_id,
-                    internal_user_id,
                     internal_list_name,
+                    internal_user_id,
                     items,
                 },
             )

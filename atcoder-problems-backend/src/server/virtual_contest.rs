@@ -133,8 +133,8 @@ where
     let problems = conn.get_single_contest_problems(&contest_id).await?;
     let contest = VirtualContestDetails {
         info,
-        participants,
         problems,
+        participants,
     };
     let response = Response::json(&contest)?;
     Ok(response)

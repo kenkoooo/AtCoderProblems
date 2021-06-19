@@ -60,9 +60,9 @@ async fn test_ac_ranking() {
     assert_eq!(
         response,
         json!([
-            {"user_id": "u2", "problem_count": 2},
-            {"user_id": "u1", "problem_count": 1},
-            {"user_id": "u3", "problem_count": 1}
+            {"user_id": "u2", "count": 2},
+            {"user_id": "u1", "count": 1},
+            {"user_id": "u3", "count": 1}
         ])
     );
 
@@ -73,8 +73,8 @@ async fn test_ac_ranking() {
     assert_eq!(
         response,
         json!([
-            {"user_id": "u1", "problem_count": 1},
-            {"user_id": "u3", "problem_count": 1}
+            {"user_id": "u1", "count": 1},
+            {"user_id": "u3", "count": 1}
         ])
     );
 
