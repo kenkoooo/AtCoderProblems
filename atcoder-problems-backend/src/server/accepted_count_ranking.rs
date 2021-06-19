@@ -1,5 +1,5 @@
 use crate::server::{AppData, CommonResponse};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sql_client::accepted_count::AcceptedCountClient;
 use tide::{Request, Response, Result};
 
@@ -19,5 +19,27 @@ pub(crate) async fn get_ac_ranking<A>(request: Request<AppData<A>>) -> Result<Re
     }
     let ranking = conn.load_accepted_count_in_range(query).await?;
     let response = Response::json(&ranking)?;
+    Ok(response)
+}
+
+pub(crate) async fn get_users_ac_rank<A>(request: Request<AppData<A>>) -> Result<Response> {
+    #[derive(Debug, Deserialize)]
+    struct Query {
+        user: String,
+    }
+    #[derive(Debug, Serialize)]
+    struct UsersACInfo {
+        count: i32,
+        rank: i64,
+    }
+    let conn = request.state().pg_pool.clone();
+    let query = request.query::<Query>()?;
+    let count = match conn.get_users_accepted_count(&query.user).await {
+        Some(number) => number,
+        None => return Ok(Response::new(404)),
+    };
+    let rank = conn.get_accepted_count_rank(count).await?;
+    let users_ac_info = UsersACInfo { count, rank };
+    let response = Response::json(&users_ac_info)?;
     Ok(response)
 }
