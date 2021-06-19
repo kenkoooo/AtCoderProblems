@@ -62,9 +62,9 @@ async fn test_streak_ranking() {
     assert_eq!(
         response,
         json!([
-            {"user_id": "u2", "streak": 2},
-            {"user_id": "u1", "streak": 1},
-            {"user_id": "u3", "streak": 1}
+            {"user_id": "u2", "count": 2},
+            {"user_id": "u1", "count": 1},
+            {"user_id": "u3", "count": 1}
         ])
     );
 
@@ -75,8 +75,8 @@ async fn test_streak_ranking() {
     assert_eq!(
         response,
         json!([
-            {"user_id": "u1", "streak": 1},
-            {"user_id": "u3", "streak": 1}
+            {"user_id": "u1", "count": 1},
+            {"user_id": "u3", "count": 1}
         ])
     );
 
@@ -102,22 +102,25 @@ async fn test_streak_ranking() {
         .recv_json::<Value>()
         .await
         .unwrap();
-    assert_eq!(response, json!(1));
+    assert_eq!(response, json!({"count":1,"rank":1}));
 
     let response = surf::get(url("/atcoder-api/v3/user/streak_rank?user=u2", port))
         .recv_json::<Value>()
         .await
         .unwrap();
-    assert_eq!(response, json!(0));
+    assert_eq!(response, json!({"count":2,"rank":0}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/streak_rank?user=do_not_exist", port))
-        .await
-        .unwrap();
+    let response = surf::get(url(
+        "/atcoder-api/v3/user/streak_rank?user=do_not_exist",
+        port,
+    ))
+    .await
+    .unwrap();
     assert_eq!(response.status(), 404);
 
     let response = surf::get(url("/atcoder-api/v3/user/streak_rank?bad=request", port))
-    .await
-    .unwrap();
+        .await
+        .unwrap();
     assert_eq!(response.status(), 400);
 
     server.race(ready(())).await;

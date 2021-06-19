@@ -12,7 +12,7 @@ struct Query {
 #[derive(Serialize)]
 struct UserInfo {
     user_id: String,
-    accepted_count: i32,
+    accepted_count: i64,
     accepted_count_rank: i64,
     rated_point_sum: f64,
     rated_point_sum_rank: i64,

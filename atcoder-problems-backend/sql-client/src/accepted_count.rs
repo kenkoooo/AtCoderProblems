@@ -14,8 +14,8 @@ pub trait AcceptedCountClient {
         &self,
         rank_range: Range<usize>,
     ) -> Result<Vec<UserProblemCount>>;
-    async fn get_users_accepted_count(&self, user_id: &str) -> Option<i32>;
-    async fn get_accepted_count_rank(&self, accepted_count: i32) -> Result<i64>;
+    async fn get_users_accepted_count(&self, user_id: &str) -> Option<i64>;
+    async fn get_accepted_count_rank(&self, accepted_count: i64) -> Result<i64>;
     async fn update_accepted_count(&self, submissions: &[Submission]) -> Result<()>;
 }
 
@@ -69,7 +69,7 @@ impl AcceptedCountClient for PgPool {
         Ok(count)
     }
 
-    async fn get_users_accepted_count(&self, user_id: &str) -> Option<i32> {
+    async fn get_users_accepted_count(&self, user_id: &str) -> Option<i64> {
         let count = sqlx::query(
             r"
             SELECT problem_count FROM accepted_count
@@ -81,11 +81,10 @@ impl AcceptedCountClient for PgPool {
         .fetch_one(self)
         .await
         .ok()?;
-
-        Some(count)
+        Some(count as i64)
     }
 
-    async fn get_accepted_count_rank(&self, accepted_count: i32) -> Result<i64> {
+    async fn get_accepted_count_rank(&self, accepted_count: i64) -> Result<i64> {
         let rank = sqlx::query(
             r"
             SELECT COUNT(*) AS rank
