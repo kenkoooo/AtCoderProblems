@@ -32,9 +32,10 @@ We unofficially provide API to get information about AtCoder.
 #### Example
 ```
 https://kenkoooo.com/atcoder/atcoder-api/v3/ac_ranking?from=0&to=10
+https://kenkoooo.com/atcoder/atcoder-api/v3/user/ac_rank?user=kenkoooo
 ```
 
-Deprecated ~~https://kenkoooo.com/atcoder/resources/ac.json~~
+Deprecated ~~https://kenkoooo.com/atcoder/resources/ac.json~~ This old API will be removed soon. You can see more detail about the plan ([#989](https://github.com/kenkoooo/AtCoderProblems/issues/989)).
 
 ### Rated Point Sum
 
