@@ -16,6 +16,7 @@ pub trait LanguageCountClient {
     ) -> Result<()>;
     async fn load_language_count(&self) -> Result<Vec<UserLanguageCount>>;
     async fn load_users_language_count_rank(&self, user_id: &str) -> Result<Vec<UserLanguageCountRank>>;
+    async fn load_languages(&self) -> Result<Vec<String>>;
 }
 
 #[async_trait]
@@ -146,6 +147,19 @@ impl LanguageCountClient for PgPool {
         .fetch_all(self)
         .await?;
         Ok(rank)
+    }
+
+    async fn load_languages(&self) -> Result<Vec<String>> {
+        let languages = sqlx::query(
+            r"SELECT DISTINCT simplified_language FROM language_count ORDER BY simplified_language",
+        )
+            .try_map(|row: PgRow| {
+                let simplified_language: String = row.try_get("simplified_language")?;
+                Ok(simplified_language)
+            })
+            .fetch_all(self)
+            .await?;
+        Ok(languages)
     }
 }
 
