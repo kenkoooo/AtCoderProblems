@@ -169,4 +169,14 @@ async fn test_language_count() {
             },
         ]
     );
+    let languages = pool.load_languages().await.unwrap();
+    assert_eq!(
+        languages,
+        vec![
+            "language1".to_owned(),
+            "language2".to_owned(),
+            "Perl".to_owned(),
+            "Raku".to_owned(),
+        ]
+    );
 }
