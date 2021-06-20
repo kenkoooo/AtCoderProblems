@@ -13,6 +13,7 @@ import { LanguageCount } from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
 import { TrophyBlock } from "./TrophyBlock";
 import { Submissions } from "./Submissions";
+import { CategoryAchivement } from "./CategoryAchivement";
 
 const userPageTabs = [
   "Achievement",
@@ -23,6 +24,7 @@ const userPageTabs = [
   "Recommendation",
   "Languages",
   "Trophy",
+  "Category Achivement",
   "All",
 ] as const;
 
@@ -118,6 +120,14 @@ export const UserPage = (props: Props) => {
             <h1>Recommendation</h1>
           </Row>
           <Recommendations userId={userId} />
+        </>
+      )}
+      {(userPageTab === "All" || userPageTab === "Category Achivement") && (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Category Achivement</h1>
+          </Row>
+          <CategoryAchivement userId={userId} />
         </>
       )}
     </div>
