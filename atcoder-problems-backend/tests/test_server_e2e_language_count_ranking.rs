@@ -68,14 +68,17 @@ async fn test_language_count_ranking() {
     assert_eq!(response, json!([
         {
             "language": "lang1",
+            "count": 1,
             "rank": 3,
         },
         {
             "language": "lang2",
+            "count": 1,
             "rank": 3,
         },
         {
             "language": "lang3",
+            "count": 3,
             "rank": 1,
         },
     ]));
@@ -87,10 +90,12 @@ async fn test_language_count_ranking() {
     assert_eq!(response, json!([
         {
             "language": "lang1",
+            "count": 3,
             "rank": 1,
         },
         {
             "language": "lang2",
+            "count": 2,
             "rank": 1,
         },
     ]));
@@ -102,10 +107,12 @@ async fn test_language_count_ranking() {
     assert_eq!(response, json!([
         {
             "language": "lang1",
+            "count": 2,
             "rank": 2,
         },
         {
             "language": "lang2",
+            "count": 2,
             "rank": 1,
         },
     ]));
