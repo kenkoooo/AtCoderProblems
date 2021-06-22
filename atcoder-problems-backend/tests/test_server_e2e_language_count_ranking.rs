@@ -111,9 +111,10 @@ async fn test_language_count_ranking() {
     ]));
 
     let response = surf::get(url("/atcoder-api/v3/user/language_count_rank?user=do_not_exist", port))
+        .recv_json::<Value>()
         .await
         .unwrap();
-    assert_eq!(response.status(), 404);
+    assert_eq!(response, json!([]));
 
     let response = surf::get(url("/atcoder-api/v3/user/language_count_rank?bad=request", port))
         .await
