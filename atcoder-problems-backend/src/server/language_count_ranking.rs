@@ -11,7 +11,7 @@ pub(crate) async fn get_users_language_count_rank<A>(
         user: String,
     }
     #[derive(Debug, Serialize)]
-    struct UsersLanguageInfo {
+    struct UsersLanguageResponse {
         language: String,
         count: i64,
         rank: i64,
@@ -23,7 +23,7 @@ pub(crate) async fn get_users_language_count_rank<A>(
     let info = counts
         .into_iter()
         .zip(ranks)
-        .map(|(c, r)| UsersLanguageInfo {
+        .map(|(c, r)| UsersLanguageResponse {
             language: c.simplified_language,
             count: c.problem_count as i64,
             rank: r.rank,
