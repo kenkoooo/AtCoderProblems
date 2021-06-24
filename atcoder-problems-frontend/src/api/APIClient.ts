@@ -1,5 +1,6 @@
 import Contest, { isContest } from "../interfaces/Contest";
 import { isContestParticipation } from "../interfaces/ContestParticipation";
+import { findNextSecond, mergeNewData } from "../utils/Database";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
@@ -13,10 +14,10 @@ import {
   StreakRankingEntry,
 } from "../interfaces/RankingEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
-import { isSubmission } from "../interfaces/Submission";
+import Submission, { isSubmission } from "../interfaces/Submission";
 import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
 import { ratingInfoOf } from "../utils/RatingInfo";
-import { useSWRData } from "./index";
+import { useSWRData, useSWRDataInfinite } from "./index";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
@@ -144,14 +145,36 @@ export const useRatingInfo = (user: string) => {
 };
 
 export const useUserSubmission = (user: string) => {
-  const url = `${ATCODER_API_URL}/results?user=${user}`;
-  return useSWRData(url, (url) =>
-    user.length > 0
-      ? fetchTypedArray(url, isSubmission).then((submissions) =>
-          submissions.filter((submission) => isValidResult(submission.result))
-        )
-      : Promise.resolve([])
-  ).data;
+  let nextSecond = -1;
+  const getKey = (pageIndex: number, previousData: Submission[] | null) => {
+    if (previousData && previousData.length === 0) return null;
+    if (pageIndex == 0) {
+      nextSecond = findNextSecond(user);
+      console.log(`nextSecond = ${nextSecond}`);
+    } else {
+      previousData?.map(
+        (data) => (nextSecond = Math.max(nextSecond, data.epoch_second + 1))
+      );
+    }
+    return `${ATCODER_API_URL}/v3/user/submissions?user=${user}&from_second=${nextSecond}`;
+  };
+  const fetcher = async (url: string) => {
+    const promise = (url: string) =>
+      user.length > 0
+        ? fetchTypedArray(url, isSubmission).then((submissions) =>
+            submissions.filter((submission) => isValidResult(submission.result))
+          )
+        : Promise.resolve([]);
+    const array = await promise(url);
+    return array;
+  };
+
+  const allData = mergeNewData(
+    user,
+    (useSWRDataInfinite(getKey, fetcher, 1).data ?? [[]]).flat()
+  );
+  console.log(allData.length);
+  return allData;
 };
 
 export const useMultipleUserSubmissions = (userIds: UserId[]) => {
