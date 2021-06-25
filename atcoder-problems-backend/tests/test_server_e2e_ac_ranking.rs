@@ -112,7 +112,7 @@ async fn test_ac_ranking() {
         .unwrap();
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=do_not_exist", port))
+    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=does_not_exist", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 404);
