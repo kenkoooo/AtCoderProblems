@@ -123,11 +123,7 @@ where
                     .get(ranking::user_rank(get_users_streak_rank));
                 api
             });
-            api.at("/language_count").nest({
-                let mut api = tide::with_state(app_data.clone());
-                api.at("/list").get(get_language_list);
-                api
-            });
+            api.at("/language_list").get(get_language_list);
             api
         });
         api
