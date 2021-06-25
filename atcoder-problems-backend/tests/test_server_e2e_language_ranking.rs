@@ -51,7 +51,7 @@ async fn setup() -> u16 {
 }
 
 #[async_std::test]
-async fn test_language_count_ranking() {
+async fn test_language_ranking() {
     let port = setup().await;
     let server = task::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
@@ -61,7 +61,7 @@ async fn test_language_count_ranking() {
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_count_rank?user=user1", port))
+    let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=user1", port))
         .recv_json::<Value>()
         .await
         .unwrap();
@@ -83,7 +83,7 @@ async fn test_language_count_ranking() {
         },
     ]));
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_count_rank?user=user2", port))
+    let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=user2", port))
         .recv_json::<Value>()
         .await
         .unwrap();
@@ -100,7 +100,7 @@ async fn test_language_count_ranking() {
         },
     ]));
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_count_rank?user=user3", port))
+    let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=user3", port))
         .recv_json::<Value>()
         .await
         .unwrap();
@@ -117,13 +117,13 @@ async fn test_language_count_ranking() {
         },
     ]));
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_count_rank?user=do_not_exist", port))
+    let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=do_not_exist", port))
         .recv_json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!([]));
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_count_rank?bad=request", port))
+    let response = surf::get(url("/atcoder-api/v3/user/language_rank?bad=request", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 400);

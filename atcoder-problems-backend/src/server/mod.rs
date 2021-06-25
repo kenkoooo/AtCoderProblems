@@ -18,7 +18,7 @@ use crate::server::ranking::{
     get_ac_ranking, get_streak_ranking, get_users_ac_rank, get_users_streak_rank,
 };
 use auth::get_token;
-use language_count_ranking::get_users_language_count_rank;
+use language_count_ranking::get_users_language_rank;
 use middleware::LogMiddleware;
 use problem_list::{
     add_item, create_list, delete_item, delete_list, get_own_lists, get_single_list, update_item,
@@ -121,7 +121,7 @@ where
                     .get(ranking::user_rank(get_users_ac_rank));
                 api.at("/streak_rank")
                     .get(ranking::user_rank(get_users_streak_rank));
-                api.at("/language_count_rank").get(get_users_language_count_rank);
+                api.at("/language_rank").get(get_users_language_rank);
                 api
             });
             api

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use sql_client::language_count::LanguageCountClient;
 use tide::{Request, Response, Result};
 
-pub(crate) async fn get_users_language_count_rank<A>(
+pub(crate) async fn get_users_language_rank<A>(
     request: Request<AppData<A>>,
 ) -> Result<Response> {
     #[derive(Debug, Deserialize)]
