@@ -608,16 +608,23 @@ export const ListTable: React.FC<Props> = (props) => {
         .filter((row) => {
           const status = row.status;
           const selectedLanguage = props.selectLanguage;
+          const isFilterOnlyTrying = props.statusFilterState === "Only Trying";
           if (props.selectLanguage === "All") {
             return true;
           } else {
             switch (status.label) {
               case StatusLabel.Success:
-                return status.solvedLanguages.has(selectedLanguage);
+                return (
+                  isFilterOnlyTrying !==
+                  status.solvedLanguages.has(selectedLanguage)
+                );
               case StatusLabel.Warning:
-                return status.submittedLanguages.has(selectedLanguage);
+                return (
+                  isFilterOnlyTrying ||
+                  status.submittedLanguages.has(selectedLanguage)
+                );
               default:
-                return false;
+                return isFilterOnlyTrying;
             }
           }
         })
