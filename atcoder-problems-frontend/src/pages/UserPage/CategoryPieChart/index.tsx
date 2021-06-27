@@ -1,16 +1,16 @@
 import React from "react";
 import { Row, Col } from "reactstrap";
 import {
-  classifyContest,
-  ContestCategories,
-} from "../../TablePage/ContestClassifier";
-import {
   useContestToProblems,
   useUserSubmission,
   useContests,
 } from "../../../api/APIClient";
 import Problem from "../../../interfaces/Problem";
 import Submission from "../../../interfaces/Submission";
+import {
+  ContestCategories,
+  ContestCategory,
+} from "../../../interfaces/ContestCategory";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import {
   caseInsensitiveUserId,
@@ -18,6 +18,7 @@ import {
   isValidResult,
 } from "../../../utils";
 import { SmallPieChart } from "../PieChartBlock/SmallPieChart";
+import { classifyContest } from "../../../utils/ContestClassifier";
 
 interface Props {
   userId: string;
@@ -92,7 +93,7 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
       }
       return counts;
     },
-    ContestCategories.map((category) => ({
+    ContestCategories.map((category: ContestCategory) => ({
       category: category,
       solved: 0,
       rejected: 0,

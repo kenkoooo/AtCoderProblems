@@ -1,6 +1,9 @@
 import React from "react";
 import { Row, ButtonGroup, Button } from "reactstrap";
-import { ContestCategories, ContestCategory } from "./ContestClassifier";
+import {
+  ContestCategories,
+  ContestCategory,
+} from "../../interfaces/ContestCategory";
 
 interface Props {
   active: ContestCategory;

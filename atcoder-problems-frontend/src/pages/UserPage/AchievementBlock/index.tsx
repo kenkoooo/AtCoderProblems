@@ -19,7 +19,6 @@ import {
 } from "../../../utils";
 import { formatMomentDate, getToday } from "../../../utils/DateUtil";
 import { RankingEntry } from "../../../interfaces/RankingEntry";
-import { isRatedContest } from "../../TablePage/ContestClassifier";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import ProblemModel, {
   isProblemModelWithTimeModel,
@@ -28,6 +27,7 @@ import { calculateTopPlayerEquivalentEffort } from "../../../utils/ProblemModelU
 import Problem from "../../../interfaces/Problem";
 import * as UserUtils from "../UserUtils";
 import { calcStreak, countUniqueAcByDate } from "../../../utils/StreakCounter";
+import { isRatedContest } from "../../../utils/ContestClassifier";
 
 const findFromRanking = (
   ranking: RankingEntry[],
