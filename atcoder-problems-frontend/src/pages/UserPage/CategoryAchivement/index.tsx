@@ -75,10 +75,17 @@ export const CategoryAchivement: React.FC<Props> = (props) => {
           (count) => count.category === category
         );
         titleStatus.titleStatus.map((problemStatuses) => {
-          if (problemStatuses.status === SubmissionStatus.ACCEPTED) {
-            counts[categoryIdx].solved++;
+          switch (problemStatuses.status) {
+            case SubmissionStatus.ACCEPTED:
+              counts[categoryIdx].solved++;
+              break;
+            case SubmissionStatus.REJECTED:
+              counts[categoryIdx].rejected++;
+              break;
+            default:
+              break;
           }
-          counts[categoryIdx].problemNum++;
+          counts[categoryIdx].total++;
         });
       }
       return counts;
@@ -86,7 +93,8 @@ export const CategoryAchivement: React.FC<Props> = (props) => {
     ContestCategories.map((category) => ({
       category: category,
       solved: 0,
-      problemNum: 0,
+      rejected: 0,
+      total: 0,
     }))
   );
 
@@ -96,8 +104,18 @@ export const CategoryAchivement: React.FC<Props> = (props) => {
       {categoryCounts.map((categoryCount) => {
         return (
           <p key={categoryCount.category}>
-            {categoryCount.category}:{categoryCount.solved}/
-            {categoryCount.problemNum}
+            <ul>
+              <li>categoryCount: {categoryCount.category}</li>
+              <li>total: {categoryCount.total}</li>
+              <li>solved: {categoryCount.solved}</li>
+              <li>rejected: {categoryCount.rejected}</li>
+              <li>
+                trying:
+                {categoryCount.total -
+                  categoryCount.rejected -
+                  categoryCount.solved}
+              </li>
+            </ul>
           </p>
         );
       })}
