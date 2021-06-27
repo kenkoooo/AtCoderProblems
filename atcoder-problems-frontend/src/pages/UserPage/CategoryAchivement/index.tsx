@@ -1,4 +1,5 @@
 import React from "react";
+import { Row, Col } from "reactstrap";
 import {
   classifyContest,
   ContestCategories,
@@ -16,6 +17,7 @@ import {
   isAccepted,
   isValidResult,
 } from "../../../utils";
+import { SmallPieChart } from "../PieChartBlock/SmallPieChart";
 
 interface Props {
   userId: string;
@@ -99,26 +101,29 @@ export const CategoryAchivement: React.FC<Props> = (props) => {
   );
 
   return (
-    <p>
-      <div></div>
-      {categoryCounts.map((categoryCount) => {
-        return (
-          <p key={categoryCount.category}>
-            <ul>
-              <li>categoryCount: {categoryCount.category}</li>
-              <li>total: {categoryCount.total}</li>
-              <li>solved: {categoryCount.solved}</li>
-              <li>rejected: {categoryCount.rejected}</li>
-              <li>
-                trying:
-                {categoryCount.total -
-                  categoryCount.rejected -
-                  categoryCount.solved}
-              </li>
-            </ul>
-          </p>
-        );
-      })}
-    </p>
+    <div>
+      <Row className="my-3">
+        {categoryCounts.map((categoryCount) => (
+          <Col
+            key={categoryCount.category}
+            className="text-center"
+            xs="6"
+            lg="3"
+            xl="2"
+          >
+            <SmallPieChart
+              accepted={categoryCount.solved}
+              rejected={categoryCount.rejected}
+              trying={
+                categoryCount.total -
+                categoryCount.solved -
+                categoryCount.rejected
+              }
+              title={`${categoryCount.category}`}
+            />
+          </Col>
+        ))}
+      </Row>
+    </div>
   );
 };
