@@ -29,7 +29,7 @@ enum SubmissionStatus {
   ACCEPTED,
 }
 
-export const CategoryAchivement: React.FC<Props> = (props) => {
+export const CategoryPieChart: React.FC<Props> = (props) => {
   const { data: contests } = useContests();
 
   const contestToProblems =
