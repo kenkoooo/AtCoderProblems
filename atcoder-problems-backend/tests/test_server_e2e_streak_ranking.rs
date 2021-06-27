@@ -111,7 +111,7 @@ async fn test_streak_ranking() {
     assert_eq!(response, json!({"count":2,"rank":0}));
 
     let response = surf::get(url(
-        "/atcoder-api/v3/user/streak_rank?user=do_not_exist",
+        "/atcoder-api/v3/user/streak_rank?user=does_not_exist",
         port,
     ))
     .await

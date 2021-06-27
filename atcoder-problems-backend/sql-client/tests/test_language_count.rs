@@ -131,17 +131,48 @@ async fn test_language_count() {
             }
         ]
     );
+
+    let language_count = pool.load_users_language_count(&"user1").await.unwrap();
+    assert_eq!(
+        language_count,
+        vec![
+            UserLanguageCount {
+                user_id: "user1".to_owned(),
+                simplified_language: "language1".to_owned(),
+                problem_count: 2,
+            },
+            UserLanguageCount {
+                user_id: "user1".to_owned(),
+                simplified_language: "language2".to_owned(),
+                problem_count: 1,
+            },
+        ]
+    );
     let language_count_rank = pool.load_users_language_count_rank(&"user1").await.unwrap();
     assert_eq!(
         language_count_rank,
         vec![
             UserLanguageCountRank {
+                user_id: "user1".to_owned(),
                 simplified_language: "language1".to_owned(),
                 rank: 1,
             },
             UserLanguageCountRank {
+                user_id: "user1".to_owned(),
                 simplified_language: "language2".to_owned(),
                 rank: 1,
+            },
+        ]
+    );
+
+    let language_count = pool.load_users_language_count(&"user2").await.unwrap();
+    assert_eq!(
+        language_count,
+        vec![
+            UserLanguageCount {
+                user_id: "user2".to_owned(),
+                simplified_language: "language1".to_owned(),
+                problem_count: 1,
             },
         ]
     );
@@ -150,8 +181,26 @@ async fn test_language_count() {
         language_count_rank,
         vec![
             UserLanguageCountRank {
+                user_id: "user2".to_owned(),
                 simplified_language: "language1".to_owned(),
                 rank: 2,
+            },
+        ]
+    );
+
+    let language_count = pool.load_users_language_count(&"user3").await.unwrap();
+    assert_eq!(
+        language_count,
+        vec![
+            UserLanguageCount {
+                user_id: "user3".to_owned(),
+                simplified_language: "Perl".to_owned(),
+                problem_count: 1,
+            },
+            UserLanguageCount {
+                user_id: "user3".to_owned(),
+                simplified_language: "Raku".to_owned(),
+                problem_count: 2,
             },
         ]
     );
@@ -160,13 +209,25 @@ async fn test_language_count() {
         language_count_rank,
         vec![
             UserLanguageCountRank {
+                user_id: "user3".to_owned(),
                 simplified_language: "Perl".to_owned(),
                 rank: 1,
             },
             UserLanguageCountRank {
+                user_id: "user3".to_owned(),
                 simplified_language: "Raku".to_owned(),
                 rank: 1,
             },
+        ]
+    );
+    let languages = pool.load_languages().await.unwrap();
+    assert_eq!(
+        languages,
+        vec![
+            "language1".to_owned(),
+            "language2".to_owned(),
+            "Perl".to_owned(),
+            "Raku".to_owned(),
         ]
     );
 }
