@@ -61,6 +61,78 @@ async fn test_language_ranking() {
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
+    let response = surf::get(url(
+        "/atcoder-api/v3/language_ranking?from=1&to=3&language=lang2",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+    assert_eq!(
+        response,
+        json!([
+            {"user_id": "user3", "problem_count": 2},
+            {"user_id": "user1", "problem_count": 1},
+        ])
+    );
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/language_ranking?from=0&to=1&language=lang2",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+    assert_eq!(
+        response,
+        json!([
+            {"user_id": "user2", "problem_count": 2}
+        ])
+    );
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/language_ranking?from=10&to=20&language=lang2",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+    assert!(response.as_array().unwrap().is_empty());
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/language_ranking?from=0&to=1&language=does_not_exist",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+    assert!(response.as_array().unwrap().is_empty());
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/language_ranking?from=0&to=2000&language=lang2",
+        port,
+    ))
+    .await
+    .unwrap();
+    assert_eq!(response.status(), 400);
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/language_ranking?from=1&to=0&language=lang2",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+    assert!(response.as_array().unwrap().is_empty());
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/language_ranking?from=-1&to=0&language=lang2",
+        port,
+    ))
+    .await
+    .unwrap();
+    assert_eq!(response.status(), 400);
+
     let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=user1", port))
         .recv_json::<Value>()
         .await
