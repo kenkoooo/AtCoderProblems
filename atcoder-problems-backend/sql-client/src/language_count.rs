@@ -16,7 +16,10 @@ pub trait LanguageCountClient {
     ) -> Result<()>;
     async fn load_language_count(&self) -> Result<Vec<UserLanguageCount>>;
     async fn load_users_language_count(&self, user_id: &str) -> Result<Vec<UserLanguageCount>>;
-    async fn load_users_language_count_rank(&self, user_id: &str) -> Result<Vec<UserLanguageCountRank>>;
+    async fn load_users_language_count_rank(
+        &self,
+        user_id: &str,
+    ) -> Result<Vec<UserLanguageCountRank>>;
     async fn load_languages(&self) -> Result<Vec<String>>;
 }
 
@@ -132,22 +135,25 @@ impl LanguageCountClient for PgPool {
             ORDER BY simplified_language
             ",
         )
-            .bind(user_id)
-            .try_map(|row: PgRow| {
-                let simplified_language: String = row.try_get("simplified_language")?;
-                let problem_count: i32 = row.try_get("problem_count")?;
-                Ok(UserLanguageCount {
-                    user_id: user_id.to_owned(),
-                    simplified_language,
-                    problem_count,
-                })
+        .bind(user_id)
+        .try_map(|row: PgRow| {
+            let simplified_language: String = row.try_get("simplified_language")?;
+            let problem_count: i32 = row.try_get("problem_count")?;
+            Ok(UserLanguageCount {
+                user_id: user_id.to_owned(),
+                simplified_language,
+                problem_count,
             })
-            .fetch_all(self)
-            .await?;
+        })
+        .fetch_all(self)
+        .await?;
         Ok(count)
     }
 
-    async fn load_users_language_count_rank(&self, user_id: &str) -> Result<Vec<UserLanguageCountRank>> {
+    async fn load_users_language_count_rank(
+        &self,
+        user_id: &str,
+    ) -> Result<Vec<UserLanguageCountRank>> {
         let rank = sqlx::query(
             r"
             SELECT simplified_language, rank FROM (
@@ -178,12 +184,12 @@ impl LanguageCountClient for PgPool {
         let languages = sqlx::query(
             r"SELECT DISTINCT simplified_language FROM language_count ORDER BY simplified_language",
         )
-            .try_map(|row: PgRow| {
-                let simplified_language: String = row.try_get("simplified_language")?;
-                Ok(simplified_language)
-            })
-            .fetch_all(self)
-            .await?;
+        .try_map(|row: PgRow| {
+            let simplified_language: String = row.try_get("simplified_language")?;
+            Ok(simplified_language)
+        })
+        .fetch_all(self)
+        .await?;
         Ok(languages)
     }
 }
