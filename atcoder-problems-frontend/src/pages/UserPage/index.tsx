@@ -19,12 +19,12 @@ const userPageTabs = [
   "Achievement",
   "AtCoder Pie Charts",
   "Difficulty Pies",
+  "Category Achivement",
   "Progress Charts",
   "Submissions",
   "Recommendation",
   "Languages",
   "Trophy",
-  "Category Achivement",
   "All",
 ] as const;
 
@@ -87,6 +87,14 @@ export const UserPage = (props: Props) => {
           <DifficultyPieChart userId={userId} />
         </>
       )}
+      {(userPageTab === "All" || userPageTab === "Category Achivement") && (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Category Achivement</h1>
+          </Row>
+          <CategoryAchivement userId={userId} />
+        </>
+      )}
       {(userPageTab === "All" || userPageTab === "Progress Charts") && (
         <ProgressChartBlock userId={userId} />
       )}
@@ -120,14 +128,6 @@ export const UserPage = (props: Props) => {
             <h1>Recommendation</h1>
           </Row>
           <Recommendations userId={userId} />
-        </>
-      )}
-      {(userPageTab === "All" || userPageTab === "Category Achivement") && (
-        <>
-          <Row className="my-2 border-bottom">
-            <h1>Category Achivement</h1>
-          </Row>
-          <CategoryAchivement userId={userId} />
         </>
       )}
     </div>
