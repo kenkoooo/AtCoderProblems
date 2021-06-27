@@ -1,5 +1,6 @@
 pub(crate) mod auth;
 pub(crate) mod internal_user;
+pub(crate) mod language_count;
 pub(crate) mod middleware;
 pub(crate) mod problem_list;
 pub(crate) mod progress_reset;
@@ -17,6 +18,7 @@ use crate::server::ranking::{
     get_ac_ranking, get_streak_ranking, get_users_ac_rank, get_users_streak_rank,
 };
 use auth::get_token;
+use language_count::get_language_list;
 use middleware::LogMiddleware;
 use problem_list::{
     add_item, create_list, delete_item, delete_list, get_own_lists, get_single_list, update_item,
@@ -121,6 +123,7 @@ where
                     .get(ranking::user_rank(get_users_streak_rank));
                 api
             });
+            api.at("/language_list").get(get_language_list);
             api
         });
         api
