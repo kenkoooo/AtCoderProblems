@@ -78,3 +78,14 @@ export SQL_URL=postgres://kenkoooo:pass@localhost:5432/test
 # Run all the tests
 cargo test --workspace -- --test-threads=1
 ```
+
+## Format
+
+CI checks whether your PR formatted or not.
+
+If you format all Rust code, please execute
+
+```bash
+cd atcoder-problems-backend/
+cargo fmt
+```
