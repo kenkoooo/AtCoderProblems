@@ -168,24 +168,20 @@ async fn test_language_count() {
     let language_count = pool.load_users_language_count(&"user2").await.unwrap();
     assert_eq!(
         language_count,
-        vec![
-            UserLanguageCount {
-                user_id: "user2".to_owned(),
-                simplified_language: "language1".to_owned(),
-                problem_count: 1,
-            },
-        ]
+        vec![UserLanguageCount {
+            user_id: "user2".to_owned(),
+            simplified_language: "language1".to_owned(),
+            problem_count: 1,
+        },]
     );
     let language_count_rank = pool.load_users_language_count_rank(&"user2").await.unwrap();
     assert_eq!(
         language_count_rank,
-        vec![
-            UserLanguageCountRank {
-                user_id: "user2".to_owned(),
-                simplified_language: "language1".to_owned(),
-                rank: 2,
-            },
-        ]
+        vec![UserLanguageCountRank {
+            user_id: "user2".to_owned(),
+            simplified_language: "language1".to_owned(),
+            rank: 2,
+        },]
     );
 
     let language_count = pool.load_users_language_count(&"user3").await.unwrap();

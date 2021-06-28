@@ -1,7 +1,7 @@
 use anyhow::Result;
+use atcoder_problems_backend::config::{BLOCKED_CONTESTS, BLOCKED_PROBLEMS};
 use atcoder_problems_backend::s3;
 use atcoder_problems_backend::utils::init_log_config;
-use atcoder_problems_backend::config::{ BLOCKED_CONTESTS, BLOCKED_PROBLEMS };
 use serde::Serialize;
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::contest_problem::ContestProblemClient;

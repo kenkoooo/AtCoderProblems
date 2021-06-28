@@ -24,19 +24,39 @@ where
         log::info!("Starting...");
         let mut contests = Vec::new();
 
-        match self.fetcher.fetch_contests(ContestTypeSpecifier::Permanent).await {
-            Ok(c) => { contests.extend(c); }
-            Err(e) => { log::error!("{:?}", e); }
+        match self
+            .fetcher
+            .fetch_contests(ContestTypeSpecifier::Permanent)
+            .await
+        {
+            Ok(c) => {
+                contests.extend(c);
+            }
+            Err(e) => {
+                log::error!("{:?}", e);
+            }
         }
         thread::sleep(time::Duration::from_millis(500));
 
-        match self.fetcher.fetch_contests(ContestTypeSpecifier::Hidden).await {
-            Ok(c) => { contests.extend(c); }
-            Err(e) => { log::error!("{:?}", e); }
+        match self
+            .fetcher
+            .fetch_contests(ContestTypeSpecifier::Hidden)
+            .await
+        {
+            Ok(c) => {
+                contests.extend(c);
+            }
+            Err(e) => {
+                log::error!("{:?}", e);
+            }
         }
-        
+
         for page in 1.. {
-            match self.fetcher.fetch_contests(ContestTypeSpecifier::Normal{ page }).await {
+            match self
+                .fetcher
+                .fetch_contests(ContestTypeSpecifier::Normal { page })
+                .await
+            {
                 Ok(c) => {
                     if c.is_empty() {
                         break;
