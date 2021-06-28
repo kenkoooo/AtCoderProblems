@@ -34,6 +34,11 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: Setup
+      run: rustup component add rustfmt
+    - name: Check format
+      working-directory: ./atcoder-problems-backend
+      run: cargo fmt --all -- --check
     - name: Build
       working-directory: ./atcoder-problems-backend
       run: cargo build --verbose
