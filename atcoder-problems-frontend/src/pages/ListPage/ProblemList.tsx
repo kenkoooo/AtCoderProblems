@@ -33,7 +33,7 @@ export const FilterParams = {
   Rated: "rated",
   FromDifficulty: "fromDiff",
   ToDifficulty: "toDiff",
-  SolvedLanguage: "solvedLang",
+  Language: "Lang",
 } as const;
 
 const convertToValidStatusFilterState = (
@@ -92,7 +92,7 @@ export const ProblemList: React.FC<Props> = (props) => {
     RATED_FILTERS.find((x) => x === searchParams.get(FilterParams.Rated)) ??
     "All";
 
-  const languageFilters = ["All"].concat(
+  const languages = ["All"].concat(
     Array.from(
       props.submissions.reduce((set, s) => {
         set.add(s.language);
@@ -101,10 +101,9 @@ export const ProblemList: React.FC<Props> = (props) => {
     ).sort()
   );
 
-  const languageFilterState =
-    languageFilters.find(
-      (x) => x === searchParams.get(FilterParams.SolvedLanguage)
-    ) ?? "All";
+  const selectLanguage =
+    languages.find((x) => x === searchParams.get(FilterParams.Language)) ??
+    "All";
   const fromDifficulty = parseInt(
     searchParams.get(FilterParams.FromDifficulty) || "-1",
     10
@@ -214,15 +213,15 @@ export const ProblemList: React.FC<Props> = (props) => {
         <ButtonGroup className="mr-4">
           <UncontrolledDropdown>
             <DropdownToggle caret>
-              {languageFilterState === "All" ? "Language" : languageFilterState}
+              {selectLanguage === "All" ? "Language" : selectLanguage}
             </DropdownToggle>
             <DropdownMenu>
-              {languageFilters.map((value) => (
+              {languages.map((value) => (
                 <DropdownItem
                   key={value}
                   tag={Link}
                   to={generatePathWithParams(location, {
-                    [FilterParams.SolvedLanguage]: value,
+                    [FilterParams.Language]: value,
                   })}
                 >
                   {value}
@@ -330,7 +329,7 @@ export const ProblemList: React.FC<Props> = (props) => {
           toDifficulty={toDifficulty}
           filteredSubmissions={props.submissions}
           selectRow={isLoggedIn ? selectRowProps : undefined}
-          selectLanguage={languageFilterState}
+          selectLanguage={selectLanguage}
         />
       </Row>
     </>
