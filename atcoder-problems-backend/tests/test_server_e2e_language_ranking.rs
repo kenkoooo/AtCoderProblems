@@ -35,9 +35,9 @@ async fn prepare_data_set(conn: &PgPool) {
          ('user3', 'lang1', 2),
          ('user3', 'lang2', 2)",
     )
-        .execute(conn)
-        .await
-        .unwrap();
+    .execute(conn)
+    .await
+    .unwrap();
 }
 
 fn url(path: &str, port: u16) -> String {
@@ -65,62 +65,74 @@ async fn test_language_ranking() {
         .recv_json::<Value>()
         .await
         .unwrap();
-    assert_eq!(response, json!([
-        {
-            "language": "lang1",
-            "count": 1,
-            "rank": 3,
-        },
-        {
-            "language": "lang2",
-            "count": 1,
-            "rank": 3,
-        },
-        {
-            "language": "lang3",
-            "count": 3,
-            "rank": 1,
-        },
-    ]));
+    assert_eq!(
+        response,
+        json!([
+            {
+                "language": "lang1",
+                "count": 1,
+                "rank": 3,
+            },
+            {
+                "language": "lang2",
+                "count": 1,
+                "rank": 3,
+            },
+            {
+                "language": "lang3",
+                "count": 3,
+                "rank": 1,
+            },
+        ])
+    );
 
     let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=user2", port))
         .recv_json::<Value>()
         .await
         .unwrap();
-    assert_eq!(response, json!([
-        {
-            "language": "lang1",
-            "count": 3,
-            "rank": 1,
-        },
-        {
-            "language": "lang2",
-            "count": 2,
-            "rank": 1,
-        },
-    ]));
+    assert_eq!(
+        response,
+        json!([
+            {
+                "language": "lang1",
+                "count": 3,
+                "rank": 1,
+            },
+            {
+                "language": "lang2",
+                "count": 2,
+                "rank": 1,
+            },
+        ])
+    );
 
     let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=user3", port))
         .recv_json::<Value>()
         .await
         .unwrap();
-    assert_eq!(response, json!([
-        {
-            "language": "lang1",
-            "count": 2,
-            "rank": 2,
-        },
-        {
-            "language": "lang2",
-            "count": 2,
-            "rank": 1,
-        },
-    ]));
+    assert_eq!(
+        response,
+        json!([
+            {
+                "language": "lang1",
+                "count": 2,
+                "rank": 2,
+            },
+            {
+                "language": "lang2",
+                "count": 2,
+                "rank": 1,
+            },
+        ])
+    );
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=does_not_exist", port))
-        .recv_json::<Value>()
-        .await
-        .unwrap();
+    let response = surf::get(url(
+        "/atcoder-api/v3/user/language_rank?user=does_not_exist",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
     assert_eq!(response, json!([]));
 
     let response = surf::get(url("/atcoder-api/v3/user/language_rank?bad=request", port))

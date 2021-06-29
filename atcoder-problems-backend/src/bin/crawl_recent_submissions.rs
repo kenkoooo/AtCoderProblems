@@ -1,5 +1,5 @@
-use atcoder_client::AtCoderClient;
 use anyhow::Result;
+use atcoder_client::AtCoderClient;
 use atcoder_problems_backend::crawler::RecentCrawler;
 use atcoder_problems_backend::utils::init_log_config;
 use sql_client::initialize_pool;
