@@ -81,9 +81,9 @@ cargo test --workspace -- --test-threads=1
 
 ## Format
 
-CI checks whether your PR formatted or not.
-
-If you format all Rust code, please execute
+GitHub Action will check if the code base is formatted by `rustfmt`.
+Please make sure that your change is formatted before sending a pull request.
+You can format the code base with `cargo fmt` like the following:
 
 ```bash
 cd atcoder-problems-backend/
