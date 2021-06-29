@@ -1,4 +1,3 @@
-import { Set as ImmutableSet } from "immutable";
 import { Row } from "reactstrap";
 import React from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
@@ -32,7 +31,7 @@ interface Props {
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   showPenalties: boolean;
-  selectedLanguages: ImmutableSet<string>;
+  selectedLanguages: Set<string>;
   userRatingInfo: RatingInfo;
 }
 

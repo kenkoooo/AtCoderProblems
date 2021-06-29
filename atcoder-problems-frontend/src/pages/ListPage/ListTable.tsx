@@ -7,7 +7,6 @@ import {
 import { Badge } from "reactstrap";
 import React, { ReactElement } from "react";
 import { useHistory, useLocation } from "react-router-dom";
-import { Set as ImmutableSet } from "immutable";
 import Contest from "../../interfaces/Contest";
 import {
   constructStatusLabelMap,
@@ -579,7 +578,7 @@ export const ListTable: React.FC<Props> = (props) => {
         const selectedLanguages =
           props.selectLanguage === "All"
             ? undefined
-            : ImmutableSet([props.selectLanguage]);
+            : new Set([props.selectLanguage]);
         return statusToTableColor({
           colorMode: ColorMode.ContestResult,
           status,
