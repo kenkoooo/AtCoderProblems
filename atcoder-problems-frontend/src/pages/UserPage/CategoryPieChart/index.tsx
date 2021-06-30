@@ -47,7 +47,7 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
   );
 
   const titleStatuses = Array.from(contestToProblems).map(
-    ([contestTitle, problems]) => {
+    ([contestId, problems]) => {
       const titleStatus = problems.map((problem) => {
         const validSubmissions = submissionsMap
           .get(problem.id)
@@ -65,7 +65,7 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
         return { problem: problem, status: status };
       });
 
-      return { contestId: contestTitle, titleStatus: titleStatus };
+      return { contestId: contestId, titleStatus: titleStatus };
     }
   );
 
