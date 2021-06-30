@@ -97,11 +97,9 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
           default:
             break;
         }
-        {
-          const formerCount = counts.get(category);
-          if (formerCount !== undefined) {
-            formerCount.total = formerCount.total + 1;
-          }
+        const formerCount = counts.get(category);
+        if (formerCount !== undefined) {
+          formerCount.total = formerCount.total + 1;
         }
       });
     }
