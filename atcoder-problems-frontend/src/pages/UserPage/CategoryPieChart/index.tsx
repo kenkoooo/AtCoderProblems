@@ -19,6 +19,7 @@ import {
   ContestCategories,
   ContestCategory,
 } from "../../../utils/ContestClassifier";
+import Contest from "../../../interfaces/Contest";
 
 interface Props {
   userId: string;
@@ -31,7 +32,9 @@ enum SubmissionStatus {
 }
 
 export const CategoryPieChart: React.FC<Props> = (props) => {
-  const { data: contests } = useContests();
+  const contestMap = new Map<string, Contest>(
+    useContests().data?.map((contest) => [contest.id, contest])
+  );
 
   const contestToProblems =
     useContestToProblems() ?? new Map<ContestId, Problem[]>();
@@ -71,7 +74,7 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
 
   const categoryCounts = titleStatuses.reduce(
     (counts, titleStatus) => {
-      const contest = contests?.find((c) => c.id === titleStatus.contestId);
+      const contest = contestMap.get(titleStatus.contestId);
       const category = contest && classifyContest(contest);
       if (category !== undefined) {
         const categoryIdx = counts.findIndex(
