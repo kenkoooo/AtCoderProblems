@@ -77,30 +77,20 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
     if (contest !== undefined) {
       const category = classifyContest(contest);
       titleStatus.titleStatus.forEach((problemStatuses) => {
+        const formerCount = counts.get(category);
+        if (formerCount === undefined) return;
+
         switch (problemStatuses.status) {
           case SubmissionStatus.ACCEPTED:
-            {
-              const formerCount = counts.get(category);
-              if (formerCount !== undefined) {
-                formerCount.solved = formerCount.solved + 1;
-              }
-            }
+            formerCount.solved = formerCount.solved + 1;
             break;
           case SubmissionStatus.REJECTED:
-            {
-              const formerCount = counts.get(category);
-              if (formerCount !== undefined) {
-                formerCount.rejected = formerCount.rejected + 1;
-              }
-            }
+            formerCount.rejected = formerCount.rejected + 1;
             break;
           default:
             break;
         }
-        const formerCount = counts.get(category);
-        if (formerCount !== undefined) {
-          formerCount.total = formerCount.total + 1;
-        }
+        formerCount.total = formerCount.total + 1;
       });
     }
     return counts;
