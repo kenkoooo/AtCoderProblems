@@ -75,8 +75,8 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
   const categoryCounts = titleStatuses.reduce(
     (counts, titleStatus) => {
       const contest = contestMap.get(titleStatus.contestId);
-      const category = contest && classifyContest(contest);
-      if (category !== undefined) {
+      if (contest !== undefined) {
+        const category = classifyContest(contest);
         const categoryIdx = counts.findIndex(
           (count) => count.category === category
         );
