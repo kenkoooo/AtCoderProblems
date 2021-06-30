@@ -1,5 +1,5 @@
 use sql_client::language_count::LanguageCountClient;
-use sql_client::models::{Submission, UserLanguageCount, UserLanguageCountRank};
+use sql_client::models::{Submission, UserLanguageCount, UserLanguageCountRank, UserProblemCount};
 
 mod utils;
 
@@ -130,6 +130,44 @@ async fn test_language_count() {
                 problem_count: 2
             }
         ]
+    );
+
+    let language_count_1st_to_2nd = pool
+        .load_language_count_in_range(&"language1", 0..2)
+        .await
+        .unwrap();
+    assert_eq!(
+        language_count_1st_to_2nd,
+        vec![
+            UserProblemCount {
+                user_id: "user1".to_owned(),
+                problem_count: 2
+            },
+            UserProblemCount {
+                user_id: "user2".to_owned(),
+                problem_count: 1
+            }
+        ]
+    );
+
+    let language_count_2nd_to_2nd = pool
+        .load_language_count_in_range(&"language1", 1..2)
+        .await
+        .unwrap();
+    assert_eq!(
+        language_count_2nd_to_2nd,
+        vec![UserProblemCount {
+            user_id: "user2".to_owned(),
+            problem_count: 1
+        }]
+    );
+
+    assert_eq!(
+        pool.load_language_count_in_range(&"language1", 0..10)
+            .await
+            .unwrap()
+            .len(),
+        2
     );
 
     let language_count = pool.load_users_language_count(&"user1").await.unwrap();

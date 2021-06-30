@@ -15,8 +15,8 @@ pub(crate) mod virtual_contest;
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 
 use crate::server::ranking::{
-    get_ac_ranking, get_streak_ranking, get_users_ac_rank, get_users_language_rank,
-    get_users_streak_rank,
+    get_ac_ranking, get_language_ranking, get_streak_ranking, get_users_ac_rank,
+    get_users_language_rank, get_users_streak_rank,
 };
 use auth::get_token;
 use language_count::get_language_list;
@@ -111,6 +111,7 @@ where
             api.at("/ac_ranking").get(ranking::ranking(get_ac_ranking));
             api.at("/streak_ranking")
                 .get(ranking::ranking(get_streak_ranking));
+            api.at("/language_ranking").get(get_language_ranking);
             api.at("/from/:from").get(get_time_submissions);
             api.at("/recent").get(get_recent_submissions);
             api.at("/users_and_time").get(get_users_time_submissions);

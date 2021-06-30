@@ -100,6 +100,29 @@ pub(crate) async fn get_ac_ranking<A>(
         .collect())
 }
 
+pub(crate) async fn get_language_ranking<A>(
+    request: tide::Request<AppData<A>>,
+) -> Result<tide::Response> {
+    #[derive(Deserialize)]
+    struct Query {
+        from: usize,
+        to: usize,
+        language: String,
+    }
+    let conn = request.state().pg_pool.clone();
+    let query = request.query::<Query>()?;
+    let range = (query.from)..(query.to);
+    if range.len() > MAX_RANKING_RANGE_LENGTH {
+        return Ok(tide::Response::new(400));
+    }
+
+    let ranking = conn
+        .load_language_count_in_range(&query.language, range)
+        .await?;
+    let response = tide::Response::json(&ranking)?;
+    Ok(response)
+}
+
 pub(crate) async fn get_users_ac_rank<A>(
     state: AppData<A>,
     user_id: String,
