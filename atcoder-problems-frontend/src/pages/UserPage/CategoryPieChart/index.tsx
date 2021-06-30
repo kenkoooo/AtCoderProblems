@@ -77,7 +77,7 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
         const categoryIdx = counts.findIndex(
           (count) => count.category === category
         );
-        titleStatus.titleStatus.map((problemStatuses) => {
+        titleStatus.titleStatus.forEach((problemStatuses) => {
           switch (problemStatuses.status) {
             case SubmissionStatus.ACCEPTED:
               counts[categoryIdx].solved++;
