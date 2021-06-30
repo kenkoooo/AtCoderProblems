@@ -72,61 +72,61 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
     }
   );
 
-  const categoryCounts = titleStatuses.reduce(
-    (counts, titleStatus) => {
-      const contest = contestMap.get(titleStatus.contestId);
-      if (contest !== undefined) {
-        const category = classifyContest(contest);
-        const categoryIdx = counts.findIndex(
-          (count) => count.category === category
-        );
-        titleStatus.titleStatus.forEach((problemStatuses) => {
-          switch (problemStatuses.status) {
-            case SubmissionStatus.ACCEPTED:
-              counts[categoryIdx].solved++;
-              break;
-            case SubmissionStatus.REJECTED:
-              counts[categoryIdx].rejected++;
-              break;
-            default:
-              break;
+  const categoryCounts = titleStatuses.reduce((counts, titleStatus) => {
+    const contest = contestMap.get(titleStatus.contestId);
+    if (contest !== undefined) {
+      const category = classifyContest(contest);
+      titleStatus.titleStatus.forEach((problemStatuses) => {
+        switch (problemStatuses.status) {
+          case SubmissionStatus.ACCEPTED:
+            {
+              const formerCount = counts.get(category);
+              if (formerCount !== undefined) {
+                formerCount.solved = formerCount.solved + 1;
+              }
+            }
+            break;
+          case SubmissionStatus.REJECTED:
+            {
+              const formerCount = counts.get(category);
+              if (formerCount !== undefined) {
+                formerCount.rejected = formerCount.rejected + 1;
+              }
+            }
+            break;
+          default:
+            break;
+        }
+        {
+          const formerCount = counts.get(category);
+          if (formerCount !== undefined) {
+            formerCount.total = formerCount.total + 1;
           }
-          counts[categoryIdx].total++;
-        });
-      }
-      return counts;
-    },
-    ContestCategories.map((category: ContestCategory) => ({
-      category: category,
-      solved: 0,
-      rejected: 0,
-      total: 0,
-    }))
-  );
+        }
+      });
+    }
+    return counts;
+  }, new Map<ContestCategory, { solved: number; rejected: number; total: number }>(ContestCategories.map((category) => [category, { solved: 0, rejected: 0, total: 0 }])));
 
   return (
     <div>
       <Row className="my-3">
-        {categoryCounts.map((categoryCount) => (
-          <Col
-            key={categoryCount.category}
-            className="text-center"
-            xs="6"
-            lg="3"
-            xl="2"
-          >
-            <SmallPieChart
-              accepted={categoryCount.solved}
-              rejected={categoryCount.rejected}
-              trying={
-                categoryCount.total -
-                categoryCount.solved -
-                categoryCount.rejected
-              }
-              title={`${categoryCount.category}`}
-            />
-          </Col>
-        ))}
+        {ContestCategories.map((category) => {
+          const count = categoryCounts.get(category);
+          if (count !== undefined) {
+            return (
+              <Col key={category} className="text-center" xs="6" lg="3" xl="2">
+                <SmallPieChart
+                  accepted={count.solved}
+                  rejected={count.rejected}
+                  trying={count.total - count.solved - count.rejected}
+                  title={`${category}`}
+                />
+                {category}
+              </Col>
+            );
+          }
+        })}
       </Row>
     </div>
   );
