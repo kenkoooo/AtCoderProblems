@@ -82,15 +82,15 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
 
         switch (problemStatuses.status) {
           case SubmissionStatus.ACCEPTED:
-            formerCount.solved = formerCount.solved + 1;
+            formerCount.solved++;
             break;
           case SubmissionStatus.REJECTED:
-            formerCount.rejected = formerCount.rejected + 1;
+            formerCount.rejected++;
             break;
           default:
             break;
         }
-        formerCount.total = formerCount.total + 1;
+        formerCount.total++;
       });
     }
     return counts;
