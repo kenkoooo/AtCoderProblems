@@ -3,7 +3,7 @@ import { Row, ButtonGroup, Button } from "reactstrap";
 import {
   ContestCategories,
   ContestCategory,
-} from "../../interfaces/ContestCategory";
+} from "../../utils/ContestClassifier";
 
 interface Props {
   active: ContestCategory;

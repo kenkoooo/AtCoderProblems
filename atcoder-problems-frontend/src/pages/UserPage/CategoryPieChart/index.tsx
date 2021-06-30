@@ -7,10 +7,6 @@ import {
 } from "../../../api/APIClient";
 import Problem from "../../../interfaces/Problem";
 import Submission from "../../../interfaces/Submission";
-import {
-  ContestCategories,
-  ContestCategory,
-} from "../../../interfaces/ContestCategory";
 import { ContestId, ProblemId } from "../../../interfaces/Status";
 import {
   caseInsensitiveUserId,
@@ -18,7 +14,11 @@ import {
   isValidResult,
 } from "../../../utils";
 import { SmallPieChart } from "../PieChartBlock/SmallPieChart";
-import { classifyContest } from "../../../utils/ContestClassifier";
+import {
+  classifyContest,
+  ContestCategories,
+  ContestCategory,
+} from "../../../utils/ContestClassifier";
 
 interface Props {
   userId: string;

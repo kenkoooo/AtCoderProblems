@@ -17,8 +17,10 @@ import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
 import { filterResetProgress } from "../Internal/types";
 import { loggedInUserId } from "../../utils/UserState";
-import { ContestCategory } from "../../interfaces/ContestCategory";
-import { classifyContest } from "../../utils/ContestClassifier";
+import {
+  classifyContest,
+  ContestCategory,
+} from "../../utils/ContestClassifier";
 import { TableTabButtons } from "./TableTab";
 import { Options } from "./Options";
 import { ContestTable } from "./ContestTable";
