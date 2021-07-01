@@ -33,6 +33,14 @@ enum SubmissionStatus {
 
 type StatusCount = { solved: number; rejected: number; total: number };
 
+type ProblemStatusesByContest = {
+  contest: Contest;
+  problemStatuses: {
+    problem: Problem;
+    status: SubmissionStatus;
+  }[];
+};
+
 export const CategoryPieChart: React.FC<Props> = (props) => {
   const contestMap = new Map<string, Contest>(
     useContests().data?.map((contest) => [contest.id, contest])
@@ -51,9 +59,9 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
     new Map<ProblemId, Submission[]>()
   );
 
-  const titleStatuses = Array.from(contestToProblems).map(
-    ([contestId, problems]) => {
-      const titleStatus = problems.map((problem) => {
+  const statusByContests = Array.from(contestToProblems).reduce(
+    (accumulator, [contestId, problems]) => {
+      const problemStatuses = problems.map((problem) => {
         const validSubmissions = submissionsMap
           .get(problem.id)
           ?.filter(
@@ -70,31 +78,38 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
         return { problem: problem, status: status };
       });
 
-      return { contestId: contestId, titleStatus: titleStatus };
-    }
+      const contest = contestMap.get(contestId);
+
+      if (contest !== undefined) {
+        accumulator.push({
+          contest: contest,
+          problemStatuses: problemStatuses,
+        });
+      }
+
+      return accumulator;
+    },
+    [] as ProblemStatusesByContest[]
   );
 
-  const categoryCounts = titleStatuses.reduce((counts, titleStatus) => {
-    const contest = contestMap.get(titleStatus.contestId);
-    if (contest !== undefined) {
-      const category = classifyContest(contest);
-      titleStatus.titleStatus.forEach((problemStatuses) => {
-        const formerCount = counts.get(category);
-        if (formerCount === undefined) return;
+  const categoryCounts = statusByContests.reduce((counts, statusByContest) => {
+    const category = classifyContest(statusByContest.contest);
+    statusByContest.problemStatuses.forEach((problemStatus) => {
+      const formerCount = counts.get(category);
+      if (formerCount === undefined) return;
 
-        switch (problemStatuses.status) {
-          case SubmissionStatus.ACCEPTED:
-            formerCount.solved++;
-            break;
-          case SubmissionStatus.REJECTED:
-            formerCount.rejected++;
-            break;
-          default:
-            break;
-        }
-        formerCount.total++;
-      });
-    }
+      switch (problemStatus.status) {
+        case SubmissionStatus.ACCEPTED:
+          formerCount.solved++;
+          break;
+        case SubmissionStatus.REJECTED:
+          formerCount.rejected++;
+          break;
+        default:
+          break;
+      }
+      formerCount.total++;
+    });
     return counts;
   }, new Map<ContestCategory, StatusCount>(ContestCategories.map((category) => [category, { solved: 0, rejected: 0, total: 0 }])));
 
