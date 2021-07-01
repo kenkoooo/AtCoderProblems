@@ -31,6 +31,8 @@ enum SubmissionStatus {
   ACCEPTED,
 }
 
+type StatusCount = { solved: number; rejected: number; total: number };
+
 export const CategoryPieChart: React.FC<Props> = (props) => {
   const contestMap = new Map<string, Contest>(
     useContests().data?.map((contest) => [contest.id, contest])
@@ -94,7 +96,7 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
       });
     }
     return counts;
-  }, new Map<ContestCategory, { solved: number; rejected: number; total: number }>(ContestCategories.map((category) => [category, { solved: 0, rejected: 0, total: 0 }])));
+  }, new Map<ContestCategory, StatusCount>(ContestCategories.map((category) => [category, { solved: 0, rejected: 0, total: 0 }])));
 
   return (
     <div>
