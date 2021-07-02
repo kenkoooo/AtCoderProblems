@@ -575,10 +575,15 @@ export const ListTable: React.FC<Props> = (props) => {
       tableContainerClass="list-table"
       trClassName={(row: ProblemRowData): string => {
         const { status, contest } = row;
+        const selectedLanguages =
+          props.selectLanguage === "All"
+            ? undefined
+            : new Set([props.selectLanguage]);
         return statusToTableColor({
           colorMode: ColorMode.ContestResult,
           status,
           contest,
+          selectedLanguages,
         });
       }}
       data={rowData
@@ -605,22 +610,6 @@ export const ListTable: React.FC<Props> = (props) => {
               return isSuccess && !isSubmittedInContest;
           }
         }) // eslint-disable-next-line
-        .filter((row) => {
-          const status = row.status;
-          const selectedLanguage = props.selectLanguage;
-          if (props.selectLanguage === "All") {
-            return true;
-          } else {
-            switch (status.label) {
-              case StatusLabel.Success:
-                return status.solvedLanguages.has(selectedLanguage);
-              case StatusLabel.Warning:
-                return status.submittedLanguages.has(selectedLanguage);
-              default:
-                return false;
-            }
-          }
-        })
         .filter((row): boolean => {
           const isRated = !!row.mergedProblem.point;
           const hasDifficulty = isProblemModelWithDifficultyModel(

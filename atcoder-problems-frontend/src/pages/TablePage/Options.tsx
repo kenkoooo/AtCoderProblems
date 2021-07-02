@@ -12,7 +12,6 @@ import {
   DropdownItem,
   Card,
 } from "reactstrap";
-import { Set as ImmutableSet } from "immutable";
 import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
 import { ColorMode } from "../../utils/TableColor";
 
@@ -26,7 +25,7 @@ interface Props {
   showPenalties: boolean;
   toggleShowPenalties: () => void;
   selectableLanguages: Set<string>;
-  selectedLanguages: ImmutableSet<string>;
+  selectedLanguages: Set<string>;
   toggleLanguage: (language: string) => void;
 }
 
