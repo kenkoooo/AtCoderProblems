@@ -68,32 +68,31 @@ export const decideStatusFromSubmissions = (
     : SubmissionStatus.REJECTED;
 };
 
-export const CategoryPieChart: React.FC<Props> = (props) => {
+export const makeCategoryCounts = (
+  contestsData: Contest[],
+  contestToProblemsData: Map<string, Problem[]>,
+  userSubmissionsData: Submission[],
+  userId: string
+) => {
   const contestMap = new Map<string, Contest>(
-    useContests().data?.map((contest) => [contest.id, contest])
+    contestsData.map((contest) => [contest.id, contest])
   );
 
-  const contestToProblems =
-    useContestToProblems() ?? new Map<ContestId, Problem[]>();
+  const submissionsMap = userSubmissionsData.reduce((map, submission) => {
+    const submissions = map.get(submission.problem_id) ?? [];
+    submissions.push(submission);
+    map.set(submission.problem_id, submissions);
+    return map;
+  }, new Map<ProblemId, Submission[]>());
 
-  const submissionsMap = (useUserSubmission(props.userId) ?? []).reduce(
-    (map, submission) => {
-      const submissions = map.get(submission.problem_id) ?? [];
-      submissions.push(submission);
-      map.set(submission.problem_id, submissions);
-      return map;
-    },
-    new Map<ProblemId, Submission[]>()
-  );
-
-  const statusByContests = Array.from(contestToProblems).reduce(
+  const statusByContests = Array.from(contestToProblemsData).reduce(
     (accumulator, [contestId, problems]) => {
       const problemStatuses = problems.map((problem) => {
         const validSubmissions = submissionsMap
           .get(problem.id)
           ?.filter(
             (s) =>
-              caseInsensitiveUserId(s.user_id) === props.userId &&
+              caseInsensitiveUserId(s.user_id) === userId &&
               isValidResult(s.result)
           );
 
@@ -125,6 +124,21 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
     });
     return counts;
   }, new Map<ContestCategory, StatusCount>(ContestCategories.map((category) => [category, { solved: 0, rejected: 0, total: 0 }])));
+  return categoryCounts;
+};
+
+export const CategoryPieChart: React.FC<Props> = (props) => {
+  const contests = useContests().data ?? [];
+  const contestToProblems =
+    useContestToProblems() ?? new Map<ContestId, Problem[]>();
+  const userSubmissions = useUserSubmission(props.userId) ?? [];
+
+  const categoryCounts = makeCategoryCounts(
+    contests,
+    contestToProblems,
+    userSubmissions,
+    props.userId
+  );
 
   return (
     <div>
