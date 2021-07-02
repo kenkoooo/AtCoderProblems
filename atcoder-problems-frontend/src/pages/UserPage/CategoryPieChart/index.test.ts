@@ -58,7 +58,7 @@ describe("test decideStatusFromSubmissions", () => {
         point: 0,
         problem_id: "diverta2019_2_c",
         result: "RE",
-        user_id: "penicillin0",
+        user_id: "user",
       },
     ];
     expect(decideStatusFromSubmissions(submissions)).toBe(
