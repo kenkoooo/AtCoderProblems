@@ -30,6 +30,7 @@ We unofficially provide API to get information about AtCoder.
 ### Accepted Count
 
 #### Example
+
 ```
 https://kenkoooo.com/atcoder/atcoder-api/v3/ac_ranking?from=0&to=10
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/ac_rank?user=kenkoooo
@@ -42,7 +43,9 @@ Deprecated ~~https://kenkoooo.com/atcoder/resources/ac.json~~ This old API will 
 - https://kenkoooo.com/atcoder/resources/sums.json
 
 ### Longest Streak (JST) Count
+
 #### Example
+
 ```
 https://kenkoooo.com/atcoder/atcoder-api/v3/streak_ranking?from=0&to=10
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/streak_rank?user=kenkoooo
@@ -50,9 +53,24 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/user/streak_rank?user=kenkoooo
 
 Deprecated ~~https://kenkoooo.com/atcoder/resources/streaks.json~~ This old API will be removed soon. You can see more detail about the plan ([#981](https://github.com/kenkoooo/AtCoderProblems/issues/981)).
 
+### Language List
+
+#### Example
+
+```
+https://kenkoooo.com/atcoder/atcoder-api/v3/language_list
+```
+
 ### Accepted Count for each language
 
-- https://kenkoooo.com/atcoder/resources/lang.json
+#### Example
+
+```
+https://kenkoooo.com/atcoder/atcoder-api/v3/language_ranking?from=0&to=10&lang=C++
+https://kenkoooo.com/atcoder/atcoder-api/v3/user/language_rank?user=kenkoooo
+```
+
+Deprecated ~~https://kenkoooo.com/atcoder/resources/lang.json~~ This old API will be removed soon. You can see more detail about the plan ([#1002](https://github.com/kenkoooo/AtCoderProblems/issues/1002)).
 
 ## Submission API
 
