@@ -25,13 +25,13 @@ interface Props {
   userId: string;
 }
 
-enum SubmissionStatus {
+export enum SubmissionStatus {
   TRYING,
   REJECTED,
   ACCEPTED,
 }
 
-type StatusCount = { solved: number; rejected: number; total: number };
+export type StatusCount = { solved: number; rejected: number; total: number };
 
 type ProblemStatusesByContest = {
   contest: Contest;
@@ -39,6 +39,33 @@ type ProblemStatusesByContest = {
     problem: Problem;
     status: SubmissionStatus;
   }[];
+};
+
+export const statusCounter = (
+  counter: StatusCount,
+  status: SubmissionStatus
+) => {
+  switch (status) {
+    case SubmissionStatus.ACCEPTED:
+      counter.solved++;
+      break;
+    case SubmissionStatus.REJECTED:
+      counter.rejected++;
+      break;
+    default:
+      break;
+  }
+  counter.total++;
+};
+
+export const decideStatusFromSubmissions = (
+  submissions: Submission[] | undefined
+) => {
+  return !submissions
+    ? SubmissionStatus.TRYING
+    : submissions?.find((s) => isAccepted(s.result))
+    ? SubmissionStatus.ACCEPTED
+    : SubmissionStatus.REJECTED;
 };
 
 export const CategoryPieChart: React.FC<Props> = (props) => {
@@ -70,11 +97,7 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
               isValidResult(s.result)
           );
 
-        const status = !validSubmissions
-          ? SubmissionStatus.TRYING
-          : validSubmissions?.find((s) => isAccepted(s.result))
-          ? SubmissionStatus.ACCEPTED
-          : SubmissionStatus.REJECTED;
+        const status = decideStatusFromSubmissions(validSubmissions);
         return { problem: problem, status: status };
       });
 
@@ -98,17 +121,7 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
       const formerCount = counts.get(category);
       if (formerCount === undefined) return;
 
-      switch (problemStatus.status) {
-        case SubmissionStatus.ACCEPTED:
-          formerCount.solved++;
-          break;
-        case SubmissionStatus.REJECTED:
-          formerCount.rejected++;
-          break;
-        default:
-          break;
-      }
-      formerCount.total++;
+      statusCounter(formerCount, problemStatus.status);
     });
     return counts;
   }, new Map<ContestCategory, StatusCount>(ContestCategories.map((category) => [category, { solved: 0, rejected: 0, total: 0 }])));
