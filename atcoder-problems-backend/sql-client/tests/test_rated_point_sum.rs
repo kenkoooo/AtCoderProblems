@@ -303,3 +303,88 @@ async fn test_load_rated_point_sum_in_range() {
     let sums_1st_to_10th = pool.load_rated_point_sum_in_range(0..10).await.unwrap();
     assert_eq!(sums_1st_to_10th.len(), 4);
 }
+
+#[async_std::test]
+async fn test_get_users_rated_point_sum_rank() {
+    let pool = utils::initialize_and_connect_to_test_sql().await;
+
+    setup_contests(&pool).await;
+    setup_contest_problems(&pool).await;
+    let submissions = vec![
+        Submission {
+            id: 0,
+            user_id: USER_ID.to_string(),
+            point: 100.0,
+            problem_id: "problem1".to_string(),
+            contest_id: RATED_CONTEST.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 1,
+            user_id: USER_ID.to_string(),
+            point: 100.0,
+            problem_id: "problem4".to_string(),
+            contest_id: RATED_CONTEST.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 2,
+            user_id: USER_ID.to_string(),
+            point: 100.0,
+            problem_id: "problem5".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 3,
+            user_id: USER_ID2.to_string(),
+            point: 100.0,
+            problem_id: "problem4".to_string(),
+            contest_id: RATED_CONTEST.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 4,
+            user_id: USER_ID2.to_string(),
+            point: 100.0,
+            problem_id: "problem5".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 5,
+            user_id: USER_ID3.to_string(),
+            point: 100.0,
+            problem_id: "problem4".to_string(),
+            contest_id: RATED_CONTEST.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 6,
+            user_id: USER_ID3.to_string(),
+            point: 100.0,
+            problem_id: "problem5".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 7,
+            user_id: USER_ID4.to_string(),
+            point: 100.0,
+            problem_id: "problem5".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+            ..Default::default()
+        },
+    ];
+
+    pool.update_rated_point_sum(&submissions).await.unwrap();
+
+    let user1_rank = pool.get_users_rated_point_sum_rank(USER_ID).await.unwrap();
+    assert_eq!(user1_rank, 0);
+    let user2_rank = pool.get_users_rated_point_sum_rank(USER_ID2).await.unwrap();
+    assert_eq!(user2_rank, 1);
+    let user3_rank = pool.get_users_rated_point_sum_rank(USER_ID3).await.unwrap();
+    assert_eq!(user3_rank, 1);
+    let user4_rank = pool.get_users_rated_point_sum_rank(USER_ID4).await.unwrap();
+    assert_eq!(user4_rank, 3);
+}
