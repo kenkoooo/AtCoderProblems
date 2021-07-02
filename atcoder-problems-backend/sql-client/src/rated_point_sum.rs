@@ -13,6 +13,7 @@ pub trait RatedPointSumClient {
     async fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> Result<()>;
     async fn get_users_rated_point_sum(&self, user_id: &str) -> Option<f64>;
     async fn get_rated_point_sum_rank(&self, point: f64) -> Result<i64>;
+    async fn get_users_rated_point_sum_rank(&self, user_id: &str) -> Result<i64>;
     async fn load_rated_point_sum_in_range(&self, rank_range: Range<usize>)
         -> Result<Vec<UserSum>>;
 }
@@ -107,6 +108,21 @@ impl RatedPointSumClient for PgPool {
             .try_map(|row: PgRow| row.try_get::<i64, _>("rank"))
             .fetch_one(self)
             .await?;
+        Ok(rank)
+    }
+
+    async fn get_users_rated_point_sum_rank(&self, user_id: &str) -> Result<i64> {
+        let rank = sqlx::query(
+            "
+            SELECT COUNT(*) AS rank FROM rated_point_sum
+            WHERE point_sum > (
+                SELECT point_sum FROM rated_point_sum WHERE user_id = $1
+            )",
+        )
+        .bind(user_id)
+        .try_map(|row: PgRow| row.try_get::<i64, _>("rank"))
+        .fetch_one(self)
+        .await?;
         Ok(rank)
     }
 
