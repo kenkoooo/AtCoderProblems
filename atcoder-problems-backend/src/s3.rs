@@ -1,7 +1,7 @@
 use anyhow::Result;
 
 use s3::bucket::Bucket;
-use s3::credentials::Credentials;
+use s3::creds::Credentials;
 
 const BUCKET_NAME: &str = "kenkoooo.com";
 const REGION: &str = "ap-northeast-1";
@@ -13,16 +13,17 @@ pub struct S3Client {
 impl S3Client {
     pub fn new() -> Result<Self> {
         let region = REGION.parse()?;
-        let credentials = Credentials::default();
+        let credentials = Credentials::default()?;
         let bucket = Bucket::new(BUCKET_NAME, region, credentials)?;
         Ok(Self { bucket })
     }
 
-    pub fn update(&self, data: Vec<u8>, path: &str) -> Result<bool> {
+    pub async fn update(&self, data: Vec<u8>, path: &str) -> Result<bool> {
         log::info!("Fetching old data ...");
         let old_data = self
             .bucket
             .get_object(path)
+            .await
             .map(|(data, _)| data)
             .unwrap_or_else(|e| {
                 log::error!("{:?}", e);
@@ -30,9 +31,10 @@ impl S3Client {
             });
         if old_data != data {
             log::info!("Uploading new data to {} ...", path);
-            let (data, status) =
-                self.bucket
-                    .put_object(path, &data, "application/json;charset=utf-8")?;
+            let (data, status) = self
+                .bucket
+                .put_object_with_content_type(path, &data, "application/json;charset=utf-8")
+                .await?;
             log::info!("data={:?}", data);
             log::info!("status={}", status);
             Ok(true)

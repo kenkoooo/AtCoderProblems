@@ -33,11 +33,15 @@ async fn main() -> Result<()> {
         .collect::<Vec<_>>();
 
     contests.sort_by_key(|c| c.id.clone());
-    client.update(contests.serialize_to_bytes()?, "/resources/contests.json")?;
+    client
+        .update(contests.serialize_to_bytes()?, "/resources/contests.json")
+        .await?;
 
     let mut accepted_count = pg_pool.load_accepted_count().await?;
     accepted_count.sort_by_key(|c| c.user_id.clone());
-    client.update(accepted_count.serialize_to_bytes()?, "/resources/ac.json")?;
+    client
+        .update(accepted_count.serialize_to_bytes()?, "/resources/ac.json")
+        .await?;
 
     let mut problems = pg_pool
         .load_problems()
@@ -47,7 +51,9 @@ async fn main() -> Result<()> {
         .collect::<Vec<_>>();
 
     problems.sort_by_key(|p| p.id.clone());
-    client.update(problems.serialize_to_bytes()?, "/resources/problems.json")?;
+    client
+        .update(problems.serialize_to_bytes()?, "/resources/problems.json")
+        .await?;
 
     let sums: Vec<UserSum> =
         query("SELECT user_id, point_sum FROM rated_point_sum ORDER BY user_id")
@@ -58,7 +64,9 @@ async fn main() -> Result<()> {
             })
             .fetch_all(&pg_pool)
             .await?;
-    client.update(sums.serialize_to_bytes()?, "/resources/sums.json")?;
+    client
+        .update(sums.serialize_to_bytes()?, "/resources/sums.json")
+        .await?;
 
     let language_count = pg_pool.load_language_count().await?;
     let mut reduced_language_count = BTreeMap::new();
@@ -85,14 +93,18 @@ async fn main() -> Result<()> {
             .then_with(|| a.simplified_language.cmp(&b.simplified_language))
     });
 
-    client.update(language_count.serialize_to_bytes()?, "/resources/lang.json")?;
+    client
+        .update(language_count.serialize_to_bytes()?, "/resources/lang.json")
+        .await?;
 
     let mut contest_problem = pg_pool.load_contest_problem().await?;
     contest_problem.sort_by_key(|c| (c.contest_id.clone(), c.problem_id.clone()));
-    client.update(
-        contest_problem.serialize_to_bytes()?,
-        "/resources/contest-problem.json",
-    )?;
+    client
+        .update(
+            contest_problem.serialize_to_bytes()?,
+            "/resources/contest-problem.json",
+        )
+        .await?;
 
     let max_streaks: Vec<UserStreak> =
         query("SELECT user_id, streak FROM max_streaks ORDER BY user_id")
@@ -103,7 +115,9 @@ async fn main() -> Result<()> {
             })
             .fetch_all(&pg_pool)
             .await?;
-    client.update(max_streaks.serialize_to_bytes()?, "/resources/streaks.json")?;
+    client
+        .update(max_streaks.serialize_to_bytes()?, "/resources/streaks.json")
+        .await?;
 
     let merged_problems: Vec<MergedProblem> = query(
         r"
@@ -187,10 +201,12 @@ async fn main() -> Result<()> {
     .into_iter()
     .filter(|c| !BLOCKED_PROBLEMS.contains(&c.id.as_str()))
     .collect::<Vec<_>>();
-    client.update(
-        merged_problems.serialize_to_bytes()?,
-        "/resources/merged-problems.json",
-    )?;
+    client
+        .update(
+            merged_problems.serialize_to_bytes()?,
+            "/resources/merged-problems.json",
+        )
+        .await?;
 
     log::info!("Done.");
     Ok(())
