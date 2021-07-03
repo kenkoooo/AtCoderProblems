@@ -13,7 +13,7 @@ pub struct S3Client {
 impl S3Client {
     pub fn new() -> Result<Self> {
         let region = REGION.parse()?;
-        let credentials = Credentials::default()?;
+        let credentials = Credentials::from_instance_metadata()?;
         let bucket = Bucket::new(BUCKET_NAME, region, credentials)?;
         Ok(Self { bucket })
     }

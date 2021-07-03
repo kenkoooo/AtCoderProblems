@@ -16,7 +16,7 @@ use std::env;
 
 const LANGUAGE_COUNT_LIMIT: usize = 1000;
 
-#[async_std::main]
+#[tokio::main]
 async fn main() -> Result<()> {
     init_log_config()?;
     log::info!("Started!");
