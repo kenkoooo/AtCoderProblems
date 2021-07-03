@@ -1,4 +1,4 @@
-import { AGC_001_START } from "../pages/TablePage/ContestClassifier";
+import { AGC_001_START } from "../utils/ContestClassifier";
 import { getRatedTarget, RatedTargetType } from "./ContestLink";
 
 const DEFAULT_CONTEST = {

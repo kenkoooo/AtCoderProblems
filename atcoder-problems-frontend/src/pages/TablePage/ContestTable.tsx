@@ -9,7 +9,7 @@ import { ProblemLink } from "../../components/ProblemLink";
 import { ContestLink } from "../../components/ContestLink";
 import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
-import { isRatedContest } from "./ContestClassifier";
+import { isRatedContest } from "../../utils/ContestClassifier";
 
 interface Props {
   contests: Contest[];

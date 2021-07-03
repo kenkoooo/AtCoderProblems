@@ -1,5 +1,5 @@
-import Contest from "../../interfaces/Contest";
-import { RatedTargetType, getRatedTarget } from "../../components/ContestLink";
+import Contest from "../interfaces/Contest";
+import { RatedTargetType, getRatedTarget } from "../components/ContestLink";
 
 export const ContestCategories = [
   "ABC",

@@ -13,11 +13,13 @@ import { LanguageCount } from "./LanguageCount";
 import { DifficultyPieChart } from "./DifficultyPieChart";
 import { TrophyBlock } from "./TrophyBlock";
 import { Submissions } from "./Submissions";
+import { CategoryPieChart } from "./CategoryPieChart";
 
 const userPageTabs = [
   "Achievement",
   "AtCoder Pie Charts",
   "Difficulty Pies",
+  "Category Pies",
   "Progress Charts",
   "Submissions",
   "Recommendation",
@@ -83,6 +85,14 @@ export const UserPage = (props: Props) => {
             <h1>Difficulty Pies</h1>
           </Row>
           <DifficultyPieChart userId={userId} />
+        </>
+      )}
+      {(userPageTab === "All" || userPageTab === "Category Pies") && (
+        <>
+          <Row className="my-2 border-bottom">
+            <h1>Category Pies</h1>
+          </Row>
+          <CategoryPieChart userId={userId} />
         </>
       )}
       {(userPageTab === "All" || userPageTab === "Progress Charts") && (
