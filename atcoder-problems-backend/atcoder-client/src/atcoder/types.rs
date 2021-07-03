@@ -1,10 +1,10 @@
 use crate::util::Problem;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub enum ContestTypeSpecifier {
-    Normal {page: u32},
+    Normal { page: u32 },
     Permanent,
-    Hidden
+    Hidden,
 }
 
 pub struct AtCoderSubmissionListResponse {

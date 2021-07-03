@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { List, Set as ImmutableSet } from "immutable";
+import { List } from "immutable";
 import {
   useContests,
   useContestToProblems,
@@ -52,9 +52,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     "showPenalties",
     false
   );
-  const [selectedLanguages, setSelectedLanguages] = useState(
-    ImmutableSet<string>()
-  );
+  const [selectedLanguages, setSelectedLanguages] = useState(new Set<string>());
   const userRatingInfo = useRatingInfo(props.userId);
   const contestToProblems =
     useContestToProblems() ?? new Map<ContestId, Problem[]>();
@@ -96,13 +94,11 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         toggleShowPenalties={(): void => setShowPenalties(!showPenalties)}
         selectableLanguages={selectableLanguages}
         selectedLanguages={selectedLanguages}
-        toggleLanguage={(language): void =>
-          setSelectedLanguages(
-            selectedLanguages.has(language)
-              ? selectedLanguages.delete(language)
-              : selectedLanguages.add(language)
-          )
-        }
+        toggleLanguage={(language): void => {
+          const newSet = new Set(selectedLanguages);
+          newSet.has(language) ? newSet.delete(language) : newSet.add(language);
+          setSelectedLanguages(newSet);
+        }}
       />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
       {["ABC", "ARC", "AGC", "ABC-Like", "ARC-Like", "AGC-Like"].includes(

@@ -32,9 +32,9 @@ async fn insert_data_set1(conn: &PgPool) {
          ('user2', 'lang1', 3),
          ('user3', 'lang3', 2)",
     )
-        .execute(conn)
-        .await
-        .unwrap();
+    .execute(conn)
+    .await
+    .unwrap();
 }
 
 async fn insert_data_set2(conn: &PgPool) {
@@ -44,9 +44,9 @@ async fn insert_data_set2(conn: &PgPool) {
          ('user1', 'lang4', 1),
          ('user4', 'lang1', 2)",
     )
-        .execute(conn)
-        .await
-        .unwrap();
+    .execute(conn)
+    .await
+    .unwrap();
 }
 
 fn url(path: &str, port: u16) -> String {

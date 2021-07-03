@@ -78,3 +78,14 @@ export SQL_URL=postgres://kenkoooo:pass@localhost:5432/test
 # Run all the tests
 cargo test --workspace -- --test-threads=1
 ```
+
+## Format
+
+GitHub Action will check if the code base is formatted by `rustfmt`.
+Please make sure that your change is formatted before sending a pull request.
+You can format the code base with `cargo fmt` like the following:
+
+```bash
+cd atcoder-problems-backend/
+cargo fmt
+```

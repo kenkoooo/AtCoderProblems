@@ -35,16 +35,11 @@ async fn test_streak_ranking() {
     pool.update_streak_count(&submissions).await.unwrap();
 
     // get users streak count
-    assert_eq!(
-        pool.get_users_streak_count("user3").await.unwrap(),
-        1
-    );
-    assert!(
-        pool
+    assert_eq!(pool.get_users_streak_count("user3").await.unwrap(), 1);
+    assert!(pool
         .get_users_streak_count("non_existing_user")
         .await
-        .is_none()
-    );
+        .is_none());
 
     // get streak count rank
     assert_eq!(pool.get_streak_count_rank(2).await.unwrap(), 0);
@@ -52,31 +47,32 @@ async fn test_streak_ranking() {
     assert_eq!(pool.get_streak_count_rank(0).await.unwrap(), 4);
 
     // load streak count in range
-    let rank_1st_to_3rd = pool
-    .load_streak_count_in_range(0..3).await.unwrap();
+    let rank_1st_to_3rd = pool.load_streak_count_in_range(0..3).await.unwrap();
     assert_eq!(rank_1st_to_3rd.len(), 3);
     assert_eq!(rank_1st_to_3rd[0].user_id, "user1".to_owned());
     assert_eq!(rank_1st_to_3rd[0].streak, 2);
     assert_eq!(rank_1st_to_3rd[2].user_id, "user3".to_owned());
     assert_eq!(rank_1st_to_3rd[2].streak, 1);
 
-    let rank_3rd_to_4th = pool
-    .load_streak_count_in_range(2..4).await.unwrap();
+    let rank_3rd_to_4th = pool.load_streak_count_in_range(2..4).await.unwrap();
     assert_eq!(rank_3rd_to_4th.len(), 2);
     assert_eq!(rank_3rd_to_4th[0].user_id, "user3".to_owned());
     assert_eq!(rank_3rd_to_4th[0].streak, 1);
-    assert_eq!(rank_3rd_to_4th[1], UserStreak{
-        user_id: "user5".to_owned(),
-        streak: 1
-    });
+    assert_eq!(
+        rank_3rd_to_4th[1],
+        UserStreak {
+            user_id: "user5".to_owned(),
+            streak: 1
+        }
+    );
 
-    let rank_2nd_to_2nd = pool
-    .load_streak_count_in_range(1..2).await.unwrap();
+    let rank_2nd_to_2nd = pool.load_streak_count_in_range(1..2).await.unwrap();
     assert_eq!(rank_2nd_to_2nd.len(), 1);
-    assert_eq!(rank_2nd_to_2nd[0], UserStreak{
-        user_id: "user2".to_owned(),
-        streak: 1
-    });
-    
+    assert_eq!(
+        rank_2nd_to_2nd[0],
+        UserStreak {
+            user_id: "user2".to_owned(),
+            streak: 1
+        }
+    );
 }
-

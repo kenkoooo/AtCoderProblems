@@ -1,5 +1,5 @@
 use crate::server::{AppData, CommonResponse};
-use serde::{Deserialize};
+use serde::Deserialize;
 use sql_client::language_count::LanguageCountClient;
 use tide::{Request, Response, Result};
 

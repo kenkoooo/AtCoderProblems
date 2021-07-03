@@ -1,4 +1,3 @@
-import { Set as ImmutableSet } from "immutable";
 import Contest from "../interfaces/Contest";
 import { ProblemStatus, StatusLabel } from "../interfaces/Status";
 
@@ -84,7 +83,7 @@ export const statusToTableColor = ({
   colorMode: ColorMode;
   status: ProblemStatus;
   contest: Contest | undefined;
-  selectedLanguages?: ImmutableSet<string>;
+  selectedLanguages?: Set<string>;
 }): TableColor => {
   switch (colorMode) {
     case ColorMode.None: {

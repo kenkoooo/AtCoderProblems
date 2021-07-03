@@ -109,18 +109,24 @@ async fn test_user_submissions_fromtime() {
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let submissions: Vec<Submission> = surf::get(url("/atcoder-api/v3/user/submissions?user=u1&from_second=3", port))
-        .await
-        .unwrap()
-        .body_json()
-        .await
-        .unwrap();
+    let submissions: Vec<Submission> = surf::get(url(
+        "/atcoder-api/v3/user/submissions?user=u1&from_second=3",
+        port,
+    ))
+    .await
+    .unwrap()
+    .body_json()
+    .await
+    .unwrap();
     assert_eq!(submissions.len(), 2);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
 
-    let mut response = surf::get(url("/atcoder-api/v3/user/submissions?user=u2&from_second=6", port))
-        .await
-        .unwrap();
+    let mut response = surf::get(url(
+        "/atcoder-api/v3/user/submissions?user=u2&from_second=6",
+        port,
+    ))
+    .await
+    .unwrap();
     let submissions: Vec<Submission> = response.body_json().await.unwrap();
     assert_eq!(submissions.len(), 3);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
@@ -128,21 +134,30 @@ async fn test_user_submissions_fromtime() {
     assert_eq!(submissions[1].epoch_second, 7);
     assert_eq!(submissions[2].epoch_second, 200);
 
-    let mut response = surf::get(url("/atcoder-api/v3/user/submissions?user=u3&from_second=0", port))
-        .await
-        .unwrap();
+    let mut response = surf::get(url(
+        "/atcoder-api/v3/user/submissions?user=u3&from_second=0",
+        port,
+    ))
+    .await
+    .unwrap();
     let submissions: Vec<Submission> = response.body_json().await.unwrap();
     assert_eq!(submissions.len(), 0);
 
-    let mut response = surf::get(url("/atcoder-api/v3/user/submissions?user=u1&from_second=-30", port))
-        .await
-        .unwrap();
+    let mut response = surf::get(url(
+        "/atcoder-api/v3/user/submissions?user=u1&from_second=-30",
+        port,
+    ))
+    .await
+    .unwrap();
     let submissions: Vec<Submission> = response.body_json().await.unwrap();
     assert_eq!(submissions.len(), 5);
 
-    let mut response = surf::get(url("/atcoder-api/v3/user/submissions?user=u2&from_second=3000", port))
-        .await
-        .unwrap();
+    let mut response = surf::get(url(
+        "/atcoder-api/v3/user/submissions?user=u2&from_second=3000",
+        port,
+    ))
+    .await
+    .unwrap();
     let submissions: Vec<Submission> = response.body_json().await.unwrap();
     assert_eq!(submissions.len(), 0);
 
