@@ -1,9 +1,17 @@
+import Contest from "../../../interfaces/Contest";
+import Problem from "../../../interfaces/Problem";
+import { ContestId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
+import {
+  ContestCategories,
+  ContestCategory,
+} from "../../../utils/ContestClassifier";
 import {
   decideStatusFromSubmissions,
   statusCounter,
   SubmissionStatus,
   StatusCount,
+  makeCategoryCounts,
 } from "./index";
 
 describe("test decideStatusFromSubmissions", () => {
@@ -114,5 +122,210 @@ describe("test statusCounter", () => {
       rejected: 0,
       total: 1,
     } as StatusCount);
+  });
+});
+
+describe("test makeCategoryCounts", () => {
+  it("when same problem 1AC 1WA", () => {
+    const contests: Contest[] = [
+      {
+        duration_second: 6000,
+        id: "abc043",
+        rate_change: " ~ 1199",
+        start_epoch_second: 1471089600,
+        title: "AtCoder Beginner Contest 043",
+      },
+    ];
+
+    const abc043Problems: Problem[] = [
+      {
+        contest_id: "abc043",
+        id: "abc043_a",
+        title:
+          "A. キャンディーとN人の子供イージー / Children and Candies (ABC Edit)",
+      },
+      {
+        contest_id: "abc043",
+        id: "abc043_b",
+        title: "B. バイナリハックイージー / Unhappy Hacking (ABC Edit)",
+      },
+      {
+        contest_id: "arc059",
+        id: "arc059_a",
+        title: "C. いっしょ / Be Together",
+      },
+      {
+        contest_id: "arc059",
+        id: "arc059_b",
+        title: "D. アンバランス / Unbalanced",
+      },
+    ];
+    const contestToProblems: Map<ContestId, Problem[]> = new Map([
+      ["abc043", abc043Problems],
+    ]);
+
+    const userSubmissions: Submission[] = [
+      {
+        contest_id: "abc043",
+        epoch_second: 1548576902,
+        execution_time: 18,
+        id: 4095013,
+        language: "Python3 (3.4.3)",
+        length: 37,
+        point: 100,
+        problem_id: "abc043_a",
+        result: "AC",
+        user_id: "user",
+      },
+      {
+        contest_id: "abc043",
+        epoch_second: 1548576902,
+        execution_time: 18,
+        id: 4095013,
+        language: "Python3 (3.4.3)",
+        length: 37,
+        point: 100,
+        problem_id: "abc043_a",
+        result: "WA",
+        user_id: "user",
+      },
+    ];
+
+    const expected = new Map<ContestCategory, StatusCount>(
+      ContestCategories.filter(
+        (category) => category !== "ABC"
+      ).map((category) => [category, { solved: 0, rejected: 0, total: 0 }])
+    );
+    expected.set("ABC", { solved: 1, rejected: 0, total: 4 });
+    expect(
+      makeCategoryCounts(contests, contestToProblems, userSubmissions, "user")
+    ).toEqual(expected);
+  });
+
+  it("when different problem 1AC 1WA", () => {
+    const contests: Contest[] = [
+      {
+        duration_second: 6000,
+        id: "abc043",
+        rate_change: " ~ 1199",
+        start_epoch_second: 1471089600,
+        title: "AtCoder Beginner Contest 043",
+      },
+    ];
+
+    const abc043Problems: Problem[] = [
+      {
+        contest_id: "abc043",
+        id: "abc043_a",
+        title:
+          "A. キャンディーとN人の子供イージー / Children and Candies (ABC Edit)",
+      },
+      {
+        contest_id: "abc043",
+        id: "abc043_b",
+        title: "B. バイナリハックイージー / Unhappy Hacking (ABC Edit)",
+      },
+      {
+        contest_id: "arc059",
+        id: "arc059_a",
+        title: "C. いっしょ / Be Together",
+      },
+      {
+        contest_id: "arc059",
+        id: "arc059_b",
+        title: "D. アンバランス / Unbalanced",
+      },
+    ];
+    const contestToProblems: Map<ContestId, Problem[]> = new Map([
+      ["abc043", abc043Problems],
+    ]);
+
+    const userSubmissions: Submission[] = [
+      {
+        contest_id: "abc043",
+        epoch_second: 1548576902,
+        execution_time: 18,
+        id: 4095013,
+        language: "Python3 (3.4.3)",
+        length: 37,
+        point: 100,
+        problem_id: "abc043_a",
+        result: "AC",
+        user_id: "user",
+      },
+      {
+        contest_id: "abc043",
+        epoch_second: 1548576902,
+        execution_time: 18,
+        id: 4095013,
+        language: "Python3 (3.4.3)",
+        length: 37,
+        point: 100,
+        problem_id: "abc043_b",
+        result: "WA",
+        user_id: "user",
+      },
+    ];
+
+    const expected = new Map<ContestCategory, StatusCount>(
+      ContestCategories.filter(
+        (category) => category !== "ABC"
+      ).map((category) => [category, { solved: 0, rejected: 0, total: 0 }])
+    );
+    expected.set("ABC", { solved: 1, rejected: 1, total: 4 });
+    expect(
+      makeCategoryCounts(contests, contestToProblems, userSubmissions, "user")
+    ).toEqual(expected);
+  });
+
+  it("when no submission", () => {
+    const contests: Contest[] = [
+      {
+        duration_second: 6000,
+        id: "abc043",
+        rate_change: " ~ 1199",
+        start_epoch_second: 1471089600,
+        title: "AtCoder Beginner Contest 043",
+      },
+    ];
+
+    const abc043Problems: Problem[] = [
+      {
+        contest_id: "abc043",
+        id: "abc043_a",
+        title:
+          "A. キャンディーとN人の子供イージー / Children and Candies (ABC Edit)",
+      },
+      {
+        contest_id: "abc043",
+        id: "abc043_b",
+        title: "B. バイナリハックイージー / Unhappy Hacking (ABC Edit)",
+      },
+      {
+        contest_id: "arc059",
+        id: "arc059_a",
+        title: "C. いっしょ / Be Together",
+      },
+      {
+        contest_id: "arc059",
+        id: "arc059_b",
+        title: "D. アンバランス / Unbalanced",
+      },
+    ];
+    const contestToProblems: Map<ContestId, Problem[]> = new Map([
+      ["abc043", abc043Problems],
+    ]);
+
+    const userSubmissions: Submission[] = [];
+
+    const expected = new Map<ContestCategory, StatusCount>(
+      ContestCategories.filter(
+        (category) => category !== "ABC"
+      ).map((category) => [category, { solved: 0, rejected: 0, total: 0 }])
+    );
+    expected.set("ABC", { solved: 0, rejected: 0, total: 4 });
+    expect(
+      makeCategoryCounts(contests, contestToProblems, userSubmissions, "user")
+    ).toEqual(expected);
   });
 });
