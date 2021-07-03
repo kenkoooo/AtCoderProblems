@@ -66,7 +66,7 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/language_list
 #### Example
 
 ```
-https://kenkoooo.com/atcoder/atcoder-api/v3/language_ranking?from=0&to=10&language=C++
+https://kenkoooo.com/atcoder/atcoder-api/v3/language_ranking?from=0&to=10&language=Rust
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/language_rank?user=kenkoooo
 ```
 
