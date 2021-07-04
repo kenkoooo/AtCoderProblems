@@ -37,3 +37,6 @@ export interface StreakRankingEntry {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export const isStreakRankingEntry = (obj: any): obj is StreakRankingEntry =>
   typeof obj.user_id === "string" && typeof obj.streak === "number";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
+export const isString = (obj: any): obj is string => typeof obj === "string";

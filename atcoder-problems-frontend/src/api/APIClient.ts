@@ -4,11 +4,10 @@ import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import {
-  isLangRankingEntry,
   isRankingEntry,
   isStreakRankingEntry,
+  isString,
   isSumRankingEntry,
-  LangRankingEntry,
   RankingEntry,
   StreakRankingEntry,
 } from "../interfaces/RankingEntry";
@@ -105,21 +104,19 @@ export const useMergedProblemMap = () => {
   );
 };
 
-export const useLangRanking = () => {
-  const url = STATIC_API_BASE_URL + "/lang.json";
-  return useSWRData(url, (url) =>
-    fetchTypedArray(url, isLangRankingEntry).then((ranking) =>
-      ranking.reduce((map, entry) => {
-        const list = map.get(entry.language) ?? [];
-        list.push(entry);
-        map.set(
-          entry.language,
-          list.sort((a, b) => b.count - a.count)
-        );
-        return map;
-      }, new Map<string, LangRankingEntry[]>())
-    )
-  );
+export const useLangList = () => {
+  const url = `${ATCODER_API_URL}/v3/language_list`;
+  return useSWRData(url, (url) => fetchTypedArray(url, isString));
+};
+
+export const useOneLangRanking = (
+  from: number,
+  to: number,
+  language: string
+) => {
+  const url = `${ATCODER_API_URL}/v3/language_ranking?from=${from}&to=${to}&language=${language}`;
+  console.log(url);
+  return useSWRData(url, (url) => fetchTypedArray(url, isRankingEntry));
 };
 
 export const useShortRanking = () => {
