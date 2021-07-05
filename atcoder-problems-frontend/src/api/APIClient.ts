@@ -114,8 +114,9 @@ export const useOneLangRanking = (
   to: number,
   language: string
 ) => {
-  const url = `${ATCODER_API_URL}/v3/language_ranking?from=${from}&to=${to}&language=${language}`;
-  console.log(url);
+  const url = `${ATCODER_API_URL}/v3/language_ranking?from=${from}&to=${to}&language=${encodeURIComponent(
+    language
+  )}`;
   return useSWRData(url, (url) => fetchTypedArray(url, isRankingEntry));
 };
 
