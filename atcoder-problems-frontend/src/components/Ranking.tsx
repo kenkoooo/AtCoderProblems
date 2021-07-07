@@ -44,7 +44,6 @@ export const Ranking: React.FC<Props> = (props) => (
       pagination
       striped
       hover
-      search
       options={{
         paginationPosition: "top",
         sizePerPage: 20,

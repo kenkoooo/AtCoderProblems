@@ -5,17 +5,20 @@ import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import {
   isRankingEntry,
+  isRankingEntryV3,
   isStreakRankingEntry,
   isString,
   isSumRankingEntry,
   RankingEntry,
+  RankingEntryV3,
   StreakRankingEntry,
 } from "../interfaces/RankingEntry";
+import { UserRankEntry } from "../interfaces/UserRankEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
 import { ratingInfoOf } from "../utils/RatingInfo";
-import { useSWRData } from "./index";
+import { typeCastFetcher, useSWRData } from "./index";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
@@ -55,13 +58,27 @@ function fetchTypedArray<T>(
   );
 }
 
-export const useACRanking = () => {
-  const url = STATIC_API_BASE_URL + "/ac.json";
+export const useACRanking = (from: number, to: number) => {
+  const url = `${ATCODER_API_URL}/v3/ac_ranking?from=${from}&to=${to}`;
   return useSWRData(url, (url) =>
-    fetchTypedArray<RankingEntry>(url, isRankingEntry).then((ranking) =>
-      ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
-    )
+    fetchTypedArray<RankingEntryV3>(url, isRankingEntryV3)
+      .then((ranking) =>
+        ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
+      )
+      .then((ranking) =>
+        ranking.map((entry) => ({
+          problem_count: entry.count,
+          user_id: entry.user_id,
+        }))
+      )
   );
+};
+
+export const useUserACRank = (user: string) => {
+  const url = `${ATCODER_API_URL}/v3/user/ac_rank?user=${encodeURIComponent(
+    user
+  )}`;
+  return useSWRData(url, (url) => typeCastFetcher<UserRankEntry>(url));
 };
 
 export const useStreakRanking = () => {

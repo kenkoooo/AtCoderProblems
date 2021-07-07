@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
 import {
-  useACRanking,
+  useUserACRank,
   useContests,
   useContestToProblems,
   useFastRanking,
@@ -68,10 +68,8 @@ export const AchievementBlock: React.FC<Props> = (props) => {
 
   const solvedProblemIds = UserUtils.solvedProblemIdsFromArray(userSubmissions);
   const solvedCount = solvedProblemIds.length;
-  const { data: acRanking } = useACRanking();
-  const acRank = acRanking
-    ? acRanking.filter((entry) => entry.problem_count > solvedCount).length
-    : undefined;
+  const acRankEntry = useUserACRank(props.userId);
+  const acRank = acRankEntry.data ? acRankEntry.data.rank : undefined;
   const shortRank = findFromRanking(shortRanking, props.userId);
   const firstRank = findFromRanking(firstRanking, props.userId);
   const fastRank = findFromRanking(fastRanking, props.userId);

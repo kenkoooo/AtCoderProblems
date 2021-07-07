@@ -8,6 +8,16 @@ export interface RankingEntry {
 export const isRankingEntry = (obj: any): obj is RankingEntry =>
   typeof obj.problem_count === "number" && typeof obj.user_id === "string";
 
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+export interface RankingEntryV3 {
+  readonly count: number;
+  readonly user_id: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
+export const isRankingEntryV3 = (obj: any): obj is RankingEntryV3 =>
+  typeof obj.count === "number" && typeof obj.user_id === "string";
+
 export interface SumRankingEntry {
   readonly user_id: string;
   readonly point_sum: number;
