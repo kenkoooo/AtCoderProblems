@@ -2,6 +2,7 @@ use crate::server::{AppData, CommonResponse};
 use serde::{Deserialize, Serialize};
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::language_count::LanguageCountClient;
+use sql_client::rated_point_sum::RatedPointSumClient;
 use sql_client::streak::StreakClient;
 use std::ops::Range;
 use tide::Result;
@@ -177,4 +178,28 @@ pub(crate) async fn get_users_language_rank<A>(
         .collect::<Vec<_>>();
     let response = tide::Response::json(&info)?;
     Ok(response)
+}
+
+pub(crate) async fn get_users_rated_point_sum_rank<A>(
+    request: tide::Request<AppData<A>>,
+) -> Result<tide::Response> {
+    #[derive(Debug, Deserialize)]
+    struct Query {
+        user_id: String,
+    }
+    #[derive(Debug, Serialize)]
+    struct UsersRatedPointSumResponse {
+        point_sum: f64,
+        rank: i64,
+    }
+    let conn = request.state().pg_pool.clone();
+    let query = request.query::<Query>()?;
+    let point_sum = match conn.get_users_rated_point_sum(&query.user_id).await {
+        Some(point) => point,
+        None => return Ok(tide::Response::new(404)),
+    };
+    let rank = conn.get_rated_point_sum_rank(point_sum).await?;
+
+    let response = UsersRatedPointSumResponse { point_sum, rank };
+    Ok(tide::Response::json(&response)?)
 }

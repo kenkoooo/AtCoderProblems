@@ -16,7 +16,7 @@ pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 
 use crate::server::ranking::{
     get_ac_ranking, get_language_ranking, get_streak_ranking, get_users_ac_rank,
-    get_users_language_rank, get_users_streak_rank,
+    get_users_language_rank, get_users_rated_point_sum_rank, get_users_streak_rank,
 };
 use auth::get_token;
 use language_count::get_language_list;
@@ -124,6 +124,8 @@ where
                 api.at("/streak_rank")
                     .get(ranking::user_rank(get_users_streak_rank));
                 api.at("/language_rank").get(get_users_language_rank);
+                api.at("rated_point_sum_rank")
+                    .get(get_users_rated_point_sum_rank);
                 api
             });
             api.at("/language_list").get(get_language_list);
