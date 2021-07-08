@@ -1,6 +1,6 @@
 import { UserId } from "../interfaces/Status";
 import Submission from "../interfaces/Submission";
-import { fetchPartialUserSubmissions } from "./Api";
+import { fetchPartialUserSubmissions, fetchUserSubmissions } from "./Api";
 
 const VERSION = 3;
 
@@ -41,69 +41,74 @@ const openSubmissionDatabase = (userId: UserId) =>
   });
 
 export const fetchSubmissionFromDatabaseAndServer = async (userId: UserId) => {
-  console.log("Opening database");
-  const db = await openSubmissionDatabase(userId);
-  console.log("Loading submissions");
-  const submissions = await new Promise(
-    (
-      resolve: (result: Submission[]) => void,
-      reject: (msg: string) => void
-    ) => {
-      const request = db
-        .transaction(["submissions"])
-        .objectStore("submissions")
-        .getAll();
-      request.onsuccess = (e) => {
-        const allSubmissions = (e.target as IDBRequest<Submission[]>).result;
-        resolve(allSubmissions);
-      };
-      request.onerror = () => {
-        console.error("Failed getAll submissions");
-        reject("Failed getAll submissions");
-      };
-    }
-  );
+  try {
+    console.log("Opening database");
+    const db = await openSubmissionDatabase(userId);
+    console.log("Loading submissions");
+    const submissions = await new Promise(
+      (
+        resolve: (result: Submission[]) => void,
+        reject: (msg: string) => void
+      ) => {
+        const request = db
+          .transaction(["submissions"])
+          .objectStore("submissions")
+          .getAll();
+        request.onsuccess = (e) => {
+          const allSubmissions = (e.target as IDBRequest<Submission[]>).result;
+          resolve(allSubmissions);
+        };
+        request.onerror = () => {
+          console.error("Failed getAll submissions");
+          reject("Failed getAll submissions");
+        };
+      }
+    );
 
-  console.log(`Loaded ${submissions.length} submissions from DB`);
-  submissions.sort((a, b) => a.id - b.id);
-  let fromSecond =
-    submissions.length > 0
-      ? submissions[submissions.length - 1].epoch_second - 3600
-      : 0;
-  const newSubmissions = [] as Submission[];
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const fetched = await fetchPartialUserSubmissions(userId, fromSecond);
-    if (fetched.length === 0) {
-      break;
+    console.log(`Loaded ${submissions.length} submissions from DB`);
+    submissions.sort((a, b) => a.id - b.id);
+    let fromSecond =
+      submissions.length > 0
+        ? submissions[submissions.length - 1].epoch_second - 3600
+        : 0;
+    const newSubmissions = [] as Submission[];
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const fetched = await fetchPartialUserSubmissions(userId, fromSecond);
+      if (fetched.length === 0) {
+        break;
+      }
+      newSubmissions.push(...fetched);
+      newSubmissions.sort((a, b) => a.id - b.id);
+      fromSecond = newSubmissions[newSubmissions.length - 1].epoch_second + 1;
     }
-    newSubmissions.push(...fetched);
-    newSubmissions.sort((a, b) => a.id - b.id);
-    fromSecond = newSubmissions[newSubmissions.length - 1].epoch_second + 1;
-  }
 
-  console.log(`Saving ${newSubmissions.length} new submissions`);
-  for (const submission of newSubmissions) {
-    await new Promise((resolve, reject) => {
-      const request = db
-        .transaction(["submissions"], "readwrite")
-        .objectStore("submissions")
-        .put(submission);
-      request.onsuccess = () => {
-        resolve();
-      };
-      request.onerror = () => {
-        console.error(`Failed saving submission: ${submission.id}`);
-        reject();
-      };
+    console.log(`Saving ${newSubmissions.length} new submissions`);
+    for (const submission of newSubmissions) {
+      await new Promise((resolve, reject) => {
+        const request = db
+          .transaction(["submissions"], "readwrite")
+          .objectStore("submissions")
+          .put(submission);
+        request.onsuccess = () => {
+          resolve();
+        };
+        request.onerror = () => {
+          console.error(`Failed saving submission: ${submission.id}`);
+          reject();
+        };
+      });
+    }
+
+    submissions.push(...newSubmissions);
+    const submissionById = new Map<number, Submission>();
+    submissions.forEach((submission) => {
+      submissionById.set(submission.id, submission);
     });
+
+    return Array.from(submissionById).map(([, submission]) => submission);
+  } catch (err) {
+    const submissions = await fetchUserSubmissions(userId);
+    return submissions;
   }
-
-  submissions.push(...newSubmissions);
-  const submissionById = new Map<number, Submission>();
-  submissions.forEach((submission) => {
-    submissionById.set(submission.id, submission);
-  });
-
-  return Array.from(submissionById).map(([, submission]) => submission);
 };
