@@ -2,6 +2,7 @@ import React from "react";
 import { Row } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { RankingEntry } from "../interfaces/RankingEntry";
+import { useACRanking } from "../api/APIClient";
 
 interface Props {
   title: React.ReactNode;
@@ -79,3 +80,73 @@ export const Ranking: React.FC<Props> = (props) => (
     </BootstrapTable>
   </Row>
 );
+
+interface RemoteProps {
+  title: React.ReactNode;
+}
+
+export const RemoteRanking: React.FC<RemoteProps> = (props) => {
+  const rankingSize = 1000;
+  const [page, setPage] = React.useState(1);
+  const [sizePerPage, setSizePerPage] = React.useState(20);
+  const data = useACRanking((page - 1) * sizePerPage, page * sizePerPage);
+
+  function handlePageChange(page: number) {
+    setPage(page);
+  }
+
+  function handleSizePerPageChange(sizePerPage: number) {
+    // When changing the size per page always navigating to the first page
+    setSizePerPage(sizePerPage);
+  }
+
+  return (
+    <Row>
+      <h2>{props.title}</h2>
+      <BootstrapTable
+        height="auto"
+        data={refineRanking(data.data ?? [])}
+        fetchInfo={{ dataTotalSize: rankingSize }}
+        remote
+        pagination
+        striped
+        hover
+        options={{
+          onPageChange: handlePageChange,
+          onSizePerPageList: handleSizePerPageChange,
+          page: page,
+          sizePerPage: sizePerPage,
+          paginationPosition: "top",
+          sizePerPageList: [
+            {
+              text: "20",
+              value: 20,
+            },
+            {
+              text: "50",
+              value: 50,
+            },
+            {
+              text: "100",
+              value: 100,
+            },
+            {
+              text: "200",
+              value: 200,
+            },
+            {
+              text: "1000",
+              value: rankingSize,
+            },
+          ],
+        }}
+      >
+        <TableHeaderColumn dataField="rank">#</TableHeaderColumn>
+        <TableHeaderColumn dataField="id" isKey>
+          User
+        </TableHeaderColumn>
+        <TableHeaderColumn dataField="count">Count</TableHeaderColumn>
+      </BootstrapTable>
+    </Row>
+  );
+};
