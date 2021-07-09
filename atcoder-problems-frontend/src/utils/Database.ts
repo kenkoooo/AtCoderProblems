@@ -1,6 +1,6 @@
 import { UserId } from "../interfaces/Status";
 import Submission from "../interfaces/Submission";
-import { fetchPartialUserSubmissions, fetchUserSubmissions } from "./Api";
+import { fetchPartialUserSubmissions } from "./Api";
 
 const VERSION = 3;
 
@@ -108,7 +108,18 @@ export const fetchSubmissionFromDatabaseAndServer = async (userId: UserId) => {
 
     return Array.from(submissionById).map(([, submission]) => submission);
   } catch (err) {
-    const submissions = await fetchUserSubmissions(userId);
+    const submissions = [] as Submission[];
+    let fromSecond = 0;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const fetched = await fetchPartialUserSubmissions(userId, fromSecond);
+      if (fetched.length === 0) {
+        break;
+      }
+      submissions.push(...fetched);
+      submissions.sort((a, b) => a.id - b.id);
+      fromSecond = submissions[submissions.length - 1].epoch_second + 1;
+    }
     return submissions;
   }
 };
