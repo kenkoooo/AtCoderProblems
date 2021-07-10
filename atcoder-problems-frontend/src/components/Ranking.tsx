@@ -1,8 +1,8 @@
 import React from "react";
 import { Row } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import { SWRResponse } from "swr";
 import { RankingEntry } from "../interfaces/RankingEntry";
-import { useACRanking } from "../api/APIClient";
 
 interface Props {
   title: React.ReactNode;
@@ -45,6 +45,7 @@ export const Ranking: React.FC<Props> = (props) => (
       pagination
       striped
       hover
+      search
       options={{
         paginationPosition: "top",
         sizePerPage: 20,
@@ -83,39 +84,31 @@ export const Ranking: React.FC<Props> = (props) => (
 
 interface RemoteProps {
   title: React.ReactNode;
+  rankingSize: number;
+  page: number;
+  sizePerPage: number;
+  data: SWRResponse<RankingEntry[], undefined>;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  setSizePerPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const RemoteRanking: React.FC<RemoteProps> = (props) => {
-  const rankingSize = 1000;
-  const [page, setPage] = React.useState(1);
-  const [sizePerPage, setSizePerPage] = React.useState(20);
-  const data = useACRanking((page - 1) * sizePerPage, page * sizePerPage);
-
-  function handlePageChange(page: number) {
-    setPage(page);
-  }
-
-  function handleSizePerPageChange(sizePerPage: number) {
-    // When changing the size per page always navigating to the first page
-    setSizePerPage(sizePerPage);
-  }
-
   return (
     <Row>
       <h2>{props.title}</h2>
       <BootstrapTable
         height="auto"
-        data={refineRanking(data.data ?? [])}
-        fetchInfo={{ dataTotalSize: rankingSize }}
+        data={refineRanking(props.data.data ?? [])}
+        fetchInfo={{ dataTotalSize: props.rankingSize }}
         remote
         pagination
         striped
         hover
         options={{
-          onPageChange: handlePageChange,
-          onSizePerPageList: handleSizePerPageChange,
-          page: page,
-          sizePerPage: sizePerPage,
+          onPageChange: props.setPage,
+          onSizePerPageList: props.setSizePerPage,
+          page: props.page,
+          sizePerPage: props.sizePerPage,
           paginationPosition: "top",
           sizePerPageList: [
             {
@@ -135,8 +128,8 @@ export const RemoteRanking: React.FC<RemoteProps> = (props) => {
               value: 200,
             },
             {
-              text: "1000",
-              value: rankingSize,
+              text: "All",
+              value: props.rankingSize,
             },
           ],
         }}
