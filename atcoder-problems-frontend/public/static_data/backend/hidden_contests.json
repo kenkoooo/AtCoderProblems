@@ -26,5 +26,12 @@
     "duration_second": 7200, 
     "title": "えびまのお誕生日コンテスト 2021 Day 1", 
     "rate_change": "-"
+  }, 
+  { 
+    "id": "typical90", 
+    "start_epoch_second": 1618914000, 
+    "duration_second": 7083600, 
+    "title": "競プロ典型 90 問", 
+    "rate_change": "-"
   } 
 ]
