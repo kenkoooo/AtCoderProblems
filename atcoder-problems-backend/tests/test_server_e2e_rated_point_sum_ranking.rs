@@ -144,7 +144,7 @@ async fn test_users_rated_point_sum_ranking() {
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = surf::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user_id=u2",
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=u2",
         port,
     ))
     .recv_json::<Value>()
@@ -154,13 +154,13 @@ async fn test_users_rated_point_sum_ranking() {
     assert_eq!(
         response,
         json!({
-            "point_sum":2.,
+            "count":2,
             "rank":0
         })
     );
 
     let response = surf::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user_id=u1",
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=u1",
         port,
     ))
     .recv_json::<Value>()
@@ -170,13 +170,13 @@ async fn test_users_rated_point_sum_ranking() {
     assert_eq!(
         response,
         json!({
-            "point_sum":1.,
+            "count":1,
             "rank":1
         })
     );
 
     let response = surf::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user_id=u3",
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=u3",
         port,
     ))
     .recv_json::<Value>()
@@ -186,8 +186,18 @@ async fn test_users_rated_point_sum_ranking() {
     assert_eq!(
         response,
         json!({
-            "point_sum":1.,
+            "count":1,
             "rank":1
         })
-    )
+    );
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=not_exist",
+        port,
+    ))
+    .send()
+    .await
+    .unwrap();
+
+    assert_eq!(response.status(), 404);
 }
