@@ -125,7 +125,7 @@ where
                     .get(ranking::user_rank(get_users_streak_rank));
                 api.at("/language_rank").get(get_users_language_rank);
                 api.at("rated_point_sum_rank")
-                    .get(get_users_rated_point_sum_rank);
+                    .get(ranking::user_rank(get_users_rated_point_sum_rank));
                 api
             });
             api.at("/language_list").get(get_language_list);

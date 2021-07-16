@@ -181,25 +181,20 @@ pub(crate) async fn get_users_language_rank<A>(
 }
 
 pub(crate) async fn get_users_rated_point_sum_rank<A>(
-    request: tide::Request<AppData<A>>,
-) -> Result<tide::Response> {
-    #[derive(Debug, Deserialize)]
-    struct Query {
-        user_id: String,
-    }
-    #[derive(Debug, Serialize)]
-    struct UsersRatedPointSumResponse {
-        point_sum: f64,
-        rank: i64,
-    }
-    let conn = request.state().pg_pool.clone();
-    let query = request.query::<Query>()?;
-    let point_sum = match conn.get_users_rated_point_sum(&query.user_id).await {
-        Some(point) => point,
-        None => return Ok(tide::Response::new(404)),
+    state: AppData<A>,
+    user_id: String,
+) -> Result<Option<UserRankResponse>> {
+    let conn = state.pg_pool.clone();
+    let point_sum = conn.get_users_rated_point_sum(&user_id).await;
+    let point_sum = match point_sum {
+        Some(point_sum) => point_sum,
+        None => return Ok(None),
     };
-    let rank = conn.get_rated_point_sum_rank(point_sum).await?;
 
-    let response = UsersRatedPointSumResponse { point_sum, rank };
-    Ok(tide::Response::json(&response)?)
+    let rank = conn.get_rated_point_sum_rank(point_sum).await?;
+    let response = UserRankResponse {
+        count: point_sum as i64,
+        rank,
+    };
+    Ok(Some(response))
 }
