@@ -1,7 +1,6 @@
 import React from "react";
 import { Row } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { SWRResponse } from "swr";
 import { RankingEntry } from "../interfaces/RankingEntry";
 
 interface Props {
@@ -87,9 +86,9 @@ interface RemoteProps {
   rankingSize: number;
   page: number;
   sizePerPage: number;
-  data: SWRResponse<RankingEntry[], undefined>;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
-  setSizePerPage: React.Dispatch<React.SetStateAction<number>>;
+  data: RankingEntry[];
+  setPage: (page: number) => void;
+  setSizePerPage: (page: number) => void;
 }
 
 export const RemoteRanking: React.FC<RemoteProps> = (props) => {
@@ -98,7 +97,7 @@ export const RemoteRanking: React.FC<RemoteProps> = (props) => {
       <h2>{props.title}</h2>
       <BootstrapTable
         height="auto"
-        data={refineRanking(props.data.data ?? [])}
+        data={refineRanking(props.data)}
         fetchInfo={{ dataTotalSize: props.rankingSize }}
         remote
         pagination
@@ -126,10 +125,6 @@ export const RemoteRanking: React.FC<RemoteProps> = (props) => {
             {
               text: "200",
               value: 200,
-            },
-            {
-              text: "All",
-              value: props.rankingSize,
             },
           ],
         }}

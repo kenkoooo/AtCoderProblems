@@ -69,7 +69,7 @@ export const AchievementBlock: React.FC<Props> = (props) => {
   const solvedProblemIds = UserUtils.solvedProblemIdsFromArray(userSubmissions);
   const solvedCount = solvedProblemIds.length;
   const acRankEntry = useUserACRank(props.userId);
-  const acRank = acRankEntry.data ? acRankEntry.data.rank : undefined;
+  const acRank = acRankEntry.data?.rank;
   const shortRank = findFromRanking(shortRanking, props.userId);
   const firstRank = findFromRanking(firstRanking, props.userId);
   const fastRank = findFromRanking(fastRanking, props.userId);

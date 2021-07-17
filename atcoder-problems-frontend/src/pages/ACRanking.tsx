@@ -12,7 +12,7 @@ export const ACRanking = () => {
       rankingSize={1000}
       page={page}
       sizePerPage={sizePerPage}
-      data={data}
+      data={data.data ?? []}
       setPage={setPage}
       setSizePerPage={setSizePerPage}
     />
