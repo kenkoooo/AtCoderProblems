@@ -59,7 +59,7 @@ async fn main() -> Result<()> {
         query("SELECT user_id, point_sum FROM rated_point_sum ORDER BY user_id")
             .map(|row: PgRow| {
                 let user_id: String = row.get("user_id");
-                let point_sum: f64 = row.get("point_sum");
+                let point_sum: i64 = row.get("point_sum");
                 UserSum { user_id, point_sum }
             })
             .fetch_all(&pg_pool)

@@ -14,7 +14,7 @@ struct UserInfo {
     user_id: String,
     accepted_count: i64,
     accepted_count_rank: i64,
-    rated_point_sum: f64,
+    rated_point_sum: i64,
     rated_point_sum_rank: i64,
 }
 
@@ -27,7 +27,7 @@ pub(crate) async fn get_user_info<A>(request: Request<AppData<A>>) -> Result<Res
     let rated_point_sum = conn
         .get_users_rated_point_sum(&user_id)
         .await
-        .unwrap_or(0.0);
+        .unwrap_or(0);
     let rated_point_sum_rank = conn.get_rated_point_sum_rank(rated_point_sum).await?;
 
     let user_info = UserInfo {
