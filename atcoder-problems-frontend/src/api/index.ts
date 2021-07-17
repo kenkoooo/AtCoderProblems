@@ -1,4 +1,4 @@
-import useSWR, { SWRConfiguration, useSWRInfinite } from "swr";
+import useSWR, { SWRConfiguration } from "swr";
 
 export const useSWRData = <T>(
   url: string,
@@ -9,21 +9,6 @@ export const useSWRData = <T>(
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     refreshWhenHidden: true,
-    ...config,
-  });
-};
-
-export const useSWRDataInfinite = <T>(
-  getKey: (pageIndex: number, previousData: T | null) => string | null,
-  fetcher: (url: string) => Promise<T>,
-  initialSize: number,
-  config: SWRConfiguration<T[]> = {}
-) => {
-  return useSWRInfinite(getKey, fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    refreshWhenHidden: true,
-    initialSize: initialSize,
     ...config,
   });
 };
