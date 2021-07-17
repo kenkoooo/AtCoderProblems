@@ -97,7 +97,7 @@ pub struct UserProblemCount {
 #[derive(Debug, Serialize)]
 pub struct UserSum {
     pub user_id: String,
-    pub point_sum: f64,
+    pub point_sum: i64,
 }
 
 #[derive(PartialEq, Debug, Serialize)]
