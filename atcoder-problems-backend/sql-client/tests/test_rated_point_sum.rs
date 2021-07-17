@@ -181,7 +181,7 @@ async fn test_update_rated_point_sum() {
     let sums = sqlx::query("SELECT user_id, point_sum FROM rated_point_sum")
         .map(|row: PgRow| {
             let user_id: String = row.get("user_id");
-            let point_sum: f64 = row.get("point_sum");
+            let point_sum: i64 = row.get("point_sum");
             UserSum { user_id, point_sum }
         })
         .fetch_all(&pool)
@@ -189,12 +189,9 @@ async fn test_update_rated_point_sum() {
         .unwrap();
     assert_eq!(sums.len(), 1);
     assert_eq!(sums[0].user_id, USER_ID.to_string());
-    assert_eq!(sums[0].point_sum, 300.0);
-    assert_eq!(
-        pool.get_users_rated_point_sum(USER_ID).await.unwrap(),
-        300.0
-    );
-    assert_eq!(pool.get_rated_point_sum_rank(300.0).await.unwrap(), 0);
+    assert_eq!(sums[0].point_sum, 300);
+    assert_eq!(pool.get_users_rated_point_sum(USER_ID).await.unwrap(), 300);
+    assert_eq!(pool.get_rated_point_sum_rank(300).await.unwrap(), 0);
 
     assert!(pool
         .get_users_rated_point_sum("non_existing_user")
@@ -280,19 +277,19 @@ async fn test_load_rated_point_sum_in_range() {
     let sums_1st_to_4th = pool.load_rated_point_sum_in_range(0..4).await.unwrap();
     assert_eq!(sums_1st_to_4th.len(), 4);
     assert_eq!(sums_1st_to_4th[0].user_id, USER_ID);
-    assert_eq!(sums_1st_to_4th[0].point_sum, 300.0);
+    assert_eq!(sums_1st_to_4th[0].point_sum, 300);
     assert_eq!(sums_1st_to_4th[3].user_id, USER_ID4);
-    assert_eq!(sums_1st_to_4th[3].point_sum, 100.0);
+    assert_eq!(sums_1st_to_4th[3].point_sum, 100);
 
     let sums_1st_to_2nd = pool.load_rated_point_sum_in_range(0..2).await.unwrap();
     assert_eq!(sums_1st_to_2nd.len(), 2);
     assert_eq!(sums_1st_to_2nd[1].user_id, USER_ID2);
-    assert_eq!(sums_1st_to_2nd[1].point_sum, 200.0);
+    assert_eq!(sums_1st_to_2nd[1].point_sum, 200);
 
     let sums_3rd_to_3rd = pool.load_rated_point_sum_in_range(2..3).await.unwrap();
     assert_eq!(sums_3rd_to_3rd.len(), 1);
     assert_eq!(sums_3rd_to_3rd[0].user_id, USER_ID3);
-    assert_eq!(sums_3rd_to_3rd[0].point_sum, 200.0);
+    assert_eq!(sums_3rd_to_3rd[0].point_sum, 200);
 
     let sums_5th_to_10th = pool.load_rated_point_sum_in_range(4..10).await.unwrap();
     assert!(sums_5th_to_10th.is_empty());
