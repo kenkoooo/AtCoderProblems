@@ -24,10 +24,7 @@ pub(crate) async fn get_user_info<A>(request: Request<AppData<A>>) -> Result<Res
     let user_id = query.user;
     let accepted_count = conn.get_users_accepted_count(&user_id).await.unwrap_or(0);
     let accepted_count_rank = conn.get_accepted_count_rank(accepted_count).await?;
-    let rated_point_sum = conn
-        .get_users_rated_point_sum(&user_id)
-        .await
-        .unwrap_or(0);
+    let rated_point_sum = conn.get_users_rated_point_sum(&user_id).await.unwrap_or(0);
     let rated_point_sum_rank = conn.get_rated_point_sum_rank(rated_point_sum).await?;
 
     let user_info = UserInfo {
