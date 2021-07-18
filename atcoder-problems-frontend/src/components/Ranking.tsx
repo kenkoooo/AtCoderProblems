@@ -81,23 +81,55 @@ export const Ranking: React.FC<Props> = (props) => (
   </Row>
 );
 
+const refineRankingWithOffset = (
+  ranking: RankingEntry[],
+  firstRankOnPage: number,
+  offset: number
+): InternalRankEntry[] =>
+  ranking
+    .sort((a, b) => b.problem_count - a.problem_count)
+    .reduce((array, entry, index) => {
+      const last = array.length === 0 ? undefined : array[array.length - 1];
+      let rank;
+      if (array.length === 0) {
+        rank = firstRankOnPage + 1;
+      } else if (last && last.count === entry.problem_count) {
+        rank = last.rank;
+      } else {
+        rank = index + offset + 1;
+      }
+      const nextEntry = {
+        rank: rank,
+        id: entry.user_id,
+        count: entry.problem_count,
+      };
+      array.push(nextEntry);
+      return array;
+    }, [] as InternalRankEntry[]);
+
 interface RemoteProps {
   title: React.ReactNode;
   rankingSize: number;
   page: number;
   sizePerPage: number;
+  firstRankOnPage: number;
   data: RankingEntry[];
   setPage: (page: number) => void;
   setSizePerPage: (page: number) => void;
 }
 
 export const RemoteRanking: React.FC<RemoteProps> = (props) => {
+  const offset = (props.page - 1) * props.sizePerPage;
   return (
     <Row>
       <h2>{props.title}</h2>
       <BootstrapTable
         height="auto"
-        data={refineRanking(props.data)}
+        data={refineRankingWithOffset(
+          props.data,
+          props.firstRankOnPage,
+          offset
+        )}
         fetchInfo={{ dataTotalSize: props.rankingSize }}
         remote
         pagination
