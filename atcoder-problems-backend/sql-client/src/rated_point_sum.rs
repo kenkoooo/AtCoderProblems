@@ -11,8 +11,8 @@ use std::ops::Range;
 #[async_trait]
 pub trait RatedPointSumClient {
     async fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> Result<()>;
-    async fn get_users_rated_point_sum(&self, user_id: &str) -> Option<f64>;
-    async fn get_rated_point_sum_rank(&self, point: f64) -> Result<i64>;
+    async fn get_users_rated_point_sum(&self, user_id: &str) -> Option<i64>;
+    async fn get_rated_point_sum_rank(&self, point: i64) -> Result<i64>;
     async fn load_rated_point_sum_in_range(&self, rank_range: Range<usize>)
         -> Result<Vec<UserSum>>;
 }
