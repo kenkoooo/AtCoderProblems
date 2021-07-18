@@ -13,12 +13,12 @@ import {
   RankingEntryV3,
   StreakRankingEntry,
 } from "../interfaces/RankingEntry";
-import { UserRankEntry } from "../interfaces/UserRankEntry";
+import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
 import { ratingInfoOf } from "../utils/RatingInfo";
-import { typeCastFetcher, useSWRData } from "./index";
+import { useSWRData } from "./index";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
@@ -45,6 +45,18 @@ const generateRanking = (
   );
 };
 
+function fetchTypedValue<T>(
+  url: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  typeGuardFn: (obj: any) => obj is T
+): Promise<T | undefined> {
+  return fetch(url)
+    .then((response) => response.json())
+    .then((response: unknown) =>
+      typeGuardFn(response) ? response : undefined
+    );
+}
+
 function fetchTypedArray<T>(
   url: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,7 +66,7 @@ function fetchTypedArray<T>(
     fetch(url)
       .then((r) => r.json())
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then((array: any[]) => array.filter(typeGuardFn))
+      .then((array: unknown[]) => array.filter(typeGuardFn))
   );
 }
 
@@ -78,7 +90,9 @@ export const useUserACRank = (user: string) => {
   const url = `${ATCODER_API_URL}/v3/user/ac_rank?user=${encodeURIComponent(
     user
   )}`;
-  return useSWRData(url, (url) => typeCastFetcher<UserRankEntry>(url));
+  return useSWRData(url, (url) =>
+    fetchTypedValue<UserRankEntry>(url, isUserRankEntry)
+  );
 };
 
 export const useStreakRanking = () => {

@@ -12,8 +12,3 @@ export const useSWRData = <T>(
     ...config,
   });
 };
-
-export const typeCastFetcher = <T>(url: string) =>
-  fetch(url)
-    .then((response) => response.json())
-    .then((response) => response as T);

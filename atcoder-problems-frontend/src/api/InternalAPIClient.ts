@@ -5,10 +5,15 @@ import {
   VirtualContestDetails,
   VirtualContestInfo,
 } from "../pages/Internal/types";
-import { typeCastFetcher, useSWRData } from "./index";
+import { useSWRData } from "./index";
 
 const BASE_URL = process.env.REACT_APP_INTERNAL_API_URL;
 export const USER_GET = `${BASE_URL}/user/get`;
+
+export const typeCastFetcher = <T>(url: string) =>
+  fetch(url)
+    .then((response) => response.json())
+    .then((response) => response as T);
 
 export const useLoginState = () => {
   return useSWRData(USER_GET, (url) => typeCastFetcher<UserResponse>(url));
