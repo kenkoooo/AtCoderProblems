@@ -16,7 +16,12 @@ import {
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
-import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
+import {
+  clipDifficulty,
+  isValidResult,
+  isVJudgeOrLuogu,
+  hasProperty,
+} from "../utils";
 import { ratingInfoOf } from "../utils/RatingInfo";
 import { useSWRData } from "./index";
 
@@ -47,8 +52,7 @@ const generateRanking = (
 
 function fetchTypedValue<T>(
   url: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  typeGuardFn: (obj: any) => obj is T
+  typeGuardFn: (obj: unknown) => obj is T
 ): Promise<T | undefined> {
   return fetch(url)
     .then((response) => response.json())
@@ -59,15 +63,11 @@ function fetchTypedValue<T>(
 
 function fetchTypedArray<T>(
   url: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  typeGuardFn: (obj: any) => obj is T
+  typeGuardFn: (obj: unknown) => obj is T
 ): Promise<T[]> {
-  return (
-    fetch(url)
-      .then((r) => r.json())
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then((array: unknown[]) => array.filter(typeGuardFn))
-  );
+  return fetch(url)
+    .then((r) => r.json())
+    .then((array: unknown[]) => array.filter(typeGuardFn));
 }
 
 export const useACRanking = (from: number, to: number) => {
@@ -212,8 +212,10 @@ export const useContestToProblems = () => {
     fetchTypedArray(
       url,
       (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        typeof obj.contest_id === "string" && typeof obj.problem_id === "string"
+        hasProperty(obj, "contest_id") &&
+        typeof obj.contest_id === "string" &&
+        hasProperty(obj, "problem_id") &&
+        typeof obj.problem_id === "string"
     )
   );
   const problemMap = useProblemMap();
@@ -251,8 +253,7 @@ export const useProblemModelMap = () => {
   const fetcher = (url: string) =>
     fetch(url)
       .then((r) => r.json())
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then((obj: { [p: string]: any }) =>
+      .then((obj: { [p: string]: unknown }) =>
         Object.entries(obj)
           .filter((entry): entry is [string, ProblemModel] =>
             isProblemModel(entry[1])

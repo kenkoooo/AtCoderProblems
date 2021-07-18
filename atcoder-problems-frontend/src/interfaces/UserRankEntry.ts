@@ -1,9 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { hasProperty } from "../utils";
+
 export interface UserRankEntry {
   readonly count: number;
   readonly rank: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isUserRankEntry = (obj: any): obj is UserRankEntry =>
-  typeof obj.count === "number" && typeof obj.rank === "number";
+export const isUserRankEntry = (obj: unknown): obj is UserRankEntry =>
+  hasProperty(obj, "count") &&
+  typeof obj.count === "number" &&
+  hasProperty(obj, "rank") &&
+  typeof obj.rank === "number";

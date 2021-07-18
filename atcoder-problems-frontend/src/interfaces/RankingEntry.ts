@@ -1,31 +1,37 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { hasProperty } from "../utils";
+
 export interface RankingEntry {
   readonly problem_count: number;
   readonly user_id: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isRankingEntry = (obj: any): obj is RankingEntry =>
-  typeof obj.problem_count === "number" && typeof obj.user_id === "string";
+export const isRankingEntry = (obj: unknown): obj is RankingEntry =>
+  hasProperty(obj, "problem_count") &&
+  typeof obj.problem_count === "number" &&
+  hasProperty(obj, "user_id") &&
+  typeof obj.user_id === "string";
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 export interface RankingEntryV3 {
   readonly count: number;
   readonly user_id: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isRankingEntryV3 = (obj: any): obj is RankingEntryV3 =>
-  typeof obj.count === "number" && typeof obj.user_id === "string";
+export const isRankingEntryV3 = (obj: unknown): obj is RankingEntryV3 =>
+  hasProperty(obj, "count") &&
+  typeof obj.count === "number" &&
+  hasProperty(obj, "user_id") &&
+  typeof obj.user_id === "string";
 
 export interface SumRankingEntry {
   readonly user_id: string;
   readonly point_sum: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isSumRankingEntry = (obj: any): obj is SumRankingEntry =>
-  typeof obj.user_id === "string" && typeof obj.point_sum === "number";
+export const isSumRankingEntry = (obj: unknown): obj is SumRankingEntry =>
+  hasProperty(obj, "user_id") &&
+  typeof obj.user_id === "string" &&
+  hasProperty(obj, "point_sum") &&
+  typeof obj.point_sum === "number";
 
 export interface LangRankingEntry {
   user_id: string;
@@ -33,10 +39,12 @@ export interface LangRankingEntry {
   language: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isLangRankingEntry = (obj: any): obj is LangRankingEntry =>
+export const isLangRankingEntry = (obj: unknown): obj is LangRankingEntry =>
+  hasProperty(obj, "user_id") &&
   typeof obj.user_id === "string" &&
+  hasProperty(obj, "count") &&
   typeof obj.count === "number" &&
+  hasProperty(obj, "language") &&
   typeof obj.language === "string";
 
 export interface StreakRankingEntry {
@@ -44,9 +52,11 @@ export interface StreakRankingEntry {
   readonly streak: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isStreakRankingEntry = (obj: any): obj is StreakRankingEntry =>
-  typeof obj.user_id === "string" && typeof obj.streak === "number";
+export const isStreakRankingEntry = (obj: unknown): obj is StreakRankingEntry =>
+  hasProperty(obj, "user_id") &&
+  typeof obj.user_id === "string" &&
+  hasProperty(obj, "streak") &&
+  typeof obj.streak === "number";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isString = (obj: any): obj is string => typeof obj === "string";
+export const isString = (obj: unknown): obj is string =>
+  typeof obj === "string";
