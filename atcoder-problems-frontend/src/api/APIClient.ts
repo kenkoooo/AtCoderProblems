@@ -1,3 +1,4 @@
+import { fetchSubmissionsFromDatabaseAndServer } from "../database/SubmissionsDB";
 import Contest, { isContest } from "../interfaces/Contest";
 import { isContestParticipation } from "../interfaces/ContestParticipation";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
@@ -173,12 +174,13 @@ export const useRatingInfo = (user: string) => {
 };
 
 export const useUserSubmission = (user: string) => {
-  const url = `${ATCODER_API_URL}/results?user=${user}`;
-  return useSWRData(url, (url) =>
+  const fetcher = (url: string) => {
+    const userId = url.split(" ")[0];
+    return fetchSubmissionsFromDatabaseAndServer(userId);
+  };
+  return useSWRData(`${user} submission`, (url) =>
     user.length > 0
-      ? fetchTypedArray(url, isSubmission).then((submissions) =>
-          submissions.filter((submission) => isValidResult(submission.result))
-        )
+      ? fetcher(url).then((ss) => ss.filter((s) => isValidResult(s.result)))
       : Promise.resolve([])
   ).data;
 };
