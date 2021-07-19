@@ -29,5 +29,10 @@ export const fetchPartialUserSubmissions = async (
   }
   const url = `${ATCODER_API_URL}/v3/user/submissions?user=${userId}&from_second=${fromSecond}`;
   const response = await fetch(url);
-  return (await response.json()) as Submission[];
+
+  const json: unknown = await response.json();
+  if (!Array.isArray(json)) {
+    return [];
+  }
+  return json.filter(isSubmission);
 };
