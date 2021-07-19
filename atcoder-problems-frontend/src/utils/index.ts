@@ -150,3 +150,10 @@ export const mapToObject = (
     (l, [k, v]) => Object.assign(l, { [k]: v }),
     {} as { [key: string]: number }
   );
+
+export const hasProperty = <X extends unknown, Y extends PropertyKey>(
+  obj: X | null | undefined,
+  prop: Y
+): obj is X & Record<Y, unknown> => {
+  return Object.prototype.hasOwnProperty.call(obj, prop) ?? false;
+};
