@@ -1,4 +1,8 @@
-import { hasProperty } from "../utils";
+import {
+  hasPropertyAsType,
+  hasPropertyAsTypeOrNull,
+  hasPropertyAsTypeOrUndefined,
+} from "../utils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface MergedProblem {
@@ -31,43 +35,20 @@ export default interface MergedProblem {
 export const isMergedProblem = (obj: unknown): obj is MergedProblem =>
   typeof obj === "object" &&
   obj !== null &&
-  hasProperty(obj, "id") &&
-  typeof obj.id === "string" &&
-  hasProperty(obj, "contest_id") &&
-  typeof obj.contest_id === "string" &&
-  hasProperty(obj, "title") &&
-  typeof obj.title === "string" &&
-  hasProperty(obj, "first_user_id") &&
-  (typeof obj.first_user_id === "string" || obj.first_user_id === null) &&
-  hasProperty(obj, "first_contest_id") &&
-  (typeof obj.first_contest_id === "string" || obj.first_contest_id === null) &&
-  hasProperty(obj, "first_submission_id") &&
-  (typeof obj.first_submission_id === "number" ||
-    obj.first_submission_id === null) &&
-  hasProperty(obj, "fastest_user_id") &&
-  (typeof obj.fastest_user_id === "string" || obj.fastest_user_id === null) &&
-  hasProperty(obj, "fastest_contest_id") &&
-  (typeof obj.fastest_contest_id === "string" ||
-    obj.fastest_contest_id === null) &&
-  hasProperty(obj, "fastest_submission_id") &&
-  (typeof obj.fastest_submission_id === "number" ||
-    obj.fastest_submission_id === null) &&
-  hasProperty(obj, "execution_time") &&
-  (typeof obj.execution_time === "number" || obj.execution_time === null) &&
-  hasProperty(obj, "shortest_user_id") &&
-  (typeof obj.shortest_user_id === "string" || obj.shortest_user_id === null) &&
-  hasProperty(obj, "shortest_contest_id") &&
-  (typeof obj.shortest_contest_id === "string" ||
-    obj.shortest_contest_id === null) &&
-  hasProperty(obj, "shortest_submission_id") &&
-  (typeof obj.shortest_submission_id === "number" ||
-    obj.shortest_submission_id === null) &&
-  hasProperty(obj, "source_code_length") &&
-  (typeof obj.source_code_length === "number" ||
-    obj.source_code_length === null) &&
-  hasProperty(obj, "solver_count") &&
-  (typeof obj.solver_count === "number" || obj.solver_count === null) &&
-  (!hasProperty(obj, "point") ||
-    typeof obj.point === "number" ||
-    typeof obj.point === "undefined" ||
-    obj.point === null);
+  hasPropertyAsType(obj, "id", "string") &&
+  hasPropertyAsType(obj, "contest_id", "string") &&
+  hasPropertyAsType(obj, "title", "string") &&
+  hasPropertyAsTypeOrNull(obj, "first_user_id", "string") &&
+  hasPropertyAsTypeOrNull(obj, "first_contest_id", "string") &&
+  hasPropertyAsTypeOrNull(obj, "first_submission_id", "number") &&
+  hasPropertyAsTypeOrNull(obj, "fastest_user_id", "string") &&
+  hasPropertyAsTypeOrNull(obj, "fastest_contest_id", "string") &&
+  hasPropertyAsTypeOrNull(obj, "fastest_submission_id", "number") &&
+  hasPropertyAsTypeOrNull(obj, "execution_time", "number") &&
+  hasPropertyAsTypeOrNull(obj, "shortest_user_id", "string") &&
+  hasPropertyAsTypeOrNull(obj, "shortest_contest_id", "string") &&
+  hasPropertyAsTypeOrNull(obj, "shortest_submission_id", "number") &&
+  hasPropertyAsTypeOrNull(obj, "source_code_length", "number") &&
+  hasPropertyAsTypeOrNull(obj, "solver_count", "number") &&
+  (hasPropertyAsTypeOrUndefined(obj, "point", "number") ||
+    hasPropertyAsTypeOrNull(obj, "solver_count", "number"));

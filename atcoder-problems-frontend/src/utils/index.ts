@@ -151,9 +151,41 @@ export const mapToObject = (
     {} as { [key: string]: number }
   );
 
-export const hasProperty = <X extends unknown, Y extends PropertyKey>(
+const hasProperty = <X extends unknown, Y extends PropertyKey>(
   obj: X | null | undefined,
   prop: Y
 ): obj is X & Record<Y, unknown> => {
   return Object.prototype.hasOwnProperty.call(obj, prop) ?? false;
+};
+
+export const hasPropertyAsType = <X extends unknown, Y extends PropertyKey>(
+  obj: X | null | undefined,
+  prop: Y,
+  type: string
+): boolean => {
+  return hasProperty(obj, prop) && typeof obj[prop] === type;
+};
+
+export const hasPropertyAsTypeOrNull = <
+  X extends unknown,
+  Y extends PropertyKey
+>(
+  obj: X | null | undefined,
+  prop: Y,
+  type: string
+): boolean => {
+  return (
+    hasProperty(obj, prop) && (typeof obj[prop] === type || obj[prop] === null)
+  );
+};
+
+export const hasPropertyAsTypeOrUndefined = <
+  X extends unknown,
+  Y extends PropertyKey
+>(
+  obj: X | null | undefined,
+  prop: Y,
+  type: string
+): boolean => {
+  return !hasProperty(obj, prop) || typeof obj[prop] === type;
 };

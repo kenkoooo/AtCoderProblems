@@ -1,4 +1,4 @@
-import { hasProperty } from "../utils";
+import { hasPropertyAsType } from "../utils";
 
 export interface UserRankEntry {
   readonly count: number;
@@ -6,7 +6,5 @@ export interface UserRankEntry {
 }
 
 export const isUserRankEntry = (obj: unknown): obj is UserRankEntry =>
-  hasProperty(obj, "count") &&
-  typeof obj.count === "number" &&
-  hasProperty(obj, "rank") &&
-  typeof obj.rank === "number";
+  hasPropertyAsType(obj, "count", "number") &&
+  hasPropertyAsType(obj, "rank", "number");

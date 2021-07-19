@@ -1,4 +1,4 @@
-import { hasProperty } from "../utils";
+import { hasPropertyAsType } from "../utils";
 
 export interface RankingEntry {
   readonly problem_count: number;
@@ -6,10 +6,8 @@ export interface RankingEntry {
 }
 
 export const isRankingEntry = (obj: unknown): obj is RankingEntry =>
-  hasProperty(obj, "problem_count") &&
-  typeof obj.problem_count === "number" &&
-  hasProperty(obj, "user_id") &&
-  typeof obj.user_id === "string";
+  hasPropertyAsType(obj, "problem_count", "number") &&
+  hasPropertyAsType(obj, "user_id", "string");
 
 export interface RankingEntryV3 {
   readonly count: number;
@@ -17,10 +15,8 @@ export interface RankingEntryV3 {
 }
 
 export const isRankingEntryV3 = (obj: unknown): obj is RankingEntryV3 =>
-  hasProperty(obj, "count") &&
-  typeof obj.count === "number" &&
-  hasProperty(obj, "user_id") &&
-  typeof obj.user_id === "string";
+  hasPropertyAsType(obj, "count", "number") &&
+  hasPropertyAsType(obj, "user_id", "string");
 
 export interface SumRankingEntry {
   readonly user_id: string;
@@ -28,10 +24,8 @@ export interface SumRankingEntry {
 }
 
 export const isSumRankingEntry = (obj: unknown): obj is SumRankingEntry =>
-  hasProperty(obj, "user_id") &&
-  typeof obj.user_id === "string" &&
-  hasProperty(obj, "point_sum") &&
-  typeof obj.point_sum === "number";
+  hasPropertyAsType(obj, "user_id", "string") &&
+  hasPropertyAsType(obj, "point_sum", "number");
 
 export interface LangRankingEntry {
   user_id: string;
@@ -40,12 +34,9 @@ export interface LangRankingEntry {
 }
 
 export const isLangRankingEntry = (obj: unknown): obj is LangRankingEntry =>
-  hasProperty(obj, "user_id") &&
-  typeof obj.user_id === "string" &&
-  hasProperty(obj, "count") &&
-  typeof obj.count === "number" &&
-  hasProperty(obj, "language") &&
-  typeof obj.language === "string";
+  hasPropertyAsType(obj, "user_id", "string") &&
+  hasPropertyAsType(obj, "count", "number") &&
+  hasPropertyAsType(obj, "language", "string");
 
 export interface StreakRankingEntry {
   readonly user_id: string;
@@ -53,10 +44,8 @@ export interface StreakRankingEntry {
 }
 
 export const isStreakRankingEntry = (obj: unknown): obj is StreakRankingEntry =>
-  hasProperty(obj, "user_id") &&
-  typeof obj.user_id === "string" &&
-  hasProperty(obj, "streak") &&
-  typeof obj.streak === "number";
+  hasPropertyAsType(obj, "user_id", "string") &&
+  hasPropertyAsType(obj, "streak", "number");
 
 export const isString = (obj: unknown): obj is string =>
   typeof obj === "string";

@@ -1,4 +1,4 @@
-import { hasProperty } from "../utils";
+import { hasPropertyAsType } from "../utils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface Contest {
@@ -12,13 +12,8 @@ export default interface Contest {
 export const isContest = (contest: unknown): contest is Contest =>
   typeof contest === "object" &&
   contest !== null &&
-  hasProperty(contest, "start_epoch_second") &&
-  typeof contest.start_epoch_second === "number" &&
-  hasProperty(contest, "rate_change") &&
-  typeof contest.rate_change === "string" &&
-  hasProperty(contest, "id") &&
-  typeof contest.id === "string" &&
-  hasProperty(contest, "duration_second") &&
-  typeof contest.duration_second === "number" &&
-  hasProperty(contest, "title") &&
-  typeof contest.title === "string";
+  hasPropertyAsType(contest, "start_epoch_second", "number") &&
+  hasPropertyAsType(contest, "rate_change", "string") &&
+  hasPropertyAsType(contest, "id", "string") &&
+  hasPropertyAsType(contest, "duration_second", "number") &&
+  hasPropertyAsType(contest, "title", "string");
