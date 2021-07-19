@@ -197,6 +197,17 @@ async fn test_update_rated_point_sum() {
         .get_users_rated_point_sum("non_existing_user")
         .await
         .is_none());
+
+    let float_point_submission = [Submission {
+        id: 6,
+        problem_id: "problem5".to_string(),
+        contest_id: RATED_CONTEST.to_string(),
+        user_id: USER_ID.to_string(),
+        point: 0.12345678910,
+        ..Default::default()
+    }];
+    let resp = pool.update_rated_point_sum(&float_point_submission).await;
+    assert!(resp.is_err());
 }
 
 #[async_std::test]
