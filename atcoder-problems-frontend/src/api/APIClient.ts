@@ -1,6 +1,6 @@
+import { fetchSubmissionsFromDatabaseAndServer } from "../database/SubmissionsDB";
 import Contest, { isContest } from "../interfaces/Contest";
 import { isContestParticipation } from "../interfaces/ContestParticipation";
-import { fetchSubmissions } from "../utils/Database";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
@@ -176,7 +176,7 @@ export const useRatingInfo = (user: string) => {
 export const useUserSubmission = (user: string) => {
   const fetcher = (url: string) => {
     const userId = url.split(" ")[0];
-    return fetchSubmissions(userId);
+    return fetchSubmissionsFromDatabaseAndServer(userId);
   };
   return useSWRData(`${user} submission`, (url) =>
     user.length > 0
