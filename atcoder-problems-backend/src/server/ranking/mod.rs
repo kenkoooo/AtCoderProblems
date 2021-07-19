@@ -119,6 +119,13 @@ pub(crate) async fn get_language_ranking<A>(
     let ranking = conn
         .load_language_count_in_range(&query.language, range)
         .await?;
+    let ranking = ranking
+        .into_iter()
+        .map(|entry| RankingResponseEntry {
+            user_id: entry.user_id,
+            count: entry.problem_count as i64,
+        })
+        .collect::<Vec<_>>();
     let response = tide::Response::json(&ranking)?;
     Ok(response)
 }

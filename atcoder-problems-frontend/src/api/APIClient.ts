@@ -5,7 +5,6 @@ import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import {
-  isRankingEntry,
   isRankingEntryV3,
   isStreakRankingEntry,
   isString,
@@ -149,7 +148,14 @@ export const useOneLangRanking = (
   const url = `${ATCODER_API_URL}/v3/language_ranking?from=${from}&to=${to}&language=${encodeURIComponent(
     language
   )}`;
-  return useSWRData(url, (url) => fetchTypedArray(url, isRankingEntry));
+  return useSWRData(url, (url) =>
+    fetchTypedArray(url, isRankingEntryV3).then((ranking) =>
+      ranking.map((entry) => ({
+        problem_count: entry.count,
+        user_id: entry.user_id,
+      }))
+    )
+  );
 };
 
 export const useShortRanking = () => {
