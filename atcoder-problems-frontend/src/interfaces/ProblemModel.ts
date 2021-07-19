@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { hasProperty } from "../utils";
+
 // eslint-disable-next-line import/no-default-export
 export default interface ProblemModel {
   readonly slope: number | undefined;
@@ -10,16 +11,23 @@ export default interface ProblemModel {
   readonly variance: number | undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isProblemModel = (obj: any): obj is ProblemModel =>
-  (typeof obj.slope === "number" || typeof obj.slope === "undefined") &&
-  (typeof obj.intercept === "number" || typeof obj.intercept === "undefined") &&
-  (typeof obj.difficulty === "number" ||
+export const isProblemModel = (obj: unknown): obj is ProblemModel =>
+  (!hasProperty(obj, "slope") ||
+    typeof obj.slope === "number" ||
+    typeof obj.slope === "undefined") &&
+  (!hasProperty(obj, "intercept") ||
+    typeof obj.intercept === "number" ||
+    typeof obj.intercept === "undefined") &&
+  (!hasProperty(obj, "difficulty") ||
+    typeof obj.difficulty === "number" ||
     typeof obj.difficulty === "undefined") &&
-  (typeof obj.rawDifficulty === "number" ||
+  (!hasProperty(obj, "rawDifficulty") ||
+    typeof obj.rawDifficulty === "number" ||
     typeof obj.rawDifficulty === "undefined") &&
-  (typeof obj.discrimination === "number" ||
+  (!hasProperty(obj, "discrimination") ||
+    typeof obj.discrimination === "number" ||
     typeof obj.discrimination === "undefined") &&
+  hasProperty(obj, "is_experimental") &&
   typeof obj.is_experimental === "boolean";
 
 export interface ProblemModelWithDifficultyModel {
@@ -32,15 +40,22 @@ export interface ProblemModelWithDifficultyModel {
 }
 
 export const isProblemModelWithDifficultyModel = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-  obj: any
+  obj: unknown
 ): obj is ProblemModelWithDifficultyModel =>
   obj !== undefined &&
-  (typeof obj.slope === "number" || typeof obj.slope === "undefined") &&
-  (typeof obj.intercept === "number" || typeof obj.intercept === "undefined") &&
+  (!hasProperty(obj, "slope") ||
+    typeof obj.slope === "number" ||
+    typeof obj.slope === "undefined") &&
+  (!hasProperty(obj, "intercept") ||
+    typeof obj.intercept === "number" ||
+    typeof obj.intercept === "undefined") &&
+  hasProperty(obj, "difficulty") &&
   typeof obj.difficulty === "number" &&
+  hasProperty(obj, "rawDifficulty") &&
   typeof obj.rawDifficulty === "number" &&
+  hasProperty(obj, "discrimination") &&
   typeof obj.discrimination === "number" &&
+  hasProperty(obj, "is_experimental") &&
   typeof obj.is_experimental === "boolean";
 
 export interface ProblemModelWithTimeModel {
@@ -54,17 +69,23 @@ export interface ProblemModelWithTimeModel {
 }
 
 export const isProblemModelWithTimeModel = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-  obj: any
+  obj: unknown
 ): obj is ProblemModelWithTimeModel =>
   obj !== undefined &&
+  hasProperty(obj, "slope") &&
   typeof obj.slope === "number" &&
+  hasProperty(obj, "intercept") &&
   typeof obj.intercept === "number" &&
+  hasProperty(obj, "variance") &&
   typeof obj.variance === "number" &&
-  (typeof obj.difficulty === "number" ||
+  (!hasProperty(obj, "difficulty") ||
+    typeof obj.difficulty === "number" ||
     typeof obj.difficulty === "undefined") &&
-  (typeof obj.rawDifficulty === "number" ||
+  (!hasProperty(obj, "rawDifficulty") ||
+    typeof obj.rawDifficulty === "number" ||
     typeof obj.rawDifficulty === "undefined") &&
-  (typeof obj.discrimination === "number" ||
+  (!hasProperty(obj, "discrimination") ||
+    typeof obj.discrimination === "number" ||
     typeof obj.discrimination === "undefined") &&
+  hasProperty(obj, "is_experimental") &&
   typeof obj.is_experimental === "boolean";

@@ -1,3 +1,5 @@
+import { hasProperty } from "../utils";
+
 // Type interface for the Official API response from https://atcoder.jp/users/<user_id>/history/json.
 // Response type of the API is List<ContestParticipation>
 
@@ -14,25 +16,26 @@ export default interface ContestParticipation {
   readonly EndTime: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isContestParticipation = (obj: any): obj is ContestParticipation =>
+export const isContestParticipation = (
+  obj: unknown
+): obj is ContestParticipation =>
   typeof obj === "object" &&
   obj !== null &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  hasProperty(obj, "IsRated") &&
   typeof obj.IsRated === "boolean" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  hasProperty(obj, "Place") &&
   typeof obj.Place === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  hasProperty(obj, "OldRating") &&
   typeof obj.OldRating === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  hasProperty(obj, "NewRating") &&
   typeof obj.NewRating === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  hasProperty(obj, "Performance") &&
   typeof obj.Performance === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  hasProperty(obj, "InnerPerformance") &&
   typeof obj.InnerPerformance === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  hasProperty(obj, "ContestScreenName") &&
   typeof obj.ContestScreenName === "string" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  hasProperty(obj, "ContestName") &&
   typeof obj.ContestName === "string" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  hasProperty(obj, "EndTime") &&
   typeof obj.EndTime === "string";

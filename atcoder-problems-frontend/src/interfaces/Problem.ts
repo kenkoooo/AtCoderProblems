@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { hasProperty } from "../utils";
+
 // eslint-disable-next-line import/no-default-export
 export default interface Problem {
   readonly id: string;
@@ -6,8 +7,10 @@ export default interface Problem {
   readonly title: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isProblem = (obj: any): obj is Problem =>
+export const isProblem = (obj: unknown): obj is Problem =>
+  hasProperty(obj, "id") &&
   typeof obj.id === "string" &&
+  hasProperty(obj, "contest_id") &&
   typeof obj.contest_id === "string" &&
+  hasProperty(obj, "title") &&
   typeof obj.title === "string";
