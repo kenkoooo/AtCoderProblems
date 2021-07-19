@@ -56,7 +56,19 @@ impl RatedPointSumClient for PgPool {
         let rated_point_sum = ac_submissions
             .iter()
             .filter(|s| rated_problem_ids.contains(&s.problem_id))
-            .map(|s| (s.user_id.as_str(), s.problem_id.as_str(), s.point as i64))
+            .map(|s| {
+                if s.point.fract() == 0. {
+                    Ok((s.user_id.as_str(), s.problem_id.as_str(), s.point as i64))
+                } else {
+                    Err(anyhow::anyhow!(
+                        "Problem of {} is {}, which is a rated problem, but has non-integer point",
+                        s.id,
+                        s.problem_id
+                    ))
+                }
+            })
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
             .fold(BTreeMap::new(), |mut map, (user_id, problem_id, point)| {
                 map.entry(user_id)
                     .or_insert_with(BTreeMap::new)
