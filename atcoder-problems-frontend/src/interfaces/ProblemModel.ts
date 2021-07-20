@@ -1,9 +1,9 @@
 import {
-  isBoolean,
-  isNumber,
   hasPropertyAsType,
   hasPropertyAsTypeOrUndefined,
-} from "../utils";
+  isBoolean,
+  isNumber,
+} from "../utils/TypeUtils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface ProblemModel {

@@ -1,10 +1,10 @@
 import {
-  isNumber,
-  isString,
   hasPropertyAsType,
   hasPropertyAsTypeOrNull,
   hasPropertyAsTypeOrUndefined,
-} from "../utils";
+  isNumber,
+  isString,
+} from "../utils/TypeUtils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface MergedProblem {

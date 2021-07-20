@@ -1,4 +1,4 @@
-import { isNumber, isString, hasPropertyAsType } from "../utils";
+import { hasPropertyAsType, isNumber, isString } from "../utils/TypeUtils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface Contest {

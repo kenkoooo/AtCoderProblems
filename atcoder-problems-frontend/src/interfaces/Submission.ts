@@ -1,9 +1,9 @@
 import {
-  isNumber,
-  isString,
   hasPropertyAsType,
   hasPropertyAsTypeOrNull,
-} from "../utils";
+  isNumber,
+  isString,
+} from "../utils/TypeUtils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface Submission {

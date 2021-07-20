@@ -1,4 +1,4 @@
-import { isNumber, hasPropertyAsType } from "../utils";
+import { hasPropertyAsType, isNumber } from "../utils/TypeUtils";
 
 export interface UserRankEntry {
   readonly count: number;

@@ -15,14 +15,9 @@ import {
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
-import {
-  clipDifficulty,
-  isString,
-  isValidResult,
-  isVJudgeOrLuogu,
-  hasPropertyAsType,
-} from "../utils";
+import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
 import { ratingInfoOf } from "../utils/RatingInfo";
+import { hasPropertyAsType, isString } from "../utils/TypeUtils";
 import { useSWRData } from "./index";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";

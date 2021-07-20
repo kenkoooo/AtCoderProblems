@@ -1,4 +1,9 @@
-import { isBoolean, isNumber, isString, hasPropertyAsType } from "../utils";
+import {
+  hasPropertyAsType,
+  isBoolean,
+  isNumber,
+  isString,
+} from "../utils/TypeUtils";
 
 // Type interface for the Official API response from https://atcoder.jp/users/<user_id>/history/json.
 // Response type of the API is List<ContestParticipation>

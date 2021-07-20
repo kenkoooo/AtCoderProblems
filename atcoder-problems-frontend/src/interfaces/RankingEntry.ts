@@ -1,4 +1,4 @@
-import { isNumber, isString, hasPropertyAsType } from "../utils";
+import { hasPropertyAsType, isNumber, isString } from "../utils/TypeUtils";
 
 export interface RankingEntry {
   readonly problem_count: number;
