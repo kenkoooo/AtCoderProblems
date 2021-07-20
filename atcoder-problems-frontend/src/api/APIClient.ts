@@ -7,7 +7,6 @@ import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import {
   isRankingEntryV3,
   isStreakRankingEntry,
-  isString,
   isSumRankingEntry,
   RankingEntry,
   RankingEntryV3,
@@ -18,9 +17,10 @@ import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import {
   clipDifficulty,
+  isString,
   isValidResult,
   isVJudgeOrLuogu,
-  hasProperty,
+  hasPropertyAsType,
 } from "../utils";
 import { ratingInfoOf } from "../utils/RatingInfo";
 import { useSWRData } from "./index";
@@ -220,10 +220,8 @@ export const useContestToProblems = () => {
     fetchTypedArray(
       url,
       (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
-        hasProperty(obj, "contest_id") &&
-        typeof obj.contest_id === "string" &&
-        hasProperty(obj, "problem_id") &&
-        typeof obj.problem_id === "string"
+        hasPropertyAsType(obj, "contest_id", isString) &&
+        hasPropertyAsType(obj, "problem_id", isString)
     )
   );
   const problemMap = useProblemMap();

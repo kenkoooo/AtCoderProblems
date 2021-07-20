@@ -1,4 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import {
+  isNumber,
+  isString,
+  hasPropertyAsType,
+  hasPropertyAsTypeOrNull,
+  hasPropertyAsTypeOrUndefined,
+} from "../utils";
+
 // eslint-disable-next-line import/no-default-export
 export default interface MergedProblem {
   // Basic information
@@ -27,31 +34,23 @@ export default interface MergedProblem {
   readonly point?: number | null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isMergedProblem = (obj: any): obj is MergedProblem =>
+export const isMergedProblem = (obj: unknown): obj is MergedProblem =>
   typeof obj === "object" &&
   obj !== null &&
-  typeof obj.id === "string" &&
-  typeof obj.contest_id === "string" &&
-  typeof obj.title === "string" &&
-  (typeof obj.first_user_id === "string" || obj.first_user_id === null) &&
-  (typeof obj.first_contest_id === "string" || obj.first_contest_id === null) &&
-  (typeof obj.first_submission_id === "number" ||
-    obj.first_submission_id === null) &&
-  (typeof obj.fastest_user_id === "string" || obj.fastest_user_id === null) &&
-  (typeof obj.fastest_contest_id === "string" ||
-    obj.fastest_contest_id === null) &&
-  (typeof obj.fastest_submission_id === "number" ||
-    obj.fastest_submission_id === null) &&
-  (typeof obj.execution_time === "number" || obj.execution_time === null) &&
-  (typeof obj.shortest_user_id === "string" || obj.shortest_user_id === null) &&
-  (typeof obj.shortest_contest_id === "string" ||
-    obj.shortest_contest_id === null) &&
-  (typeof obj.shortest_submission_id === "number" ||
-    obj.shortest_submission_id === null) &&
-  (typeof obj.source_code_length === "number" ||
-    obj.source_code_length === null) &&
-  (typeof obj.solver_count === "number" || obj.solver_count === null) &&
-  (typeof obj.point === "number" ||
-    typeof obj.point === "undefined" ||
-    obj.point === null);
+  hasPropertyAsType(obj, "id", isString) &&
+  hasPropertyAsType(obj, "contest_id", isString) &&
+  hasPropertyAsType(obj, "title", isString) &&
+  hasPropertyAsTypeOrNull(obj, "first_user_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "first_contest_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "first_submission_id", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "fastest_user_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "fastest_contest_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "fastest_submission_id", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "execution_time", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "shortest_user_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "shortest_contest_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "shortest_submission_id", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "source_code_length", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "solver_count", isNumber) &&
+  (hasPropertyAsTypeOrUndefined(obj, "point", isNumber) ||
+    hasPropertyAsTypeOrNull(obj, "solver_count", isNumber));
