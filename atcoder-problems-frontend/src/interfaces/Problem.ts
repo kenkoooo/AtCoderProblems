@@ -1,4 +1,4 @@
-import { hasPropertyAsType } from "../utils";
+import { isString, hasPropertyAsType } from "../utils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface Problem {
@@ -8,6 +8,6 @@ export default interface Problem {
 }
 
 export const isProblem = (obj: unknown): obj is Problem =>
-  hasPropertyAsType(obj, "id", "string") &&
-  hasPropertyAsType(obj, "contest_id", "string") &&
-  hasPropertyAsType(obj, "title", "string");
+  hasPropertyAsType(obj, "id", isString) &&
+  hasPropertyAsType(obj, "contest_id", isString) &&
+  hasPropertyAsType(obj, "title", isString);

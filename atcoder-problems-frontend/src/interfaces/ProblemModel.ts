@@ -1,4 +1,9 @@
-import { hasPropertyAsType, hasPropertyAsTypeOrUndefined } from "../utils";
+import {
+  isBoolean,
+  isNumber,
+  hasPropertyAsType,
+  hasPropertyAsTypeOrUndefined,
+} from "../utils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface ProblemModel {
@@ -12,13 +17,13 @@ export default interface ProblemModel {
 }
 
 export const isProblemModel = (obj: unknown): obj is ProblemModel =>
-  hasPropertyAsTypeOrUndefined(obj, "slope", "number") &&
-  hasPropertyAsTypeOrUndefined(obj, "intercept", "number") &&
-  hasPropertyAsTypeOrUndefined(obj, "difficulty", "number") &&
-  hasPropertyAsTypeOrUndefined(obj, "rawDifficulty", "number") &&
-  hasPropertyAsTypeOrUndefined(obj, "discrimination", "number") &&
-  hasPropertyAsType(obj, "is_experimental", "boolean") &&
-  hasPropertyAsTypeOrUndefined(obj, "variance", "number");
+  hasPropertyAsTypeOrUndefined(obj, "slope", isNumber) &&
+  hasPropertyAsTypeOrUndefined(obj, "intercept", isNumber) &&
+  hasPropertyAsTypeOrUndefined(obj, "difficulty", isNumber) &&
+  hasPropertyAsTypeOrUndefined(obj, "rawDifficulty", isNumber) &&
+  hasPropertyAsTypeOrUndefined(obj, "discrimination", isNumber) &&
+  hasPropertyAsType(obj, "is_experimental", isBoolean) &&
+  hasPropertyAsTypeOrUndefined(obj, "variance", isNumber);
 
 export interface ProblemModelWithDifficultyModel {
   readonly slope: number | undefined;
@@ -33,12 +38,12 @@ export const isProblemModelWithDifficultyModel = (
   obj: unknown
 ): obj is ProblemModelWithDifficultyModel =>
   obj !== undefined &&
-  hasPropertyAsTypeOrUndefined(obj, "slope", "number") &&
-  hasPropertyAsTypeOrUndefined(obj, "intercept", "number") &&
-  hasPropertyAsType(obj, "difficulty", "number") &&
-  hasPropertyAsType(obj, "rawDifficulty", "number") &&
-  hasPropertyAsType(obj, "discrimination", "number") &&
-  hasPropertyAsType(obj, "is_experimental", "boolean");
+  hasPropertyAsTypeOrUndefined(obj, "slope", isNumber) &&
+  hasPropertyAsTypeOrUndefined(obj, "intercept", isNumber) &&
+  hasPropertyAsType(obj, "difficulty", isNumber) &&
+  hasPropertyAsType(obj, "rawDifficulty", isNumber) &&
+  hasPropertyAsType(obj, "discrimination", isNumber) &&
+  hasPropertyAsType(obj, "is_experimental", isBoolean);
 
 export interface ProblemModelWithTimeModel {
   readonly slope: number;
@@ -54,10 +59,10 @@ export const isProblemModelWithTimeModel = (
   obj: unknown
 ): obj is ProblemModelWithTimeModel =>
   obj !== undefined &&
-  hasPropertyAsType(obj, "slope", "number") &&
-  hasPropertyAsType(obj, "intercept", "number") &&
-  hasPropertyAsType(obj, "variance", "number") &&
-  hasPropertyAsTypeOrUndefined(obj, "difficult", "number") &&
-  hasPropertyAsTypeOrUndefined(obj, "rawDifficult", "number") &&
-  hasPropertyAsTypeOrUndefined(obj, "discrimination", "number") &&
-  hasPropertyAsType(obj, "is_experimental", "boolean");
+  hasPropertyAsType(obj, "slope", isNumber) &&
+  hasPropertyAsType(obj, "intercept", isNumber) &&
+  hasPropertyAsType(obj, "variance", isNumber) &&
+  hasPropertyAsTypeOrUndefined(obj, "difficult", isNumber) &&
+  hasPropertyAsTypeOrUndefined(obj, "rawDifficult", isNumber) &&
+  hasPropertyAsTypeOrUndefined(obj, "discrimination", isNumber) &&
+  hasPropertyAsType(obj, "is_experimental", isBoolean);

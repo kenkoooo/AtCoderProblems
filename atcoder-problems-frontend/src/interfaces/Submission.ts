@@ -1,4 +1,9 @@
-import { hasPropertyAsType, hasPropertyAsTypeOrNull } from "../utils";
+import {
+  isNumber,
+  isString,
+  hasPropertyAsType,
+  hasPropertyAsTypeOrNull,
+} from "../utils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface Submission {
@@ -15,13 +20,13 @@ export default interface Submission {
 }
 
 export const isSubmission = (obj: unknown): obj is Submission =>
-  hasPropertyAsTypeOrNull(obj, "execution_time", "number") &&
-  hasPropertyAsType(obj, "point", "number") &&
-  hasPropertyAsType(obj, "result", "string") &&
-  hasPropertyAsType(obj, "problem_id", "string") &&
-  hasPropertyAsType(obj, "user_id", "string") &&
-  hasPropertyAsType(obj, "epoch_second", "number") &&
-  hasPropertyAsType(obj, "contest_id", "string") &&
-  hasPropertyAsType(obj, "id", "number") &&
-  hasPropertyAsType(obj, "language", "string") &&
-  hasPropertyAsType(obj, "length", "number");
+  hasPropertyAsTypeOrNull(obj, "execution_time", isNumber) &&
+  hasPropertyAsType(obj, "point", isNumber) &&
+  hasPropertyAsType(obj, "result", isString) &&
+  hasPropertyAsType(obj, "problem_id", isString) &&
+  hasPropertyAsType(obj, "user_id", isString) &&
+  hasPropertyAsType(obj, "epoch_second", isNumber) &&
+  hasPropertyAsType(obj, "contest_id", isString) &&
+  hasPropertyAsType(obj, "id", isNumber) &&
+  hasPropertyAsType(obj, "language", isString) &&
+  hasPropertyAsType(obj, "length", isNumber);

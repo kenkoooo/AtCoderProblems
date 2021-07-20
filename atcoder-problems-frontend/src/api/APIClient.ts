@@ -8,7 +8,6 @@ import {
   isRankingEntry,
   isRankingEntryV3,
   isStreakRankingEntry,
-  isString,
   isSumRankingEntry,
   RankingEntry,
   RankingEntryV3,
@@ -19,6 +18,7 @@ import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import {
   clipDifficulty,
+  isString,
   isValidResult,
   isVJudgeOrLuogu,
   hasPropertyAsType,
@@ -214,8 +214,8 @@ export const useContestToProblems = () => {
     fetchTypedArray(
       url,
       (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
-        hasPropertyAsType(obj, "contest_id", "string") &&
-        hasPropertyAsType(obj, "problem_id", "string")
+        hasPropertyAsType(obj, "contest_id", isString) &&
+        hasPropertyAsType(obj, "problem_id", isString)
     )
   );
   const problemMap = useProblemMap();

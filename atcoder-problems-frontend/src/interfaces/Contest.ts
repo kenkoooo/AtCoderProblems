@@ -1,4 +1,4 @@
-import { hasPropertyAsType } from "../utils";
+import { isNumber, isString, hasPropertyAsType } from "../utils";
 
 // eslint-disable-next-line import/no-default-export
 export default interface Contest {
@@ -12,8 +12,8 @@ export default interface Contest {
 export const isContest = (contest: unknown): contest is Contest =>
   typeof contest === "object" &&
   contest !== null &&
-  hasPropertyAsType(contest, "start_epoch_second", "number") &&
-  hasPropertyAsType(contest, "rate_change", "string") &&
-  hasPropertyAsType(contest, "id", "string") &&
-  hasPropertyAsType(contest, "duration_second", "number") &&
-  hasPropertyAsType(contest, "title", "string");
+  hasPropertyAsType(contest, "start_epoch_second", isNumber) &&
+  hasPropertyAsType(contest, "rate_change", isString) &&
+  hasPropertyAsType(contest, "id", isString) &&
+  hasPropertyAsType(contest, "duration_second", isNumber) &&
+  hasPropertyAsType(contest, "title", isString);

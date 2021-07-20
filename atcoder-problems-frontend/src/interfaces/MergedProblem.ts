@@ -1,4 +1,6 @@
 import {
+  isNumber,
+  isString,
   hasPropertyAsType,
   hasPropertyAsTypeOrNull,
   hasPropertyAsTypeOrUndefined,
@@ -35,20 +37,20 @@ export default interface MergedProblem {
 export const isMergedProblem = (obj: unknown): obj is MergedProblem =>
   typeof obj === "object" &&
   obj !== null &&
-  hasPropertyAsType(obj, "id", "string") &&
-  hasPropertyAsType(obj, "contest_id", "string") &&
-  hasPropertyAsType(obj, "title", "string") &&
-  hasPropertyAsTypeOrNull(obj, "first_user_id", "string") &&
-  hasPropertyAsTypeOrNull(obj, "first_contest_id", "string") &&
-  hasPropertyAsTypeOrNull(obj, "first_submission_id", "number") &&
-  hasPropertyAsTypeOrNull(obj, "fastest_user_id", "string") &&
-  hasPropertyAsTypeOrNull(obj, "fastest_contest_id", "string") &&
-  hasPropertyAsTypeOrNull(obj, "fastest_submission_id", "number") &&
-  hasPropertyAsTypeOrNull(obj, "execution_time", "number") &&
-  hasPropertyAsTypeOrNull(obj, "shortest_user_id", "string") &&
-  hasPropertyAsTypeOrNull(obj, "shortest_contest_id", "string") &&
-  hasPropertyAsTypeOrNull(obj, "shortest_submission_id", "number") &&
-  hasPropertyAsTypeOrNull(obj, "source_code_length", "number") &&
-  hasPropertyAsTypeOrNull(obj, "solver_count", "number") &&
-  (hasPropertyAsTypeOrUndefined(obj, "point", "number") ||
-    hasPropertyAsTypeOrNull(obj, "solver_count", "number"));
+  hasPropertyAsType(obj, "id", isString) &&
+  hasPropertyAsType(obj, "contest_id", isString) &&
+  hasPropertyAsType(obj, "title", isString) &&
+  hasPropertyAsTypeOrNull(obj, "first_user_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "first_contest_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "first_submission_id", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "fastest_user_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "fastest_contest_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "fastest_submission_id", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "execution_time", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "shortest_user_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "shortest_contest_id", isString) &&
+  hasPropertyAsTypeOrNull(obj, "shortest_submission_id", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "source_code_length", isNumber) &&
+  hasPropertyAsTypeOrNull(obj, "solver_count", isNumber) &&
+  (hasPropertyAsTypeOrUndefined(obj, "point", isNumber) ||
+    hasPropertyAsTypeOrNull(obj, "solver_count", isNumber));

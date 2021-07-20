@@ -1,4 +1,4 @@
-import { hasPropertyAsType } from "../utils";
+import { isNumber, isString, hasPropertyAsType } from "../utils";
 
 export interface RankingEntry {
   readonly problem_count: number;
@@ -6,8 +6,8 @@ export interface RankingEntry {
 }
 
 export const isRankingEntry = (obj: unknown): obj is RankingEntry =>
-  hasPropertyAsType(obj, "problem_count", "number") &&
-  hasPropertyAsType(obj, "user_id", "string");
+  hasPropertyAsType(obj, "problem_count", isNumber) &&
+  hasPropertyAsType(obj, "user_id", isString);
 
 export interface RankingEntryV3 {
   readonly count: number;
@@ -15,8 +15,8 @@ export interface RankingEntryV3 {
 }
 
 export const isRankingEntryV3 = (obj: unknown): obj is RankingEntryV3 =>
-  hasPropertyAsType(obj, "count", "number") &&
-  hasPropertyAsType(obj, "user_id", "string");
+  hasPropertyAsType(obj, "count", isNumber) &&
+  hasPropertyAsType(obj, "user_id", isString);
 
 export interface SumRankingEntry {
   readonly user_id: string;
@@ -24,8 +24,8 @@ export interface SumRankingEntry {
 }
 
 export const isSumRankingEntry = (obj: unknown): obj is SumRankingEntry =>
-  hasPropertyAsType(obj, "user_id", "string") &&
-  hasPropertyAsType(obj, "point_sum", "number");
+  hasPropertyAsType(obj, "user_id", isString) &&
+  hasPropertyAsType(obj, "point_sum", isNumber);
 
 export interface LangRankingEntry {
   user_id: string;
@@ -34,9 +34,9 @@ export interface LangRankingEntry {
 }
 
 export const isLangRankingEntry = (obj: unknown): obj is LangRankingEntry =>
-  hasPropertyAsType(obj, "user_id", "string") &&
-  hasPropertyAsType(obj, "count", "number") &&
-  hasPropertyAsType(obj, "language", "string");
+  hasPropertyAsType(obj, "user_id", isString) &&
+  hasPropertyAsType(obj, "count", isNumber) &&
+  hasPropertyAsType(obj, "language", isString);
 
 export interface StreakRankingEntry {
   readonly user_id: string;
@@ -44,8 +44,5 @@ export interface StreakRankingEntry {
 }
 
 export const isStreakRankingEntry = (obj: unknown): obj is StreakRankingEntry =>
-  hasPropertyAsType(obj, "user_id", "string") &&
-  hasPropertyAsType(obj, "streak", "number");
-
-export const isString = (obj: unknown): obj is string =>
-  typeof obj === "string";
+  hasPropertyAsType(obj, "user_id", isString) &&
+  hasPropertyAsType(obj, "streak", isNumber);
