@@ -89,7 +89,7 @@ CREATE TABLE points (
 DROP TABLE IF EXISTS rated_point_sum;
 CREATE TABLE rated_point_sum (
   user_id         VARCHAR(255) NOT NULL,
-  point_sum       DOUBLE PRECISION NOT NULL,
+  point_sum       BIGINT NOT NULL,
   PRIMARY KEY (user_id)
 );
 
