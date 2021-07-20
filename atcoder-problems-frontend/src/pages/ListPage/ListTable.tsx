@@ -519,8 +519,7 @@ export const ListTable: React.FC<Props> = (props) => {
     },
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const options: Options<{ [key in ProblemRowDataField]: any }> = {
+  const options: Options<{ [key in ProblemRowDataField]: unknown }> = {
     paginationPosition: "top",
     sizePerPage: 20,
     sizePerPageList: [

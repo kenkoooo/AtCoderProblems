@@ -1,3 +1,10 @@
+import {
+  hasPropertyAsType,
+  isBoolean,
+  isNumber,
+  isString,
+} from "../utils/TypeUtils";
+
 // Type interface for the Official API response from https://atcoder.jp/users/<user_id>/history/json.
 // Response type of the API is List<ContestParticipation>
 
@@ -14,25 +21,17 @@ export default interface ContestParticipation {
   readonly EndTime: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isContestParticipation = (obj: any): obj is ContestParticipation =>
+export const isContestParticipation = (
+  obj: unknown
+): obj is ContestParticipation =>
   typeof obj === "object" &&
   obj !== null &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  typeof obj.IsRated === "boolean" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  typeof obj.Place === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  typeof obj.OldRating === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  typeof obj.NewRating === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  typeof obj.Performance === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  typeof obj.InnerPerformance === "number" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  typeof obj.ContestScreenName === "string" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  typeof obj.ContestName === "string" &&
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  typeof obj.EndTime === "string";
+  hasPropertyAsType(obj, "IsRated", isBoolean) &&
+  hasPropertyAsType(obj, "Place", isNumber) &&
+  hasPropertyAsType(obj, "OldRating", isNumber) &&
+  hasPropertyAsType(obj, "NewRating", isNumber) &&
+  hasPropertyAsType(obj, "Performance", isNumber) &&
+  hasPropertyAsType(obj, "InnerPerformance", isNumber) &&
+  hasPropertyAsType(obj, "ContestScreenName", isString) &&
+  hasPropertyAsType(obj, "ContestName", isString) &&
+  hasPropertyAsType(obj, "EndTime", isString);
