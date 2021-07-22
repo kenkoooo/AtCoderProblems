@@ -71,8 +71,8 @@ async fn test_language_ranking() {
     assert_eq!(
         response,
         json!([
-            {"user_id": "user3", "problem_count": 2},
-            {"user_id": "user1", "problem_count": 1},
+            {"user_id": "user3", "count": 2},
+            {"user_id": "user1", "count": 1},
         ])
     );
 
@@ -86,7 +86,7 @@ async fn test_language_ranking() {
     assert_eq!(
         response,
         json!([
-            {"user_id": "user2", "problem_count": 2}
+            {"user_id": "user2", "count": 2}
         ])
     );
 

@@ -1,20 +1,23 @@
+import { fetchSubmissionsFromDatabaseAndServer } from "../database/SubmissionsDB";
 import Contest, { isContest } from "../interfaces/Contest";
 import { isContestParticipation } from "../interfaces/ContestParticipation";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import {
-  isRankingEntry,
+  isRankingEntryV3,
   isStreakRankingEntry,
-  isString,
   isSumRankingEntry,
   RankingEntry,
+  RankingEntryV3,
   StreakRankingEntry,
 } from "../interfaces/RankingEntry";
+import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
 import { ratingInfoOf } from "../utils/RatingInfo";
+import { hasPropertyAsType, isString } from "../utils/TypeUtils";
 import { useSWRData } from "./index";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
@@ -42,25 +45,48 @@ const generateRanking = (
   );
 };
 
-function fetchTypedArray<T>(
+function fetchTypedValue<T>(
   url: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  typeGuardFn: (obj: any) => obj is T
-): Promise<T[]> {
-  return (
-    fetch(url)
-      .then((r) => r.json())
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then((array: any[]) => array.filter(typeGuardFn))
-  );
+  typeGuardFn: (obj: unknown) => obj is T
+): Promise<T | undefined> {
+  return fetch(url)
+    .then((response) => response.json())
+    .then((response: unknown) =>
+      typeGuardFn(response) ? response : undefined
+    );
 }
 
-export const useACRanking = () => {
-  const url = STATIC_API_BASE_URL + "/ac.json";
+function fetchTypedArray<T>(
+  url: string,
+  typeGuardFn: (obj: unknown) => obj is T
+): Promise<T[]> {
+  return fetch(url)
+    .then((r) => r.json())
+    .then((array: unknown[]) => array.filter(typeGuardFn));
+}
+
+export const useACRanking = (from: number, to: number) => {
+  const url = `${ATCODER_API_URL}/v3/ac_ranking?from=${from}&to=${to}`;
   return useSWRData(url, (url) =>
-    fetchTypedArray<RankingEntry>(url, isRankingEntry).then((ranking) =>
-      ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
-    )
+    fetchTypedArray<RankingEntryV3>(url, isRankingEntryV3)
+      .then((ranking) =>
+        ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
+      )
+      .then((ranking) =>
+        ranking.map((entry) => ({
+          problem_count: entry.count,
+          user_id: entry.user_id,
+        }))
+      )
+  );
+};
+
+export const useUserACRank = (user: string) => {
+  const url = `${ATCODER_API_URL}/v3/user/ac_rank?user=${encodeURIComponent(
+    user
+  )}`;
+  return useSWRData(url, (url) =>
+    fetchTypedValue<UserRankEntry>(url, isUserRankEntry)
   );
 };
 
@@ -117,7 +143,14 @@ export const useOneLangRanking = (
   const url = `${ATCODER_API_URL}/v3/language_ranking?from=${from}&to=${to}&language=${encodeURIComponent(
     language
   )}`;
-  return useSWRData(url, (url) => fetchTypedArray(url, isRankingEntry));
+  return useSWRData(url, (url) =>
+    fetchTypedArray(url, isRankingEntryV3).then((ranking) =>
+      ranking.map((entry) => ({
+        problem_count: entry.count,
+        user_id: entry.user_id,
+      }))
+    )
+  );
 };
 
 export const useShortRanking = () => {
@@ -142,12 +175,13 @@ export const useRatingInfo = (user: string) => {
 };
 
 export const useUserSubmission = (user: string) => {
-  const url = `${ATCODER_API_URL}/results?user=${user}`;
-  return useSWRData(url, (url) =>
+  const fetcher = (url: string) => {
+    const userId = url.split(" ")[0];
+    return fetchSubmissionsFromDatabaseAndServer(userId);
+  };
+  return useSWRData(`${user} submission`, (url) =>
     user.length > 0
-      ? fetchTypedArray(url, isSubmission).then((submissions) =>
-          submissions.filter((submission) => isValidResult(submission.result))
-        )
+      ? fetcher(url).then((ss) => ss.filter((s) => isValidResult(s.result)))
       : Promise.resolve([])
   ).data;
 };
@@ -181,8 +215,8 @@ export const useContestToProblems = () => {
     fetchTypedArray(
       url,
       (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        typeof obj.contest_id === "string" && typeof obj.problem_id === "string"
+        hasPropertyAsType(obj, "contest_id", isString) &&
+        hasPropertyAsType(obj, "problem_id", isString)
     )
   );
   const problemMap = useProblemMap();
@@ -220,8 +254,7 @@ export const useProblemModelMap = () => {
   const fetcher = (url: string) =>
     fetch(url)
       .then((r) => r.json())
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then((obj: { [p: string]: any }) =>
+      .then((obj: { [p: string]: unknown }) =>
         Object.entries(obj)
           .filter((entry): entry is [string, ProblemModel] =>
             isProblemModel(entry[1])

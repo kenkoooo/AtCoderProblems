@@ -1,4 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import {
+  hasPropertyAsType,
+  hasPropertyAsTypeOrNull,
+  isNumber,
+  isString,
+} from "../utils/TypeUtils";
+
 // eslint-disable-next-line import/no-default-export
 export default interface Submission {
   readonly execution_time: number | null;
@@ -13,15 +19,14 @@ export default interface Submission {
   readonly length: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export const isSubmission = (obj: any): obj is Submission =>
-  (typeof obj.execution_time === "number" || obj.execution_time === null) &&
-  typeof obj.point === "number" &&
-  typeof obj.result === "string" &&
-  typeof obj.problem_id === "string" &&
-  typeof obj.user_id === "string" &&
-  typeof obj.epoch_second === "number" &&
-  typeof obj.contest_id === "string" &&
-  typeof obj.id === "number" &&
-  typeof obj.language === "string" &&
-  typeof obj.length === "number";
+export const isSubmission = (obj: unknown): obj is Submission =>
+  hasPropertyAsTypeOrNull(obj, "execution_time", isNumber) &&
+  hasPropertyAsType(obj, "point", isNumber) &&
+  hasPropertyAsType(obj, "result", isString) &&
+  hasPropertyAsType(obj, "problem_id", isString) &&
+  hasPropertyAsType(obj, "user_id", isString) &&
+  hasPropertyAsType(obj, "epoch_second", isNumber) &&
+  hasPropertyAsType(obj, "contest_id", isString) &&
+  hasPropertyAsType(obj, "id", isNumber) &&
+  hasPropertyAsType(obj, "language", isString) &&
+  hasPropertyAsType(obj, "length", isNumber);
