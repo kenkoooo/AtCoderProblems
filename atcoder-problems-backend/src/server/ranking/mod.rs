@@ -200,7 +200,7 @@ pub(crate) async fn get_users_rated_point_sum_rank<A>(
 
     let rank = conn.get_rated_point_sum_rank(point_sum).await?;
     let response = UserRankResponse {
-        count: point_sum as i64,
+        count: point_sum,
         rank,
     };
     Ok(Some(response))
