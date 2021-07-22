@@ -6,11 +6,9 @@ import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import {
   isRankingEntryV3,
-  isStreakRankingEntry,
   isSumRankingEntry,
   RankingEntry,
   RankingEntryV3,
-  StreakRankingEntry,
 } from "../interfaces/RankingEntry";
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
@@ -65,8 +63,7 @@ function fetchTypedArray<T>(
     .then((array: unknown[]) => array.filter(typeGuardFn));
 }
 
-export const useACRanking = (from: number, to: number) => {
-  const url = `${ATCODER_API_URL}/v3/ac_ranking?from=${from}&to=${to}`;
+const useRankingV3 = (url: string) => {
   return useSWRData(url, (url) =>
     fetchTypedArray<RankingEntryV3>(url, isRankingEntryV3)
       .then((ranking) =>
@@ -81,6 +78,11 @@ export const useACRanking = (from: number, to: number) => {
   );
 };
 
+export const useACRanking = (from: number, to: number) => {
+  const url = `${ATCODER_API_URL}/v3/ac_ranking?from=${from}&to=${to}`;
+  return useRankingV3(url);
+};
+
 export const useUserACRank = (user: string) => {
   const url = `${ATCODER_API_URL}/v3/user/ac_rank?user=${encodeURIComponent(
     user
@@ -90,23 +92,15 @@ export const useUserACRank = (user: string) => {
   );
 };
 
-export const useStreakRanking = () => {
-  const url = STATIC_API_BASE_URL + "/streaks.json";
-  return useSWRData<RankingEntry[]>(url, (url) =>
-    fetchTypedArray<StreakRankingEntry>(url, isStreakRankingEntry).then((x) =>
-      x.map((r) => ({
-        problem_count: r.streak,
-        user_id: r.user_id,
-      }))
-    )
-  );
+export const useStreakRanking = (from: number, to: number) => {
+  const url = `${ATCODER_API_URL}/v3/streak_ranking?from=${from}&to=${to}`;
+  return useRankingV3(url);
 };
 
 export const useUserStreakRank = (user: string) => {
   const url = `${ATCODER_API_URL}/v3/user/streak_rank?user=${encodeURIComponent(
     user
   )}`;
-  console.log(url);
   return useSWRData(url, (url) =>
     fetchTypedValue<UserRankEntry>(url, isUserRankEntry)
   );
@@ -153,14 +147,7 @@ export const useOneLangRanking = (
   const url = `${ATCODER_API_URL}/v3/language_ranking?from=${from}&to=${to}&language=${encodeURIComponent(
     language
   )}`;
-  return useSWRData(url, (url) =>
-    fetchTypedArray(url, isRankingEntryV3).then((ranking) =>
-      ranking.map((entry) => ({
-        problem_count: entry.count,
-        user_id: entry.user_id,
-      }))
-    )
-  );
+  return useRankingV3(url);
 };
 
 export const useShortRanking = () => {

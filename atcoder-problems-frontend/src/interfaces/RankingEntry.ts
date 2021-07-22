@@ -37,12 +37,3 @@ export const isLangRankingEntry = (obj: unknown): obj is LangRankingEntry =>
   hasPropertyAsType(obj, "user_id", isString) &&
   hasPropertyAsType(obj, "count", isNumber) &&
   hasPropertyAsType(obj, "language", isString);
-
-export interface StreakRankingEntry {
-  readonly user_id: string;
-  readonly streak: number;
-}
-
-export const isStreakRankingEntry = (obj: unknown): obj is StreakRankingEntry =>
-  hasPropertyAsType(obj, "user_id", isString) &&
-  hasPropertyAsType(obj, "streak", isNumber);

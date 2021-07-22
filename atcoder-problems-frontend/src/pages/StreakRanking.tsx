@@ -1,12 +1,17 @@
 import React from "react";
 import { Badge, UncontrolledTooltip } from "reactstrap";
-import { useStreakRanking } from "../api/APIClient";
-import { Ranking } from "../components/Ranking";
+import { useStreakRanking, useUserStreakRank } from "../api/APIClient";
+import { RemoteRanking } from "../components/Ranking";
 
 export const StreakRanking = () => {
-  const { data } = useStreakRanking();
+  const [page, setPage] = React.useState(1);
+  const [sizePerPage, setSizePerPage] = React.useState(20);
+  const data =
+    useStreakRanking((page - 1) * sizePerPage, page * sizePerPage).data ?? [];
+  const firstUser = data.length === 0 ? "" : data[0].user_id;
+  const firstRankOnPage = useUserStreakRank(firstUser).data?.rank ?? 0;
   return (
-    <Ranking
+    <RemoteRanking
       title={
         <>
           Streak Ranking{" "}
@@ -19,7 +24,13 @@ export const StreakRanking = () => {
           </UncontrolledTooltip>
         </>
       }
-      ranking={data ?? []}
+      rankingSize={1000}
+      page={page}
+      sizePerPage={sizePerPage}
+      firstRankOnPage={firstRankOnPage}
+      data={data}
+      setPage={setPage}
+      setSizePerPage={setSizePerPage}
     />
   );
 };

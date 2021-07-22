@@ -132,7 +132,6 @@ export const AchievementBlock: React.FC<Props> = (props) => {
   const isIncreasing = prevDateLabel >= yesterdayLabel;
   const streakRankEntry = useUserStreakRank(props.userId);
   const longestStreakRank = streakRankEntry.data?.rank;
-  console.log(longestStreakRank);
 
   const streakSum = dailyCount.length;
 
