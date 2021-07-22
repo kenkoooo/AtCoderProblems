@@ -102,6 +102,16 @@ export const useStreakRanking = () => {
   );
 };
 
+export const useUserStreakRank = (user: string) => {
+  const url = `${ATCODER_API_URL}/v3/user/streak_rank?user=${encodeURIComponent(
+    user
+  )}`;
+  console.log(url);
+  return useSWRData(url, (url) =>
+    fetchTypedValue<UserRankEntry>(url, isUserRankEntry)
+  );
+};
+
 export const useSumRanking = () => {
   const url = STATIC_API_BASE_URL + "/sums.json";
   return useSWRData<RankingEntry[]>(url, (url) =>
