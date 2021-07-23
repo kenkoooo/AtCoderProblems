@@ -16,8 +16,6 @@ import { NewTabLink } from "../../../components/NewTabLink";
 import { ProblemLink } from "../../../components/ProblemLink";
 import Problem from "../../../interfaces/Problem";
 import { ProblemId } from "../../../interfaces/Status";
-import Submission from "../../../interfaces/Submission";
-import { isAccepted } from "../../../utils";
 import {
   formatPredictedSolveProbability,
   formatPredictedSolveTime,
@@ -30,57 +28,13 @@ import {
   selectRowPropsForProblemSelection,
   useProblemIdSelection,
 } from "../../../utils/ProblemSelection";
-import { recommendProblems } from "./RecommendProblems";
 import {
   ExcludeOption,
-  RecommendController,
-  RecommendOption,
-} from "./RecommendController";
-
-const isIncluded = (
-  problemId: string,
-  excludeOption: ExcludeOption,
-  currentSecond: number,
-  lastSolvedTimeMap: Map<ProblemId, number>,
-  submittedProblemIds: Set<ProblemId>
-): boolean => {
-  const lastSolvedTime = lastSolvedTimeMap.get(problemId);
-  if (lastSolvedTime) {
-    const seconds = currentSecond - lastSolvedTime;
-    switch (excludeOption) {
-      case "Exclude":
-      case "Exclude submitted":
-        return false;
-      case "1 Week":
-        return seconds > 3600 * 24 * 7;
-      case "2 Weeks":
-        return seconds > 3600 * 24 * 14;
-      case "4 Weeks":
-        return seconds > 3600 * 24 * 28;
-      case "6 Months":
-        return seconds > 3600 * 24 * 180;
-      case "Don't exclude":
-        return true;
-    }
-  }
-
-  const isSubmitted = submittedProblemIds.has(problemId);
-  if (excludeOption === "Exclude submitted") {
-    return !isSubmitted;
-  }
-  return true;
-};
-
-const getLastSolvedTimeMap = (userSubmissions: Submission[]) => {
-  const lastSolvedTimeMap = new Map<ProblemId, number>();
-  userSubmissions
-    .filter((s) => isAccepted(s.result))
-    .forEach((s) => {
-      const cur = lastSolvedTimeMap.get(s.problem_id) ?? 0;
-      lastSolvedTimeMap.set(s.problem_id, Math.max(s.epoch_second, cur));
-    });
-  return lastSolvedTimeMap;
-};
+  getLastSolvedTimeMap,
+  isIncludedSolvedTIme,
+} from "../../../utils/LastSolvedTimeMap";
+import { recommendProblems } from "./RecommendProblems";
+import { RecommendController, RecommendOption } from "./RecommendController";
 
 interface Props {
   userId: string;
@@ -142,7 +96,7 @@ export const Recommendations = (props: Props) => {
   const filteredRecommendedProblems = recommendProblems(
     problems,
     (problemId: ProblemId) =>
-      isIncluded(
+      isIncludedSolvedTIme(
         problemId,
         excludeOption,
         currentSecond,

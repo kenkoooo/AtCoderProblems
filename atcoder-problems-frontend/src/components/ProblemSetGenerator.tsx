@@ -21,6 +21,12 @@ import {
 } from "../api/APIClient";
 import Problem from "../interfaces/Problem";
 import { shuffleArray } from "../utils";
+import {
+  ExcludeOption,
+  ExcludeOptions,
+  getLastSolvedTimeMap,
+  isIncludedSolvedTIme,
+} from "../utils/LastSolvedTimeMap";
 import { isProblemModelWithDifficultyModel } from "../interfaces/ProblemModel";
 
 interface Props {
@@ -75,21 +81,40 @@ const AGC_PRESET: ProblemSetSelectionPreset = {
     { minDifficulty: 2800, maxDifficulty: 9999 },
   ],
 };
+
+const formatExcludeOption = (excludeOption: ExcludeOption): string => {
+  switch (excludeOption) {
+    case "1 Week":
+      return "Exclude problems solved in last 7 days by expected participants";
+    case "2 Weeks":
+      return "Exclude problems solved in last 2 weeks by expected participants";
+    case "4 Weeks":
+      return "Exclude problems solved in last 4 weeks by expected participants";
+    case "6 Months":
+      return "Exclude problems solved in last 6 months by expected participants";
+    case "Exclude":
+      return "Exclude all the solved problems by expected participants";
+    case "Don't exclude":
+      return "Don't exclude solved problems by expected participants";
+    case "Exclude submitted":
+      return "Exclude all the submitted problems by expected participants";
+  }
+};
+
 export const ProblemSetGenerator: React.FC<Props> = (props) => {
   const [problemSelectionParamsList, setProblemSelectionParamsList] = useState(
     ABC_PRESET.problemSelectionParams
   );
   const [excludeExperimental, setExcludeExperimental] = useState(false);
-  const [
-    excludeAlreadySolvedProblems,
-    setExcludeAlreadySolvedProblems,
-  ] = useState(true);
+  const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
   const [selectedPreset, setSelectedPreset] = useState(ABC_PRESET);
   const problems = useProblems() ?? [];
   const problemModels = useProblemModelMap();
   const submissions =
     useMultipleUserSubmissions(props.expectedParticipantUserIds).data ?? [];
   const alreadySolvedProblemIds = new Set(submissions.map((s) => s.problem_id));
+  const lastSolvedTimeMap = getLastSolvedTimeMap(submissions);
+  const currentSecond = Math.floor(new Date().getTime() / 1000);
 
   return (
     <Form className={"w-100"}>
@@ -114,24 +139,23 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
         </Col>
       </FormGroup>
       <FormGroup row>
-        <Col>
+        <Col sm={6}>
           <InputGroup>
-            <InputGroupAddon addonType="prepend">
-              <InputGroupText>
-                <Input
-                  addon
-                  type="checkbox"
-                  aria-label="Exclude already solved problems by expected participants"
-                  checked={excludeAlreadySolvedProblems}
-                  onChange={(event): void =>
-                    setExcludeAlreadySolvedProblems(event.target.checked)
-                  }
-                />
-              </InputGroupText>
-            </InputGroupAddon>
-            <InputGroupText>
-              Exclude already solved problems by expected participants
-            </InputGroupText>
+            <UncontrolledDropdown>
+              <DropdownToggle caret>
+                {formatExcludeOption(excludeOption)}
+              </DropdownToggle>
+              <DropdownMenu>
+                {ExcludeOptions.map((option) => (
+                  <DropdownItem
+                    key={option}
+                    onClick={(): void => setExcludeOption(option)}
+                  >
+                    {formatExcludeOption(option)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </UncontrolledDropdown>
           </InputGroup>
         </Col>
       </FormGroup>
@@ -271,11 +295,15 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
                 });
               }
 
-              if (excludeAlreadySolvedProblems) {
-                candidateProblems = candidateProblems.filter(
-                  (p) => !alreadySolvedProblemIds.has(p.problem.id)
-                );
-              }
+              candidateProblems = candidateProblems.filter((p) =>
+                isIncludedSolvedTIme(
+                  p.problem.id,
+                  excludeOption,
+                  currentSecond,
+                  lastSolvedTimeMap,
+                  alreadySolvedProblemIds
+                )
+              );
 
               candidateProblems = shuffleArray(candidateProblems);
 
