@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Row, Table, Nav, NavItem, NavLink, Col } from "reactstrap";
-import Octicon, { Check, Search } from "@primer/octicons-react";
+import { GoCheck, GoSearch } from "react-icons/go";
 import { Link } from "react-router-dom";
 import { useProblemMap, useProblemModelMap } from "../../api/APIClient";
 import { Course } from "../../interfaces/Course";
@@ -46,7 +46,7 @@ const ProblemTable: React.FC<ProblemTableProps> = (props) => {
                 {i + 1}
               </th>
               <td className="text-success">
-                {submission ? <Octicon icon={Check} /> : null}
+                {submission ? <GoCheck /> : null}
               </td>
               <td>
                 <ProblemLink
@@ -67,7 +67,7 @@ const ProblemTable: React.FC<ProblemTableProps> = (props) => {
                       submission.contest_id
                     )}
                   >
-                    <Octicon icon={Search} />
+                    <GoSearch />
                   </NewTabLink>
                 ) : null}
               </td>

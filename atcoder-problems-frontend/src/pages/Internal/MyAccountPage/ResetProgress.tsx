@@ -1,7 +1,7 @@
 import { Button, Col, Row, Table } from "reactstrap";
 import React from "react";
 import { connect, PromiseState } from "react-refetch";
-import Octicon, { Trashcan } from "@primer/octicons-react";
+import { GoTrashcan } from "react-icons/go";
 import { useProblems } from "../../../api/APIClient";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { ProgressResetList } from "../types";
@@ -85,7 +85,7 @@ const InnerResetProgress: React.FC<Props> = (props) => {
                           props.deleteResetProgress(item.problem_id)
                         }
                       >
-                        <Octicon icon={Trashcan} />
+                        <GoTrashcan />
                       </Button>
                     </td>
                   </tr>
