@@ -73,7 +73,7 @@ impl AcceptedCountClient for PgPool {
         let count = sqlx::query(
             r"
             SELECT problem_count FROM accepted_count
-            WHERE user_id = $1
+            WHERE LOWER(user_id) = LOWER($1)
             ",
         )
         .bind(user_id)
