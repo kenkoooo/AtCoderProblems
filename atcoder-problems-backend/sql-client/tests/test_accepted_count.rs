@@ -95,6 +95,8 @@ async fn test_accepted_count() {
 
     assert_eq!(pool.get_users_accepted_count("user1").await.unwrap(), 2);
     assert_eq!(pool.get_users_accepted_count("user2").await.unwrap(), 3);
+    assert_eq!(pool.get_users_accepted_count("USER1").await.unwrap(), 2);
+    assert_eq!(pool.get_users_accepted_count("USER2").await.unwrap(), 3);
     assert_eq!(pool.get_accepted_count_rank(3).await.unwrap(), 0);
     assert_eq!(pool.get_accepted_count_rank(2).await.unwrap(), 1);
 
