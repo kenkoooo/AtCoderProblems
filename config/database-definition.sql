@@ -122,13 +122,6 @@ CREATE TABLE max_streaks (
   PRIMARY KEY (user_id)
 );
 
-DROP TABLE IF EXISTS submission_count;
-CREATE TABLE submission_count (
-  user_id               VARCHAR(255) NOT NULL,
-  count                 BIGINT NOT NULL,
-  PRIMARY KEY (user_id)
-);
-
 -- For internal services:
 DROP TABLE IF EXISTS internal_problem_list_items;
 DROP TABLE IF EXISTS internal_problem_lists;
