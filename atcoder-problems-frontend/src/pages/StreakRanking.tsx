@@ -1,12 +1,11 @@
 import React from "react";
 import { Badge, UncontrolledTooltip } from "reactstrap";
-import { useStreakRanking } from "../api/APIClient";
-import { Ranking } from "../components/Ranking";
+import { useStreakRanking, useUserStreakRank } from "../api/APIClient";
+import { RemoteRanking } from "../components/Ranking";
 
 export const StreakRanking = () => {
-  const { data } = useStreakRanking();
   return (
-    <Ranking
+    <RemoteRanking
       title={
         <>
           Streak Ranking{" "}
@@ -19,7 +18,9 @@ export const StreakRanking = () => {
           </UncontrolledTooltip>
         </>
       }
-      ranking={data ?? []}
+      rankingSize={1000}
+      getRanking={useStreakRanking}
+      getUserRank={useUserStreakRank}
     />
   );
 };

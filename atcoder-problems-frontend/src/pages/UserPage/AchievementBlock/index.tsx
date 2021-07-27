@@ -8,7 +8,7 @@ import {
   useFirstRanking,
   useProblemModelMap,
   useShortRanking,
-  useStreakRanking,
+  useUserStreakRank,
   useSumRanking,
   useUserSubmission,
 } from "../../../api/APIClient";
@@ -130,10 +130,8 @@ export const AchievementBlock: React.FC<Props> = (props) => {
 
   const yesterdayLabel = formatMomentDate(getToday().add(-1, "day"));
   const isIncreasing = prevDateLabel >= yesterdayLabel;
-  const { data: streakRanking } = useStreakRanking();
-  const longestStreakRank = streakRanking
-    ? streakRanking.filter((e) => e.problem_count > longestStreak).length
-    : undefined;
+  const streakRankEntry = useUserStreakRank(props.userId);
+  const longestStreakRank = streakRankEntry.data?.rank;
 
   const streakSum = dailyCount.length;
 

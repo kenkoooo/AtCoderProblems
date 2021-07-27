@@ -1,7 +1,9 @@
 import React from "react";
 import { Row } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
+import { SWRResponse } from "swr";
 import { RankingEntry } from "../interfaces/RankingEntry";
+import { UserRankEntry } from "../interfaces/UserRankEntry";
 
 interface Props {
   title: React.ReactNode;
@@ -110,36 +112,39 @@ const refineRankingWithOffset = (
 interface RemoteProps {
   title: React.ReactNode;
   rankingSize: number;
-  page: number;
-  sizePerPage: number;
-  firstRankOnPage: number;
-  data: RankingEntry[];
-  setPage: (page: number) => void;
-  setSizePerPage: (page: number) => void;
+  getRanking: (
+    from: number,
+    to: number
+  ) => SWRResponse<RankingEntry[], undefined>;
+  getUserRank: (
+    user: string
+  ) => SWRResponse<UserRankEntry | undefined, undefined>;
 }
 
 export const RemoteRanking: React.FC<RemoteProps> = (props) => {
-  const offset = (props.page - 1) * props.sizePerPage;
+  const [page, setPage] = React.useState(1);
+  const [sizePerPage, setSizePerPage] = React.useState(20);
+  const offset = (page - 1) * sizePerPage;
+  const data =
+    props.getRanking((page - 1) * sizePerPage, page * sizePerPage).data ?? [];
+  const firstUser = data.length === 0 ? "" : data[0].user_id;
+  const firstRankOnPage = props.getUserRank(firstUser).data?.rank ?? 0;
   return (
     <Row>
       <h2>{props.title}</h2>
       <BootstrapTable
         height="auto"
-        data={refineRankingWithOffset(
-          props.data,
-          props.firstRankOnPage,
-          offset
-        )}
+        data={refineRankingWithOffset(data, firstRankOnPage, offset)}
         fetchInfo={{ dataTotalSize: props.rankingSize }}
         remote
         pagination
         striped
         hover
         options={{
-          onPageChange: props.setPage,
-          onSizePerPageList: props.setSizePerPage,
-          page: props.page,
-          sizePerPage: props.sizePerPage,
+          onPageChange: setPage,
+          onSizePerPageList: setSizePerPage,
+          page: page,
+          sizePerPage: sizePerPage,
           paginationPosition: "top",
           sizePerPageList: [
             {
