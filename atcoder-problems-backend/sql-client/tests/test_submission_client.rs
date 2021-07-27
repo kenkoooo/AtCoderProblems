@@ -110,10 +110,6 @@ async fn test_submission_client() {
     let submissions = pool.get_submissions(request).await.unwrap();
     assert_eq!(submissions.len(), 2);
 
-    pool.update_submission_count().await.unwrap();
-    assert_eq!(pool.get_user_submission_count("user1").await.unwrap(), 3);
-    assert_eq!(pool.get_user_submission_count("user2").await.unwrap(), 1);
-
     let submissions = pool
         .get_submissions(SubmissionRequest::AllAccepted)
         .await
@@ -130,26 +126,6 @@ async fn test_submission_client() {
     let request = SubmissionRequest::InvalidResult { from_second: 2 };
     let submissions = pool.get_submissions(request).await.unwrap();
     assert_eq!(submissions.len(), 1);
-}
-
-#[async_std::test]
-async fn test_update_submission_count() {
-    let pool = utils::initialize_and_connect_to_test_sql().await;
-    sqlx::query(
-        r"
-        INSERT INTO submissions
-            (id, epoch_second, problem_id, contest_id, user_id, language, point, length, result)
-        VALUES
-            (1, 100, 'problem1', 'contest1', 'user1', 'language1', 1.0, 1, 'AC');
-    ",
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    assert!(pool.get_user_submission_count("user1").await.is_err());
-    pool.update_user_submission_count("user1").await.unwrap();
-    assert_eq!(pool.get_user_submission_count("user1").await.unwrap(), 1);
 }
 
 #[async_std::test]

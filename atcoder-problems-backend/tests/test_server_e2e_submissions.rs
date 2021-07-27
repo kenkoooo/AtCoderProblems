@@ -25,10 +25,6 @@ impl Authentication for MockAuth {
 }
 
 async fn prepare_data_set(conn: &PgPool) {
-    sql_client::query(r"INSERT INTO submission_count (user_id, count) VALUES ('u1', 5), ('u2', 5)")
-        .execute(conn)
-        .await
-        .unwrap();
     sql_client::query(r"INSERT INTO accepted_count (user_id, problem_count) VALUES ('u1', 1)")
         .execute(conn)
         .await

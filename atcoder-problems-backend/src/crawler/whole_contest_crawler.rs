@@ -64,24 +64,8 @@ mod tests {
             unimplemented!()
         }
 
-        async fn get_user_submission_count(&self, _: &str) -> Result<i64> {
-            unimplemented!()
-        }
-
         async fn update_submissions(&self, _: &[Submission]) -> Result<usize> {
             Ok(1)
-        }
-
-        async fn update_submission_count(&self) -> Result<()> {
-            unimplemented!()
-        }
-
-        async fn update_user_submission_count(&self, _: &str) -> Result<()> {
-            unimplemented!()
-        }
-
-        async fn update_delta_submission_count(&self, _: &[Submission]) -> Result<()> {
-            unimplemented!()
         }
 
         async fn count_stored_submissions(&self, _: &[i64]) -> Result<usize> {

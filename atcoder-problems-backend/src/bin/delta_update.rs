@@ -54,9 +54,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("Executing update_streak_count...");
     conn.update_streak_count(&user_accepted_submissions).await?;
 
-    info!("Executing update_submission_count...");
-    conn.update_submission_count().await?;
-
     info!("Finished");
     Ok(())
 }
