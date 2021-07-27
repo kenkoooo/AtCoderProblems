@@ -40,7 +40,15 @@ Deprecated ~~https://kenkoooo.com/atcoder/resources/ac.json~~ This old API will 
 
 ### Rated Point Sum
 
-- https://kenkoooo.com/atcoder/resources/sums.json
+#### Example
+
+
+```
+https://kenkoooo.com/atcoder/atcoder-api/v3/rated_point_sum_ranking?from=0&to=10
+https://kenkoooo.com/atcoder/atcoder-api/v3/user/rated_point_sum_rank?user=kenkoooo
+```
+
+Deprecated ~~https://kenkoooo.com/atcoder/resources/sums.json~~ This old API will be removed soon. You can see more detail about the plan ([#1031](https://github.com/kenkoooo/AtCoderProblems/issues/1031)).
 
 ### Longest Streak (JST) Count
 
