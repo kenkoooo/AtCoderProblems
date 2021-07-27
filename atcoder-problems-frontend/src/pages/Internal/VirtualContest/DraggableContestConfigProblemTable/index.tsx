@@ -68,6 +68,7 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
       return map;
     }, new Map<UserId, Set<ProblemId>>());
   const contestMap = useContestMap();
+  const [sortedColumn, setSortedColumn] = React.useState<string | null>(null);
 
   if (problemSet.length === 0) {
     return (
@@ -214,6 +215,8 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
                       setProblemSet={setProblemSet}
                       text={header.text}
                       compare={header.compare}
+                      isSorted={sortedColumn === header.text}
+                      setSortedColumn={setSortedColumn}
                     />
                   ))}
                 </tr>

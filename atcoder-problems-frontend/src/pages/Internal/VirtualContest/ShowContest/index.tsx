@@ -14,7 +14,7 @@ import {
   CustomInput,
   Collapse,
 } from "reactstrap";
-import Octicon, { ChevronDown, ChevronUp } from "@primer/octicons-react";
+import { GoChevronDown, GoChevronUp } from "react-icons/go";
 import { useMergedProblemMap } from "../../../../api/APIClient";
 import {
   useLoginState,
@@ -241,7 +241,7 @@ export const ShowContest = (props: Props) => {
                   onClick={() => setShowProblemTable(!showProblemTable)}
                   className="mx-3"
                 >
-                  <Octicon icon={showProblemTable ? ChevronUp : ChevronDown} />
+                  {showProblemTable ? <GoChevronUp /> : <GoChevronDown />}
                 </Button>
               </div>
             </Col>

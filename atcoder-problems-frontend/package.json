@@ -43,7 +43,6 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@primer/octicons-react": "9.6.0",
     "@types/react-beautiful-dnd": "13.0.0",
     "bootstrap": "4.3.1",
     "immutable": "4.0.0-rc.12",
@@ -55,6 +54,7 @@
     "react-bootstrap-table": "4.3.1",
     "react-dom": "16.8.3",
     "react-helmet": "6.1.0",
+    "react-icons": "4.2.0",
     "react-measure": "2.2.4",
     "react-refetch": "4.0.0-0",
     "react-router-dom": "5.1.2",
