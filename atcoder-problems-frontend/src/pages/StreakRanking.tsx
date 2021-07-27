@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Badge, UncontrolledTooltip } from "reactstrap";
 import { useStreakRanking, useUserStreakRank } from "../api/APIClient";
-import { RemoteRanking } from "../components/Ranking";
+import { DEFAULT_RANKING_RANGE, RemoteRanking } from "../components/Ranking";
 
 export const StreakRanking = () => {
+  const [range, setRange] = useState(DEFAULT_RANKING_RANGE);
+  const ranking = useStreakRanking(range.from, range.to).data ?? [];
+  const firstUser = ranking.length === 0 ? "" : ranking[0].user_id;
+  const firstRankOnPage = useUserStreakRank(firstUser).data?.rank ?? 0;
   return (
     <RemoteRanking
-      title={
+      titleComponent={
         <>
           Streak Ranking{" "}
           <Badge pill id="streakRankingTooltip">
@@ -19,8 +23,9 @@ export const StreakRanking = () => {
         </>
       }
       rankingSize={1000}
-      getRanking={useStreakRanking}
-      getUserRank={useUserStreakRank}
+      ranking={ranking}
+      firstRankOnPage={firstRankOnPage}
+      onChangeRange={setRange}
     />
   );
 };
