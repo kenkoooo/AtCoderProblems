@@ -1,9 +1,7 @@
 import React from "react";
 import { Row } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
-import { SWRResponse } from "swr";
 import { RankingEntry } from "../interfaces/RankingEntry";
-import { UserRankEntry } from "../interfaces/UserRankEntry";
 
 interface Props {
   title: React.ReactNode;
@@ -90,59 +88,76 @@ const refineRankingWithOffset = (
 ): InternalRankEntry[] =>
   ranking
     .sort((a, b) => b.problem_count - a.problem_count)
-    .reduce((array, entry, index) => {
-      const last = array.length === 0 ? undefined : array[array.length - 1];
-      let rank;
-      if (array.length === 0) {
-        rank = firstRankOnPage + 1;
-      } else if (last && last.count === entry.problem_count) {
-        rank = last.rank;
-      } else {
-        rank = index + offset + 1;
-      }
-      const nextEntry = {
-        rank: rank,
-        id: entry.user_id,
-        count: entry.problem_count,
+    .reduce((array, rankingEntry, index) => {
+      const previous = array.length === 0 ? undefined : array[array.length - 1];
+      const entry = {
+        id: rankingEntry.user_id,
+        count: rankingEntry.problem_count,
       };
-      array.push(nextEntry);
+      if (!previous) {
+        array.push({
+          ...entry,
+          rank: firstRankOnPage + 1,
+        });
+      } else if (previous.count === rankingEntry.problem_count) {
+        array.push({
+          ...entry,
+          rank: previous.rank,
+        });
+      } else {
+        array.push({
+          ...entry,
+          rank: index + offset + 1,
+        });
+      }
       return array;
     }, [] as InternalRankEntry[]);
 
 interface RemoteProps {
-  title: React.ReactNode;
+  titleComponent: React.ReactNode;
   rankingSize: number;
-  getRanking: (
-    from: number,
-    to: number
-  ) => SWRResponse<RankingEntry[], undefined>;
-  getUserRank: (
-    user: string
-  ) => SWRResponse<UserRankEntry | undefined, undefined>;
+  ranking: RankingEntry[];
+  firstRankOnPage: number;
+  onChangeRange: (range: { from: number; to: number }) => void;
 }
-
+export const DEFAULT_RANKING_RANGE = { from: 0, to: 20 };
 export const RemoteRanking: React.FC<RemoteProps> = (props) => {
   const [page, setPage] = React.useState(1);
   const [sizePerPage, setSizePerPage] = React.useState(20);
+
+  const onPageChange = (newPage: number) => {
+    setPage(newPage);
+    props.onChangeRange({
+      from: (newPage - 1) * sizePerPage,
+      to: newPage * sizePerPage,
+    });
+  };
+  const onSizePerPageList = (newSizePerPage: number) => {
+    setSizePerPage(newSizePerPage);
+    props.onChangeRange({
+      from: (page - 1) * newSizePerPage,
+      to: page * newSizePerPage,
+    });
+  };
   const offset = (page - 1) * sizePerPage;
-  const data =
-    props.getRanking((page - 1) * sizePerPage, page * sizePerPage).data ?? [];
-  const firstUser = data.length === 0 ? "" : data[0].user_id;
-  const firstRankOnPage = props.getUserRank(firstUser).data?.rank ?? 0;
   return (
     <Row>
-      <h2>{props.title}</h2>
+      <h2>{props.titleComponent}</h2>
       <BootstrapTable
         height="auto"
-        data={refineRankingWithOffset(data, firstRankOnPage, offset)}
+        data={refineRankingWithOffset(
+          props.ranking,
+          props.firstRankOnPage,
+          offset
+        )}
         fetchInfo={{ dataTotalSize: props.rankingSize }}
         remote
         pagination
         striped
         hover
         options={{
-          onPageChange: setPage,
-          onSizePerPageList: setSizePerPage,
+          onPageChange: onPageChange,
+          onSizePerPageList: onSizePerPageList,
           page: page,
           sizePerPage: sizePerPage,
           paginationPosition: "top",
