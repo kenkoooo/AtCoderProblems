@@ -32,14 +32,16 @@ export const formatExcludeOption = (excludeOption: ExcludeOption): string => {
   }
 };
 
-export const isIncludedSolvedTIme = (
-  problemId: string,
+const getCurrentSecond = (): number => {
+  return Math.floor(new Date().getTime() / 1000);
+};
+
+export const isIncludedSolvedTime = (
   excludeOption: ExcludeOption,
-  currentSecond: number,
-  lastSolvedTimeMap: Map<ProblemId, number>,
-  submittedProblemIds: Set<ProblemId>
+  lastSolvedTime: number | undefined,
+  isSubmitted: boolean
 ): boolean => {
-  const lastSolvedTime = lastSolvedTimeMap.get(problemId);
+  const currentSecond = getCurrentSecond();
   if (lastSolvedTime) {
     const seconds = currentSecond - lastSolvedTime;
     switch (excludeOption) {
@@ -58,8 +60,6 @@ export const isIncludedSolvedTIme = (
         return true;
     }
   }
-
-  const isSubmitted = submittedProblemIds.has(problemId);
   if (excludeOption === "Exclude submitted") {
     return !isSubmitted;
   }

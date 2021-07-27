@@ -26,7 +26,7 @@ import {
   ExcludeOptions,
   formatExcludeOption,
   getLastSolvedTimeMap,
-  isIncludedSolvedTIme,
+  isIncludedSolvedTime,
 } from "../utils/LastSolvedTimeMap";
 import { isProblemModelWithDifficultyModel } from "../interfaces/ProblemModel";
 
@@ -96,7 +96,6 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
     useMultipleUserSubmissions(props.expectedParticipantUserIds).data ?? [];
   const alreadySolvedProblemIds = new Set(submissions.map((s) => s.problem_id));
   const lastSolvedTimeMap = getLastSolvedTimeMap(submissions);
-  const currentSecond = Math.floor(new Date().getTime() / 1000);
 
   return (
     <Form className={"w-100"}>
@@ -279,12 +278,10 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
               }
 
               candidateProblems = candidateProblems.filter((p) =>
-                isIncludedSolvedTIme(
-                  p.problem.id,
+                isIncludedSolvedTime(
                   excludeOption,
-                  currentSecond,
-                  lastSolvedTimeMap,
-                  alreadySolvedProblemIds
+                  lastSolvedTimeMap.get(p.problem.id),
+                  alreadySolvedProblemIds.has(p.problem.id)
                 )
               );
 
