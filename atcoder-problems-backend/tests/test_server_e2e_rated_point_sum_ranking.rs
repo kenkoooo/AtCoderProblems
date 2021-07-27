@@ -130,3 +130,73 @@ async fn test_rated_point_sum_ranking() {
 
     server.race(ready(())).await;
 }
+
+#[async_std::test]
+async fn test_users_rated_point_sum_ranking() {
+    let port = setup().await;
+    let server = task::spawn(async move {
+        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+            .await
+            .unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
+    });
+    task::sleep(std::time::Duration::from_millis(1000)).await;
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=u2",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+
+    assert_eq!(
+        response,
+        json!({
+            "count":2,
+            "rank":0
+        })
+    );
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=u1",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+
+    assert_eq!(
+        response,
+        json!({
+            "count":1,
+            "rank":1
+        })
+    );
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=u3",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+
+    assert_eq!(
+        response,
+        json!({
+            "count":1,
+            "rank":1
+        })
+    );
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=not_exist",
+        port,
+    ))
+    .send()
+    .await
+    .unwrap();
+
+    assert_eq!(response.status(), 404);
+}

@@ -112,6 +112,24 @@ async fn test_ac_ranking() {
         .unwrap();
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
+    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=U1", port))
+        .recv_json::<Value>()
+        .await
+        .unwrap();
+    assert_eq!(response, json!({"count": 1, "rank": 1}));
+
+    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=U2", port))
+        .recv_json::<Value>()
+        .await
+        .unwrap();
+    assert_eq!(response, json!({"count": 2, "rank": 0}));
+
+    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=U3", port))
+        .recv_json::<Value>()
+        .await
+        .unwrap();
+    assert_eq!(response, json!({"count": 1, "rank": 1}));
+
     let response = surf::get(url(
         "/atcoder-api/v3/user/ac_rank?user=does_not_exist",
         port,

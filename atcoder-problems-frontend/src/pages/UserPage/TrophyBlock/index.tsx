@@ -1,4 +1,4 @@
-import Octicon, { Verified } from "@primer/octicons-react";
+import { GoVerified } from "react-icons/go";
 import React, { useState } from "react";
 import { Table, Row, Col, ListGroup, ListGroupItem, Badge } from "reactstrap";
 import {
@@ -86,9 +86,7 @@ export const TrophyBlock: React.FC<OuterProps> = (props) => {
             <tbody>
               {filteredTrophies.map(({ sortId, title, reason, achieved }) => (
                 <tr key={sortId}>
-                  <th className="text-success">
-                    {achieved && <Octicon icon={Verified} />}
-                  </th>
+                  <th className="text-success">{achieved && <GoVerified />}</th>
                   <td>
                     <b>{achieved ? title : "???"}</b>
                   </td>
