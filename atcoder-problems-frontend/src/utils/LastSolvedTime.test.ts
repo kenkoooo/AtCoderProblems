@@ -1,4 +1,4 @@
-import { getLastSolvedTimeMap, isIncludedSolvedTime } from "./LastSolvedTime";
+import { getLastSolvedTimeMap } from "./LastSolvedTime";
 
 test("get last solved time map", () => {
   const submission1 = {
@@ -73,41 +73,4 @@ test("get last solved time map", () => {
   expect(map.get("problem1")).toBe(1);
   expect(map.has("problem2")).toBe(false);
   expect(map.get("problem3")).toBe(0);
-});
-
-test("is included solved time", () => {
-  const week = 3600 * 24 * 7;
-  const month = 3600 * 24 * 30;
-
-  // Exclude all solved
-  expect(isIncludedSolvedTime("Exclude", 6 * month + 1, undefined, true)).toBe(
-    true
-  );
-  expect(isIncludedSolvedTime("Exclude", 6 * month + 1, 1, true)).toBe(false);
-
-  // 1 week
-  expect(isIncludedSolvedTime("1 Week", 1 * week + 2, 1, true)).toBe(true);
-  expect(isIncludedSolvedTime("1 Week", 1 * week + 1, 1, true)).toBe(false);
-
-  // 2 weeks
-  expect(isIncludedSolvedTime("2 Weeks", 2 * week + 2, 1, true)).toBe(true);
-  expect(isIncludedSolvedTime("2 Weeks", 2 * week + 1, 1, true)).toBe(false);
-
-  // 4 weeks
-  expect(isIncludedSolvedTime("4 Weeks", 4 * week + 2, 1, true)).toBe(true);
-  expect(isIncludedSolvedTime("4 Weeks", 4 * week + 1, 1, true)).toBe(false);
-
-  // 6 months
-  expect(isIncludedSolvedTime("6 Months", 6 * month + 2, 1, true)).toBe(true);
-  expect(isIncludedSolvedTime("6 Months", 6 * month + 1, 1, true)).toBe(false);
-
-  // Exclude submitted
-  expect(isIncludedSolvedTime("Exclude submitted", 0, undefined, false)).toBe(
-    true
-  );
-  expect(isIncludedSolvedTime("Exclude submitted", 0, undefined, true)).toBe(
-    false
-  );
-  // Don't exclude
-  expect(isIncludedSolvedTime("Don't exclude", 0, undefined, false)).toBe(true);
 });

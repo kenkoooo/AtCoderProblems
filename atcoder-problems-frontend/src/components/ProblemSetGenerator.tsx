@@ -27,7 +27,7 @@ import {
   formatExcludeOption,
   getCurrentSecond,
   getLastSolvedTimeMap,
-  isIncludedSolvedTime,
+  getMaximumExcludeElapsedSecond,
 } from "../utils/LastSolvedTime";
 import { isProblemModelWithDifficultyModel } from "../interfaces/ProblemModel";
 
@@ -278,14 +278,18 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
                 });
               }
 
-              candidateProblems = candidateProblems.filter((p) =>
-                isIncludedSolvedTime(
-                  excludeOption,
-                  getCurrentSecond(),
-                  lastSolvedTimeMap.get(p.problem.id),
-                  alreadySolvedProblemIds.has(p.problem.id)
-                )
-              );
+              candidateProblems = candidateProblems.filter((p) => {
+                if (excludeOption === "Exclude submitted") {
+                  return !alreadySolvedProblemIds.has(p.problem.id);
+                }
+                const lastSolvedTime = lastSolvedTimeMap.get(p.problem.id);
+                const elapsedSecond = lastSolvedTime
+                  ? getCurrentSecond() - lastSolvedTime
+                  : Number.MAX_SAFE_INTEGER;
+                return (
+                  getMaximumExcludeElapsedSecond(excludeOption) < elapsedSecond
+                );
+              });
 
               candidateProblems = shuffleArray(candidateProblems);
 

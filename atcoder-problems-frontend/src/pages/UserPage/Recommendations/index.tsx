@@ -32,7 +32,7 @@ import {
   ExcludeOption,
   getCurrentSecond,
   getLastSolvedTimeMap,
-  isIncludedSolvedTime,
+  getMaximumExcludeElapsedSecond,
 } from "../../../utils/LastSolvedTime";
 import { recommendProblems } from "./RecommendProblems";
 import { RecommendController, RecommendOption } from "./RecommendController";
@@ -95,13 +95,16 @@ export const Recommendations = (props: Props) => {
 
   const filteredRecommendedProblems = recommendProblems(
     problems,
-    (problemId: ProblemId) =>
-      isIncludedSolvedTime(
-        excludeOption,
-        getCurrentSecond(),
-        lastSolvedTimeMap.get(problemId),
-        submittedSet.has(problemId)
-      ),
+    (problemId: ProblemId) => {
+      if (excludeOption === "Exclude submitted") {
+        return !submittedSet.has(problemId);
+      }
+      const lastSolvedTime = lastSolvedTimeMap.get(problemId);
+      const elapsedSecond = lastSolvedTime
+        ? getCurrentSecond() - lastSolvedTime
+        : Number.MAX_SAFE_INTEGER;
+      return getMaximumExcludeElapsedSecond(excludeOption) < elapsedSecond;
+    },
     (problemId: ProblemId) => problemModels?.get(problemId),
     recommendExperimental,
     userRatingInfo.internalRating,

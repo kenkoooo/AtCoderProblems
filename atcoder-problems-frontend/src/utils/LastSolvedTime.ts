@@ -36,34 +36,23 @@ export const getCurrentSecond = (): number => {
   return Math.floor(new Date().getTime() / 1000);
 };
 
-export const isIncludedSolvedTime = (
-  excludeOption: ExcludeOption,
-  currentSecond: number,
-  lastSolvedTime: number | undefined,
-  isSubmitted: boolean
-): boolean => {
-  if (typeof lastSolvedTime !== "undefined") {
-    const seconds = currentSecond - lastSolvedTime;
-    switch (excludeOption) {
-      case "Exclude":
-      case "Exclude submitted":
-        return false;
-      case "1 Week":
-        return seconds > 3600 * 24 * 7;
-      case "2 Weeks":
-        return seconds > 3600 * 24 * 14;
-      case "4 Weeks":
-        return seconds > 3600 * 24 * 28;
-      case "6 Months":
-        return seconds > 3600 * 24 * 180;
-      case "Don't exclude":
-        return true;
-    }
+export const getMaximumExcludeElapsedSecond = (
+  excludeOption: Exclude<ExcludeOption, "Exclude submitted">
+) => {
+  switch (excludeOption) {
+    case "Exclude":
+      return Number.MAX_SAFE_INTEGER - 1;
+    case "1 Week":
+      return 3600 * 24 * 7;
+    case "2 Weeks":
+      return 3600 * 24 * 14;
+    case "4 Weeks":
+      return 3600 * 24 * 28;
+    case "6 Months":
+      return 3600 * 24 * 180;
+    case "Don't exclude":
+      return 0;
   }
-  if (excludeOption === "Exclude submitted") {
-    return !isSubmitted;
-  }
-  return true;
 };
 
 export const getLastSolvedTimeMap = (userSubmissions: Submission[]) => {
