@@ -37,6 +37,12 @@ If you intend to use your own instance of backend, consult the [backend document
 yarn build
 ```
 
+## Run unit test
+
+```bash
+yarn test
+```
+
 ## Run end-to-end test
 
 ```bash
