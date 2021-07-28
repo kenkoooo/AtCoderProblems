@@ -8,7 +8,7 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from "reactstrap";
-import { formatExcludeOption } from "../../../utils/LastSolvedTimeMap";
+import { formatExcludeOption } from "../../../utils/LastSolvedTime";
 
 const RECOMMEND_NUM_OPTIONS = [
   {

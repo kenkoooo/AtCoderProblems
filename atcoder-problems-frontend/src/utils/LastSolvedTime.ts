@@ -32,17 +32,17 @@ export const formatExcludeOption = (excludeOption: ExcludeOption): string => {
   }
 };
 
-const getCurrentSecond = (): number => {
+export const getCurrentSecond = (): number => {
   return Math.floor(new Date().getTime() / 1000);
 };
 
 export const isIncludedSolvedTime = (
   excludeOption: ExcludeOption,
+  currentSecond: number,
   lastSolvedTime: number | undefined,
   isSubmitted: boolean
 ): boolean => {
-  const currentSecond = getCurrentSecond();
-  if (lastSolvedTime) {
+  if (typeof lastSolvedTime !== "undefined") {
     const seconds = currentSecond - lastSolvedTime;
     switch (excludeOption) {
       case "Exclude":

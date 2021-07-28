@@ -30,9 +30,10 @@ import {
 } from "../../../utils/ProblemSelection";
 import {
   ExcludeOption,
+  getCurrentSecond,
   getLastSolvedTimeMap,
   isIncludedSolvedTime,
-} from "../../../utils/LastSolvedTimeMap";
+} from "../../../utils/LastSolvedTime";
 import { recommendProblems } from "./RecommendProblems";
 import { RecommendController, RecommendOption } from "./RecommendController";
 
@@ -97,6 +98,7 @@ export const Recommendations = (props: Props) => {
     (problemId: ProblemId) =>
       isIncludedSolvedTime(
         excludeOption,
+        getCurrentSecond(),
         lastSolvedTimeMap.get(problemId),
         submittedSet.has(problemId)
       ),

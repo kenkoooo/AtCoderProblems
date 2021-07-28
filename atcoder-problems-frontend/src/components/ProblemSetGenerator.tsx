@@ -25,9 +25,10 @@ import {
   ExcludeOption,
   ExcludeOptions,
   formatExcludeOption,
+  getCurrentSecond,
   getLastSolvedTimeMap,
   isIncludedSolvedTime,
-} from "../utils/LastSolvedTimeMap";
+} from "../utils/LastSolvedTime";
 import { isProblemModelWithDifficultyModel } from "../interfaces/ProblemModel";
 
 interface Props {
@@ -280,6 +281,7 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
               candidateProblems = candidateProblems.filter((p) =>
                 isIncludedSolvedTime(
                   excludeOption,
+                  getCurrentSecond(),
                   lastSolvedTimeMap.get(p.problem.id),
                   alreadySolvedProblemIds.has(p.problem.id)
                 )
