@@ -20,11 +20,11 @@ const OneOwner: React.FC<OneOwnerProps> = (props) => {
         <h1>{props.language}</h1>
       </Row>
       <Row>
-        {ranking.map(({ user_id, problem_count }, rank) => (
+        {ranking.map(({ user_id, count }, rank) => (
           <Col key={user_id} className="text-center">
             <h5>{`${rank + 1}${ordinalSuffixOf(rank + 1)}`}</h5>
             <h3>{user_id}</h3>
-            <h5 className="text-muted">{problem_count} AC</h5>
+            <h5 className="text-muted">{count} AC</h5>
           </Col>
         ))}
       </Row>

@@ -5,10 +5,9 @@ import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import {
-  isRankingEntryV3,
+  isRankingEntry,
   isSumRankingEntry,
   RankingEntry,
-  RankingEntryV3,
   SumRankingEntry,
 } from "../interfaces/RankingEntry";
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
@@ -37,9 +36,9 @@ const generateRanking = (
     }, new Map<string, number>());
 
   return Array.from(countByUser.entries()).map(
-    ([user_id, problem_count]): RankingEntry => ({
+    ([user_id, count]): RankingEntry => ({
       user_id,
-      problem_count,
+      count,
     })
   );
 };
@@ -66,16 +65,9 @@ function fetchTypedArray<T>(
 
 const useRankingV3 = (url: string) => {
   return useSWRData(url, (url) =>
-    fetchTypedArray<RankingEntryV3>(url, isRankingEntryV3)
-      .then((ranking) =>
-        ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
-      )
-      .then((ranking) =>
-        ranking.map((entry) => ({
-          problem_count: entry.count,
-          user_id: entry.user_id,
-        }))
-      )
+    fetchTypedArray<RankingEntry>(url, isRankingEntry).then((ranking) =>
+      ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
+    )
   );
 };
 
@@ -116,7 +108,7 @@ export const useSumRanking = (from: number, to: number) => {
       )
       .then((ranking) =>
         ranking.map((entry) => ({
-          problem_count: entry.point_sum,
+          count: entry.point_sum,
           user_id: entry.user_id,
         }))
       )

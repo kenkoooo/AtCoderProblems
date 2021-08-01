@@ -1,20 +1,11 @@
 import { hasPropertyAsType, isNumber, isString } from "../utils/TypeUtils";
 
 export interface RankingEntry {
-  readonly problem_count: number;
-  readonly user_id: string;
-}
-
-export const isRankingEntry = (obj: unknown): obj is RankingEntry =>
-  hasPropertyAsType(obj, "problem_count", isNumber) &&
-  hasPropertyAsType(obj, "user_id", isString);
-
-export interface RankingEntryV3 {
   readonly count: number;
   readonly user_id: string;
 }
 
-export const isRankingEntryV3 = (obj: unknown): obj is RankingEntryV3 =>
+export const isRankingEntry = (obj: unknown): obj is RankingEntry =>
   hasPropertyAsType(obj, "count", isNumber) &&
   hasPropertyAsType(obj, "user_id", isString);
 
