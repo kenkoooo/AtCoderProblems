@@ -21,6 +21,14 @@ import {
 } from "../api/APIClient";
 import Problem from "../interfaces/Problem";
 import { shuffleArray } from "../utils";
+import {
+  ExcludeOption,
+  ExcludeOptions,
+  formatExcludeOption,
+  getCurrentSecond,
+  getLastSolvedTimeMap,
+  getMaximumExcludeElapsedSecond,
+} from "../utils/LastSolvedTime";
 import { isProblemModelWithDifficultyModel } from "../interfaces/ProblemModel";
 
 interface Props {
@@ -75,21 +83,20 @@ const AGC_PRESET: ProblemSetSelectionPreset = {
     { minDifficulty: 2800, maxDifficulty: 9999 },
   ],
 };
+
 export const ProblemSetGenerator: React.FC<Props> = (props) => {
   const [problemSelectionParamsList, setProblemSelectionParamsList] = useState(
     ABC_PRESET.problemSelectionParams
   );
   const [excludeExperimental, setExcludeExperimental] = useState(false);
-  const [
-    excludeAlreadySolvedProblems,
-    setExcludeAlreadySolvedProblems,
-  ] = useState(true);
+  const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
   const [selectedPreset, setSelectedPreset] = useState(ABC_PRESET);
   const problems = useProblems() ?? [];
   const problemModels = useProblemModelMap();
   const submissions =
     useMultipleUserSubmissions(props.expectedParticipantUserIds).data ?? [];
   const alreadySolvedProblemIds = new Set(submissions.map((s) => s.problem_id));
+  const lastSolvedTimeMap = getLastSolvedTimeMap(submissions);
 
   return (
     <Form className={"w-100"}>
@@ -114,24 +121,24 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
         </Col>
       </FormGroup>
       <FormGroup row>
-        <Col>
+        <Col sm={6}>
           <InputGroup>
-            <InputGroupAddon addonType="prepend">
-              <InputGroupText>
-                <Input
-                  addon
-                  type="checkbox"
-                  aria-label="Exclude already solved problems by expected participants"
-                  checked={excludeAlreadySolvedProblems}
-                  onChange={(event): void =>
-                    setExcludeAlreadySolvedProblems(event.target.checked)
-                  }
-                />
-              </InputGroupText>
-            </InputGroupAddon>
-            <InputGroupText>
-              Exclude already solved problems by expected participants
-            </InputGroupText>
+            <UncontrolledDropdown>
+              <DropdownToggle caret>
+                {formatExcludeOption(excludeOption) +
+                  " by expected participants"}
+              </DropdownToggle>
+              <DropdownMenu>
+                {ExcludeOptions.map((option) => (
+                  <DropdownItem
+                    key={option}
+                    onClick={(): void => setExcludeOption(option)}
+                  >
+                    {formatExcludeOption(option) + " by expected participants"}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </UncontrolledDropdown>
           </InputGroup>
         </Col>
       </FormGroup>
@@ -271,11 +278,18 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
                 });
               }
 
-              if (excludeAlreadySolvedProblems) {
-                candidateProblems = candidateProblems.filter(
-                  (p) => !alreadySolvedProblemIds.has(p.problem.id)
+              candidateProblems = candidateProblems.filter((p) => {
+                if (excludeOption === "Exclude submitted") {
+                  return !alreadySolvedProblemIds.has(p.problem.id);
+                }
+                const lastSolvedTime = lastSolvedTimeMap.get(p.problem.id);
+                const elapsedSecond = lastSolvedTime
+                  ? getCurrentSecond() - lastSolvedTime
+                  : Number.MAX_SAFE_INTEGER;
+                return (
+                  getMaximumExcludeElapsedSecond(excludeOption) < elapsedSecond
                 );
-              }
+              });
 
               candidateProblems = shuffleArray(candidateProblems);
 

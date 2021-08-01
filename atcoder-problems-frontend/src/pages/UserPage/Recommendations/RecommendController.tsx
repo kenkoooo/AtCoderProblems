@@ -8,6 +8,7 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from "reactstrap";
+import { formatExcludeOption } from "../../../utils/LastSolvedTime";
 
 const RECOMMEND_NUM_OPTIONS = [
   {
@@ -43,25 +44,6 @@ const ExcludeOptions = [
   "Don't exclude",
 ] as const;
 export type ExcludeOption = typeof ExcludeOptions[number];
-
-const formatExcludeOption = (excludeOption: ExcludeOption): string => {
-  switch (excludeOption) {
-    case "1 Week":
-      return "Exclude problems solved in last 7 days.";
-    case "2 Weeks":
-      return "Exclude problems solved in last 2 weeks.";
-    case "4 Weeks":
-      return "Exclude problems solved in last 4 weeks";
-    case "6 Months":
-      return "Exclude problems solved in last 6 months";
-    case "Exclude":
-      return "Exclude all the solved problems";
-    case "Don't exclude":
-      return "Don't exclude solved problems.";
-    case "Exclude submitted":
-      return "Exclude all the submitted problems";
-  }
-};
 
 interface Props {
   recommendOption: RecommendOption;
