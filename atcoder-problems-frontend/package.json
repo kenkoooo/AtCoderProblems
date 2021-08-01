@@ -47,7 +47,6 @@
     "bootstrap": "4.3.1",
     "immutable": "4.0.0-rc.12",
     "moment": "2.24.0",
-    "node-sass": "4.14.1",
     "random": "2.2.0",
     "react": "17.0.1",
     "react-beautiful-dnd": "13.1.0",
@@ -61,6 +60,7 @@
     "react-scripts": "4.0.1",
     "reactstrap": "8.2.0",
     "recharts": "2.0.0-beta.1",
+    "sass": "1.37.0",
     "swr": "0.5.3"
   },
   "devDependencies": {
