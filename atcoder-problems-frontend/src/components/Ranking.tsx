@@ -16,20 +16,20 @@ interface InternalRankEntry {
 
 const refineRanking = (ranking: RankingEntry[]): InternalRankEntry[] =>
   ranking
-    .sort((a, b) => b.problem_count - a.problem_count)
+    .sort((a, b) => b.count - a.count)
     .reduce((array, entry, index) => {
       const last = array.length === 0 ? undefined : array[array.length - 1];
       const nextEntry =
-        last && last.count === entry.problem_count
+        last && last.count === entry.count
           ? {
               rank: last.rank,
               id: entry.user_id,
-              count: entry.problem_count,
+              count: entry.count,
             }
           : {
               rank: index + 1,
               id: entry.user_id,
-              count: entry.problem_count,
+              count: entry.count,
             };
       array.push(nextEntry);
       return array;
@@ -87,19 +87,19 @@ const refineRankingWithOffset = (
   offset: number
 ): InternalRankEntry[] =>
   ranking
-    .sort((a, b) => b.problem_count - a.problem_count)
+    .sort((a, b) => b.count - a.count)
     .reduce((array, rankingEntry, index) => {
       const previous = array.length === 0 ? undefined : array[array.length - 1];
       const entry = {
         id: rankingEntry.user_id,
-        count: rankingEntry.problem_count,
+        count: rankingEntry.count,
       };
       if (!previous) {
         array.push({
           ...entry,
           rank: firstRankOnPage + 1,
         });
-      } else if (previous.count === rankingEntry.problem_count) {
+      } else if (previous.count === rankingEntry.count) {
         array.push({
           ...entry,
           rank: previous.rank,

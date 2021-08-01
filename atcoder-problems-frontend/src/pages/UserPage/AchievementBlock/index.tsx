@@ -9,7 +9,7 @@ import {
   useProblemModelMap,
   useShortRanking,
   useUserStreakRank,
-  useSumRanking,
+  useUserSumRank,
   useUserSubmission,
 } from "../../../api/APIClient";
 import {
@@ -37,11 +37,11 @@ const findFromRanking = (
   count: number;
 } => {
   const entry = ranking
-    .sort((a, b) => b.problem_count - a.problem_count)
+    .sort((a, b) => b.count - a.count)
     .find((r) => caseInsensitiveUserId(r.user_id) === userId);
   if (entry) {
-    const count = entry.problem_count;
-    const rank = ranking.filter((e) => e.problem_count > count).length;
+    const count = entry.count;
+    const rank = ranking.filter((e) => e.count > count).length;
     return { rank, count };
   } else {
     return { rank: ranking.length, count: 0 };
@@ -95,10 +95,8 @@ export const AchievementBlock: React.FC<Props> = (props) => {
     (sum, point) => sum + point,
     0
   );
-  const { data: sumRanking } = useSumRanking();
-  const sumRank = sumRanking
-    ? sumRanking.filter((entry) => entry.problem_count > ratedPointSum).length
-    : undefined;
+  const sumRankEntry = useUserSumRank(props.userId);
+  const sumRank = sumRankEntry.data?.rank;
 
   const achievements = [
     {

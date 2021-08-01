@@ -5,10 +5,10 @@ import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
 import {
-  isRankingEntryV3,
+  isRankingEntry,
   isSumRankingEntry,
   RankingEntry,
-  RankingEntryV3,
+  SumRankingEntry,
 } from "../interfaces/RankingEntry";
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
@@ -36,9 +36,9 @@ const generateRanking = (
     }, new Map<string, number>());
 
   return Array.from(countByUser.entries()).map(
-    ([user_id, problem_count]): RankingEntry => ({
+    ([user_id, count]): RankingEntry => ({
       user_id,
-      problem_count,
+      count,
     })
   );
 };
@@ -65,16 +65,9 @@ function fetchTypedArray<T>(
 
 const useRankingV3 = (url: string) => {
   return useSWRData(url, (url) =>
-    fetchTypedArray<RankingEntryV3>(url, isRankingEntryV3)
-      .then((ranking) =>
-        ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
-      )
-      .then((ranking) =>
-        ranking.map((entry) => ({
-          problem_count: entry.count,
-          user_id: entry.user_id,
-        }))
-      )
+    fetchTypedArray<RankingEntry>(url, isRankingEntry).then((ranking) =>
+      ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
+    )
   );
 };
 
@@ -106,19 +99,28 @@ export const useUserStreakRank = (user: string) => {
   );
 };
 
-export const useSumRanking = () => {
-  const url = STATIC_API_BASE_URL + "/sums.json";
-  return useSWRData<RankingEntry[]>(url, (url) =>
-    fetchTypedArray(url, isSumRankingEntry)
-      .then((x) =>
-        x.map((r) => ({
-          problem_count: r.point_sum,
-          user_id: r.user_id,
-        }))
-      )
+export const useSumRanking = (from: number, to: number) => {
+  const url = `${ATCODER_API_URL}/v3/rated_point_sum_ranking?from=${from}&to=${to}`;
+  return useSWRData(url, (url) =>
+    fetchTypedArray<SumRankingEntry>(url, isSumRankingEntry)
       .then((ranking) =>
         ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
       )
+      .then((ranking) =>
+        ranking.map((entry) => ({
+          count: entry.point_sum,
+          user_id: entry.user_id,
+        }))
+      )
+  );
+};
+
+export const useUserSumRank = (user: string) => {
+  const url = `${ATCODER_API_URL}/v3/user/rated_point_sum_rank?user=${encodeURIComponent(
+    user
+  )}`;
+  return useSWRData(url, (url) =>
+    fetchTypedValue<UserRankEntry>(url, isUserRankEntry)
   );
 };
 
