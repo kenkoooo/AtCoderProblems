@@ -13,7 +13,7 @@ import {
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
-import { clipDifficulty, isValidResult, isVJudgeOrLuogu } from "../utils";
+import { clipDifficulty, isValidResult } from "../utils";
 import { ratingInfoOf } from "../utils/RatingInfo";
 import { hasPropertyAsType, isString } from "../utils/TypeUtils";
 import { useSWRData } from "./index";
@@ -64,10 +64,8 @@ function fetchTypedArray<T>(
 }
 
 const useRankingV3 = (url: string) => {
-  return useSWRData(url, (url) =>
-    fetchTypedArray<RankingEntry>(url, isRankingEntry).then((ranking) =>
-      ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
-    )
+  return useSWRData(url, (u) =>
+    fetchTypedArray<RankingEntry>(u, isRankingEntry)
   );
 };
 
@@ -100,19 +98,18 @@ export const useUserStreakRank = (user: string) => {
 };
 
 export const useSumRanking = (from: number, to: number) => {
+  const fetcher = async (url: string) => {
+    const ranking = await fetchTypedArray<SumRankingEntry>(
+      url,
+      isSumRankingEntry
+    );
+    return ranking.map((entry) => ({
+      count: entry.point_sum,
+      user_id: entry.user_id,
+    }));
+  };
   const url = `${ATCODER_API_URL}/v3/rated_point_sum_ranking?from=${from}&to=${to}`;
-  return useSWRData(url, (url) =>
-    fetchTypedArray<SumRankingEntry>(url, isSumRankingEntry)
-      .then((ranking) =>
-        ranking.filter((entry) => !isVJudgeOrLuogu(entry.user_id))
-      )
-      .then((ranking) =>
-        ranking.map((entry) => ({
-          count: entry.point_sum,
-          user_id: entry.user_id,
-        }))
-      )
-  );
+  return useSWRData(url, fetcher);
 };
 
 export const useUserSumRank = (user: string) => {

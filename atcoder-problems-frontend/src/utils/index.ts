@@ -31,10 +31,6 @@ export const isValidResult = (result: string): boolean =>
     result
   );
 
-export const isVJudgeOrLuogu = (userId: string): boolean => {
-  return !!/^(vjudge\d|luogu_bot\d)$/.exec(userId);
-};
-
 export const ordinalSuffixOf = (i: number): "st" | "nd" | "rd" | "th" => {
   const j = i % 10;
   const k = i % 100;
