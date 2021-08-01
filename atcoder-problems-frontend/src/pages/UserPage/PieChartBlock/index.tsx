@@ -50,6 +50,12 @@ const solvedCountForPieChart = (
       case "F2": {
         return 5;
       }
+      case "G": {
+        return 6;
+      }
+      case "H": {
+        return 7;
+      }
       default: {
         // tslint:disable-next-line
         console.error(`Unsupported problemTitle: ${problemTitle}`);
@@ -90,9 +96,9 @@ const solvedCountForPieChart = (
         return count;
       },
       {
-        [SubmissionStatus.TRYING]: [0, 0, 0, 0, 0, 0],
-        [SubmissionStatus.REJECTED]: [0, 0, 0, 0, 0, 0],
-        [SubmissionStatus.ACCEPTED]: [0, 0, 0, 0, 0, 0],
+        [SubmissionStatus.TRYING]: [0, 0, 0, 0, 0, 0, 0, 0],
+        [SubmissionStatus.REJECTED]: [0, 0, 0, 0, 0, 0, 0, 0],
+        [SubmissionStatus.ACCEPTED]: [0, 0, 0, 0, 0, 0, 0, 0],
       }
     );
   const totalCount = contestToProblems
@@ -109,7 +115,7 @@ const solvedCountForPieChart = (
         count[position] += 1;
         return count;
       },
-      [0, 0, 0, 0, 0, 0]
+      [0, 0, 0, 0, 0, 0, 0, 0]
     );
   return totalCount
     .map((total, index) => ({
@@ -179,13 +185,13 @@ const PieCharts: React.FC<PieChartsProps> = ({ problems, title }) => (
     </Row>
     <Row className="my-3">
       {problems.map(({ solved, rejected, total }, i) => {
-        const key = "ABCDEF".charAt(i);
+        const key = "ABCDEFGH".charAt(i);
         return (
           <Col
             key={key}
             className="text-center"
             xs="6"
-            md={12 / problems.length}
+            md={Math.ceil(12 / problems.length)}
           >
             <SmallPieChart
               accepted={solved}
