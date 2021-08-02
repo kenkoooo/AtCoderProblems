@@ -9,13 +9,6 @@ export const fetchRecentSubmissions = (): Promise<Submission[]> => {
     .then((r: unknown[]) => r.filter(isSubmission));
 };
 
-export const fetchUserSubmissions = (user: string): Promise<Submission[]> =>
-  user.length > 0
-    ? fetch(`${ATCODER_API_URL}/results?user=${user}`)
-        .then((r) => r.json())
-        .then((r: unknown[]) => r.filter(isSubmission))
-    : Promise.resolve([]);
-
 export const fetchPartialUserSubmissions = async (
   userId: UserId,
   fromSecond: number
