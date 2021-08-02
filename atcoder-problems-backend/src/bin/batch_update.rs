@@ -1,4 +1,4 @@
-use atcoder_problems_backend::utils::init_log_config;
+use atcoder_problems_backend::utils::{init_log_config, Excluded_Users};
 use log::info;
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::initialize_pool;
@@ -24,6 +24,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("Loading submissions ...");
     let mut all_accepted_submissions: Vec<Submission> =
         conn.get_submissions(SubmissionRequest::AllAccepted).await?;
+
+    info!("Filter submission by user_id ...");
+    all_accepted_submissions = all_accepted_submissions
+        .into_iter()
+        .filter(|submission| !Excluded_Users.contains(&submission.user_id.as_str()))
+        .collect::<Vec<_>>();
 
     info!(
         "There are {} AC submissions.",
