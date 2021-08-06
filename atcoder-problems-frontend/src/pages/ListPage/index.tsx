@@ -1,21 +1,29 @@
 import React from "react";
 import { Row } from "reactstrap";
 import { useHistory, useLocation } from "react-router-dom";
-import { List } from "immutable";
-import { connect, PromiseState } from "react-refetch";
-import { useLoginState } from "../../api/InternalAPIClient";
-import Submission from "../../interfaces/Submission";
-import { fetchUserSubmissions } from "../../utils/Api";
-import { PROGRESS_RESET_LIST } from "../Internal/ApiUrl";
+import { useMultipleUserSubmissions } from "../../api/APIClient";
+import {
+  useLoginState,
+  useProgressResetList,
+} from "../../api/InternalAPIClient";
 import { loggedInUserId } from "../../utils/UserState";
-import { filterResetProgress, ProgressResetList } from "../Internal/types";
+import { filterResetProgress } from "../Internal/types";
 import { SmallTable } from "./SmallTable";
 import { DifficultyTable } from "./DifficultyTable";
 import { FilterParams, ProblemList } from "./ProblemList";
 
-const InnerListPage: React.FC<InnerProps> = (props) => {
+interface Props {
+  readonly userId: string;
+  readonly rivals: string[];
+}
+
+export const ListPage: React.FC<Props> = (props) => {
   const location = useLocation();
   const history = useHistory();
+
+  const users = [...props.rivals, props.userId];
+  const submissions = useMultipleUserSubmissions(users).data ?? [];
+  const progressReset = useProgressResetList().data;
 
   const setExactPointFilter = (point: number): void => {
     const params = new URLSearchParams(location.search);
@@ -30,16 +38,8 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     history.push({ ...location, search: params.toString() });
   };
 
-  const submissions = props.submissionsFetch.fulfilled
-    ? props.submissionsFetch.value
-    : [];
-
   const loginState = useLoginState().data;
   const loginUserId = loggedInUserId(loginState);
-  const progressReset =
-    props.progressResetList.fulfilled && props.progressResetList.value
-      ? props.progressResetList.value
-      : undefined;
   const filteredSubmissions =
     progressReset && loginUserId
       ? filterResetProgress(submissions, progressReset, loginUserId)
@@ -71,23 +71,3 @@ const InnerListPage: React.FC<InnerProps> = (props) => {
     </div>
   );
 };
-
-interface OuterProps {
-  readonly userId: string;
-  readonly rivals: List<string>;
-}
-
-interface InnerProps extends OuterProps {
-  readonly submissionsFetch: PromiseState<Submission[]>;
-  readonly progressResetList: PromiseState<ProgressResetList | null>;
-}
-
-export const ListPage = connect<OuterProps, InnerProps>((props) => ({
-  submissionsFetch: {
-    comparison: [props.userId, props.rivals],
-    value: Promise.all(
-      props.rivals.push(props.userId).map((id) => fetchUserSubmissions(id))
-    ).then((arrays: Submission[][]) => arrays.flatMap((array) => array)),
-  },
-  progressResetList: PROGRESS_RESET_LIST,
-}))(InnerListPage);

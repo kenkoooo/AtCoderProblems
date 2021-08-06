@@ -183,16 +183,16 @@ export const useUserSubmission = (user: string) => {
 };
 
 export const useMultipleUserSubmissions = (userIds: UserId[]) => {
-  const fetcher = async (urls: string[]) => {
-    const promises = urls.map((url) => fetchTypedArray(url, isSubmission));
+  const fetcher = async (users: UserId[]) => {
+    const promises = users.map((u) => fetchSubmissionsFromDatabaseAndServer(u));
     const arrays = await Promise.all(promises);
     return arrays.flat();
   };
-
-  const urls = userIds
-    .filter((userId) => userId.length > 0)
-    .map((userId) => `${ATCODER_API_URL}/results?user=${userId}`);
-  return useSWRData(urls.join(","), (urls) => fetcher(urls.split(",")));
+  const users = userIds.join(",");
+  return useSWRData(`multiple-user-submission ${users}`, (s) => {
+    const users = s.split(" ")[1];
+    return fetcher(users.split(","));
+  });
 };
 
 export const useContests = () => {

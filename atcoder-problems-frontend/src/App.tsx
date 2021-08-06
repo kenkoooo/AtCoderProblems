@@ -92,8 +92,8 @@ const App: React.FC = () => {
                     (userIds ?? "").split("/")[0]
                   );
                   const rivals = (userIds ?? "/").split("/");
-                  const rivalList = List(rivals)
-                    .skip(1)
+                  const rivalList = rivals
+                    .slice(1)
                     .filter((x) => x.length > 0)
                     .map((x) => caseInsensitiveUserId(x));
                   return <ListPage userId={userId} rivals={rivalList} />;
