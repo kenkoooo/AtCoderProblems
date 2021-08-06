@@ -1,3 +1,5 @@
+import { deleteDb } from "./common";
+
 describe("Table page", () => {
   // Remove & polyfill fetch with XmlHttpRequest to interrupt Ajax requests.
   // https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch#readme
@@ -7,23 +9,25 @@ describe("Table page", () => {
     const polyfillUrl = "https://unpkg.com/unfetch/dist/unfetch.umd.js";
 
     cy.request(polyfillUrl).then((response) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       polyfill = response.body;
     });
   });
 
   beforeEach(() => {
     cy.visit("", {
-      onBeforeLoad(win) {
-        delete win.fetch;
-        win.eval(polyfill);
-        win.fetch = win.unfetch;
+      onBeforeLoad(window) {
+        delete window.fetch;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        window.eval(polyfill);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        window.fetch = window.unfetch;
       },
     });
   });
 
   it("Without user", () => {
     cy.contains("AtCoder Beginner Contest");
-
     cy.contains("ABC167");
     cy.contains("A. Registration")
       .should("have.attr", "href")
@@ -33,21 +37,17 @@ describe("Table page", () => {
     );
     cy.get(".tooltip.show").should("contain", "Difficulty:");
 
-    Promise.all(
-      [
-        "ABC",
-        "ARC",
-        "AGC",
-        "ABC-Like",
-        "ARC-Like",
-        "AGC-Like",
-        "PAST",
-        "JOI",
-        "Marathon",
-        "Other Sponsored",
-        "Other Contests",
-      ].map((contestType) => cy.contains(contestType))
-    );
+    cy.contains("ABC");
+    cy.contains("ARC");
+    cy.contains("AGC");
+    cy.contains("ABC-Like");
+    cy.contains("ARC-Like");
+    cy.contains("AGC-Like");
+    cy.contains("PAST");
+    cy.contains("JOI");
+    cy.contains("Marathon");
+    cy.contains("Other Sponsored");
+    cy.contains("Other Contests");
 
     // Switch to ARC table
     cy.contains("ARC").click();
@@ -55,17 +55,30 @@ describe("Table page", () => {
     cy.contains("ARC001");
   });
 
-  it("When user type username, then problems are colored", () => {
+  it("When user type username, then problems are colored", async () => {
+    await deleteDb("user-submissions");
+    await deleteDb("rival-submissions");
+
     cy.server();
     cy.route(
       "GET",
-      "**/atcoder-api/results?user=user",
+      "**/atcoder-api/v3/user/submissions?user=user&from_second=0",
       "fixture:results/user.json"
     ).as("fetchUserResults");
     cy.route(
       "GET",
-      "**/atcoder-api/results?user=rival",
+      "**/atcoder-api/v3/user/submissions?user=user&from_second=1550253179",
+      "fixture:results/empty.json"
+    ).as("fetchUserResults");
+    cy.route(
+      "GET",
+      "**/atcoder-api/v3/user/submissions?user=rival&from_second=0",
       "fixture:results/rival.json"
+    ).as("fetchRivalResults");
+    cy.route(
+      "GET",
+      "**/atcoder-api/v3/user/submissions?user=rival&from_second=1522333698",
+      "fixture:results/empty.json"
     ).as("fetchRivalResults");
 
     // Enter username and see tables are highlighted.
