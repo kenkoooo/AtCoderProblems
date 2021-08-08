@@ -72,6 +72,7 @@ export const classifyContest = (contest: Contest): ContestCategory => {
     ) ||
     /(^future-meets-you-contest|^hokudai-hitachi)/.exec(contest.id) ||
     [
+      "stage0-2021",
       "caddi2019",
       "pakencamp-2019-day2",
       "kuronekoyamato-contest2019",
