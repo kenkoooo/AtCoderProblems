@@ -18,6 +18,7 @@ use crate::server::ranking::{
     get_ac_ranking, get_language_ranking, get_streak_ranking, get_users_ac_rank,
     get_users_language_rank, get_users_rated_point_sum_rank, get_users_streak_rank,
 };
+use crate::server::user_submissions::get_user_submission_count;
 use auth::get_token;
 use language_count::get_language_list;
 use middleware::LogMiddleware;
@@ -119,6 +120,7 @@ where
             api.at("/user").nest({
                 let mut api = tide::with_state(app_data.clone());
                 api.at("/submissions").get(get_user_submissions_from_time);
+                api.at("/submission_count").get(get_user_submission_count);
                 api.at("/ac_rank")
                     .get(ranking::user_rank(get_users_ac_rank));
                 api.at("/streak_rank")

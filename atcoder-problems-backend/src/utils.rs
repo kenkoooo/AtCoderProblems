@@ -3,7 +3,7 @@ use simple_logger::SimpleLogger;
 
 use anyhow::Result;
 
-pub const Excluded_Users: [&str; 17] = [
+pub const EXCLUDED_USERS: [&str; 17] = [
     "vjudge1",
     "vjudge2",
     "vjudge3",

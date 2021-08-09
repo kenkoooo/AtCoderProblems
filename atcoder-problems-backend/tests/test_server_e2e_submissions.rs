@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use atcoder_problems_backend::server::GitHubUserResponse;
 use atcoder_problems_backend::server::{run_server, Authentication};
 use rand::Rng;
+use serde_json::Value;
 use sql_client::models::Submission;
 use sql_client::PgPool;
 use tide::Result;
@@ -179,6 +180,41 @@ async fn test_time_submissions() {
         .unwrap();
     assert_eq!(submissions.len(), 2);
     assert!(submissions.iter().all(|s| s.epoch_second >= 100));
+
+    server.race(ready(())).await;
+}
+
+#[async_std::test]
+async fn test_submission_count() {
+    let port = setup().await;
+    let server = task::spawn(async move {
+        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+            .await
+            .unwrap();
+        run_server(pg_pool, MockAuth, port).await.unwrap();
+    });
+    task::sleep(std::time::Duration::from_millis(1000)).await;
+
+    let response: Value = surf::get(url(
+        r"/atcoder-api/v3/user/submission_count?user=u1&from_second=1&to_second=4",
+        port,
+    ))
+    .await
+    .unwrap()
+    .body_json()
+    .await
+    .unwrap();
+    assert_eq!(response["count"], serde_json::json!(3));
+    let response: Value = surf::get(url(
+        r"/atcoder-api/v3/user/submission_count?user=u1&from_second=1&to_second=3",
+        port,
+    ))
+    .await
+    .unwrap()
+    .body_json()
+    .await
+    .unwrap();
+    assert_eq!(response["count"], serde_json::json!(2));
 
     server.race(ready(())).await;
 }

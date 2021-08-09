@@ -65,6 +65,7 @@ mod tests {
     use async_trait::async_trait;
     use sql_client::models::{Contest, Problem, Submission};
     use sql_client::submission_client::SubmissionRequest;
+    use std::ops::Range;
 
     #[test]
     fn test_recent_crawler() {
@@ -104,6 +105,9 @@ mod tests {
             async fn update_submissions(&self, submissions: &[Submission]) -> Result<usize> {
                 assert_eq!(submissions.len(), 2);
                 Ok(2)
+            }
+            async fn get_user_submission_count(&self, _: &str, _: Range<i64>) -> Result<usize> {
+                unimplemented!()
             }
         }
         #[async_trait]

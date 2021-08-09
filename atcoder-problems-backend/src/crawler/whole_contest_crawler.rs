@@ -55,6 +55,7 @@ mod tests {
     use async_trait::async_trait;
     use sql_client::models::Submission;
     use sql_client::submission_client::SubmissionRequest;
+    use std::ops::Range;
 
     struct MockDB;
 
@@ -69,6 +70,9 @@ mod tests {
         }
 
         async fn count_stored_submissions(&self, _: &[i64]) -> Result<usize> {
+            unimplemented!()
+        }
+        async fn get_user_submission_count(&self, _: &str, _: Range<i64>) -> Result<usize> {
             unimplemented!()
         }
     }

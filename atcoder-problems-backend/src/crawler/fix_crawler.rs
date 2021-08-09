@@ -70,6 +70,7 @@ mod tests {
     use async_std::task::block_on;
     use async_trait::async_trait;
     use sql_client::models::Submission;
+    use std::ops::Range;
 
     const CURRENT_TIME: i64 = 100;
 
@@ -107,6 +108,10 @@ mod tests {
         }
         async fn update_submissions(&self, _: &[Submission]) -> Result<usize> {
             Ok(0)
+        }
+
+        async fn get_user_submission_count(&self, _: &str, _: Range<i64>) -> Result<usize> {
+            unimplemented!()
         }
     }
 
