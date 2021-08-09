@@ -1,4 +1,4 @@
-use atcoder_problems_backend::utils::{init_log_config, Excluded_Users};
+use atcoder_problems_backend::utils::{init_log_config, EXCLUDED_USERS};
 use log::{self, info};
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::initialize_pool;
@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("Filter submission by user_id ...");
     let recent_submissions = recent_submissions
         .into_iter()
-        .filter(|submission| !Excluded_Users.contains(&submission.user_id.as_str()))
+        .filter(|submission| !EXCLUDED_USERS.contains(&submission.user_id.as_str()))
         .collect::<Vec<_>>();
 
     let user_ids = recent_submissions

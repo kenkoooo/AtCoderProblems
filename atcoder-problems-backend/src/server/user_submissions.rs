@@ -1,5 +1,5 @@
 use crate::server::{AppData, CommonResponse};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 use tide::http::headers::CACHE_CONTROL;
 use tide::{Request, Response, Result};
@@ -41,6 +41,29 @@ pub(crate) async fn get_user_submissions_from_time<A>(
         })
         .await?;
     let response = Response::json(&submissions)?.make_cors();
+    Ok(response)
+}
+
+pub(crate) async fn get_user_submission_count<A>(request: Request<AppData<A>>) -> Result<Response> {
+    #[derive(Deserialize, Debug)]
+    struct Query {
+        user: String,
+        from_second: i64,
+        to_second: i64,
+    }
+
+    let conn = request.state().pg_pool.clone();
+    let query = request.query::<Query>()?;
+    let user_id = query.user;
+    let range = query.from_second..query.to_second;
+    let count = conn.get_user_submission_count(&user_id, range).await?;
+
+    #[derive(Serialize, Debug)]
+    struct UserSubmissionCountResponse {
+        count: usize,
+    }
+    let response = UserSubmissionCountResponse { count };
+    let response = Response::json(&response)?.make_cors();
     Ok(response)
 }
 

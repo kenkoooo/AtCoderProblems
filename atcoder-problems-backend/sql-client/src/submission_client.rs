@@ -1,7 +1,9 @@
 use crate::models::Submission;
-use crate::PgPool;
+use crate::{PgPool, PgRow};
 use anyhow::Result;
 use async_trait::async_trait;
+use sqlx::Row;
+use std::ops::Range;
 
 const SUBMISSION_LIMIT: i64 = 10000;
 
@@ -52,6 +54,8 @@ pub trait SubmissionClient {
             .await?;
         Ok(submissions.len())
     }
+
+    async fn get_user_submission_count(&self, user_id: &str, range: Range<i64>) -> Result<usize>;
 }
 
 #[async_trait]
@@ -288,5 +292,23 @@ impl SubmissionClient for PgPool {
         .execute(self)
         .await?;
         Ok(count.rows_affected() as usize)
+    }
+
+    async fn get_user_submission_count(&self, user_id: &str, range: Range<i64>) -> Result<usize> {
+        let count = sqlx::query(
+            r"
+            SELECT COUNT(*) AS c FROM submissions
+            WHERE LOWER(user_id) = LOWER($1)
+            AND epoch_second >= $2
+            AND epoch_second < $3
+        ",
+        )
+        .bind(user_id)
+        .bind(range.start)
+        .bind(range.end)
+        .try_map(|row: PgRow| row.try_get::<i64, _>("c"))
+        .fetch_one(self)
+        .await?;
+        Ok(count as usize)
     }
 }
