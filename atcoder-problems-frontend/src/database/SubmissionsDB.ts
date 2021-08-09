@@ -4,6 +4,7 @@ import { fetchPartialUserSubmissions } from "../utils/Api";
 import { loadAllData, openDatabase, saveData } from "./index";
 
 const OBJECT_STORE = "submissions";
+const ALWAYS_FETCH_INTERVAL = 3600 * 24 * 2;
 
 const openSubmissionDatabase = async (userId: UserId) => {
   try {
@@ -54,10 +55,12 @@ export const fetchSubmissionsFromDatabaseAndServer = async (userId: UserId) => {
 
   console.log(`Loaded ${submissions.length} submissions from DB`);
   submissions.sort((a, b) => a.id - b.id);
-  const fromSecond =
+
+  const lastSecond =
     submissions.length > 0
-      ? submissions[submissions.length - 1].epoch_second - 3600
-      : 0;
+      ? submissions[submissions.length - 1].epoch_second
+      : undefined;
+  const fromSecond = lastSecond ? lastSecond - ALWAYS_FETCH_INTERVAL : 0;
 
   const newSubmissions = await fetchNewSubmissions(userId, fromSecond);
   console.log(`Saving ${newSubmissions.length} new submissions`);
