@@ -1,6 +1,9 @@
 import { UserId } from "../interfaces/Status";
 import Submission from "../interfaces/Submission";
-import { fetchPartialUserSubmissions } from "../utils/Api";
+import {
+  fetchPartialUserSubmissions,
+  fetchUserSubmissionCount,
+} from "../utils/Api";
 import { loadAllData, openDatabase, saveData } from "./index";
 
 const OBJECT_STORE = "submissions";
@@ -62,7 +65,19 @@ export const fetchSubmissionsFromDatabaseAndServer = async (userId: UserId) => {
       : undefined;
   const fromSecond = lastSecond ? lastSecond - ALWAYS_FETCH_INTERVAL : 0;
 
-  const newSubmissions = await fetchNewSubmissions(userId, fromSecond);
+  const localStoredDataCount = submissions.filter(
+    (s) => s.epoch_second < fromSecond
+  ).length;
+  const serverStoredDataCount = await fetchUserSubmissionCount(
+    userId,
+    0,
+    fromSecond
+  );
+
+  const isLocalCacheValid = localStoredDataCount === serverStoredDataCount;
+  const fetchFromSecond = isLocalCacheValid ? fromSecond : 0;
+
+  const newSubmissions = await fetchNewSubmissions(userId, fetchFromSecond);
   console.log(`Saving ${newSubmissions.length} new submissions`);
   for (const submission of newSubmissions) {
     await saveData(db, OBJECT_STORE, submission);
