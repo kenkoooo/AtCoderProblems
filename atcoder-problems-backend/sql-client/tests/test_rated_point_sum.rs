@@ -191,6 +191,12 @@ async fn test_update_rated_point_sum() {
     assert_eq!(sums[0].user_id, USER_ID.to_string());
     assert_eq!(sums[0].point_sum, 300);
     assert_eq!(pool.get_users_rated_point_sum(USER_ID).await.unwrap(), 300);
+    assert_eq!(
+        pool.get_users_rated_point_sum(&USER_ID.to_ascii_uppercase())
+            .await
+            .unwrap(),
+        300
+    );
     assert_eq!(pool.get_rated_point_sum_rank(300).await.unwrap(), 0);
 
     assert!(pool
