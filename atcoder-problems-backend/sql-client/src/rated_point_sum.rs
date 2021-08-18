@@ -104,12 +104,17 @@ impl RatedPointSumClient for PgPool {
     }
 
     async fn get_users_rated_point_sum(&self, user_id: &str) -> Option<i64> {
-        let sum = sqlx::query("SELECT point_sum FROM rated_point_sum WHERE user_id = $1")
-            .bind(user_id)
-            .try_map(|row: PgRow| row.try_get::<i64, _>("point_sum"))
-            .fetch_one(self)
-            .await
-            .ok()?;
+        let sum = sqlx::query(
+            r"
+            SELECT point_sum FROM rated_point_sum
+            WHERE LOWER(user_id) = LOWER($1)
+            ",
+        )
+        .bind(user_id)
+        .try_map(|row: PgRow| row.try_get::<i64, _>("point_sum"))
+        .fetch_one(self)
+        .await
+        .ok()?;
         Some(sum)
     }
 

@@ -191,6 +191,54 @@ async fn test_users_rated_point_sum_ranking() {
     );
 
     let response = surf::get(url(
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=U2",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+
+    assert_eq!(
+        response,
+        json!({
+            "count":2,
+            "rank":0
+        })
+    );
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=U1",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+
+    assert_eq!(
+        response,
+        json!({
+            "count":1,
+            "rank":1
+        })
+    );
+
+    let response = surf::get(url(
+        "/atcoder-api/v3/user/rated_point_sum_rank?user=U3",
+        port,
+    ))
+    .recv_json::<Value>()
+    .await
+    .unwrap();
+
+    assert_eq!(
+        response,
+        json!({
+            "count":1,
+            "rank":1
+        })
+    );
+
+    let response = surf::get(url(
         "/atcoder-api/v3/user/rated_point_sum_rank?user=not_exist",
         port,
     ))
@@ -199,4 +247,6 @@ async fn test_users_rated_point_sum_ranking() {
     .unwrap();
 
     assert_eq!(response.status(), 404);
+
+    server.race(ready(())).await;
 }
