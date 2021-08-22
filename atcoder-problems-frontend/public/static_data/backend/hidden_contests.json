@@ -26,5 +26,12 @@
     "duration_second": 7200, 
     "title": "えびまのお誕生日コンテスト 2021 Day 1", 
     "rate_change": "-"
+  }, 
+  { 
+    "id": "tkppc6-1", 
+    "start_epoch_second": 1629604800, 
+    "duration_second": 10800, 
+    "title": "技術室奥プログラミングコンテスト#6 Day1", 
+    "rate_change": "-"
   } 
 ]
