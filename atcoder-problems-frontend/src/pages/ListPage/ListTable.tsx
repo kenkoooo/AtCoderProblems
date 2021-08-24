@@ -578,8 +578,11 @@ export const ListTable: React.FC<Props> = (props) => {
           props.selectLanguage === "All"
             ? undefined
             : new Set([props.selectLanguage]);
+        const colorMode = selectedLanguages
+          ? ColorMode.Language
+          : ColorMode.ContestResult;
         return statusToTableColor({
-          colorMode: ColorMode.ContestResult,
+          colorMode,
           status,
           contest,
           selectedLanguages,
