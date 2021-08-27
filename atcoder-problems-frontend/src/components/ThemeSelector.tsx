@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { GoCheck } from "react-icons/go";
 import {
   UncontrolledDropdown,
   DropdownToggle,
@@ -8,7 +9,14 @@ import {
 import { ThemeContext } from "./ThemeProvider";
 
 export const ThemeSelector: React.FC = () => {
-  const [, setThemeId] = useContext(ThemeContext);
+  const [themeId, setThemeId] = useContext(ThemeContext);
+  // function updateColorShame(e: MediaQueryList): void {
+  //   if (e.matches) {
+  //     setThemeId("dark");
+  //   } else {
+  //     setThemeId("light");
+  //   }
+  // }
 
   return (
     <UncontrolledDropdown nav inNavbar>
@@ -21,21 +29,28 @@ export const ThemeSelector: React.FC = () => {
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("light")}
         >
-          Light
+          {themeId == "light" && <GoCheck />} Light
         </DropdownItem>
         <DropdownItem
           tag="a"
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("dark")}
         >
-          Dark (Beta)
+          {themeId == "dark" && <GoCheck />} Dark (Beta)
         </DropdownItem>
         <DropdownItem
           tag="a"
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("purple")}
         >
-          Purple (Beta)
+          {themeId == "purple" && <GoCheck />} Purple (Beta)
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          style={{ cursor: "pointer" }}
+          onClick={(): void => setThemeId("auto")}
+        >
+          {themeId == "auto" && <GoCheck />} Auto
         </DropdownItem>
       </DropdownMenu>
     </UncontrolledDropdown>
