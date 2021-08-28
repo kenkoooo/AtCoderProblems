@@ -10,13 +10,17 @@ import { ThemeContext } from "./ThemeProvider";
 
 export const ThemeSelector: React.FC = () => {
   const [themeId, setThemeId] = useContext(ThemeContext);
-  // function updateColorShame(e: MediaQueryList): void {
-  //   if (e.matches) {
-  //     setThemeId("dark");
-  //   } else {
-  //     setThemeId("light");
-  //   }
-  // }
+
+  const CheckMark = (props: { isVisible: boolean }) => {
+    return (
+      <GoCheck
+        style={{
+          marginRight: "3px",
+          visibility: props.isVisible ? "visible" : "hidden",
+        }}
+      />
+    );
+  };
 
   return (
     <UncontrolledDropdown nav inNavbar>
@@ -29,28 +33,32 @@ export const ThemeSelector: React.FC = () => {
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("light")}
         >
-          {themeId == "light" && <GoCheck />} Light
+          <CheckMark isVisible={themeId == "light"} />
+          Light
         </DropdownItem>
         <DropdownItem
           tag="a"
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("dark")}
         >
-          {themeId == "dark" && <GoCheck />} Dark (Beta)
+          <CheckMark isVisible={themeId == "dark"} />
+          Dark (Beta)
         </DropdownItem>
         <DropdownItem
           tag="a"
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("purple")}
         >
-          {themeId == "purple" && <GoCheck />} Purple (Beta)
+          <CheckMark isVisible={themeId == "purple"} />
+          Purple (Beta)
         </DropdownItem>
         <DropdownItem
           tag="a"
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("auto")}
         >
-          {themeId == "auto" && <GoCheck />} Auto
+          <CheckMark isVisible={themeId == "auto"} />
+          Auto
         </DropdownItem>
       </DropdownMenu>
     </UncontrolledDropdown>
