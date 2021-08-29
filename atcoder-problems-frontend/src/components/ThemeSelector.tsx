@@ -8,19 +8,19 @@ import {
 } from "reactstrap";
 import { ThemeContext } from "./ThemeProvider";
 
+const CheckMark = (props: { isVisible: boolean }) => {
+  return (
+    <GoCheck
+      style={{
+        marginRight: "3px",
+        visibility: props.isVisible ? "visible" : "hidden",
+      }}
+    />
+  );
+};
+
 export const ThemeSelector: React.FC = () => {
   const [themeId, setThemeId] = useContext(ThemeContext);
-
-  const CheckMark = (props: { isVisible: boolean }) => {
-    return (
-      <GoCheck
-        style={{
-          marginRight: "3px",
-          visibility: props.isVisible ? "visible" : "hidden",
-        }}
-      />
-    );
-  };
 
   return (
     <UncontrolledDropdown nav inNavbar>

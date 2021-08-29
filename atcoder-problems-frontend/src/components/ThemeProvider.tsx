@@ -3,8 +3,8 @@ import { Helmet } from "react-helmet";
 import { useLocalStorage } from "../utils/LocalStorage";
 import { ThemeLight, ThemeDark, ThemePurple, Theme } from "../style/theme";
 
-type ThemeId = "light" | "dark" | "purple" | "auto";
 type RenderedThemeId = "light" | "dark" | "purple";
+type ThemeId = RenderedThemeId | "auto";
 type ThemeContextProps = [ThemeId, (newThemeId: ThemeId) => void];
 
 const THEME_LIST = {
@@ -49,7 +49,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = (
 
 function AutoThemeHelmet() {
   const [renderedThemeId, setRenderedThemeId] = React.useState<RenderedThemeId>(
-    FindRenderedThemeIdOfAuto()
+    findRenderedThemeIdOfAuto()
   );
 
   window
@@ -67,11 +67,11 @@ function AutoThemeHelmet() {
 
 export const useTheme = (): Theme => {
   const [themeId] = React.useContext(ThemeContext);
-  return THEME_LIST[FindRenderedThemeIdOf(themeId)];
+  return THEME_LIST[findRenderedThemeIdOf(themeId)];
 };
 
-const FindRenderedThemeIdOf = (themeId: ThemeId): RenderedThemeId =>
-  themeId == "auto" ? FindRenderedThemeIdOfAuto() : themeId;
+const findRenderedThemeIdOf = (themeId: ThemeId): RenderedThemeId =>
+  themeId == "auto" ? findRenderedThemeIdOfAuto() : themeId;
 
-const FindRenderedThemeIdOfAuto = (): RenderedThemeId =>
+const findRenderedThemeIdOfAuto = (): RenderedThemeId =>
   window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
