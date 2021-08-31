@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { GoCheck } from "react-icons/go";
 import {
   UncontrolledDropdown,
   DropdownToggle,
@@ -7,8 +8,19 @@ import {
 } from "reactstrap";
 import { ThemeContext } from "./ThemeProvider";
 
+const CheckMark = (props: { isVisible: boolean }) => {
+  return (
+    <GoCheck
+      style={{
+        marginRight: "3px",
+        visibility: props.isVisible ? "visible" : "hidden",
+      }}
+    />
+  );
+};
+
 export const ThemeSelector: React.FC = () => {
-  const [, setThemeId] = useContext(ThemeContext);
+  const [themeId, setThemeId] = useContext(ThemeContext);
 
   return (
     <UncontrolledDropdown nav inNavbar>
@@ -21,6 +33,7 @@ export const ThemeSelector: React.FC = () => {
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("light")}
         >
+          <CheckMark isVisible={themeId == "light"} />
           Light
         </DropdownItem>
         <DropdownItem
@@ -28,6 +41,7 @@ export const ThemeSelector: React.FC = () => {
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("dark")}
         >
+          <CheckMark isVisible={themeId == "dark"} />
           Dark (Beta)
         </DropdownItem>
         <DropdownItem
@@ -35,7 +49,16 @@ export const ThemeSelector: React.FC = () => {
           style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("purple")}
         >
+          <CheckMark isVisible={themeId == "purple"} />
           Purple (Beta)
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          style={{ cursor: "pointer" }}
+          onClick={(): void => setThemeId("auto")}
+        >
+          <CheckMark isVisible={themeId == "auto"} />
+          Auto
         </DropdownItem>
       </DropdownMenu>
     </UncontrolledDropdown>
