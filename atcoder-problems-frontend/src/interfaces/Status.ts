@@ -94,9 +94,9 @@ export const constructStatusLabelMap = (
       .filter((s) => caseInsensitiveUserId(s.user_id) !== userId)
       .filter((s) => isAccepted(s.result));
 
-    const rejectedEpochSeconds = userRejected.map(
-      (submission) => submission.epoch_second
-    );
+    const rejectedEpochSeconds = userRejected
+      .filter((submission) => submission.result != "CE")
+      .map((submission) => submission.epoch_second);
 
     if (userAccepted.length > 0) {
       const languageSet = new Set(userAccepted.map((s) => s.language));
