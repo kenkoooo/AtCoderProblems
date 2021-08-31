@@ -95,7 +95,7 @@ export const constructStatusLabelMap = (
       .filter((s) => isAccepted(s.result));
 
     const rejectedEpochSeconds = userRejected
-      .filter((submission) => submission.result != "CE")
+      .filter((submission) => submission.result !== "CE")
       .map((submission) => submission.epoch_second);
 
     if (userAccepted.length > 0) {
