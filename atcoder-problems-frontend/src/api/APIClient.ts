@@ -171,15 +171,7 @@ export const useRatingInfo = (user: string) => {
 };
 
 export const useUserSubmission = (user: string) => {
-  const fetcher = (url: string) => {
-    const userId = url.split(" ")[0];
-    return fetchSubmissionsFromDatabaseAndServer(userId);
-  };
-  return useSWRData(`${user} submission`, (url) =>
-    user.length > 0
-      ? fetcher(url).then((ss) => ss.filter((s) => isValidResult(s.result)))
-      : Promise.resolve([])
-  ).data;
+  return useMultipleUserSubmissions([user]).data;
 };
 
 export const useMultipleUserSubmissions = (userIds: UserId[]) => {
