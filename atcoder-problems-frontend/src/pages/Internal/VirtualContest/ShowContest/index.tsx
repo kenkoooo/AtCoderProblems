@@ -33,6 +33,7 @@ import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { useLocalStorage } from "../../../../utils/LocalStorage";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import { joinContest, leaveContest } from "../ApiClient";
+import { GoogleCalendarButton } from "../../../../components/GoogleCalendarButton";
 import { ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
@@ -219,6 +220,17 @@ export const ShowContest = (props: Props) => {
             >
               Tweet
             </TweetButton>
+            {now < end ? (
+              <GoogleCalendarButton
+                id={contestInfo.id}
+                title={contestInfo.title}
+                startEpochSecond={start}
+                endEpochSecond={end}
+                color="primary"
+              >
+                Add to Google Calendar
+              </GoogleCalendarButton>
+            ) : null}
           </ButtonGroup>
         </Col>
       </Row>
