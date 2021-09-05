@@ -222,14 +222,11 @@ export const ShowContest = (props: Props) => {
             </TweetButton>
             {now < end ? (
               <GoogleCalendarButton
-                id={contestInfo.id}
+                contestId={contestInfo.id}
                 title={contestInfo.title}
                 startEpochSecond={start}
                 endEpochSecond={end}
-                color="primary"
-              >
-                Add to Google Calendar
-              </GoogleCalendarButton>
+              />
             ) : null}
           </ButtonGroup>
         </Col>
