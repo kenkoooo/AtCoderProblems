@@ -182,7 +182,7 @@ export const ShowContest = (props: Props) => {
             </Alert>
           ) : null}
           <ButtonGroup>
-            {canJoin ? (
+            {canJoin && (
               <Button
                 onClick={async () => {
                   await joinContest(props.contestId);
@@ -191,8 +191,8 @@ export const ShowContest = (props: Props) => {
               >
                 Join
               </Button>
-            ) : null}
-            {canLeave ? (
+            )}
+            {canLeave && (
               <Button
                 onClick={async () => {
                   await leaveContest(props.contestId);
@@ -201,8 +201,8 @@ export const ShowContest = (props: Props) => {
               >
                 Leave
               </Button>
-            ) : null}
-            {isOwner ? (
+            )}
+            {isOwner && (
               <Button
                 onClick={(): void =>
                   history.push({
@@ -212,7 +212,7 @@ export const ShowContest = (props: Props) => {
               >
                 Edit
               </Button>
-            ) : null}
+            )}
             <TweetButton
               id={contestInfo.id}
               text={contestInfo.title}
@@ -220,14 +220,14 @@ export const ShowContest = (props: Props) => {
             >
               Tweet
             </TweetButton>
-            {now < end ? (
+            {now < end && (
               <GoogleCalendarButton
                 contestId={contestInfo.id}
                 title={contestInfo.title}
                 startEpochSecond={start}
                 endEpochSecond={end}
               />
-            ) : null}
+            )}
           </ButtonGroup>
         </Col>
       </Row>
