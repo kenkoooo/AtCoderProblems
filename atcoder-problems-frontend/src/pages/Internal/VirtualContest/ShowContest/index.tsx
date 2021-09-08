@@ -33,6 +33,7 @@ import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { useLocalStorage } from "../../../../utils/LocalStorage";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import { joinContest, leaveContest } from "../ApiClient";
+import { GoogleCalendarButton } from "../../../../components/GoogleCalendarButton";
 import { ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
@@ -181,7 +182,7 @@ export const ShowContest = (props: Props) => {
             </Alert>
           ) : null}
           <ButtonGroup>
-            {canJoin ? (
+            {canJoin && (
               <Button
                 onClick={async () => {
                   await joinContest(props.contestId);
@@ -190,8 +191,8 @@ export const ShowContest = (props: Props) => {
               >
                 Join
               </Button>
-            ) : null}
-            {canLeave ? (
+            )}
+            {canLeave && (
               <Button
                 onClick={async () => {
                   await leaveContest(props.contestId);
@@ -200,8 +201,8 @@ export const ShowContest = (props: Props) => {
               >
                 Leave
               </Button>
-            ) : null}
-            {isOwner ? (
+            )}
+            {isOwner && (
               <Button
                 onClick={(): void =>
                   history.push({
@@ -211,7 +212,7 @@ export const ShowContest = (props: Props) => {
               >
                 Edit
               </Button>
-            ) : null}
+            )}
             <TweetButton
               id={contestInfo.id}
               text={contestInfo.title}
@@ -219,6 +220,14 @@ export const ShowContest = (props: Props) => {
             >
               Tweet
             </TweetButton>
+            {now < end && (
+              <GoogleCalendarButton
+                contestId={contestInfo.id}
+                title={contestInfo.title}
+                startEpochSecond={start}
+                endEpochSecond={end}
+              />
+            )}
           </ButtonGroup>
         </Col>
       </Row>
