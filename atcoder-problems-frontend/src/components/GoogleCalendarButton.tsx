@@ -11,11 +11,15 @@ interface Props {
 /**
  * Google Calendar accepts a subset of ISO 8601 combined date and time.
  * Ref. https://stackoverflow.com/a/41733538
+ * Ref. (archived document) https://web.archive.org/web/20120313011336/http://www.google.com/googlecalendar/event_publisher_guide.html
  * @param epochSeconds Date to format in epoch seconds.
  * @return Date formatted to generate Google Calendar URL.
  */
-const formatDateForGoogleCalendar = (epochSeconds: number): string =>
-  new Date(epochSeconds * 1000).toISOString().replace(/[^0-9TZ]/g, "");
+const formatDateForGoogleCalendar = (epochSeconds: number): string => {
+  const isoStringWithoutMillisecond =
+    new Date(epochSeconds * 1000).toISOString().split(".")[0] + "Z";
+  return isoStringWithoutMillisecond.replace(/[^0-9TZ]/g, "");
+};
 
 export const GoogleCalendarButton: React.FC<Props> = (props) => {
   const internalUrl = `https://kenkoooo.com/atcoder/#/contest/show/${props.contestId}`;
