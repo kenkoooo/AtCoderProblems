@@ -32,11 +32,9 @@ const getStyleOptions = (
     const colorCode = getRatingColorCode(color, theme);
     return {
       borderColor: colorCode,
-      background: `linear-gradient(to top, \
-        ${colorCode} 0%, \
+      background: `border-box linear-gradient(to top, \
         ${colorCode} ${fillRatio * 100}%, \
-        rgba(0,0,0,0) ${fillRatio * 100}%, \
-        rgba(0,0,0,0) 100%)`,
+        rgba(0,0,0,0) ${fillRatio * 100}%)`,
     };
   }
 };
