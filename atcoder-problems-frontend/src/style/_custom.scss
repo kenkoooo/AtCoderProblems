@@ -102,6 +102,21 @@ code {
     white-space: unset;
     word-break: break-word;
   }
+
+  div.btn-group.table-tab {
+    display: block;
+  }
+
+  div.btn-group.table-tab > button.btn:not(:last-child):not(.dropdown-toggle),
+  div.btn-group.table-tab > button.btn:not(:first-child) {
+    border-radius: 0.25rem;
+    margin-left: 0.1rem;
+  }
+
+  div.btn-group.table-tab > button.btn {
+    margin: 0.1rem;
+    padding: 0.4rem;
+  }
 }
 
 .difficulty-unavailable-circle.badge {
@@ -242,21 +257,6 @@ span.difficulty-circle {
   .contest-table-responsive.contest-regular-table-responsive
     td:not(:first-child) {
     padding-left: 2.5rem;
-  }
-
-  div.btn-group.table-tab {
-    display: block;
-  }
-
-  div.btn-group.table-tab > button.btn:not(:last-child):not(.dropdown-toggle),
-  div.btn-group.table-tab > button.btn:not(:first-child) {
-    border-radius: 0.25rem;
-    margin-left: 0.1rem;
-  }
-
-  div.btn-group.table-tab > button.btn {
-    margin: 0.1rem;
-    padding: 0.4rem;
   }
 }
 
