@@ -1,23 +1,19 @@
 import React from "react";
 import { Alert, Row, Spinner } from "reactstrap";
-import { connect, PromiseState } from "react-refetch";
-import Submission from "../interfaces/Submission";
-import { fetchRecentSubmissions } from "../utils/Api";
+import { useRecentSubmissions } from "../api/APIClient";
 import { SubmissionListTable } from "../components/SubmissionListTable";
 
-interface Props {
-  submissions: PromiseState<Submission[]>;
-}
+export const RecentSubmissions = () => {
+  const submissionsResponse = useRecentSubmissions();
 
-const InnerRecentSubmissions: React.FC<Props> = (props) => {
-  if (props.submissions.pending) {
+  if (!submissionsResponse.data && !submissionsResponse.error) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
-  }
-  if (props.submissions.rejected) {
-    return <Alert color="danger">Failed to fetch contest info.</Alert>;
+  } else if (!submissionsResponse.data) {
+    return <Alert color="danger">Failed to fetch submission info.</Alert>;
   }
 
-  const submissions = props.submissions.value.sort((a, b) => b.id - a.id);
+  const submissions = submissionsResponse.data.sort((a, b) => b.id - a.id);
+
   return (
     <Row>
       <h1>Recent Submissions</h1>
@@ -25,10 +21,3 @@ const InnerRecentSubmissions: React.FC<Props> = (props) => {
     </Row>
   );
 };
-
-export const RecentSubmissions = connect<unknown, Props>(() => ({
-  submissions: {
-    comparison: null,
-    value: fetchRecentSubmissions,
-  },
-}))(InnerRecentSubmissions);
