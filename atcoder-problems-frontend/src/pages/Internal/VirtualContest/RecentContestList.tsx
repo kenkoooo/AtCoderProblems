@@ -1,29 +1,20 @@
 import React from "react";
-import { connect, PromiseState } from "react-refetch";
 import { Button, Col, Row } from "reactstrap";
 import { useHistory } from "react-router-dom";
-import { useLoginState } from "../../../api/InternalAPIClient";
+import {
+  useLoginState,
+  useRecentContests,
+} from "../../../api/InternalAPIClient";
 import { getCurrentUnixtimeInSecond } from "../../../utils/DateUtil";
 import { VirtualContestTable } from "../VirtualContestTable";
-import { CONTEST_RECENT } from "../ApiUrl";
-import { VirtualContestInfo } from "../types";
 
-interface InnerProps {
-  contestListGet: PromiseState<VirtualContestInfo[]>;
-}
-
-export const RecentContestList = connect<unknown, InnerProps>(() => ({
-  contestListGet: {
-    url: CONTEST_RECENT,
-  },
-}))((props) => {
+export const RecentContestList = () => {
   const history = useHistory();
   const loginState = useLoginState();
-  const contests = props.contestListGet.fulfilled
-    ? props.contestListGet.value.sort(
-        (a, b) => b.start_epoch_second - a.start_epoch_second
-      )
-    : [];
+  const contests =
+    useRecentContests().data?.sort(
+      (a, b) => b.start_epoch_second - a.start_epoch_second
+    ) ?? [];
   const now = getCurrentUnixtimeInSecond();
   const future = contests.filter((c) => c.start_epoch_second > now);
   const current = contests.filter(
@@ -104,4 +95,4 @@ export const RecentContestList = connect<unknown, InnerProps>(() => ({
       </Row>
     </>
   );
-});
+};

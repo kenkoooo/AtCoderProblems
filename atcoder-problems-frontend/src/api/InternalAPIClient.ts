@@ -46,3 +46,9 @@ export const useProgressResetList = () => {
     typeCastFetcher<ProgressResetList>(url)
   );
 };
+
+export const useRecentContests = () => {
+  return useSWRData(`${BASE_URL}/contest/recent`, (url) =>
+    typeCastFetcher<VirtualContestInfo[]>(url)
+  );
+};
