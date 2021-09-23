@@ -4,12 +4,6 @@ import { hasPropertyAsType, isNumber } from "./TypeUtils";
 
 const ATCODER_API_URL = process.env.REACT_APP_ATCODER_API_URL;
 
-export const fetchRecentSubmissions = (): Promise<Submission[]> => {
-  return fetch(`${ATCODER_API_URL}/v3/recent`)
-    .then((r) => r.json())
-    .then((r: unknown[]) => r.filter(isSubmission));
-};
-
 export const fetchPartialUserSubmissions = async (
   userId: UserId,
   fromSecond: number

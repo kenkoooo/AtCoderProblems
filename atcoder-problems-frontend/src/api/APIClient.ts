@@ -287,3 +287,8 @@ export const useVirtualContestSubmissions = (
     }
   ).data;
 };
+
+export const useRecentSubmissions = () => {
+  const url = `${ATCODER_API_URL}/v3/recent`;
+  return useSWRData(url, (url) => fetchTypedArray(url, isSubmission));
+};
