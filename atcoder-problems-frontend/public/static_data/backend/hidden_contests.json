@@ -33,5 +33,12 @@
     "duration_second": 10800, 
     "title": "技術室奥プログラミングコンテスト#6 Day1", 
     "rate_change": "-"
-  } 
+  }, 
+  { 
+    "id": "genocon2021", 
+    "start_epoch_second": 1629720000, 
+    "duration_second": 2429940, 
+    "title": "ゲノコン2021 ー DNA配列解析チャレンジ", 
+    "rate_change": "-"
+  }
 ]
