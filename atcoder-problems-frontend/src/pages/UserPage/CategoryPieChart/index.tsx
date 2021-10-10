@@ -154,7 +154,6 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
                   trying={count.total - count.solved - count.rejected}
                   title={`${category}`}
                 />
-                {category}
               </Col>
             );
           }
