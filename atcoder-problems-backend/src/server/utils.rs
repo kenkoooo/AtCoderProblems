@@ -18,7 +18,7 @@ impl<A: Authentication + Clone + Send + Sync + 'static> RequestUnpack for Reques
         let client = self.state().authentication.clone();
         let token = self.cookie("token").with_context(|| "Cookie not found")?;
         let response = client
-            .get_user_id(&token.value())
+            .get_user_id(token.value())
             .await
             .map_err(|_| anyhow::Error::msg("GitHub connection error"))?;
         Ok(response.id.to_string())

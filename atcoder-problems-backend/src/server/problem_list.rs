@@ -21,7 +21,7 @@ where
 {
     let list_id = request.param("list_id")?;
     let conn = request.state().pg_pool.clone();
-    let list = conn.get_single_list(&list_id).await?;
+    let list = conn.get_single_list(list_id).await?;
     let response = Response::json(&list)?;
     Ok(response)
 }

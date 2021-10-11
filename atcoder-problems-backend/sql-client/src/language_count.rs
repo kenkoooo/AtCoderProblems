@@ -48,7 +48,7 @@ impl LanguageCountClient for PgPool {
             .fold(
                 BTreeMap::new(),
                 |mut map, (user_id, problem_id, language)| {
-                    let simplified_language = simplify_language(&language);
+                    let simplified_language = simplify_language(language);
                     map.entry((user_id, simplified_language))
                         .or_insert_with(BTreeSet::new)
                         .insert(problem_id);

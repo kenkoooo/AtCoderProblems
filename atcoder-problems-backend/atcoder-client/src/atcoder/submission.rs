@@ -9,7 +9,7 @@ use scraper::{Html, Selector};
 pub(super) fn scrape_submission_page_count(html: &str) -> Result<u32> {
     let selector = Selector::parse("a").unwrap();
     let re = Regex::new(r"page=\d+$").unwrap();
-    Html::parse_document(&html)
+    Html::parse_document(html)
         .select(&selector)
         .flat_map(|el| el.value().attr("href"))
         .filter(|href| re.is_match(href))
@@ -26,7 +26,7 @@ pub(super) fn scrape(html_text: &str, contest_id: &str) -> Result<Vec<AtCoderSub
     let a_selector = Selector::parse("a").unwrap();
     let re = Regex::new(r"submissions/\d+$").unwrap();
 
-    Html::parse_document(&html_text)
+    Html::parse_document(html_text)
         .select(&tbody_selector)
         .next()
         .ok_or_else(|| anyhow!("Failed to parse html."))?
@@ -40,7 +40,7 @@ pub(super) fn scrape(html_text: &str, contest_id: &str) -> Result<Vec<AtCoderSub
                 .text()
                 .next()
                 .ok_or_else(|| anyhow!("Failed to parse html."))?;
-            let time = DateTime::parse_from_str(&time, "%Y-%m-%d %H:%M:%S%z")?;
+            let time = DateTime::parse_from_str(time, "%Y-%m-%d %H:%M:%S%z")?;
             let epoch_second = time.timestamp() as u64;
 
             let problem_id = tds

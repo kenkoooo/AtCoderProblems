@@ -40,7 +40,7 @@ impl AtCoderClient {
 
     async fn fetch_atcoder_hidden_contests(&self) -> Result<Vec<AtCoderContest>> {
         let uri = "https://kenkoooo.com/atcoder/static_data/backend/hidden_contests.json";
-        util::get_json(&uri).await
+        util::get_json(uri).await
     }
 
     /// Fetch a list of submissions.
@@ -105,7 +105,7 @@ mod tests {
         let client = AtCoderClient::default();
         let contests =
             block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden)).unwrap();
-        assert!(contests.len() >= 1);
+        assert!(!contests.is_empty());
     }
 
     #[test]
