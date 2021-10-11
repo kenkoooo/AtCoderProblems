@@ -128,9 +128,9 @@ where
     let conn = request.state().pg_pool.clone();
     let contest_id = request.param("contest_id")?;
 
-    let info = conn.get_single_contest_info(&contest_id).await?;
-    let participants = conn.get_single_contest_participants(&contest_id).await?;
-    let problems = conn.get_single_contest_problems(&contest_id).await?;
+    let info = conn.get_single_contest_info(contest_id).await?;
+    let participants = conn.get_single_contest_participants(contest_id).await?;
+    let problems = conn.get_single_contest_problems(contest_id).await?;
     let contest = VirtualContestDetails {
         info,
         problems,

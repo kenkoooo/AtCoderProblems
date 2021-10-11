@@ -22,7 +22,7 @@ pub(super) fn scrape_normal(html: &str) -> Result<Vec<AtCoderContest>> {
                 .text()
                 .next()
                 .ok_or_else(|| anyhow!("Failed to parse html."))?;
-            let start = DateTime::parse_from_str(&start, "%Y-%m-%d %H:%M:%S%z")?;
+            let start = DateTime::parse_from_str(start, "%Y-%m-%d %H:%M:%S%z")?;
             let start = start.timestamp() as u64;
 
             let contest = tds.next().ok_or_else(|| anyhow!("Failed to parse html."))?;

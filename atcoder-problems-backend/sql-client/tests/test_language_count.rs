@@ -133,7 +133,7 @@ async fn test_language_count() {
     );
 
     let language_count_1st_to_2nd = pool
-        .load_language_count_in_range(&"language1", 0..2)
+        .load_language_count_in_range("language1", 0..2)
         .await
         .unwrap();
     assert_eq!(
@@ -151,7 +151,7 @@ async fn test_language_count() {
     );
 
     let language_count_2nd_to_2nd = pool
-        .load_language_count_in_range(&"language1", 1..2)
+        .load_language_count_in_range("language1", 1..2)
         .await
         .unwrap();
     assert_eq!(
@@ -163,14 +163,14 @@ async fn test_language_count() {
     );
 
     assert_eq!(
-        pool.load_language_count_in_range(&"language1", 0..10)
+        pool.load_language_count_in_range("language1", 0..10)
             .await
             .unwrap()
             .len(),
         2
     );
 
-    let language_count = pool.load_users_language_count(&"user1").await.unwrap();
+    let language_count = pool.load_users_language_count("user1").await.unwrap();
     assert_eq!(
         language_count,
         vec![
@@ -186,7 +186,7 @@ async fn test_language_count() {
             },
         ]
     );
-    let language_count_rank = pool.load_users_language_count_rank(&"user1").await.unwrap();
+    let language_count_rank = pool.load_users_language_count_rank("user1").await.unwrap();
     assert_eq!(
         language_count_rank,
         vec![
@@ -203,7 +203,7 @@ async fn test_language_count() {
         ]
     );
 
-    let language_count = pool.load_users_language_count(&"user2").await.unwrap();
+    let language_count = pool.load_users_language_count("user2").await.unwrap();
     assert_eq!(
         language_count,
         vec![UserLanguageCount {
@@ -212,7 +212,7 @@ async fn test_language_count() {
             problem_count: 1,
         },]
     );
-    let language_count_rank = pool.load_users_language_count_rank(&"user2").await.unwrap();
+    let language_count_rank = pool.load_users_language_count_rank("user2").await.unwrap();
     assert_eq!(
         language_count_rank,
         vec![UserLanguageCountRank {
@@ -222,7 +222,7 @@ async fn test_language_count() {
         },]
     );
 
-    let language_count = pool.load_users_language_count(&"user3").await.unwrap();
+    let language_count = pool.load_users_language_count("user3").await.unwrap();
     assert_eq!(
         language_count,
         vec![
@@ -238,7 +238,7 @@ async fn test_language_count() {
             },
         ]
     );
-    let language_count_rank = pool.load_users_language_count_rank(&"user3").await.unwrap();
+    let language_count_rank = pool.load_users_language_count_rank("user3").await.unwrap();
     assert_eq!(
         language_count_rank,
         vec![

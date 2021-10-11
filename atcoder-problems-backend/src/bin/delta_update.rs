@@ -24,13 +24,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let recent_submissions = conn.get_submissions(request).await?;
 
     info!("Filter submission by user_id ...");
-    let recent_submissions = recent_submissions
-        .into_iter()
-        .filter(|submission| !EXCLUDED_USERS.contains(&submission.user_id.as_str()))
-        .collect::<Vec<_>>();
 
     let user_ids = recent_submissions
         .into_iter()
+        .filter(|submission| !EXCLUDED_USERS.contains(&submission.user_id.as_str()))
         .map(|s| s.user_id)
         .collect::<BTreeSet<_>>();
     let user_ids = user_ids.iter().map(|s| s.as_str()).collect::<Vec<_>>();
