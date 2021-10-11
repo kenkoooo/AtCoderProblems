@@ -27,6 +27,8 @@ SOFTWARE.
 /*editor error animate*/
 /*@import "~toastr/build/toastr.min.css";*/
 
+@import "~bootstrap/scss/variables";
+
 $react-bs-table-lightgrey: lightgrey !default;
 $react-bs-table-border-color: #ddd !default;
 
@@ -512,4 +514,11 @@ th.react-bs-table-expand-cell > div {
 
 .bounceOut {
   animation-name: bounceOut;
+}
+
+.form-control {
+  color: $black;
+  &::placeholder {
+    color: $gray-500;
+  }
 }
