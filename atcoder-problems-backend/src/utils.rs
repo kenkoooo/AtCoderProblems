@@ -1,5 +1,5 @@
+use fern;
 use log::LevelFilter;
-use simple_logger::SimpleLogger;
 
 use anyhow::Result;
 
@@ -24,11 +24,13 @@ pub const EXCLUDED_USERS: [&str; 17] = [
 ];
 
 pub fn init_log_config() -> Result<()> {
-    SimpleLogger::new()
-        .with_level(LevelFilter::Info)
-        .with_module_level("sqlx", LevelFilter::Warn)
-        .with_module_level("tide", LevelFilter::Warn)
-        .with_module_level("surf", LevelFilter::Warn)
-        .init()?;
+    fern::Dispatch::new()
+        .format(|out, message, _record| out.finish(format_args!("{}", message)))
+        .level(LevelFilter::Info)
+        .level_for("sqlx", LevelFilter::Warn)
+        .level_for("tide", LevelFilter::Warn)
+        .level_for("surf", LevelFilter::Warn)
+        .chain(std::io::stdout())
+        .apply()?;
     Ok(())
 }
