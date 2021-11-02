@@ -4,6 +4,7 @@ import {
   UserResponse,
   VirtualContestDetails,
   VirtualContestInfo,
+  VirtualContestItem,
 } from "../pages/Internal/types";
 import { useSWRData } from "./index";
 
@@ -50,5 +51,11 @@ export const useProgressResetList = () => {
 export const useRecentContests = () => {
   return useSWRData(`${BASE_URL}/contest/recent`, (url) =>
     typeCastFetcher<VirtualContestInfo[]>(url)
+  );
+};
+
+export const useContestUpdate = () => {
+  return useSWRData(`${BASE_URL}/contest/update/`, (url) =>
+    typeCastFetcher<VirtualContestItem[]>(url)
   );
 };
