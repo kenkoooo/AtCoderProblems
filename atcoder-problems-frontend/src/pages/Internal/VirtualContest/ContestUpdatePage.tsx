@@ -2,10 +2,7 @@ import React from "react";
 import { List } from "immutable";
 import { Redirect } from "react-router-dom";
 import { Alert, Spinner } from "reactstrap";
-import {
-  useVirtualContest,
-  useContestUpdate,
-} from "../../../api/InternalAPIClient";
+import { useVirtualContest } from "../../../api/InternalAPIClient";
 import * as DateUtil from "../../../utils/DateUtil";
 import { VirtualContestItem } from "../types";
 import {
@@ -29,30 +26,30 @@ interface OuterProps {
   contestId: string;
 }
 
+const createAndUpdateContest = async (
+  request: Request,
+  problems: VirtualContestItem[]
+) => {
+  const response = await updateVirtualContestInfo(request).then(() =>
+    updateVirtualContestItems(request.id, problems)
+  );
+  return response.status;
+};
+
 export const ContestUpdatePage = (props: OuterProps) => {
   const { contestId } = props;
-  const updateResponse = useContestUpdate();
   const contestResponse = useVirtualContest(contestId);
+  const [updateResponse, setUpdateResponse] = React.useState<number>();
   if (!contestResponse.data && !contestResponse.error) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else if (contestResponse.error || !contestResponse.data) {
     return <Alert color="danger">Failed to fetch contest info.</Alert>;
   }
 
-  const updateContest = (request: Request, problems: VirtualContestItem[]) => ({
-    updateResponse: {
-      comparison: null,
-      value: () =>
-        updateVirtualContestInfo(request).then(() =>
-          updateVirtualContestItems(props.contestId, problems)
-        ),
-    },
-  });
-
   const contestInfo = contestResponse.data.info;
   const contestProblems = contestResponse.data.problems;
 
-  if (!updateResponse.data && updateResponse.error) {
+  if (updateResponse === 200) {
     return <Redirect to={`/contest/show/${contestId}`} />;
   }
 
@@ -84,7 +81,7 @@ export const ContestUpdatePage = (props: OuterProps) => {
       initialPublicState={contestInfo.is_public}
       initialPenaltySecond={contestInfo.penalty_second}
       buttonTitle="Update"
-      buttonPush={({
+      buttonPush={async ({
         title,
         memo,
         startSecond,
@@ -93,8 +90,8 @@ export const ContestUpdatePage = (props: OuterProps) => {
         mode,
         publicState,
         penaltySecond,
-      }): void => {
-        updateContest(
+      }) => {
+        const status = await createAndUpdateContest(
           {
             id: contestId,
             title,
@@ -107,6 +104,7 @@ export const ContestUpdatePage = (props: OuterProps) => {
           },
           ps.toArray()
         );
+        setUpdateResponse(status);
       }}
     />
   );
