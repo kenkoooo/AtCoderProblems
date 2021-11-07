@@ -39,7 +39,7 @@ const createAndUpdateContest = async (
 export const ContestUpdatePage = (props: Props) => {
   const { contestId } = props;
   const contestResponse = useVirtualContest(contestId);
-  const [updateResponse, setUpdateResponse] = React.useState<boolean>();
+  const [updateResponse, setUpdateResponse] = React.useState<boolean>(false);
   if (!contestResponse.data && !contestResponse.error) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else if (contestResponse.error || !contestResponse.data) {
