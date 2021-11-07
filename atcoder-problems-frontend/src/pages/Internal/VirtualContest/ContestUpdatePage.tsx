@@ -22,7 +22,7 @@ interface Request {
   penalty_second: number;
 }
 
-interface OuterProps {
+interface Props {
   contestId: string;
 }
 
@@ -33,13 +33,13 @@ const createAndUpdateContest = async (
   const response = await updateVirtualContestInfo(request).then(() =>
     updateVirtualContestItems(request.id, problems)
   );
-  return response.status;
+  return response.status === 200;
 };
 
-export const ContestUpdatePage = (props: OuterProps) => {
+export const ContestUpdatePage = (props: Props) => {
   const { contestId } = props;
   const contestResponse = useVirtualContest(contestId);
-  const [updateResponse, setUpdateResponse] = React.useState<number>();
+  const [updateResponse, setUpdateResponse] = React.useState<boolean>();
   if (!contestResponse.data && !contestResponse.error) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else if (contestResponse.error || !contestResponse.data) {
@@ -49,7 +49,7 @@ export const ContestUpdatePage = (props: OuterProps) => {
   const contestInfo = contestResponse.data.info;
   const contestProblems = contestResponse.data.problems;
 
-  if (updateResponse === 200) {
+  if (updateResponse) {
     return <Redirect to={`/contest/show/${contestId}`} />;
   }
 
