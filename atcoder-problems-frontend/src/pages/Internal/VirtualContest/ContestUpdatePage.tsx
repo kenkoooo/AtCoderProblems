@@ -1,6 +1,5 @@
 import React from "react";
 import { List } from "immutable";
-import { connect, PromiseState } from "react-refetch";
 import { Redirect } from "react-router-dom";
 import { Alert, Spinner } from "reactstrap";
 import { useVirtualContest } from "../../../api/InternalAPIClient";
@@ -23,18 +22,24 @@ interface Request {
   penalty_second: number;
 }
 
-interface OuterProps {
+interface Props {
   contestId: string;
 }
 
-interface InnerProps extends OuterProps {
-  updateResponse: PromiseState<unknown | null>;
-  updateContest: (request: Request, problems: VirtualContestItem[]) => void;
-}
+const createAndUpdateContest = async (
+  request: Request,
+  problems: VirtualContestItem[]
+) => {
+  const response = await updateVirtualContestInfo(request).then(() =>
+    updateVirtualContestItems(request.id, problems)
+  );
+  return response.status === 200;
+};
 
-const InnerContestUpdatePage = (props: InnerProps) => {
-  const { contestId, updateResponse } = props;
+export const ContestUpdatePage = (props: Props) => {
+  const { contestId } = props;
   const contestResponse = useVirtualContest(contestId);
+  const [updateResponse, setUpdateResponse] = React.useState<boolean>(false);
   if (!contestResponse.data && !contestResponse.error) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else if (contestResponse.error || !contestResponse.data) {
@@ -44,7 +49,7 @@ const InnerContestUpdatePage = (props: InnerProps) => {
   const contestInfo = contestResponse.data.info;
   const contestProblems = contestResponse.data.problems;
 
-  if (updateResponse.fulfilled && updateResponse.value !== null) {
+  if (updateResponse) {
     return <Redirect to={`/contest/show/${contestId}`} />;
   }
 
@@ -76,7 +81,7 @@ const InnerContestUpdatePage = (props: InnerProps) => {
       initialPublicState={contestInfo.is_public}
       initialPenaltySecond={contestInfo.penalty_second}
       buttonTitle="Update"
-      buttonPush={({
+      buttonPush={async ({
         title,
         memo,
         startSecond,
@@ -85,8 +90,8 @@ const InnerContestUpdatePage = (props: InnerProps) => {
         mode,
         publicState,
         penaltySecond,
-      }): void => {
-        props.updateContest(
+      }) => {
+        const status = await createAndUpdateContest(
           {
             id: contestId,
             title,
@@ -99,22 +104,8 @@ const InnerContestUpdatePage = (props: InnerProps) => {
           },
           ps.toArray()
         );
+        setUpdateResponse(status);
       }}
     />
   );
 };
-
-export const ContestUpdatePage = connect<OuterProps, InnerProps>((props) => ({
-  updateContest: (request: Request, problems: VirtualContestItem[]) => ({
-    updateResponse: {
-      comparison: null,
-      value: () =>
-        updateVirtualContestInfo(request).then(() =>
-          updateVirtualContestItems(props.contestId, problems)
-        ),
-    },
-  }),
-  updateResponse: {
-    value: null,
-  },
-}))(InnerContestUpdatePage);

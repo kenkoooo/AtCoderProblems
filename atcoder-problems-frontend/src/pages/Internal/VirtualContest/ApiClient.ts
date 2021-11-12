@@ -66,7 +66,7 @@ export const updateVirtualContestItems = (
         order: i,
       })),
     }),
-  }).then(() => ({}));
+  }).then((response) => response);
 
 export const joinContest = (contestId: string) =>
   fetch(CONTEST_JOIN, {
