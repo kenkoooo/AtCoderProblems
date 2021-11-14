@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { GoPin } from "react-icons/go";
 import {
   NavLink as RouterLink,
@@ -46,6 +46,11 @@ const extractUserIds = (
   return { userId, rivalIdString };
 };
 
+type Props = {
+  isNavigationFixed: boolean;
+  setIsNavigationFixed: () => void;
+};
+
 const generatePath = (
   kind: PageKind,
   userId: string,
@@ -55,7 +60,7 @@ const generatePath = (
   return "/" + kind + "/" + users.join("/");
 };
 
-export const UserSearchBar = () => {
+export const UserSearchBar = (props: Props) => {
   const { pathname } = useLocation();
   const loginState = useLoginState().data;
   const pageKind = extractPageKind(pathname);
@@ -65,8 +70,6 @@ export const UserSearchBar = () => {
   const pathRivalIdString = pathState?.rivalIdString;
 
   const loggedInUserId = UserState.loggedInUserId(loginState) ?? "";
-
-  const [userSearchBarIsFixed, setUserSearchBarIsFixed] = useState(false);
 
   const [userId, setUserId] = React.useState(pathUserId ?? "");
   const [rivalIdString, setRivalIdString] = React.useState(
@@ -106,7 +109,7 @@ export const UserSearchBar = () => {
       color="light"
       light
       expand="md"
-      className={`${userSearchBarIsFixed ? "sticky-top" : ""} border-bottom`}
+      className="border-bottom"
       style={{ padding: 0 }}
     >
       <Nav navbar style={{ padding: "0.5rem 1rem", width: "100%" }}>
@@ -169,8 +172,8 @@ export const UserSearchBar = () => {
             <Col className="col-auto">
               <Button
                 color="light"
-                active={userSearchBarIsFixed}
-                onClick={() => setUserSearchBarIsFixed((e) => !e)}
+                active={props.isNavigationFixed}
+                onClick={props.setIsNavigationFixed}
               >
                 <GoPin />
               </Button>

@@ -31,26 +31,13 @@ import { ACCOUNT_INFO } from "./utils/RouterPath";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { caseInsensitiveUserId } from "./utils";
 import { PROBLEM_ID_SEPARATE_SYMBOL } from "./utils/QueryString";
-import { UserSearchBar } from "./components/UserSearchBar";
 
 const App: React.FC = () => {
   return (
     <ThemeProvider>
       <Router>
         <div>
-          <div className="sticky-top">
-            <NavigationBar />
-          </div>
-
-          <Route
-            path={[
-              "/user/:userIds([a-zA-Z0-9_]+)+",
-              "/table/:userIds([a-zA-Z0-9_]*)*",
-              "/list/:userIds([a-zA-Z0-9_]*)*",
-            ]}
-          >
-            <UserSearchBar />
-          </Route>
+          <NavigationBar />
 
           <Container
             className="my-5"
