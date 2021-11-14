@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink as RouterLink, Route } from "react-router-dom";
+import { NavLink as RouterLink } from "react-router-dom";
 import {
   Collapse,
   DropdownItem,
@@ -17,7 +17,6 @@ import { useLoginState } from "../api/InternalAPIClient";
 import { useLoginLink } from "../utils/Url";
 import { ACCOUNT_INFO } from "../utils/RouterPath";
 import * as UserState from "../utils/UserState";
-import { UserSearchBar } from "./UserSearchBar";
 import { ThemeSelector } from "./ThemeSelector";
 
 export const NavigationBar = () => {
@@ -168,16 +167,6 @@ export const NavigationBar = () => {
           </Nav>
         </Collapse>
       </Navbar>
-
-      <Route
-        path={[
-          "/user/:userIds([a-zA-Z0-9_]+)+",
-          "/table/:userIds([a-zA-Z0-9_]*)*",
-          "/list/:userIds([a-zA-Z0-9_]*)*",
-        ]}
-      >
-        <UserSearchBar isOpen={isOpen} />
-      </Route>
     </>
   );
 };
