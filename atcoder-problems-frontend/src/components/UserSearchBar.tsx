@@ -46,10 +46,10 @@ const extractUserIds = (
   return { userId, rivalIdString };
 };
 
-type Props = {
+interface Props {
   isNavigationFixed: boolean;
   setIsNavigationFixed: () => void;
-};
+}
 
 const generatePath = (
   kind: PageKind,
