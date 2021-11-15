@@ -15,8 +15,6 @@ export const LIST_UPDATE = `${BASE_URL}/list/update`;
 export const LIST_ITEM_UPDATE = `${BASE_URL}/list/item/update`;
 export const LIST_ITEM_DELETE = `${BASE_URL}/list/item/delete`;
 export const LIST_ITEM_ADD = `${BASE_URL}/list/item/add`;
-export const listGetUrl = (listId: string): string =>
-  `${BASE_URL}/list/get/${listId}`;
 
 export const PROGRESS_RESET_LIST = `${BASE_URL}/progress_reset/list`;
 export const PROGRESS_RESET_ADD = `${BASE_URL}/progress_reset/add`;
