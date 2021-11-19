@@ -37,9 +37,7 @@ const App: React.FC = () => {
     <ThemeProvider>
       <Router>
         <div>
-          <div className="sticky-top">
-            <NavigationBar />
-          </div>
+          <NavigationBar />
 
           <Container
             className="my-5"

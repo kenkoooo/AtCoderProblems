@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink as RouterLink, Route } from "react-router-dom";
 import {
   Collapse,
@@ -17,8 +17,8 @@ import { useLoginState } from "../api/InternalAPIClient";
 import { useLoginLink } from "../utils/Url";
 import { ACCOUNT_INFO } from "../utils/RouterPath";
 import * as UserState from "../utils/UserState";
-import { UserSearchBar } from "./UserSearchBar";
 import { ThemeSelector } from "./ThemeSelector";
+import { UserSearchBar } from "./UserSearchBar";
 
 export const NavigationBar = () => {
   const loginState = useLoginState().data;
@@ -28,8 +28,10 @@ export const NavigationBar = () => {
 
   const [isOpen, setIsOpen] = React.useState(false);
 
+  const [isNavigationFixed, setIsNavigationFixed] = useState(true);
+
   return (
-    <>
+    <div className={isNavigationFixed ? "sticky-top" : ""}>
       <Navbar color="dark" dark expand="lg">
         <NavbarBrand tag={RouterLink} to="/" className="mb-0 h1">
           AtCoder Problems
@@ -176,8 +178,11 @@ export const NavigationBar = () => {
           "/list/:userIds([a-zA-Z0-9_]*)*",
         ]}
       >
-        <UserSearchBar isOpen={isOpen} />
+        <UserSearchBar
+          isNavigationFixed={isNavigationFixed}
+          setIsNavigationFixed={() => setIsNavigationFixed((e) => !e)}
+        />
       </Route>
-    </>
+    </div>
   );
 };

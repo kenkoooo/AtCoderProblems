@@ -1,4 +1,5 @@
 import React from "react";
+import { GoPin } from "react-icons/go";
 import {
   NavLink as RouterLink,
   useLocation,
@@ -7,11 +8,13 @@ import {
 import {
   Button,
   ButtonGroup,
+  Col,
   Form,
   Input,
   Nav,
   Navbar,
-  Collapse,
+  NavItem,
+  Row,
 } from "reactstrap";
 import { useLoginState } from "../api/InternalAPIClient";
 import { extractRivalsParam, normalizeUserId } from "../utils";
@@ -44,7 +47,8 @@ const extractUserIds = (
 };
 
 interface Props {
-  isOpen: boolean;
+  isNavigationFixed: boolean;
+  setIsNavigationFixed: () => void;
 }
 
 const generatePath = (
@@ -108,8 +112,8 @@ export const UserSearchBar = (props: Props) => {
       className="border-bottom"
       style={{ padding: 0 }}
     >
-      <Collapse isOpen={props.isOpen} navbar>
-        <Nav navbar style={{ padding: "0.5rem 1rem" }}>
+      <Nav navbar style={{ padding: "0.5rem 1rem", width: "100%" }}>
+        <NavItem>
           <Form inline>
             <Input
               className="mt-2 mr-2 mt-lg-0 mt-md-0"
@@ -126,7 +130,6 @@ export const UserSearchBar = (props: Props) => {
               placeholder={loggedInUserId ? loggedInUserId : "User ID"}
               onChange={(e): void => setUserId(e.target.value)}
             />
-
             <Input
               className="mt-2 mr-2 mt-lg-0 mt-md-0"
               style={{ width: 160 }}
@@ -142,28 +145,42 @@ export const UserSearchBar = (props: Props) => {
               placeholder="Rival ID, ..."
               onChange={(e): void => setRivalIdString(e.target.value)}
             />
-
-            <ButtonGroup className="mt-2 mb-0 mt-lg-0 mt-md-0">
-              <Button tag={RouterLink} to={tablePath} color="light">
-                Table
-              </Button>
-
-              <Button tag={RouterLink} to={listPath} color="light">
-                List
-              </Button>
-
-              <Button
-                disabled={userId.length === 0 && loggedInUserId.length === 0}
-                tag={RouterLink}
-                to={userPath}
-                color="light"
-              >
-                User
-              </Button>
-            </ButtonGroup>
           </Form>
-        </Nav>
-      </Collapse>
+        </NavItem>
+        <NavItem style={{ flexGrow: 1 }}>
+          <Row className="justify-content-between align-items-center">
+            <Col className="col-auto">
+              <ButtonGroup className="mt-2 mb-0 mt-lg-0 mt-md-0">
+                <Button tag={RouterLink} to={tablePath} color="light">
+                  Table
+                </Button>
+
+                <Button tag={RouterLink} to={listPath} color="light">
+                  List
+                </Button>
+
+                <Button
+                  disabled={userId.length === 0 && loggedInUserId.length === 0}
+                  tag={RouterLink}
+                  to={userPath}
+                  color="light"
+                >
+                  User
+                </Button>
+              </ButtonGroup>
+            </Col>
+            <Col className="col-auto">
+              <Button
+                color="light"
+                active={props.isNavigationFixed}
+                onClick={props.setIsNavigationFixed}
+              >
+                <GoPin />
+              </Button>
+            </Col>
+          </Row>
+        </NavItem>
+      </Nav>
     </Navbar>
   );
 };
