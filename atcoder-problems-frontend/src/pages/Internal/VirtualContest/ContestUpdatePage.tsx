@@ -26,7 +26,7 @@ interface Props {
   contestId: string;
 }
 
-const createAndUpdateContest = async (
+const updateContest = async (
   request: Request,
   problems: VirtualContestItem[]
 ) => {
@@ -91,7 +91,7 @@ export const ContestUpdatePage = (props: Props) => {
         publicState,
         penaltySecond,
       }) => {
-        const status = await createAndUpdateContest(
+        const status = await updateContest(
           {
             id: contestId,
             title,
