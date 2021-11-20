@@ -31,22 +31,6 @@ interface Props {
   listId: string;
 }
 
-const updateList = async (name: string, listId: string) => {
-  await updateProblemList(name, listId);
-};
-
-const addItem = async (problemId: string, listId: string) => {
-  await addProblemItem(problemId, listId);
-};
-
-const deleteItem = async (problemId: string, listId: string) => {
-  await deleteProblemItem(problemId, listId);
-};
-
-const updateItem = async (problemId: string, memo: string, listId: string) => {
-  await updateProblemItem(problemId, memo, listId);
-};
-
 export const SingleProblemList = (props: Props) => {
   const { listId } = props;
   const loginState = useLoginState();
@@ -94,7 +78,7 @@ export const SingleProblemList = (props: Props) => {
           <h2>
             <DoubleClickEdit
               modifiable={modifiable}
-              saveText={(name) => updateList(name, listId)}
+              saveText={async (name) => await updateProblemList(name, listId)}
               initialText={listInfo.internal_list_name}
             />
           </h2>
@@ -105,8 +89,8 @@ export const SingleProblemList = (props: Props) => {
           {adding ? (
             <ProblemSearchBox
               problems={problems}
-              selectProblem={(problem) =>
-                addItem(problem.id, listId).then(() =>
+              selectProblem={async (problem) =>
+                await addProblemItem(problem.id, listId).then(() =>
                   problemListFetch.mutate()
                 )
               }
@@ -139,13 +123,15 @@ export const SingleProblemList = (props: Props) => {
                   key={item.problem_id}
                   item={item}
                   problem={problem}
-                  saveText={(memo: string) =>
-                    updateItem(item.problem_id, memo, listId).then(() =>
-                      problemListFetch.mutate()
-                    )
+                  saveText={async (memo: string) =>
+                    await updateProblemItem(
+                      item.problem_id,
+                      memo,
+                      listId
+                    ).then(() => problemListFetch.mutate())
                   }
-                  deleteItem={() =>
-                    deleteItem(item.problem_id, listId).then(() =>
+                  deleteItem={async () =>
+                    await deleteProblemItem(item.problem_id, listId).then(() =>
                       problemListFetch.mutate()
                     )
                   }
