@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { connect, PromiseState } from "react-refetch";
 import { List } from "immutable";
 import {
   Alert,
@@ -15,49 +14,41 @@ import {
   Spinner,
 } from "reactstrap";
 import { useProblems } from "../../../api/APIClient";
-import { useLoginState } from "../../../api/InternalAPIClient";
-import {
-  LIST_ITEM_ADD,
-  LIST_ITEM_DELETE,
-  LIST_ITEM_UPDATE,
-  LIST_UPDATE,
-  listGetUrl,
-} from "../ApiUrl";
+import { useLoginState, useProblemList } from "../../../api/InternalAPIClient";
 import Problem from "../../../interfaces/Problem";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { formatProblemUrl } from "../../../utils/Url";
-import { ProblemList, ProblemListItem } from "../types";
+import { ProblemListItem } from "../types";
 import { NewTabLink } from "../../../components/NewTabLink";
 import { ContestCreatePage } from "../VirtualContest/ContestCreatePage";
-
-interface OuterProps {
+import {
+  updateProblemList,
+  addProblemItem,
+  deleteProblemItem,
+  updateProblemItem,
+} from "./ApiClient";
+interface Props {
   listId: string;
 }
-interface InnerProps extends OuterProps {
-  problemListFetch: PromiseState<ProblemList>;
-  updateList: (name: string) => void;
-  updateListResponse: PromiseState<Record<string, unknown> | null>;
 
-  addItem: (problemId: string) => void;
-  deleteItem: (problemId: string) => void;
-  updateItem: (problemId: string, memo: string) => void;
-}
-
-const InnerSingleProblemList = (props: InnerProps) => {
+export const SingleProblemList = (props: Props) => {
+  const { listId } = props;
   const loginState = useLoginState();
   const [adding, setAdding] = useState(false);
   const [creatingContest, setCreatingContest] = useState(false);
   const problems = useProblems() ?? [];
 
-  const { problemListFetch } = props;
+  const problemListFetch = useProblemList(listId);
+
   const internalUserId = loginState.data?.internal_user_id;
-  if (problemListFetch.pending) {
+
+  if (!problemListFetch.data && !problemListFetch.error) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
-  } else if (problemListFetch.rejected || !problemListFetch.value) {
+  } else if (!problemListFetch.data) {
     return <Alert color="danger">Failed to fetch list info.</Alert>;
   }
-  const listInfo = problemListFetch.value;
-  const modifiable = listInfo.internal_user_id === internalUserId;
+  const listInfo = problemListFetch.data;
+  const modifiable = listInfo?.internal_user_id === internalUserId;
 
   return creatingContest ? (
     <>
@@ -87,7 +78,7 @@ const InnerSingleProblemList = (props: InnerProps) => {
           <h2>
             <DoubleClickEdit
               modifiable={modifiable}
-              saveText={(name): void => props.updateList(name)}
+              saveText={async (name) => await updateProblemList(name, listId)}
               initialText={listInfo.internal_list_name}
             />
           </h2>
@@ -98,9 +89,11 @@ const InnerSingleProblemList = (props: InnerProps) => {
           {adding ? (
             <ProblemSearchBox
               problems={problems}
-              selectProblem={(problem): void => {
-                props.addItem(problem.id);
-              }}
+              selectProblem={async (problem) =>
+                await addProblemItem(problem.id, listId).then(() =>
+                  problemListFetch.mutate()
+                )
+              }
             />
           ) : modifiable ? (
             <Button color="success" onClick={(): void => setAdding(!adding)}>
@@ -130,10 +123,18 @@ const InnerSingleProblemList = (props: InnerProps) => {
                   key={item.problem_id}
                   item={item}
                   problem={problem}
-                  saveText={(memo: string): void =>
-                    props.updateItem(item.problem_id, memo)
+                  saveText={async (memo: string) =>
+                    await updateProblemItem(
+                      item.problem_id,
+                      memo,
+                      listId
+                    ).then(() => problemListFetch.mutate())
                   }
-                  deleteItem={(): void => props.deleteItem(item.problem_id)}
+                  deleteItem={async () =>
+                    await deleteProblemItem(item.problem_id, listId).then(() =>
+                      problemListFetch.mutate()
+                    )
+                  }
                 />
               );
             })}
@@ -143,53 +144,6 @@ const InnerSingleProblemList = (props: InnerProps) => {
     </>
   );
 };
-
-export const SingleProblemList = connect<OuterProps, InnerProps>((props) => ({
-  problemListFetch: listGetUrl(props.listId),
-  updateList: (name: string) => ({
-    updateListResponse: {
-      url: LIST_UPDATE,
-      method: "POST",
-      body: JSON.stringify({ internal_list_id: props.listId, name }),
-      force: true,
-    },
-  }),
-  updateListResponse: { value: null },
-  addItem: (problemId: string) => ({
-    problemListFetch: {
-      url: LIST_ITEM_ADD,
-      method: "POST",
-      body: JSON.stringify({
-        internal_list_id: props.listId,
-        problem_id: problemId,
-      }),
-      then: (): string => listGetUrl(props.listId),
-    },
-  }),
-  deleteItem: (problemId: string) => ({
-    problemListFetch: {
-      url: LIST_ITEM_DELETE,
-      method: "POST",
-      body: JSON.stringify({
-        internal_list_id: props.listId,
-        problem_id: problemId,
-      }),
-      then: (): string => listGetUrl(props.listId),
-    },
-  }),
-  updateItem: (problemId: string, memo: string) => ({
-    problemListFetch: {
-      url: LIST_ITEM_UPDATE,
-      method: "POST",
-      body: JSON.stringify({
-        internal_list_id: props.listId,
-        problem_id: problemId,
-        memo,
-      }),
-      then: (): string => listGetUrl(props.listId),
-    },
-  }),
-}))(InnerSingleProblemList);
 
 const ProblemEntry: React.FC<{
   item: ProblemListItem;
