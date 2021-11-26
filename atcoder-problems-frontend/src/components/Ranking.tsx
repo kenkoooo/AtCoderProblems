@@ -1,7 +1,9 @@
 import React from "react";
-import { Row } from "reactstrap";
+import { Row, Form, FormGroup, CustomInput } from "reactstrap";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { RankingEntry } from "../interfaces/RankingEntry";
+import { useLocalStorage } from "../utils/LocalStorage";
+import { UserNameLabel } from "./UserNameLabel";
 
 interface Props {
   title: React.ReactNode;
@@ -35,51 +37,68 @@ const refineRanking = (ranking: RankingEntry[]): InternalRankEntry[] =>
       return array;
     }, [] as InternalRankEntry[]);
 
-export const Ranking: React.FC<Props> = (props) => (
-  <Row>
-    <h2>{props.title}</h2>
-    <BootstrapTable
-      height="auto"
-      data={refineRanking(props.ranking)}
-      pagination
-      striped
-      hover
-      search
-      options={{
-        paginationPosition: "top",
-        sizePerPage: 20,
-        sizePerPageList: [
-          {
-            text: "20",
-            value: 20,
-          },
-          {
-            text: "50",
-            value: 50,
-          },
-          {
-            text: "100",
-            value: 100,
-          },
-          {
-            text: "200",
-            value: 200,
-          },
-          {
-            text: "All",
-            value: props.ranking.length,
-          },
-        ],
-      }}
-    >
-      <TableHeaderColumn dataField="rank">#</TableHeaderColumn>
-      <TableHeaderColumn dataField="id" isKey>
-        User
-      </TableHeaderColumn>
-      <TableHeaderColumn dataField="count">Count</TableHeaderColumn>
-    </BootstrapTable>
-  </Row>
-);
+export const Ranking: React.FC<Props> = (props) => {
+  const [showRating, setShowRating] = useLocalStorage("showRating", false);
+  const usernameFormatter = (cell: string) => {
+    return <UserNameLabel userId={cell} showRating={showRating} />;
+  };
+  return (
+    <Row>
+      <Form inline>
+        <h2>{props.title}</h2>
+        <FormGroup className="ml-3">
+          <CustomInput
+            type="switch"
+            id="showRating"
+            label="Show Rating"
+            checked={showRating}
+            onChange={(): void => setShowRating(!showRating)}
+          />
+        </FormGroup>
+      </Form>
+      <BootstrapTable
+        height="auto"
+        data={refineRanking(props.ranking)}
+        pagination
+        striped
+        hover
+        search
+        options={{
+          paginationPosition: "top",
+          sizePerPage: 20,
+          sizePerPageList: [
+            {
+              text: "20",
+              value: 20,
+            },
+            {
+              text: "50",
+              value: 50,
+            },
+            {
+              text: "100",
+              value: 100,
+            },
+            {
+              text: "200",
+              value: 200,
+            },
+            {
+              text: "All",
+              value: props.ranking.length,
+            },
+          ],
+        }}
+      >
+        <TableHeaderColumn dataField="rank">#</TableHeaderColumn>
+        <TableHeaderColumn dataField="id" isKey dataFormat={usernameFormatter}>
+          User
+        </TableHeaderColumn>
+        <TableHeaderColumn dataField="count">Count</TableHeaderColumn>
+      </BootstrapTable>
+    </Row>
+  );
+};
 
 const refineRankingWithOffset = (
   ranking: RankingEntry[],
@@ -140,9 +159,24 @@ export const RemoteRanking: React.FC<RemoteProps> = (props) => {
     });
   };
   const offset = (page - 1) * sizePerPage;
+  const [showRating, setShowRating] = useLocalStorage("showRating", false);
+  const usernameFormatter = (cell: string) => {
+    return <UserNameLabel userId={cell} showRating={showRating} />;
+  };
   return (
     <Row>
-      <h2>{props.titleComponent}</h2>
+      <Form inline>
+        <h2>{props.titleComponent}</h2>
+        <FormGroup className="ml-3">
+          <CustomInput
+            type="switch"
+            id="showRating"
+            label="Show Rating"
+            checked={showRating}
+            onChange={(): void => setShowRating(!showRating)}
+          />
+        </FormGroup>
+      </Form>
       <BootstrapTable
         height="auto"
         data={refineRankingWithOffset(
@@ -182,7 +216,7 @@ export const RemoteRanking: React.FC<RemoteProps> = (props) => {
         }}
       >
         <TableHeaderColumn dataField="rank">#</TableHeaderColumn>
-        <TableHeaderColumn dataField="id" isKey>
+        <TableHeaderColumn dataField="id" isKey dataFormat={usernameFormatter}>
           User
         </TableHeaderColumn>
         <TableHeaderColumn dataField="count">Count</TableHeaderColumn>
