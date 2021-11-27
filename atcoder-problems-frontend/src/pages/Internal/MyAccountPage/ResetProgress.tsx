@@ -1,35 +1,16 @@
 import { Button, Col, Row, Table } from "reactstrap";
 import React from "react";
-import { connect, PromiseState } from "react-refetch";
 import { GoTrashcan } from "react-icons/go";
 import { useProblems } from "../../../api/APIClient";
 import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
-import { ProgressResetList } from "../types";
-import {
-  PROGRESS_RESET_ADD,
-  PROGRESS_RESET_DELETE,
-  PROGRESS_RESET_LIST,
-} from "../ApiUrl";
 import { ProblemLink } from "../../../components/ProblemLink";
-import {
-  formatMomentDateTime,
-  parseSecond,
-  getCurrentUnixtimeInSecond,
-} from "../../../utils/DateUtil";
+import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
+import { useProgressResetList } from "../../../api/InternalAPIClient";
+import { addResetProgress, deleteResetProgress } from "./ApiClient";
 
-interface Props {
-  progressResetList: PromiseState<ProgressResetList | null>;
-  addResetProgress: (problemId: string) => void;
-  addResetProgressResponse: PromiseState<Record<string, unknown> | null>;
-  deleteResetProgress: (problemId: string) => void;
-  deleteResetProgressResponse: PromiseState<Record<string, unknown> | null>;
-}
-
-const InnerResetProgress: React.FC<Props> = (props) => {
-  const progressResetList =
-    props.progressResetList.fulfilled && props.progressResetList.value
-      ? props.progressResetList.value.items
-      : [];
+export const ResetProgress: React.FC = () => {
+  const progressResetListFetch = useProgressResetList();
+  const progressResetList = progressResetListFetch.data?.items || [];
   progressResetList.sort((a, b) => a.reset_epoch_second - b.reset_epoch_second);
   const problems = useProblems() ?? [];
   return (
@@ -43,7 +24,11 @@ const InnerResetProgress: React.FC<Props> = (props) => {
         <Col sm="12">
           <ProblemSearchBox
             problems={problems}
-            selectProblem={(problm): void => props.addResetProgress(problm.id)}
+            selectProblem={async (problem) =>
+              await addResetProgress(problem.id).then(() =>
+                progressResetListFetch.mutate()
+              )
+            }
           />
         </Col>
       </Row>
@@ -81,8 +66,10 @@ const InnerResetProgress: React.FC<Props> = (props) => {
                     <td>
                       <Button
                         color="danger"
-                        onClick={(): void =>
-                          props.deleteResetProgress(item.problem_id)
+                        onClick={async () =>
+                          await deleteResetProgress(item.problem_id).then(() =>
+                            progressResetListFetch.mutate()
+                          )
                         }
                       >
                         <GoTrashcan />
@@ -98,46 +85,3 @@ const InnerResetProgress: React.FC<Props> = (props) => {
     </>
   );
 };
-
-export const ResetProgress = connect<unknown, Props>(() => ({
-  progressResetList: {
-    url: PROGRESS_RESET_LIST,
-  },
-  addResetProgressResponse: { value: null },
-  addResetProgress: (problemId: string) => ({
-    addResetProgressResponse: {
-      force: true,
-      refreshing: true,
-      url: PROGRESS_RESET_ADD,
-      method: "POST",
-      body: JSON.stringify({
-        problem_id: problemId,
-        reset_epoch_second: getCurrentUnixtimeInSecond(),
-      }),
-      andThen: () => ({
-        progressResetList: {
-          force: true,
-          url: PROGRESS_RESET_LIST,
-        },
-      }),
-    },
-  }),
-  deleteResetProgress: (problemId: string) => ({
-    deleteResetProgressResponse: {
-      force: true,
-      refreshing: true,
-      url: PROGRESS_RESET_DELETE,
-      method: "POST",
-      body: JSON.stringify({
-        problem_id: problemId,
-      }),
-      andThen: () => ({
-        progressResetList: {
-          force: true,
-          url: PROGRESS_RESET_LIST,
-        },
-      }),
-    },
-  }),
-  deleteResetProgressResponse: { value: null },
-}))(InnerResetProgress);
