@@ -2,7 +2,7 @@ import { Row, Table } from "reactstrap";
 import React from "react";
 import { useProblemModelMap } from "../../api/APIClient";
 import Contest from "../../interfaces/Contest";
-import Problem from "../../interfaces/Problem";
+import MergedProblem from "../../interfaces/MergedProblem";
 import { ProblemId, ProblemStatus, StatusLabel } from "../../interfaces/Status";
 import { ColorMode, statusToTableColor } from "../../utils/TableColor";
 import { ProblemLink } from "../../components/ProblemLink";
@@ -10,10 +10,11 @@ import { ContestLink } from "../../components/ContestLink";
 import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { isRatedContest } from "../../utils/ContestClassifier";
+import { ProblemPoint } from "../../components/Problempoint";
 
 interface Props {
   contests: Contest[];
-  contestToProblems: Map<string, Problem[]>;
+  contestToProblems: Map<string, MergedProblem[]>;
   hideCompletedContest: boolean;
   showDifficulty: boolean;
   colorMode: ColorMode;
@@ -101,6 +102,8 @@ export const ContestTable: React.FC<Props> = (props) => {
                             selectedLanguages,
                           })
                         : "";
+                      const INF_POINT = 1e18;
+                      const point = problem.point ?? INF_POINT;
                       return (
                         <td
                           key={problem.id}
@@ -120,6 +123,9 @@ export const ContestTable: React.FC<Props> = (props) => {
                             problemModel={model}
                             userRatingInfo={userRatingInfo}
                           />
+                          {props.colorMode === ColorMode.None && (
+                            <ProblemPoint point={point} />
+                          )}
                           {props.colorMode === ColorMode.ContestResult && (
                             <SubmitTimespan
                               contest={contest}

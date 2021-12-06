@@ -222,6 +222,31 @@ export const useContestToProblems = () => {
   );
 };
 
+export const useContestToMergedProblems = () => {
+  const url = STATIC_API_BASE_URL + "/contest-problem.json";
+  const contestIdToProblemIdArray = useSWRData(url, (url) =>
+    fetchTypedArray(
+      url,
+      (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
+        hasPropertyAsType(obj, "contest_id", isString) &&
+        hasPropertyAsType(obj, "problem_id", isString)
+    )
+  );
+  const { data: problemMap } = useMergedProblemMap();
+  return contestIdToProblemIdArray.data?.reduce(
+    (map, { contest_id, problem_id }) => {
+      const problem = problemMap?.get(problem_id);
+      if (problem) {
+        const problems = map.get(contest_id) ?? [];
+        problems.push(problem);
+        map.set(contest_id, problems);
+      }
+      return map;
+    },
+    new Map<ContestId, MergedProblem[]>()
+  );
+};
+
 export const useContestMap = () => {
   const contests = useContests().data;
   return contests?.reduce((map, contest) => {

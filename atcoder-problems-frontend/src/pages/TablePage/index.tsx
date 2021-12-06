@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { List } from "immutable";
 import {
   useContests,
-  useContestToProblems,
+  useContestToMergedProblems,
   useRatingInfo,
   useUserSubmission,
   useMultipleUserSubmissions,
@@ -11,7 +11,7 @@ import {
   useLoginState,
   useProgressResetList,
 } from "../../api/InternalAPIClient";
-import Problem from "../../interfaces/Problem";
+import MergedProblem from "../../interfaces/MergedProblem";
 import { constructStatusLabelMap, ContestId } from "../../interfaces/Status";
 import { useLocalStorage } from "../../utils/LocalStorage";
 import { ColorMode } from "../../utils/TableColor";
@@ -55,7 +55,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
   const [selectedLanguages, setSelectedLanguages] = useState(new Set<string>());
   const userRatingInfo = useRatingInfo(props.userId);
   const contestToProblems =
-    useContestToProblems() ?? new Map<ContestId, Problem[]>();
+    useContestToMergedProblems() ?? new Map<ContestId, MergedProblem[]>();
   const { data: contests } = useContests();
   const selectableLanguages = new Set(
     useUserSubmission(props.userId)?.map((s) => s.language) ?? []

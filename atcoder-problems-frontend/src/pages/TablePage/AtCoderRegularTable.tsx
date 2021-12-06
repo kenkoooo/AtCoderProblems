@@ -3,7 +3,7 @@ import React from "react";
 import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { useProblemModelMap } from "../../api/APIClient";
 import Contest from "../../interfaces/Contest";
-import Problem from "../../interfaces/Problem";
+import MergedProblem from "../../interfaces/MergedProblem";
 import {
   noneStatus,
   ProblemId,
@@ -21,10 +21,11 @@ import { ContestLink } from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
+import { ProblemPoint } from "../../components/Problempoint";
 
 interface Props {
   contests: Contest[];
-  contestToProblems: Map<string, Problem[]>;
+  contestToProblems: Map<string, MergedProblem[]>;
   hideCompletedContest: boolean;
   showDifficulty: boolean;
   colorMode: ColorMode;
@@ -35,7 +36,7 @@ interface Props {
   userRatingInfo: RatingInfo;
 }
 
-const getProblemHeaderAlphabetFromTitle = (problem: Problem) => {
+const getProblemHeaderAlphabetFromTitle = (problem: MergedProblem) => {
   const list = problem.title.split(".");
   return list.length === 0 ? "" : list[0];
 };
@@ -49,7 +50,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
     problemStatus: Map<
       string,
       {
-        problem: Problem;
+        problem: MergedProblem;
         status: ProblemStatus;
         model?: ProblemModel;
         cellColor: TableColor;
@@ -158,6 +159,8 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
               const problem = problemStatus.get(c);
               const model = problem ? problem.model : undefined;
               if (problem) {
+                const INF_POINT = 1e18;
+                const point = problem.problem.point ?? INF_POINT;
                 return (
                   <>
                     <ProblemLink
@@ -172,6 +175,9 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       problemModel={model}
                       userRatingInfo={userRatingInfo}
                     />
+                    {props.colorMode === ColorMode.None && (
+                      <ProblemPoint point={point} />
+                    )}
                     {props.colorMode === ColorMode.ContestResult && (
                       <SubmitTimespan
                         contest={contest}
