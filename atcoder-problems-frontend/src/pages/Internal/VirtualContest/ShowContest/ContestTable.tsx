@@ -1,51 +1,50 @@
-import { Table } from "reactstrap";
 import React from "react";
 import { useLocation } from "react-router-dom";
+import { Alert, Spinner, Table } from "reactstrap";
 import {
   useMergedProblemMap,
   useProblemModelMap,
   useVirtualContestSubmissions,
 } from "../../../../api/APIClient";
-import { clipDifficulty, ordinalSuffixOf } from "../../../../utils";
-import { VirtualContestItem } from "../../types";
 import { ProblemLink } from "../../../../components/ProblemLink";
-import { ProblemId, UserId } from "../../../../interfaces/Status";
-import {
+import { TweetButton } from "../../../../components/TweetButton";
+import MergedProblem from "../../../../interfaces/MergedProblem";
+import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel,
   ProblemModelWithDifficultyModel,
   ProblemModelWithTimeModel,
 } from "../../../../interfaces/ProblemModel";
+import { ProblemId, UserId } from "../../../../interfaces/Status";
+import { clipDifficulty, ordinalSuffixOf } from "../../../../utils";
+import { getCurrentUnixtimeInSecond } from "../../../../utils/DateUtil";
 import {
   calculatePerformances,
   makeBotRunners,
 } from "../../../../utils/RatingSystem";
-import { TweetButton } from "../../../../components/TweetButton";
-import { getCurrentUnixtimeInSecond } from "../../../../utils/DateUtil";
+import { VirtualContestItem } from "../../types";
+import { ContestTableRow } from "./ContestTableRow";
+import { FirstAcceptanceRow } from "./FirstAcceptanceRow";
 import {
   calcUserTotalResult,
   compareTotalResult,
   ReducedProblemResult,
   UserTotalResult,
 } from "./ResultCalcUtil";
-import { ContestTableRow } from "./ContestTableRow";
-import { FirstAcceptanceRow } from "./FirstAcceptanceRow";
-import {
-  compareProblem,
-  getPointOverrideMap,
-  getResultsByUserMap,
-} from "./util";
+import { compareProblem, getResultsByUserMap } from "./util";
+
+interface VirtualContestProblem {
+  item: VirtualContestItem;
+  title?: string;
+  contestId?: string;
+}
 
 interface Props {
   readonly contestId: string;
   readonly contestTitle: string;
   readonly showRating: boolean;
   readonly showProblems: boolean;
-  readonly problems: {
-    item: VirtualContestItem;
-    title?: string;
-    contestId?: string;
-  }[];
+  readonly problems: VirtualContestProblem[];
   readonly enableEstimatedPerformances: boolean;
   readonly users: string[];
   readonly start: number;
@@ -55,6 +54,84 @@ interface Props {
   readonly pinMe: boolean;
   readonly penaltySecond: number;
 }
+
+const getPerformanceByUserId = (
+  lookForUserId: string,
+  sortedUserIds: UserId[],
+  performanceMap: Map<UserId, number>
+) => {
+  const index = sortedUserIds.indexOf(lookForUserId);
+  if (index < 0) {
+    return undefined;
+  }
+  let upper: number | undefined;
+  for (let i = index; i < sortedUserIds.length; i++) {
+    const userId = sortedUserIds[i];
+    const performance = performanceMap.get(userId);
+    if (performance !== undefined) {
+      upper = performance;
+      break;
+    }
+  }
+
+  let lower: number | undefined;
+  for (let i = index; i >= 0; i--) {
+    const userId = sortedUserIds[i];
+    const performance = performanceMap.get(userId);
+    if (performance !== undefined) {
+      lower = performance;
+      break;
+    }
+  }
+
+  if (lower !== undefined && upper !== undefined) {
+    return (lower + upper) / 2;
+  } else if (lower !== undefined) {
+    return lower;
+  } else if (upper !== undefined) {
+    return upper;
+  } else {
+    return undefined;
+  }
+};
+
+const constructPointOverrideMap = <T extends { item: VirtualContestItem }>(
+  problems: T[]
+) => {
+  const pointOverrideMap = new Map<ProblemId, number>();
+  problems.forEach(({ item }) => {
+    const problemId = item.id;
+    const point = item.point;
+    if (point !== null) {
+      pointOverrideMap.set(problemId, point);
+    }
+  });
+  return pointOverrideMap;
+};
+
+const consolidateModels = (
+  problems: VirtualContestProblem[],
+  problemMap?: Map<ProblemId, MergedProblem>,
+  problemModels?: Map<ProblemId, ProblemModel>
+) => {
+  const modelArray = [] as {
+    problemModel: ProblemModelWithDifficultyModel & ProblemModelWithTimeModel;
+    problemId: string;
+    point: number;
+  }[];
+  problems.forEach(({ item }) => {
+    const problemId = item.id;
+    const point = item.point ?? problemMap?.get(problemId)?.point ?? 100;
+    const problemModel = problemModels?.get(problemId);
+    if (
+      isProblemModelWithTimeModel(problemModel) &&
+      isProblemModelWithDifficultyModel(problemModel)
+    ) {
+      modelArray.push({ problemModel, problemId, point });
+    }
+  });
+  return modelArray;
+};
 
 export const ContestTable = (props: Props) => {
   const {
@@ -74,44 +151,33 @@ export const ContestTable = (props: Props) => {
   const showBots = !!query.get("bot");
   const problemModels = useProblemModelMap();
   const { data: problemMap } = useMergedProblemMap();
-
-  const modelArray = [] as {
-    problemModel: ProblemModelWithDifficultyModel & ProblemModelWithTimeModel;
-    problemId: string;
-    point: number;
-  }[];
-  problems.forEach(({ item }) => {
-    const problemId = item.id;
-    const point = item.point ?? problemMap?.get(problemId)?.point ?? 100;
-    const problemModel = problemModels?.get(problemId);
-    if (
-      isProblemModelWithTimeModel(problemModel) &&
-      isProblemModelWithDifficultyModel(problemModel)
-    ) {
-      modelArray.push({ problemModel, problemId, point });
-    }
-  });
-
   const submissions = useVirtualContestSubmissions(
     props.users,
     problems.map((p) => p.item.id),
     start,
     end,
-    props.enableAutoRefresh ? 60_000 : 1_000_000_000
+    props.enableAutoRefresh
   );
+  if (!submissions.data && !submissions.error) {
+    return <Spinner />;
+  }
+  if (!submissions.data) {
+    return <Alert color="danger">Failed to fetch submissions.</Alert>;
+  }
 
-  const pointOverrideMap = getPointOverrideMap(problems);
+  const modelArray = consolidateModels(problems, problemMap, problemModels);
+  const pointOverrideMap = constructPointOverrideMap(problems);
   const resultsByUser = getResultsByUserMap(
-    submissions ?? [],
+    submissions.data,
     users,
     (problemId) => pointOverrideMap.get(problemId)
   );
 
-  const currentSecond = Math.floor(new Date().getTime() / 1000);
+  const now = getCurrentUnixtimeInSecond();
   const showEstimatedPerformances =
     props.enableEstimatedPerformances &&
     modelArray.length === problems.length &&
-    currentSecond >= start;
+    now >= start;
   const botRunnerIds = new Set<UserId>();
   const ratingMap = new Map<UserId, number>();
   if (showEstimatedPerformances) {
@@ -157,42 +223,6 @@ export const ContestTable = (props: Props) => {
     }
   }
 
-  const getPerformanceByUserId = (lookForUserId: string) => {
-    const index = sortedUserIds.indexOf(lookForUserId);
-    if (index < 0) {
-      return undefined;
-    }
-    let upper: number | undefined;
-    for (let i = index; i < sortedUserIds.length; i++) {
-      const userId = sortedUserIds[i];
-      const performance = performanceMap.get(userId);
-      if (performance !== undefined) {
-        upper = performance;
-        break;
-      }
-    }
-
-    let lower: number | undefined;
-    for (let i = index; i >= 0; i--) {
-      const userId = sortedUserIds[i];
-      const performance = performanceMap.get(userId);
-      if (performance !== undefined) {
-        lower = performance;
-        break;
-      }
-    }
-
-    if (lower !== undefined && upper !== undefined) {
-      return (lower + upper) / 2;
-    } else if (lower !== undefined) {
-      return lower;
-    } else if (upper !== undefined) {
-      return upper;
-    } else {
-      return undefined;
-    }
-  };
-
   const showingUserIds = sortedUserIds.filter(
     (userId) => !botRunnerIds.has(userId) || showBots
   );
@@ -209,21 +239,18 @@ export const ContestTable = (props: Props) => {
     }))
     .sort(compareProblem);
 
-  const now = getCurrentUnixtimeInSecond();
-
   const loginUserRank = loginUserIndex + 1;
-  const tweetButton =
-    end < now ? (
-      <TweetButton
-        id={contestId}
-        text={`${atCoderUserId} took ${loginUserRank}${ordinalSuffixOf(
-          loginUserRank
-        )} place in ${contestTitle}!`}
-        color="link"
-      >
-        Share it!
-      </TweetButton>
-    ) : undefined;
+  const tweetButton = end < now && (
+    <TweetButton
+      id={contestId}
+      text={`${atCoderUserId} took ${loginUserRank}${ordinalSuffixOf(
+        loginUserRank
+      )} place in ${contestTitle}!`}
+      color="link"
+    >
+      Share it!
+    </TweetButton>
+  );
 
   return (
     <Table striped bordered size="sm">
@@ -259,7 +286,11 @@ export const ContestTable = (props: Props) => {
             showRating={showRating}
             showProblems={showProblems}
             start={start}
-            estimatedPerformance={getPerformanceByUserId(atCoderUserId)}
+            estimatedPerformance={getPerformanceByUserId(
+              atCoderUserId,
+              sortedUserIds,
+              performanceMap
+            )}
             reducedProblemResults={
               resultsByUser.get(atCoderUserId) ??
               new Map<ProblemId, ReducedProblemResult>()
@@ -271,7 +302,7 @@ export const ContestTable = (props: Props) => {
         {showingUserIds.map((userId, i) => {
           return (
             <ContestTableRow
-              tweetButton={atCoderUserId === userId ? tweetButton : undefined}
+              tweetButton={atCoderUserId === userId && tweetButton}
               key={userId}
               userId={userId}
               rank={i}
@@ -279,7 +310,11 @@ export const ContestTable = (props: Props) => {
               showRating={showRating}
               showProblems={showProblems}
               start={start}
-              estimatedPerformance={getPerformanceByUserId(userId)}
+              estimatedPerformance={getPerformanceByUserId(
+                userId,
+                sortedUserIds,
+                performanceMap
+              )}
               reducedProblemResults={
                 resultsByUser.get(userId) ??
                 new Map<ProblemId, ReducedProblemResult>()

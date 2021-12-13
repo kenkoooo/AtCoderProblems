@@ -1,15 +1,15 @@
-import { Badge, Table } from "reactstrap";
 import React from "react";
+import { Badge, Table } from "reactstrap";
 import { useVirtualContestSubmissions } from "../../../../../api/APIClient";
-import { VirtualContestItem } from "../../../types";
+import { UserNameLabel } from "../../../../../components/UserNameLabel";
 import { UserId } from "../../../../../interfaces/Status";
+import { VirtualContestItem } from "../../../types";
 import {
   calcUserTotalResult,
   compareTotalResult,
   UserTotalResult,
 } from "../ResultCalcUtil";
-import { getResultsByUserMap, compareProblem } from "../util";
-import { UserNameLabel } from "../../../../../components/UserNameLabel";
+import { compareProblem, getResultsByUserMap } from "../util";
 import { SmallScoreCell } from "./SmallScoreCell";
 
 interface Props {
@@ -28,14 +28,18 @@ interface Props {
 
 export const TrainingContestTable = (props: Props) => {
   const { showRating, showProblems, problems, users, start, end } = props;
-  const submissions = useVirtualContestSubmissions(
+  const submissionsResponse = useVirtualContestSubmissions(
     props.users,
     problems.map((p) => p.item.id),
     start,
     end,
-    props.enableAutoRefresh ? 60_000 : 1_000_000_000
+    props.enableAutoRefresh
   );
-  const resultsByUser = getResultsByUserMap(submissions ?? [], users, () => 1);
+  const resultsByUser = getResultsByUserMap(
+    submissionsResponse.data ?? [],
+    users,
+    () => 1
+  );
 
   const totalResultByUser = new Map<UserId, UserTotalResult>();
   resultsByUser.forEach((map, userId) => {

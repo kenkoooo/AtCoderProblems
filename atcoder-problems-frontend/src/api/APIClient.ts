@@ -10,10 +10,11 @@ import {
   RankingEntry,
   SumRankingEntry,
 } from "../interfaces/RankingEntry";
-import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
+import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { clipDifficulty, isValidResult } from "../utils";
+import { toChunks } from "../utils/Chunk";
 import { ratingInfoOf } from "../utils/RatingInfo";
 import { hasPropertyAsType, isString } from "../utils/TypeUtils";
 import { useSWRData } from "./index";
@@ -294,23 +295,45 @@ export const useVirtualContestSubmissions = (
   problems: ProblemId[],
   fromSecond: number,
   toSecond: number,
-  refreshInterval: number
+  enableAutoRefresh: boolean
 ) => {
-  const userList = users.join(",");
-  const problemList = problems.join(",");
-  const url = `${ATCODER_API_URL}/v3/users_and_time?users=${userList}&problems=${problemList}&from=${fromSecond}&to=${toSecond}`;
+  const PROBLEM_CHUNK_SIZE = 10;
+  const USER_CHUNK_SIZE = 10;
+  const requestCount =
+    Math.ceil(users.length / USER_CHUNK_SIZE) *
+    Math.ceil(problems.length / PROBLEM_CHUNK_SIZE);
+
+  const refreshInterval = enableAutoRefresh
+    ? Math.max(1, requestCount / 10) * 60_000
+    : 1_000_000_000;
+
+  const userChunks = toChunks(users, USER_CHUNK_SIZE);
+  const problemChunks = toChunks(problems, PROBLEM_CHUNK_SIZE);
+  const singleFetch = async (users: UserId[], problems: ProblemId[]) => {
+    const userList = users.join(",");
+    const problemList = problems.join(",");
+    const url = `${ATCODER_API_URL}/v3/users_and_time?users=${userList}&problems=${problemList}&from=${fromSecond}&to=${toSecond}`;
+    const submissions = await fetchTypedArray(url, isSubmission);
+    return submissions.filter((submission) => isValidResult(submission.result));
+  };
+
+  const fetcher = async () => {
+    const promises = userChunks
+      .flatMap((users) =>
+        problemChunks.map((problems) => ({ users, problems }))
+      )
+      .map(({ users, problems }) => singleFetch(users, problems));
+    const submissionChunks = await Promise.all(promises);
+    return submissionChunks.flatMap((x) => x);
+  };
+
   return useSWRData(
-    url,
-    (url) =>
-      userList.length > 0
-        ? fetchTypedArray(url, isSubmission).then((submissions) =>
-            submissions.filter((submission) => isValidResult(submission.result))
-          )
-        : Promise.resolve([]),
+    "useVirtualContestSubmissions",
+    () => (users.length > 0 ? fetcher() : Promise.resolve([])),
     {
       refreshInterval,
     }
-  ).data;
+  );
 };
 
 export const useRecentSubmissions = () => {

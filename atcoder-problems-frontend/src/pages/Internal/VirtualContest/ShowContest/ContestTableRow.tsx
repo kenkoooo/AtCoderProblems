@@ -1,7 +1,7 @@
 import React from "react";
+import { UserNameLabel } from "../../../../components/UserNameLabel";
 import { ProblemId } from "../../../../interfaces/Status";
 import { clipDifficulty, getRatingColorClass } from "../../../../utils";
-import { UserNameLabel } from "../../../../components/UserNameLabel";
 import { ReducedProblemResult, UserTotalResult } from "./ResultCalcUtil";
 import { ScoreCell } from "./ScoreCell";
 
@@ -22,7 +22,7 @@ const EstimatedPerformance: React.FC<{
 };
 
 interface ContestTableRowProps {
-  tweetButton?: JSX.Element;
+  tweetButton: JSX.Element | boolean;
   userId: string;
   rank: number;
   sortedItems: {

@@ -1,25 +1,10 @@
 import { ProblemId, UserId } from "../../../../interfaces/Status";
 import Submission from "../../../../interfaces/Submission";
 import { groupBy } from "../../../../utils/GroupBy";
-import { VirtualContestItem } from "../../types";
 import {
   ReducedProblemResult,
   reduceUserContestResult,
 } from "./ResultCalcUtil";
-
-export function getPointOverrideMap<T extends { item: VirtualContestItem }>(
-  problems: T[]
-) {
-  const pointOverrideMap = new Map<ProblemId, number>();
-  problems.forEach(({ item }) => {
-    const problemId = item.id;
-    const point = item.point;
-    if (point !== null) {
-      pointOverrideMap.set(problemId, point);
-    }
-  });
-  return pointOverrideMap;
-}
 
 export const getResultsByUserMap = (
   submissions: Submission[],
