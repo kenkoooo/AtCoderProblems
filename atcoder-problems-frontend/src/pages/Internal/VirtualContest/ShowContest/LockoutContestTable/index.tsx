@@ -1,11 +1,11 @@
 import React from "react";
-import { Table, Row, Col, Card, CardHeader, CardBody } from "reactstrap";
+import { Card, CardBody, CardHeader, Col, Row, Table } from "reactstrap";
 import { useVirtualContestSubmissions } from "../../../../../api/APIClient";
-import { VirtualContestItem } from "../../../types";
-import { isAccepted } from "../../../../../utils";
-import { ProblemId, UserId } from "../../../../../interfaces/Status";
 import { ProblemLink } from "../../../../../components/ProblemLink";
 import { UserNameLabel } from "../../../../../components/UserNameLabel";
+import { ProblemId, UserId } from "../../../../../interfaces/Status";
+import { isAccepted } from "../../../../../utils";
+import { VirtualContestItem } from "../../../types";
 
 const CARD_COLORS = ["success", "danger", "warning", "info", "primary"];
 
@@ -37,9 +37,9 @@ export const LockoutContestTable: React.FC<Props> = (props) => {
       props.problems.map((p) => p.item.id),
       props.start,
       props.end,
-      props.enableAutoRefresh ? 60_000 : 1_000_000_000
+      props.enableAutoRefresh
     )
-      ?.slice()
+      .data?.slice()
       .sort((a, b) => a.id - b.id) ?? [];
 
   const colorMap = new Map<string, string>();
