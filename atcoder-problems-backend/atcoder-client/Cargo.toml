@@ -2,16 +2,16 @@
 name = "atcoder-client"
 version = "0.1.1"
 authors = ["kenkoooo <kenkou.n@gmail.com>"]
-edition = "2018"
+edition = "2021"
 publish = false
 
 [dependencies]
-surf = "2.2.0"
+surf = "2.3"
 scraper = "0.12"
 chrono = "0.4"
 regex = "1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 futures = "0.3"
-anyhow = "1.0.40"
-log = "0.4.14"
+anyhow = "1.0"
+log = "0.4"
