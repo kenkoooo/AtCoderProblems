@@ -13,7 +13,7 @@ fern = "0.6.0"
 rand = "0.7.3"
 chrono = "0.4"
 regex = "1"
-rust-s3 = {version="0.27.0-rc4", features=["no-verify-ssl"]}
+rust-s3 = { version = "0.27.0-rc4", features = ["no-verify-ssl"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
@@ -26,14 +26,13 @@ atcoder-client = { path = "./atcoder-client" }
 # Web framework
 tide = "0.16"
 cookie = "0.14"
-surf = "2.2.0"
+surf = "2.3"
 
-async-trait = "0.1.48"
+async-trait = "0.1"
 
 async-std = { version = "1.9.0", features = ["attributes"] }
 anyhow = "1.0.32"
-futures = "0.3.5"
-tokio = {version="1.8.0",features=["rt-multi-thread","macros"]}
+tokio = { version = "1.15", features = ["rt-multi-thread", "macros"] }
 
 [dev-dependencies]
 
