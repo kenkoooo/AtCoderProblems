@@ -17,7 +17,7 @@ import {
   combineTableColorList,
 } from "../../utils/TableColor";
 import { ProblemLink } from "../../components/ProblemLink";
-import { ContestLink } from "../../components/ContestLink";
+import { ContestLink, getRatedTarget } from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
@@ -36,9 +36,11 @@ interface Props {
   userRatingInfo: RatingInfo;
 }
 
-const getProblemHeaderAlphabetFromTitle = (problem: MergedProblem) => {
+const getProblemHeaderAlphabet = (problem: MergedProblem, contest: Contest) => {
   const list = problem.title.split(".");
-  return list.length === 0 ? "" : list[0];
+  if (list.length === 0) return "";
+  if (list[0] === "H" && getRatedTarget(contest) < 2000) return "Ex";
+  return list[0];
 };
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
@@ -80,7 +82,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
       });
       const problemStatus = new Map(
         problemStatusList.map((status) => {
-          const alphabet = getProblemHeaderAlphabetFromTitle(status.problem);
+          const alphabet = getProblemHeaderAlphabet(status.problem, contest);
           return [alphabet, status];
         })
       );
@@ -107,11 +109,17 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
     );
 
   const headerList = props.contests
-    .flatMap((contest) => props.contestToProblems.get(contest.id) ?? [])
-    .map((problem) => getProblemHeaderAlphabetFromTitle(problem))
+    .flatMap((contest) =>
+      (props.contestToProblems.get(contest.id) ?? []).map((problem) =>
+        getProblemHeaderAlphabet(problem, contest)
+      )
+    )
     .filter((alphabet) => alphabet.length > 0);
 
-  const header = Array.from(new Set(headerList)).sort();
+  let header = Array.from(new Set(headerList));
+  if (header.includes("Ex"))
+    header = header.filter((c) => c != "Ex").concat("Ex");
+
   return (
     <Row className="my-4">
       <h2>{props.title}</h2>
