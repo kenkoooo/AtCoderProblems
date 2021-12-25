@@ -186,8 +186,9 @@ const PieCharts: React.FC<PieChartsProps> = ({ problems, title }) => (
     </Row>
     <Row className="my-3">
       {problems.map(({ solved, rejected, total }, i) => {
-        const key = "ABCDEFGH".charAt(i);
-        if(i==7)key="Ex";
+        const key;
+        if(i<=6)key = "ABCDEFG".charAt(i);
+        if(i==7)key = "H/Ex";
         return (
           <Col
             key={key}
