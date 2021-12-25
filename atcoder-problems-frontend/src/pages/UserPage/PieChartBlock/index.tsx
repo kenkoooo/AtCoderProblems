@@ -53,7 +53,7 @@ const solvedCountForPieChart = (
       case "G": {
         return 6;
       }
-      case "H": 
+      case "H":
       case "Ex": {
         return 7;
       }
