@@ -3,7 +3,7 @@ import { Badge, Table } from "reactstrap";
 import { useVirtualContestSubmissions } from "../../../../../api/APIClient";
 import { UserNameLabel } from "../../../../../components/UserNameLabel";
 import { UserId } from "../../../../../interfaces/Status";
-import { VirtualContestItem } from "../../../types";
+import { VirtualContestProblem } from "../../../types";
 import {
   calcUserTotalResult,
   compareTotalResult,
@@ -15,11 +15,7 @@ import { SmallScoreCell } from "./SmallScoreCell";
 interface Props {
   readonly showRating: boolean;
   readonly showProblems: boolean;
-  readonly problems: {
-    item: VirtualContestItem;
-    title?: string;
-    contestId?: string;
-  }[];
+  readonly problems: VirtualContestProblem[];
   readonly users: string[];
   readonly start: number;
   readonly end: number;

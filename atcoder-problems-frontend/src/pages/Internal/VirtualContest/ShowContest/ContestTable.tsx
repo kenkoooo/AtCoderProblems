@@ -22,7 +22,7 @@ import {
   calculatePerformances,
   makeBotRunners,
 } from "../../../../utils/RatingSystem";
-import { VirtualContestItem } from "../../types";
+import { VirtualContestItem, VirtualContestProblem } from "../../types";
 import { ContestTableRow } from "./ContestTableRow";
 import { FirstAcceptanceRow } from "./FirstAcceptanceRow";
 import {
@@ -32,12 +32,6 @@ import {
   UserTotalResult,
 } from "./ResultCalcUtil";
 import { compareProblem, getResultsByUserMap } from "./util";
-
-interface VirtualContestProblem {
-  item: VirtualContestItem;
-  title?: string;
-  contestId?: string;
-}
 
 interface Props {
   readonly contestId: string;

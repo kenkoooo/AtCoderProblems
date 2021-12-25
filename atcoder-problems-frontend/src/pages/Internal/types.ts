@@ -42,6 +42,12 @@ export interface VirtualContestItem {
   readonly order: number | null;
 }
 
+export interface VirtualContestProblem {
+  item: VirtualContestItem;
+  title?: string;
+  contestId?: string;
+}
+
 export type VirtualContestMode = null | "lockout" | "training";
 export const formatMode = (
   mode: VirtualContestMode
