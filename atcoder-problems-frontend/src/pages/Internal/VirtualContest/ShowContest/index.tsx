@@ -264,7 +264,13 @@ const NormalContestTabTypes = ["Problems", "Standings"] as const;
 type NormalContestTabType = typeof NormalContestTabTypes[number];
 const TAB_PARAM = "activeTab";
 
-const NormalContestPage = (props: StandingsProps) => {
+interface NormalContestPageProps extends StandingsProps {
+  readonly enableEstimatedPerformances: boolean;
+  readonly atCoderUserId: string;
+  readonly penaltySecond: number;
+}
+
+const NormalContestPage = (props: NormalContestPageProps) => {
   const location = useLocation();
   const { showProblems } = props;
   const tabs: NormalContestTabType[] = showProblems
