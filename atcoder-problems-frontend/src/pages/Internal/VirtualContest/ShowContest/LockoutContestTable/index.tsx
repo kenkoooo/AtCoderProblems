@@ -5,7 +5,7 @@ import { ProblemLink } from "../../../../../components/ProblemLink";
 import { UserNameLabel } from "../../../../../components/UserNameLabel";
 import { ProblemId, UserId } from "../../../../../interfaces/Status";
 import { isAccepted } from "../../../../../utils";
-import { VirtualContestItem } from "../../../types";
+import { VirtualContestProblem } from "../../../types";
 
 const CARD_COLORS = ["success", "danger", "warning", "info", "primary"];
 
@@ -23,11 +23,7 @@ interface Props {
   readonly start: number;
   readonly end: number;
   readonly enableAutoRefresh: boolean;
-  readonly problems: {
-    item: VirtualContestItem;
-    title?: string;
-    contestId?: string;
-  }[];
+  readonly problems: VirtualContestProblem[];
 }
 
 export const LockoutContestTable: React.FC<Props> = (props) => {

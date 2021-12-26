@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { NavLink, useHistory } from "react-router-dom";
+import {
+  NavLink as RouterLink,
+  useHistory,
+  useLocation,
+} from "react-router-dom";
 import {
   Alert,
   Button,
@@ -12,9 +16,10 @@ import {
   Form,
   FormGroup,
   CustomInput,
-  Collapse,
+  Nav,
+  NavItem,
+  NavLink,
 } from "reactstrap";
-import { GoChevronDown, GoChevronUp } from "react-icons/go";
 import { useMergedProblemMap } from "../../../../api/APIClient";
 import {
   useLoginState,
@@ -25,12 +30,18 @@ import {
   getCurrentUnixtimeInSecond,
   parseSecond,
 } from "../../../../utils/DateUtil";
-import { formatMode, formatPublicState, VirtualContestItem } from "../../types";
+import {
+  formatMode,
+  formatPublicState,
+  VirtualContestInfo,
+  VirtualContestProblem,
+} from "../../types";
 import { TweetButton } from "../../../../components/TweetButton";
 import { useLoginLink } from "../../../../utils/Url";
 import { Timer } from "../../../../components/Timer";
 import { ACCOUNT_INFO } from "../../../../utils/RouterPath";
 import { useLocalStorage } from "../../../../utils/LocalStorage";
+import { generatePathWithParams } from "../../../../utils/QueryString";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import { joinContest, leaveContest } from "../ApiClient";
 import { GoogleCalendarButton } from "../../../../components/GoogleCalendarButton";
@@ -39,16 +50,221 @@ import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
 import { compareProblem } from "./util";
 
+const Problems = (props: { problems: VirtualContestProblem[] }) => {
+  const sortedItems = props.problems
+    .map((p) => ({
+      contestId: p.contestId,
+      title: p.title,
+      ...p.item,
+    }))
+    .sort(compareProblem);
+  return (
+    <div className="my-2">
+      <Row>
+        <Col>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "row wrap",
+              alignItems: "center",
+            }}
+          >
+            <h3>Problems</h3>
+          </div>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Table striped size="sm">
+            <thead>
+              <tr>
+                <th> </th>
+                <th>Problem Name</th>
+                <th className="text-center">Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedItems.map((p, i) => (
+                <tr key={i}>
+                  <th className="text-center">
+                    {p.contestId && p.title ? (
+                      <ProblemLink
+                        problemId={p.id}
+                        contestId={p.contestId}
+                        problemTitle={`${i + 1}`}
+                      />
+                    ) : (
+                      i + 1
+                    )}
+                  </th>
+                  <td>
+                    {p.contestId && p.title ? (
+                      <ProblemLink
+                        problemId={p.id}
+                        contestId={p.contestId}
+                        problemTitle={p.title}
+                      />
+                    ) : (
+                      p.id
+                    )}
+                  </td>
+                  <td className="text-center">{p.point !== null && p.point}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
+interface StandingsProps {
+  readonly alreadyJoined: boolean;
+  readonly contestInfo: VirtualContestInfo;
+  readonly showProblems: boolean;
+  readonly problems: VirtualContestProblem[];
+  readonly contestParticipants: string[];
+  readonly start: number;
+  readonly end: number;
+  readonly enableEstimatedPerformances?: boolean;
+  readonly atCoderUserId?: string;
+  readonly penaltySecond?: number;
+}
+
+const Standings = (props: StandingsProps) => {
+  const { alreadyJoined, contestInfo } = props;
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [showRating, setShowRating] = useLocalStorage("showRating", false);
+  const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
+  return (
+    <div className="my-2">
+      <Row>
+        <Col>
+          <Form inline>
+            <h3>Standings</h3>
+            <FormGroup inline className="ml-3">
+              <CustomInput
+                type="switch"
+                id="autoRefresh"
+                label="Auto Refresh"
+                inline
+                checked={autoRefresh}
+                onChange={(): void => setAutoRefresh(!autoRefresh)}
+              />
+              <CustomInput
+                type="switch"
+                id="showRating"
+                label="Show Rating"
+                inline
+                checked={showRating}
+                onChange={(): void => setShowRating(!showRating)}
+              />
+              {alreadyJoined && (
+                <CustomInput
+                  type="switch"
+                  id="pinMe"
+                  label="Pin me"
+                  inline
+                  checked={pinMe}
+                  onChange={(): void => setPinMe(!pinMe)}
+                />
+              )}
+            </FormGroup>
+          </Form>
+        </Col>
+      </Row>
+      <Row>
+        <Col sm="12">
+          {contestInfo.mode === "lockout" ? (
+            <LockoutContestTable
+              showRating={showRating}
+              participants={props.contestParticipants}
+              enableAutoRefresh={autoRefresh}
+              {...props}
+            />
+          ) : contestInfo.mode === "training" ? (
+            <TrainingContestTable
+              showRating={showRating}
+              users={props.contestParticipants}
+              enableAutoRefresh={autoRefresh}
+              {...props}
+            />
+          ) : (
+            <ContestTable
+              contestId={contestInfo.id}
+              contestTitle={contestInfo.title}
+              showRating={showRating}
+              users={props.contestParticipants}
+              enableAutoRefresh={autoRefresh}
+              pinMe={pinMe}
+              enableEstimatedPerformances={
+                props.enableEstimatedPerformances ?? false
+              }
+              atCoderUserId={props.atCoderUserId ?? ""}
+              penaltySecond={props.penaltySecond ?? 0}
+              {...props}
+            />
+          )}
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
+const NormalContestTabTypes = ["Problems", "Standings"] as const;
+type NormalContestTabType = typeof NormalContestTabTypes[number];
+const TAB_PARAM = "activeTab";
+
+const NormalContestPage = (props: StandingsProps) => {
+  const location = useLocation();
+  const { showProblems, problems } = props;
+  const tabs: NormalContestTabType[] = showProblems
+    ? ["Problems", "Standings"]
+    : ["Standings"];
+  const getActiveTab = (): NormalContestTabType => {
+    // Be secure against malicious params.
+    // e.g. "Set activeTab=Problems before contest beginning."
+    const beforeContestBegin = !showProblems;
+    if (beforeContestBegin) return "Standings";
+    else {
+      const tabParam = new URLSearchParams(location.search).get(TAB_PARAM);
+      return NormalContestTabTypes.find((p) => p === tabParam) ?? tabs[0];
+    }
+  };
+  const activeTab = getActiveTab();
+  return (
+    <>
+      <Row>
+        <Col>
+          <Nav tabs>
+            {tabs.map((tab) => (
+              <NavItem key={tab}>
+                <NavLink
+                  tag={RouterLink}
+                  isActive={() => activeTab === tab}
+                  to={generatePathWithParams(location, { [TAB_PARAM]: tab })}
+                >
+                  {tab}
+                </NavLink>
+              </NavItem>
+            ))}
+          </Nav>
+        </Col>
+      </Row>
+
+      {activeTab === "Problems" && <Problems problems={problems} />}
+      {activeTab === "Standings" && <Standings {...props} />}
+    </>
+  );
+};
+
 interface Props {
   contestId: string;
 }
 
 export const ShowContest = (props: Props) => {
-  const [autoRefresh, setAutoRefresh] = useState(false);
   const loginState = useLoginState();
-  const [showRating, setShowRating] = useLocalStorage("showRating", false);
-  const [pinMe, setPinMe] = useLocalStorage("pinMe", false);
-  const [showProblemTable, setShowProblemTable] = useState(true);
   const history = useHistory();
   const virtualContestResponse = useVirtualContest(props.contestId);
   const { data: problemMap } = useMergedProblemMap();
@@ -83,31 +299,21 @@ export const ShowContest = (props: Props) => {
   const isOwner = contestInfo.owner_user_id === internalUserId;
   const enableEstimatedPerformances = contestProblems.length < 10;
 
-  const showProblems = start < now;
-  const problems = contestProblems.map((item): {
-    item: VirtualContestItem;
-    contestId?: string;
-    title?: string;
-  } => {
-    const problem = problemMap?.get(item.id);
-    if (problem) {
-      return {
-        item,
-        contestId: problem.contest_id,
-        title: problem.title,
-      };
-    } else {
-      return { item };
+  const showProblems = start <= now;
+  const problems = contestProblems.map(
+    (item): VirtualContestProblem => {
+      const problem = problemMap?.get(item.id);
+      if (problem) {
+        return {
+          item,
+          contestId: problem.contest_id,
+          title: problem.title,
+        };
+      } else {
+        return { item };
+      }
     }
-  });
-
-  const sortedItems = problems
-    .map((p) => ({
-      contestId: p.contestId,
-      title: p.title,
-      ...p.item,
-    }))
-    .sort(compareProblem);
+  );
 
   return (
     <>
@@ -232,156 +438,30 @@ export const ShowContest = (props: Props) => {
         </Col>
       </Row>
 
-      {showProblems && formatMode(contestInfo.mode) === "Normal" && (
-        <div className="my-2">
-          <Row>
-            <Col>
-              <div
-                style={{
-                  display: "flex",
-                  flexFlow: "row wrap",
-                  alignItems: "center",
-                }}
-              >
-                <h3>Problems</h3>
-                <Button
-                  color="secondary"
-                  size="sm"
-                  onClick={() => setShowProblemTable(!showProblemTable)}
-                  className="mx-3"
-                >
-                  {showProblemTable ? <GoChevronUp /> : <GoChevronDown />}
-                </Button>
-              </div>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Collapse isOpen={showProblemTable}>
-                <Table striped size="sm">
-                  <thead>
-                    <tr>
-                      <th> </th>
-                      <th>Problem Name</th>
-                      <th className="text-center">Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedItems.map((p, i) => (
-                      <tr key={i}>
-                        <th className="text-center">
-                          {p.contestId && p.title ? (
-                            <ProblemLink
-                              problemId={p.id}
-                              contestId={p.contestId}
-                              problemTitle={`${i + 1}`}
-                            />
-                          ) : (
-                            i + 1
-                          )}
-                        </th>
-                        <td>
-                          {p.contestId && p.title ? (
-                            <ProblemLink
-                              problemId={p.id}
-                              contestId={p.contestId}
-                              problemTitle={p.title}
-                            />
-                          ) : (
-                            p.id
-                          )}
-                        </td>
-                        <td className="text-center">
-                          {p.point !== null && p.point}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </Collapse>
-            </Col>
-          </Row>
-        </div>
+      {contestInfo.mode !== null ? (
+        <Standings
+          alreadyJoined={alreadyJoined}
+          contestInfo={contestInfo}
+          showProblems={showProblems}
+          problems={problems}
+          contestParticipants={contestParticipants}
+          start={start}
+          end={end}
+        />
+      ) : (
+        <NormalContestPage
+          alreadyJoined={alreadyJoined}
+          contestInfo={contestInfo}
+          showProblems={showProblems}
+          problems={problems}
+          contestParticipants={contestParticipants}
+          start={start}
+          end={end}
+          enableEstimatedPerformances={enableEstimatedPerformances}
+          atCoderUserId={atCoderUserId}
+          penaltySecond={penaltySecond}
+        />
       )}
-
-      <div className="my-2">
-        <Row>
-          <Col>
-            <Form inline>
-              <h3>Standings</h3>
-              <FormGroup inline className="ml-3">
-                <CustomInput
-                  type="switch"
-                  id="autoRefresh"
-                  label="Auto Refresh"
-                  inline
-                  checked={autoRefresh}
-                  onChange={(): void => setAutoRefresh(!autoRefresh)}
-                />
-                <CustomInput
-                  type="switch"
-                  id="showRating"
-                  label="Show Rating"
-                  inline
-                  checked={showRating}
-                  onChange={(): void => setShowRating(!showRating)}
-                />
-                {alreadyJoined && (
-                  <CustomInput
-                    type="switch"
-                    id="pinMe"
-                    label="Pin me"
-                    inline
-                    checked={pinMe}
-                    onChange={(): void => setPinMe(!pinMe)}
-                  />
-                )}
-              </FormGroup>
-            </Form>
-          </Col>
-        </Row>
-        <Row>
-          <Col sm="12">
-            {contestInfo.mode === "lockout" ? (
-              <LockoutContestTable
-                showRating={showRating}
-                showProblems={showProblems}
-                problems={problems}
-                participants={contestParticipants}
-                enableAutoRefresh={autoRefresh}
-                start={start}
-                end={end}
-              />
-            ) : contestInfo.mode === "training" ? (
-              <TrainingContestTable
-                showRating={showRating}
-                showProblems={showProblems}
-                problems={problems}
-                users={contestParticipants}
-                start={start}
-                end={end}
-                enableAutoRefresh={autoRefresh}
-              />
-            ) : (
-              <ContestTable
-                contestId={contestInfo.id}
-                contestTitle={contestInfo.title}
-                showRating={showRating}
-                showProblems={showProblems}
-                problems={problems}
-                users={contestParticipants}
-                enableEstimatedPerformances={enableEstimatedPerformances}
-                start={start}
-                end={end}
-                enableAutoRefresh={autoRefresh}
-                atCoderUserId={atCoderUserId}
-                pinMe={pinMe}
-                penaltySecond={penaltySecond}
-              />
-            )}
-          </Col>
-        </Row>
-      </div>
     </>
   );
 };
