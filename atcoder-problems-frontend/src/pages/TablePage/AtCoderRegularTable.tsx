@@ -17,11 +17,12 @@ import {
   combineTableColorList,
 } from "../../utils/TableColor";
 import { ProblemLink } from "../../components/ProblemLink";
-import { ContestLink, getRatedTarget } from "../../components/ContestLink";
+import { ContestLink } from "../../components/ContestLink";
 import ProblemModel from "../../interfaces/ProblemModel";
 import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { ProblemPoint } from "../../components/Problempoint";
+import { classifyContest } from "../../utils/ContestClassifier";
 
 interface Props {
   contests: Contest[];
@@ -39,7 +40,8 @@ interface Props {
 const getProblemHeaderAlphabet = (problem: MergedProblem, contest: Contest) => {
   const list = problem.title.split(".");
   if (list.length === 0) return "";
-  if (list[0] === "H" && getRatedTarget(contest) < 2000) return "Ex";
+  if (list[0] === "H" && classifyContest(contest).startsWith("ABC"))
+    return "Ex";
   return list[0];
 };
 
@@ -116,7 +118,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
     )
     .filter((alphabet) => alphabet.length > 0);
 
-  let header = Array.from(new Set(headerList));
+  let header = Array.from(new Set(headerList)).sort();
   if (header.includes("Ex"))
     header = header.filter((c) => c != "Ex").concat("Ex");
 
