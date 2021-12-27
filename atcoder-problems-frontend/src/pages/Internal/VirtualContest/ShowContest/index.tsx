@@ -20,7 +20,11 @@ import {
   NavItem,
   NavLink,
 } from "reactstrap";
-import { useMergedProblemMap } from "../../../../api/APIClient";
+import { FcCancel, FcCheckmark } from "react-icons/all";
+import {
+  useMergedProblemMap,
+  useVirtualContestSubmissions,
+} from "../../../../api/APIClient";
 import {
   useLoginState,
   useVirtualContest,
@@ -45,12 +49,49 @@ import { generatePathWithParams } from "../../../../utils/QueryString";
 import { ProblemLink } from "../../../../components/ProblemLink";
 import { joinContest, leaveContest } from "../ApiClient";
 import { GoogleCalendarButton } from "../../../../components/GoogleCalendarButton";
-import { ContestTable } from "./ContestTable";
+import { ProblemId, UserId } from "../../../../interfaces/Status";
+import { constructPointOverrideMap, ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
 import { compareProblem } from "./util";
+import {
+  ReducedProblemResult,
+  reduceUserContestResult,
+} from "./ResultCalcUtil";
 
-const Problems = (props: { problems: VirtualContestProblem[] }) => {
+const Problems = (props: {
+  readonly problems: VirtualContestProblem[];
+  readonly atCoderUserId: UserId;
+  readonly start: number;
+  readonly end: number;
+}) => {
+  const submissions = useVirtualContestSubmissions(
+    [props.atCoderUserId],
+    props.problems.map((p) => p.item.id),
+    props.start,
+    props.end,
+    false
+  );
+  const pointOverrideMap = constructPointOverrideMap(props.problems);
+  const showUserResults =
+    props.atCoderUserId !== "" &&
+    submissions.data !== null &&
+    submissions.data !== undefined;
+  const results = submissions.data
+    ? reduceUserContestResult(submissions.data, (id) =>
+        pointOverrideMap.get(id)
+      )
+    : new Map<UserId, ReducedProblemResult>();
+  const ResultIcon = (props: { id: ProblemId }) => {
+    const result = results.get(props.id);
+    if (!result) return null;
+    if (result.accepted) {
+      return <FcCheckmark />;
+    } else {
+      return <FcCancel />;
+    }
+  };
+
   const sortedItems = props.problems
     .map((p) => ({
       contestId: p.contestId,
@@ -58,6 +99,7 @@ const Problems = (props: { problems: VirtualContestProblem[] }) => {
       ...p.item,
     }))
     .sort(compareProblem);
+
   return (
     <div className="my-2">
       <Row>
@@ -75,12 +117,13 @@ const Problems = (props: { problems: VirtualContestProblem[] }) => {
       </Row>
       <Row>
         <Col>
-          <Table striped size="sm">
+          <Table striped bordered size="sm">
             <thead>
               <tr>
                 <th> </th>
                 <th>Problem Name</th>
                 <th className="text-center">Score</th>
+                {showUserResults && <th> </th>}
               </tr>
             </thead>
             <tbody>
@@ -109,6 +152,11 @@ const Problems = (props: { problems: VirtualContestProblem[] }) => {
                     )}
                   </td>
                   <td className="text-center">{p.point !== null && p.point}</td>
+                  {showUserResults && (
+                    <td className="text-center">
+                      <ResultIcon id={p.id} />
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -216,9 +264,15 @@ const NormalContestTabTypes = ["Problems", "Standings"] as const;
 type NormalContestTabType = typeof NormalContestTabTypes[number];
 const TAB_PARAM = "activeTab";
 
-const NormalContestPage = (props: StandingsProps) => {
+interface NormalContestPageProps extends StandingsProps {
+  readonly enableEstimatedPerformances: boolean;
+  readonly atCoderUserId: string;
+  readonly penaltySecond: number;
+}
+
+const NormalContestPage = (props: NormalContestPageProps) => {
   const location = useLocation();
-  const { showProblems, problems } = props;
+  const { showProblems } = props;
   const tabs: NormalContestTabType[] = showProblems
     ? ["Problems", "Standings"]
     : ["Standings"];
@@ -253,7 +307,7 @@ const NormalContestPage = (props: StandingsProps) => {
         </Col>
       </Row>
 
-      {activeTab === "Problems" && <Problems problems={problems} />}
+      {activeTab === "Problems" && <Problems {...props} />}
       {activeTab === "Standings" && <Standings {...props} />}
     </>
   );

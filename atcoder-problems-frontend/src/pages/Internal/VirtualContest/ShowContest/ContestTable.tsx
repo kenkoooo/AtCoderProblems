@@ -89,7 +89,9 @@ const getPerformanceByUserId = (
   }
 };
 
-const constructPointOverrideMap = <T extends { item: VirtualContestItem }>(
+export const constructPointOverrideMap = <
+  T extends { item: VirtualContestItem }
+>(
   problems: T[]
 ) => {
   const pointOverrideMap = new Map<ProblemId, number>();
