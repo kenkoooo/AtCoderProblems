@@ -60,11 +60,13 @@ import {
 } from "./ResultCalcUtil";
 
 const Problems = (props: {
+  readonly alreadyJoined: boolean;
   readonly problems: VirtualContestProblem[];
   readonly atCoderUserId: UserId;
   readonly start: number;
   readonly end: number;
 }) => {
+  const { alreadyJoined } = props;
   const submissions = useVirtualContestSubmissions(
     [props.atCoderUserId],
     props.problems.map((p) => p.item.id),
@@ -84,7 +86,7 @@ const Problems = (props: {
     : new Map<UserId, ReducedProblemResult>();
   const ResultIcon = (props: { id: ProblemId }) => {
     const result = results.get(props.id);
-    if (!result) return null;
+    if (!alreadyJoined || !result) return null;
     if (result.accepted) {
       return <FcCheckmark />;
     } else {
