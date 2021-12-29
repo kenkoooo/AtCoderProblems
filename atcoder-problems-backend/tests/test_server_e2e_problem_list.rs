@@ -453,7 +453,6 @@ async fn test_register_twice() {
     ))
     .await
     .unwrap();
-    println!("{:?}", &response);
     assert_eq!(response.status(), 302);
 
     server.abort();

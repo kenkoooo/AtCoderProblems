@@ -154,11 +154,6 @@ async fn test_ac_ranking() {
     .unwrap();
     assert_eq!(response.status(), 404);
 
-    // let ready = tokio::time::sleep(std::time::Duration::from_millis(1000));
-    // tokio::select!{
-    //     _s = server => (),
-    //     _r = ready => (),
-    // }
     server.abort();
     server.await.unwrap_err();
 }
