@@ -61,11 +61,13 @@ async fn test_language_ranking() {
     });
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/language_ranking?from=1&to=3&language=lang2",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert_eq!(
@@ -76,11 +78,13 @@ async fn test_language_ranking() {
         ])
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/language_ranking?from=0&to=1&language=lang2",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert_eq!(
@@ -90,25 +94,29 @@ async fn test_language_ranking() {
         ])
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/language_ranking?from=10&to=20&language=lang2",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert!(response.as_array().unwrap().is_empty());
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/language_ranking?from=0&to=1&language=does_not_exist",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert!(response.as_array().unwrap().is_empty());
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/language_ranking?from=0&to=2000&language=lang2",
         port,
     ))
@@ -116,16 +124,18 @@ async fn test_language_ranking() {
     .unwrap();
     assert_eq!(response.status(), 400);
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/language_ranking?from=1&to=0&language=lang2",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert!(response.as_array().unwrap().is_empty());
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/language_ranking?from=-1&to=0&language=lang2",
         port,
     ))
@@ -133,8 +143,10 @@ async fn test_language_ranking() {
     .unwrap();
     assert_eq!(response.status(), 400);
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=user1", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/language_rank?user=user1", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -158,8 +170,10 @@ async fn test_language_ranking() {
         ])
     );
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=user2", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/language_rank?user=user2", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -178,8 +192,10 @@ async fn test_language_ranking() {
         ])
     );
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_rank?user=user3", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/language_rank?user=user3", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -198,16 +214,18 @@ async fn test_language_ranking() {
         ])
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/language_rank?user=does_not_exist",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert_eq!(response, json!([]));
 
-    let response = surf::get(url("/atcoder-api/v3/user/language_rank?bad=request", port))
+    let response = reqwest::get(url("/atcoder-api/v3/user/language_rank?bad=request", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 400);

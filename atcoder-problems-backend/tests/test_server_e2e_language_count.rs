@@ -71,15 +71,19 @@ async fn test_language_count() {
     task::sleep(std::time::Duration::from_millis(1000)).await;
 
     insert_data_set1(&conn).await;
-    let response = surf::get(url("/atcoder-api/v3/language_list", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/language_list", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!(["lang1", "lang2", "lang3"]));
 
     insert_data_set2(&conn).await;
-    let response = surf::get(url("/atcoder-api/v3/language_list", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/language_list", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!(["lang1", "lang2", "lang3", "lang4"]));

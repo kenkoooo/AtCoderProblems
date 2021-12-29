@@ -1,6 +1,7 @@
-use async_std::future::ready;
-use async_std::prelude::*;
-use async_std::task;
+// use async_std::future::ready;
+// use async_std::prelude::*;
+// use async_std::task;
+use tokio::task;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
@@ -42,7 +43,7 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_ac_ranking() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -51,10 +52,12 @@ async fn test_ac_ranking() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=0&to=10", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=0&to=10", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -66,8 +69,10 @@ async fn test_ac_ranking() {
         ])
     );
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=1&to=3", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=1&to=3", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -78,59 +83,73 @@ async fn test_ac_ranking() {
         ])
     );
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=10&to=0", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=10&to=0", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response.as_array().unwrap().len(), 0);
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=0&to=2000", port))
+    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=0&to=2000", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 400);
 
-    let response = surf::get(url("/atcoder-api/v3/ac_ranking?from=-1&to=10", port))
+    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=-1&to=10", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 400);
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=u1", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=u1", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=u2", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=u2", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!({"count": 2, "rank": 0}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=u3", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=u3", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=U1", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=U1", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=U2", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=U2", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!({"count": 2, "rank": 0}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/ac_rank?user=U3", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=U3", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/ac_rank?user=does_not_exist",
         port,
     ))
@@ -138,5 +157,11 @@ async fn test_ac_ranking() {
     .unwrap();
     assert_eq!(response.status(), 404);
 
-    server.race(ready(())).await;
+    // server.race(ready(())).await;
+    // server.await.unwrap();
+    let ready = tokio::time::sleep(std::time::Duration::from_millis(1000));
+    tokio::select!{
+        _s = server => (),
+        _r = ready => (),
+    }
 }

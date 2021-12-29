@@ -55,8 +55,10 @@ async fn test_streak_ranking() {
 
     // get_streak_ranking(from..to)
 
-    let response = surf::get(url("/atcoder-api/v3/streak_ranking?from=0&to=10", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/streak_ranking?from=0&to=10", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -68,8 +70,10 @@ async fn test_streak_ranking() {
         ])
     );
 
-    let response = surf::get(url("/atcoder-api/v3/streak_ranking?from=1&to=3", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/streak_ranking?from=1&to=3", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -80,37 +84,43 @@ async fn test_streak_ranking() {
         ])
     );
 
-    let response = surf::get(url("/atcoder-api/v3/streak_ranking?from=10&to=0", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/streak_ranking?from=10&to=0", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response.as_array().unwrap().len(), 0);
 
-    let response = surf::get(url("/atcoder-api/v3/streak_ranking?from=0&to=2000", port))
+    let response = reqwest::get(url("/atcoder-api/v3/streak_ranking?from=0&to=2000", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 400);
 
-    let response = surf::get(url("/atcoder-api/v3/streak_ranking?from=-1&to=10", port))
+    let response = reqwest::get(url("/atcoder-api/v3/streak_ranking?from=-1&to=10", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 400);
 
     // get_users_streak_rank(user_id)
 
-    let response = surf::get(url("/atcoder-api/v3/user/streak_rank?user=u1", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/streak_rank?user=u1", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!({"count":1,"rank":1}));
 
-    let response = surf::get(url("/atcoder-api/v3/user/streak_rank?user=u2", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/atcoder-api/v3/user/streak_rank?user=u2", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!({"count":2,"rank":0}));
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/streak_rank?user=does_not_exist",
         port,
     ))
@@ -118,7 +128,7 @@ async fn test_streak_ranking() {
     .unwrap();
     assert_eq!(response.status(), 404);
 
-    let response = surf::get(url("/atcoder-api/v3/user/streak_rank?bad=request", port))
+    let response = reqwest::get(url("/atcoder-api/v3/user/streak_rank?bad=request", port))
         .await
         .unwrap();
     assert_eq!(response.status(), 400);
