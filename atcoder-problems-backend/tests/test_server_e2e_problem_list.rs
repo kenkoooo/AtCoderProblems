@@ -51,10 +51,15 @@ async fn test_list() {
     });
     tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = reqwest::get(url(
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .unwrap();
+    let response = client.get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
     ))
+    .send()
     .await
     .unwrap();
     // https://docs.rs/reqwest/latest/reqwest/struct.Response.html#method.cookies
@@ -439,18 +444,24 @@ async fn test_register_twice() {
     });
     tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = reqwest::get(url(
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .unwrap();
+    let response = client.get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
     ))
+    .send()
     .await
     .unwrap();
     assert_eq!(response.status(), 302);
 
-    let response = reqwest::get(url(
+    let response = client.get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
     ))
+    .send()
     .await
     .unwrap();
     assert_eq!(response.status(), 302);

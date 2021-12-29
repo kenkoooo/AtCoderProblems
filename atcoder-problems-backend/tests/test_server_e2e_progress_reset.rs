@@ -42,7 +42,12 @@ async fn test_progress_reset() {
     });
     tokio::time::sleep(Duration::from_millis(1000)).await;
 
-    let response = reqwest::get(url("/internal-api/authorize?code=a", port))
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .unwrap();
+    let response = client.get(url("/internal-api/authorize?code=a", port))
+        .send()
         .await
         .unwrap();
     assert_eq!(response.status(), 302);
