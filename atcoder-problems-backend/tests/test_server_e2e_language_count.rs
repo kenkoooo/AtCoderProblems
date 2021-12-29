@@ -1,12 +1,10 @@
-use async_std::future::ready;
-use async_std::prelude::*;
-use async_std::task;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::{json, Value};
 use sql_client::PgPool;
 use tide::Result;
+use tokio::task;
 
 pub mod utils;
 
@@ -59,7 +57,7 @@ async fn setup() -> (u16, PgPool) {
     (rng.gen::<u16>() % 30000 + 30000, conn)
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_language_count() {
     let (port, conn) = setup().await;
     let server = task::spawn(async move {
@@ -68,7 +66,7 @@ async fn test_language_count() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     insert_data_set1(&conn).await;
     let response = reqwest::get(url("/atcoder-api/v3/language_list", port))
@@ -88,5 +86,6 @@ async fn test_language_count() {
         .unwrap();
     assert_eq!(response, json!(["lang1", "lang2", "lang3", "lang4"]));
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }

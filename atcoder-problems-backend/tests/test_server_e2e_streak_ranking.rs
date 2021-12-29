@@ -1,12 +1,10 @@
-use async_std::future::ready;
-use async_std::prelude::*;
-use async_std::task;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::{json, Value};
 use sql_client::PgPool;
 use tide::Result;
+use tokio::task;
 
 pub mod utils;
 
@@ -42,7 +40,7 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_streak_ranking() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -51,7 +49,7 @@ async fn test_streak_ranking() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     // get_streak_ranking(from..to)
 
@@ -133,5 +131,6 @@ async fn test_streak_ranking() {
         .unwrap();
     assert_eq!(response.status(), 400);
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }

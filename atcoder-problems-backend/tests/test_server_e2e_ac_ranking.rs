@@ -1,13 +1,10 @@
-// use async_std::future::ready;
-// use async_std::prelude::*;
-// use async_std::task;
-use tokio::task;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::{json, Value};
 use sql_client::PgPool;
 use tide::Result;
+use tokio::task;
 
 pub mod utils;
 
@@ -157,11 +154,11 @@ async fn test_ac_ranking() {
     .unwrap();
     assert_eq!(response.status(), 404);
 
-    // server.race(ready(())).await;
-    // server.await.unwrap();
-    let ready = tokio::time::sleep(std::time::Duration::from_millis(1000));
-    tokio::select!{
-        _s = server => (),
-        _r = ready => (),
-    }
+    // let ready = tokio::time::sleep(std::time::Duration::from_millis(1000));
+    // tokio::select!{
+    //     _s = server => (),
+    //     _r = ready => (),
+    // }
+    server.abort();
+    server.await.unwrap_err();
 }

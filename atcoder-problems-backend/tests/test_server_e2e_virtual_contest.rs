@@ -1,12 +1,9 @@
-use atcoder_problems_backend::server::{run_server, Authentication};
-
-use async_std::prelude::*;
-use async_std::task;
 use async_trait::async_trait;
-use atcoder_problems_backend::server::GitHubUserResponse;
+use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::{json, Value};
 use tide::Result;
+use tokio::task;
 
 pub mod utils;
 
@@ -42,7 +39,7 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_virtual_contest() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -51,7 +48,7 @@ async fn test_virtual_contest() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
@@ -350,10 +347,11 @@ async fn test_virtual_contest() {
         ])
     );
 
-    server.race(async_std::future::ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_virtual_contest_visibility() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -362,7 +360,7 @@ async fn test_virtual_contest_visibility() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
     reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
@@ -474,5 +472,6 @@ async fn test_virtual_contest_visibility() {
     assert_eq!(response.as_array().unwrap().len(), 1);
     assert_eq!(response[0]["id"].as_str().unwrap(), contest_id);
 
-    server.race(async_std::future::ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }

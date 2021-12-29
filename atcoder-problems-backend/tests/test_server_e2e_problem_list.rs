@@ -1,13 +1,10 @@
-use atcoder_problems_backend::server::{run_server, Authentication};
-
-use async_std::future::ready;
-use async_std::prelude::*;
-use async_std::task;
 use async_trait::async_trait;
-use atcoder_problems_backend::server::GitHubUserResponse;
+use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
+use reqwest::header::SET_COOKIE;
 use serde_json::{json, Value};
 use tide::Result;
+use tokio::task;
 
 pub mod utils;
 
@@ -43,7 +40,7 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_list() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -52,7 +49,7 @@ async fn test_list() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
@@ -62,7 +59,7 @@ async fn test_list() {
     .unwrap();
     // https://docs.rs/reqwest/latest/reqwest/struct.Response.html#method.cookies
     // これを使ったほうがいいかもしれない
-    let cookie = response.headers().get("set-cookie").unwrap();
+    let cookie = response.headers().get(SET_COOKIE).unwrap();
     let token = cookie
         .to_str()
         .unwrap()
@@ -189,9 +186,11 @@ async fn test_list() {
         .await
         .unwrap();
     assert_eq!(&response, "[]");
-    server.race(ready(())).await;
+
+    server.abort();
+    server.await.unwrap_err();
 }
-#[async_std::test]
+#[tokio::test]
 async fn test_invalid_token() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -200,7 +199,7 @@ async fn test_invalid_token() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::Client::new()
         .get(url("/internal-api/list/my", port))
@@ -218,10 +217,11 @@ async fn test_invalid_token() {
         .unwrap();
     assert!(!response.status().is_success());
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_list_item() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -230,7 +230,7 @@ async fn test_list_item() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
@@ -350,10 +350,11 @@ async fn test_list_item() {
         ])
     );
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_list_delete() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -362,7 +363,7 @@ async fn test_list_delete() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
@@ -423,10 +424,11 @@ async fn test_list_delete() {
         .unwrap();
     assert!(list.as_array().unwrap().is_empty());
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_register_twice() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -435,7 +437,7 @@ async fn test_register_twice() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
@@ -451,6 +453,9 @@ async fn test_register_twice() {
     ))
     .await
     .unwrap();
+    println!("{:?}", &response);
     assert_eq!(response.status(), 302);
-    server.race(ready(())).await;
+
+    server.abort();
+    server.await.unwrap_err();
 }

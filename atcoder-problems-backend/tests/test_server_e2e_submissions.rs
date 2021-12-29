@@ -1,14 +1,11 @@
-use async_std::future::ready;
-use async_std::prelude::*;
-use async_std::task;
 use async_trait::async_trait;
-use atcoder_problems_backend::server::GitHubUserResponse;
-use atcoder_problems_backend::server::{run_server, Authentication};
+use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::Value;
 use sql_client::models::Submission;
 use sql_client::PgPool;
 use tide::Result;
+use tokio::task;
 
 pub mod utils;
 
@@ -65,7 +62,7 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_user_submissions() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -74,7 +71,7 @@ async fn test_user_submissions() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let submissions: Vec<Submission> = reqwest::get(url("/atcoder-api/results?user=u1", port))
         .await
@@ -92,10 +89,11 @@ async fn test_user_submissions() {
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_user_submissions_fromtime() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -104,7 +102,7 @@ async fn test_user_submissions_fromtime() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let submissions: Vec<Submission> = reqwest::get(url(
         "/atcoder-api/v3/user/submissions?user=u1&from_second=3",
@@ -158,10 +156,11 @@ async fn test_user_submissions_fromtime() {
     let submissions: Vec<Submission> = response.json().await.unwrap();
     assert_eq!(submissions.len(), 0);
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_time_submissions() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -170,7 +169,7 @@ async fn test_time_submissions() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let submissions: Vec<Submission> = reqwest::get(url("/atcoder-api/v3/from/100", port))
         .await
@@ -181,10 +180,11 @@ async fn test_time_submissions() {
     assert_eq!(submissions.len(), 2);
     assert!(submissions.iter().all(|s| s.epoch_second >= 100));
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_submission_count() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -193,7 +193,7 @@ async fn test_submission_count() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response: Value = reqwest::get(url(
         r"/atcoder-api/v3/user/submission_count?user=u1&from_second=1&to_second=4",
@@ -216,10 +216,11 @@ async fn test_submission_count() {
     .unwrap();
     assert_eq!(response["count"], serde_json::json!(2));
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_invalid_path() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -228,7 +229,7 @@ async fn test_invalid_path() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::get(url("/atcoder-api/v3/from/", port))
         .await
@@ -243,10 +244,11 @@ async fn test_invalid_path() {
     let response = reqwest::get(url("/", port)).await.unwrap();
     assert_eq!(response.status(), 404);
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_health_check() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -255,14 +257,16 @@ async fn test_health_check() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::get(url("/healthcheck", port)).await.unwrap();
     assert_eq!(response.status(), 200);
-    server.race(ready(())).await;
+
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_cors() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -271,7 +275,7 @@ async fn test_cors() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     assert_eq!(
         reqwest::get(url("/atcoder-api/v3/from/100", port))
@@ -300,10 +304,12 @@ async fn test_cors() {
             .unwrap(),
         "*"
     );
-    server.race(ready(())).await;
+
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_users_and_time() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -312,7 +318,7 @@ async fn test_users_and_time() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
     let submissions: Vec<Submission> = reqwest::get(url(
         "/atcoder-api/v3/users_and_time?users=u1,u2&problems=p1&from=100&to=200",
         port,
@@ -326,5 +332,6 @@ async fn test_users_and_time() {
     assert_eq!(submissions.iter().filter(|s| &s.user_id == "u1").count(), 1);
     assert_eq!(submissions.iter().filter(|s| &s.user_id == "u2").count(), 1);
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }

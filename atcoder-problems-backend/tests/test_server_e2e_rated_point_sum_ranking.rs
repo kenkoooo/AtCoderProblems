@@ -1,13 +1,12 @@
-use async_std::future::ready;
-use async_std::prelude::*;
-use async_std::task;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::{json, Value};
 use sql_client::PgPool;
 use tide::Result;
+use tokio::task;
 mod utils;
+
 #[derive(Clone)]
 struct MockAuth;
 #[async_trait]
@@ -40,7 +39,7 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 3000 + 3000
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_rated_point_sum_ranking() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -49,7 +48,7 @@ async fn test_rated_point_sum_ranking() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
     let response = reqwest::get(url(
         "/atcoder-api/v3/rated_point_sum_ranking?from=0&to=3",
         port,
@@ -138,10 +137,11 @@ async fn test_rated_point_sum_ranking() {
     .unwrap();
     assert_eq!(response.status(), 400);
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_users_rated_point_sum_ranking() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -150,7 +150,7 @@ async fn test_users_rated_point_sum_ranking() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::get(url(
         "/atcoder-api/v3/user/rated_point_sum_rank?user=u2",
@@ -269,5 +269,6 @@ async fn test_users_rated_point_sum_ranking() {
 
     assert_eq!(response.status(), 404);
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
