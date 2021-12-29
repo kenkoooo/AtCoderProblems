@@ -46,7 +46,8 @@ async fn test_progress_reset() {
         .redirect(reqwest::redirect::Policy::none())
         .build()
         .unwrap();
-    let response = client.get(url("/internal-api/authorize?code=a", port))
+    let response = client
+        .get(url("/internal-api/authorize?code=a", port))
         .send()
         .await
         .unwrap();

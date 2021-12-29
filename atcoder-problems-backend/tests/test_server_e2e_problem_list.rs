@@ -55,13 +55,14 @@ async fn test_list() {
         .redirect(reqwest::redirect::Policy::none())
         .build()
         .unwrap();
-    let response = client.get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .send()
-    .await
-    .unwrap();
+    let response = client
+        .get(url(
+            &format!("/internal-api/authorize?code={}", VALID_CODE),
+            port,
+        ))
+        .send()
+        .await
+        .unwrap();
     // https://docs.rs/reqwest/latest/reqwest/struct.Response.html#method.cookies
     // これを使ったほうがいいかもしれない
     let cookie = response.headers().get(SET_COOKIE).unwrap();
@@ -448,22 +449,24 @@ async fn test_register_twice() {
         .redirect(reqwest::redirect::Policy::none())
         .build()
         .unwrap();
-    let response = client.get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .send()
-    .await
-    .unwrap();
+    let response = client
+        .get(url(
+            &format!("/internal-api/authorize?code={}", VALID_CODE),
+            port,
+        ))
+        .send()
+        .await
+        .unwrap();
     assert_eq!(response.status(), 302);
 
-    let response = client.get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .send()
-    .await
-    .unwrap();
+    let response = client
+        .get(url(
+            &format!("/internal-api/authorize?code={}", VALID_CODE),
+            port,
+        ))
+        .send()
+        .await
+        .unwrap();
     assert_eq!(response.status(), 302);
 
     server.abort();
