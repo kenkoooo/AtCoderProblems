@@ -47,18 +47,26 @@ impl Authentication for GitHubAuthentication {
             client_secret: self.client_secret.to_owned(),
             code: code.to_owned(),
         };
-        let response: TokenResponse = surf::post("https://github.com/login/oauth/access_token")
+        let client = reqwest::Client::new();
+        let response: TokenResponse = client
+            .post("https://github.com/login/oauth/access_token")
             .header("Accept", "application/json")
-            .body(surf::Body::from_json(&request)?)
-            .recv_json()
+            .json(&request)
+            .send()
+            .await?
+            .json()
             .await?;
         Ok(response.access_token)
     }
     async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
         let token_header = format!("token {}", access_token);
-        let response: GitHubUserResponse = surf::get("https://api.github.com/user")
+        let client = reqwest::Client::new();
+        let response: GitHubUserResponse = client
+            .get("https://api.github.com/user")
             .header("Authorization", token_header)
-            .recv_json()
+            .send()
+            .await?
+            .json()
             .await?;
         Ok(response)
     }

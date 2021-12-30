@@ -1,14 +1,10 @@
-use atcoder_problems_backend::server::{run_server, Authentication};
-
-use async_std::future::ready;
-use async_std::prelude::*;
-use async_std::task;
 use async_trait::async_trait;
-use atcoder_problems_backend::server::GitHubUserResponse;
+use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
+use reqwest::header::SET_COOKIE;
 use serde_json::{json, Value};
-use std::collections::BTreeMap;
 use tide::Result;
+use tokio::task;
 
 pub mod utils;
 
@@ -44,7 +40,7 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_list() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -53,17 +49,26 @@ async fn test_list() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .await
-    .unwrap();
-    let cookie = response.header("set-cookie").unwrap();
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .unwrap();
+    let response = client
+        .get(url(
+            &format!("/internal-api/authorize?code={}", VALID_CODE),
+            port,
+        ))
+        .send()
+        .await
+        .unwrap();
+    // https://docs.rs/reqwest/latest/reqwest/struct.Response.html#method.cookies
+    // これを使ったほうがいいかもしれない
+    let cookie = response.headers().get(SET_COOKIE).unwrap();
     let token = cookie
-        .as_str()
+        .to_str()
+        .unwrap()
         .split(";")
         .next()
         .unwrap()
@@ -73,25 +78,35 @@ async fn test_list() {
         .unwrap();
     assert_eq!(token, VALID_TOKEN);
 
-    let response = surf::get(url("/internal-api/list/my", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", format!("token={}", token))
-        .recv_string()
+        .send()
+        .await
+        .unwrap()
+        .text()
         .await
         .unwrap();
     assert_eq!(&response, "[]");
 
-    let mut response = surf::post(url("/internal-api/list/create", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/create", port))
         .header("Cookie", format!("token={}", token))
-        .body(json!({"list_name":"a"}))
+        .json(&json!({"list_name":"a"}))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success(), "{:?}", response);
-    let value: Value = response.body_json().await.unwrap();
+    let value = response.json::<Value>().await.unwrap();
     let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
 
-    let response = surf::get(url("/internal-api/list/my", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", format!("token={}", token))
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -106,18 +121,24 @@ async fn test_list() {
         ])
     );
 
-    let response = surf::post(url("/internal-api/list/update", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/update", port))
         .header("Cookie", format!("token={}", token))
-        .body(json!({
+        .json(&json!({
             "internal_list_id":internal_list_id,
             "name":"b"
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
-    let response = surf::get(url("/internal-api/list/my", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", format!("token={}", token))
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -132,11 +153,13 @@ async fn test_list() {
         ])
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         &format!("/internal-api/list/get/{}", internal_list_id),
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert_eq!(
@@ -150,22 +173,30 @@ async fn test_list() {
         })
     );
 
-    let response = surf::post(url("/internal-api/list/delete", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/delete", port))
         .header("Cookie", format!("token={}", token))
-        .body(json!({ "internal_list_id": internal_list_id }))
+        .json(&json!({ "internal_list_id": internal_list_id }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::get(url("/internal-api/list/my", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", format!("token={}", token))
-        .recv_string()
+        .send()
+        .await
+        .unwrap()
+        .text()
         .await
         .unwrap();
     assert_eq!(&response, "[]");
-    server.race(ready(())).await;
+
+    server.abort();
+    server.await.unwrap_err();
 }
-#[async_std::test]
+#[tokio::test]
 async fn test_invalid_token() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -174,26 +205,29 @@ async fn test_invalid_token() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url("/internal-api/list/my", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", "token=invalid-token")
+        .send()
         .await
         .unwrap();
     assert!(!response.status().is_success());
 
-    let mut map = BTreeMap::new();
-    map.insert("list_name", "a");
-    let response = surf::post(url("/internal-api/list/create", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/create", port))
         .header("Cookie", "token=invalid-token")
+        .send()
         .await
         .unwrap();
     assert!(!response.status().is_success());
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_list_item() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -202,9 +236,9 @@ async fn test_list_item() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    surf::get(url(
+    reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
     ))
@@ -212,28 +246,36 @@ async fn test_list_item() {
     .unwrap();
     let cookie_header = format!("token={}", VALID_TOKEN);
 
-    let mut response = surf::post(url("/internal-api/list/create", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/create", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({"list_name":"a"}))
+        .json(&json!({"list_name":"a"}))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success(), "{:?}", response);
-    let value: Value = response.body_json().await.unwrap();
+    let value = response.json::<Value>().await.unwrap();
     let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
 
-    let response = surf::post(url("/internal-api/list/item/add", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/item/add", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "internal_list_id": internal_list_id,
             "internal_user_id": "0",
             "problem_id": "problem_1"
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success(), "{:?}", response);
-    let list = surf::get(url("/internal-api/list/my", port))
+    let list: Value = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -248,20 +290,26 @@ async fn test_list_item() {
         ])
     );
 
-    let response = surf::post(url("/internal-api/list/item/update", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/item/update", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "internal_list_id": internal_list_id,
             "problem_id": "problem_1",
             "internal_user_id": "0",
             "memo": "memo_1"
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success(), "{:?}", response);
-    let list = surf::get(url("/internal-api/list/my", port))
+    let list = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -276,18 +324,24 @@ async fn test_list_item() {
         ])
     );
 
-    let response = surf::post(url("/internal-api/list/item/delete", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/item/delete", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "internal_list_id": internal_list_id,
             "problem_id": "problem_1"
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success(), "{:?}", response);
-    let list = surf::get(url("/internal-api/list/my", port))
+    let list = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -302,10 +356,11 @@ async fn test_list_item() {
         ])
     );
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_list_delete() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -314,9 +369,9 @@ async fn test_list_delete() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    surf::get(url(
+    reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
     ))
@@ -324,47 +379,62 @@ async fn test_list_delete() {
     .unwrap();
     let cookie_header = format!("token={}", VALID_TOKEN);
 
-    let mut response = surf::post(url("/internal-api/list/create", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/create", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({"list_name":"a"}))
+        .json(&json!({"list_name":"a"}))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success(), "{:?}", response);
-    let value: Value = response.body_json().await.unwrap();
+    let value = response.json::<Value>().await.unwrap();
     let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
 
-    let response = surf::post(url("/internal-api/list/item/add", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/item/add", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({"internal_list_id":internal_list_id, "problem_id":"problem_1"}))
+        .json(&json!({"internal_list_id":internal_list_id, "problem_id":"problem_1"}))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success(), "{:?}", response);
-    let list = surf::get(url("/internal-api/list/my", port))
+    let list = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(list[0]["items"][0]["problem_id"], "problem_1", "{:?}", list);
     assert_eq!(list[0]["items"][0]["memo"], "", "{:?}", list);
 
-    let response = surf::post(url("/internal-api/list/delete", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/list/delete", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({ "internal_list_id": internal_list_id }))
+        .json(&json!({ "internal_list_id": internal_list_id }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let list = surf::get(url("/internal-api/list/my", port))
+    let list = reqwest::Client::new()
+        .get(url("/internal-api/list/my", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert!(list.as_array().unwrap().is_empty());
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_register_twice() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -373,22 +443,32 @@ async fn test_register_twice() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .await
-    .unwrap();
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .unwrap();
+    let response = client
+        .get(url(
+            &format!("/internal-api/authorize?code={}", VALID_CODE),
+            port,
+        ))
+        .send()
+        .await
+        .unwrap();
     assert_eq!(response.status(), 302);
 
-    let response = surf::get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .await
-    .unwrap();
+    let response = client
+        .get(url(
+            &format!("/internal-api/authorize?code={}", VALID_CODE),
+            port,
+        ))
+        .send()
+        .await
+        .unwrap();
     assert_eq!(response.status(), 302);
-    server.race(ready(())).await;
+
+    server.abort();
+    server.await.unwrap_err();
 }

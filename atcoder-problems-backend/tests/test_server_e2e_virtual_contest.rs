@@ -1,12 +1,9 @@
-use atcoder_problems_backend::server::{run_server, Authentication};
-
-use async_std::prelude::*;
-use async_std::task;
 use async_trait::async_trait;
-use atcoder_problems_backend::server::GitHubUserResponse;
+use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::{json, Value};
 use tide::Result;
+use tokio::task;
 
 pub mod utils;
 
@@ -42,7 +39,7 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_virtual_contest() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -51,9 +48,9 @@ async fn test_virtual_contest() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    surf::get(url(
+    reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
     ))
@@ -61,32 +58,37 @@ async fn test_virtual_contest() {
     .unwrap();
     let cookie_header = format!("token={}", VALID_TOKEN);
 
-    let response = surf::post(url("/internal-api/user/update", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/user/update", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "atcoder_user_id": "atcoder_user1"
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
-    let mut response = surf::post(url("/internal-api/contest/create", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/create", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "title": "contest title",
             "memo": "contest memo",
             "start_epoch_second": 1,
             "duration_second": 2,
             "penalty_second": 0,
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
-    let body = response.body_json::<Value>().await.unwrap();
+    let body = response.json::<Value>().await.unwrap();
     let contest_id = body["contest_id"].as_str().unwrap();
 
-    let response = surf::post(url("/internal-api/contest/update", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/update", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "id": format!("{}", contest_id),
             "title": "contest title",
             "memo": "contest memo",
@@ -94,13 +96,18 @@ async fn test_virtual_contest() {
             "duration_second": 2,
             "penalty_second": 300,
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::get(url("/internal-api/contest/my", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/contest/my", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -120,25 +127,35 @@ async fn test_virtual_contest() {
         ])
     );
 
-    let response = surf::get(url("/internal-api/contest/joined", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/contest/joined", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!([]));
 
-    let response = surf::post(url("/internal-api/contest/join", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/join", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "contest_id": format!("{}", contest_id),
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::get(url("/internal-api/contest/joined", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/contest/joined", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -158,34 +175,46 @@ async fn test_virtual_contest() {
         ])
     );
 
-    let response = surf::post(url("/internal-api/contest/leave", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/leave", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "contest_id": format!("{}", contest_id),
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::get(url("/internal-api/contest/joined", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/contest/joined", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response, json!([]));
 
-    let response = surf::post(url("/internal-api/contest/join", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/join", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "contest_id": format!("{}", contest_id),
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::get(url("/internal-api/contest/joined", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/contest/joined", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -205,39 +234,49 @@ async fn test_virtual_contest() {
         ])
     );
 
-    let response = surf::post(url("/internal-api/contest/item/update", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/item/update", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "contest_id": format!("{}", contest_id),
             "problems": [{ "id": "problem_1", "point": 100 }],
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::post(url("/internal-api/contest/item/update", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/item/update", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "contest_id": format!("{}", contest_id),
             "problems": [{ "id": "problem_1", "point": 100 }],
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::post(url("/internal-api/contest/item/update", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/item/update", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "contest_id": format!("{}", contest_id),
             "problems": [{ "id": "problem_1", "point": 100 }, { "id": "problem_2" }],
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::get(url("/internal-api/contest/joined", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/contest/joined", port))
         .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -257,11 +296,13 @@ async fn test_virtual_contest() {
         ])
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         &format!("/internal-api/contest/get/{}", contest_id),
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert_eq!(
@@ -283,8 +324,10 @@ async fn test_virtual_contest() {
         })
     );
 
-    let response = surf::get(url("/internal-api/contest/recent", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/internal-api/contest/recent", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -304,10 +347,11 @@ async fn test_virtual_contest() {
         ])
     );
 
-    server.race(async_std::future::ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_virtual_contest_visibility() {
     let port = setup().await;
     let server = task::spawn(async move {
@@ -316,8 +360,8 @@ async fn test_virtual_contest_visibility() {
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
-    surf::get(url(
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,
     ))
@@ -325,31 +369,36 @@ async fn test_virtual_contest_visibility() {
     .unwrap();
     let cookie_header = format!("token={}", VALID_TOKEN);
 
-    let mut response = surf::post(url("/internal-api/contest/create", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/create", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "title": "visible",
             "memo": "",
             "start_epoch_second": 1,
             "duration_second": 2,
             "penalty_second": 300,
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
-    let body = response.body_json::<Value>().await.unwrap();
+    let body = response.json::<Value>().await.unwrap();
     let contest_id = body["contest_id"].as_str().unwrap();
 
-    let response = surf::get(url("/internal-api/contest/recent", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/internal-api/contest/recent", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response[0]["id"].as_str().unwrap(), contest_id);
     assert_eq!(response.as_array().unwrap().len(), 1);
 
-    let response = surf::post(url("/internal-api/contest/update", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/update", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "id": format!("{}", contest_id),
             "title": "invisible",
             "memo": "",
@@ -358,19 +407,23 @@ async fn test_virtual_contest_visibility() {
             "is_public": false,
             "penalty_second": 300,
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::get(url("/internal-api/contest/recent", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/internal-api/contest/recent", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response.as_array().unwrap().len(), 0);
 
-    let mut response = surf::post(url("/internal-api/contest/create", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/create", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "title": "invisible",
             "memo": "",
             "start_epoch_second": 1,
@@ -378,21 +431,25 @@ async fn test_virtual_contest_visibility() {
             "is_public": false,
             "penalty_second": 300,
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
-    let body = response.body_json::<Value>().await.unwrap();
+    let body = response.json::<Value>().await.unwrap();
     let contest_id = body["contest_id"].as_str().unwrap();
 
-    let response = surf::get(url("/internal-api/contest/recent", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/internal-api/contest/recent", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response.as_array().unwrap().len(), 0);
 
-    let response = surf::post(url("/internal-api/contest/update", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/contest/update", port))
         .header("Cookie", cookie_header.as_str())
-        .body(json!({
+        .json(&json!({
             "id": contest_id,
             "title": "visible",
             "memo": "",
@@ -401,16 +458,20 @@ async fn test_virtual_contest_visibility() {
             "is_public": true,
             "penalty_second": 300,
         }))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
 
-    let response = surf::get(url("/internal-api/contest/recent", port))
-        .recv_json::<Value>()
+    let response = reqwest::get(url("/internal-api/contest/recent", port))
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(response.as_array().unwrap().len(), 1);
     assert_eq!(response[0]["id"].as_str().unwrap(), contest_id);
 
-    server.race(async_std::future::ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }

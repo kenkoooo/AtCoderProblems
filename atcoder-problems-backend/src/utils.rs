@@ -29,7 +29,7 @@ pub fn init_log_config() -> Result<()> {
         .level(LevelFilter::Info)
         .level_for("sqlx", LevelFilter::Warn)
         .level_for("tide", LevelFilter::Warn)
-        .level_for("surf", LevelFilter::Warn)
+        .level_for("reqwest", LevelFilter::Warn)
         .chain(std::io::stdout())
         .apply()?;
     Ok(())

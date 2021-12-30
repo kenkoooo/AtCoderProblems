@@ -355,11 +355,11 @@ dependencies = [
  "log",
  "rand 0.7.3",
  "regex",
+ "reqwest",
  "rust-s3",
  "serde",
  "serde_json",
  "sql-client",
- "surf",
  "tide",
  "tokio",
 ]

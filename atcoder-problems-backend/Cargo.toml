@@ -26,7 +26,7 @@ atcoder-client = { path = "./atcoder-client" }
 # Web framework
 tide = "0.16"
 cookie = "0.14"
-surf = "2.3"
+reqwest = { version = "0.11", features = ["json"] }
 
 async-trait = "0.1"
 
