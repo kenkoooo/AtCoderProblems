@@ -11,168 +11,61 @@ pub(crate) mod user_info;
 pub(crate) mod user_submissions;
 pub(crate) mod utils;
 pub(crate) mod virtual_contest;
+pub(crate) mod services;
 
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
-
-use crate::server::ranking::{
-    get_ac_ranking, get_language_ranking, get_streak_ranking, get_users_ac_rank,
-    get_users_language_rank, get_users_rated_point_sum_rank, get_users_streak_rank,
-};
-use crate::server::user_submissions::get_user_submission_count;
-use auth::get_token;
-use language_count::get_language_list;
-use middleware::LogMiddleware;
-use problem_list::{
-    add_item, create_list, delete_item, delete_list, get_own_lists, get_single_list, update_item,
-    update_list,
-};
-use rated_point_sum_ranking::get_rated_point_sum_ranking;
-use time_submissions::get_time_submissions;
-use user_info::get_user_info;
-use user_submissions::{
-    get_recent_submissions, get_user_submissions, get_user_submissions_from_time,
-    get_users_time_submissions,
-};
+use actix_web::{App, HttpServer, HttpResponse, http::header};
 
 pub async fn run_server<A>(
     pg_pool: sql_client::PgPool,
     authentication: A,
     port: u16,
-) -> tide::Result<()>
+) -> std::io::Result<()>
 where
     A: Authentication + Send + Sync + 'static + Clone,
 {
+    let host = "0.0.0.0";
     let app_data = AppData::new(pg_pool, authentication);
-    let mut api = tide::with_state(app_data.clone());
-    api.with(LogMiddleware);
-    api.at("/internal-api").nest({
-        let mut api = tide::with_state(app_data.clone());
-        api.at("/authorize").get(get_token);
-        api.at("/list").nest({
-            let mut api = tide::with_state(app_data.clone());
-            api.at("/my").get(get_own_lists);
-            api.at("/get/:list_id").get(get_single_list);
-            api.at("/create").post(create_list);
-            api.at("/delete").post(delete_list);
-            api.at("/update").post(update_list);
-            api.at("/item").nest({
-                let mut api = tide::with_state(app_data.clone());
-                api.at("/add").post(add_item);
-                api.at("/update").post(update_item);
-                api.at("/delete").post(delete_item);
-                api
-            });
-            api
-        });
-
-        api.at("/contest").nest({
-            let mut api = tide::with_state(app_data.clone());
-            api.at("/create").post(virtual_contest::create_contest);
-            api.at("/update").post(virtual_contest::update_contest);
-            api.at("/item/update").post(virtual_contest::update_items);
-            api.at("/get/:contest_id")
-                .get(virtual_contest::get_single_contest);
-            api.at("/join").post(virtual_contest::join_contest);
-            api.at("/leave").post(virtual_contest::leave_contest);
-            api.at("/my").get(virtual_contest::get_my_contests);
-            api.at("/joined").get(virtual_contest::get_participated);
-            api.at("/recent").get(virtual_contest::get_recent_contests);
-            api
-        });
-
-        api.at("/user").nest({
-            let mut api = tide::with_state(app_data.clone());
-            api.at("/get").get(internal_user::get);
-            api.at("/update").post(internal_user::update);
-            api
-        });
-
-        api.at("/progress_reset").nest({
-            let mut api = tide::with_state(app_data.clone());
-            api.at("/list").get(progress_reset::get_progress_reset_list);
-            api.at("/add").post(progress_reset::add_progress_reset_item);
-            api.at("/delete")
-                .post(progress_reset::delete_progress_reset_item);
-            api
-        });
-        api
-    });
-    api.at("/atcoder-api").nest({
-        let mut api = tide::with_state(app_data.clone());
-        api.at("/results").get(get_user_submissions);
-        api.at("/v2").nest({
-            let mut api = tide::with_state(app_data.clone());
-            api.at("/user_info").get(get_user_info);
-            api
-        });
-        api.at("/v3").nest({
-            let mut api = tide::with_state(app_data.clone());
-            api.at("/rated_point_sum_ranking")
-                .get(get_rated_point_sum_ranking);
-            api.at("/ac_ranking").get(ranking::ranking(get_ac_ranking));
-            api.at("/streak_ranking")
-                .get(ranking::ranking(get_streak_ranking));
-            api.at("/language_ranking").get(get_language_ranking);
-            api.at("/from/:from").get(get_time_submissions);
-            api.at("/recent").get(get_recent_submissions);
-            api.at("/users_and_time").get(get_users_time_submissions);
-
-            api.at("/user").nest({
-                let mut api = tide::with_state(app_data.clone());
-                api.at("/submissions").get(get_user_submissions_from_time);
-                api.at("/submission_count").get(get_user_submission_count);
-                api.at("/ac_rank")
-                    .get(ranking::user_rank(get_users_ac_rank));
-                api.at("/streak_rank")
-                    .get(ranking::user_rank(get_users_streak_rank));
-                api.at("/language_rank").get(get_users_language_rank);
-                api.at("rated_point_sum_rank")
-                    .get(ranking::user_rank(get_users_rated_point_sum_rank));
-                api
-            });
-            api.at("/language_list").get(get_language_list);
-            api
-        });
-        api
-    });
-
-    api.at("/healthcheck").get(|_| async move { Ok("") });
-    api.listen(format!("0.0.0.0:{}", port)).await?;
-    Ok(())
+    HttpServer::new(move || {
+        App::new()
+            .app_data(app_data.clone())
+            .wrap(actix_web::middleware::Logger::default())
+            .configure(services::config_services)
+    })
+    .bind((host, port))?
+    .run()
+    .await
 }
 
 pub(crate) trait CommonResponse {
     fn ok() -> Self;
-    fn json<S: serde::Serialize>(body: &S) -> tide::Result<Self>
+    fn json<S: serde::Serialize>(body: &S) -> actix_web::Result<Self>
     where
         Self: Sized;
     fn empty_json() -> Self;
     fn make_cors(self) -> Self;
 }
 
-impl CommonResponse for tide::Response {
+impl CommonResponse for HttpResponse {
     fn ok() -> Self {
-        Self::new(tide::StatusCode::Ok)
+        Self::Ok().finish()
     }
-    fn json<S: serde::Serialize>(body: &S) -> tide::Result<Self>
+    fn json<S: serde::Serialize>(body: &S) -> actix_web::Result<Self>
     where
         Self: Sized,
     {
-        let response = Self::builder(tide::StatusCode::Ok)
-            .content_type(tide::http::mime::JSON)
-            .body(tide::Body::from_json(body)?)
-            .build();
+        let response = Self::Ok().json(body);
         Ok(response)
     }
     fn empty_json() -> Self {
-        Self::builder(tide::StatusCode::Ok)
-            .content_type(tide::http::mime::JSON)
-            .body("{}")
-            .build()
+        Self::Ok().json("{}")
     }
     fn make_cors(self) -> Self {
         let mut response = self;
-        response.insert_header(tide::http::headers::ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+        response.headers_mut().insert(
+            header::ACCESS_CONTROL_ALLOW_ORIGIN,
+            header::HeaderValue::from_str("*").unwrap()
+        );
         response
     }
 }
