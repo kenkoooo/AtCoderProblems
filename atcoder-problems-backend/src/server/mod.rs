@@ -14,7 +14,7 @@ pub(crate) mod virtual_contest;
 pub(crate) mod services;
 
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
-use actix_web::{App, HttpServer, HttpResponse, http::header};
+use actix_web::{web, App, HttpServer, HttpResponse, http::header};
 
 pub async fn run_server<A>(
     pg_pool: sql_client::PgPool,
@@ -28,7 +28,7 @@ where
     let app_data = AppData::new(pg_pool, authentication);
     HttpServer::new(move || {
         App::new()
-            .app_data(app_data.clone())
+            .app_data(web::Data::new(app_data.clone()))
             .wrap(actix_web::middleware::Logger::default())
             .configure(services::config_services)
     })

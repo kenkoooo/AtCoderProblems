@@ -51,7 +51,7 @@ where
         }
         let ranking = f(data, query).await?;
         let response = HttpResponse::json(&ranking)?;
-        Ok(response): Result<HttpResponse>
+        <Result<HttpResponse>>::Ok(response)
     }
 }
 
@@ -74,7 +74,7 @@ where
             match user_rank {
                 Some(rank) => {
                     let response = HttpResponse::json(&rank)?;
-                    Ok(response): Result<HttpResponse>
+                    <Result<HttpResponse>>::Ok(response)
                 }
                 None => Ok(HttpResponse::NotFound().finish()),
             }
