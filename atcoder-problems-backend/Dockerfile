@@ -37,3 +37,7 @@ COPY --from=builder /app/target/release/delta_update                /usr/bin/del
 COPY --from=builder /app/target/release/dump_json                   /usr/bin/dump_json
 COPY --from=builder /app/target/release/fix_invalid_submissions     /usr/bin/fix_invalid_submissions
 COPY --from=builder /app/target/release/run_server                  /usr/bin/run_server
+
+
+RUN apt-get update && apt-get install -y awscli postgresql-client
+ADD ./scripts/sql-backup.sh /usr/bin/sql-backup.sh
