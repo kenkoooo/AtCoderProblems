@@ -25,7 +25,7 @@ pub(crate) async fn get_user_submissions<A>(
         .get_submissions(SubmissionRequest::UserAll { user_id })
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let mut response = HttpResponse::Ok()
+    let response = HttpResponse::Ok()
         .insert_header((CACHE_CONTROL, "max-age=300"))
         .json(&submissions)
         .make_cors();
