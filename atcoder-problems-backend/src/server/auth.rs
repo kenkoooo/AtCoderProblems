@@ -1,18 +1,16 @@
 use crate::server::AppData;
 use async_trait::async_trait;
-use cookie::Cookie;
 use serde::{Deserialize, Serialize};
 use sql_client::internal::user_manager::UserManager;
-use tide::http::headers::LOCATION;
-use tide::StatusCode;
-use tide::{Request, Response, Result};
+use actix_web::{error, web, HttpRequest, HttpResponse, Result, cookie::Cookie};
+use actix_web::http::header::LOCATION;
 
 const REDIRECT_URL: &str = "https://kenkoooo.com/atcoder/";
 
 #[async_trait]
 pub trait Authentication {
-    async fn get_token(&self, code: &str) -> Result<String>;
-    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse>;
+    async fn get_token(&self, code: &str) -> Result<String, reqwest::Error>;
+    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse, reqwest::Error>;
 }
 
 #[derive(Serialize)]
@@ -41,7 +39,7 @@ pub struct GitHubAuthentication {
 
 #[async_trait]
 impl Authentication for GitHubAuthentication {
-    async fn get_token(&self, code: &str) -> Result<String> {
+    async fn get_token(&self, code: &str) -> Result<String, reqwest::Error> {
         let request = TokenRequest {
             client_id: self.client_id.to_owned(),
             client_secret: self.client_secret.to_owned(),
@@ -58,7 +56,7 @@ impl Authentication for GitHubAuthentication {
             .await?;
         Ok(response.access_token)
     }
-    async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
+    async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse, reqwest::Error> {
         let token_header = format!("token {}", access_token);
         let client = reqwest::Client::new();
         let response: GitHubUserResponse = client
@@ -88,25 +86,26 @@ struct Query {
 }
 
 pub(crate) async fn get_token<A: Authentication + Clone>(
-    request: Request<AppData<A>>,
-) -> Result<Response> {
-    let query = request.query::<Query>()?;
-    let client = request.state().authentication.clone();
-    let conn = request.state().pg_pool.clone();
+    request: HttpRequest,
+    data: web::Data<AppData<A>>,
+    query: web::Query<Query>
+) -> Result<HttpResponse> {
+    let client = data.authentication.clone();
+    let conn = data.pg_pool.clone();
 
-    let token = client.get_token(&query.code).await?;
-    let response = client.get_user_id(&token).await?;
+    let token = client.get_token(&query.code).await.map_err(error::ErrorInternalServerError)?;
+    let response = client.get_user_id(&token).await.map_err(error::ErrorInternalServerError)?;
     let internal_user_id = response.id.to_string();
-    conn.register_user(&internal_user_id).await?;
+    conn.register_user(&internal_user_id).await.map_err(error::ErrorInternalServerError)?;
 
     let cookie = Cookie::build("token", token).path("/").finish();
     let redirect_fragment = query
-        .redirect_to
+        .redirect_to.clone()
         .unwrap_or_else(|| "/login/user".to_string());
     let redirect_url = format!("{}#{}", REDIRECT_URL, redirect_fragment);
-    let mut response = Response::builder(StatusCode::Found)
-        .header(LOCATION, redirect_url)
-        .build();
-    response.insert_cookie(cookie);
+    let response = HttpResponse::Found()
+        .insert_header((LOCATION, redirect_url))
+        .cookie(cookie)
+        .finish();
     Ok(response)
 }
