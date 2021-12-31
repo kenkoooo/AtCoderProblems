@@ -6,7 +6,7 @@ use sql_client::rated_point_sum::RatedPointSumClient;
 const MAX_RANKING_RANGE_LENGTH: usize = 1000;
 
 #[derive(Debug, Deserialize)]
-struct Query {
+pub(crate) struct Query {
     from: usize,
     to: usize,
 }

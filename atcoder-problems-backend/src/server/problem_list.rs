@@ -20,7 +20,7 @@ pub(crate) async fn get_own_lists<A: Authentication + Clone + Send + Sync + 'sta
 }
 
 #[derive(Deserialize)]
-struct GetListQuery {
+pub(crate) struct GetListQuery {
     list_id: String,
 }
 
@@ -41,7 +41,7 @@ pub(crate) async fn get_single_list<A: Authentication + Clone + Send + Sync + 's
 }
 
 #[derive(Deserialize)]
-struct CreateListQuery {
+pub(crate) struct CreateListQuery {
     list_name: String,
 }
 
@@ -62,7 +62,7 @@ pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'stati
 }
 
 #[derive(Deserialize)]
-struct DeleteListQuery {
+pub(crate) struct DeleteListQuery {
     internal_list_id: String,
 }
 
@@ -81,7 +81,7 @@ pub(crate) async fn delete_list<A: Authentication + Clone + Send + Sync + 'stati
 }
 
 #[derive(Deserialize)]
-struct UpdateListQuery {
+pub(crate) struct UpdateListQuery {
     internal_list_id: String,
     name: String,
 }
@@ -101,7 +101,7 @@ pub(crate) async fn update_list<A: Authentication + Clone + Send + Sync + 'stati
 }
 
 #[derive(Deserialize)]
-struct AddItemQuery {
+pub(crate) struct AddItemQuery {
     internal_list_id: String,
     problem_id: String,
 }
@@ -121,7 +121,7 @@ pub(crate) async fn add_item<A: Authentication + Clone + Send + Sync + 'static>(
 }
 
 #[derive(Deserialize)]
-struct UpdateItemQuery {
+pub(crate) struct UpdateItemQuery {
     internal_list_id: String,
     problem_id: String,
     memo: String,
@@ -142,7 +142,7 @@ pub(crate) async fn update_item<A: Authentication + Clone + Send + Sync + 'stati
 }
 
 #[derive(Deserialize)]
-struct DeleteItemQuery {
+pub(crate) struct DeleteItemQuery {
     internal_list_id: String,
     problem_id: String,
 }

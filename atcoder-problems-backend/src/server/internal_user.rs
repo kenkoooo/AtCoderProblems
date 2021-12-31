@@ -5,7 +5,7 @@ use sql_client::internal::user_manager::UserManager;
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 
 #[derive(Deserialize)]
-struct Query {
+pub(crate) struct Query {
     atcoder_user_id: String,
 }
 

@@ -1,15 +1,17 @@
 use crate::server::{AppData, CommonResponse};
-use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
+use serde::Deserialize;
+use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 
-struct Query {
-    from: i64
+#[derive(Deserialize)]
+pub(crate) struct Query {
+    from: i64,
 }
 
 pub(crate) async fn get_time_submissions<A>(
     request: HttpRequest,
     data: web::Data<AppData<A>>,
-    query: web::Query<Query>
+    query: web::Query<Query>,
 ) -> Result<HttpResponse> {
     let from_epoch_second = query.from;
     let conn = data.pg_pool.clone();

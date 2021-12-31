@@ -16,7 +16,7 @@ pub(crate) async fn get_progress_reset_list<A: Authentication + Clone + Send + S
 }
 
 #[derive(Deserialize)]
-struct AddItemQuery {
+pub(crate) struct AddItemQuery {
     problem_id: String,
     reset_epoch_second: i64,
 }
@@ -38,7 +38,7 @@ pub(crate) async fn add_progress_reset_item<A: Authentication + Clone + Send + S
 }
 
 #[derive(Deserialize)]
-struct DeleteItemQuery {
+pub(crate) struct DeleteItemQuery {
     problem_id: String,
 }
 

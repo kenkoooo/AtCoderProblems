@@ -10,7 +10,7 @@ use std::ops::Range;
 use async_trait::async_trait;
 
 #[derive(Deserialize)]
-struct UserRankRequest {
+pub(crate) struct UserRankRequest {
     user: String,
 }
 
@@ -21,7 +21,7 @@ pub(crate) struct UserRankResponse {
 }
 
 #[derive(Deserialize)]
-struct RankingRequest {
+pub(crate) struct RankingRequest {
     from: usize,
     to: usize,
 }
@@ -139,7 +139,7 @@ impl<A: Sync + Send + Clone + 'static> UserRankSelector<A> for AcRanking {
 }
 
 #[derive(Deserialize)]
-struct LanguageQuery {
+pub(crate) struct LanguageQuery {
     from: usize,
     to: usize,
     language: String,
@@ -172,7 +172,7 @@ pub(crate) async fn get_language_ranking<A>(
 }
 
 #[derive(Debug, Deserialize)]
-struct UsersLanguageQuery {
+pub(crate) struct UsersLanguageQuery {
     user: String,
 }
 

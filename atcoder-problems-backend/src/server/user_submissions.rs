@@ -7,7 +7,7 @@ use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 const USER_SUBMISSION_LIMIT: usize = 500;
 
 #[derive(Deserialize, Debug)]
-struct GetUserSubmissionQuery {
+pub(crate) struct GetUserSubmissionQuery {
     user: String,
     from_second: Option<i64>,
     to_second: Option<i64>,
@@ -104,7 +104,7 @@ pub(crate) async fn get_recent_submissions<A>(
 }
 
 #[derive(Deserialize, Debug)]
-struct GetUsersTimeSubmissionQuery {
+pub(crate) struct GetUsersTimeSubmissionQuery {
     users: String,
     problems: String,
     from: i64,

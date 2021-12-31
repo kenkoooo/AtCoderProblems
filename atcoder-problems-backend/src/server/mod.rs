@@ -30,7 +30,7 @@ where
         App::new()
             .app_data(web::Data::new(app_data.clone()))
             .wrap(actix_web::middleware::Logger::default())
-            .configure(services::config_services)
+            .configure(services::config_services::<A>)
     })
     .bind((host, port))?
     .run()

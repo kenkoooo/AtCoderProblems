@@ -8,7 +8,7 @@ use sql_client::internal::virtual_contest_manager::{
 };
 
 #[derive(Deserialize)]
-struct CreateContestQuery {
+pub(crate) struct CreateContestQuery {
     title: String,
     memo: String,
     start_epoch_second: i64,
@@ -43,7 +43,7 @@ pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'st
 }
 
 #[derive(Deserialize)]
-struct UpdateContestQuery {
+pub(crate) struct UpdateContestQuery {
     id: String,
     title: String,
     memo: String,
@@ -77,7 +77,7 @@ pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'st
 }
 
 #[derive(Deserialize)]
-struct UpdateItemsQuery {
+pub(crate) struct UpdateItemsQuery {
     contest_id: String,
     problems: Vec<VirtualContestItem>,
 }
@@ -118,7 +118,7 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
 }
 
 #[derive(Deserialize)]
-struct SingleContestQuery {
+pub(crate) struct SingleContestQuery {
     contest_id: String
 }
 

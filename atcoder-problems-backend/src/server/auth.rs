@@ -80,7 +80,7 @@ impl GitHubAuthentication {
 }
 
 #[derive(Deserialize)]
-struct Query {
+pub(crate) struct Query {
     code: String,
     redirect_to: Option<String>,
 }

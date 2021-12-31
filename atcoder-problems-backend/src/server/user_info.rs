@@ -6,7 +6,7 @@ use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::rated_point_sum::RatedPointSumClient;
 
 #[derive(Deserialize)]
-struct Query {
+pub(crate) struct Query {
     user: String,
 }
 #[derive(Serialize)]
