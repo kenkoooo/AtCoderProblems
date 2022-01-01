@@ -1,6 +1,6 @@
 use crate::server::{AppData, Authentication};
+use actix_web::{cookie::Cookie, error, Result};
 use async_trait::async_trait;
-use actix_web::{Result, cookie::Cookie, error};
 
 #[async_trait(?Send)]
 pub(crate) trait GetAuthId {

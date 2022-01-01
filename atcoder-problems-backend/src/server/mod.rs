@@ -6,15 +6,15 @@ pub(crate) mod problem_list;
 pub(crate) mod progress_reset;
 pub(crate) mod ranking;
 pub(crate) mod rated_point_sum_ranking;
+pub(crate) mod services;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
 pub(crate) mod user_submissions;
 pub(crate) mod utils;
 pub(crate) mod virtual_contest;
-pub(crate) mod services;
 
+use actix_web::{http::header, web, App, HttpResponse, HttpServer};
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
-use actix_web::{web, App, HttpServer, HttpResponse, http::header};
 
 pub async fn run_server<A>(
     pg_pool: sql_client::PgPool,
@@ -64,7 +64,7 @@ impl CommonResponse for HttpResponse {
         let mut response = self;
         response.headers_mut().insert(
             header::ACCESS_CONTROL_ALLOW_ORIGIN,
-            header::HeaderValue::from_str("*").unwrap()
+            header::HeaderValue::from_str("*").unwrap(),
         );
         response
     }

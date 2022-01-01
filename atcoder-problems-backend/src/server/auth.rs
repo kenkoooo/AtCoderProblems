@@ -1,9 +1,9 @@
 use crate::server::AppData;
+use actix_web::http::header::LOCATION;
+use actix_web::{cookie::Cookie, error, web, HttpRequest, HttpResponse, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sql_client::internal::user_manager::UserManager;
-use actix_web::{error, web, HttpRequest, HttpResponse, Result, cookie::Cookie};
-use actix_web::http::header::LOCATION;
 
 const REDIRECT_URL: &str = "https://kenkoooo.com/atcoder/";
 
@@ -51,9 +51,11 @@ impl Authentication for GitHubAuthentication {
             .header("Accept", "application/json")
             .json(&request)
             .send()
-            .await.map_err(error::ErrorInternalServerError)?
+            .await
+            .map_err(error::ErrorInternalServerError)?
             .json()
-            .await.map_err(error::ErrorInternalServerError)?;
+            .await
+            .map_err(error::ErrorInternalServerError)?;
         Ok(response.access_token)
     }
     async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
@@ -63,9 +65,11 @@ impl Authentication for GitHubAuthentication {
             .get("https://api.github.com/user")
             .header("Authorization", token_header)
             .send()
-            .await.map_err(error::ErrorInternalServerError)?
+            .await
+            .map_err(error::ErrorInternalServerError)?
             .json()
-            .await.map_err(error::ErrorInternalServerError)?;
+            .await
+            .map_err(error::ErrorInternalServerError)?;
         Ok(response)
     }
 }
@@ -88,19 +92,28 @@ pub(crate) struct Query {
 pub(crate) async fn get_token<A: Authentication + Clone>(
     _request: HttpRequest,
     data: web::Data<AppData<A>>,
-    query: web::Query<Query>
+    query: web::Query<Query>,
 ) -> Result<HttpResponse> {
     let client = data.authentication.clone();
     let conn = data.pg_pool.clone();
 
-    let token = client.get_token(&query.code).await.map_err(error::ErrorInternalServerError)?;
-    let response = client.get_user_id(&token).await.map_err(error::ErrorInternalServerError)?;
+    let token = client
+        .get_token(&query.code)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    let response = client
+        .get_user_id(&token)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
     let internal_user_id = response.id.to_string();
-    conn.register_user(&internal_user_id).await.map_err(error::ErrorInternalServerError)?;
+    conn.register_user(&internal_user_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
 
     let cookie = Cookie::build("token", token).path("/").finish();
     let redirect_fragment = query
-        .redirect_to.clone()
+        .redirect_to
+        .clone()
         .unwrap_or_else(|| "/login/user".to_string());
     let redirect_url = format!("{}#{}", REDIRECT_URL, redirect_fragment);
     let response = HttpResponse::Found()

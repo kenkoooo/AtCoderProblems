@@ -36,7 +36,8 @@ pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'st
             query.is_public.unwrap_or(true),
             query.penalty_second,
         )
-        .await.map_err(error::ErrorInternalServerError)?;
+        .await
+        .map_err(error::ErrorInternalServerError)?;
     let body = serde_json::json!({ "contest_id": contest_id });
     let response = HttpResponse::json(&body)?;
     Ok(response)
@@ -71,7 +72,8 @@ pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'st
         query.is_public.unwrap_or(true),
         query.penalty_second,
     )
-    .await.map_err(error::ErrorInternalServerError)?;
+    .await
+    .map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::empty_json();
     Ok(response)
 }
@@ -90,7 +92,8 @@ pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'stat
     let user_id = data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
     conn.update_items(&query.contest_id, &query.problems, &user_id)
-        .await.map_err(error::ErrorInternalServerError)?;
+        .await
+        .map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::empty_json();
     Ok(response)
 }
@@ -101,7 +104,10 @@ pub(crate) async fn get_my_contests<A: Authentication + Clone + Send + Sync + 's
 ) -> Result<HttpResponse> {
     let user_id = data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
-    let contests = conn.get_own_contests(&user_id).await.map_err(error::ErrorInternalServerError)?;
+    let contests = conn
+        .get_own_contests(&user_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::json(&contests)?;
     Ok(response)
 }
@@ -112,7 +118,10 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
 ) -> Result<HttpResponse> {
     let user_id = data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
-    let contests = conn.get_participated_contests(&user_id).await.map_err(error::ErrorInternalServerError)?;
+    let contests = conn
+        .get_participated_contests(&user_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::json(&contests)?;
     Ok(response)
 }
@@ -130,9 +139,18 @@ pub(crate) async fn get_single_contest<A>(
     }
 
     let conn = data.pg_pool.clone();
-    let info = conn.get_single_contest_info(&contest_id).await.map_err(error::ErrorInternalServerError)?;
-    let participants = conn.get_single_contest_participants(&contest_id).await.map_err(error::ErrorInternalServerError)?;
-    let problems = conn.get_single_contest_problems(&contest_id).await.map_err(error::ErrorInternalServerError)?;
+    let info = conn
+        .get_single_contest_info(&contest_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    let participants = conn
+        .get_single_contest_participants(&contest_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    let problems = conn
+        .get_single_contest_problems(&contest_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
     let contest = VirtualContestDetails {
         info,
         problems,
@@ -142,16 +160,22 @@ pub(crate) async fn get_single_contest<A>(
     Ok(response)
 }
 
-pub(crate) async fn get_recent_contests<A>(_request: HttpRequest, data: web::Data<AppData<A>>) -> Result<HttpResponse> {
+pub(crate) async fn get_recent_contests<A>(
+    _request: HttpRequest,
+    data: web::Data<AppData<A>>,
+) -> Result<HttpResponse> {
     let conn = data.pg_pool.clone();
-    let contest = conn.get_recent_contest_info().await.map_err(error::ErrorInternalServerError)?;
+    let contest = conn
+        .get_recent_contest_info()
+        .await
+        .map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::json(&contest)?;
     Ok(response)
 }
 
 #[derive(Deserialize)]
 pub(crate) struct SingleContestQuery {
-    contest_id: String
+    contest_id: String,
 }
 
 pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'static>(
@@ -161,7 +185,9 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
 ) -> Result<HttpResponse> {
     let user_id = data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
-    conn.join_contest(&query.contest_id, &user_id).await.map_err(error::ErrorInternalServerError)?;
+    conn.join_contest(&query.contest_id, &user_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::empty_json();
     Ok(response)
 }
@@ -173,7 +199,9 @@ pub(crate) async fn leave_contest<A: Authentication + Clone + Send + Sync + 'sta
 ) -> Result<HttpResponse> {
     let user_id = data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
-    conn.leave_contest(&query.contest_id, &user_id).await.map_err(error::ErrorInternalServerError)?;
+    conn.leave_contest(&query.contest_id, &user_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::empty_json();
     Ok(response)
 }
