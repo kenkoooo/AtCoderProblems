@@ -8,7 +8,7 @@ use sql_client::models::Contest;
 use sql_client::simple_client::SimpleClient;
 use std::{env, thread, time};
 
-#[async_std::main]
+#[actix_web::main]
 async fn main() {
     init_log_config().unwrap();
     info!("Started");

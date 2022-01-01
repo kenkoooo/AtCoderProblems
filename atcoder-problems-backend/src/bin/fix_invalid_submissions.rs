@@ -8,7 +8,7 @@ use std::env;
 
 const ONE_DAY: i64 = 24 * 3600;
 
-#[async_std::main]
+#[actix_web::main]
 async fn main() {
     init_log_config().unwrap();
     info!("Started");
