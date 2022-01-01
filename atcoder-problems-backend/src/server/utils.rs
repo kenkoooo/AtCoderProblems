@@ -2,12 +2,12 @@ use crate::server::{AppData, Authentication};
 use async_trait::async_trait;
 use actix_web::{Result, cookie::Cookie, error};
 
-#[async_trait]
+#[async_trait(?Send)]
 pub(crate) trait GetAuthId {
     async fn get_authorized_id(&self, token: Option<Cookie<'static>>) -> Result<String>;
 }
 
-#[async_trait]
+#[async_trait(?Send)]
 impl<A: Authentication + Clone + Send + Sync + 'static> GetAuthId for AppData<A> {
     async fn get_authorized_id(&self, token: Option<Cookie<'static>>) -> Result<String> {
         let client = self.authentication.clone();

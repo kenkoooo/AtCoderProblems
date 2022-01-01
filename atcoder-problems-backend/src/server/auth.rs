@@ -7,10 +7,10 @@ use actix_web::http::header::LOCATION;
 
 const REDIRECT_URL: &str = "https://kenkoooo.com/atcoder/";
 
-#[async_trait]
+#[async_trait(?Send)]
 pub trait Authentication {
-    async fn get_token(&self, code: &str) -> Result<String, reqwest::Error>;
-    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse, reqwest::Error>;
+    async fn get_token(&self, code: &str) -> Result<String>;
+    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse>;
 }
 
 #[derive(Serialize)]
@@ -37,9 +37,9 @@ pub struct GitHubAuthentication {
     client_secret: String,
 }
 
-#[async_trait]
+#[async_trait(?Send)]
 impl Authentication for GitHubAuthentication {
-    async fn get_token(&self, code: &str) -> Result<String, reqwest::Error> {
+    async fn get_token(&self, code: &str) -> Result<String> {
         let request = TokenRequest {
             client_id: self.client_id.to_owned(),
             client_secret: self.client_secret.to_owned(),
@@ -51,21 +51,21 @@ impl Authentication for GitHubAuthentication {
             .header("Accept", "application/json")
             .json(&request)
             .send()
-            .await?
+            .await.map_err(error::ErrorInternalServerError)?
             .json()
-            .await?;
+            .await.map_err(error::ErrorInternalServerError)?;
         Ok(response.access_token)
     }
-    async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse, reqwest::Error> {
+    async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
         let token_header = format!("token {}", access_token);
         let client = reqwest::Client::new();
         let response: GitHubUserResponse = client
             .get("https://api.github.com/user")
             .header("Authorization", token_header)
             .send()
-            .await?
+            .await.map_err(error::ErrorInternalServerError)?
             .json()
-            .await?;
+            .await.map_err(error::ErrorInternalServerError)?;
         Ok(response)
     }
 }
