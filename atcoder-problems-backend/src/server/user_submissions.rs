@@ -11,11 +11,10 @@ pub(crate) struct GetUserSubmissionQuery {
     user: String,
     from_second: Option<i64>,
     to_second: Option<i64>,
-    problems: Option<String>,
 }
 
 pub(crate) async fn get_user_submissions<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     query: web::Query<GetUserSubmissionQuery>,
 ) -> Result<HttpResponse> {
@@ -33,7 +32,7 @@ pub(crate) async fn get_user_submissions<A>(
 }
 
 pub(crate) async fn get_user_submissions_from_time<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     query: web::Query<GetUserSubmissionQuery>,
 ) -> Result<HttpResponse> {
@@ -60,7 +59,7 @@ pub(crate) async fn get_user_submissions_from_time<A>(
 }
 
 pub(crate) async fn get_user_submission_count<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     query: web::Query<GetUserSubmissionQuery>,
 ) -> Result<HttpResponse> {
@@ -91,7 +90,7 @@ pub(crate) async fn get_user_submission_count<A>(
 }
 
 pub(crate) async fn get_recent_submissions<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
 ) -> Result<HttpResponse> {
     let conn = data.pg_pool.clone();
@@ -112,7 +111,7 @@ pub(crate) struct GetUsersTimeSubmissionQuery {
 }
 
 pub(crate) async fn get_users_time_submissions<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     query: web::Query<GetUsersTimeSubmissionQuery>,
 ) -> Result<HttpResponse> {

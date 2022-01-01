@@ -39,7 +39,7 @@ const MAX_RANKING_RANGE_LENGTH: usize = 1_000;
 #[async_trait(?Send)]
 pub(crate) trait RankingSelector<A: Sync + Send + Clone + 'static> {
     async fn fetch(data: web::Data<AppData<A>>, query: Range<usize>) -> Result<Vec<RankingResponseEntry>>;
-    async fn get_ranking(request: HttpRequest, data: web::Data<AppData<A>>, query: web::Query<RankingRequest>) -> Result<HttpResponse> {
+    async fn get_ranking(_request: HttpRequest, data: web::Data<AppData<A>>, query: web::Query<RankingRequest>) -> Result<HttpResponse> {
         let query = (query.from)..(query.to);
         if query.len() > MAX_RANKING_RANGE_LENGTH {
             return Ok(HttpResponse::BadRequest().finish());
@@ -53,7 +53,7 @@ pub(crate) trait RankingSelector<A: Sync + Send + Clone + 'static> {
 #[async_trait(?Send)]
 pub(crate) trait UserRankSelector<A: Sync + Send + Clone + 'static> {
     async fn fetch(data: web::Data<AppData<A>>, query: &str) -> Result<Option<UserRankResponse>>;
-    async fn get_users_rank(request: HttpRequest, data: web::Data<AppData<A>>, query: web::Query<UserRankRequest>) -> Result<HttpResponse> {
+    async fn get_users_rank(_request: HttpRequest, data: web::Data<AppData<A>>, query: web::Query<UserRankRequest>) -> Result<HttpResponse> {
         let user_rank = Self::fetch(data, &query.user).await?;
         // map と ok_or に書き換えられる
         match user_rank {
@@ -146,7 +146,7 @@ pub(crate) struct LanguageQuery {
 }
 
 pub(crate) async fn get_language_ranking<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     query: web::Query<LanguageQuery>,
 ) -> Result<HttpResponse> {
@@ -177,7 +177,7 @@ pub(crate) struct UsersLanguageQuery {
 }
 
 pub(crate) async fn get_users_language_rank<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     query: web::Query<UsersLanguageQuery>,
 ) -> Result<HttpResponse> {

@@ -20,7 +20,7 @@ pub(crate) async fn get_own_lists<A: Authentication + Clone + Send + Sync + 'sta
 }
 
 pub(crate) async fn get_single_list<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     list_id: web::Path<String>,
 ) -> Result<HttpResponse> {
@@ -64,7 +64,7 @@ pub(crate) async fn delete_list<A: Authentication + Clone + Send + Sync + 'stati
     data: web::Data<AppData<A>>,
     query: web::Json<DeleteListQuery>,
 ) -> Result<HttpResponse> {
-    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+    data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
     conn.delete_list(&query.internal_list_id)
         .await
@@ -84,7 +84,7 @@ pub(crate) async fn update_list<A: Authentication + Clone + Send + Sync + 'stati
     data: web::Data<AppData<A>>,
     query: web::Json<UpdateListQuery>,
 ) -> Result<HttpResponse> {
-    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+    data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
     conn.update_list(&query.internal_list_id, &query.name)
         .await
@@ -104,7 +104,7 @@ pub(crate) async fn add_item<A: Authentication + Clone + Send + Sync + 'static>(
     data: web::Data<AppData<A>>,
     query: web::Json<AddItemQuery>,
 ) -> Result<HttpResponse> {
-    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+    data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
     conn.add_item(&query.internal_list_id, &query.problem_id)
         .await
@@ -125,7 +125,7 @@ pub(crate) async fn update_item<A: Authentication + Clone + Send + Sync + 'stati
     data: web::Data<AppData<A>>,
     query: web::Json<UpdateItemQuery>,
 ) -> Result<HttpResponse> {
-    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+    data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
     conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)
         .await
@@ -145,7 +145,7 @@ pub(crate) async fn delete_item<A: Authentication + Clone + Send + Sync + 'stati
     data: web::Data<AppData<A>>,
     query: web::Json<DeleteItemQuery>,
 ) -> Result<HttpResponse> {
-    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+    data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
     conn.delete_item(&query.internal_list_id, &query.problem_id)
         .await

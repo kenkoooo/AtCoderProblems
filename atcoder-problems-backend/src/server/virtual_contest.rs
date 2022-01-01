@@ -59,7 +59,7 @@ pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'st
     data: web::Data<AppData<A>>,
     query: web::Json<UpdateContestQuery>,
 ) -> Result<HttpResponse> {
-    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+    data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
     conn.update_contest(
         &query.id,
@@ -118,7 +118,7 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
 }
 
 pub(crate) async fn get_single_contest<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     contest_id: web::Path<String>,
 ) -> Result<HttpResponse> {
@@ -142,7 +142,7 @@ pub(crate) async fn get_single_contest<A>(
     Ok(response)
 }
 
-pub(crate) async fn get_recent_contests<A>(request: HttpRequest, data: web::Data<AppData<A>>) -> Result<HttpResponse> {
+pub(crate) async fn get_recent_contests<A>(_request: HttpRequest, data: web::Data<AppData<A>>) -> Result<HttpResponse> {
     let conn = data.pg_pool.clone();
     let contest = conn.get_recent_contest_info().await.map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::json(&contest)?;

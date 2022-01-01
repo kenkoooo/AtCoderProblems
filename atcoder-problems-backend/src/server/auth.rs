@@ -28,7 +28,7 @@ struct TokenResponse {
 #[derive(Deserialize, Default)]
 pub struct GitHubUserResponse {
     pub(crate) id: i64,
-    login: String,
+    _login: String,
 }
 
 #[derive(Clone)]
@@ -86,7 +86,7 @@ pub(crate) struct Query {
 }
 
 pub(crate) async fn get_token<A: Authentication + Clone>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     query: web::Query<Query>
 ) -> Result<HttpResponse> {

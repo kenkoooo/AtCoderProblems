@@ -19,7 +19,7 @@ struct UserInfo {
 }
 
 pub(crate) async fn get_user_info<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     query: web::Query<Query>,
 ) -> Result<HttpResponse> {

@@ -1,11 +1,10 @@
 use crate::server::{AppData, CommonResponse};
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
-use serde::Deserialize;
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 
 
 pub(crate) async fn get_time_submissions<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     from: web::Path<i64>,
 ) -> Result<HttpResponse> {

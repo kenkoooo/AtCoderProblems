@@ -12,7 +12,7 @@ pub(crate) struct Query {
 }
 
 pub(crate) async fn get_rated_point_sum_ranking<A>(
-    request: HttpRequest,
+    _request: HttpRequest,
     data: web::Data<AppData<A>>,
     query: web::Query<Query>,
 ) -> Result<HttpResponse> {
