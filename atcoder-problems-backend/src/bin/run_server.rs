@@ -6,6 +6,7 @@ use atcoder_problems_backend::utils::init_log_config;
 
 #[actix_web::main]
 async fn main() {
+    // std::env::set_var("RUST_LOG", "actix_web=info");
     init_log_config().unwrap();
     let database_url = env::var("SQL_URL").expect("SQL_URL is not set.");
     let port = 8080;

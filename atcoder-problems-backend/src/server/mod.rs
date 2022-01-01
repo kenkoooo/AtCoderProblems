@@ -15,7 +15,7 @@ pub(crate) mod virtual_contest;
 use actix_web::{http::header, web, App, HttpResponse, HttpServer};
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 
-const LOG_TEMPLATE: &str = "{method:%{Method}i, url:%U, status:%s, duration:%T}";
+const LOG_TEMPLATE: &str = r#"{"method":"%{method}xi", "url":"%U", "status":%s, "duration":%T}"#;
 
 pub async fn run_server<A>(
     pg_pool: sql_client::PgPool,
@@ -30,7 +30,7 @@ where
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(app_data.clone()))
-            .wrap(actix_web::middleware::Logger::new(LOG_TEMPLATE))
+            .wrap(actix_web::middleware::Logger::new(LOG_TEMPLATE).custom_request_replace("method", |req| req.method().to_string()))
             .configure(services::config_services::<A>)
     })
     .bind((host, port))?

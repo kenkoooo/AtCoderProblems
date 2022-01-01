@@ -28,7 +28,7 @@ pub fn init_log_config() -> Result<()> {
         .format(|out, message, _record| out.finish(format_args!("{}", message)))
         .level(LevelFilter::Info)
         .level_for("sqlx", LevelFilter::Warn)
-        .level_for("tide", LevelFilter::Warn)
+        .level_for("actix_web", LevelFilter::Warn)
         .level_for("reqwest", LevelFilter::Warn)
         .chain(std::io::stdout())
         .apply()?;
