@@ -4,7 +4,7 @@ use atcoder_problems_backend::server::run_server;
 use atcoder_problems_backend::server::GitHubAuthentication;
 use atcoder_problems_backend::utils::init_log_config;
 
-#[async_std::main]
+#[actix_web::main]
 async fn main() {
     init_log_config().unwrap();
     let database_url = env::var("SQL_URL").expect("SQL_URL is not set.");

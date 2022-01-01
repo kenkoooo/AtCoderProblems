@@ -27,6 +27,7 @@ atcoder-client = { path = "./atcoder-client" }
 tide = "0.16"
 cookie = "0.14"
 actix-web = "4.0.0-beta.18"
+actix-rt = "2.5.1"
 reqwest = { version = "0.11", features = ["json"] }
 
 async-trait = "0.1"
