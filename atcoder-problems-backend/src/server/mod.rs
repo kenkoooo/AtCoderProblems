@@ -30,7 +30,10 @@ where
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(app_data.clone()))
-            .wrap(actix_web::middleware::Logger::new(LOG_TEMPLATE).custom_request_replace("method", |req| req.method().to_string()))
+            .wrap(
+                actix_web::middleware::Logger::new(LOG_TEMPLATE)
+                    .custom_request_replace("method", |req| req.method().to_string()),
+            )
             .configure(services::config_services::<A>)
     })
     .bind((host, port))?
