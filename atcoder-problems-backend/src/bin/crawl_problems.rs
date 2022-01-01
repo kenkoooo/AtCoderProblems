@@ -4,7 +4,7 @@ use atcoder_problems_backend::utils::init_log_config;
 use sql_client::initialize_pool;
 use std::env;
 
-#[async_std::main]
+#[actix_web::main]
 async fn main() {
     init_log_config().unwrap();
     log::info!("Started");

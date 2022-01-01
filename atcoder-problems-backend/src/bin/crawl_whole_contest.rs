@@ -6,7 +6,7 @@ use log::info;
 use sql_client::initialize_pool;
 use std::env;
 
-#[async_std::main]
+#[actix_web::main]
 async fn main() -> Result<()> {
     init_log_config()?;
     info!("Started");

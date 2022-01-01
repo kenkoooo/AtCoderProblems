@@ -1,18 +1,17 @@
+use actix_web::Result;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::Value;
 use sql_client::models::Submission;
 use sql_client::PgPool;
-use tide::Result;
-use tokio::task;
 
 pub mod utils;
 
 #[derive(Clone)]
 struct MockAuth;
 
-#[async_trait]
+#[async_trait(?Send)]
 impl Authentication for MockAuth {
     async fn get_token(&self, _: &str) -> Result<String> {
         unimplemented!()
@@ -62,16 +61,16 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_user_submissions() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let submissions: Vec<Submission> = reqwest::get(url("/atcoder-api/results?user=u1", port))
         .await
@@ -93,16 +92,16 @@ async fn test_user_submissions() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_user_submissions_fromtime() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let submissions: Vec<Submission> = reqwest::get(url(
         "/atcoder-api/v3/user/submissions?user=u1&from_second=3",
@@ -160,16 +159,16 @@ async fn test_user_submissions_fromtime() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_time_submissions() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let submissions: Vec<Submission> = reqwest::get(url("/atcoder-api/v3/from/100", port))
         .await
@@ -184,16 +183,16 @@ async fn test_time_submissions() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_submission_count() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response: Value = reqwest::get(url(
         r"/atcoder-api/v3/user/submission_count?user=u1&from_second=1&to_second=4",
@@ -220,16 +219,16 @@ async fn test_submission_count() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_invalid_path() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::get(url("/atcoder-api/v3/from/", port))
         .await
@@ -248,16 +247,16 @@ async fn test_invalid_path() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_health_check() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::get(url("/healthcheck", port)).await.unwrap();
     assert_eq!(response.status(), 200);
@@ -266,16 +265,16 @@ async fn test_health_check() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_cors() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     assert_eq!(
         reqwest::get(url("/atcoder-api/v3/from/100", port))
@@ -309,16 +308,16 @@ async fn test_cors() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_users_and_time() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
     let submissions: Vec<Submission> = reqwest::get(url(
         "/atcoder-api/v3/users_and_time?users=u1,u2&problems=p1&from=100&to=200",
         port,
