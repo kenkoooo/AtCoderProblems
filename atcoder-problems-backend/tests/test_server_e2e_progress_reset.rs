@@ -1,16 +1,16 @@
+use actix_web::Result;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::{json, Value};
 use std::time::Duration;
-use tide::Result;
-use tokio::task;
 
 pub mod utils;
 
 #[derive(Clone)]
 struct MockAuth;
-#[async_trait]
+
+#[async_trait(?Send)]
 impl Authentication for MockAuth {
     async fn get_token(&self, _: &str) -> Result<String> {
         Ok(String::new())
@@ -34,7 +34,7 @@ fn url(path: &str, port: u16) -> String {
 #[tokio::test]
 async fn test_progress_reset() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();

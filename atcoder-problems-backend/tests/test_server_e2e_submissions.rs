@@ -1,18 +1,17 @@
+use actix_web::Result;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::Value;
 use sql_client::models::Submission;
 use sql_client::PgPool;
-use tide::Result;
-use tokio::task;
 
 pub mod utils;
 
 #[derive(Clone)]
 struct MockAuth;
 
-#[async_trait]
+#[async_trait(?Send)]
 impl Authentication for MockAuth {
     async fn get_token(&self, _: &str) -> Result<String> {
         unimplemented!()
@@ -65,7 +64,7 @@ async fn setup() -> u16 {
 #[tokio::test]
 async fn test_user_submissions() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
@@ -96,7 +95,7 @@ async fn test_user_submissions() {
 #[tokio::test]
 async fn test_user_submissions_fromtime() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
@@ -163,7 +162,7 @@ async fn test_user_submissions_fromtime() {
 #[tokio::test]
 async fn test_time_submissions() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
@@ -187,7 +186,7 @@ async fn test_time_submissions() {
 #[tokio::test]
 async fn test_submission_count() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
@@ -223,7 +222,7 @@ async fn test_submission_count() {
 #[tokio::test]
 async fn test_invalid_path() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
@@ -251,7 +250,7 @@ async fn test_invalid_path() {
 #[tokio::test]
 async fn test_health_check() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
@@ -269,7 +268,7 @@ async fn test_health_check() {
 #[tokio::test]
 async fn test_cors() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
@@ -312,7 +311,7 @@ async fn test_cors() {
 #[tokio::test]
 async fn test_users_and_time() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
