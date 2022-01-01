@@ -1,7 +1,6 @@
 pub(crate) mod auth;
 pub(crate) mod internal_user;
 pub(crate) mod language_count;
-pub(crate) mod middleware;
 pub(crate) mod problem_list;
 pub(crate) mod progress_reset;
 pub(crate) mod ranking;
@@ -16,6 +15,8 @@ pub(crate) mod virtual_contest;
 use actix_web::{http::header, web, App, HttpResponse, HttpServer};
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 
+const LOG_TEMPLATE: &str = "{method:%{Method}i, url:%U, status:%s, duration:%T}";
+
 pub async fn run_server<A>(
     pg_pool: sql_client::PgPool,
     authentication: A,
@@ -29,7 +30,7 @@ where
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(app_data.clone()))
-            .wrap(actix_web::middleware::Logger::default())
+            .wrap(actix_web::middleware::Logger::new(LOG_TEMPLATE))
             .configure(services::config_services::<A>)
     })
     .bind((host, port))?
