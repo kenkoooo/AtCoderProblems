@@ -31,16 +31,16 @@ fn url(path: &str, port: u16) -> String {
     format!("http://localhost:{}{}", port, path)
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_progress_reset() {
     let port = setup().await;
-    let server = actix_rt::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(Duration::from_millis(1000)).await;
 
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())

@@ -38,16 +38,16 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_virtual_contest() {
     let port = setup().await;
-    let server = actix_rt::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
@@ -350,16 +350,16 @@ async fn test_virtual_contest() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_virtual_contest_visibility() {
     let port = setup().await;
-    let server = actix_rt::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
     reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
         port,

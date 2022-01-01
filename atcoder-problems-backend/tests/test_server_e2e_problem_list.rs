@@ -39,16 +39,16 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_list() {
     let port = setup().await;
-    let server = actix_rt::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
@@ -195,16 +195,16 @@ async fn test_list() {
     server.abort();
     server.await.unwrap_err();
 }
-#[tokio::test]
+#[actix_web::test]
 async fn test_invalid_token() {
     let port = setup().await;
-    let server = actix_rt::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::Client::new()
         .get(url("/internal-api/list/my", port))
@@ -226,16 +226,16 @@ async fn test_invalid_token() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_list_item() {
     let port = setup().await;
-    let server = actix_rt::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
@@ -359,16 +359,16 @@ async fn test_list_item() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_list_delete() {
     let port = setup().await;
-    let server = actix_rt::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     reqwest::get(url(
         &format!("/internal-api/authorize?code={}", VALID_CODE),
@@ -433,16 +433,16 @@ async fn test_list_delete() {
     server.await.unwrap_err();
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_register_twice() {
     let port = setup().await;
-    let server = actix_rt::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())

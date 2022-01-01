@@ -4,7 +4,6 @@ use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserRes
 use rand::Rng;
 use serde_json::{json, Value};
 use sql_client::PgPool;
-use tokio::task;
 
 pub mod utils;
 
@@ -40,16 +39,16 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 30000 + 30000
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn test_ac_ranking() {
     let port = setup().await;
-    let server = actix_rt::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
     let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=0&to=10", port))
         .await

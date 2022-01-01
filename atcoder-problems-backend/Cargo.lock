@@ -527,7 +527,6 @@ dependencies = [
 name = "atcoder-problems-backend"
 version = "0.1.0"
 dependencies = [
- "actix-rt",
  "actix-web",
  "anyhow",
  "async-std",
