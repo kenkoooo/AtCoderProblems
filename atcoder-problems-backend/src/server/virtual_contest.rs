@@ -117,15 +117,10 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
     Ok(response)
 }
 
-#[derive(Deserialize)]
-pub(crate) struct SingleContestQuery {
-    contest_id: String
-}
-
-pub(crate) async fn get_single_contest<A: Authentication + Clone + Send + Sync + 'static>(
+pub(crate) async fn get_single_contest<A>(
     request: HttpRequest,
     data: web::Data<AppData<A>>,
-    query: web::Query<SingleContestQuery>,
+    contest_id: web::Path<String>,
 ) -> Result<HttpResponse> {
     #[derive(Serialize)]
     struct VirtualContestDetails {
@@ -133,12 +128,11 @@ pub(crate) async fn get_single_contest<A: Authentication + Clone + Send + Sync +
         problems: Vec<VirtualContestItem>,
         participants: Vec<String>,
     }
-    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+
     let conn = data.pg_pool.clone();
-    let contest_id = &query.contest_id;
-    let info = conn.get_single_contest_info(contest_id).await.map_err(error::ErrorInternalServerError)?;
-    let participants = conn.get_single_contest_participants(contest_id).await.map_err(error::ErrorInternalServerError)?;
-    let problems = conn.get_single_contest_problems(contest_id).await.map_err(error::ErrorInternalServerError)?;
+    let info = conn.get_single_contest_info(&contest_id).await.map_err(error::ErrorInternalServerError)?;
+    let participants = conn.get_single_contest_participants(&contest_id).await.map_err(error::ErrorInternalServerError)?;
+    let problems = conn.get_single_contest_problems(&contest_id).await.map_err(error::ErrorInternalServerError)?;
     let contest = VirtualContestDetails {
         info,
         problems,
@@ -153,6 +147,11 @@ pub(crate) async fn get_recent_contests<A>(request: HttpRequest, data: web::Data
     let contest = conn.get_recent_contest_info().await.map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::json(&contest)?;
     Ok(response)
+}
+
+#[derive(Deserialize)]
+pub(crate) struct SingleContestQuery {
+    contest_id: String
 }
 
 pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'static>(

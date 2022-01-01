@@ -42,7 +42,7 @@ pub(crate) trait RankingSelector<A: Sync + Send + Clone + 'static> {
     async fn get_ranking(request: HttpRequest, data: web::Data<AppData<A>>, query: web::Query<RankingRequest>) -> Result<HttpResponse> {
         let query = (query.from)..(query.to);
         if query.len() > MAX_RANKING_RANGE_LENGTH {
-            return Ok(HttpResponse::Ok().finish());
+            return Ok(HttpResponse::BadRequest().finish());
         }
         let ranking = Self::fetch(data, query).await?;
         let response = HttpResponse::json(&ranking)?;
@@ -153,7 +153,7 @@ pub(crate) async fn get_language_ranking<A>(
     let conn = data.pg_pool.clone();
     let range = (query.from)..(query.to);
     if range.len() > MAX_RANKING_RANGE_LENGTH {
-        return Ok(HttpResponse::Ok().finish());
+        return Ok(HttpResponse::BadRequest().finish());
     }
 
     let ranking = conn

@@ -19,21 +19,14 @@ pub(crate) async fn get_own_lists<A: Authentication + Clone + Send + Sync + 'sta
     Ok(response)
 }
 
-#[derive(Deserialize)]
-pub(crate) struct GetListQuery {
-    list_id: String,
-}
-
-pub(crate) async fn get_single_list<A: Authentication + Clone + Send + Sync + 'static>(
+pub(crate) async fn get_single_list<A>(
     request: HttpRequest,
     data: web::Data<AppData<A>>,
-    query: web::Query<GetListQuery>,
+    list_id: web::Path<String>,
 ) -> Result<HttpResponse> {
-    let user_id = data.get_authorized_id(request.cookie("token")).await?;
     let conn = data.pg_pool.clone();
-    let list_id = &query.list_id;
     let list = conn
-        .get_single_list(list_id)
+        .get_single_list(&list_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::json(&list)?;

@@ -3,17 +3,13 @@ use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::Deserialize;
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 
-#[derive(Deserialize)]
-pub(crate) struct Query {
-    from: i64,
-}
 
 pub(crate) async fn get_time_submissions<A>(
     request: HttpRequest,
     data: web::Data<AppData<A>>,
-    query: web::Query<Query>,
+    from: web::Path<i64>,
 ) -> Result<HttpResponse> {
-    let from_epoch_second = query.from;
+    let from_epoch_second = from.into_inner();
     let conn = data.pg_pool.clone();
     let submissions: Vec<_> = conn
         .get_submissions(SubmissionRequest::FromTime {

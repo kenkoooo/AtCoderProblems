@@ -19,7 +19,7 @@ pub(crate) async fn get_rated_point_sum_ranking<A>(
     let conn = data.pg_pool.clone();
     let query = (query.from)..(query.to);
     if query.len() > MAX_RANKING_RANGE_LENGTH {
-        return Ok(HttpResponse::Ok().finish());
+        return Ok(HttpResponse::BadRequest().finish());
     }
 
     let ranking = conn
