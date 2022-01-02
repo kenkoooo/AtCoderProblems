@@ -1,5 +1,5 @@
 use crate::server::utils::GetAuthId;
-use crate::server::{AppData, Authentication, CommonResponse};
+use crate::server::{AppData, Authentication};
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::Deserialize;
 use sql_client::internal::progress_reset_manager::ProgressResetManager;
@@ -14,7 +14,7 @@ pub(crate) async fn get_progress_reset_list<A: Authentication + Clone + Send + S
         .get_progress_reset_list(&user_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::json(&list)?;
+    let response = HttpResponse::Ok().json(&list);
     Ok(response)
 }
 

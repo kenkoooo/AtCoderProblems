@@ -1,5 +1,5 @@
 use crate::server::utils::GetAuthId;
-use crate::server::{AppData, Authentication, CommonResponse};
+use crate::server::{AppData, Authentication};
 
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::Deserialize;
@@ -15,7 +15,7 @@ pub(crate) async fn get_own_lists<A: Authentication + Clone + Send + Sync + 'sta
         .get_list(&user_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::json(&list)?;
+    let response = HttpResponse::Ok().json(&list);
     Ok(response)
 }
 
@@ -29,7 +29,7 @@ pub(crate) async fn get_single_list<A>(
         .get_single_list(&list_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::json(&list)?;
+    let response = HttpResponse::Ok().json(&list);
     Ok(response)
 }
 
@@ -50,7 +50,7 @@ pub(crate) async fn create_list<A: Authentication + Clone + Send + Sync + 'stati
         .await
         .map_err(error::ErrorInternalServerError)?;
     let body = serde_json::json!({ "internal_list_id": internal_list_id });
-    let response = HttpResponse::json(&body)?;
+    let response = HttpResponse::Ok().json(&body);
     Ok(response)
 }
 
@@ -69,7 +69,7 @@ pub(crate) async fn delete_list<A: Authentication + Clone + Send + Sync + 'stati
     conn.delete_list(&query.internal_list_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::empty_json();
+    let response = HttpResponse::Ok().finish();
     Ok(response)
 }
 
@@ -89,7 +89,7 @@ pub(crate) async fn update_list<A: Authentication + Clone + Send + Sync + 'stati
     conn.update_list(&query.internal_list_id, &query.name)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::empty_json();
+    let response = HttpResponse::Ok().finish();
     Ok(response)
 }
 
@@ -109,7 +109,7 @@ pub(crate) async fn add_item<A: Authentication + Clone + Send + Sync + 'static>(
     conn.add_item(&query.internal_list_id, &query.problem_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::empty_json();
+    let response = HttpResponse::Ok().finish();
     Ok(response)
 }
 
@@ -130,7 +130,7 @@ pub(crate) async fn update_item<A: Authentication + Clone + Send + Sync + 'stati
     conn.update_item(&query.internal_list_id, &query.problem_id, &query.memo)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::empty_json();
+    let response = HttpResponse::Ok().finish();
     Ok(response)
 }
 
@@ -150,6 +150,6 @@ pub(crate) async fn delete_item<A: Authentication + Clone + Send + Sync + 'stati
     conn.delete_item(&query.internal_list_id, &query.problem_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::empty_json();
+    let response = HttpResponse::Ok().finish();
     Ok(response)
 }

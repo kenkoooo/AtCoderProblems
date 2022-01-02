@@ -1,4 +1,4 @@
-use crate::server::{AppData, CommonResponse};
+use crate::server::{AppData, MakeCors};
 use actix_web::http::header::CACHE_CONTROL;
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::{Deserialize, Serialize};
@@ -25,9 +25,9 @@ pub(crate) async fn get_user_submissions<A>(
         .await
         .map_err(error::ErrorInternalServerError)?;
     let response = HttpResponse::Ok()
+        .make_cors()
         .insert_header((CACHE_CONTROL, "max-age=300"))
-        .json(&submissions)
-        .make_cors();
+        .json(&submissions);
     Ok(response)
 }
 
@@ -51,7 +51,7 @@ pub(crate) async fn get_user_submissions_from_time<A>(
             })
             .await
             .map_err(error::ErrorInternalServerError)?;
-        let response = HttpResponse::json(&submissions)?.make_cors();
+        let response = HttpResponse::Ok().make_cors().json(&submissions);
         Ok(response)
     } else {
         Ok(HttpResponse::BadRequest().finish())
@@ -82,7 +82,7 @@ pub(crate) async fn get_user_submission_count<A>(
             count: usize,
         }
         let response = UserSubmissionCountResponse { count };
-        let response = HttpResponse::json(&response)?.make_cors();
+        let response = HttpResponse::Ok().make_cors().json(&response);
         Ok(response)
     } else {
         Ok(HttpResponse::BadRequest().finish())
@@ -98,7 +98,7 @@ pub(crate) async fn get_recent_submissions<A>(
         .get_submissions(SubmissionRequest::RecentAll { count: 1000 })
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::json(&submissions)?;
+    let response = HttpResponse::Ok().json(&submissions);
     Ok(response)
 }
 
@@ -131,6 +131,6 @@ pub(crate) async fn get_users_time_submissions<A>(
         })
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::json(&submissions)?;
+    let response = HttpResponse::Ok().json(&submissions);
     Ok(response)
 }

@@ -2,7 +2,6 @@ use crate::util;
 use anyhow::Result;
 
 use super::*;
-use surf::StatusCode;
 
 const ATCODER_PREFIX: &str = "https://atcoder.jp";
 
@@ -63,7 +62,7 @@ impl AtCoderClient {
                 max_page,
                 submissions,
             })
-        } else if status == StatusCode::NotFound {
+        } else if status == reqwest::StatusCode::NOT_FOUND {
             log::warn!("404: {}", url);
             Ok(AtCoderSubmissionListResponse {
                 max_page: 0,
@@ -89,44 +88,50 @@ impl AtCoderClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use futures::executor::block_on;
 
     #[test]
     fn test_fetch_contest_list() {
         let client = AtCoderClient::default();
-        let contests =
-            block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Normal { page: 1 }))
-                .unwrap();
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let contests = rt
+            .block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Normal { page: 1 }))
+            .unwrap();
         assert_eq!(contests.len(), 50);
     }
 
     #[test]
     fn test_fetch_hidden_contest() {
         let client = AtCoderClient::default();
-        let contests =
-            block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden)).unwrap();
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let contests = rt
+            .block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden))
+            .unwrap();
         assert!(!contests.is_empty());
     }
 
     #[test]
     fn test_fetch_problem_list() {
         let client = AtCoderClient::default();
-        let problems = block_on(client.fetch_problem_list("abc107")).unwrap();
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let problems = rt.block_on(client.fetch_problem_list("abc107")).unwrap();
         assert_eq!(problems.len(), 4);
     }
 
     #[test]
     fn test_fetch_submission_list() {
         let client = AtCoderClient::default();
-        let response = block_on(client.fetch_atcoder_submission_list("xmascon17", None)).unwrap();
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let response = rt
+            .block_on(client.fetch_atcoder_submission_list("xmascon17", None))
+            .unwrap();
         assert_eq!(response.submissions.len(), 20);
 
-        let response =
-            block_on(client.fetch_atcoder_submission_list("xmascon17", Some(response.max_page)))
-                .unwrap();
+        let response = rt
+            .block_on(client.fetch_atcoder_submission_list("xmascon17", Some(response.max_page)))
+            .unwrap();
         assert!(!response.submissions.is_empty());
 
-        let response = block_on(
+        let response = rt.block_on(
             client.fetch_atcoder_submission_list("xmascon17", Some(response.max_page + 1)),
         );
         assert!(response.is_err());

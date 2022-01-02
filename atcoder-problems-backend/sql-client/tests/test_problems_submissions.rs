@@ -52,7 +52,7 @@ async fn setup_contests() -> PgPool {
     pool
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_problem_info_aggrefator() {
     let ignored_submission = vec![Submission {
         id: 0,

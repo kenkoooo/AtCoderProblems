@@ -1,4 +1,4 @@
-use crate::server::{AppData, CommonResponse};
+use crate::server::{AppData, MakeCors};
 
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::{Deserialize, Serialize};
@@ -43,6 +43,6 @@ pub(crate) async fn get_user_info<A>(
         rated_point_sum,
         rated_point_sum_rank,
     };
-    let response = HttpResponse::json(&user_info)?.make_cors();
+    let response = HttpResponse::Ok().make_cors().json(&user_info);
     Ok(response)
 }

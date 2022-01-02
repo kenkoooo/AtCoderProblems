@@ -12,10 +12,9 @@ use crate::server::{
         add_progress_reset_item, delete_progress_reset_item, get_progress_reset_list,
     },
     ranking::{
-        get_language_ranking, get_users_language_rank, AcRanking, RankingSelector,
-        RatedPointSumRanking, StreakRanking, UserRankSelector,
+        AcRanking, LanguageRanking, RankingSelector, RatedPointSumRanking, StreakRanking,
+        UserRankSelector,
     },
-    rated_point_sum_ranking::get_rated_point_sum_ranking,
     time_submissions::get_time_submissions,
     user_info::get_user_info,
     user_submissions::get_user_submission_count,
@@ -104,10 +103,9 @@ pub(crate) fn config_services<A: Authentication + Clone + Send + Sync + 'static>
             .service(
                 web::scope("/v3")
                     .service(web::resource("/user_info").route(web::get().to(get_user_info::<A>)))
-                    .service(
-                        web::resource("/rated_point_sum_ranking")
-                            .route(web::get().to(get_rated_point_sum_ranking::<A>)),
-                    )
+                    .service(web::resource("/rated_point_sum_ranking").route(
+                        web::get().to(<RatedPointSumRanking as RankingSelector<A>>::get_ranking),
+                    ))
                     .service(
                         web::resource("/ac_ranking")
                             .route(web::get().to(<AcRanking as RankingSelector<A>>::get_ranking)),
@@ -118,8 +116,9 @@ pub(crate) fn config_services<A: Authentication + Clone + Send + Sync + 'static>
                         ),
                     )
                     .service(
-                        web::resource("/language_ranking")
-                            .route(web::get().to(get_language_ranking::<A>)),
+                        web::resource("/language_ranking").route(
+                            web::get().to(<LanguageRanking as RankingSelector<A>>::get_ranking),
+                        ),
                     )
                     .service(
                         web::resource("/from/{from}")
@@ -152,8 +151,11 @@ pub(crate) fn config_services<A: Authentication + Clone + Send + Sync + 'static>
                                     )),
                             )
                             .service(
-                                web::resource("/language_rank")
-                                    .route(web::get().to(get_users_language_rank::<A>)),
+                                web::resource("/language_rank").route(
+                                    web::get().to(
+                                        <LanguageRanking as UserRankSelector<A>>::get_users_rank,
+                                    ),
+                                ),
                             )
                             .service(web::resource("rated_point_sum_rank").route(web::get().to(
                                 <RatedPointSumRanking as UserRankSelector<A>>::get_users_rank,

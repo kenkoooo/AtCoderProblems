@@ -1,5 +1,5 @@
 use crate::server::utils::GetAuthId;
-use crate::server::{AppData, Authentication, CommonResponse};
+use crate::server::{AppData, Authentication};
 
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::{Deserialize, Serialize};
@@ -39,7 +39,7 @@ pub(crate) async fn create_contest<A: Authentication + Clone + Send + Sync + 'st
         .await
         .map_err(error::ErrorInternalServerError)?;
     let body = serde_json::json!({ "contest_id": contest_id });
-    let response = HttpResponse::json(&body)?;
+    let response = HttpResponse::Ok().json(&body);
     Ok(response)
 }
 
@@ -74,7 +74,7 @@ pub(crate) async fn update_contest<A: Authentication + Clone + Send + Sync + 'st
     )
     .await
     .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::empty_json();
+    let response = HttpResponse::Ok().finish();
     Ok(response)
 }
 
@@ -94,7 +94,7 @@ pub(crate) async fn update_items<A: Authentication + Clone + Send + Sync + 'stat
     conn.update_items(&query.contest_id, &query.problems, &user_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::empty_json();
+    let response = HttpResponse::Ok().finish();
     Ok(response)
 }
 
@@ -108,7 +108,7 @@ pub(crate) async fn get_my_contests<A: Authentication + Clone + Send + Sync + 's
         .get_own_contests(&user_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::json(&contests)?;
+    let response = HttpResponse::Ok().json(&contests);
     Ok(response)
 }
 
@@ -122,7 +122,7 @@ pub(crate) async fn get_participated<A: Authentication + Clone + Send + Sync + '
         .get_participated_contests(&user_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::json(&contests)?;
+    let response = HttpResponse::Ok().json(&contests);
     Ok(response)
 }
 
@@ -156,7 +156,7 @@ pub(crate) async fn get_single_contest<A>(
         problems,
         participants,
     };
-    let response = HttpResponse::json(&contest)?;
+    let response = HttpResponse::Ok().json(&contest);
     Ok(response)
 }
 
@@ -169,7 +169,7 @@ pub(crate) async fn get_recent_contests<A>(
         .get_recent_contest_info()
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::json(&contest)?;
+    let response = HttpResponse::Ok().json(&contest);
     Ok(response)
 }
 
@@ -188,7 +188,7 @@ pub(crate) async fn join_contest<A: Authentication + Clone + Send + Sync + 'stat
     conn.join_contest(&query.contest_id, &user_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::empty_json();
+    let response = HttpResponse::Ok().finish();
     Ok(response)
 }
 
@@ -202,6 +202,6 @@ pub(crate) async fn leave_contest<A: Authentication + Clone + Send + Sync + 'sta
     conn.leave_contest(&query.contest_id, &user_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::empty_json();
+    let response = HttpResponse::Ok().finish();
     Ok(response)
 }
