@@ -1,6 +1,6 @@
 use super::{
-    RankingRequest, RankingRequestFormat, RankingSelector, UserRankRequest,
-    UserRankResponse, UserRankSelector, UserSum
+    RankingRequest, RankingRequestFormat, RankingSelector, UserRankRequest, UserRankResponse,
+    UserRankSelector, UserSum,
 };
 use crate::server::AppData;
 
