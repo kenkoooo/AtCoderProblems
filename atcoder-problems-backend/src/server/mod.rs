@@ -4,7 +4,6 @@ pub(crate) mod language_count;
 pub(crate) mod problem_list;
 pub(crate) mod progress_reset;
 pub(crate) mod ranking;
-pub(crate) mod rated_point_sum_ranking;
 pub(crate) mod services;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
