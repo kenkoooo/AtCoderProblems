@@ -2,10 +2,10 @@ use anyhow::{anyhow, Result};
 
 use serde::de::DeserializeOwned;
 
-pub(crate) async fn get_html(url: &str) -> Result<(String, surf::StatusCode)> {
-    let mut response = surf::get(url)
+pub(crate) async fn get_html(url: &str) -> Result<(String, reqwest::StatusCode)> {
+    let response = reqwest::Client::builder().gzip(true).build()?
+        .get(url)
         .header("accept", "text/html")
-        .header("accept-encoding", "gzip")
         .send()
         .await
         .map_err(|e| anyhow!("Connection error: {:?}", e))?;
@@ -14,19 +14,22 @@ pub(crate) async fn get_html(url: &str) -> Result<(String, surf::StatusCode)> {
         log::error!("{:?}", response);
     }
     let body = response
-        .body_string()
+        .text()
         .await
         .map_err(|e| anyhow!("Failed to parse HTTP body: {:?}", e))?;
     Ok((body, status))
 }
 
 pub(crate) async fn get_json<T: DeserializeOwned>(url: &str) -> Result<T> {
-    surf::get(url)
+    reqwest::Client::builder().gzip(true).build()?
+        .get(url)
         .header("accept", "application/json")
-        .header("accept-encoding", "gzip")
-        .recv_json()
+        .send()
         .await
-        .map_err(|_| anyhow!("Failed to get json from {}", url))
+        .map_err(|_| anyhow!("Failed to get json from {}", url))?
+        .json::<T>()
+        .await
+        .map_err(|_| anyhow!("Failed to parse json from {}", url))
 }
 
 pub trait Problem {

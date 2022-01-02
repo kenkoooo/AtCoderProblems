@@ -2,7 +2,6 @@ use crate::models::{ContestProblem, Submission, UserSum};
 use crate::{PgPool, FIRST_AGC_EPOCH_SECOND, MAX_INSERT_ROWS, UNRATED_STATE};
 use anyhow::Result;
 use async_trait::async_trait;
-use futures::try_join;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
@@ -45,7 +44,7 @@ impl RatedPointSumClient for PgPool {
                 .fetch_all(self);
 
         let (rated_contest_ids, rated_problem_ids) =
-            try_join!(rated_contest_ids_fut, rated_problem_ids_fut)?;
+            tokio::try_join!(rated_contest_ids_fut, rated_problem_ids_fut)?;
 
         let rated_contest_ids = rated_contest_ids.into_iter().collect::<BTreeSet<_>>();
         let rated_problem_ids = rated_problem_ids

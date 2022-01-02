@@ -6,7 +6,7 @@ mod utils;
 
 const TIME_DELTA: i64 = 1000;
 
-#[async_std::test]
+#[tokio::test]
 async fn test_virtual_contest_manager() {
     let now_second = 1597988723;
     let pool = utils::initialize_and_connect_to_test_sql().await;
