@@ -1,4 +1,4 @@
-use crate::server::{AppData, CommonResponse};
+use crate::server::AppData;
 
 use actix_web::{web, HttpRequest, HttpResponse, Result};
 use async_trait::async_trait;
@@ -42,7 +42,7 @@ pub(crate) trait RankingSelector<A: Sync + Send + Clone + 'static> {
             return Ok(HttpResponse::BadRequest().finish());
         }
         let ranking = Self::fetch(data, query.into_inner()).await?;
-        let response = HttpResponse::json(&ranking)?;
+        let response = HttpResponse::Ok().json(&ranking);
         Ok(response)
     }
 }
@@ -69,7 +69,7 @@ pub(crate) trait UserRankSelector<A: Sync + Send + Clone + 'static> {
         // map と ok_or に書き換えられる
         match user_rank {
             Some(rank) => {
-                let response = HttpResponse::json(&rank)?;
+                let response = HttpResponse::Ok().json(&rank);
                 Ok(response)
             }
             None => Ok(HttpResponse::NotFound().finish()),

@@ -11,7 +11,7 @@ pub(crate) mod user_submissions;
 pub(crate) mod utils;
 pub(crate) mod virtual_contest;
 
-use actix_web::{http::header, web, App, HttpResponse, HttpServer};
+use actix_web::{http::header, web, App, HttpResponseBuilder, HttpServer};
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 
 const LOG_TEMPLATE: &str = r#"{"method":"%{method}xi", "url":"%U", "status":%s, "duration":%T}"#;
@@ -40,36 +40,13 @@ where
     .await
 }
 
-pub(crate) trait CommonResponse {
-    fn ok() -> Self;
-    fn json<S: serde::Serialize>(body: &S) -> actix_web::Result<Self>
-    where
-        Self: Sized;
-    fn empty_json() -> Self;
-    fn make_cors(self) -> Self;
+pub(crate) trait MakeCors {
+    fn make_cors(&mut self) -> &mut Self;
 }
 
-impl CommonResponse for HttpResponse {
-    fn ok() -> Self {
-        Self::Ok().finish()
-    }
-    fn json<S: serde::Serialize>(body: &S) -> actix_web::Result<Self>
-    where
-        Self: Sized,
-    {
-        let response = Self::Ok().json(body);
-        Ok(response)
-    }
-    fn empty_json() -> Self {
-        Self::Ok().json("{}")
-    }
-    fn make_cors(self) -> Self {
-        let mut response = self;
-        response.headers_mut().insert(
-            header::ACCESS_CONTROL_ALLOW_ORIGIN,
-            header::HeaderValue::from_str("*").unwrap(),
-        );
-        response
+impl MakeCors for HttpResponseBuilder {
+    fn make_cors(&mut self) -> &mut Self {
+        self.insert_header((header::ACCESS_CONTROL_ALLOW_ORIGIN, "*"))
     }
 }
 

@@ -1,5 +1,5 @@
 use crate::server::utils::GetAuthId;
-use crate::server::{AppData, Authentication, CommonResponse};
+use crate::server::{AppData, Authentication};
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::Deserialize;
 use sql_client::internal::user_manager::UserManager;
@@ -19,7 +19,7 @@ pub(crate) async fn update<A: Authentication + Clone + Send + Sync + 'static>(
     conn.update_internal_user_info(&user_id, &body.atcoder_user_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    Ok(HttpResponse::empty_json())
+    Ok(HttpResponse::Ok().finish())
 }
 
 pub(crate) async fn get<A: Authentication + Clone + Send + Sync + 'static>(
@@ -32,5 +32,5 @@ pub(crate) async fn get<A: Authentication + Clone + Send + Sync + 'static>(
         .get_internal_user_info(&user_id)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    Ok(HttpResponse::json(&info)?)
+    Ok(HttpResponse::Ok().json(&info))
 }
