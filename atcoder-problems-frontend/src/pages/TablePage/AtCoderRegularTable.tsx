@@ -40,7 +40,6 @@ interface Props {
 const getProblemHeaderAlphabet = (problem: MergedProblem, contest: Contest) => {
   const list = problem.title.split(".");
   if (list.length === 0) return "";
-  console.log(list);
   if (
     (list[0] === "H" || list[0] === "Ex") &&
     classifyContest(contest).startsWith("ABC")
