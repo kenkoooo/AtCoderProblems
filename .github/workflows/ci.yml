@@ -32,7 +32,7 @@ jobs:
           ~/.cargo/git
           ~/.cargo/registry/cache
           ~/.cargo/registry/index
-          ./backend/target
+          ./atcoder-problems-backend/target
         key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-backend/Cargo.lock') }}
 
     - name: Wait for PostgreSQL
@@ -64,11 +64,17 @@ jobs:
         working-directory: ./atcoder-problems-frontend
 
     steps:
-    # - name: Setup
-    #   run: sudo apt-get install -y libgconf-2-4
     - uses: actions/checkout@v2
     - name: Use Node.js
       uses: actions/setup-node@v1
+
+    - name: Cache node_modules
+      uses: actions/cache@v2
+      with:
+        path: |
+          ./atcoder-problems-frontend/node_modules
+        key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-frontend/yarn.lock') }}
+
     - name: Install dependencies
       run: yarn
     - name: build
