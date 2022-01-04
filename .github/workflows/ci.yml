@@ -64,8 +64,8 @@ jobs:
         working-directory: ./atcoder-problems-frontend
 
     steps:
-    - name: Setup
-      run: sudo apt-get install -y libgconf-2-4
+    # - name: Setup
+    #   run: sudo apt-get install -y libgconf-2-4
     - uses: actions/checkout@v2
     - name: Use Node.js
       uses: actions/setup-node@v1
