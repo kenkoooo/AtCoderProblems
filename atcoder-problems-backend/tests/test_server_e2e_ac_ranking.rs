@@ -1,5 +1,4 @@
-use actix_web::{test, web, App};
-use anyhow::Result;
+use actix_web::{test, web, App, Result};
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{
     config_services, AppData, Authentication, GitHubUserResponse,
@@ -14,25 +13,30 @@ struct MockAuth;
 
 #[async_trait(?Send)]
 impl Authentication for MockAuth {
-    async fn get_token(&self, _: &str) -> actix_web::Result<String> {
+    async fn get_token(&self, _: &str) -> Result<String> {
         unimplemented!()
     }
-    async fn get_user_id(&self, _: &str) -> actix_web::Result<GitHubUserResponse> {
+    async fn get_user_id(&self, _: &str) -> Result<GitHubUserResponse> {
         unimplemented!()
     }
 }
 
 #[actix_web::test]
-async fn test_ac_ranking() -> Result<()> {
-    let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env()).await?;
+async fn test_ac_ranking() {
+    let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
+        .await
+        .unwrap();
     sql_client::query("TRUNCATE accepted_count")
         .execute(&pg_pool)
-        .await?;
+        .await
+        .unwrap();
     sql_client::query(
         r"INSERT INTO accepted_count (user_id, problem_count) VALUES ('u1', 1), ('u2', 2), ('u3', 1)",
     )
     .execute(&pg_pool)
-    .await?;
+    .await
+    .unwrap();
+
     let app_data = AppData::new(pg_pool, MockAuth);
     let mut app = test::init_service(
         App::new()
@@ -143,6 +147,4 @@ async fn test_ac_ranking() -> Result<()> {
         .to_request();
     let response = test::call_service(&mut app, request).await;
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
-
-    Ok(())
 }
