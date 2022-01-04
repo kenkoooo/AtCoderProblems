@@ -9,7 +9,7 @@ env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
   RUST_TEST_THREADS: 1
-  SQL_URL: postgres://db_user:db_pass@localhost:15432/test_db
+  SQL_URL: postgres://db_user:db_pass@localhost:5432/test_db
 
 jobs:
   backend_test:
@@ -18,12 +18,23 @@ jobs:
     defaults:
       run:
         working-directory: ./atcoder-problems-backend
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: db_user
+          POSTGRES_PASSWORD: db_pass
+          POSTGRES_DB: test_db
+          POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         
     steps:
     - uses: actions/checkout@v2
-
-    - name: Start PostgreSQL server
-      run: docker-compose up -d postgresql
 
     - name: Cache cargo registry
       uses: actions/cache@v2
@@ -35,14 +46,8 @@ jobs:
           ./atcoder-problems-backend/target
         key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-backend/Cargo.lock') }}
 
-    - name: Wait for PostgreSQL
-      run: |
-        for i in `seq 20`
-        do
-          docker-compose exec -T pg_isready && break
-          echo "Waiting for PostgreSQL for 3 seconds ..."
-          sleep 3
-        done
+    - name: Setup Postgresql
+      run: psql ${SQL_URL} < ../config/database-definition.sql
 
     - name: Setup
       run: rustup component add rustfmt
@@ -52,9 +57,6 @@ jobs:
 
     - name: Build
       run: cargo build --verbose
-
-    - name: env debug
-      run: echo ${SQL_URL}
 
     - name: Run tests
       run: cargo test --verbose --workspace -- --test-threads=1
