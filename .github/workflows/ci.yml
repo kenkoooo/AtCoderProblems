@@ -72,6 +72,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
+          ~/.cache/Cypress
           ./atcoder-problems-frontend/node_modules
         key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-frontend/yarn.lock') }}
 
