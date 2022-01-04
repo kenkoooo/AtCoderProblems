@@ -14,7 +14,9 @@ services:
       - "15432:5432"
 
   backend-development:
-    image: rust:1.57
+    build:
+      context: ./atcoder-problems-backend
+      target: development
     environment:
       SQL_URL: postgres://db_user:db_pass@postgresql:5432/test_db
       RUST_LOG: info

@@ -1,3 +1,7 @@
+FROM rust:1.57.0 AS development
+RUN rustup component add rustfmt
+RUN rustup component add clippy
+
 FROM rust:1.57.0 AS builder
 
 WORKDIR /app
@@ -25,7 +29,7 @@ ADD ./atcoder-client ./atcoder-client
 RUN cargo clean --release -p atcoder-client -p sql-client
 RUN cargo build --release
 
-FROM rust:1.57.0
+FROM rust:1.57.0 AS production
 COPY --from=builder /app/target/release/batch_update                /usr/bin/batch_update
 COPY --from=builder /app/target/release/crawl_all_submissions       /usr/bin/crawl_all_submissions
 COPY --from=builder /app/target/release/crawl_for_virtual_contests  /usr/bin/crawl_for_virtual_contests
