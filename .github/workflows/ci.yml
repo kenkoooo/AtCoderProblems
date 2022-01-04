@@ -53,8 +53,11 @@ jobs:
     - name: Build
       run: cargo build --verbose
 
-    # - name: Run tests
-    #   run: cargo test --verbose --workspace -- --test-threads=1
+    - name: env debug
+      run: echo ${SQL_URL}
+
+    - name: Run tests
+      run: cargo test --verbose --workspace -- --test-threads=1
   
   frontend_test:
     name: Run frontend tests
