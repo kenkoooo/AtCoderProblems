@@ -9,7 +9,7 @@ env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
   RUST_TEST_THREADS: 1
-  SQL_URL: postgres://db_user:db_pass@postgresql:5432/test_db
+  SQL_URL: postgres://db_user:db_pass@localhost:15432/test_db
 
 jobs:
   backend_test:
@@ -62,9 +62,10 @@ jobs:
     defaults:
       run:
         working-directory: ./atcoder-problems-frontend
+
     steps:
     - name: Setup
-      run: sudo apt install libgconf-2-4
+      run: sudo apt-get install -y libgconf-2-4
     - uses: actions/checkout@v2
     - name: Use Node.js
       uses: actions/setup-node@v1
