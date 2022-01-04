@@ -1,16 +1,15 @@
-use async_std::future::ready;
-use async_std::prelude::*;
-use async_std::task;
+use actix_web::Result;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::{json, Value};
 use sql_client::PgPool;
-use tide::Result;
+
 mod utils;
+
 #[derive(Clone)]
 struct MockAuth;
-#[async_trait]
+#[async_trait(?Send)]
 impl Authentication for MockAuth {
     async fn get_token(&self, _: &str) -> Result<String> {
         unimplemented!()
@@ -40,21 +39,23 @@ async fn setup() -> u16 {
     rng.gen::<u16>() % 3000 + 3000
 }
 
-#[async_std::test]
+#[actix_web::test]
 async fn test_rated_point_sum_ranking() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
-    let response = surf::get(url(
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let response = reqwest::get(url(
         "/atcoder-api/v3/rated_point_sum_ranking?from=0&to=3",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert_eq!(
@@ -66,11 +67,13 @@ async fn test_rated_point_sum_ranking() {
         ])
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/rated_point_sum_ranking?from=1&to=3",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert_eq!(
@@ -80,11 +83,13 @@ async fn test_rated_point_sum_ranking() {
             {"user_id":"u3","point_sum":1}
         ])
     );
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/rated_point_sum_ranking?from=0&to=1",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert_eq!(
@@ -94,16 +99,18 @@ async fn test_rated_point_sum_ranking() {
         ])
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/rated_point_sum_ranking?from=10&to=20",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert!(response.as_array().unwrap().is_empty());
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/rated_point_sum_ranking?from=0&to=2000",
         port,
     ))
@@ -111,16 +118,18 @@ async fn test_rated_point_sum_ranking() {
     .unwrap();
     assert_eq!(response.status(), 400);
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/rated_point_sum_ranking?from=1&to=0",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
     assert!(response.as_array().unwrap().is_empty());
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/rated_point_sum_ranking?from=-1&to=0",
         port,
     ))
@@ -128,25 +137,28 @@ async fn test_rated_point_sum_ranking() {
     .unwrap();
     assert_eq!(response.status(), 400);
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
 
-#[async_std::test]
+#[actix_web::test]
 async fn test_users_rated_point_sum_ranking() {
     let port = setup().await;
-    let server = task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/rated_point_sum_rank?user=u2",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
 
@@ -158,11 +170,13 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/rated_point_sum_rank?user=u1",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
 
@@ -174,11 +188,13 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/rated_point_sum_rank?user=u3",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
 
@@ -190,11 +206,13 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/rated_point_sum_rank?user=U2",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
 
@@ -206,11 +224,13 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/rated_point_sum_rank?user=U1",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
 
@@ -222,11 +242,13 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/rated_point_sum_rank?user=U3",
         port,
     ))
-    .recv_json::<Value>()
+    .await
+    .unwrap()
+    .json::<Value>()
     .await
     .unwrap();
 
@@ -238,15 +260,15 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = surf::get(url(
+    let response = reqwest::get(url(
         "/atcoder-api/v3/user/rated_point_sum_rank?user=not_exist",
         port,
     ))
-    .send()
     .await
     .unwrap();
 
     assert_eq!(response.status(), 404);
 
-    server.race(ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }

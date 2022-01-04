@@ -12,7 +12,7 @@ use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 use std::env;
 use std::error::Error;
 
-#[async_std::main]
+#[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     init_log_config()?;
     info!("Started!");

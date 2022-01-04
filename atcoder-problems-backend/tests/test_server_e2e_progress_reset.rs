@@ -1,17 +1,16 @@
-use async_std::prelude::*;
-use async_std::task;
+use actix_web::Result;
 use async_trait::async_trait;
 use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::{json, Value};
 use std::time::Duration;
-use tide::Result;
 
 pub mod utils;
 
 #[derive(Clone)]
 struct MockAuth;
-#[async_trait]
+
+#[async_trait(?Send)]
 impl Authentication for MockAuth {
     async fn get_token(&self, _: &str) -> Result<String> {
         Ok(String::new())
@@ -32,25 +31,35 @@ fn url(path: &str, port: u16) -> String {
     format!("http://localhost:{}{}", port, path)
 }
 
-#[async_std::test]
+#[actix_web::test]
 async fn test_progress_reset() {
     let port = setup().await;
-    let server = async_std::task::spawn(async move {
+    let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
         run_server(pg_pool, MockAuth, port).await.unwrap();
     });
-    task::sleep(Duration::from_millis(1000)).await;
+    actix_web::rt::time::sleep(Duration::from_millis(1000)).await;
 
-    let response = surf::get(url("/internal-api/authorize?code=a", port))
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .unwrap();
+    let response = client
+        .get(url("/internal-api/authorize?code=a", port))
+        .send()
         .await
         .unwrap();
     assert_eq!(response.status(), 302);
 
-    let response = surf::get(url("/internal-api/progress_reset/list", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/progress_reset/list", port))
         .header("Cookie", "token=a")
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -60,15 +69,21 @@ async fn test_progress_reset() {
         })
     );
 
-    let response = surf::post(url("/internal-api/progress_reset/add", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/progress_reset/add", port))
         .header("Cookie", "token=a")
-        .body(json!({"problem_id":"problem_1","reset_epoch_second":100}))
+        .json(&json!({"problem_id":"problem_1","reset_epoch_second":100}))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
-    let response = surf::get(url("/internal-api/progress_reset/list", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/progress_reset/list", port))
         .header("Cookie", "token=a")
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -81,15 +96,21 @@ async fn test_progress_reset() {
         })
     );
 
-    let response = surf::post(url("/internal-api/progress_reset/add", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/progress_reset/add", port))
         .header("Cookie", "token=a")
-        .body(json!({"problem_id":"problem_1","reset_epoch_second":200}))
+        .json(&json!({"problem_id":"problem_1","reset_epoch_second":200}))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
-    let response = surf::get(url("/internal-api/progress_reset/list", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/progress_reset/list", port))
         .header("Cookie", "token=a")
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -102,21 +123,29 @@ async fn test_progress_reset() {
         })
     );
 
-    let response = surf::post(url("/internal-api/progress_reset/add", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/progress_reset/add", port))
         .header("Cookie", "token=a")
-        .body(json!({"problem_id":"problem_2","reset_epoch_second":200}))
+        .json(&json!({"problem_id":"problem_2","reset_epoch_second":200}))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
-    let response = surf::post(url("/internal-api/progress_reset/delete", port))
+    let response = reqwest::Client::new()
+        .post(url("/internal-api/progress_reset/delete", port))
         .header("Cookie", "token=a")
-        .body(json!({"problem_id":"problem_1"}))
+        .json(&json!({"problem_id":"problem_1"}))
+        .send()
         .await
         .unwrap();
     assert!(response.status().is_success());
-    let response = surf::get(url("/internal-api/progress_reset/list", port))
+    let response = reqwest::Client::new()
+        .get(url("/internal-api/progress_reset/list", port))
         .header("Cookie", "token=a")
-        .recv_json::<Value>()
+        .send()
+        .await
+        .unwrap()
+        .json::<Value>()
         .await
         .unwrap();
     assert_eq!(
@@ -129,5 +158,6 @@ async fn test_progress_reset() {
         })
     );
 
-    server.race(async_std::future::ready(())).await;
+    server.abort();
+    server.await.unwrap_err();
 }
