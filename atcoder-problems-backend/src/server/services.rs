@@ -28,7 +28,7 @@ use crate::server::{
     },
 };
 
-pub(crate) fn config_services<A: Authentication + Clone + Send + Sync + 'static>(
+pub fn config_services<A: Authentication + Clone + Send + Sync + 'static>(
     cfg: &mut web::ServiceConfig,
 ) {
     log::info!("Configuring routes...");

@@ -1,9 +1,11 @@
-use actix_web::Result;
+use actix_web::{test, web, App};
+use anyhow::Result;
 use async_trait::async_trait;
-use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
-use rand::Rng;
+use atcoder_problems_backend::server::{
+    config_services, AppData, Authentication, GitHubUserResponse,
+};
+use reqwest::StatusCode;
 use serde_json::{json, Value};
-use sql_client::PgPool;
 
 pub mod utils;
 
@@ -12,50 +14,39 @@ struct MockAuth;
 
 #[async_trait(?Send)]
 impl Authentication for MockAuth {
-    async fn get_token(&self, _: &str) -> Result<String> {
+    async fn get_token(&self, _: &str) -> actix_web::Result<String> {
         unimplemented!()
     }
-    async fn get_user_id(&self, _: &str) -> Result<GitHubUserResponse> {
+    async fn get_user_id(&self, _: &str) -> actix_web::Result<GitHubUserResponse> {
         unimplemented!()
     }
-}
-
-async fn prepare_data_set(conn: &PgPool) {
-    sql_client::query(
-        r"INSERT INTO accepted_count (user_id, problem_count) VALUES ('u1', 1), ('u2', 2), ('u3', 1)",
-    )
-    .execute(conn)
-    .await
-    .unwrap();
-}
-
-fn url(path: &str, port: u16) -> String {
-    format!("http://localhost:{}{}", port, path)
-}
-
-async fn setup() -> u16 {
-    prepare_data_set(&utils::initialize_and_connect_to_test_sql().await).await;
-    let mut rng = rand::thread_rng();
-    rng.gen::<u16>() % 30000 + 30000
 }
 
 #[actix_web::test]
-async fn test_ac_ranking() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+async fn test_ac_ranking() -> Result<()> {
+    let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env()).await?;
+    sql_client::query("TRUNCATE accepted_count")
+        .execute(&pg_pool)
+        .await?;
+    sql_client::query(
+        r"INSERT INTO accepted_count (user_id, problem_count) VALUES ('u1', 1), ('u2', 2), ('u3', 1)",
+    )
+    .execute(&pg_pool)
+    .await?;
+    let app_data = AppData::new(pg_pool, MockAuth);
+    let mut app = test::init_service(
+        App::new()
+            .app_data(web::Data::new(app_data))
+            .configure(config_services::<MockAuth>),
+    )
+    .await;
 
-    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=0&to=10", port))
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/ac_ranking?from=0&to=10")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let response: Value = test::read_body_json(response).await;
     assert_eq!(
         response,
         json!([
@@ -65,12 +56,12 @@ async fn test_ac_ranking() {
         ])
     );
 
-    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=1&to=3", port))
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/ac_ranking?from=1&to=3")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let response: Value = test::read_body_json(response).await;
     assert_eq!(
         response,
         json!([
@@ -79,80 +70,79 @@ async fn test_ac_ranking() {
         ])
     );
 
-    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=10&to=0", port))
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/ac_ranking?from=10&to=0")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let response: Value = test::read_body_json(response).await;
     assert_eq!(response.as_array().unwrap().len(), 0);
 
-    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=0&to=2000", port))
-        .await
-        .unwrap();
-    assert_eq!(response.status(), 400);
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/ac_ranking?from=0&to=2000")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 
-    let response = reqwest::get(url("/atcoder-api/v3/ac_ranking?from=-1&to=10", port))
-        .await
-        .unwrap();
-    assert_eq!(response.status(), 400);
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/ac_ranking?from=-1&to=10")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 
-    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=u1", port))
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/ac_rank?user=u1")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=u2", port))
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/ac_rank?user=u2")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!({"count": 2, "rank": 0}));
 
-    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=u3", port))
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/ac_rank?user=u3")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=U1", port))
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/ac_rank?user=U1")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=U2", port))
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/ac_rank?user=U2")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!({"count": 2, "rank": 0}));
 
-    let response = reqwest::get(url("/atcoder-api/v3/user/ac_rank?user=U3", port))
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/ac_rank?user=U3")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::OK);
+    let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!({"count": 1, "rank": 1}));
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/ac_rank?user=does_not_exist",
-        port,
-    ))
-    .await
-    .unwrap();
-    assert_eq!(response.status(), 404);
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/ac_rank?user=does_not_exist")
+        .to_request();
+    let response = test::call_service(&mut app, request).await;
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
-    server.abort();
-    server.await.unwrap_err();
+    Ok(())
 }
