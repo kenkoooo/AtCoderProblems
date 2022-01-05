@@ -28,7 +28,6 @@ struct TokenResponse {
 #[derive(Deserialize, Default)]
 pub struct GitHubUserResponse {
     pub(crate) id: i64,
-    _login: String,
 }
 
 #[derive(Clone)]
@@ -60,7 +59,10 @@ impl Authentication for GitHubAuthentication {
     }
     async fn get_user_id(&self, access_token: &str) -> Result<GitHubUserResponse> {
         let token_header = format!("token {}", access_token);
-        let client = reqwest::Client::new();
+        let client = reqwest::Client::builder()
+            .user_agent("AtCoder Problems")
+            .build()
+            .map_err(error::ErrorInternalServerError)?;
         let response: GitHubUserResponse = client
             .get("https://api.github.com/user")
             .header("Authorization", token_header)
