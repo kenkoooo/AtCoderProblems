@@ -29,7 +29,7 @@ reqwest = { version = "0.11", features = ["json"] }
 
 async-trait = "0.1"
 
-anyhow = "1.0.32"
+anyhow = "1.0"
 
 [dev-dependencies]
 

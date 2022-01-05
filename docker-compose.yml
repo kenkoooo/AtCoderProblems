@@ -1,0 +1,47 @@
+version: "3.5"
+
+services:
+  postgresql:
+    image: postgres:12.3
+    volumes:
+      - ./config:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_pass
+      POSTGRES_DB: test_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "15432:5432"
+
+  backend-development:
+    build:
+      context: ./atcoder-problems-backend
+      target: development
+    environment:
+      SQL_URL: postgres://db_user:db_pass@postgresql:5432/test_db
+      RUST_LOG: info
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgresql
+    volumes:
+      - ./:/app
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/app/atcoder-problems-backend/target
+    working_dir: /app/atcoder-problems-backend
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+  frontend-development:
+    image: node:16
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - node_modules:/app/atcoder-problems-frontend/node_modules
+    working_dir: /app/atcoder-problems-frontend
+    command: /bin/sh -c "yarn && yarn start"
+
+volumes:
+  cargo-cache: null
+  target-cache: null
+  node_modules: null

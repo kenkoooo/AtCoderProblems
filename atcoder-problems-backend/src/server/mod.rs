@@ -13,6 +13,7 @@ pub(crate) mod virtual_contest;
 
 use actix_web::{http::header, web, App, HttpResponseBuilder, HttpServer};
 pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
+pub use services::config_services;
 
 const LOG_TEMPLATE: &str = r#"{"method":"%{method}xi", "url":"%U", "status":%s, "duration":%T}"#;
 
@@ -50,7 +51,7 @@ impl MakeCors for HttpResponseBuilder {
     }
 }
 
-pub(crate) struct AppData<A> {
+pub struct AppData<A> {
     pub(crate) authentication: A,
     pub(crate) pg_pool: sql_client::PgPool,
 }
@@ -65,7 +66,7 @@ impl<A: Clone> Clone for AppData<A> {
 }
 
 impl<A> AppData<A> {
-    fn new(pg_pool: sql_client::PgPool, authentication: A) -> Self {
+    pub fn new(pg_pool: sql_client::PgPool, authentication: A) -> Self {
         Self {
             authentication,
             pg_pool,

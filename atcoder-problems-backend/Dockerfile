@@ -1,3 +1,7 @@
+FROM rust:1.57.0 AS development
+RUN rustup component add rustfmt
+RUN rustup component add clippy
+
 FROM rust:1.57.0 AS builder
 
 WORKDIR /app
@@ -25,7 +29,7 @@ ADD ./atcoder-client ./atcoder-client
 RUN cargo clean --release -p atcoder-client -p sql-client
 RUN cargo build --release
 
-FROM rust:1.57.0
+FROM rust:1.57.0 AS production
 COPY --from=builder /app/target/release/batch_update                /usr/bin/batch_update
 COPY --from=builder /app/target/release/crawl_all_submissions       /usr/bin/crawl_all_submissions
 COPY --from=builder /app/target/release/crawl_for_virtual_contests  /usr/bin/crawl_for_virtual_contests
@@ -37,3 +41,7 @@ COPY --from=builder /app/target/release/delta_update                /usr/bin/del
 COPY --from=builder /app/target/release/dump_json                   /usr/bin/dump_json
 COPY --from=builder /app/target/release/fix_invalid_submissions     /usr/bin/fix_invalid_submissions
 COPY --from=builder /app/target/release/run_server                  /usr/bin/run_server
+
+
+RUN apt-get update && apt-get install -y awscli postgresql-client
+ADD ./scripts/sql-backup.sh /usr/bin/sql-backup.sh
