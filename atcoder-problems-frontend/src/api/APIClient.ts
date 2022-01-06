@@ -10,7 +10,12 @@ import {
   RankingEntry,
   SumRankingEntry,
 } from "../interfaces/RankingEntry";
-import { ContestId, ProblemId, UserId } from "../interfaces/Status";
+import {
+  ContestId,
+  ProblemId,
+  ProblemIndex,
+  UserId,
+} from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { clipDifficulty, isValidResult } from "../utils";
@@ -203,18 +208,28 @@ export const useContestToProblems = () => {
   const contestIdToProblemIdArray = useSWRData(url, (url) =>
     fetchTypedArray(
       url,
-      (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
+      (
+        obj
+      ): obj is {
+        contest_id: ContestId;
+        problem_id: ProblemId;
+        problem_index: ProblemIndex;
+      } =>
         hasPropertyAsType(obj, "contest_id", isString) &&
-        hasPropertyAsType(obj, "problem_id", isString)
+        hasPropertyAsType(obj, "problem_id", isString) &&
+        hasPropertyAsType(obj, "problem_index", isString)
     )
   );
   const problemMap = useProblemMap();
   return contestIdToProblemIdArray.data?.reduce(
-    (map, { contest_id, problem_id }) => {
+    (map, { contest_id, problem_id, problem_index }) => {
       const problem = problemMap?.get(problem_id);
       if (problem) {
         const problems = map.get(contest_id) ?? [];
-        problems.push(problem);
+        problems.push({
+          ...problem,
+          title: `${problem_index}. ${problem.title.replace(/^.+?\. */, "")}`,
+        });
         map.set(contest_id, problems);
       }
       return map;
@@ -228,18 +243,28 @@ export const useContestToMergedProblems = () => {
   const contestIdToProblemIdArray = useSWRData(url, (url) =>
     fetchTypedArray(
       url,
-      (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
+      (
+        obj
+      ): obj is {
+        contest_id: ContestId;
+        problem_id: ProblemId;
+        problem_index: ProblemIndex;
+      } =>
         hasPropertyAsType(obj, "contest_id", isString) &&
-        hasPropertyAsType(obj, "problem_id", isString)
+        hasPropertyAsType(obj, "problem_id", isString) &&
+        hasPropertyAsType(obj, "problem_index", isString)
     )
   );
   const { data: problemMap } = useMergedProblemMap();
   return contestIdToProblemIdArray.data?.reduce(
-    (map, { contest_id, problem_id }) => {
+    (map, { contest_id, problem_id, problem_index }) => {
       const problem = problemMap?.get(problem_id);
       if (problem) {
         const problems = map.get(contest_id) ?? [];
-        problems.push(problem);
+        problems.push({
+          ...problem,
+          title: `${problem_index}. ${problem.title.replace(/^..*?\./, "")}`,
+        });
         map.set(contest_id, problems);
       }
       return map;
