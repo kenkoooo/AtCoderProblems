@@ -104,6 +104,7 @@ pub struct UserSum {
 pub struct ContestProblem {
     pub contest_id: String,
     pub problem_id: String,
+    pub problem_index: String,
 }
 
 #[derive(PartialEq, Debug, Serialize)]

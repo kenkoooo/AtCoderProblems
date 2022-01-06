@@ -33,13 +33,15 @@ impl RatedPointSumClient for PgPool {
         .fetch_all(self);
 
         let rated_problem_ids_fut =
-            sqlx::query("SELECT contest_id, problem_id FROM contest_problem")
+            sqlx::query("SELECT contest_id, problem_id, problem_index FROM contest_problem")
                 .try_map(|row: PgRow| {
                     let contest_id: String = row.try_get("contest_id")?;
                     let problem_id: String = row.try_get("problem_id")?;
+                    let problem_index: String = row.try_get("problem_index")?;
                     Ok(ContestProblem {
                         contest_id,
                         problem_id,
+                        problem_index,
                     })
                 })
                 .fetch_all(self);
