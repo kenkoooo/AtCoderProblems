@@ -1,12 +1,13 @@
 use super::{
-    RankingRequest, RankingRequestFormat, RankingSelector, UserRankRequest, UserRankResponse, UserRankSelector, RankingResponseFormat
+    RankingRequest, RankingRequestFormat, RankingResponseFormat, RankingSelector, UserRankRequest,
+    UserRankResponse, UserRankSelector,
 };
 use crate::server::AppData;
 
 use actix_web::{error, web, Result};
 use async_trait::async_trait;
+use serde::Serialize;
 use sql_client::rated_point_sum::RatedPointSumClient;
-use serde::{Serialize};
 
 // will be deprecated and replaced with super::RankingResponse
 #[derive(Debug, Serialize)]

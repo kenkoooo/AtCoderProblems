@@ -1,5 +1,6 @@
 use super::{
-    UserRankResponseFormat, RankingRequestFormat, RankingResponse, RankingSelector, UserRankRequest, UserRankSelector,
+    RankingRequestFormat, RankingResponse, RankingSelector, UserRankRequest,
+    UserRankResponseFormat, UserRankSelector,
 };
 use crate::server::AppData;
 
@@ -8,7 +9,6 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sql_client::language_count::LanguageCountClient;
 use std::ops::Range;
-
 
 #[derive(Deserialize)]
 pub(crate) struct LanguageRankingRequest {
