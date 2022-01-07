@@ -1,19 +1,29 @@
 use super::{
-    RankingRequest, RankingRequestFormat, RankingSelector, UserRankRequest, UserRankResponse,
-    UserRankSelector, UserSum,
+    RankingRequest, RankingRequestFormat, RankingSelector, UserRankRequest, UserRankResponse, UserRankSelector, RankingResponseFormat
 };
 use crate::server::AppData;
 
 use actix_web::{error, web, Result};
 use async_trait::async_trait;
 use sql_client::rated_point_sum::RatedPointSumClient;
+use serde::{Serialize};
+
+// will be deprecated and replaced with super::RankingResponse
+#[derive(Debug, Serialize)]
+pub(crate) struct RPSRankingResponse {
+    user_id: String,
+    count: i64,
+    point_sum: i64,
+}
+
+impl RankingResponseFormat for RPSRankingResponse {}
 
 pub(crate) struct RatedPointSumRanking;
 
 #[async_trait(?Send)]
 impl<A: Sync + Send + Clone + 'static> RankingSelector<A> for RatedPointSumRanking {
     type Request = RankingRequest;
-    type Response = UserSum;
+    type Response = RPSRankingResponse;
     async fn fetch(
         data: web::Data<AppData<A>>,
         query: Self::Request,
@@ -23,7 +33,14 @@ impl<A: Sync + Send + Clone + 'static> RankingSelector<A> for RatedPointSumRanki
             .load_rated_point_sum_in_range(query.range())
             .await
             .map_err(error::ErrorInternalServerError)?;
-        Ok(ranking)
+        Ok(ranking
+            .into_iter()
+            .map(|entry| RPSRankingResponse {
+                user_id: entry.user_id,
+                count: entry.point_sum,
+                point_sum: entry.point_sum,
+            })
+            .collect())
     }
 }
 
