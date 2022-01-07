@@ -4,12 +4,7 @@ import { isContestParticipation } from "../interfaces/ContestParticipation";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
-import {
-  isRankingEntry,
-  isSumRankingEntry,
-  RankingEntry,
-  SumRankingEntry,
-} from "../interfaces/RankingEntry";
+import { isRankingEntry, RankingEntry } from "../interfaces/RankingEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
