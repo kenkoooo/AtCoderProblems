@@ -101,9 +101,15 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         }}
       />
       <TableTabButtons active={activeTab} setActive={setActiveTab} />
-      {["ABC", "ARC", "AGC", "ABC-Like", "ARC-Like", "AGC-Like"].includes(
-        activeTab
-      ) ? (
+      {[
+        "ABC",
+        "ARC",
+        "AGC",
+        "ABC-Like",
+        "ARC-Like",
+        "AGC-Like",
+        "PAST",
+      ].includes(activeTab) ? (
         <AtCoderRegularTable
           showDifficulty={showDifficulty}
           hideCompletedContest={hideCompletedContest}
@@ -116,6 +122,8 @@ export const TablePage: React.FC<OuterProps> = (props) => {
               ? "AtCoder Regular Contest"
               : activeTab === "AGC"
               ? "AtCoder Grand Contest"
+              : activeTab == "PAST"
+              ? "PAST"
               : `${activeTab} Contest`
           }
           contestToProblems={contestToProblems}
