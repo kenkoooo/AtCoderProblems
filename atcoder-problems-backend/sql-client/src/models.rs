@@ -23,6 +23,8 @@ impl Contest {
 pub struct Problem {
     pub id: String,
     pub contest_id: String,
+    pub problem_index: String,
+    pub name: String,
     pub title: String,
 }
 
