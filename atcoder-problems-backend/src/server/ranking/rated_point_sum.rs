@@ -9,7 +9,9 @@ use async_trait::async_trait;
 use serde::Serialize;
 use sql_client::rated_point_sum::RatedPointSumClient;
 
-#[deprecated(note = "this special Response type will be deprecated and replaced with super::RankingResponse")]
+#[deprecated(
+    note = "this special Response type is deprecated and will be replaced with super::RankingResponse"
+)]
 #[derive(Debug, Serialize)]
 pub(crate) struct RPSRankingResponse {
     user_id: String,
