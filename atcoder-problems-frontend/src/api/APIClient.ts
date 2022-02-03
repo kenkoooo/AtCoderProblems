@@ -226,10 +226,7 @@ export const useContestToProblems = () => {
       const problem = problemMap?.get(problem_id);
       if (problem) {
         const problems = map.get(contest_id) ?? [];
-        problems.push({
-          ...problem,
-          title: `${problem_index}. ${problem.title.replace(/^.+?\. */, "")}`,
-        });
+        problems.push({ ...problem, problem_index });
         map.set(contest_id, problems);
       }
       return map;
@@ -261,10 +258,7 @@ export const useContestToMergedProblems = () => {
       const problem = problemMap?.get(problem_id);
       if (problem) {
         const problems = map.get(contest_id) ?? [];
-        problems.push({
-          ...problem,
-          title: `${problem_index}. ${problem.title.replace(/^..*?\./, "")}`,
-        });
+        problems.push({ ...problem, problem_index });
         map.set(contest_id, problems);
       }
       return map;

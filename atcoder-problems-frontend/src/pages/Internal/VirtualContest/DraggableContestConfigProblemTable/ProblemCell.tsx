@@ -22,7 +22,8 @@ export const ProblemCell: React.FC<ProblemCellProps> = ({
         <ProblemLink
           problemId={problem.id}
           contestId={problem.contest_id}
-          problemTitle={problem.title}
+          problemIndex={problem.problem_index}
+          problemName={problem.name}
           showDifficulty={true}
           problemModel={problemModel}
           isExperimentalDifficulty={problemModel?.is_experimental}

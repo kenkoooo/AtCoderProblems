@@ -136,7 +136,7 @@ const Problems = (props: {
                       <ProblemLink
                         problemId={p.id}
                         contestId={p.contestId}
-                        problemTitle={`${i + 1}`}
+                        problemName={`${i + 1}`}
                       />
                     ) : (
                       i + 1
@@ -147,7 +147,7 @@ const Problems = (props: {
                       <ProblemLink
                         problemId={p.id}
                         contestId={p.contestId}
-                        problemTitle={p.title}
+                        problemName={p.title}
                       />
                     ) : (
                       p.id
@@ -363,7 +363,7 @@ export const ShowContest = (props: Props) => {
         return {
           item,
           contestId: problem.contest_id,
-          title: problem.title,
+          title: `${problem.problem_index}. ${problem.name}`,
         };
       } else {
         return { item };
