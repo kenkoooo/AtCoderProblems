@@ -23,13 +23,16 @@ async fn setup() -> u16 {
 #[actix_web::test]
 async fn test_list() {
     let port = setup().await;
-    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
     let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        let github = GithubClient::new("", "", &mock_server_base_url).unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
         actix_web::HttpServer::new(move || {
             actix_web::App::new()
                 .wrap(GithubAuthentication::new(github.clone()))
@@ -194,13 +197,16 @@ async fn test_list() {
 #[actix_web::test]
 async fn test_invalid_token() {
     let port = setup().await;
-    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
     let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        let github = GithubClient::new("", "", &mock_server_base_url).unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
         actix_web::HttpServer::new(move || {
             actix_web::App::new()
                 .wrap(GithubAuthentication::new(github.clone()))
@@ -239,13 +245,16 @@ async fn test_invalid_token() {
 #[actix_web::test]
 async fn test_list_item() {
     let port = setup().await;
-    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
     let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        let github = GithubClient::new("", "", &mock_server_base_url).unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
         actix_web::HttpServer::new(move || {
             actix_web::App::new()
                 .wrap(GithubAuthentication::new(github.clone()))
@@ -386,13 +395,16 @@ async fn test_list_item() {
 #[actix_web::test]
 async fn test_list_delete() {
     let port = setup().await;
-    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
     let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        let github = GithubClient::new("", "", &mock_server_base_url).unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
         actix_web::HttpServer::new(move || {
             actix_web::App::new()
                 .wrap(GithubAuthentication::new(github.clone()))
@@ -474,13 +486,16 @@ async fn test_list_delete() {
 #[actix_web::test]
 async fn test_register_twice() {
     let port = setup().await;
-    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
     let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        let github = GithubClient::new("", "", &mock_server_base_url).unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
         actix_web::HttpServer::new(move || {
             actix_web::App::new()
                 .wrap(GithubAuthentication::new(github.clone()))

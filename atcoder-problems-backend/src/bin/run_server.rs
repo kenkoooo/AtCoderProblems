@@ -16,8 +16,13 @@ async fn main() {
     let pg_pool = sql_client::initialize_pool(&database_url)
         .await
         .expect("Failed to initialize the connection pool");
-    let github = GithubClient::new(&client_id, &client_secret, "https://api.github.com")
-        .expect("Failed to create github client");
+    let github = GithubClient::new(
+        &client_id,
+        &client_secret,
+        "https://github.com",
+        "https://api.github.com",
+    )
+    .expect("Failed to create github client");
     run_server(pg_pool, github, port)
         .await
         .expect("Failed to run server");

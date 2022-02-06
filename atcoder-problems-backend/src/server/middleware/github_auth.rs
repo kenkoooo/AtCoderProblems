@@ -26,13 +26,20 @@ pub struct GithubClient {
     client_id: String,
     client_secret: String,
     base_url: String,
+    api_base_url: String,
 }
 
 impl GithubClient {
-    pub fn new(client_id: &str, client_secret: &str, base_url: &str) -> Result<Self> {
+    pub fn new(
+        client_id: &str,
+        client_secret: &str,
+        base_url: &str,
+        api_base_url: &str,
+    ) -> Result<Self> {
         Ok(Self {
             client: Client::builder().user_agent("AtCoder Problems").build()?,
             base_url: base_url.to_string(),
+            api_base_url: api_base_url.to_string(),
             client_id: client_id.to_string(),
             client_secret: client_secret.to_string(),
         })
@@ -61,7 +68,7 @@ impl GithubClient {
 
     pub async fn verify_user(&self, access_token: &str) -> Result<GithubToken> {
         let token_header = format!("token {}", access_token);
-        let url = format!("{}/user", self.base_url);
+        let url = format!("{}/user", self.api_base_url);
         let response: GithubToken = self
             .client
             .get(url)
