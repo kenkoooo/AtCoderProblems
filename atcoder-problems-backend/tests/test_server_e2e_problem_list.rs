@@ -6,7 +6,6 @@ use reqwest::header::SET_COOKIE;
 use serde_json::{json, Value};
 
 pub mod utils;
-use utils::start_mock_github_server;
 
 const VALID_CODE: &str = "valid-code";
 const VALID_TOKEN: &str = "valid-token";
@@ -24,7 +23,7 @@ async fn setup() -> u16 {
 #[actix_web::test]
 async fn test_list() {
     let port = setup().await;
-    let mock_server = start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
     let mock_server_base_url = mock_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
@@ -195,7 +194,7 @@ async fn test_list() {
 #[actix_web::test]
 async fn test_invalid_token() {
     let port = setup().await;
-    let mock_server = start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
     let mock_server_base_url = mock_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
@@ -240,7 +239,7 @@ async fn test_invalid_token() {
 #[actix_web::test]
 async fn test_list_item() {
     let port = setup().await;
-    let mock_server = start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
     let mock_server_base_url = mock_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
@@ -387,7 +386,7 @@ async fn test_list_item() {
 #[actix_web::test]
 async fn test_list_delete() {
     let port = setup().await;
-    let mock_server = start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
     let mock_server_base_url = mock_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
@@ -475,7 +474,7 @@ async fn test_list_delete() {
 #[actix_web::test]
 async fn test_register_twice() {
     let port = setup().await;
-    let mock_server = start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN, GithubToken { id: 0 });
     let mock_server_base_url = mock_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())

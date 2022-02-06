@@ -1,4 +1,3 @@
-pub(crate) mod auth;
 pub mod endpoint;
 pub mod error;
 pub(crate) mod language_count;
@@ -8,11 +7,9 @@ pub(crate) mod services;
 pub(crate) mod time_submissions;
 pub(crate) mod user_info;
 pub(crate) mod user_submissions;
-pub(crate) mod utils;
 
 use actix_web::{http::header, web, App, HttpResponseBuilder, HttpServer};
 use anyhow::Result;
-pub use auth::{Authentication, GitHubAuthentication, GitHubUserResponse};
 pub use services::config_services;
 
 use self::middleware::github_auth::{GithubAuthentication, GithubClient};
@@ -48,28 +45,5 @@ pub(crate) trait MakeCors {
 impl MakeCors for HttpResponseBuilder {
     fn make_cors(&mut self) -> &mut Self {
         self.insert_header((header::ACCESS_CONTROL_ALLOW_ORIGIN, "*"))
-    }
-}
-
-pub struct AppData<A> {
-    pub(crate) authentication: A,
-    pub(crate) pg_pool: sql_client::PgPool,
-}
-
-impl<A: Clone> Clone for AppData<A> {
-    fn clone(&self) -> Self {
-        Self {
-            pg_pool: self.pg_pool.clone(),
-            authentication: self.authentication.clone(),
-        }
-    }
-}
-
-impl<A> AppData<A> {
-    pub fn new(pg_pool: sql_client::PgPool, authentication: A) -> Self {
-        Self {
-            authentication,
-            pg_pool,
-        }
     }
 }
