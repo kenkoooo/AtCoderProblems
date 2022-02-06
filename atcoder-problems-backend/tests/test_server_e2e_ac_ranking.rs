@@ -1,6 +1,6 @@
+use actix_web::http::StatusCode;
 use actix_web::{test, web, App};
 use atcoder_problems_backend::server::config_services;
-use reqwest::StatusCode;
 use serde_json::{json, Value};
 
 pub mod utils;
