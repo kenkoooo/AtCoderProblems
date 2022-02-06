@@ -17,6 +17,7 @@ services:
     image: rust:1.57
     environment:
       SQL_URL: postgres://db_user:db_pass@postgresql:5432/test_db
+      DATABASE_URL: postgres://db_user:db_pass@postgresql:5432/test_db
       RUST_LOG: info
     ports:
       - "8080:8080"
