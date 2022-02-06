@@ -1,15 +1,16 @@
-use crate::server::{AppData, MakeCors};
-use actix_web::{error, web, HttpRequest, HttpResponse, Result};
-use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
+use crate::server::MakeCors;
+use actix_web::{error, web, HttpResponse, Result};
+use sql_client::{
+    submission_client::{SubmissionClient, SubmissionRequest},
+    PgPool,
+};
 
-pub(crate) async fn get_time_submissions<A>(
-    _request: HttpRequest,
-    data: web::Data<AppData<A>>,
+pub(crate) async fn get_time_submissions(
+    pool: web::Data<PgPool>,
     from: web::Path<i64>,
 ) -> Result<HttpResponse> {
     let from_epoch_second = from.into_inner();
-    let conn = data.pg_pool.clone();
-    let submissions: Vec<_> = conn
+    let submissions: Vec<_> = pool
         .get_submissions(SubmissionRequest::FromTime {
             from_second: from_epoch_second,
             count: 1000,

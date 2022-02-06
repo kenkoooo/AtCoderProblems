@@ -1,11 +1,6 @@
-use crate::server::AppData;
-use actix_web::http::header::LOCATION;
-use actix_web::{cookie::Cookie, error, web, HttpRequest, HttpResponse, Result};
+use actix_web::{error, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use sql_client::internal::user_manager::UserManager;
-
-const REDIRECT_URL: &str = "https://kenkoooo.com/atcoder/";
 
 #[async_trait(?Send)]
 pub trait Authentication {
@@ -83,44 +78,4 @@ impl GitHubAuthentication {
             client_secret: client_secret.to_owned(),
         }
     }
-}
-
-#[derive(Deserialize)]
-pub(crate) struct Query {
-    code: String,
-    redirect_to: Option<String>,
-}
-
-pub(crate) async fn get_token<A: Authentication + Clone>(
-    _request: HttpRequest,
-    data: web::Data<AppData<A>>,
-    query: web::Query<Query>,
-) -> Result<HttpResponse> {
-    let client = data.authentication.clone();
-    let conn = data.pg_pool.clone();
-
-    let token = client
-        .get_token(&query.code)
-        .await
-        .map_err(error::ErrorInternalServerError)?;
-    let response = client
-        .get_user_id(&token)
-        .await
-        .map_err(error::ErrorInternalServerError)?;
-    let internal_user_id = response.id.to_string();
-    conn.register_user(&internal_user_id)
-        .await
-        .map_err(error::ErrorInternalServerError)?;
-
-    let cookie = Cookie::build("token", token).path("/").finish();
-    let redirect_fragment = query
-        .redirect_to
-        .clone()
-        .unwrap_or_else(|| "/login/user".to_string());
-    let redirect_url = format!("{}#{}", REDIRECT_URL, redirect_fragment);
-    let response = HttpResponse::Found()
-        .insert_header((LOCATION, redirect_url))
-        .cookie(cookie)
-        .finish();
-    Ok(response)
 }
