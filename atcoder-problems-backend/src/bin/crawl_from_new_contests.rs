@@ -23,7 +23,7 @@ async fn iteration(url: &str) -> Result<()> {
     Ok(())
 }
 
-#[async_std::main]
+#[actix_web::main]
 async fn main() {
     init_log_config().unwrap();
     info!("Started");

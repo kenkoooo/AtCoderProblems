@@ -119,7 +119,7 @@ async fn setup_contest_problems(pool: &PgPool) {
     }
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_update_rated_point_sum() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
 
@@ -216,7 +216,7 @@ async fn test_update_rated_point_sum() {
     assert!(resp.is_err());
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_load_rated_point_sum_in_range() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
 

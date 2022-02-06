@@ -3,7 +3,7 @@ use sql_client::models::{Submission, UserLanguageCount, UserLanguageCountRank, U
 
 mod utils;
 
-#[async_std::test]
+#[tokio::test]
 async fn test_language_count() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     let mut submissions = vec![

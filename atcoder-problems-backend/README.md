@@ -38,8 +38,8 @@ Below are the list of files you need to modify:
 ## Build
 
 ```bash
-cd atcoder-problems-backend/
-cargo build
+docker-compose up -d
+docker-compose exec backend-development cargo build
 ```
 
 ## Run
@@ -70,13 +70,8 @@ cargo run --bin fix_invalid_submissions
 ## Test
 
 ```bash
-# If you don't set up PostgreSQL in your local environment,
-# you need to run the following lines to run a PostgreSQL Docker container for testing.
-docker-compose up -d postgresql
-export SQL_URL=postgres://kenkoooo:pass@localhost:5432/test
-
-# Run all the tests
-cargo test --workspace -- --test-threads=1
+docker-compose up -d
+docker-compose exec backend-development cargo test --workspace -- --test-threads=1
 ```
 
 ## Format
@@ -86,6 +81,6 @@ Please make sure that your change is formatted before sending a pull request.
 You can format the code base with `cargo fmt` like the following:
 
 ```bash
-cd atcoder-problems-backend/
-cargo fmt
+docker-compose up -d
+docker-compose exec backend-development cargo fmt
 ```
