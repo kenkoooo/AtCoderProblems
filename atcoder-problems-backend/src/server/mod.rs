@@ -34,6 +34,7 @@ pub async fn run_server(
             .configure(services::config_services)
     })
     .bind((host, port))?
+    .workers(4)
     .run()
     .await?;
     Ok(())
