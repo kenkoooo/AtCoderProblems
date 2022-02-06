@@ -24,6 +24,7 @@ pub async fn run_server(
     let host = "0.0.0.0";
     HttpServer::new(move || {
         App::new()
+            .app_data(web::Data::new(github_client.clone()))
             .app_data(web::Data::new(pg_pool.clone()))
             .wrap(GithubAuthentication::new(github_client.clone()))
             .wrap(
