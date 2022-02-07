@@ -1,8 +1,7 @@
-use crate::server::AppData;
-
 use actix_web::{web, HttpRequest, HttpResponse, Result};
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use sql_client::PgPool;
 use std::ops::Range;
 
 pub(crate) mod ac_count;
@@ -24,23 +23,20 @@ pub(crate) trait RankingRequestFormat: DeserializeOwned {
 pub(crate) trait RankingResponseFormat: Serialize {}
 
 #[async_trait(?Send)]
-pub(crate) trait RankingSelector<A: Sync + Send + Clone + 'static> {
+pub(crate) trait RankingSelector {
     type Request: RankingRequestFormat;
     type Response: RankingResponseFormat;
-    async fn fetch(
-        data: web::Data<AppData<A>>,
-        query: Self::Request,
-    ) -> Result<Vec<Self::Response>>;
+    async fn fetch(pool: web::Data<PgPool>, query: Self::Request) -> Result<Vec<Self::Response>>;
     async fn get_ranking(
         _request: HttpRequest,
-        data: web::Data<AppData<A>>,
+        pool: web::Data<PgPool>,
         query: web::Query<Self::Request>,
     ) -> Result<HttpResponse> {
         let range = query.range();
         if range.len() > MAX_RANKING_RANGE_LENGTH {
             return Ok(HttpResponse::BadRequest().finish());
         }
-        let ranking = Self::fetch(data, query.into_inner()).await?;
+        let ranking = Self::fetch(pool, query.into_inner()).await?;
         let response = HttpResponse::Ok().json(&ranking);
         Ok(response)
     }
@@ -52,19 +48,17 @@ pub(crate) trait UserRankResponseFormat: Serialize {}
 impl<T: UserRankResponseFormat> UserRankResponseFormat for Vec<T> {}
 
 #[async_trait(?Send)]
-pub(crate) trait UserRankSelector<A: Sync + Send + Clone + 'static> {
+pub(crate) trait UserRankSelector {
     type Request: UserRankRequestFormat;
     type Response: UserRankResponseFormat;
-    async fn fetch(
-        data: web::Data<AppData<A>>,
-        query: Self::Request,
-    ) -> Result<Option<Self::Response>>;
+    async fn fetch(pool: web::Data<PgPool>, query: Self::Request)
+        -> Result<Option<Self::Response>>;
     async fn get_users_rank(
         _request: HttpRequest,
-        data: web::Data<AppData<A>>,
+        pool: web::Data<PgPool>,
         query: web::Query<Self::Request>,
     ) -> Result<HttpResponse> {
-        let user_rank = Self::fetch(data, query.into_inner()).await?;
+        let user_rank = Self::fetch(pool, query.into_inner()).await?;
         // map と ok_or に書き換えられる
         match user_rank {
             Some(rank) => {

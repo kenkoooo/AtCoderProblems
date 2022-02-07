@@ -1,25 +1,11 @@
-use actix_web::Result;
-use async_trait::async_trait;
-use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
+use atcoder_problems_backend::server::middleware::github_auth::{
+    GithubAuthentication, GithubClient, GithubToken,
+};
 use rand::Rng;
 use serde_json::{json, Value};
 use std::time::Duration;
 
 pub mod utils;
-
-#[derive(Clone)]
-struct MockAuth;
-
-#[async_trait(?Send)]
-impl Authentication for MockAuth {
-    async fn get_token(&self, _: &str) -> Result<String> {
-        Ok(String::new())
-    }
-
-    async fn get_user_id(&self, _: &str) -> Result<GitHubUserResponse> {
-        Ok(GitHubUserResponse::default())
-    }
-}
 
 async fn setup() -> u16 {
     utils::initialize_and_connect_to_test_sql().await;
@@ -33,12 +19,30 @@ fn url(path: &str, port: u16) -> String {
 
 #[actix_web::test]
 async fn test_progress_reset() {
+    let token = "access_token";
     let port = setup().await;
+    let mock_server = utils::start_mock_github_server(token);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(token, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .wrap(GithubAuthentication::new(github.clone()))
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .app_data(actix_web::web::Data::new(github.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(Duration::from_millis(1000)).await;
 
@@ -55,7 +59,7 @@ async fn test_progress_reset() {
 
     let response = reqwest::Client::new()
         .get(url("/internal-api/progress_reset/list", port))
-        .header("Cookie", "token=a")
+        .header("Cookie", format!("token={}", token))
         .send()
         .await
         .unwrap()
@@ -71,7 +75,7 @@ async fn test_progress_reset() {
 
     let response = reqwest::Client::new()
         .post(url("/internal-api/progress_reset/add", port))
-        .header("Cookie", "token=a")
+        .header("Cookie", format!("token={}", token))
         .json(&json!({"problem_id":"problem_1","reset_epoch_second":100}))
         .send()
         .await
@@ -79,7 +83,7 @@ async fn test_progress_reset() {
     assert!(response.status().is_success());
     let response = reqwest::Client::new()
         .get(url("/internal-api/progress_reset/list", port))
-        .header("Cookie", "token=a")
+        .header("Cookie", format!("token={}", token))
         .send()
         .await
         .unwrap()
@@ -98,7 +102,7 @@ async fn test_progress_reset() {
 
     let response = reqwest::Client::new()
         .post(url("/internal-api/progress_reset/add", port))
-        .header("Cookie", "token=a")
+        .header("Cookie", format!("token={}", token))
         .json(&json!({"problem_id":"problem_1","reset_epoch_second":200}))
         .send()
         .await
@@ -106,7 +110,7 @@ async fn test_progress_reset() {
     assert!(response.status().is_success());
     let response = reqwest::Client::new()
         .get(url("/internal-api/progress_reset/list", port))
-        .header("Cookie", "token=a")
+        .header("Cookie", format!("token={}", token))
         .send()
         .await
         .unwrap()
@@ -125,7 +129,7 @@ async fn test_progress_reset() {
 
     let response = reqwest::Client::new()
         .post(url("/internal-api/progress_reset/add", port))
-        .header("Cookie", "token=a")
+        .header("Cookie", format!("token={}", token))
         .json(&json!({"problem_id":"problem_2","reset_epoch_second":200}))
         .send()
         .await
@@ -133,7 +137,7 @@ async fn test_progress_reset() {
     assert!(response.status().is_success());
     let response = reqwest::Client::new()
         .post(url("/internal-api/progress_reset/delete", port))
-        .header("Cookie", "token=a")
+        .header("Cookie", format!("token={}", token))
         .json(&json!({"problem_id":"problem_1"}))
         .send()
         .await
@@ -141,7 +145,7 @@ async fn test_progress_reset() {
     assert!(response.status().is_success());
     let response = reqwest::Client::new()
         .get(url("/internal-api/progress_reset/list", port))
-        .header("Cookie", "token=a")
+        .header("Cookie", format!("token={}", token))
         .send()
         .await
         .unwrap()

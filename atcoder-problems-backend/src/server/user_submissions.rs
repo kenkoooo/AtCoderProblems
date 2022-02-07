@@ -1,8 +1,9 @@
-use crate::server::{AppData, MakeCors};
+use crate::server::MakeCors;
 use actix_web::http::header::CACHE_CONTROL;
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::{Deserialize, Serialize};
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
+use sql_client::PgPool;
 
 const USER_SUBMISSION_LIMIT: usize = 500;
 
@@ -13,14 +14,13 @@ pub(crate) struct GetUserSubmissionQuery {
     to_second: Option<i64>,
 }
 
-pub(crate) async fn get_user_submissions<A>(
+pub(crate) async fn get_user_submissions(
     _request: HttpRequest,
-    data: web::Data<AppData<A>>,
+    pool: web::Data<PgPool>,
     query: web::Query<GetUserSubmissionQuery>,
 ) -> Result<HttpResponse> {
-    let conn = data.pg_pool.clone();
     let user_id = &query.user;
-    let submissions = conn
+    let submissions = pool
         .get_submissions(SubmissionRequest::UserAll { user_id })
         .await
         .map_err(error::ErrorInternalServerError)?;
@@ -31,9 +31,9 @@ pub(crate) async fn get_user_submissions<A>(
     Ok(response)
 }
 
-pub(crate) async fn get_user_submissions_from_time<A>(
+pub(crate) async fn get_user_submissions_from_time(
     _request: HttpRequest,
-    data: web::Data<AppData<A>>,
+    pool: web::Data<PgPool>,
     query: web::Query<GetUserSubmissionQuery>,
 ) -> Result<HttpResponse> {
     if let GetUserSubmissionQuery {
@@ -42,8 +42,7 @@ pub(crate) async fn get_user_submissions_from_time<A>(
         ..
     } = *query
     {
-        let conn = data.pg_pool.clone();
-        let submissions = conn
+        let submissions = pool
             .get_submissions(SubmissionRequest::FromUserAndTime {
                 user_id,
                 from_second,
@@ -58,9 +57,9 @@ pub(crate) async fn get_user_submissions_from_time<A>(
     }
 }
 
-pub(crate) async fn get_user_submission_count<A>(
+pub(crate) async fn get_user_submission_count(
     _request: HttpRequest,
-    data: web::Data<AppData<A>>,
+    pool: web::Data<PgPool>,
     query: web::Query<GetUserSubmissionQuery>,
 ) -> Result<HttpResponse> {
     if let GetUserSubmissionQuery {
@@ -70,9 +69,8 @@ pub(crate) async fn get_user_submission_count<A>(
         ..
     } = *query
     {
-        let conn = data.pg_pool.clone();
         let range = from_second..to_second;
-        let count = conn
+        let count = pool
             .get_user_submission_count(&user_id, range)
             .await
             .map_err(error::ErrorInternalServerError)?;
@@ -89,12 +87,11 @@ pub(crate) async fn get_user_submission_count<A>(
     }
 }
 
-pub(crate) async fn get_recent_submissions<A>(
+pub(crate) async fn get_recent_submissions(
     _request: HttpRequest,
-    data: web::Data<AppData<A>>,
+    pool: web::Data<PgPool>,
 ) -> Result<HttpResponse> {
-    let conn = data.pg_pool.clone();
-    let submissions = conn
+    let submissions = pool
         .get_submissions(SubmissionRequest::RecentAll { count: 1000 })
         .await
         .map_err(error::ErrorInternalServerError)?;
@@ -110,19 +107,18 @@ pub(crate) struct GetUsersTimeSubmissionQuery {
     to: i64,
 }
 
-pub(crate) async fn get_users_time_submissions<A>(
+pub(crate) async fn get_users_time_submissions(
     _request: HttpRequest,
-    data: web::Data<AppData<A>>,
+    pool: web::Data<PgPool>,
     query: web::Query<GetUsersTimeSubmissionQuery>,
 ) -> Result<HttpResponse> {
-    let conn = data.pg_pool.clone();
     let user_ids = query.users.split(',').map(|s| s.trim()).collect::<Vec<_>>();
     let problem_ids = query
         .problems
         .split(',')
         .map(|s| s.trim())
         .collect::<Vec<_>>();
-    let submissions = conn
+    let submissions = pool
         .get_submissions(SubmissionRequest::UsersProblemsTime {
             user_ids: &user_ids,
             problem_ids: &problem_ids,

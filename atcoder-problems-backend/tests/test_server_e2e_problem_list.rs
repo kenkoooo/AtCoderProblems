@@ -1,33 +1,14 @@
-use actix_web::Result;
-use async_trait::async_trait;
-use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
+use atcoder_problems_backend::server::middleware::github_auth::{
+    GithubAuthentication, GithubClient, GithubToken,
+};
 use rand::Rng;
 use reqwest::header::SET_COOKIE;
 use serde_json::{json, Value};
 
 pub mod utils;
 
-#[derive(Clone)]
-struct MockAuth;
-
-const VALID_CODE: &str = "VALID-CODE";
-const VALID_TOKEN: &str = "VALID-TOKEN";
-
-#[async_trait(?Send)]
-impl Authentication for MockAuth {
-    async fn get_token(&self, code: &str) -> Result<String> {
-        match code {
-            VALID_CODE => Ok(VALID_TOKEN.to_owned()),
-            _ => Err(actix_web::error::ErrorNotFound("error")),
-        }
-    }
-    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse> {
-        match token {
-            VALID_TOKEN => Ok(GitHubUserResponse::default()),
-            _ => Err(actix_web::error::ErrorNotFound("error")),
-        }
-    }
-}
+const VALID_CODE: &str = "valid-code";
+const VALID_TOKEN: &str = "valid-token";
 
 fn url(path: &str, port: u16) -> String {
     format!("http://localhost:{}{}", port, path)
@@ -42,11 +23,28 @@ async fn setup() -> u16 {
 #[actix_web::test]
 async fn test_list() {
     let port = setup().await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .wrap(GithubAuthentication::new(github.clone()))
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .app_data(actix_web::web::Data::new(github.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -62,6 +60,7 @@ async fn test_list() {
         .send()
         .await
         .unwrap();
+    assert!(response.status().is_redirection());
     // https://docs.rs/reqwest/latest/reqwest/struct.Response.html#method.cookies
     // これを使ったほうがいいかもしれない
     let cookie = response.headers().get(SET_COOKIE).unwrap();
@@ -198,11 +197,28 @@ async fn test_list() {
 #[actix_web::test]
 async fn test_invalid_token() {
     let port = setup().await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .wrap(GithubAuthentication::new(github.clone()))
+                .app_data(actix_web::web::Data::new(github.clone()))
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -229,11 +245,28 @@ async fn test_invalid_token() {
 #[actix_web::test]
 async fn test_list_item() {
     let port = setup().await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .wrap(GithubAuthentication::new(github.clone()))
+                .app_data(actix_web::web::Data::new(github.clone()))
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -362,11 +395,28 @@ async fn test_list_item() {
 #[actix_web::test]
 async fn test_list_delete() {
     let port = setup().await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .wrap(GithubAuthentication::new(github.clone()))
+                .app_data(actix_web::web::Data::new(github.clone()))
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -436,11 +486,28 @@ async fn test_list_delete() {
 #[actix_web::test]
 async fn test_register_twice() {
     let port = setup().await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
     let server = actix_web::rt::spawn(async move {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        let github =
+            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .wrap(GithubAuthentication::new(github.clone()))
+                .app_data(actix_web::web::Data::new(github.clone()))
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 

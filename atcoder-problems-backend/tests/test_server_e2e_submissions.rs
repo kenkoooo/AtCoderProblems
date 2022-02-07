@@ -1,25 +1,9 @@
-use actix_web::Result;
-use async_trait::async_trait;
-use atcoder_problems_backend::server::{run_server, Authentication, GitHubUserResponse};
 use rand::Rng;
 use serde_json::Value;
 use sql_client::models::Submission;
 use sql_client::PgPool;
 
 pub mod utils;
-
-#[derive(Clone)]
-struct MockAuth;
-
-#[async_trait(?Send)]
-impl Authentication for MockAuth {
-    async fn get_token(&self, _: &str) -> Result<String> {
-        unimplemented!()
-    }
-    async fn get_user_id(&self, _: &str) -> Result<GitHubUserResponse> {
-        unimplemented!()
-    }
-}
 
 async fn prepare_data_set(conn: &PgPool) {
     sql_client::query(r"INSERT INTO accepted_count (user_id, problem_count) VALUES ('u1', 1)")
@@ -68,7 +52,16 @@ async fn test_user_submissions() {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -99,7 +92,16 @@ async fn test_user_submissions_fromtime() {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -166,7 +168,16 @@ async fn test_time_submissions() {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -190,7 +201,16 @@ async fn test_submission_count() {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -226,7 +246,16 @@ async fn test_invalid_path() {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -254,7 +283,16 @@ async fn test_health_check() {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -272,7 +310,16 @@ async fn test_cors() {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
@@ -315,7 +362,16 @@ async fn test_users_and_time() {
         let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
             .await
             .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
+        actix_web::HttpServer::new(move || {
+            actix_web::App::new()
+                .app_data(actix_web::web::Data::new(pg_pool.clone()))
+                .configure(atcoder_problems_backend::server::config_services)
+        })
+        .bind(("0.0.0.0", port))
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
     });
     actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
     let submissions: Vec<Submission> = reqwest::get(url(

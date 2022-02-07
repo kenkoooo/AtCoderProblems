@@ -1,13 +1,11 @@
-use crate::server::AppData;
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
-use sql_client::language_count::LanguageCountClient;
+use sql_client::{language_count::LanguageCountClient, PgPool};
 
-pub(crate) async fn get_language_list<A>(
+pub(crate) async fn get_language_list(
     _request: HttpRequest,
-    data: web::Data<AppData<A>>,
+    pool: web::Data<PgPool>,
 ) -> Result<HttpResponse> {
-    let conn = data.pg_pool.clone();
-    let languages = conn
+    let languages = pool
         .load_languages()
         .await
         .map_err(error::ErrorInternalServerError)?;

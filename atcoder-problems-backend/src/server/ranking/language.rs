@@ -2,12 +2,11 @@ use super::{
     RankingRequestFormat, RankingResponse, RankingSelector, UserRankRequest,
     UserRankResponseFormat, UserRankSelector,
 };
-use crate::server::AppData;
 
 use actix_web::{error, web, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use sql_client::language_count::LanguageCountClient;
+use sql_client::{language_count::LanguageCountClient, PgPool};
 use std::ops::Range;
 
 #[derive(Deserialize)]
@@ -35,15 +34,11 @@ impl UserRankResponseFormat for LanguageUserRankResponse {}
 pub(crate) struct LanguageRanking;
 
 #[async_trait(?Send)]
-impl<A: Sync + Send + Clone + 'static> RankingSelector<A> for LanguageRanking {
+impl RankingSelector for LanguageRanking {
     type Request = LanguageRankingRequest;
     type Response = RankingResponse;
-    async fn fetch(
-        data: web::Data<AppData<A>>,
-        query: Self::Request,
-    ) -> Result<Vec<Self::Response>> {
-        let conn = data.pg_pool.clone();
-        let ranking = conn
+    async fn fetch(pool: web::Data<PgPool>, query: Self::Request) -> Result<Vec<Self::Response>> {
+        let ranking = pool
             .load_language_count_in_range(&query.language, query.range())
             .await
             .map_err(error::ErrorInternalServerError)?;
@@ -58,19 +53,18 @@ impl<A: Sync + Send + Clone + 'static> RankingSelector<A> for LanguageRanking {
 }
 
 #[async_trait(?Send)]
-impl<A: Sync + Send + Clone + 'static> UserRankSelector<A> for LanguageRanking {
+impl UserRankSelector for LanguageRanking {
     type Request = UserRankRequest;
     type Response = Vec<LanguageUserRankResponse>;
     async fn fetch(
-        data: web::Data<AppData<A>>,
+        pool: web::Data<PgPool>,
         query: Self::Request,
     ) -> Result<Option<Self::Response>> {
-        let conn = data.pg_pool.clone();
-        let counts = conn
+        let counts = pool
             .load_users_language_count(&query.user)
             .await
             .map_err(error::ErrorInternalServerError)?;
-        let ranks = conn
+        let ranks = pool
             .load_users_language_count_rank(&query.user)
             .await
             .map_err(error::ErrorInternalServerError)?;

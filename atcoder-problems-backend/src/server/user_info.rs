@@ -1,9 +1,10 @@
-use crate::server::{AppData, MakeCors};
+use crate::server::MakeCors;
 
-use actix_web::{error, web, HttpRequest, HttpResponse, Result};
+use actix_web::{error, web, HttpResponse, Result};
 use serde::{Deserialize, Serialize};
 use sql_client::accepted_count::AcceptedCountClient;
 use sql_client::rated_point_sum::RatedPointSumClient;
+use sql_client::PgPool;
 
 #[derive(Deserialize)]
 pub(crate) struct Query {
@@ -18,20 +19,18 @@ struct UserInfo {
     rated_point_sum_rank: i64,
 }
 
-pub(crate) async fn get_user_info<A>(
-    _request: HttpRequest,
-    data: web::Data<AppData<A>>,
+pub(crate) async fn get_user_info(
+    pool: web::Data<PgPool>,
     query: web::Query<Query>,
 ) -> Result<HttpResponse> {
-    let conn = data.pg_pool.clone();
     let user_id = &query.user;
-    let accepted_count = conn.get_users_accepted_count(user_id).await.unwrap_or(0);
-    let accepted_count_rank = conn
+    let accepted_count = pool.get_users_accepted_count(user_id).await.unwrap_or(0);
+    let accepted_count_rank = pool
         .get_accepted_count_rank(accepted_count)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    let rated_point_sum = conn.get_users_rated_point_sum(user_id).await.unwrap_or(0);
-    let rated_point_sum_rank = conn
+    let rated_point_sum = pool.get_users_rated_point_sum(user_id).await.unwrap_or(0);
+    let rated_point_sum_rank = pool
         .get_rated_point_sum_rank(rated_point_sum)
         .await
         .map_err(error::ErrorInternalServerError)?;

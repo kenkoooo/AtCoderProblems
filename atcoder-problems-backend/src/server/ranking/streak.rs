@@ -2,24 +2,19 @@ use super::{
     RankingRequest, RankingRequestFormat, RankingResponse, RankingSelector, UserRankRequest,
     UserRankResponse, UserRankSelector,
 };
-use crate::server::AppData;
 
 use actix_web::{error, web, Result};
 use async_trait::async_trait;
-use sql_client::streak::StreakClient;
+use sql_client::{streak::StreakClient, PgPool};
 
 pub(crate) struct StreakRanking;
 
 #[async_trait(?Send)]
-impl<A: Sync + Send + Clone + 'static> RankingSelector<A> for StreakRanking {
+impl RankingSelector for StreakRanking {
     type Request = RankingRequest;
     type Response = RankingResponse;
-    async fn fetch(
-        data: web::Data<AppData<A>>,
-        query: Self::Request,
-    ) -> Result<Vec<Self::Response>> {
-        let conn = data.pg_pool.clone();
-        let ranking = conn
+    async fn fetch(pool: web::Data<PgPool>, query: Self::Request) -> Result<Vec<Self::Response>> {
+        let ranking = pool
             .load_streak_count_in_range(query.range())
             .await
             .map_err(error::ErrorInternalServerError)?;
@@ -34,19 +29,18 @@ impl<A: Sync + Send + Clone + 'static> RankingSelector<A> for StreakRanking {
 }
 
 #[async_trait(?Send)]
-impl<A: Sync + Send + Clone + 'static> UserRankSelector<A> for StreakRanking {
+impl UserRankSelector for StreakRanking {
     type Request = UserRankRequest;
     type Response = UserRankResponse;
     async fn fetch(
-        data: web::Data<AppData<A>>,
+        pool: web::Data<PgPool>,
         query: Self::Request,
     ) -> Result<Option<Self::Response>> {
-        let conn = data.pg_pool.clone();
-        let count = match conn.get_users_streak_count(&query.user).await {
+        let count = match pool.get_users_streak_count(&query.user).await {
             Some(number) => number,
             None => return Ok(None),
         };
-        let rank = conn
+        let rank = pool
             .get_streak_count_rank(count)
             .await
             .map_err(error::ErrorInternalServerError)?;

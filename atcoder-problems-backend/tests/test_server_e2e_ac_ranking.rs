@@ -1,25 +1,9 @@
-use actix_web::{test, web, App, Result};
-use async_trait::async_trait;
-use atcoder_problems_backend::server::{
-    config_services, AppData, Authentication, GitHubUserResponse,
-};
-use reqwest::StatusCode;
+use actix_web::http::StatusCode;
+use actix_web::{test, web, App};
+use atcoder_problems_backend::server::config_services;
 use serde_json::{json, Value};
 
 pub mod utils;
-
-#[derive(Clone)]
-struct MockAuth;
-
-#[async_trait(?Send)]
-impl Authentication for MockAuth {
-    async fn get_token(&self, _: &str) -> Result<String> {
-        unimplemented!()
-    }
-    async fn get_user_id(&self, _: &str) -> Result<GitHubUserResponse> {
-        unimplemented!()
-    }
-}
 
 #[actix_web::test]
 async fn test_ac_ranking() {
@@ -37,11 +21,10 @@ async fn test_ac_ranking() {
     .await
     .unwrap();
 
-    let app_data = AppData::new(pg_pool, MockAuth);
     let mut app = test::init_service(
         App::new()
-            .app_data(web::Data::new(app_data))
-            .configure(config_services::<MockAuth>),
+            .app_data(web::Data::new(pg_pool.clone()))
+            .configure(config_services),
     )
     .await;
 
