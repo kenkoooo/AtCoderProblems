@@ -1,3 +1,5 @@
+use actix_web::test;
+use atcoder_problems_backend::server::config_services;
 use rand::Rng;
 use serde_json::Value;
 use sql_client::models::Submission;
@@ -47,42 +49,31 @@ async fn setup() -> u16 {
 
 #[actix_web::test]
 async fn test_user_submissions() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let submissions: Vec<Submission> = reqwest::get(url("/atcoder-api/results?user=u1", port))
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
+    let app = test::init_service(
+        actix_web::App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/results?user=u1")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
 
-    let response = reqwest::get(url("/atcoder-api/results?user=u2", port))
-        .await
-        .unwrap();
-    let submissions: Vec<Submission> = response.json().await.unwrap();
+    let response = test::TestRequest::get()
+        .uri("/atcoder-api/results?user=u2")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, response).await;
+
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
-
-    server.abort();
-    server.await.unwrap_err();
 }
 
 #[actix_web::test]
