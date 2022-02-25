@@ -21,7 +21,7 @@ async fn test_streak_ranking() {
 
     let app = test::init_service(
         App::new()
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+            .app_data(actix_web::web::Data::new(pg_pool))
             .configure(config_services),
     )
     .await;
