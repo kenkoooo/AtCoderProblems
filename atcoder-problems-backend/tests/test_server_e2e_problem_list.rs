@@ -1,3 +1,4 @@
+use actix_web::test;
 use atcoder_problems_backend::server::middleware::github_auth::{
     GithubAuthentication, GithubClient, GithubToken,
 };
@@ -196,50 +197,42 @@ async fn test_list() {
 }
 #[actix_web::test]
 async fn test_invalid_token() {
-    let port = setup().await;
     let mock_server = utils::start_mock_github_server(VALID_TOKEN);
     let mock_server_base_url = mock_server.base_url();
     let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
     let mock_api_server_base_url = mock_api_server.base_url();
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        let github =
-            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .wrap(GithubAuthentication::new(github.clone()))
-                .app_data(actix_web::web::Data::new(github.clone()))
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let response = reqwest::Client::new()
-        .get(url("/internal-api/list/my", port))
-        .header("Cookie", "token=invalid-token")
-        .send()
+    let github =
+        GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+
+    let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
         .await
         .unwrap();
+
+    let app = test::init_service(
+        actix_web::App::new()
+            .wrap(GithubAuthentication::new(github.clone()))
+            .app_data(actix_web::web::Data::new(github))
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .insert_header(("Cookie", "token=invalid-token"))
+        .to_request();
+    let response = test::call_service(&app, request).await;
+
     assert!(!response.status().is_success());
 
-    let response = reqwest::Client::new()
-        .post(url("/internal-api/list/create", port))
-        .header("Cookie", "token=invalid-token")
-        .send()
-        .await
-        .unwrap();
-    assert!(!response.status().is_success());
+    let request = test::TestRequest::post()
+        .uri("/internal-api/list/create")
+        .insert_header(("Cookie", "token=invalid-token"))
+        .to_request();
+    let response = test::call_service(&app, request).await;
 
-    server.abort();
-    server.await.unwrap_err();
+    assert!(!response.status().is_success());
 }
 
 #[actix_web::test]
