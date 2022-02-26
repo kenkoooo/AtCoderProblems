@@ -1,4 +1,4 @@
-use actix_web::test;
+use actix_web::{http::StatusCode, test};
 use atcoder_problems_backend::server::config_services;
 use rand::Rng;
 use serde_json::Value;
@@ -179,39 +179,34 @@ async fn test_submission_count() {
 
 #[actix_web::test]
 async fn test_invalid_path() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let response = reqwest::get(url("/atcoder-api/v3/from/", port))
-        .await
-        .unwrap();
-    assert_eq!(response.status(), 404);
+    let app = test::init_service(
+        actix_web::App::new()
+            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
 
-    let response = reqwest::get(url("/atcoder-api/results", port))
-        .await
-        .unwrap();
-    assert_eq!(response.status(), 400);
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/from/")
+        .to_request();
+    let response = test::call_service(&app, request).await;
 
-    let response = reqwest::get(url("/", port)).await.unwrap();
-    assert_eq!(response.status(), 404);
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
-    server.abort();
-    server.await.unwrap_err();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/results")
+        .to_request();
+    let response = test::call_service(&app, request).await;
+
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+
+    let request = test::TestRequest::get().uri("/").to_request();
+    let response = test::call_service(&app, request).await;
+
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
 }
 
 #[actix_web::test]
