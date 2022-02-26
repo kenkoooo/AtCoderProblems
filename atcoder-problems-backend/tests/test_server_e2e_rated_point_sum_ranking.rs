@@ -1,5 +1,4 @@
 use actix_web::{test, App};
-use rand::Rng;
 use reqwest::StatusCode;
 use serde_json::{json, Value};
 use sql_client::PgPool;
@@ -13,16 +12,6 @@ async fn prepare_data_set(conn: &PgPool) {
     .execute(conn)
     .await
     .unwrap();
-}
-
-fn url(path: &str, port: u16) -> String {
-    format!("http://localhost:{}{}", port, path)
-}
-
-async fn setup() -> u16 {
-    prepare_data_set(&utils::initialize_and_connect_to_test_sql().await).await;
-    let mut rng = rand::thread_rng();
-    rng.gen::<u16>() % 3000 + 3000
 }
 
 #[actix_web::test]
