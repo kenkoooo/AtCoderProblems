@@ -107,33 +107,20 @@ async fn test_rated_point_sum_ranking() {
 
 #[actix_web::test]
 async fn test_users_rated_point_sum_ranking() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user=u2",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json::<Value>()
-    .await
-    .unwrap();
+    let app = test::init_service(
+        actix_web::App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/rated_point_sum_rank?user=u2")
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
 
     assert_eq!(
         response,
@@ -143,15 +130,10 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user=u1",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json::<Value>()
-    .await
-    .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/rated_point_sum_rank?user=u1")
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
 
     assert_eq!(
         response,
@@ -161,15 +143,10 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user=u3",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json::<Value>()
-    .await
-    .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/rated_point_sum_rank?user=u3")
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
 
     assert_eq!(
         response,
@@ -179,15 +156,10 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user=U2",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json::<Value>()
-    .await
-    .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/rated_point_sum_rank?user=U2")
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
 
     assert_eq!(
         response,
@@ -197,15 +169,10 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user=U1",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json::<Value>()
-    .await
-    .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/rated_point_sum_rank?user=U1")
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
 
     assert_eq!(
         response,
@@ -215,15 +182,10 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user=U3",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json::<Value>()
-    .await
-    .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/rated_point_sum_rank?user=U3")
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
 
     assert_eq!(
         response,
@@ -233,15 +195,10 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/rated_point_sum_rank?user=not_exist",
-        port,
-    ))
-    .await
-    .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/rated_point_sum_rank?user=not_exist")
+        .to_request();
+    let response = test::call_service(&app, request).await;
 
-    assert_eq!(response.status(), 404);
-
-    server.abort();
-    server.await.unwrap_err();
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
 }
