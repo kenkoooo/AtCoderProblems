@@ -229,54 +229,54 @@ async fn test_health_check() {
 
 #[actix_web::test]
 async fn test_cors() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
+
+    let app = test::init_service(
+        actix_web::App::new()
+            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/from/100")
+        .to_request();
 
     assert_eq!(
-        reqwest::get(url("/atcoder-api/v3/from/100", port))
+        test::call_service(&app, request)
             .await
-            .unwrap()
-            .headers()
-            .get("access-control-allow-origin")
-            .unwrap(),
-        "*"
-    );
-    assert_eq!(
-        reqwest::get(url("/atcoder-api/v2/user_info?user=u1", port))
-            .await
-            .unwrap()
-            .headers()
-            .get("access-control-allow-origin")
-            .unwrap(),
-        "*"
-    );
-    assert_eq!(
-        reqwest::get(url("/atcoder-api/results?user=u1", port))
-            .await
-            .unwrap()
             .headers()
             .get("access-control-allow-origin")
             .unwrap(),
         "*"
     );
 
-    server.abort();
-    server.await.unwrap_err();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v2/user_info?user=u1")
+        .to_request();
+
+    assert_eq!(
+        test::call_service(&app, request)
+            .await
+            .headers()
+            .get("access-control-allow-origin")
+            .unwrap(),
+        "*"
+    );
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/results?user=u1")
+        .to_request();
+
+    assert_eq!(
+        test::call_service(&app, request)
+            .await
+            .headers()
+            .get("access-control-allow-origin")
+            .unwrap(),
+        "*"
+    );
 }
 
 #[actix_web::test]
