@@ -68,12 +68,11 @@ async fn test_list() {
     let token = cookie
         .to_str()
         .unwrap()
-        .split(";")
+        .split(';')
         .next()
         .unwrap()
-        .split("=")
-        .skip(1)
-        .next()
+        .split('=')
+        .nth(1)
         .unwrap();
     assert_eq!(token, VALID_TOKEN);
 
