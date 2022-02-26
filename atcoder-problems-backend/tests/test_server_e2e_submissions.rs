@@ -1,6 +1,5 @@
-use actix_web::{http::StatusCode, test};
+use actix_web::{http::StatusCode, test, App};
 use atcoder_problems_backend::server::config_services;
-use rand::Rng;
 use serde_json::Value;
 use sql_client::models::Submission;
 use sql_client::PgPool;
@@ -37,23 +36,13 @@ async fn prepare_data_set(conn: &PgPool) {
     .unwrap();
 }
 
-fn url(path: &str, port: u16) -> String {
-    format!("http://localhost:{}{}", port, path)
-}
-
-async fn setup() -> u16 {
-    prepare_data_set(&utils::initialize_and_connect_to_test_sql().await).await;
-    let mut rng = rand::thread_rng();
-    rng.gen::<u16>() % 30000 + 30000
-}
-
 #[actix_web::test]
 async fn test_user_submissions() {
     let pg_pool = utils::initialize_and_connect_to_test_sql().await;
     prepare_data_set(&pg_pool).await;
 
     let app = test::init_service(
-        actix_web::App::new()
+        App::new()
             .app_data(actix_web::web::Data::new(pg_pool))
             .configure(config_services),
     )
@@ -82,7 +71,7 @@ async fn test_user_submissions_fromtime() {
     prepare_data_set(&pg_pool).await;
 
     let app = test::init_service(
-        actix_web::App::new()
+        App::new()
             .app_data(actix_web::web::Data::new(pg_pool))
             .configure(atcoder_problems_backend::server::config_services),
     )
@@ -135,7 +124,7 @@ async fn test_time_submissions() {
     prepare_data_set(&pg_pool).await;
 
     let app = test::init_service(
-        actix_web::App::new()
+        App::new()
             .app_data(actix_web::web::Data::new(pg_pool))
             .configure(atcoder_problems_backend::server::config_services),
     )
@@ -156,8 +145,8 @@ async fn test_submission_count() {
     prepare_data_set(&pg_pool).await;
 
     let app = test::init_service(
-        actix_web::App::new()
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
             .configure(atcoder_problems_backend::server::config_services),
     )
     .await;
@@ -183,8 +172,8 @@ async fn test_invalid_path() {
     prepare_data_set(&pg_pool).await;
 
     let app = test::init_service(
-        actix_web::App::new()
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
             .configure(atcoder_problems_backend::server::config_services),
     )
     .await;
@@ -215,8 +204,8 @@ async fn test_health_check() {
     prepare_data_set(&pg_pool).await;
 
     let app = test::init_service(
-        actix_web::App::new()
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
             .configure(atcoder_problems_backend::server::config_services),
     )
     .await;
@@ -233,8 +222,8 @@ async fn test_cors() {
     prepare_data_set(&pg_pool).await;
 
     let app = test::init_service(
-        actix_web::App::new()
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
             .configure(atcoder_problems_backend::server::config_services),
     )
     .await;
@@ -285,8 +274,8 @@ async fn test_users_and_time() {
     prepare_data_set(&pg_pool).await;
 
     let app = test::init_service(
-        actix_web::App::new()
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
             .configure(atcoder_problems_backend::server::config_services),
     )
     .await;
