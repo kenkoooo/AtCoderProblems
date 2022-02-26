@@ -211,29 +211,20 @@ async fn test_invalid_path() {
 
 #[actix_web::test]
 async fn test_health_check() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let response = reqwest::get(url("/healthcheck", port)).await.unwrap();
-    assert_eq!(response.status(), 200);
+    let app = test::init_service(
+        actix_web::App::new()
+            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
 
-    server.abort();
-    server.await.unwrap_err();
+    let request = test::TestRequest::get().uri("/healthcheck").to_request();
+    let response = test::call_service(&app, request).await;
+
+    assert_eq!(response.status(), StatusCode::OK);
 }
 
 #[actix_web::test]
