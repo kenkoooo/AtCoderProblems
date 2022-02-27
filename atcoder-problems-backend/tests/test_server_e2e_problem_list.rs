@@ -213,7 +213,6 @@ async fn test_list_item() {
         .await;
 
     let cookie = Cookie::new("token", VALID_TOKEN);
-    // let cookie_header = format!("token={}", VALID_TOKEN);
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/create")
