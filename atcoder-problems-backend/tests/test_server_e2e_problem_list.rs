@@ -1,4 +1,4 @@
-use actix_web::{http::StatusCode, test};
+use actix_web::{cookie::Cookie, http::StatusCode, test};
 use atcoder_problems_backend::server::middleware::github_auth::{
     GithubAuthentication, GithubClient, GithubToken,
 };
@@ -51,9 +51,11 @@ async fn test_list() {
 
     assert_eq!(token, VALID_TOKEN);
 
+    let cookie = Cookie::new("token", token);
+
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .to_request();
     let response: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -61,7 +63,7 @@ async fn test_list() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/create")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .set_json(json!({"list_name":"a"}))
         .send_request(&app)
         .await;
@@ -73,7 +75,7 @@ async fn test_list() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .to_request();
     let response: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -91,7 +93,7 @@ async fn test_list() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/update")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .set_json(json!({
             "internal_list_id":internal_list_id,
             "name":"b"
@@ -103,7 +105,7 @@ async fn test_list() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .to_request();
     let response: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -137,7 +139,7 @@ async fn test_list() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/delete")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .set_json(json!({ "internal_list_id": internal_list_id }))
         .send_request(&app)
         .await;
@@ -146,7 +148,7 @@ async fn test_list() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie)
         .to_request();
     let response: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -173,9 +175,11 @@ async fn test_invalid_token() {
     )
     .await;
 
+    let cookie = Cookie::new("token", "invalid-token");
+
     let response = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", "token=invalid-token"))
+        .cookie(cookie.clone())
         .send_request(&app)
         .await;
 
@@ -183,7 +187,7 @@ async fn test_invalid_token() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/create")
-        .insert_header(("Cookie", "token=invalid-token"))
+        .cookie(cookie)
         .send_request(&app)
         .await;
 
@@ -216,11 +220,12 @@ async fn test_list_item() {
         .send_request(&app)
         .await;
 
-    let cookie_header = format!("token={}", VALID_TOKEN);
+    let cookie = Cookie::new("token", VALID_TOKEN);
+    // let cookie_header = format!("token={}", VALID_TOKEN);
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/create")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .set_json(json!({"list_name":"a"}))
         .send_request(&app)
         .await;
@@ -233,7 +238,7 @@ async fn test_list_item() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/item/add")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "internal_list_id": internal_list_id,
             "internal_user_id": "0",
@@ -246,7 +251,7 @@ async fn test_list_item() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .to_request();
     let list: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -263,7 +268,7 @@ async fn test_list_item() {
     );
     let response = test::TestRequest::post()
         .uri("/internal-api/list/item/update")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "internal_list_id": internal_list_id,
             "problem_id": "problem_1",
@@ -277,7 +282,7 @@ async fn test_list_item() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .to_request();
     let list: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -295,7 +300,7 @@ async fn test_list_item() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/item/delete")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "internal_list_id": internal_list_id,
             "problem_id": "problem_1"
@@ -307,7 +312,7 @@ async fn test_list_item() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie)
         .to_request();
     let list: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -350,11 +355,11 @@ async fn test_list_delete() {
         .send_request(&app)
         .await;
 
-    let cookie_header = format!("token={}", VALID_TOKEN);
+    let cookie = Cookie::new("token", VALID_TOKEN);
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/create")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .set_json(json!({"list_name":"a"}))
         .send_request(&app)
         .await;
@@ -367,7 +372,7 @@ async fn test_list_delete() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/item/add")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .set_json(json!({"internal_list_id":internal_list_id, "problem_id":"problem_1"}))
         .send_request(&app)
         .await;
@@ -376,7 +381,7 @@ async fn test_list_delete() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .to_request();
     let list: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -385,7 +390,7 @@ async fn test_list_delete() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/list/delete")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie.clone())
         .set_json(json!({ "internal_list_id": internal_list_id }))
         .send_request(&app)
         .await;
@@ -394,7 +399,7 @@ async fn test_list_delete() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
-        .insert_header(("Cookie", cookie_header.as_str()))
+        .cookie(cookie)
         .to_request();
     let list: Vec<Value> = test::call_and_read_body_json(&app, request).await;
 

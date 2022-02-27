@@ -1,4 +1,4 @@
-use actix_web::{http::StatusCode, test, App};
+use actix_web::{cookie::Cookie, http::StatusCode, test, App};
 use atcoder_problems_backend::server::{
     config_services,
     middleware::github_auth::{GithubAuthentication, GithubClient, GithubToken},
@@ -34,11 +34,11 @@ async fn test_virtual_contest() {
     let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::FOUND);
 
-    let cookie_header = format!("token={}", VALID_TOKEN);
+    let cookie = Cookie::new("token", VALID_TOKEN);
 
     let request = test::TestRequest::post()
         .uri("/internal-api/user/update")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "atcoder_user_id": "atcoder_user1"
         }))
@@ -48,7 +48,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/create")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "title": "contest title",
             "memo": "contest memo",
@@ -64,7 +64,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/user/update")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "atcoder_user_id": "atcoder_user1"
         }))
@@ -74,7 +74,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/update")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "id": contest_id,
             "title": "contest title",
@@ -89,7 +89,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/my")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .to_request();
     let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
@@ -113,7 +113,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/joined")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .to_request();
     let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
@@ -122,7 +122,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/join")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "contest_id": contest_id,
         }))
@@ -132,7 +132,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/joined")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .to_request();
     let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
@@ -156,7 +156,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/leave")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "contest_id": contest_id,
         }))
@@ -166,7 +166,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/joined")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .to_request();
     let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
@@ -175,7 +175,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/item/update")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "contest_id": contest_id,
             "problems": [{ "id": "problem_1", "point": 100 }],
@@ -186,7 +186,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/item/update")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "contest_id": contest_id,
             "problems": [{ "id": "problem_1", "point": 100 }, { "id": "problem_2" }],
@@ -197,7 +197,7 @@ async fn test_virtual_contest() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/join")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie)
         .set_json(json!({
             "contest_id": contest_id,
         }))
@@ -278,11 +278,11 @@ async fn test_virtual_contest_visibility() {
     let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::FOUND);
 
-    let cookie_header = format!("token={}", VALID_TOKEN);
+    let cookie = Cookie::new("token", VALID_TOKEN);
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/create")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "title": "visible",
             "memo": "",
@@ -307,7 +307,7 @@ async fn test_virtual_contest_visibility() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/update")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "id": contest_id,
             "title": "invisible",
@@ -331,7 +331,7 @@ async fn test_virtual_contest_visibility() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/create")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie.clone())
         .set_json(json!({
             "title": "invisible",
             "memo": "",
@@ -356,7 +356,7 @@ async fn test_virtual_contest_visibility() {
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/update")
-        .append_header(("Cookie", cookie_header.clone()))
+        .cookie(cookie)
         .set_json(json!({
             "id": contest_id,
             "title": "visible",

@@ -1,4 +1,4 @@
-use actix_web::{http::StatusCode, test};
+use actix_web::{cookie::Cookie, http::StatusCode, test};
 use atcoder_problems_backend::server::middleware::github_auth::{
     GithubAuthentication, GithubClient, GithubToken,
 };
@@ -35,9 +35,11 @@ async fn test_progress_reset() {
 
     assert_eq!(response.status(), StatusCode::FOUND);
 
+    let cookie = Cookie::new("token", token);
+
     let request = test::TestRequest::get()
         .uri("/internal-api/progress_reset/list")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .to_request();
     let response: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -50,7 +52,7 @@ async fn test_progress_reset() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/progress_reset/add")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .set_json(json!({"problem_id":"problem_1","reset_epoch_second":100}))
         .send_request(&app)
         .await;
@@ -59,7 +61,7 @@ async fn test_progress_reset() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/progress_reset/list")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .to_request();
     let response: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -75,7 +77,7 @@ async fn test_progress_reset() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/progress_reset/add")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .set_json(json!({"problem_id":"problem_1","reset_epoch_second":200}))
         .send_request(&app)
         .await;
@@ -84,7 +86,7 @@ async fn test_progress_reset() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/progress_reset/list")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .to_request();
     let response: Value = test::call_and_read_body_json(&app, request).await;
 
@@ -100,7 +102,7 @@ async fn test_progress_reset() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/progress_reset/add")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .set_json(json!({"problem_id":"problem_2","reset_epoch_second":200}))
         .send_request(&app)
         .await;
@@ -109,7 +111,7 @@ async fn test_progress_reset() {
 
     let response = test::TestRequest::post()
         .uri("/internal-api/progress_reset/delete")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie.clone())
         .set_json(json!({"problem_id":"problem_1"}))
         .send_request(&app)
         .await;
@@ -118,7 +120,7 @@ async fn test_progress_reset() {
 
     let request = test::TestRequest::get()
         .uri("/internal-api/progress_reset/list")
-        .insert_header(("Cookie", format!("token={}", token)))
+        .cookie(cookie)
         .to_request();
     let response: Value = test::call_and_read_body_json(&app, request).await;
 
