@@ -2,7 +2,6 @@ use actix_web::{cookie::Cookie, http::StatusCode, test};
 use atcoder_problems_backend::server::middleware::github_auth::{
     GithubAuthentication, GithubClient, GithubToken,
 };
-use reqwest::header::SET_COOKIE;
 use serde_json::{json, Value};
 
 pub mod utils;
@@ -38,20 +37,13 @@ async fn test_list() {
 
     assert!(response.status().is_redirection());
 
-    let cookie = response.headers().get(SET_COOKIE).unwrap();
-    let token = cookie
-        .to_str()
-        .unwrap()
-        .split(';')
-        .next()
-        .unwrap()
-        .split('=')
-        .nth(1)
+    let cookie = response
+        .response()
+        .cookies()
+        .find(|cookie| cookie.name() == "token")
         .unwrap();
 
-    assert_eq!(token, VALID_TOKEN);
-
-    let cookie = Cookie::new("token", token);
+    assert_eq!(cookie.value(), VALID_TOKEN);
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
