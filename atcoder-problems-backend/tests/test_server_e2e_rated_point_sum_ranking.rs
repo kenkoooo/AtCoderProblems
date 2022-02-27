@@ -72,10 +72,10 @@ async fn test_rated_point_sum_ranking() {
 
     assert!(response.as_array().unwrap().is_empty());
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/rated_point_sum_ranking?from=0&to=2000")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 
@@ -86,10 +86,10 @@ async fn test_rated_point_sum_ranking() {
 
     assert!(response.as_array().unwrap().is_empty());
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/rated_point_sum_ranking?from=-1&to=0")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 }
@@ -184,10 +184,10 @@ async fn test_users_rated_point_sum_ranking() {
         })
     );
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/user/rated_point_sum_rank?user=not_exist")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
 }

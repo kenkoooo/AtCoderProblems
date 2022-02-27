@@ -60,17 +60,17 @@ async fn test_streak_ranking() {
 
     assert!(response.as_array().unwrap().is_empty());
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/streak_ranking?from=0&to=2000")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/streak_ranking?from=-1&to=10")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 
@@ -88,17 +88,17 @@ async fn test_streak_ranking() {
 
     assert_eq!(response, json!({"count":2,"rank":0}));
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/user/streak_rank?user=does_not_exist")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/user/streak_rank?bad=request")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 }

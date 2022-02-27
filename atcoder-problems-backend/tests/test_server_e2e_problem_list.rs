@@ -31,10 +31,10 @@ async fn test_list() {
     )
     .await;
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_redirection());
 
@@ -86,15 +86,15 @@ async fn test_list() {
         ])
     );
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/update")
         .insert_header(("Cookie", format!("token={}", token)))
         .set_json(json!({
             "internal_list_id":internal_list_id,
             "name":"b"
         }))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success());
 
@@ -132,12 +132,12 @@ async fn test_list() {
         })
     );
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/delete")
         .insert_header(("Cookie", format!("token={}", token)))
         .set_json(json!({ "internal_list_id": internal_list_id }))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success());
 
@@ -170,19 +170,19 @@ async fn test_invalid_token() {
     )
     .await;
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/internal-api/list/my")
         .insert_header(("Cookie", "token=invalid-token"))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(!response.status().is_success());
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/create")
         .insert_header(("Cookie", "token=invalid-token"))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(!response.status().is_success());
 }
@@ -208,10 +208,10 @@ async fn test_list_item() {
     )
     .await;
 
-    let request = test::TestRequest::get()
+    test::TestRequest::get()
         .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
-        .to_request();
-    test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     let cookie_header = format!("token={}", VALID_TOKEN);
 
@@ -224,7 +224,7 @@ async fn test_list_item() {
 
     let internal_list_id = response["internal_list_id"].as_str().unwrap();
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/item/add")
         .insert_header(("Cookie", cookie_header.as_str()))
         .set_json(json!({
@@ -232,8 +232,8 @@ async fn test_list_item() {
             "internal_user_id": "0",
             "problem_id": "problem_1"
         }))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success(), "{:?}", response);
 
@@ -254,7 +254,7 @@ async fn test_list_item() {
             }
         ])
     );
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/item/update")
         .insert_header(("Cookie", cookie_header.as_str()))
         .set_json(json!({
@@ -263,8 +263,8 @@ async fn test_list_item() {
             "internal_user_id": "0",
             "memo": "memo_1"
         }))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success(), "{:?}", response);
 
@@ -286,15 +286,15 @@ async fn test_list_item() {
         ])
     );
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/item/delete")
         .insert_header(("Cookie", cookie_header.as_str()))
         .set_json(json!({
             "internal_list_id": internal_list_id,
             "problem_id": "problem_1"
         }))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success(), "{:?}", response);
 
@@ -338,10 +338,10 @@ async fn test_list_delete() {
     )
     .await;
 
-    let request = test::TestRequest::get()
+    test::TestRequest::get()
         .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
-        .to_request();
-    test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     let cookie_header = format!("token={}", VALID_TOKEN);
 
@@ -354,12 +354,12 @@ async fn test_list_delete() {
 
     let internal_list_id = value["internal_list_id"].as_str().unwrap();
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/item/add")
         .insert_header(("Cookie", cookie_header.as_str()))
         .set_json(json!({"internal_list_id":internal_list_id, "problem_id":"problem_1"}))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success(), "{:?}", response);
 
@@ -372,12 +372,12 @@ async fn test_list_delete() {
     assert_eq!(list[0]["items"][0]["problem_id"], "problem_1", "{:?}", list);
     assert_eq!(list[0]["items"][0]["memo"], "", "{:?}", list);
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/delete")
         .insert_header(("Cookie", cookie_header.as_str()))
         .set_json(json!({ "internal_list_id": internal_list_id }))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success());
 
@@ -411,17 +411,17 @@ async fn test_register_twice() {
     )
     .await;
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::FOUND);
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::FOUND);
 }

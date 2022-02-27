@@ -178,22 +178,21 @@ async fn test_invalid_path() {
     )
     .await;
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/from/")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/results")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 
-    let request = test::TestRequest::get().uri("/").to_request();
-    let response = test::call_service(&app, request).await;
+    let response = test::TestRequest::get().uri("/").send_request(&app).await;
 
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
 }
@@ -210,8 +209,10 @@ async fn test_health_check() {
     )
     .await;
 
-    let request = test::TestRequest::get().uri("/healthcheck").to_request();
-    let response = test::call_service(&app, request).await;
+    let response = test::TestRequest::get()
+        .uri("/healthcheck")
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::OK);
 }
@@ -228,39 +229,39 @@ async fn test_cors() {
     )
     .await;
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/from/100")
-        .to_request();
+        .send_request(&app)
+        .await;
 
     assert_eq!(
-        test::call_service(&app, request)
-            .await
+        response
             .headers()
             .get("access-control-allow-origin")
             .unwrap(),
         "*"
     );
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/v2/user_info?user=u1")
-        .to_request();
+        .send_request(&app)
+        .await;
 
     assert_eq!(
-        test::call_service(&app, request)
-            .await
+        response
             .headers()
             .get("access-control-allow-origin")
             .unwrap(),
         "*"
     );
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/atcoder-api/results?user=u1")
-        .to_request();
+        .send_request(&app)
+        .await;
 
     assert_eq!(
-        test::call_service(&app, request)
-            .await
+        response
             .headers()
             .get("access-control-allow-origin")
             .unwrap(),

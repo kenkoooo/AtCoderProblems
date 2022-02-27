@@ -28,10 +28,10 @@ async fn test_progress_reset() {
     )
     .await;
 
-    let request = test::TestRequest::get()
+    let response = test::TestRequest::get()
         .uri("/internal-api/authorize?code=a")
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert_eq!(response.status(), StatusCode::FOUND);
 
@@ -48,12 +48,12 @@ async fn test_progress_reset() {
         })
     );
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/progress_reset/add")
         .insert_header(("Cookie", format!("token={}", token)))
         .set_json(json!({"problem_id":"problem_1","reset_epoch_second":100}))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success());
 
@@ -73,12 +73,12 @@ async fn test_progress_reset() {
         })
     );
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/progress_reset/add")
         .insert_header(("Cookie", format!("token={}", token)))
         .set_json(json!({"problem_id":"problem_1","reset_epoch_second":200}))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success());
 
@@ -98,21 +98,21 @@ async fn test_progress_reset() {
         })
     );
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/progress_reset/add")
         .insert_header(("Cookie", format!("token={}", token)))
         .set_json(json!({"problem_id":"problem_2","reset_epoch_second":200}))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success());
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/progress_reset/delete")
         .insert_header(("Cookie", format!("token={}", token)))
         .set_json(json!({"problem_id":"problem_1"}))
-        .to_request();
-    let response = test::call_service(&app, request).await;
+        .send_request(&app)
+        .await;
 
     assert!(response.status().is_success());
 
