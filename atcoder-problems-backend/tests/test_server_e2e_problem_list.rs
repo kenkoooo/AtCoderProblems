@@ -25,8 +25,8 @@ async fn test_list() {
     let app = test::init_service(
         actix_web::App::new()
             .wrap(GithubAuthentication::new(github.clone()))
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
-            .app_data(actix_web::web::Data::new(github.clone()))
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .app_data(actix_web::web::Data::new(github))
             .configure(atcoder_problems_backend::server::config_services),
     )
     .await;
@@ -405,8 +405,8 @@ async fn test_register_twice() {
     let app = test::init_service(
         actix_web::App::new()
             .wrap(GithubAuthentication::new(github.clone()))
-            .app_data(actix_web::web::Data::new(github.clone()))
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+            .app_data(actix_web::web::Data::new(github))
+            .app_data(actix_web::web::Data::new(pg_pool))
             .configure(atcoder_problems_backend::server::config_services),
     )
     .await;
