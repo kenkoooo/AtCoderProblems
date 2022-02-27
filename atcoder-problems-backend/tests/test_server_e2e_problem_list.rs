@@ -59,14 +59,17 @@ async fn test_list() {
 
     assert_eq!(response, json!([]));
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/create")
         .insert_header(("Cookie", format!("token={}", token)))
         .set_json(json!({"list_name":"a"}))
-        .to_request();
-    let value: Value = test::call_and_read_body_json(&app, request).await;
+        .send_request(&app)
+        .await;
+    assert!(response.status().is_success());
 
-    let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
+    let value: Value = test::read_body_json(response).await;
+
+    let internal_list_id = value["internal_list_id"].as_str().unwrap();
 
     let request = test::TestRequest::get()
         .uri("/internal-api/list/my")
@@ -215,12 +218,16 @@ async fn test_list_item() {
 
     let cookie_header = format!("token={}", VALID_TOKEN);
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/create")
         .insert_header(("Cookie", cookie_header.as_str()))
         .set_json(json!({"list_name":"a"}))
-        .to_request();
-    let response: Value = test::call_and_read_body_json(&app, request).await;
+        .send_request(&app)
+        .await;
+
+    assert!(response.status().is_success());
+
+    let response: Value = test::read_body_json(response).await;
 
     let internal_list_id = response["internal_list_id"].as_str().unwrap();
 
@@ -345,12 +352,16 @@ async fn test_list_delete() {
 
     let cookie_header = format!("token={}", VALID_TOKEN);
 
-    let request = test::TestRequest::post()
+    let response = test::TestRequest::post()
         .uri("/internal-api/list/create")
         .insert_header(("Cookie", cookie_header.as_str()))
         .set_json(json!({"list_name":"a"}))
-        .to_request();
-    let value: Value = test::call_and_read_body_json(&app, request).await;
+        .send_request(&app)
+        .await;
+
+    assert!(response.status().is_success());
+
+    let value: Value = test::read_body_json(response).await;
 
     let internal_list_id = value["internal_list_id"].as_str().unwrap();
 
