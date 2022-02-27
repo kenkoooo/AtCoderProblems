@@ -22,8 +22,8 @@ async fn test_progress_reset() {
     let app = test::init_service(
         actix_web::App::new()
             .wrap(GithubAuthentication::new(github.clone()))
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
-            .app_data(actix_web::web::Data::new(github.clone()))
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .app_data(actix_web::web::Data::new(github))
             .configure(atcoder_problems_backend::server::config_services),
     )
     .await;

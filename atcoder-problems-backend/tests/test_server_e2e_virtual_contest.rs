@@ -19,11 +19,11 @@ async fn test_virtual_contest() {
     let pg_pool = utils::initialize_and_connect_to_test_sql().await;
     let github =
         GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
-    let mut app = test::init_service(
+    let app = test::init_service(
         App::new()
             .wrap(GithubAuthentication::new(github.clone()))
-            .app_data(actix_web::web::Data::new(github.clone()))
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+            .app_data(actix_web::web::Data::new(github))
+            .app_data(actix_web::web::Data::new(pg_pool))
             .configure(config_services),
     )
     .await;
@@ -31,7 +31,7 @@ async fn test_virtual_contest() {
     let request = test::TestRequest::get()
         .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::FOUND);
 
     let cookie_header = format!("token={}", VALID_TOKEN);
@@ -43,7 +43,7 @@ async fn test_virtual_contest() {
             "atcoder_user_id": "atcoder_user1"
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::post()
@@ -57,7 +57,7 @@ async fn test_virtual_contest() {
             "penalty_second": 0,
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     let contest_id = response["contest_id"].as_str().unwrap();
@@ -69,7 +69,7 @@ async fn test_virtual_contest() {
             "atcoder_user_id": "atcoder_user1"
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::post()
@@ -84,14 +84,14 @@ async fn test_virtual_contest() {
             "penalty_second": 300,
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/my")
         .append_header(("Cookie", cookie_header.clone()))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(
@@ -115,7 +115,7 @@ async fn test_virtual_contest() {
         .uri("/internal-api/contest/joined")
         .append_header(("Cookie", cookie_header.clone()))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!([]));
@@ -127,14 +127,14 @@ async fn test_virtual_contest() {
             "contest_id": contest_id,
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/joined")
         .append_header(("Cookie", cookie_header.clone()))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(
@@ -161,14 +161,14 @@ async fn test_virtual_contest() {
             "contest_id": contest_id,
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/joined")
         .append_header(("Cookie", cookie_header.clone()))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!([]));
@@ -181,7 +181,7 @@ async fn test_virtual_contest() {
             "problems": [{ "id": "problem_1", "point": 100 }],
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::post()
@@ -192,7 +192,7 @@ async fn test_virtual_contest() {
             "problems": [{ "id": "problem_1", "point": 100 }, { "id": "problem_2" }],
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::post()
@@ -202,13 +202,13 @@ async fn test_virtual_contest() {
             "contest_id": contest_id,
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::get()
         .uri(&format!("/internal-api/contest/get/{}", contest_id))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(
@@ -233,7 +233,7 @@ async fn test_virtual_contest() {
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/recent")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(
@@ -263,11 +263,11 @@ async fn test_virtual_contest_visibility() {
     let pg_pool = utils::initialize_and_connect_to_test_sql().await;
     let github =
         GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
-    let mut app = test::init_service(
+    let app = test::init_service(
         App::new()
             .wrap(GithubAuthentication::new(github.clone()))
-            .app_data(actix_web::web::Data::new(github.clone()))
-            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+            .app_data(actix_web::web::Data::new(github))
+            .app_data(actix_web::web::Data::new(pg_pool))
             .configure(config_services),
     )
     .await;
@@ -275,7 +275,7 @@ async fn test_virtual_contest_visibility() {
     let request = test::TestRequest::get()
         .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::FOUND);
 
     let cookie_header = format!("token={}", VALID_TOKEN);
@@ -291,7 +291,7 @@ async fn test_virtual_contest_visibility() {
             "penalty_second": 300,
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     let contest_id = response["contest_id"].as_str().unwrap();
@@ -299,7 +299,7 @@ async fn test_virtual_contest_visibility() {
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/recent")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(response[0]["id"].as_str().unwrap(), contest_id);
@@ -318,13 +318,13 @@ async fn test_virtual_contest_visibility() {
             "penalty_second": 300,
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/recent")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(response.as_array().unwrap().len(), 0);
@@ -341,7 +341,7 @@ async fn test_virtual_contest_visibility() {
             "penalty_second": 300,
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     let contest_id = response["contest_id"].as_str().unwrap();
@@ -349,7 +349,7 @@ async fn test_virtual_contest_visibility() {
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/recent")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(response.as_array().unwrap().len(), 0);
@@ -367,13 +367,13 @@ async fn test_virtual_contest_visibility() {
             "penalty_second": 300,
         }))
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
 
     let request = test::TestRequest::get()
         .uri("/internal-api/contest/recent")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(response.as_array().unwrap().len(), 1);

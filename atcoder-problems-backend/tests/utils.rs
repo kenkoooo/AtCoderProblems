@@ -14,7 +14,7 @@ pub fn get_sql_url_from_env() -> String {
 pub async fn initialize_and_connect_to_test_sql() -> PgPool {
     let conn = initialize_pool(get_sql_url_from_env()).await.unwrap();
 
-    for query_str in read_to_string(SQL_FILE).unwrap().split(";") {
+    for query_str in read_to_string(SQL_FILE).unwrap().split(';') {
         sql_client::query(query_str).execute(&conn).await.unwrap();
     }
     conn
