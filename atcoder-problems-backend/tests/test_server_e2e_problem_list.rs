@@ -23,47 +23,33 @@ async fn setup() -> u16 {
 
 #[actix_web::test]
 async fn test_list() {
-    let port = setup().await;
     let mock_server = utils::start_mock_github_server(VALID_TOKEN);
     let mock_server_base_url = mock_server.base_url();
     let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
     let mock_api_server_base_url = mock_api_server.base_url();
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        let github =
-            GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .wrap(GithubAuthentication::new(github.clone()))
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .app_data(actix_web::web::Data::new(github.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-    let client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .build()
-        .unwrap();
-    let response = client
-        .get(url(
-            &format!("/internal-api/authorize?code={}", VALID_CODE),
-            port,
-        ))
-        .send()
+    let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
         .await
         .unwrap();
+    let github =
+        GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+
+    let app = test::init_service(
+        actix_web::App::new()
+            .wrap(GithubAuthentication::new(github.clone()))
+            .app_data(actix_web::web::Data::new(pg_pool.clone()))
+            .app_data(actix_web::web::Data::new(github.clone()))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
+        .to_request();
+    let response = test::call_service(&app, request).await;
+
     assert!(response.status().is_redirection());
-    // https://docs.rs/reqwest/latest/reqwest/struct.Response.html#method.cookies
-    // これを使ったほうがいいかもしれない
+
     let cookie = response.headers().get(SET_COOKIE).unwrap();
     let token = cookie
         .to_str()
@@ -74,39 +60,32 @@ async fn test_list() {
         .split('=')
         .nth(1)
         .unwrap();
+
     assert_eq!(token, VALID_TOKEN);
 
-    let response = reqwest::Client::new()
-        .get(url("/internal-api/list/my", port))
-        .header("Cookie", format!("token={}", token))
-        .send()
-        .await
-        .unwrap()
-        .text()
-        .await
-        .unwrap();
-    assert_eq!(&response, "[]");
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .insert_header(("Cookie", format!("token={}", token)))
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
 
-    let response = reqwest::Client::new()
-        .post(url("/internal-api/list/create", port))
-        .header("Cookie", format!("token={}", token))
-        .json(&json!({"list_name":"a"}))
-        .send()
-        .await
-        .unwrap();
-    assert!(response.status().is_success(), "{:?}", response);
-    let value = response.json::<Value>().await.unwrap();
+    assert_eq!(response, json!([]));
+
+    let request = test::TestRequest::post()
+        .uri("/internal-api/list/create")
+        .insert_header(("Cookie", format!("token={}", token)))
+        .set_json(json!({"list_name":"a"}))
+        .to_request();
+    let value: Value = test::call_and_read_body_json(&app, request).await;
+
     let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
 
-    let response = reqwest::Client::new()
-        .get(url("/internal-api/list/my", port))
-        .header("Cookie", format!("token={}", token))
-        .send()
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .insert_header(("Cookie", format!("token={}", token)))
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(
         response,
         json!([
@@ -119,26 +98,24 @@ async fn test_list() {
         ])
     );
 
-    let response = reqwest::Client::new()
-        .post(url("/internal-api/list/update", port))
-        .header("Cookie", format!("token={}", token))
-        .json(&json!({
+    let request = test::TestRequest::post()
+        .uri("/internal-api/list/update")
+        .insert_header(("Cookie", format!("token={}", token)))
+        .set_json(json!({
             "internal_list_id":internal_list_id,
             "name":"b"
         }))
-        .send()
-        .await
-        .unwrap();
+        .to_request();
+    let response = test::call_service(&app, request).await;
+
     assert!(response.status().is_success());
-    let response = reqwest::Client::new()
-        .get(url("/internal-api/list/my", port))
-        .header("Cookie", format!("token={}", token))
-        .send()
-        .await
-        .unwrap()
-        .json::<Value>()
-        .await
-        .unwrap();
+
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .insert_header(("Cookie", format!("token={}", token)))
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(
         response,
         json!([
@@ -151,15 +128,11 @@ async fn test_list() {
         ])
     );
 
-    let response = reqwest::get(url(
-        &format!("/internal-api/list/get/{}", internal_list_id),
-        port,
-    ))
-    .await
-    .unwrap()
-    .json::<Value>()
-    .await
-    .unwrap();
+    let request = test::TestRequest::get()
+        .uri(&format!("/internal-api/list/get/{}", internal_list_id))
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(
         response,
         json!(
@@ -171,28 +144,22 @@ async fn test_list() {
         })
     );
 
-    let response = reqwest::Client::new()
-        .post(url("/internal-api/list/delete", port))
-        .header("Cookie", format!("token={}", token))
-        .json(&json!({ "internal_list_id": internal_list_id }))
-        .send()
-        .await
-        .unwrap();
+    let request = test::TestRequest::post()
+        .uri("/internal-api/list/delete")
+        .insert_header(("Cookie", format!("token={}", token)))
+        .set_json(json!({ "internal_list_id": internal_list_id }))
+        .to_request();
+    let response = test::call_service(&app, request).await;
+
     assert!(response.status().is_success());
 
-    let response = reqwest::Client::new()
-        .get(url("/internal-api/list/my", port))
-        .header("Cookie", format!("token={}", token))
-        .send()
-        .await
-        .unwrap()
-        .text()
-        .await
-        .unwrap();
-    assert_eq!(&response, "[]");
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .insert_header(("Cookie", format!("token={}", token)))
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
 
-    server.abort();
-    server.await.unwrap_err();
+    assert_eq!(response, json!([]));
 }
 #[actix_web::test]
 async fn test_invalid_token() {
