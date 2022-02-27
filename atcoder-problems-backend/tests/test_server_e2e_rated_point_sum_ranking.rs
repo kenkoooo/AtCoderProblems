@@ -68,9 +68,9 @@ async fn test_rated_point_sum_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/rated_point_sum_ranking?from=10&to=20")
         .to_request();
-    let response: Value = test::call_and_read_body_json(&app, request).await;
+    let response: Vec<Value> = test::call_and_read_body_json(&app, request).await;
 
-    assert!(response.as_array().unwrap().is_empty());
+    assert!(response.is_empty());
 
     let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/rated_point_sum_ranking?from=0&to=2000")
@@ -82,9 +82,9 @@ async fn test_rated_point_sum_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/rated_point_sum_ranking?from=1&to=0")
         .to_request();
-    let response: Value = test::call_and_read_body_json(&app, request).await;
+    let response: Vec<Value> = test::call_and_read_body_json(&app, request).await;
 
-    assert!(response.as_array().unwrap().is_empty());
+    assert!(response.is_empty());
 
     let response = test::TestRequest::get()
         .uri("/atcoder-api/v3/rated_point_sum_ranking?from=-1&to=0")

@@ -385,9 +385,9 @@ async fn test_list_delete() {
         .uri("/internal-api/list/my")
         .insert_header(("Cookie", cookie_header.as_str()))
         .to_request();
-    let list: Value = test::call_and_read_body_json(&app, request).await;
+    let list: Vec<Value> = test::call_and_read_body_json(&app, request).await;
 
-    assert!(list.as_array().unwrap().is_empty());
+    assert!(list.is_empty());
 }
 
 #[actix_web::test]
