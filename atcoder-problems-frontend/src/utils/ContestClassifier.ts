@@ -49,6 +49,10 @@ export const classifyContest = (contest: Contest): ContestCategory => {
     return "AGC";
   }
 
+  if (/^ahc\d{3}$/.exec(contest.id)) {
+    return "AHC";
+  }
+
   if (isRatedContest(contest)) {
     return classifyOtherRatedContest(contest);
   }
@@ -63,9 +67,6 @@ export const classifyContest = (contest: Contest): ContestCategory => {
     return "JAG";
   }
 
-  if (/^ahc\d{3}$/.exec(contest.id)) {
-    return "AHC";
-  }
   if (
     /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
       contest.title
