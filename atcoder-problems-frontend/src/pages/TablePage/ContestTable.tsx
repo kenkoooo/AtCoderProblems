@@ -115,7 +115,10 @@ export const ContestTable: React.FC<Props> = (props) => {
                             isExperimentalDifficulty={
                               model ? model.is_experimental : false
                             }
-                            showDifficultyUnavailable={isRatedContest(contest)}
+                            showDifficultyUnavailable={isRatedContest(
+                              contest,
+                              problemInfo.length
+                            )}
                             showDifficulty={props.showDifficulty}
                             problemId={problem.id}
                             problemTitle={problem.title}

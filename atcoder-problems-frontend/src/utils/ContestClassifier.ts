@@ -20,15 +20,14 @@ export type ContestCategory = typeof ContestCategories[number];
 
 export const AGC_001_START = 1468670400;
 
-const isAhc = (contestId: string): boolean => {
-  return Boolean(/^ahc\d{3}$/.exec(contestId));
-};
-
-export const isRatedContest = (contest: Contest): boolean => {
+export const isRatedContest = (
+  contest: Contest,
+  problemCount: number
+): boolean => {
   return (
     contest.rate_change !== "-" &&
     contest.start_epoch_second >= AGC_001_START &&
-    !isAhc(contest.id)
+    problemCount >= 2
   );
 };
 
@@ -44,7 +43,10 @@ const classifyOtherRatedContest = (contest: Contest): ContestCategory => {
   return "ARC-Like";
 };
 
-export const classifyContest = (contest: Contest): ContestCategory => {
+export const classifyContest = (
+  contest: Contest,
+  problemCount = 100
+): ContestCategory => {
   if (/^abc\d{3}$/.exec(contest.id)) {
     return "ABC";
   }
@@ -54,8 +56,11 @@ export const classifyContest = (contest: Contest): ContestCategory => {
   if (/^agc\d{3}$/.exec(contest.id)) {
     return "AGC";
   }
+  if (/^ahc\d{3}$/.exec(contest.id)) {
+    return "AHC";
+  }
 
-  if (isRatedContest(contest)) {
+  if (isRatedContest(contest, problemCount)) {
     return classifyOtherRatedContest(contest);
   }
 
@@ -69,9 +74,6 @@ export const classifyContest = (contest: Contest): ContestCategory => {
     return "JAG";
   }
 
-  if (isAhc(contest.id)) {
-    return "AHC";
-  }
   if (
     /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
       contest.title
