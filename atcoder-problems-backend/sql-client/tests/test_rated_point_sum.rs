@@ -13,6 +13,7 @@ const USER_ID2: &str = "user2";
 const USER_ID3: &str = "user3";
 const USER_ID4: &str = "user4";
 const RATED_CONTEST: &str = "rated_contest";
+const HEURISTIC_CONTEST: &str = "heuristic_contest";
 const UNRATED_CONTEST1: &str = "unrated_contest1";
 const UNRATED_CONTEST2: &str = "unrated_contest2";
 
@@ -55,6 +56,13 @@ async fn setup_contests(pool: &PgPool) {
             duration_second: 1000,
             title: "Unrated New Contest".to_string(),
             rate_change: UNRATED_STATE.to_string(),
+        },
+        Contest {
+            id: HEURISTIC_CONTEST.to_string(),
+            start_epoch_second: FIRST_AGC_EPOCH_SECOND,
+            duration_second: 1000,
+            title: "Heuristic Contest".to_string(),
+            rate_change: "All".to_string(),
         },
     ];
     for contest in contests {
@@ -101,6 +109,18 @@ async fn setup_contest_problems(pool: &PgPool) {
         ContestProblem {
             problem_id: "problem5".to_string(),
             contest_id: SAME_CONTEST_UNRATED.to_string(),
+        },
+        ContestProblem {
+            problem_id: "problem6".to_string(),
+            contest_id: SAME_CONTEST_RATED.to_string(),
+        },
+        ContestProblem {
+            problem_id: "problem6".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+        },
+        ContestProblem {
+            problem_id: "heuristic-problem".to_string(),
+            contest_id: HEURISTIC_CONTEST.to_string(),
         },
     ];
 
@@ -173,6 +193,14 @@ async fn test_update_rated_point_sum() {
             point: 100.0,
             problem_id: "problem5".to_string(),
             contest_id: SAME_CONTEST_UNRATED.to_string(),
+            ..Default::default()
+        },
+        Submission {
+            id: 6,
+            user_id: USER_ID.to_string(),
+            point: 1000000.0,
+            problem_id: "heuristic-problem".to_string(),
+            contest_id: HEURISTIC_CONTEST.to_string(),
             ..Default::default()
         },
     ];

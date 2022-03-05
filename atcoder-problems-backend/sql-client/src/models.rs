@@ -1,4 +1,3 @@
-use crate::{FIRST_AGC_EPOCH_SECOND, UNRATED_STATE};
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgRow;
 use sqlx::FromRow;
@@ -11,12 +10,6 @@ pub struct Contest {
     pub duration_second: i64,
     pub title: String,
     pub rate_change: String,
-}
-
-impl Contest {
-    pub fn is_rated(&self) -> bool {
-        self.start_epoch_second >= FIRST_AGC_EPOCH_SECOND && self.rate_change != UNRATED_STATE
-    }
 }
 
 #[derive(Debug, Eq, PartialEq, Serialize)]
