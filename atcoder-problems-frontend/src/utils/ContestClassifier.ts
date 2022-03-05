@@ -45,7 +45,7 @@ const classifyOtherRatedContest = (contest: Contest): ContestCategory => {
 
 export const classifyContest = (
   contest: Contest,
-  problemCount = 100
+  problemCount = 100 // TODO: This function can not classify a non-AHC heuristic contest with this default parameter.
 ): ContestCategory => {
   if (/^abc\d{3}$/.exec(contest.id)) {
     return "ABC";
