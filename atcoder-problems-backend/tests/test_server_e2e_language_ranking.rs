@@ -26,9 +26,9 @@ async fn prepare_data_set(conn: &PgPool) {
 async fn test_language_ranking() {
     let conn = utils::initialize_and_connect_to_test_sql().await;
     prepare_data_set(&conn).await;
-    let mut app = test::init_service(
+    let app = test::init_service(
         App::new()
-            .app_data(web::Data::new(conn.clone()))
+            .app_data(web::Data::new(conn))
             .configure(config_services),
     )
     .await;
@@ -36,7 +36,7 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/language_ranking?from=1&to=3&language=lang2")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(
@@ -50,7 +50,7 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/language_ranking?from=0&to=1&language=lang2")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(
@@ -63,7 +63,7 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/language_ranking?from=10&to=20&language=lang2")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert!(response.as_array().unwrap().is_empty());
@@ -71,7 +71,7 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/language_ranking?from=0&to=1&language=does_not_exist")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert!(response.as_array().unwrap().is_empty());
@@ -79,13 +79,13 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/language_ranking?from=0&to=2000&language=lang2")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), 400);
 
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/language_ranking?from=1&to=0&language=lang2")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert!(response.as_array().unwrap().is_empty());
@@ -93,13 +93,13 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/language_ranking?from=-1&to=0&language=lang2")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), 400);
 
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/user/language_rank?user=user1")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(
@@ -126,7 +126,7 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/user/language_rank?user=user2")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(
@@ -148,7 +148,7 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/user/language_rank?user=user3")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(
@@ -170,7 +170,7 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/user/language_rank?user=does_not_exist")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!([]));
@@ -178,6 +178,6 @@ async fn test_language_ranking() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/user/language_rank?bad=request")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), 400);
 }

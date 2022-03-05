@@ -34,7 +34,7 @@ async fn insert_data_set2(conn: &PgPool) {
 #[actix_web::test]
 async fn test_language_count() {
     let conn = utils::initialize_and_connect_to_test_sql().await;
-    let mut app = test::init_service(
+    let app = test::init_service(
         App::new()
             .app_data(web::Data::new(conn.clone()))
             .configure(config_services),
@@ -45,7 +45,7 @@ async fn test_language_count() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/language_list")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!(["lang1", "lang2", "lang3"]));
@@ -54,7 +54,7 @@ async fn test_language_count() {
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/language_list")
         .to_request();
-    let response = test::call_service(&mut app, request).await;
+    let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
     assert_eq!(response, json!(["lang1", "lang2", "lang3", "lang4"]));
