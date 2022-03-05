@@ -198,9 +198,9 @@ export const useProblems = () => {
   return useSWRData(url, (url) => fetchTypedArray(url, isProblem)).data;
 };
 
-export const useContestToProblems = () => {
+const useContestProblemList = () => {
   const url = STATIC_API_BASE_URL + "/contest-problem.json";
-  const contestIdToProblemIdArray = useSWRData(url, (url) =>
+  return useSWRData(url, (url) =>
     fetchTypedArray(
       url,
       (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
@@ -208,6 +208,10 @@ export const useContestToProblems = () => {
         hasPropertyAsType(obj, "problem_id", isString)
     )
   );
+};
+
+export const useContestToProblems = () => {
+  const contestIdToProblemIdArray = useContestProblemList();
   const problemMap = useProblemMap();
   return contestIdToProblemIdArray.data?.reduce(
     (map, { contest_id, problem_id }) => {
@@ -224,15 +228,7 @@ export const useContestToProblems = () => {
 };
 
 export const useContestToMergedProblems = () => {
-  const url = STATIC_API_BASE_URL + "/contest-problem.json";
-  const contestIdToProblemIdArray = useSWRData(url, (url) =>
-    fetchTypedArray(
-      url,
-      (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
-        hasPropertyAsType(obj, "contest_id", isString) &&
-        hasPropertyAsType(obj, "problem_id", isString)
-    )
-  );
+  const contestIdToProblemIdArray = useContestProblemList();
   const { data: problemMap } = useMergedProblemMap();
   return contestIdToProblemIdArray.data?.reduce(
     (map, { contest_id, problem_id }) => {

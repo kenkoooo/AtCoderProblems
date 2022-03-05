@@ -77,8 +77,8 @@ export const AchievementBlock: React.FC<Props> = (props) => {
   const ratedProblemIds = new Set(
     contests
       .flatMap((contest) => {
-        const isRated = isRatedContest(contest);
         const contestProblems = contestToProblems.get(contest.id);
+        const isRated = isRatedContest(contest, contestProblems?.length ?? 0);
         return isRated && contestProblems ? contestProblems : [];
       })
       .map((problem) => problem.id)
