@@ -20,9 +20,15 @@ export type ContestCategory = typeof ContestCategories[number];
 
 export const AGC_001_START = 1468670400;
 
+const isAhc = (contestId: string): boolean => {
+  return Boolean(/^ahc\d{3}$/.exec(contestId));
+};
+
 export const isRatedContest = (contest: Contest): boolean => {
   return (
-    contest.rate_change !== "-" && contest.start_epoch_second >= AGC_001_START
+    contest.rate_change !== "-" &&
+    contest.start_epoch_second >= AGC_001_START &&
+    !isAhc(contest.id)
   );
 };
 
@@ -49,10 +55,6 @@ export const classifyContest = (contest: Contest): ContestCategory => {
     return "AGC";
   }
 
-  if (/^ahc\d{3}$/.exec(contest.id)) {
-    return "AHC";
-  }
-
   if (isRatedContest(contest)) {
     return classifyOtherRatedContest(contest);
   }
@@ -67,6 +69,9 @@ export const classifyContest = (contest: Contest): ContestCategory => {
     return "JAG";
   }
 
+  if (isAhc(contest.id)) {
+    return "AHC";
+  }
   if (
     /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
       contest.title
