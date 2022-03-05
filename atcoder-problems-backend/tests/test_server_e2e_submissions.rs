@@ -1,4 +1,5 @@
-use rand::Rng;
+use actix_web::{http::StatusCode, test, App};
+use atcoder_problems_backend::server::config_services;
 use serde_json::Value;
 use sql_client::models::Submission;
 use sql_client::PgPool;
@@ -35,358 +36,257 @@ async fn prepare_data_set(conn: &PgPool) {
     .unwrap();
 }
 
-fn url(path: &str, port: u16) -> String {
-    format!("http://localhost:{}{}", port, path)
-}
-
-async fn setup() -> u16 {
-    prepare_data_set(&utils::initialize_and_connect_to_test_sql().await).await;
-    let mut rng = rand::thread_rng();
-    rng.gen::<u16>() % 30000 + 30000
-}
-
 #[actix_web::test]
 async fn test_user_submissions() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let submissions: Vec<Submission> = reqwest::get(url("/atcoder-api/results?user=u1", port))
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/results?user=u1")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
 
-    let response = reqwest::get(url("/atcoder-api/results?user=u2", port))
-        .await
-        .unwrap();
-    let submissions: Vec<Submission> = response.json().await.unwrap();
+    let response = test::TestRequest::get()
+        .uri("/atcoder-api/results?user=u2")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, response).await;
+
     assert_eq!(submissions.len(), 5);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
-
-    server.abort();
-    server.await.unwrap_err();
 }
 
 #[actix_web::test]
 async fn test_user_submissions_fromtime() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let submissions: Vec<Submission> = reqwest::get(url(
-        "/atcoder-api/v3/user/submissions?user=u1&from_second=3",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json()
-    .await
-    .unwrap();
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/submissions?user=u1&from_second=3")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(submissions.len(), 2);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/submissions?user=u2&from_second=6",
-        port,
-    ))
-    .await
-    .unwrap();
-    let submissions: Vec<Submission> = response.json().await.unwrap();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/submissions?user=u2&from_second=6")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(submissions.len(), 3);
     assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
     assert_eq!(submissions[0].epoch_second, 6);
     assert_eq!(submissions[1].epoch_second, 7);
     assert_eq!(submissions[2].epoch_second, 200);
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/submissions?user=u3&from_second=0",
-        port,
-    ))
-    .await
-    .unwrap();
-    let submissions: Vec<Submission> = response.json().await.unwrap();
-    assert_eq!(submissions.len(), 0);
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/submissions?user=u3&from_second=0")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/submissions?user=u1&from_second=-30",
-        port,
-    ))
-    .await
-    .unwrap();
-    let submissions: Vec<Submission> = response.json().await.unwrap();
+    assert!(submissions.is_empty());
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/submissions?user=u1&from_second=-30")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(submissions.len(), 5);
 
-    let response = reqwest::get(url(
-        "/atcoder-api/v3/user/submissions?user=u2&from_second=3000",
-        port,
-    ))
-    .await
-    .unwrap();
-    let submissions: Vec<Submission> = response.json().await.unwrap();
-    assert_eq!(submissions.len(), 0);
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/submissions?user=u2&from_second=3000")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
 
-    server.abort();
-    server.await.unwrap_err();
+    assert!(submissions.is_empty());
 }
 
 #[actix_web::test]
 async fn test_time_submissions() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let submissions: Vec<Submission> = reqwest::get(url("/atcoder-api/v3/from/100", port))
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/from/100")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(submissions.len(), 2);
     assert!(submissions.iter().all(|s| s.epoch_second >= 100));
-
-    server.abort();
-    server.await.unwrap_err();
 }
 
 #[actix_web::test]
 async fn test_submission_count() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let response: Value = reqwest::get(url(
-        r"/atcoder-api/v3/user/submission_count?user=u1&from_second=1&to_second=4",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json()
-    .await
-    .unwrap();
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/submission_count?user=u1&from_second=1&to_second=4")
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(response["count"], serde_json::json!(3));
-    let response: Value = reqwest::get(url(
-        r"/atcoder-api/v3/user/submission_count?user=u1&from_second=1&to_second=3",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json()
-    .await
-    .unwrap();
-    assert_eq!(response["count"], serde_json::json!(2));
 
-    server.abort();
-    server.await.unwrap_err();
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/user/submission_count?user=u1&from_second=1&to_second=3")
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
+    assert_eq!(response["count"], serde_json::json!(2));
 }
 
 #[actix_web::test]
 async fn test_invalid_path() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let response = reqwest::get(url("/atcoder-api/v3/from/", port))
-        .await
-        .unwrap();
-    assert_eq!(response.status(), 404);
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
 
-    let response = reqwest::get(url("/atcoder-api/results", port))
-        .await
-        .unwrap();
-    assert_eq!(response.status(), 400);
+    let response = test::TestRequest::get()
+        .uri("/atcoder-api/v3/from/")
+        .send_request(&app)
+        .await;
 
-    let response = reqwest::get(url("/", port)).await.unwrap();
-    assert_eq!(response.status(), 404);
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
-    server.abort();
-    server.await.unwrap_err();
+    let response = test::TestRequest::get()
+        .uri("/atcoder-api/results")
+        .send_request(&app)
+        .await;
+
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+
+    let response = test::TestRequest::get().uri("/").send_request(&app).await;
+
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
 }
 
 #[actix_web::test]
 async fn test_health_check() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
 
-    let response = reqwest::get(url("/healthcheck", port)).await.unwrap();
-    assert_eq!(response.status(), 200);
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
 
-    server.abort();
-    server.await.unwrap_err();
+    let response = test::TestRequest::get()
+        .uri("/healthcheck")
+        .send_request(&app)
+        .await;
+
+    assert_eq!(response.status(), StatusCode::OK);
 }
 
 #[actix_web::test]
 async fn test_cors() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
+
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let response = test::TestRequest::get()
+        .uri("/atcoder-api/v3/from/100")
+        .send_request(&app)
+        .await;
 
     assert_eq!(
-        reqwest::get(url("/atcoder-api/v3/from/100", port))
-            .await
-            .unwrap()
-            .headers()
-            .get("access-control-allow-origin")
-            .unwrap(),
-        "*"
-    );
-    assert_eq!(
-        reqwest::get(url("/atcoder-api/v2/user_info?user=u1", port))
-            .await
-            .unwrap()
-            .headers()
-            .get("access-control-allow-origin")
-            .unwrap(),
-        "*"
-    );
-    assert_eq!(
-        reqwest::get(url("/atcoder-api/results?user=u1", port))
-            .await
-            .unwrap()
+        response
             .headers()
             .get("access-control-allow-origin")
             .unwrap(),
         "*"
     );
 
-    server.abort();
-    server.await.unwrap_err();
+    let response = test::TestRequest::get()
+        .uri("/atcoder-api/v2/user_info?user=u1")
+        .send_request(&app)
+        .await;
+
+    assert_eq!(
+        response
+            .headers()
+            .get("access-control-allow-origin")
+            .unwrap(),
+        "*"
+    );
+
+    let response = test::TestRequest::get()
+        .uri("/atcoder-api/results?user=u1")
+        .send_request(&app)
+        .await;
+
+    assert_eq!(
+        response
+            .headers()
+            .get("access-control-allow-origin")
+            .unwrap(),
+        "*"
+    );
 }
 
 #[actix_web::test]
 async fn test_users_and_time() {
-    let port = setup().await;
-    let server = actix_web::rt::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        actix_web::HttpServer::new(move || {
-            actix_web::App::new()
-                .app_data(actix_web::web::Data::new(pg_pool.clone()))
-                .configure(atcoder_problems_backend::server::config_services)
-        })
-        .bind(("0.0.0.0", port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
-    });
-    actix_web::rt::time::sleep(std::time::Duration::from_millis(1000)).await;
-    let submissions: Vec<Submission> = reqwest::get(url(
-        "/atcoder-api/v3/users_and_time?users=u1,u2&problems=p1&from=100&to=200",
-        port,
-    ))
-    .await
-    .unwrap()
-    .json()
-    .await
-    .unwrap();
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+    prepare_data_set(&pg_pool).await;
+
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let request = test::TestRequest::get()
+        .uri("/atcoder-api/v3/users_and_time?users=u1,u2&problems=p1&from=100&to=200")
+        .to_request();
+    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(submissions.len(), 2);
     assert_eq!(submissions.iter().filter(|s| &s.user_id == "u1").count(), 1);
     assert_eq!(submissions.iter().filter(|s| &s.user_id == "u2").count(), 1);
-
-    server.abort();
-    server.await.unwrap_err();
 }
