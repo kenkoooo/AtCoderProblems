@@ -21,9 +21,17 @@ impl RatedPointSumClient for PgPool {
     async fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> Result<()> {
         let rated_contest_ids_fut = sqlx::query(
             r"
-            SELECT id FROM contests
-            WHERE start_epoch_second >= $1
-            AND rate_change != $2
+            SELECT contests.id FROM
+            (
+                SELECT COUNT(*) AS problem_count, contest_id
+                FROM contest_problem
+                GROUP BY contest_id
+            ) AS contest_problem_count
+            JOIN contests ON contests.id=contest_problem_count.contest_id
+            WHERE 
+                contests.start_epoch_second >= $1
+                AND contests.rate_change != $2
+                AND contest_problem_count.problem_count >= 2
             ",
         )
         .bind(FIRST_AGC_EPOCH_SECOND)
