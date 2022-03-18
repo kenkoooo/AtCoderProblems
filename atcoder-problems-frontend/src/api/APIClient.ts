@@ -323,8 +323,15 @@ export const useVirtualContestSubmissions = (
     return submissionChunks.flatMap((x) => x);
   };
 
+  const custom_key =
+    "useVirtualContestSubmissions&" +
+    (users.length === 0
+      ? "empty"
+      : users.length === 1
+      ? users[0]
+      : "multiuser");
   return useSWRData(
-    "useVirtualContestSubmissions",
+    custom_key,
     () => (users.length > 0 ? fetcher() : Promise.resolve([])),
     {
       refreshInterval,
