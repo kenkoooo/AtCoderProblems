@@ -2,7 +2,6 @@ use crate::models::{ContestProblem, Submission, UserSum};
 use crate::{PgPool, FIRST_AGC_EPOCH_SECOND, MAX_INSERT_ROWS, UNRATED_STATE};
 use anyhow::Result;
 use async_trait::async_trait;
-use futures::try_join;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
@@ -22,9 +21,17 @@ impl RatedPointSumClient for PgPool {
     async fn update_rated_point_sum(&self, ac_submissions: &[Submission]) -> Result<()> {
         let rated_contest_ids_fut = sqlx::query(
             r"
-            SELECT id FROM contests
-            WHERE start_epoch_second >= $1
-            AND rate_change != $2
+            SELECT contests.id FROM
+            (
+                SELECT COUNT(*) AS problem_count, contest_id
+                FROM contest_problem
+                GROUP BY contest_id
+            ) AS contest_problem_count
+            JOIN contests ON contests.id=contest_problem_count.contest_id
+            WHERE 
+                contests.start_epoch_second >= $1
+                AND contests.rate_change != $2
+                AND contest_problem_count.problem_count >= 2
             ",
         )
         .bind(FIRST_AGC_EPOCH_SECOND)
@@ -45,7 +52,7 @@ impl RatedPointSumClient for PgPool {
                 .fetch_all(self);
 
         let (rated_contest_ids, rated_problem_ids) =
-            try_join!(rated_contest_ids_fut, rated_problem_ids_fut)?;
+            tokio::try_join!(rated_contest_ids_fut, rated_problem_ids_fut)?;
 
         let rated_contest_ids = rated_contest_ids.into_iter().collect::<BTreeSet<_>>();
         let rated_problem_ids = rated_problem_ids

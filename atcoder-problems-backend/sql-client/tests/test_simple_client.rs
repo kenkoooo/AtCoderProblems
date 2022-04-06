@@ -3,7 +3,7 @@ use sql_client::simple_client::SimpleClient;
 
 mod utils;
 
-#[async_std::test]
+#[tokio::test]
 async fn test_insert_contests() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     assert!(pool.load_contests().await.unwrap().is_empty());
@@ -31,7 +31,7 @@ async fn test_insert_contests() {
     .unwrap();
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_insert_problems() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     assert!(pool.load_problems().await.unwrap().is_empty());

@@ -32,7 +32,7 @@ async fn get_points(pool: &PgPool) -> Vec<(String, Option<f64>)> {
         .unwrap()
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_update_problem_solver_count() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
 
@@ -79,7 +79,7 @@ async fn test_update_problem_solver_count() {
     assert_eq!(get_solver(&pool).await, vec![("problem".to_string(), 3)]);
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_update_problem_points() {
     let contest_id = "contest";
     let problem_id = "problem";

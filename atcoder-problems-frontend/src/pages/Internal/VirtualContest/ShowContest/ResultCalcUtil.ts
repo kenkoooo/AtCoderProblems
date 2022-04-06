@@ -43,7 +43,7 @@ export function reduceUserContestResult<
       const currentBest = result.get(submission.problem_id);
       const lastUpdatedEpochSecond = submission.epoch_second;
       if (currentBest) {
-        if (currentBest.point < point) {
+        if (currentBest.point < point || (!currentBest.accepted && accepted)) {
           result.set(problemId, {
             trials: currentBest.trials + 1,
             accepted: accepted || currentBest.accepted,

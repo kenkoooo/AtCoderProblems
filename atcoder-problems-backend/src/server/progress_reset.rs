@@ -1,53 +1,58 @@
-use crate::server::utils::RequestUnpack;
-use crate::server::{AppData, Authentication, CommonResponse};
+use crate::server::utils::GetAuthId;
+use crate::server::{AppData, Authentication};
+use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::Deserialize;
 use sql_client::internal::progress_reset_manager::ProgressResetManager;
-use tide::{Request, Response, Result};
 
-pub(crate) async fn get_progress_reset_list<A>(request: Request<AppData<A>>) -> Result<Response>
-where
-    A: Authentication + Clone + Send + Sync + 'static,
-{
-    let user_id = request.get_authorized_id().await?;
-    let pool = request.state().pg_pool.clone();
-    let list = pool.get_progress_reset_list(&user_id).await?;
-    let response = Response::json(&list)?;
+pub(crate) async fn get_progress_reset_list<A: Authentication + Clone + Send + Sync + 'static>(
+    request: HttpRequest,
+    data: web::Data<AppData<A>>,
+) -> Result<HttpResponse> {
+    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+    let conn = data.pg_pool.clone();
+    let list = conn
+        .get_progress_reset_list(&user_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    let response = HttpResponse::Ok().json(&list);
     Ok(response)
 }
 
-pub(crate) async fn add_progress_reset_item<A>(request: Request<AppData<A>>) -> Result<Response>
-where
-    A: Authentication + Clone + Send + Sync + 'static,
-{
-    #[derive(Deserialize)]
-    struct Query {
-        problem_id: String,
-        reset_epoch_second: i64,
-    }
-    let internal_user_id = request.get_authorized_id().await?;
-    let pool = request.state().pg_pool.clone();
-    let query = request.parse_body::<Query>().await?;
-    pool.add_item(
-        &internal_user_id,
-        &query.problem_id,
-        query.reset_epoch_second,
-    )
-    .await?;
-    Ok(Response::ok())
+#[derive(Deserialize)]
+pub(crate) struct AddItemQuery {
+    problem_id: String,
+    reset_epoch_second: i64,
 }
 
-pub(crate) async fn delete_progress_reset_item<A>(request: Request<AppData<A>>) -> Result<Response>
-where
+pub(crate) async fn add_progress_reset_item<A: Authentication + Clone + Send + Sync + 'static>(
+    request: HttpRequest,
+    data: web::Data<AppData<A>>,
+    query: web::Json<AddItemQuery>,
+) -> Result<HttpResponse> {
+    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+    let conn = data.pg_pool.clone();
+    conn.add_item(&user_id, &query.problem_id, query.reset_epoch_second)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    Ok(HttpResponse::Ok().finish())
+}
+
+#[derive(Deserialize)]
+pub(crate) struct DeleteItemQuery {
+    problem_id: String,
+}
+
+pub(crate) async fn delete_progress_reset_item<
     A: Authentication + Clone + Send + Sync + 'static,
-{
-    #[derive(Deserialize)]
-    struct Query {
-        problem_id: String,
-    }
-    let internal_user_id = request.get_authorized_id().await?;
-    let pool = request.state().pg_pool.clone();
-    let query = request.parse_body::<Query>().await?;
-    pool.remove_item(&internal_user_id, &query.problem_id)
-        .await?;
-    Ok(Response::ok())
+>(
+    request: HttpRequest,
+    data: web::Data<AppData<A>>,
+    query: web::Json<DeleteItemQuery>,
+) -> Result<HttpResponse> {
+    let user_id = data.get_authorized_id(request.cookie("token")).await?;
+    let conn = data.pg_pool.clone();
+    conn.remove_item(&user_id, &query.problem_id)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    Ok(HttpResponse::Ok().finish())
 }

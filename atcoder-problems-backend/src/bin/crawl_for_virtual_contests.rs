@@ -27,7 +27,7 @@ async fn crawl<R: Rng>(url: &str, rng: &mut R) -> Result<()> {
     Ok(())
 }
 
-#[async_std::main]
+#[actix_web::main]
 async fn main() {
     init_log_config().unwrap();
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
