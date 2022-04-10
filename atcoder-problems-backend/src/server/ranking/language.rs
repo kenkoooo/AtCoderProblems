@@ -1,11 +1,35 @@
 use super::{
-    LanguageRankingRequest, LanguageUserRankResponse, RankingRequestFormat, RankingResponse,
-    RankingSelector, UserRankRequest, UserRankSelector,
+    RankingRequestFormat, RankingResponse, RankingSelector, UserRankRequest,
+    UserRankResponseFormat, UserRankSelector,
 };
 
 use actix_web::{error, web, Result};
 use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
 use sql_client::{language_count::LanguageCountClient, PgPool};
+use std::ops::Range;
+
+#[derive(Deserialize)]
+pub(crate) struct LanguageRankingRequest {
+    from: usize,
+    to: usize,
+    language: String,
+}
+
+impl RankingRequestFormat for LanguageRankingRequest {
+    fn range(&self) -> Range<usize> {
+        (self.from)..(self.to)
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub(crate) struct LanguageUserRankResponse {
+    language: String,
+    count: i64,
+    rank: i64,
+}
+
+impl UserRankResponseFormat for LanguageUserRankResponse {}
 
 pub(crate) struct LanguageRanking;
 

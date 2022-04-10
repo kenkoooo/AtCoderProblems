@@ -4,12 +4,7 @@ import { isContestParticipation } from "../interfaces/ContestParticipation";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
-import {
-  isRankingEntry,
-  isSumRankingEntry,
-  RankingEntry,
-  SumRankingEntry,
-} from "../interfaces/RankingEntry";
+import { isRankingEntry, RankingEntry } from "../interfaces/RankingEntry";
 import { ContestId, ProblemId, UserId } from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
@@ -99,18 +94,8 @@ export const useUserStreakRank = (user: string) => {
 };
 
 export const useSumRanking = (from: number, to: number) => {
-  const fetcher = async (url: string) => {
-    const ranking = await fetchTypedArray<SumRankingEntry>(
-      url,
-      isSumRankingEntry
-    );
-    return ranking.map((entry) => ({
-      count: entry.point_sum,
-      user_id: entry.user_id,
-    }));
-  };
   const url = `${ATCODER_API_URL}/v3/rated_point_sum_ranking?from=${from}&to=${to}`;
-  return useSWRData(url, fetcher);
+  return useRankingV3(url);
 };
 
 export const useUserSumRank = (user: string) => {

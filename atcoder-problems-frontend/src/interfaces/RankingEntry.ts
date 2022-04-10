@@ -9,15 +9,6 @@ export const isRankingEntry = (obj: unknown): obj is RankingEntry =>
   hasPropertyAsType(obj, "count", isNumber) &&
   hasPropertyAsType(obj, "user_id", isString);
 
-export interface SumRankingEntry {
-  readonly user_id: string;
-  readonly point_sum: number;
-}
-
-export const isSumRankingEntry = (obj: unknown): obj is SumRankingEntry =>
-  hasPropertyAsType(obj, "user_id", isString) &&
-  hasPropertyAsType(obj, "point_sum", isNumber);
-
 export interface LangRankingEntry {
   user_id: string;
   count: number;
