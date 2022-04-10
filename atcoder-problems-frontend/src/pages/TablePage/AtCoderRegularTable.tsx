@@ -38,11 +38,12 @@ interface Props {
 }
 
 const getProblemHeaderAlphabet = (problem: MergedProblem, contest: Contest) => {
-  const list = problem.title.split(".");
-  if (list.length === 0) return "";
-  if (list[0] === "H" && classifyContest(contest).startsWith("ABC"))
+  if (
+    problem.problem_index === "H" &&
+    classifyContest(contest).startsWith("ABC")
+  )
     return "Ex";
-  return list[0];
+  return problem.problem_index;
 };
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
@@ -181,7 +182,8 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       showDifficulty={props.showDifficulty}
                       contestId={contest.id}
                       problemId={problem.problem.id}
-                      problemTitle={problem.problem.title}
+                      problemIndex={problem.problem.problem_index}
+                      problemName={problem.problem.name}
                       problemModel={model}
                       userRatingInfo={userRatingInfo}
                     />

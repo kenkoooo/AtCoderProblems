@@ -262,7 +262,7 @@ export const ContestTable = (props: Props) => {
                   <ProblemLink
                     problemId={p.id}
                     contestId={p.contestId}
-                    problemTitle={`${i + 1}`}
+                    problemName={`${i + 1}`}
                   />
                 ) : (
                   i + 1

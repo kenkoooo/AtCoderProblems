@@ -11,7 +11,8 @@ export default interface MergedProblem {
   // Basic information
   readonly id: string;
   readonly contest_id: string;
-  readonly title: string;
+  readonly problem_index: string;
+  readonly name: string;
 
   // Information for first AC
   readonly first_user_id: string | null;
@@ -39,7 +40,8 @@ export const isMergedProblem = (obj: unknown): obj is MergedProblem =>
   obj !== null &&
   hasPropertyAsType(obj, "id", isString) &&
   hasPropertyAsType(obj, "contest_id", isString) &&
-  hasPropertyAsType(obj, "title", isString) &&
+  hasPropertyAsType(obj, "problem_index", isString) &&
+  hasPropertyAsType(obj, "name", isString) &&
   hasPropertyAsTypeOrNull(obj, "first_user_id", isString) &&
   hasPropertyAsTypeOrNull(obj, "first_contest_id", isString) &&
   hasPropertyAsTypeOrNull(obj, "first_submission_id", isNumber) &&

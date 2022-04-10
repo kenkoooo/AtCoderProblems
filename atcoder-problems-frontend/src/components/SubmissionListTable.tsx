@@ -23,10 +23,14 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
   const { submissions, userRatingInfo } = props;
   const problems = useProblems() ?? [];
   const problemModels = useProblemModelMap();
-  const titleMap = problems.reduce((map, p) => {
-    map.set(p.id, p.title);
-    return map;
-  }, new Map<string, string>());
+  const [problemIndexMap, nameMap] = problems.reduce(
+    ([problemIndexMap, nameMap], p) => {
+      problemIndexMap.set(p.id, p.problem_index);
+      nameMap.set(p.id, p.name);
+      return [problemIndexMap, nameMap];
+    },
+    [new Map<string, string>(), new Map<string, string>()]
+  );
 
   const verdictOptions: { [_: string]: string } = Array.from(
     submissions.reduce((set, s) => {
@@ -56,7 +60,11 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
     <BootstrapTable
       data={submissions
         .sort((a, b) => b.epoch_second - a.epoch_second)
-        .map((s) => ({ title: titleMap.get(s.problem_id), ...s }))}
+        .map((s) => ({
+          problemIndex: problemIndexMap.get(s.problem_id) ?? "",
+          name: nameMap.get(s.problem_id) ?? "",
+          ...s,
+        }))}
       keyField="id"
       height="auto"
       hover
@@ -107,9 +115,9 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
       <TableHeaderColumn
         filterFormatted
         dataSort
-        dataField="title"
+        dataField="name"
         dataFormat={(
-          title: string | undefined,
+          name: string | undefined,
           { problem_id, contest_id }: Submission
         ): React.ReactElement => (
           <ProblemLink
@@ -118,7 +126,8 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
             }
             showDifficulty={true}
             problemId={problem_id}
-            problemTitle={title || ""}
+            problemIndex={problemIndexMap.get(problem_id) || ""}
+            problemName={name || ""}
             contestId={contest_id}
             problemModel={problemModels?.get(problem_id) ?? null}
             userRatingInfo={userRatingInfo}

@@ -121,7 +121,7 @@ export const LockoutContestTable: React.FC<Props> = (props) => {
                         <ProblemLink
                           problemId={problem.item.id}
                           contestId={problem.contestId}
-                          problemTitle={problem.title}
+                          problemName={problem.title}
                           className={status ? "text-white" : "text-link"}
                         />
                       ) : (

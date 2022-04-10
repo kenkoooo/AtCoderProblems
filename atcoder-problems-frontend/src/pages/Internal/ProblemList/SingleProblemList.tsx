@@ -188,7 +188,7 @@ const ProblemEntry: React.FC<{
       <ListGroupItemHeading>
         {problem ? (
           <NewTabLink href={formatProblemUrl(problem.id, problem.contest_id)}>
-            {problem.title}
+            {problem.problem_index}. {problem.name}
           </NewTabLink>
         ) : (
           item.problem_id
