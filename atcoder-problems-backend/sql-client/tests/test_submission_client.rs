@@ -3,7 +3,7 @@ use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 
 mod utils;
 
-#[async_std::test]
+#[tokio::test]
 async fn test_submission_client() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     sqlx::query(
@@ -128,7 +128,7 @@ async fn test_submission_client() {
     assert_eq!(submissions.len(), 1);
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_update_submissions() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     pool.update_submissions(&[Submission {

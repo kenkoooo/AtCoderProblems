@@ -11,7 +11,7 @@ async fn crawl(url: &str) -> Result<()> {
     crawler.crawl().await
 }
 
-#[async_std::main]
+#[actix_web::main]
 async fn main() {
     init_log_config().unwrap();
     log::info!("Started");

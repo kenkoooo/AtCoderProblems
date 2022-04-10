@@ -1,7 +1,6 @@
 use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
-use futures::try_join;
 
 #[async_trait]
 pub trait ProblemsSubmissionUpdater {
@@ -15,7 +14,7 @@ impl ProblemsSubmissionUpdater for PgPool {
         let fastest_sql = generate_query("fastest", "execution_time");
         let shortest_sql = generate_query("shortest", "length");
 
-        try_join!(
+        tokio::try_join!(
             sqlx::query(&first_sql).execute(self),
             sqlx::query(&fastest_sql).execute(self),
             sqlx::query(&shortest_sql).execute(self),

@@ -2,7 +2,7 @@ use sql_client::internal::problem_list_manager::{ListItem, ProblemList, ProblemL
 
 mod utils;
 
-#[async_std::test]
+#[tokio::test]
 async fn test_problem_list_manager() {
     let internal_user_id = "user_id";
     let atcoder_user_id = "atcoder_id";

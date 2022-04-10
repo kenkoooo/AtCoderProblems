@@ -14,7 +14,7 @@ describe("test function isRatedContest", () => {
       start_epoch_second: 1381579200,
       title: "AtCoder Beginner Contest 001",
     };
-    expect(isRatedContest(unratedContest)).toBe(false);
+    expect(isRatedContest(unratedContest, 4)).toBe(false);
   });
 
   it("when is rated", () => {
@@ -25,7 +25,18 @@ describe("test function isRatedContest", () => {
       start_epoch_second: 1469275200,
       title: "AtCoder Beginner Contest 042",
     };
-    expect(isRatedContest(ratedContest)).toBe(true);
+    expect(isRatedContest(ratedContest, 4)).toBe(true);
+  });
+
+  it("when is heuristic", () => {
+    const heuristicContest: Contest = {
+      duration_second: 6000,
+      id: "ahc999",
+      rate_change: "All",
+      start_epoch_second: 1469275200,
+      title: "AtCoder Heuristic Contest 999",
+    };
+    expect(isRatedContest(heuristicContest, 1)).toBe(false);
   });
 });
 

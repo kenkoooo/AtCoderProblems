@@ -4,7 +4,7 @@ use sql_client::internal::progress_reset_manager::{
 
 mod utils;
 
-#[async_std::test]
+#[tokio::test]
 async fn test_progress_reset_manager() {
     let internal_user_id = "user_id";
     let atcoder_user_id = "atcoder_id";

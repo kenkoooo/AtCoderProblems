@@ -114,7 +114,7 @@ async fn retry_fetch_submissions(
             Err(e) => {
                 log::error!("Error when fetching {} {}: {:?} ", contest_id, page, e);
                 log::info!("Sleeping {}s before retry ...", sleep_second);
-                async_std::task::sleep(std::time::Duration::from_secs(sleep_second)).await;
+                actix_web::rt::time::sleep(std::time::Duration::from_secs(sleep_second)).await;
                 sleep_second *= 2;
             }
         }
