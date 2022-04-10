@@ -118,14 +118,17 @@ async fn setup_contest_problems(pool: &PgPool) {
         },
         ContestProblem {
             problem_id: "problem6".to_string(),
+            problem_index: "6".to_string(),
             contest_id: SAME_CONTEST_RATED.to_string(),
         },
         ContestProblem {
             problem_id: "problem6".to_string(),
+            problem_index: "6".to_string(),
             contest_id: SAME_CONTEST_UNRATED.to_string(),
         },
         ContestProblem {
             problem_id: "heuristic-problem".to_string(),
+            problem_index: "1".to_string(),
             contest_id: HEURISTIC_CONTEST.to_string(),
         },
     ];
