@@ -68,17 +68,14 @@ const Problems = (props: {
 }) => {
   const { alreadyJoined } = props;
   const submissions = useVirtualContestSubmissions(
-    [props.atCoderUserId],
+    alreadyJoined ? [props.atCoderUserId] : [],
     props.problems.map((p) => p.item.id),
     props.start,
     props.end,
     false
   );
   const pointOverrideMap = constructPointOverrideMap(props.problems);
-  const showUserResults =
-    props.atCoderUserId !== "" &&
-    submissions.data !== null &&
-    submissions.data !== undefined;
+  const showUserResults = alreadyJoined && submissions.data;
   const results = submissions.data
     ? reduceUserContestResult(submissions.data, (id) =>
         pointOverrideMap.get(id)
@@ -86,7 +83,7 @@ const Problems = (props: {
     : new Map<UserId, ReducedProblemResult>();
   const ResultIcon = (props: { id: ProblemId }) => {
     const result = results.get(props.id);
-    if (!alreadyJoined || !result) return null;
+    if (!result) return null;
     if (result.accepted) {
       return <FcCheckmark />;
     } else {
@@ -210,7 +207,7 @@ const Standings = (props: StandingsProps) => {
                 checked={showRating}
                 onChange={(): void => setShowRating(!showRating)}
               />
-              {alreadyJoined && (
+              {alreadyJoined && contestInfo.mode === null && (
                 <CustomInput
                   type="switch"
                   id="pinMe"
