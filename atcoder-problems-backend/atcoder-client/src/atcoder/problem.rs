@@ -89,4 +89,35 @@ mod tests {
             ]
         );
     }
+
+    #[test]
+    fn test_scrape_atc002() {
+        let mut file = File::open("test_resources/atc002_tasks").unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let problems = scrape(&contents, "atc002").unwrap();
+        assert_eq!(
+            problems,
+            vec![
+                AtCoderProblem {
+                    id: "abc007_3".to_owned(),
+                    contest_id: "atc002".to_owned(),
+                    title: "幅優先探索".to_owned(),
+                    position: "A".to_owned(),
+                },
+                AtCoderProblem {
+                    id: "atc002_b".to_owned(),
+                    contest_id: "atc002".to_owned(),
+                    title: "n^p mod m".to_owned(),
+                    position: "B".to_owned(),
+                },
+                AtCoderProblem {
+                    id: "atc002_c".to_owned(),
+                    contest_id: "atc002".to_owned(),
+                    title: "最適二分探索木".to_owned(),
+                    position: "C".to_owned(),
+                },
+            ]
+        )
+    }
 }
