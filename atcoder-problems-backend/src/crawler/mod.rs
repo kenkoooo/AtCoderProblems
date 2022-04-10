@@ -79,17 +79,18 @@ impl AtCoderFetcher for AtCoderClient {
         contest_id: &str,
     ) -> Result<(Vec<Problem>, Vec<ContestProblem>)> {
         info!("Fetching problems from {} ...", contest_id);
-        let problems = self.fetch_problem_list(contest_id).await?;
-        let problems = problems
-            .into_iter()
-            .map(convert_problem)
-            .collect::<Vec<_>>();
-        let contest_problem = problems
+        let atcoder_problems = self.fetch_problem_list(contest_id).await?;
+        let contest_problem = atcoder_problems
             .iter()
             .map(|problem| ContestProblem {
-                problem_id: problem.id.clone(),
                 contest_id: problem.contest_id.clone(),
+                problem_id: problem.id.clone(),
+                problem_index: problem.position.clone(),
             })
+            .collect::<Vec<_>>();
+        let problems = atcoder_problems
+            .into_iter()
+            .map(convert_problem)
             .collect::<Vec<_>>();
         Ok((problems, contest_problem))
     }
@@ -125,7 +126,9 @@ fn convert_problem(p: AtCoderProblem) -> Problem {
     Problem {
         id: p.id,
         contest_id: p.contest_id,
+        problem_index: p.position.to_string(),
         title: p.position + ". " + p.title.as_str(),
+        name: p.title.to_string(),
     }
 }
 
