@@ -38,6 +38,8 @@ async fn test_insert_problems() {
     pool.insert_problems(&[Problem {
         id: "problem1".to_string(),
         contest_id: "".to_string(),
+        problem_index: "".to_string(),
+        name: "".to_string(),
         title: "".to_string(),
     }])
     .await
@@ -49,6 +51,8 @@ async fn test_insert_problems() {
     pool.insert_problems(&[Problem {
         id: "problem1".to_string(),
         contest_id: "".to_string(),
+        problem_index: "".to_string(),
+        name: "".to_string(),
         title: "".to_string(),
     }])
     .await

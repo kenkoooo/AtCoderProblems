@@ -88,38 +88,47 @@ async fn setup_contest_problems(pool: &PgPool) {
     let problems = vec![
         ContestProblem {
             problem_id: "problem1".to_string(),
+            problem_index: "1".to_string(),
             contest_id: RATED_CONTEST.to_string(),
         },
         ContestProblem {
             problem_id: "problem2".to_string(),
+            problem_index: "2".to_string(),
             contest_id: UNRATED_CONTEST1.to_string(),
         },
         ContestProblem {
             problem_id: "problem3".to_string(),
+            problem_index: "3".to_string(),
             contest_id: UNRATED_CONTEST1.to_string(),
         },
         ContestProblem {
             problem_id: "problem4".to_string(),
+            problem_index: "4".to_string(),
             contest_id: RATED_CONTEST.to_string(),
         },
         ContestProblem {
             problem_id: "problem5".to_string(),
+            problem_index: "5".to_string(),
             contest_id: SAME_CONTEST_RATED.to_string(),
         },
         ContestProblem {
             problem_id: "problem5".to_string(),
+            problem_index: "5".to_string(),
             contest_id: SAME_CONTEST_UNRATED.to_string(),
         },
         ContestProblem {
             problem_id: "problem6".to_string(),
+            problem_index: "6".to_string(),
             contest_id: SAME_CONTEST_RATED.to_string(),
         },
         ContestProblem {
             problem_id: "problem6".to_string(),
+            problem_index: "6".to_string(),
             contest_id: SAME_CONTEST_UNRATED.to_string(),
         },
         ContestProblem {
             problem_id: "heuristic-problem".to_string(),
+            problem_index: "1".to_string(),
             contest_id: HEURISTIC_CONTEST.to_string(),
         },
     ];
@@ -127,11 +136,12 @@ async fn setup_contest_problems(pool: &PgPool) {
     for problem in problems {
         sqlx::query(
             r"
-            INSERT INTO contest_problem (problem_id, contest_id)
-            VALUES ($1, $2)
+            INSERT INTO contest_problem (problem_id, problem_index, contest_id)
+            VALUES ($1, $2, $3)
             ",
         )
         .bind(problem.problem_id)
+        .bind(problem.problem_index)
         .bind(problem.contest_id)
         .execute(pool)
         .await

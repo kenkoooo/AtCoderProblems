@@ -7,6 +7,7 @@ fn create_problem(id: i32) -> ContestProblem {
     ContestProblem {
         contest_id: format!("contest{}", id),
         problem_id: format!("problem{}", id),
+        problem_index: format!("{}", id),
     }
 }
 

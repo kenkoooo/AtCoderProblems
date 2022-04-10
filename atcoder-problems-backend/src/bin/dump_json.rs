@@ -124,6 +124,8 @@ async fn main() -> Result<()> {
             SELECT
                 problems.id AS merged_problem_id,
                 problems.contest_id AS merged_contest_id,
+                problems.problem_index AS merged_problem_index,
+                problems.name AS merged_problem_name,
                 problems.title AS merged_problem_title,
 
                 shortest.submission_id AS shortest_submission_id,
@@ -158,6 +160,8 @@ async fn main() -> Result<()> {
     .map(|row: PgRow| {
         let id: String = row.get("merged_problem_id");
         let contest_id: String = row.get("merged_contest_id");
+        let problem_index: String = row.get("merged_problem_index");
+        let name: String = row.get("merged_problem_name");
         let title: String = row.get("merged_problem_title");
 
         let shortest_submission_id: Option<i64> = row.get("shortest_submission_id");
@@ -180,6 +184,9 @@ async fn main() -> Result<()> {
         MergedProblem {
             id,
             contest_id,
+            problem_index,
+            name,
+
             title,
             shortest_submission_id,
             shortest_contest_id,
@@ -236,6 +243,8 @@ struct UserStreak {
 struct MergedProblem {
     id: String,
     contest_id: String,
+    problem_index: String,
+    name: String,
     title: String,
     shortest_submission_id: Option<i64>,
     shortest_contest_id: Option<String>,
