@@ -17,7 +17,7 @@ const problemMatch = (text: string, problem: Problem): boolean => {
       .every(
         (word) =>
           (word.trim().length > 0 &&
-            problem.title.toLowerCase().includes(word.toLowerCase())) ||
+            problem.name.toLowerCase().includes(word.toLowerCase())) ||
           formatProblemUrl(problem.id, problem.contest_id)
             .toLowerCase()
             .includes(word.toLowerCase())
@@ -76,7 +76,9 @@ export const ProblemSearchBox: React.FC<Props> = (props) => {
               setFocusingId(-1);
             }}
           >
-            <ListGroupItemHeading>{problem.title}</ListGroupItemHeading>
+            <ListGroupItemHeading>
+              {problem.problem_index}. {problem.name}
+            </ListGroupItemHeading>
             <ListGroupItemText>
               {formatProblemUrl(problem.id, problem.contest_id)}
             </ListGroupItemText>

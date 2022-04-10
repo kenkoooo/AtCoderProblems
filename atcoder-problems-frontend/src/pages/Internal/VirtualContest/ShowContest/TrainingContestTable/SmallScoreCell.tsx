@@ -49,7 +49,7 @@ export const SmallScoreCell: React.FC<Props> = (props) => {
               <ProblemLink
                 problemId={problem.id}
                 contestId={problem.contestId}
-                problemTitle={problem.title}
+                problemName={problem.title}
               />
             ) : (
               <b>{problem.title}</b>

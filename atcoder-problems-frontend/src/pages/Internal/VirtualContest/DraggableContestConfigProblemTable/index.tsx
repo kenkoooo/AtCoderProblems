@@ -87,7 +87,9 @@ export const DraggableContestConfigProblemTable: React.FC<Props> = (props) => {
       compare: (a: VirtualContestItem, b: VirtualContestItem): number => {
         const getTitle = (problemId: ProblemId): string => {
           const problem = problemMap?.get(problemId);
-          const title = problem?.title ? problem.title : "";
+          const title = `${problem?.problem_index ?? ""}. ${
+            problem?.name ?? ""
+          }`;
           return title;
         };
         const aTitle = getTitle(a.id);

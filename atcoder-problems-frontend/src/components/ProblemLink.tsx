@@ -11,7 +11,8 @@ interface Props {
   className?: string;
   problemId: string;
   contestId: string;
-  problemTitle: string;
+  problemIndex?: string;
+  problemName: string;
   showDifficulty?: boolean;
   isExperimentalDifficulty?: boolean;
   showDifficultyUnavailable?: boolean;
@@ -25,13 +26,18 @@ export const ProblemLink: React.FC<Props> = (props) => {
   const {
     contestId,
     problemId,
-    problemTitle,
+    problemIndex,
+    problemName,
     showDifficulty,
     isExperimentalDifficulty,
     showDifficultyUnavailable,
     problemModel,
     userRatingInfo,
   } = props;
+  const problemTitle = problemIndex
+    ? `${problemIndex}. ${problemName}`
+    : problemName;
+
   const link = (
     <NewTabLink
       href={Url.formatProblemUrl(problemId, contestId)}

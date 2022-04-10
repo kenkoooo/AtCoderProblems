@@ -51,7 +51,8 @@ const ProblemTable: React.FC<ProblemTableProps> = (props) => {
               <td>
                 <ProblemLink
                   problemId={problem.id}
-                  problemTitle={problem.title}
+                  problemIndex={problem.problem_index}
+                  problemName={problem.name}
                   contestId={problem.contest_id}
                   problemModel={model}
                   isExperimentalDifficulty={!!model && model.is_experimental}

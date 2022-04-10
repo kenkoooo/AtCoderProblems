@@ -1,7 +1,7 @@
 use actix_web::{web, HttpRequest, HttpResponse, Result};
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use sql_client::{models::UserSum, PgPool};
+use sql_client::PgPool;
 use std::ops::Range;
 
 pub(crate) mod ac_count;
@@ -70,7 +70,6 @@ pub(crate) trait UserRankSelector {
     }
 }
 
-// ranking requests
 #[derive(Deserialize)]
 pub(crate) struct RankingRequest {
     from: usize,
@@ -83,20 +82,6 @@ impl RankingRequestFormat for RankingRequest {
     }
 }
 
-#[derive(Deserialize)]
-pub(crate) struct LanguageRankingRequest {
-    from: usize,
-    to: usize,
-    language: String,
-}
-
-impl RankingRequestFormat for LanguageRankingRequest {
-    fn range(&self) -> Range<usize> {
-        (self.from)..(self.to)
-    }
-}
-
-// ranking responses
 #[derive(Serialize)]
 pub(crate) struct RankingResponse {
     user_id: String,
@@ -105,9 +90,6 @@ pub(crate) struct RankingResponse {
 
 impl RankingResponseFormat for RankingResponse {}
 
-impl RankingResponseFormat for UserSum {}
-
-// user rank requests
 #[derive(Deserialize)]
 pub(crate) struct UserRankRequest {
     user: String,
@@ -115,7 +97,6 @@ pub(crate) struct UserRankRequest {
 
 impl UserRankRequestFormat for UserRankRequest {}
 
-// user rank responses
 #[derive(Serialize)]
 pub(crate) struct UserRankResponse {
     count: i64,
@@ -123,12 +104,3 @@ pub(crate) struct UserRankResponse {
 }
 
 impl UserRankResponseFormat for UserRankResponse {}
-
-#[derive(Debug, Serialize)]
-pub(crate) struct LanguageUserRankResponse {
-    language: String,
-    count: i64,
-    rank: i64,
-}
-
-impl UserRankResponseFormat for LanguageUserRankResponse {}

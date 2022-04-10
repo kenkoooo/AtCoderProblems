@@ -153,7 +153,7 @@ export const Recommendations = (props: Props) => {
           <TableHeaderColumn
             dataField="title"
             dataFormat={(
-              title: string,
+              name: string,
               {
                 id,
                 contest_id,
@@ -164,7 +164,7 @@ export const Recommendations = (props: Props) => {
                 isExperimentalDifficulty={is_experimental}
                 showDifficulty={true}
                 problemId={id}
-                problemTitle={title}
+                problemName={name}
                 contestId={contest_id}
                 problemModel={problemModels?.get(id) ?? null}
                 userRatingInfo={userRatingInfo}

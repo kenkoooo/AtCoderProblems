@@ -4,13 +4,13 @@ import { isContestParticipation } from "../interfaces/ContestParticipation";
 import MergedProblem, { isMergedProblem } from "../interfaces/MergedProblem";
 import Problem, { isProblem } from "../interfaces/Problem";
 import ProblemModel, { isProblemModel } from "../interfaces/ProblemModel";
+import { isRankingEntry, RankingEntry } from "../interfaces/RankingEntry";
 import {
-  isRankingEntry,
-  isSumRankingEntry,
-  RankingEntry,
-  SumRankingEntry,
-} from "../interfaces/RankingEntry";
-import { ContestId, ProblemId, UserId } from "../interfaces/Status";
+  ContestId,
+  ProblemId,
+  ProblemIndex,
+  UserId,
+} from "../interfaces/Status";
 import { isSubmission } from "../interfaces/Submission";
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { clipDifficulty, isValidResult } from "../utils";
@@ -99,18 +99,8 @@ export const useUserStreakRank = (user: string) => {
 };
 
 export const useSumRanking = (from: number, to: number) => {
-  const fetcher = async (url: string) => {
-    const ranking = await fetchTypedArray<SumRankingEntry>(
-      url,
-      isSumRankingEntry
-    );
-    return ranking.map((entry) => ({
-      count: entry.point_sum,
-      user_id: entry.user_id,
-    }));
-  };
   const url = `${ATCODER_API_URL}/v3/rated_point_sum_ranking?from=${from}&to=${to}`;
-  return useSWRData(url, fetcher);
+  return useRankingV3(url);
 };
 
 export const useUserSumRank = (user: string) => {
@@ -203,9 +193,16 @@ const useContestProblemList = () => {
   return useSWRData(url, (url) =>
     fetchTypedArray(
       url,
-      (obj): obj is { contest_id: ContestId; problem_id: ProblemId } =>
+      (
+        obj
+      ): obj is {
+        contest_id: ContestId;
+        problem_id: ProblemId;
+        problem_index: ProblemIndex;
+      } =>
         hasPropertyAsType(obj, "contest_id", isString) &&
-        hasPropertyAsType(obj, "problem_id", isString)
+        hasPropertyAsType(obj, "problem_id", isString) &&
+        hasPropertyAsType(obj, "problem_index", isString)
     )
   );
 };
@@ -214,11 +211,11 @@ export const useContestToProblems = () => {
   const contestIdToProblemIdArray = useContestProblemList();
   const problemMap = useProblemMap();
   return contestIdToProblemIdArray.data?.reduce(
-    (map, { contest_id, problem_id }) => {
+    (map, { contest_id, problem_id, problem_index }) => {
       const problem = problemMap?.get(problem_id);
       if (problem) {
         const problems = map.get(contest_id) ?? [];
-        problems.push(problem);
+        problems.push({ ...problem, problem_index });
         map.set(contest_id, problems);
       }
       return map;
@@ -231,11 +228,11 @@ export const useContestToMergedProblems = () => {
   const contestIdToProblemIdArray = useContestProblemList();
   const { data: problemMap } = useMergedProblemMap();
   return contestIdToProblemIdArray.data?.reduce(
-    (map, { contest_id, problem_id }) => {
+    (map, { contest_id, problem_id, problem_index }) => {
       const problem = problemMap?.get(problem_id);
       if (problem) {
         const problems = map.get(contest_id) ?? [];
-        problems.push(problem);
+        problems.push({ ...problem, problem_index });
         map.set(contest_id, problems);
       }
       return map;
@@ -295,16 +292,8 @@ export const useVirtualContestSubmissions = (
 ) => {
   const PROBLEM_CHUNK_SIZE = 10;
   const USER_CHUNK_SIZE = 10;
-  const requestCount =
-    Math.ceil(users.length / USER_CHUNK_SIZE) *
-    Math.ceil(problems.length / PROBLEM_CHUNK_SIZE);
+  const SEPARATOR = "###";
 
-  const refreshInterval = enableAutoRefresh
-    ? Math.max(1, requestCount / 10) * 60_000
-    : 1_000_000_000;
-
-  const userChunks = toChunks(users, USER_CHUNK_SIZE);
-  const problemChunks = toChunks(problems, PROBLEM_CHUNK_SIZE);
   const singleFetch = async (users: UserId[], problems: ProblemId[]) => {
     const userList = users.join(",");
     const problemList = problems.join(",");
@@ -312,8 +301,36 @@ export const useVirtualContestSubmissions = (
     const submissions = await fetchTypedArray(url, isSubmission);
     return submissions.filter((submission) => isValidResult(submission.result));
   };
+  const serialize = (users: UserId[], problems: ProblemId[]) => {
+    const sortedUsers = Array.from(users);
+    sortedUsers.sort();
+    const userKey = sortedUsers.join(",");
 
-  const fetcher = async () => {
+    const sortedProblems = Array.from(problems);
+    sortedProblems.sort();
+    const problemKey = sortedProblems.join(",");
+
+    return (
+      "useVirtualContestSubmissions" +
+      SEPARATOR +
+      userKey +
+      SEPARATOR +
+      problemKey
+    );
+  };
+  const deserialize = (key: string) => {
+    const keys = key.split("###");
+    const userKey = keys[1];
+    const problemKey = keys[2];
+
+    const users = userKey.split(",");
+    const problems = problemKey.split(",");
+    return { users, problems };
+  };
+  const fetcher = async (key: string) => {
+    const { users, problems } = deserialize(key);
+    const userChunks = toChunks(users, USER_CHUNK_SIZE);
+    const problemChunks = toChunks(problems, PROBLEM_CHUNK_SIZE);
     const promises = userChunks
       .flatMap((users) =>
         problemChunks.map((problems) => ({ users, problems }))
@@ -323,13 +340,15 @@ export const useVirtualContestSubmissions = (
     return submissionChunks.flatMap((x) => x);
   };
 
-  return useSWRData(
-    "useVirtualContestSubmissions",
-    () => (users.length > 0 ? fetcher() : Promise.resolve([])),
-    {
-      refreshInterval,
-    }
-  );
+  const requestCount =
+    Math.ceil(users.length / USER_CHUNK_SIZE) *
+    Math.ceil(problems.length / PROBLEM_CHUNK_SIZE);
+  const refreshInterval = enableAutoRefresh
+    ? Math.max(1, requestCount / 10) * 60_000
+    : 1_000_000_000;
+
+  const customKey = serialize(users, problems);
+  return useSWRData(customKey, fetcher, { refreshInterval });
 };
 
 export const useRecentSubmissions = () => {

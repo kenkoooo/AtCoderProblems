@@ -154,11 +154,11 @@ export const ContestTable = (props: Props) => {
     end,
     props.enableAutoRefresh
   );
-  if (!submissions.data && !submissions.error) {
-    return <Spinner />;
+  if (submissions.error) {
+    return <Alert color="danger">Failed to fetch submissions.</Alert>;
   }
   if (!submissions.data) {
-    return <Alert color="danger">Failed to fetch submissions.</Alert>;
+    return <Spinner />;
   }
 
   const modelArray = consolidateModels(problems, problemMap, problemModels);
@@ -262,7 +262,7 @@ export const ContestTable = (props: Props) => {
                   <ProblemLink
                     problemId={p.id}
                     contestId={p.contestId}
-                    problemTitle={`${i + 1}`}
+                    problemName={`${i + 1}`}
                   />
                 ) : (
                   i + 1

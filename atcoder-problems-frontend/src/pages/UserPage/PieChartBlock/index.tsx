@@ -80,7 +80,7 @@ const solvedCountForPieChart = (
           : validSubmissions?.find((s) => isAccepted(s.result))
           ? SubmissionStatus.ACCEPTED
           : SubmissionStatus.REJECTED;
-        return { title: problem.title, status };
+        return { title: problem.name, status };
       });
       return { titleStatus };
     })
@@ -104,7 +104,7 @@ const solvedCountForPieChart = (
     );
   const totalCount = contestToProblems
     .map(([, problems]) => {
-      const problemTitles = problems.map((problem) => problem.title);
+      const problemTitles = problems.map((problem) => problem.name);
       return { problemTitles };
     })
     .map(({ problemTitles }) =>
