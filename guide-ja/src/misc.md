@@ -7,6 +7,7 @@
 
 - Streak 
   - 今まで解いていない問題を新たに解き続けた日数です。
+  - Longest StreakはJST、Current StreakはLocal Timeに基づいて集計されます。
   - 今までに解いたことのある問題を再び解いても、Streakのカウントが増えることはありません。
 
 ## 参考資料
