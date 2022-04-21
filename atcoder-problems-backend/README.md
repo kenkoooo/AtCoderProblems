@@ -25,7 +25,7 @@ production backend server, you don't need to run the backend applications in mos
 
 Below are the list of files you need to modify:
 
-- `atcoder-problems-backend/src/server/auth.rs`: change `REDIRECT_URL` to `http://localhost:3000/atcoder/`
+- `atcoder-problems-backend/src/server/endpoint/internal_api/mod.rs`: change `REDIRECT_URL` to `http://localhost:3000/atcoder/`
   for your backend to redirect to your frontend web app after logging in.
 - `atcoder-problems-frontend/src/setupProxy.js`: change `target` to `http://localhost:8080`
   **and** remove the `pathRewrite` section for your frontend web app to use your
