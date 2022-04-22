@@ -1880,10 +1880,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-bootstrap-table@4.3.7":
-  version "4.3.7"
-  resolved "https://registry.yarnpkg.com/@types/react-bootstrap-table/-/react-bootstrap-table-4.3.7.tgz#aa4cac9e53d1a6168c14d2ab4d292a22da477e13"
-  integrity sha512-GtAD25EOfUZj/zTZVKTjl99n1xYlvZpsgAG/U45WMRnzKE1k7qGZhJnXt5RzuIHFMzedlFrV+z173Dr5oYD3FQ==
+"@types/react-bootstrap-table@4.3.11":
+  version "4.3.11"
+  resolved "https://registry.yarnpkg.com/@types/react-bootstrap-table/-/react-bootstrap-table-4.3.11.tgz#a7c8d47bd3bc794c525b3a6d930d17a2b55e1141"
+  integrity sha512-CL/sybzPSIPGaNXNW8KkltgtAkqMwKzRE46cBiDlqLOdWYK5o7/u9Yde2R+9gemz/YZ0ntJhQkDCYajFYdl7RA==
   dependencies:
     "@types/react" "*"
 
