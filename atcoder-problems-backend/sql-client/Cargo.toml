@@ -11,7 +11,7 @@ publish = false
 sqlx = { version = "0.5.10", features = ["postgres", "runtime-tokio-rustls"] }
 async-trait = "0.1.52"
 serde = { version = "1.0", features = ["derive"] }
-uuid = { version = "0.8", features = ["serde", "v4"] }
+uuid = { version = "1.0", features = ["serde", "v4"] }
 anyhow = "1.0"
 tokio = { version = "1.15", features = ["macros"] }
 regex = "1"
