@@ -126,26 +126,20 @@ pub(super) fn scrape_permanent(html: &str) -> Result<Vec<AtCoderContest>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::Read;
 
     #[test]
     fn test_scrape_normal() {
-        let mut file = File::open("test_resources/contests_normal").unwrap();
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
+        let contents = include_str!("../../test_resources/contests_normal");
 
-        let contests = scrape_normal(&contents).unwrap();
+        let contests = scrape_normal(contents).unwrap();
         assert_eq!(contests.len(), 50);
     }
 
     #[test]
     fn test_scrape_permanent() {
-        let mut file = File::open("test_resources/contests_permanent").unwrap();
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
+        let contents = include_str!("../../test_resources/contests_permanent");
 
-        let contests = scrape_permanent(&contents).unwrap();
+        let contests = scrape_permanent(contents).unwrap();
         assert_eq!(contests.len(), 4);
     }
 }
