@@ -33,11 +33,11 @@ async fn test_submission_client() {
 
     let request = SubmissionRequest::UserAll { user_id: "user3" };
     let submissions = pool.get_submissions(request).await.unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     let request = SubmissionRequest::RecentAccepted { count: 0 };
     let submissions = pool.get_submissions(request).await.unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     let request = SubmissionRequest::RecentAccepted { count: 1 };
     let submissions = pool.get_submissions(request).await.unwrap();
@@ -96,7 +96,7 @@ async fn test_submission_client() {
         count: 1000,
     };
     let submissions = pool.get_submissions(request).await.unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     let request = SubmissionRequest::UsersAccepted {
         user_ids: &["user1", "user2"],
@@ -160,7 +160,7 @@ async fn test_update_submissions() {
         })
         .await
         .unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     pool.update_submissions(&[Submission {
         id: 0,
@@ -179,7 +179,7 @@ async fn test_update_submissions() {
         })
         .await
         .unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     let submissions = pool
         .get_submissions(SubmissionRequest::UserAll {

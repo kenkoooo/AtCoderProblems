@@ -327,7 +327,7 @@ async fn test_virtual_contest_visibility() {
     let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
-    assert_eq!(response.as_array().unwrap().len(), 0);
+    assert!(response.as_array().unwrap().is_empty());
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/create")
@@ -352,7 +352,7 @@ async fn test_virtual_contest_visibility() {
     let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
-    assert_eq!(response.as_array().unwrap().len(), 0);
+    assert!(response.as_array().unwrap().is_empty());
 
     let request = test::TestRequest::post()
         .uri("/internal-api/contest/update")
