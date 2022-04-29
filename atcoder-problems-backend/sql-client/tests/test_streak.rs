@@ -49,14 +49,14 @@ async fn test_streak_ranking() {
     // load streak count in range
     let rank_1st_to_3rd = pool.load_streak_count_in_range(0..3).await.unwrap();
     assert_eq!(rank_1st_to_3rd.len(), 3);
-    assert_eq!(rank_1st_to_3rd[0].user_id, "user1".to_owned());
+    assert_eq!(rank_1st_to_3rd[0].user_id, "user1");
     assert_eq!(rank_1st_to_3rd[0].streak, 2);
-    assert_eq!(rank_1st_to_3rd[2].user_id, "user3".to_owned());
+    assert_eq!(rank_1st_to_3rd[2].user_id, "user3");
     assert_eq!(rank_1st_to_3rd[2].streak, 1);
 
     let rank_3rd_to_4th = pool.load_streak_count_in_range(2..4).await.unwrap();
     assert_eq!(rank_3rd_to_4th.len(), 2);
-    assert_eq!(rank_3rd_to_4th[0].user_id, "user3".to_owned());
+    assert_eq!(rank_3rd_to_4th[0].user_id, "user3");
     assert_eq!(rank_3rd_to_4th[0].streak, 1);
     assert_eq!(
         rank_3rd_to_4th[1],
