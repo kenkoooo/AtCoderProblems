@@ -105,7 +105,7 @@ impl StreakClient for PgPool {
         let user_max_streak = first_ac_map
             .into_iter()
             .map(|(user_id, m)| {
-                let max_streak = get_max_streak(m.into_iter().map(|(_, utc)| utc).collect());
+                let max_streak = get_max_streak(m.into_values().collect());
                 (user_id, max_streak)
             })
             .collect::<Vec<_>>();
