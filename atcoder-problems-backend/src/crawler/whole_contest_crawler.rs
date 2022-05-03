@@ -75,8 +75,8 @@ mod tests {
             unimplemented!()
         }
     }
-    #[test]
-    fn whole_contest_crawler() {
+    #[actix_web::test]
+    async fn whole_contest_crawler() {
         let fetcher = MockFetcher(|_, page| {
             if page == 1 {
                 vec![Submission {
@@ -87,7 +87,6 @@ mod tests {
             }
         });
         let crawler = WholeContestCrawler::new(MockDB, fetcher, "contest-id");
-        let rt = actix_web::rt::Runtime::new().unwrap();
-        assert!(rt.block_on(crawler.crawl()).is_ok());
+        assert!(crawler.crawl().await.is_ok());
     }
 }

@@ -83,8 +83,8 @@ async fn main() -> Result<()> {
     }
 
     let mut language_count = reduced_language_count
-        .into_iter()
-        .flat_map(|(_, v)| v.into_iter())
+        .into_values()
+        .flatten()
         .map(|(_, e)| e)
         .collect::<Vec<_>>();
     language_count.sort_by(|a, b| {

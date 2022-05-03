@@ -64,7 +64,7 @@ mod tests {
             contest_id: "arc102".to_string(),
         };
         assert_eq!(
-            "https://atcoder.jp/contests/arc102/tasks/arc102_c".to_string(),
+            "https://atcoder.jp/contests/arc102/tasks/arc102_c",
             problem.url()
         );
     }

@@ -165,7 +165,7 @@ impl ProblemListManager for PgPool {
             ",
         )
         .bind(internal_user_id)
-        .bind(new_list_id.as_str())
+        .bind(&new_list_id)
         .bind(name)
         .execute(self)
         .await?;

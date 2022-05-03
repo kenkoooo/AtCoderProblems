@@ -89,51 +89,51 @@ impl AtCoderClient {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_fetch_contest_list() {
+    #[tokio::test]
+    async fn test_fetch_contest_list() {
         let client = AtCoderClient::default();
-        let rt = tokio::runtime::Runtime::new().unwrap();
-        let contests = rt
-            .block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Normal { page: 1 }))
+        let contests = client
+            .fetch_atcoder_contests(ContestTypeSpecifier::Normal { page: 1 })
+            .await
             .unwrap();
         assert_eq!(contests.len(), 50);
     }
 
-    #[test]
-    fn test_fetch_hidden_contest() {
+    #[tokio::test]
+    async fn test_fetch_hidden_contest() {
         let client = AtCoderClient::default();
-        let rt = tokio::runtime::Runtime::new().unwrap();
-        let contests = rt
-            .block_on(client.fetch_atcoder_contests(ContestTypeSpecifier::Hidden))
+        let contests = client
+            .fetch_atcoder_contests(ContestTypeSpecifier::Hidden)
+            .await
             .unwrap();
         assert!(!contests.is_empty());
     }
 
-    #[test]
-    fn test_fetch_problem_list() {
+    #[tokio::test]
+    async fn test_fetch_problem_list() {
         let client = AtCoderClient::default();
-        let rt = tokio::runtime::Runtime::new().unwrap();
-        let problems = rt.block_on(client.fetch_problem_list("abc107")).unwrap();
+        let problems = client.fetch_problem_list("abc107").await.unwrap();
         assert_eq!(problems.len(), 4);
     }
 
-    #[test]
-    fn test_fetch_submission_list() {
+    #[tokio::test]
+    async fn test_fetch_submission_list() {
         let client = AtCoderClient::default();
-        let rt = tokio::runtime::Runtime::new().unwrap();
-        let response = rt
-            .block_on(client.fetch_atcoder_submission_list("xmascon17", None))
+        let response = client
+            .fetch_atcoder_submission_list("xmascon17", None)
+            .await
             .unwrap();
         assert_eq!(response.submissions.len(), 20);
 
-        let response = rt
-            .block_on(client.fetch_atcoder_submission_list("xmascon17", Some(response.max_page)))
+        let response = client
+            .fetch_atcoder_submission_list("xmascon17", Some(response.max_page))
+            .await
             .unwrap();
         assert!(!response.submissions.is_empty());
 
-        let response = rt.block_on(
-            client.fetch_atcoder_submission_list("xmascon17", Some(response.max_page + 1)),
-        );
+        let response = client
+            .fetch_atcoder_submission_list("xmascon17", Some(response.max_page + 1))
+            .await;
         assert!(response.is_err());
     }
 }
