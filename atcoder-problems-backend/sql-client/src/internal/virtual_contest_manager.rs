@@ -2,19 +2,18 @@ use crate::PgPool;
 use anyhow::{bail, Context, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use sqlx::postgres::PgRow;
 use sqlx::Row;
-use std::result::Result as StdResult;
 use uuid::Uuid;
 
 pub const MAX_PROBLEM_NUM_PER_CONTEST: usize = 300;
 pub const RECENT_CONTEST_NUM: i64 = 1000;
 
-#[derive(Serialize, Debug, PartialEq, Eq, Clone)]
+#[derive(Serialize, Debug, PartialEq, Eq, Clone, sqlx::FromRow)]
 pub struct VirtualContestInfo {
     pub id: String,
     pub title: String,
     pub memo: String,
+    #[sqlx(rename = "internal_user_id")]
     pub owner_user_id: String, // column name is `internal_user_id`
     pub start_epoch_second: i64,
     pub duration_second: i64,
@@ -23,34 +22,14 @@ pub struct VirtualContestInfo {
     pub penalty_second: i64,
 }
 
-fn virtual_contest_info_mapper(row: PgRow) -> StdResult<VirtualContestInfo, sqlx::Error> {
-    let id: String = row.try_get("id")?;
-    let title: String = row.try_get("title")?;
-    let memo: String = row.try_get("memo")?;
-    let owner_user_id: String = row.try_get("internal_user_id")?;
-    let start_epoch_second: i64 = row.try_get("start_epoch_second")?;
-    let duration_second: i64 = row.try_get("duration_second")?;
-    let mode: Option<String> = row.try_get("mode")?;
-    let is_public: bool = row.try_get("is_public")?;
-    let penalty_second: i64 = row.try_get("penalty_second")?;
-    Ok(VirtualContestInfo {
-        id,
-        title,
-        memo,
-        owner_user_id,
-        start_epoch_second,
-        duration_second,
-        mode,
-        is_public,
-        penalty_second,
-    })
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, sqlx::FromRow)]
 pub struct VirtualContestItem {
-    pub id: String,
-    pub point: Option<i64>,
-    pub order: Option<i64>,
+    #[sqlx(rename = "problem_id")]
+    pub id: String, // column name is `problem_id`
+    #[sqlx(rename = "user_defined_point")]
+    pub point: Option<i64>, // column name is `user_defined_point`
+    #[sqlx(rename = "user_defined_order")]
+    pub order: Option<i64>, // column name is `user_defined_order`
 }
 
 #[async_trait]
@@ -176,7 +155,7 @@ impl VirtualContestManager for PgPool {
     }
 
     async fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContestInfo>> {
-        let contests = sqlx::query(
+        let contests = sqlx::query_as(
             r"
             SELECT 
                 id,
@@ -193,7 +172,6 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(internal_user_id)
-        .try_map(virtual_contest_info_mapper)
         .fetch_all(self)
         .await?;
 
@@ -204,7 +182,7 @@ impl VirtualContestManager for PgPool {
         &self,
         internal_user_id: &str,
     ) -> Result<Vec<VirtualContestInfo>> {
-        let contests = sqlx::query(
+        let contests = sqlx::query_as(
             r"
             SELECT 
                 a.id,
@@ -223,7 +201,6 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(internal_user_id)
-        .try_map(virtual_contest_info_mapper)
         .fetch_all(self)
         .await?;
 
@@ -231,7 +208,7 @@ impl VirtualContestManager for PgPool {
     }
 
     async fn get_single_contest_info(&self, contest_id: &str) -> Result<VirtualContestInfo> {
-        let info = sqlx::query(
+        let info = sqlx::query_as(
             r"
             SELECT
                 id,
@@ -248,7 +225,6 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(contest_id)
-        .try_map(virtual_contest_info_mapper)
         .fetch_one(self)
         .await?;
 
@@ -272,7 +248,7 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(contest_id)
-        .try_map(|row: PgRow| row.try_get::<Option<String>, _>("atcoder_user_id"))
+        .try_map(|row| row.try_get::<Option<String>, _>("atcoder_user_id"))
         .fetch_all(self)
         .await?
         .into_iter()
@@ -286,7 +262,7 @@ impl VirtualContestManager for PgPool {
         &self,
         contest_id: &str,
     ) -> Result<Vec<VirtualContestItem>> {
-        let problems = sqlx::query(
+        let problems = sqlx::query_as(
             r"
             SELECT problem_id, user_defined_point, user_defined_order
             FROM internal_virtual_contest_items
@@ -295,12 +271,6 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(contest_id)
-        .try_map(|row: PgRow| {
-            let id: String = row.try_get("problem_id")?;
-            let point: Option<i64> = row.try_get("user_defined_point")?;
-            let order: Option<i64> = row.try_get("user_defined_order")?;
-            Ok(VirtualContestItem { id, point, order })
-        })
         .fetch_all(self)
         .await?;
 
@@ -308,7 +278,7 @@ impl VirtualContestManager for PgPool {
     }
 
     async fn get_recent_contest_info(&self) -> Result<Vec<VirtualContestInfo>> {
-        let contests = sqlx::query(
+        let contests = sqlx::query_as(
             r"
             SELECT 
                 id,
@@ -327,7 +297,6 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(RECENT_CONTEST_NUM)
-        .try_map(virtual_contest_info_mapper)
         .fetch_all(self)
         .await?;
 
@@ -346,7 +315,7 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(time)
-        .try_map(|row: PgRow| {
+        .try_map(|row| {
             let problem_id: String = row.try_get("problem_id")?;
             let end_second: i64 = row.try_get("end_second")?;
             Ok((problem_id, end_second))
@@ -378,7 +347,7 @@ impl VirtualContestManager for PgPool {
         )
         .bind(user_id)
         .bind(contest_id)
-        .try_map(|row: PgRow| row.try_get::<String, _>("id"))
+        .try_map(|row| row.try_get::<String, _>("id"))
         .fetch_one(self)
         .await
         .context("The target contest does not exist.")?;

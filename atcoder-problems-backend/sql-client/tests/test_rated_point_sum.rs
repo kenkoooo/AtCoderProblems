@@ -1,8 +1,6 @@
 use sql_client::models::{Contest, ContestProblem, Submission, UserSum};
 use sql_client::rated_point_sum::RatedPointSumClient;
 use sql_client::PgPool;
-use sqlx::postgres::PgRow;
-use sqlx::Row;
 
 mod utils;
 
@@ -216,12 +214,7 @@ async fn test_update_rated_point_sum() {
     ];
 
     pool.update_rated_point_sum(&submissions).await.unwrap();
-    let sums = sqlx::query("SELECT user_id, point_sum FROM rated_point_sum")
-        .map(|row: PgRow| {
-            let user_id: String = row.get("user_id");
-            let point_sum: i64 = row.get("point_sum");
-            UserSum { user_id, point_sum }
-        })
+    let sums: Vec<UserSum> = sqlx::query_as("SELECT user_id, point_sum FROM rated_point_sum")
         .fetch_all(&pool)
         .await
         .unwrap();

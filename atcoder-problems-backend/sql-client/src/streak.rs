@@ -27,7 +27,7 @@ impl StreakClient for PgPool {
         &self,
         rank_range: Range<usize>,
     ) -> Result<Vec<UserStreak>> {
-        let users_streaks = sqlx::query(
+        let users_streaks = sqlx::query_as(
             r"
             SELECT user_id, streak FROM max_streaks
             ORDER BY streak DESC, user_id ASC
@@ -36,11 +36,6 @@ impl StreakClient for PgPool {
         )
         .bind(rank_range.start as i32)
         .bind(rank_range.len() as i32)
-        .try_map(|row: PgRow| {
-            let user_id: String = row.try_get("user_id")?;
-            let streak: i64 = row.try_get("streak")?;
-            Ok(UserStreak { user_id, streak })
-        })
         .fetch_all(self)
         .await?;
 

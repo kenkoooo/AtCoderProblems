@@ -108,7 +108,7 @@ impl LanguageCountClient for PgPool {
     }
 
     async fn load_language_count(&self) -> Result<Vec<UserLanguageCount>> {
-        let count = sqlx::query(
+        let count = sqlx::query_as(
             r"
             SELECT 
                 user_id,
@@ -118,16 +118,6 @@ impl LanguageCountClient for PgPool {
             ORDER BY user_id
             ",
         )
-        .try_map(|row: PgRow| {
-            let user_id: String = row.try_get("user_id")?;
-            let simplified_language: String = row.try_get("simplified_language")?;
-            let problem_count: i32 = row.try_get("problem_count")?;
-            Ok(UserLanguageCount {
-                user_id,
-                simplified_language,
-                problem_count,
-            })
-        })
         .fetch_all(self)
         .await?;
         Ok(count)
@@ -138,7 +128,7 @@ impl LanguageCountClient for PgPool {
         simplified_language: &str,
         rank_range: Range<usize>,
     ) -> Result<Vec<UserProblemCount>> {
-        let list = sqlx::query(
+        let list = sqlx::query_as(
             r"
             SELECT user_id, problem_count FROM language_count WHERE simplified_language = $1
             ORDER BY problem_count DESC, user_id ASC
@@ -148,37 +138,20 @@ impl LanguageCountClient for PgPool {
         .bind(simplified_language)
         .bind(rank_range.start as i32)
         .bind(rank_range.len() as i32)
-        .try_map(|row: PgRow| {
-            let user_id: String = row.try_get("user_id")?;
-            let problem_count: i32 = row.try_get("problem_count")?;
-            Ok(UserProblemCount {
-                user_id,
-                problem_count,
-            })
-        })
         .fetch_all(self)
         .await?;
         Ok(list)
     }
 
     async fn load_users_language_count(&self, user_id: &str) -> Result<Vec<UserLanguageCount>> {
-        let count = sqlx::query(
+        let count = sqlx::query_as(
             r"
-            SELECT simplified_language, problem_count FROM language_count
+            SELECT user_id, simplified_language, problem_count FROM language_count
             WHERE user_id = $1
             ORDER BY simplified_language
             ",
         )
         .bind(user_id)
-        .try_map(|row: PgRow| {
-            let simplified_language: String = row.try_get("simplified_language")?;
-            let problem_count: i32 = row.try_get("problem_count")?;
-            Ok(UserLanguageCount {
-                user_id: user_id.to_owned(),
-                simplified_language,
-                problem_count,
-            })
-        })
         .fetch_all(self)
         .await?;
         Ok(count)
@@ -188,9 +161,9 @@ impl LanguageCountClient for PgPool {
         &self,
         user_id: &str,
     ) -> Result<Vec<UserLanguageCountRank>> {
-        let rank = sqlx::query(
+        let rank = sqlx::query_as(
             r"
-            SELECT simplified_language, rank FROM (
+            SELECT user_id, simplified_language, rank FROM (
             SELECT *, RANK()
                 OVER(PARTITION BY simplified_language ORDER BY problem_count DESC) AS rank
                 FROM language_count
@@ -200,15 +173,6 @@ impl LanguageCountClient for PgPool {
             ",
         )
         .bind(user_id)
-        .try_map(|row: PgRow| {
-            let simplified_language: String = row.try_get("simplified_language")?;
-            let rank: i64 = row.try_get("rank")?;
-            Ok(UserLanguageCountRank {
-                user_id: user_id.to_owned(),
-                simplified_language,
-                rank,
-            })
-        })
         .fetch_all(self)
         .await?;
         Ok(rank)
