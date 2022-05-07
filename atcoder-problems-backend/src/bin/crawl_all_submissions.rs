@@ -1,3 +1,4 @@
+use actix_web::rt::time;
 use anyhow::Result;
 use atcoder_client::AtCoderClient;
 use atcoder_problems_backend::crawler::WholeContestCrawler;
@@ -6,7 +7,7 @@ use log::{error, info};
 use sql_client::initialize_pool;
 use sql_client::models::Contest;
 use sql_client::simple_client::SimpleClient;
-use std::{env, thread, time};
+use std::{env, time::Duration};
 
 #[actix_web::main]
 async fn main() {
@@ -25,7 +26,7 @@ async fn main() {
             }
             Err(e) => {
                 error!("Failed to load the contests: {:?}", e);
-                sleep_1sec();
+                sleep_1sec().await;
             }
         }
     }
@@ -41,7 +42,7 @@ async fn finish_one_contest(url: &str, contest_id: &str) {
             }
             Err(e) => {
                 error!("Error while crawling {}: {:?}", contest_id, e);
-                sleep_1sec();
+                sleep_1sec().await;
             }
         }
     }
@@ -60,6 +61,6 @@ async fn load_contest(url: &str) -> Result<Vec<Contest>> {
     Ok(contests)
 }
 
-fn sleep_1sec() {
-    thread::sleep(time::Duration::from_millis(1000));
+async fn sleep_1sec() {
+    time::sleep(Duration::from_secs(1)).await;
 }

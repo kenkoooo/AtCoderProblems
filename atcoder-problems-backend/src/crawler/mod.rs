@@ -11,11 +11,13 @@ pub use recent_crawler::RecentCrawler;
 pub use virtual_contest_crawler::VirtualContestCrawler;
 pub use whole_contest_crawler::WholeContestCrawler;
 
+use actix_web::rt::time;
 use anyhow::Result;
 use async_trait::async_trait;
 use atcoder_client::{AtCoderClient, AtCoderProblem, AtCoderSubmission, ContestTypeSpecifier};
 use log::info;
 use sql_client::models::{Contest, ContestProblem, Problem, Submission};
+use std::time::Duration;
 
 #[async_trait]
 pub trait AtCoderFetcher {
@@ -114,7 +116,7 @@ async fn retry_fetch_submissions(
             Err(e) => {
                 log::error!("Error when fetching {} {}: {:?} ", contest_id, page, e);
                 log::info!("Sleeping {}s before retry ...", sleep_second);
-                actix_web::rt::time::sleep(std::time::Duration::from_secs(sleep_second)).await;
+                time::sleep(Duration::from_secs(sleep_second)).await;
                 sleep_second *= 2;
             }
         }

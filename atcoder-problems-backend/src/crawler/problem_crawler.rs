@@ -1,11 +1,12 @@
 use crate::crawler::AtCoderFetcher;
+use actix_web::rt::time;
 use anyhow::Result;
 use atcoder_client::ContestTypeSpecifier;
 use sql_client::contest_problem::ContestProblemClient;
 use sql_client::models::{Contest, ContestProblem, Problem};
 use sql_client::simple_client::SimpleClient;
 use std::collections::BTreeSet;
-use std::{thread, time};
+use std::time::Duration;
 
 pub struct ProblemCrawler<C, F> {
     db: C,
@@ -36,7 +37,7 @@ where
                 log::error!("{:?}", e);
             }
         }
-        thread::sleep(time::Duration::from_millis(500));
+        time::sleep(Duration::from_millis(500)).await;
 
         match self
             .fetcher
@@ -68,7 +69,7 @@ where
                     break;
                 }
             }
-            thread::sleep(time::Duration::from_millis(500));
+            time::sleep(Duration::from_millis(500)).await;
         }
 
         log::info!("There are {} contests.", contests.len());
@@ -92,7 +93,7 @@ where
                     log::error!("{:?}", e);
                 }
             }
-            thread::sleep(time::Duration::from_millis(500));
+            time::sleep(Duration::from_millis(500)).await;
         }
 
         Ok(())

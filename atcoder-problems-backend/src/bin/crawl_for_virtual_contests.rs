@@ -1,3 +1,4 @@
+use actix_web::rt::time;
 use anyhow::Result;
 use atcoder_client::AtCoderClient;
 use atcoder_problems_backend::crawler::{FixCrawler, VirtualContestCrawler};
@@ -5,8 +6,10 @@ use atcoder_problems_backend::utils::init_log_config;
 use chrono::Utc;
 use rand::{thread_rng, Rng};
 use sql_client::initialize_pool;
-use std::time::{Duration, Instant};
-use std::{env, thread};
+use std::{
+    env,
+    time::{Duration, Instant},
+};
 
 const FIX_RANGE_SECOND: i64 = 10 * 60;
 
@@ -48,7 +51,7 @@ async fn main() {
         if elapsed_secs < 10 {
             let sleep_seconds = 10 - elapsed_secs;
             log::info!("Sleeping {} sec.", sleep_seconds);
-            thread::sleep(Duration::from_secs(sleep_seconds));
+            time::sleep(Duration::from_secs(sleep_seconds)).await;
         }
 
         log::info!("Finished a loop");
