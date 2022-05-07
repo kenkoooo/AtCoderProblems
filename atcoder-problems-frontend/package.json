@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://kenkoooo.com/atcoder",
   "scripts": {
-    "build": "react-scripts build",
+    "build": "react-scripts build && rm -rf build/book && mkdir -p build/book && mdbook build ../guide-ja/ -d=../atcoder-problems-frontend/build/book/",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "eject": "react-scripts eject",
@@ -14,7 +14,7 @@
     "prepare-ci": "rm -rf serve && mkdir serve && cp -r build serve/atcoder",
     "prettier": "prettier --write --ignore-path .gitignore \"**/*.{css,scss,html,js,json,jsx,md,ts,tsx}\"",
     "sort-package-json": "sort-package-json",
-    "start": "react-scripts start",
+    "start": "react-scripts start && rm -rf build/book && mkdir -p build/book && mdbook build ../guide-ja/ -d=../atcoder-problems-frontend/build/book/ && mdbook watch ../guide-ja/ -d=../atcoder-problems-frontend/build/book/",
     "start:ci": "serve --no-clipboard -l 3000",
     "test": "react-scripts test"
   },
