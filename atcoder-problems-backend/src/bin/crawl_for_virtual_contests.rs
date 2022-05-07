@@ -16,14 +16,13 @@ const FIX_RANGE_SECOND: i64 = 10 * 60;
 async fn crawl<R: Rng>(url: &str, rng: &mut R) -> Result<()> {
     log::info!("Start crawling...");
     let pg_pool = initialize_pool(&url).await?;
-    let mut crawler = VirtualContestCrawler::new(pg_pool, AtCoderClient::default(), rng);
+    let mut crawler = VirtualContestCrawler::new(pg_pool.clone(), AtCoderClient::default(), rng);
     crawler.crawl().await?;
     log::info!("Finished crawling");
 
     log::info!("Starting fixing...");
-    let conn = initialize_pool(&url).await?;
     let cur = Utc::now().timestamp();
-    let crawler = FixCrawler::new(conn, AtCoderClient::default(), cur - FIX_RANGE_SECOND);
+    let crawler = FixCrawler::new(pg_pool, AtCoderClient::default(), cur - FIX_RANGE_SECOND);
     crawler.crawl().await?;
     log::info!("Finished fixing");
 
