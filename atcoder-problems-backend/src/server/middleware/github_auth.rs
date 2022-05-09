@@ -139,8 +139,8 @@ where
         let client = Rc::clone(&self.client);
         async move {
             if let Some(cookie) = req.cookie("token") {
-                let token = cookie.value().to_string();
-                if let Ok(token) = client.verify_user(&token).await {
+                let token = cookie.value();
+                if let Ok(token) = client.verify_user(token).await {
                     req.extensions_mut().insert(token);
                 }
             }
