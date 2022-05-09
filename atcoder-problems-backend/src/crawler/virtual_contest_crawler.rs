@@ -62,7 +62,7 @@ where
             .collect::<BTreeSet<_>>();
         log::info!("Loaded {} contests", contest_set.len());
 
-        for contest in contest_set.into_iter() {
+        for contest in contest_set {
             log::info!("Starting {} ...", contest);
             let mut streak = 0;
             for page in 1.. {

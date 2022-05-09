@@ -82,7 +82,7 @@ where
         let no_problem_contests =
             extract_no_problem_contests(&contests, &problems, &contest_problem);
 
-        for contest in no_problem_contests.into_iter() {
+        for contest in no_problem_contests {
             log::info!("Crawling problems of {}...", contest.id);
             match self.fetcher.fetch_problems(&contest.id).await {
                 Ok((problems, contest_problem)) => {

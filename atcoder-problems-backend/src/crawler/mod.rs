@@ -128,9 +128,9 @@ fn convert_problem(p: AtCoderProblem) -> Problem {
     Problem {
         id: p.id,
         contest_id: p.contest_id,
-        problem_index: p.position.to_string(),
+        problem_index: p.position.clone(),
         title: p.position + ". " + p.title.as_str(),
-        name: p.title.to_string(),
+        name: p.title,
     }
 }
 

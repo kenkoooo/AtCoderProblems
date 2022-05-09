@@ -20,7 +20,7 @@ async fn main() {
 
         match load_contest(&url).await {
             Ok(contests) => {
-                for contest in contests.into_iter() {
+                for contest in contests {
                     finish_one_contest(&url, &contest.id).await;
                 }
             }

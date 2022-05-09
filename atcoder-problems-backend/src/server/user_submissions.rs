@@ -66,7 +66,6 @@ pub(crate) async fn get_user_submission_count(
         user: ref user_id,
         from_second: Some(from_second),
         to_second: Some(to_second),
-        ..
     } = *query
     {
         let range = from_second..to_second;

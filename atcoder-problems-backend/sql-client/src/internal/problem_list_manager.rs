@@ -70,7 +70,7 @@ impl ProblemListManager for PgPool {
         .fetch_all(self)
         .await?;
         let mut map = BTreeMap::new();
-        for (list_id, list_name, user_id, problem_id, memo) in items.into_iter() {
+        for (list_id, list_name, user_id, problem_id, memo) in items {
             let list = map
                 .entry(list_id)
                 .or_insert((list_name, user_id, Vec::new()));
@@ -125,7 +125,7 @@ impl ProblemListManager for PgPool {
         .fetch_all(self)
         .await?;
         let mut map = BTreeMap::new();
-        for (list_id, list_name, user_id, problem_id, memo) in items.into_iter() {
+        for (list_id, list_name, user_id, problem_id, memo) in items {
             let list = map
                 .entry(list_id)
                 .or_insert((list_name, user_id, Vec::new()));

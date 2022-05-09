@@ -23,7 +23,7 @@ where
     pub async fn crawl(&self) -> Result<()> {
         info!("Started");
         let contests = self.db.load_contests().await?;
-        for contest in contests.into_iter() {
+        for contest in contests {
             for page in 1.. {
                 info!("Crawling {}-{} ...", contest.id, page);
                 let (submissions, max_page) =
