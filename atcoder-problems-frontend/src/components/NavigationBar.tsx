@@ -91,6 +91,12 @@ export const NavigationBar = () => {
                 FAQ
               </NavLink>
             </NavItem>
+            
+            <NavItem>
+              <NavLink tag={RouterLink} to="/book/index.html">
+                User Guide
+              </NavLink>
+            </NavItem>
 
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
