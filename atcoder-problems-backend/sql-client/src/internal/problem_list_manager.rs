@@ -1,5 +1,5 @@
 use crate::PgPool;
-use anyhow::{bail, Context, Result};
+use anyhow::{ensure, Context, Result};
 use async_trait::async_trait;
 use serde::Serialize;
 use sqlx::Row;
@@ -152,9 +152,8 @@ impl ProblemListManager for PgPool {
         let new_list_id = uuid::Uuid::new_v4().to_string();
 
         let list = self.get_list(internal_user_id).await?;
-        if list.len() >= MAX_LIST_NUM {
-            bail!("Cannot create a list anymore");
-        }
+
+        ensure!(list.len() < MAX_LIST_NUM, "Cannot create a list anymore");
 
         sqlx::query(
             r"
@@ -202,9 +201,11 @@ impl ProblemListManager for PgPool {
         .try_map(|row| row.try_get::<String, _>("problem_id"))
         .fetch_all(self)
         .await?;
-        if problems.len() >= MAX_ITEM_NUM {
-            bail!("Cannot create a list item anymore");
-        }
+
+        ensure!(
+            problems.len() < MAX_ITEM_NUM,
+            "Cannot create a list item anymore"
+        );
 
         sqlx::query(
             r"

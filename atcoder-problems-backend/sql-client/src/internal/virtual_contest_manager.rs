@@ -1,5 +1,5 @@
 use crate::PgPool;
-use anyhow::{bail, Context, Result};
+use anyhow::{ensure, Context, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
@@ -332,9 +332,10 @@ impl VirtualContestManager for PgPool {
         problems: &[VirtualContestItem],
         user_id: &str,
     ) -> Result<()> {
-        if problems.len() > MAX_PROBLEM_NUM_PER_CONTEST {
-            bail!("The number of problems exceeded.");
-        }
+        ensure!(
+            problems.len() <= MAX_PROBLEM_NUM_PER_CONTEST,
+            "The number of problems exceeded."
+        );
 
         // Checks if the target contest exists
         sqlx::query(
