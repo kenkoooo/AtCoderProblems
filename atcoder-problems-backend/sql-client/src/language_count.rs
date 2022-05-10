@@ -182,10 +182,7 @@ impl LanguageCountClient for PgPool {
         let languages = sqlx::query(
             r"SELECT DISTINCT simplified_language FROM language_count ORDER BY simplified_language",
         )
-        .try_map(|row: PgRow| {
-            let simplified_language: String = row.try_get("simplified_language")?;
-            Ok(simplified_language)
-        })
+        .try_map(|row: PgRow| row.try_get::<String, _>("simplified_language"))
         .fetch_all(self)
         .await?;
         Ok(languages)

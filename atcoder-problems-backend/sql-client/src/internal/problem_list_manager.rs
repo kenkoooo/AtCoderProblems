@@ -2,7 +2,6 @@ use crate::PgPool;
 use anyhow::{bail, Context, Result};
 use async_trait::async_trait;
 use serde::Serialize;
-use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::BTreeMap;
 
@@ -54,7 +53,7 @@ impl ProblemListManager for PgPool {
             ",
         )
         .bind(internal_user_id)
-        .try_map(|row: PgRow| {
+        .try_map(|row| {
             let internal_list_id: String = row.try_get("internal_list_id")?;
             let internal_list_name: String = row.try_get("internal_list_name")?;
             let internal_user_id: String = row.try_get("internal_user_id")?;
@@ -109,7 +108,7 @@ impl ProblemListManager for PgPool {
             ",
         )
         .bind(internal_list_id)
-        .map(|row: PgRow| {
+        .map(|row| {
             let internal_list_id: String = row.get(0);
             let internal_list_name: String = row.get(1);
             let internal_user_id: String = row.get(2);
@@ -200,7 +199,7 @@ impl ProblemListManager for PgPool {
             "SELECT problem_id FROM internal_problem_list_items WHERE internal_list_id = $1",
         )
         .bind(internal_list_id)
-        .try_map(|row: PgRow| row.try_get::<String, _>("problem_id"))
+        .try_map(|row| row.try_get::<String, _>("problem_id"))
         .fetch_all(self)
         .await?;
         if problems.len() >= MAX_ITEM_NUM {
