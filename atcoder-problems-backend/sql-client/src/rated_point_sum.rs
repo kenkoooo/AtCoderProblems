@@ -56,7 +56,7 @@ impl RatedPointSumClient for PgPool {
         let (rated_contest_ids, rated_problem_ids) =
             tokio::try_join!(rated_contest_ids_fut, rated_problem_ids_fut)?;
 
-        let rated_contest_ids = rated_contest_ids.into_iter().collect::<BTreeSet<_>>();
+        let rated_contest_ids = BTreeSet::from_iter(rated_contest_ids);
         let rated_problem_ids = rated_problem_ids
             .into_iter()
             .filter(|p| rated_contest_ids.contains(&p.contest_id))
@@ -86,7 +86,7 @@ impl RatedPointSumClient for PgPool {
             })
             .into_iter()
             .map(|(user_id, set)| {
-                let sum = set.into_iter().map(|(_, point)| point).sum::<i64>();
+                let sum = set.into_values().sum::<i64>();
                 (user_id, sum)
             })
             .collect::<Vec<_>>();

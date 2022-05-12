@@ -18,7 +18,7 @@ async fn test_insert_contests() {
     .unwrap();
 
     let contests = pool.load_contests().await.unwrap();
-    assert_eq!(contests[0].id.as_str(), "contest1");
+    assert_eq!(contests[0].id, "contest1");
 
     pool.insert_contests(&[Contest {
         id: "contest1".to_string(),
@@ -46,7 +46,7 @@ async fn test_insert_problems() {
     .unwrap();
 
     let problems = pool.load_problems().await.unwrap();
-    assert_eq!(problems[0].id.as_str(), "problem1");
+    assert_eq!(problems[0].id, "problem1");
 
     pool.insert_problems(&[Problem {
         id: "problem1".to_string(),

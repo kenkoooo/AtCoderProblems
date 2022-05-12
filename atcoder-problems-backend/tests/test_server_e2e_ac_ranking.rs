@@ -63,7 +63,7 @@ async fn test_ac_ranking() {
     let response = test::call_service(&app, request).await;
     assert_eq!(response.status(), StatusCode::OK);
     let response: Value = test::read_body_json(response).await;
-    assert_eq!(response.as_array().unwrap().len(), 0);
+    assert!(response.as_array().unwrap().is_empty());
 
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/ac_ranking?from=0&to=2000")

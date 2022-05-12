@@ -145,8 +145,8 @@ mod tests {
             position: "A".to_owned(),
         };
         let p = convert_problem(p);
-        assert_eq!(p.id, "id".to_owned());
-        assert_eq!(p.contest_id, "contest_id".to_owned());
-        assert_eq!(p.title, "A. title".to_owned());
+        assert_eq!(p.id, "id");
+        assert_eq!(p.contest_id, "contest_id");
+        assert_eq!(p.title, "A. title");
     }
 }

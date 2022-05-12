@@ -54,7 +54,7 @@ async fn test_user_submissions() {
     let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
 
     assert_eq!(submissions.len(), 5);
-    assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
+    assert!(submissions.iter().all(|s| s.user_id == "u1"));
 
     let response = test::TestRequest::get()
         .uri("/atcoder-api/results?user=u2")
@@ -62,7 +62,7 @@ async fn test_user_submissions() {
     let submissions: Vec<Submission> = test::call_and_read_body_json(&app, response).await;
 
     assert_eq!(submissions.len(), 5);
-    assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
+    assert!(submissions.iter().all(|s| s.user_id == "u2"));
 }
 
 #[actix_web::test]
@@ -83,7 +83,7 @@ async fn test_user_submissions_fromtime() {
     let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
 
     assert_eq!(submissions.len(), 2);
-    assert!(submissions.iter().all(|s| s.user_id.as_str() == "u1"));
+    assert!(submissions.iter().all(|s| s.user_id == "u1"));
 
     let request = test::TestRequest::get()
         .uri("/atcoder-api/v3/user/submissions?user=u2&from_second=6")
@@ -91,7 +91,7 @@ async fn test_user_submissions_fromtime() {
     let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
 
     assert_eq!(submissions.len(), 3);
-    assert!(submissions.iter().all(|s| s.user_id.as_str() == "u2"));
+    assert!(submissions.iter().all(|s| s.user_id == "u2"));
     assert_eq!(submissions[0].epoch_second, 6);
     assert_eq!(submissions[1].epoch_second, 7);
     assert_eq!(submissions[2].epoch_second, 200);

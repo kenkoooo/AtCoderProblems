@@ -349,6 +349,7 @@ async fn test_load_rated_point_sum_in_range() {
     let sums_5th_to_10th = pool.load_rated_point_sum_in_range(4..10).await.unwrap();
     assert!(sums_5th_to_10th.is_empty());
 
+    #[allow(clippy::reversed_empty_ranges)]
     let sums_nonsense = pool.load_rated_point_sum_in_range(5..0).await.unwrap();
     assert!(sums_nonsense.is_empty());
 

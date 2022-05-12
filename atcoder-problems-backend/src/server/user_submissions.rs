@@ -71,7 +71,7 @@ pub(crate) async fn get_user_submission_count(
     {
         let range = from_second..to_second;
         let count = pool
-            .get_user_submission_count(&user_id, range)
+            .get_user_submission_count(user_id, range)
             .await
             .map_err(error::ErrorInternalServerError)?;
 

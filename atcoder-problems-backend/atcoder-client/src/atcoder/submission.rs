@@ -143,19 +143,15 @@ pub(super) fn scrape(html_text: &str, contest_id: &str) -> Result<Vec<AtCoderSub
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::prelude::*;
 
     #[test]
     fn test_scrape() {
-        let mut file = File::open("test_resources/abc107_submissions").unwrap();
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
-        let submissions = scrape(&contents, "abc107").unwrap();
+        let contents = include_str!("../../test_resources/abc107_submissions");
+        let submissions = scrape(contents, "abc107").unwrap();
         assert_eq!(submissions.len(), 20);
         assert!(submissions.iter().all(|s| s.user_id.is_ascii()));
 
-        let max_page = scrape_submission_page_count(&contents).unwrap();
+        let max_page = scrape_submission_page_count(contents).unwrap();
         assert_eq!(max_page, 2208);
     }
 }
