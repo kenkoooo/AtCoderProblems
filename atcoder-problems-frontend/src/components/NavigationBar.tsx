@@ -93,7 +93,11 @@ export const NavigationBar = () => {
             </NavItem>
 
             <NavItem>
-              <NavLink tag={RouterLink} to="/book/index.html">
+              <NavLink
+                href="/book/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 User Guide
               </NavLink>
             </NavItem>
