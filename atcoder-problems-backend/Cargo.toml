@@ -24,7 +24,7 @@ sql-client = { path = "./sql-client" }
 atcoder-client = { path = "./atcoder-client" }
 
 # Web framework
-actix-web = "4.0.0-rc.2"
+actix-web = "4.0.1"
 actix-service = "2.0.2"
 reqwest = { version = "0.11", features = ["json"] }
 
