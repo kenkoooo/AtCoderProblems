@@ -8,7 +8,7 @@ publish = false
 [dependencies]
 # Logging
 log = "0.4"
-fern = "0.6.0"
+fern = "0.6.1"
 
 rand = "0.7.3"
 chrono = "0.4"
