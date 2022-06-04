@@ -444,7 +444,7 @@ dependencies = [
  "futures-util",
  "httpmock",
  "log",
- "rand 0.7.3",
+ "rand 0.8.4",
  "regex",
  "reqwest",
  "rust-s3",
