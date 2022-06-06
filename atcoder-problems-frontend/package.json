@@ -61,7 +61,7 @@
     "reactstrap": "8.2.0",
     "recharts": "2.0.0-beta.1",
     "sass": "1.37.0",
-    "swr": "0.5.3"
+    "swr": "1.3.0"
   },
   "devDependencies": {
     "@types/jest": "27.4.1",
