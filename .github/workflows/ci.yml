@@ -9,6 +9,7 @@ env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
   RUST_TEST_THREADS: 1
+  CARGO_PROFILE_TEST_DEBUG: 0
   SQL_URL: postgres://db_user:db_pass@localhost:5432/test_db
 
 jobs:
