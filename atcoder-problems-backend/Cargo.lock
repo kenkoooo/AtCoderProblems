@@ -445,7 +445,6 @@ dependencies = [
  "httpmock",
  "log",
  "rand 0.8.4",
- "regex",
  "reqwest",
  "rust-s3",
  "serde",
