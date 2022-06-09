@@ -58,6 +58,9 @@ jobs:
       - name: Check format
         run: cargo fmt --all -- --check
 
+      - name: Download dependencies
+        run: cargo fetch --locked
+
       - name: Build
         run: cargo test --no-run --workspace --locked --verbose
 
