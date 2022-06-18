@@ -2,10 +2,8 @@ use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
 use serde::Serialize;
-use sqlx::postgres::PgRow;
-use sqlx::Row;
 
-#[derive(Serialize, Debug, PartialEq, Eq)]
+#[derive(Serialize, Debug, PartialEq, Eq, sqlx::FromRow)]
 pub struct InternalUserInfo {
     pub internal_user_id: String,
     pub atcoder_user_id: Option<String>,
@@ -58,7 +56,7 @@ impl UserManager for PgPool {
     }
 
     async fn get_internal_user_info(&self, internal_user_id: &str) -> Result<InternalUserInfo> {
-        let res = sqlx::query(
+        let res = sqlx::query_as(
             r"
             SELECT internal_user_id, atcoder_user_id
             FROM internal_users
@@ -66,14 +64,6 @@ impl UserManager for PgPool {
             ",
         )
         .bind(internal_user_id)
-        .try_map(|row: PgRow| {
-            let internal_user_id: String = row.try_get("internal_user_id")?;
-            let atcoder_user_id: Option<String> = row.try_get("atcoder_user_id")?;
-            Ok(InternalUserInfo {
-                internal_user_id,
-                atcoder_user_id,
-            })
-        })
         .fetch_one(self)
         .await?;
         Ok(res)

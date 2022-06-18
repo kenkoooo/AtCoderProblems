@@ -2,15 +2,13 @@ use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
 use serde::Serialize;
-use sqlx::postgres::PgRow;
-use sqlx::Row;
 
 #[derive(Serialize, Debug, PartialEq, Eq)]
 pub struct ProgressResetList {
     pub items: Vec<ProgressResetItem>,
 }
 
-#[derive(Serialize, Debug, PartialEq, Eq)]
+#[derive(Serialize, Debug, PartialEq, Eq, sqlx::FromRow)]
 pub struct ProgressResetItem {
     pub problem_id: String,
     pub reset_epoch_second: i64,
@@ -68,7 +66,7 @@ impl ProgressResetManager for PgPool {
     }
 
     async fn get_progress_reset_list(&self, internal_user_id: &str) -> Result<ProgressResetList> {
-        let items = sqlx::query(
+        let items = sqlx::query_as(
             r"
             SELECT problem_id, reset_epoch_second
             FROM internal_progress_reset
@@ -76,14 +74,6 @@ impl ProgressResetManager for PgPool {
             ",
         )
         .bind(internal_user_id)
-        .try_map(|row: PgRow| {
-            let problem_id: String = row.try_get("problem_id")?;
-            let reset_epoch_second: i64 = row.try_get("reset_epoch_second")?;
-            Ok(ProgressResetItem {
-                problem_id,
-                reset_epoch_second,
-            })
-        })
         .fetch_all(self)
         .await?;
         Ok(ProgressResetList { items })

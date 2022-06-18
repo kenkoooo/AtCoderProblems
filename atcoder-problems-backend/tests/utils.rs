@@ -22,12 +22,10 @@ pub async fn initialize_and_connect_to_test_sql() -> PgPool {
 
 pub fn start_mock_github_server(access_token: &str) -> MockServer {
     let server = MockServer::start();
-    let token = access_token.to_string();
     server.mock(|when, then| {
         when.method("POST").path("/login/oauth/access_token");
-        then.status(200).json_body(json!({
-            "access_token": token.clone()
-        }));
+        then.status(200)
+            .json_body(json!({ "access_token": access_token }));
     });
     server
 }

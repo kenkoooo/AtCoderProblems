@@ -1,6 +1,6 @@
 use super::AtCoderSubmission;
 
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 
 use chrono::DateTime;
 use regex::Regex;
@@ -16,7 +16,7 @@ pub(super) fn scrape_submission_page_count(html: &str) -> Result<u32> {
         .flat_map(|href| href.rsplit('=').next())
         .flat_map(str::parse)
         .max()
-        .ok_or_else(|| anyhow!("Failed to parse html."))
+        .context("Failed to parse html.")
 }
 
 pub(super) fn scrape(html_text: &str, contest_id: &str) -> Result<Vec<AtCoderSubmission>> {
@@ -29,46 +29,46 @@ pub(super) fn scrape(html_text: &str, contest_id: &str) -> Result<Vec<AtCoderSub
     Html::parse_document(html_text)
         .select(&tbody_selector)
         .next()
-        .ok_or_else(|| anyhow!("Failed to parse html."))?
+        .context("Failed to parse html.")?
         .select(&tr_selector)
         .map(|tr| {
             let mut tds = tr.select(&td_selector);
 
             let time = tds
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .text()
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
             let time = DateTime::parse_from_str(time, "%Y-%m-%d %H:%M:%S%z")?;
             let epoch_second = time.timestamp() as u64;
 
             let problem_id = tds
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .select(&a_selector)
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .value()
                 .attr("href")
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .rsplit('/')
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .to_owned();
 
             let user_id = tds
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .select(&a_selector)
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .value()
                 .attr("href")
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .rsplit('/')
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .to_owned();
 
             let language = tds
@@ -79,28 +79,28 @@ pub(super) fn scrape(html_text: &str, contest_id: &str) -> Result<Vec<AtCoderSub
 
             let point: f64 = tds
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .text()
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .parse()?;
 
             let length = tds
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .text()
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .replace("Byte", "")
                 .trim()
                 .parse::<u64>()?;
 
             let result = tds
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .text()
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .to_owned();
 
             let execution_time = tds
@@ -115,13 +115,13 @@ pub(super) fn scrape(html_text: &str, contest_id: &str) -> Result<Vec<AtCoderSub
                     Some(href) => re.is_match(href),
                     None => false,
                 })
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .value()
                 .attr("href")
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .rsplit('/')
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .trim()
                 .parse::<u64>()?;
             Ok(AtCoderSubmission {

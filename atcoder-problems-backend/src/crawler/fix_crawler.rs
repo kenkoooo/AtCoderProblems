@@ -46,7 +46,7 @@ where
             },
         );
 
-        for (contest_id, minimum_id) in contests.into_iter() {
+        for (contest_id, minimum_id) in contests {
             for page in 1.. {
                 info!("Fetching from {}-{}", contest_id, page);
                 let (submissions, max_page) =

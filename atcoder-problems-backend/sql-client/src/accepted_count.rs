@@ -2,7 +2,6 @@ use crate::models::{Submission, UserProblemCount};
 use crate::{PgPool, MAX_INSERT_ROWS};
 use anyhow::Result;
 use async_trait::async_trait;
-use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
@@ -22,20 +21,12 @@ pub trait AcceptedCountClient {
 #[async_trait]
 impl AcceptedCountClient for PgPool {
     async fn load_accepted_count(&self) -> Result<Vec<UserProblemCount>> {
-        let count = sqlx::query(
+        let count = sqlx::query_as(
             r"
             SELECT user_id, problem_count FROM accepted_count
             ORDER BY problem_count DESC, user_id ASC
             ",
         )
-        .try_map(|row: PgRow| {
-            let user_id: String = row.try_get("user_id")?;
-            let problem_count: i32 = row.try_get("problem_count")?;
-            Ok(UserProblemCount {
-                user_id,
-                problem_count,
-            })
-        })
         .fetch_all(self)
         .await?;
 
@@ -46,7 +37,7 @@ impl AcceptedCountClient for PgPool {
         &self,
         rank_range: Range<usize>,
     ) -> Result<Vec<UserProblemCount>> {
-        let count = sqlx::query(
+        let count = sqlx::query_as(
             r"
             SELECT user_id, problem_count FROM accepted_count
             ORDER BY problem_count DESC, user_id ASC
@@ -55,14 +46,6 @@ impl AcceptedCountClient for PgPool {
         )
         .bind(rank_range.start as i32)
         .bind(rank_range.len() as i32)
-        .try_map(|row: PgRow| {
-            let user_id: String = row.try_get("user_id")?;
-            let problem_count: i32 = row.try_get("problem_count")?;
-            Ok(UserProblemCount {
-                user_id,
-                problem_count,
-            })
-        })
         .fetch_all(self)
         .await?;
 
@@ -77,7 +60,7 @@ impl AcceptedCountClient for PgPool {
             ",
         )
         .bind(user_id)
-        .try_map(|row: PgRow| row.try_get::<i32, _>("problem_count"))
+        .try_map(|row| row.try_get::<i32, _>("problem_count"))
         .fetch_one(self)
         .await
         .ok()?;
@@ -93,7 +76,7 @@ impl AcceptedCountClient for PgPool {
             ",
         )
         .bind(accepted_count)
-        .try_map(|row: PgRow| row.try_get::<i64, _>("rank"))
+        .try_map(|row| row.try_get::<i64, _>("rank"))
         .fetch_one(self)
         .await?;
 

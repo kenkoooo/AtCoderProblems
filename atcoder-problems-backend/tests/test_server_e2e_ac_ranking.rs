@@ -7,13 +7,8 @@ pub mod utils;
 
 #[actix_web::test]
 async fn test_ac_ranking() {
-    let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-        .await
-        .unwrap();
-    sql_client::query("TRUNCATE accepted_count")
-        .execute(&pg_pool)
-        .await
-        .unwrap();
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+
     sql_client::query(
         r"INSERT INTO accepted_count (user_id, problem_count) VALUES ('u1', 1), ('u2', 2), ('u3', 1)",
     )

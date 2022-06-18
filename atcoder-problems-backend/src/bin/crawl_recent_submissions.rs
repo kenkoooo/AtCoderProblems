@@ -1,9 +1,10 @@
+use actix_web::rt::time;
 use anyhow::Result;
 use atcoder_client::AtCoderClient;
 use atcoder_problems_backend::crawler::RecentCrawler;
 use atcoder_problems_backend::utils::init_log_config;
 use sql_client::initialize_pool;
-use std::{env, thread, time};
+use std::{env, time::Duration};
 
 async fn crawl(url: &str) -> Result<()> {
     let db = initialize_pool(url).await?;
@@ -21,7 +22,7 @@ async fn main() {
         log::info!("Start new loop");
         if let Err(e) = crawl(&url).await {
             log::error!("{:?}", e);
-            thread::sleep(time::Duration::from_millis(1000));
+            time::sleep(Duration::from_secs(1)).await;
         }
     }
 }

@@ -6,7 +6,7 @@ use actix_web::{
     dev::{ServiceRequest, ServiceResponse},
     Error, HttpMessage,
 };
-use anyhow::Result;
+use anyhow::{Context, Result};
 use futures_util::{
     future::{self, LocalBoxFuture},
     FutureExt,
@@ -62,7 +62,7 @@ impl GithubClient {
             .await?;
         let access_token = response["access_token"]
             .as_str()
-            .ok_or_else(|| anyhow::anyhow!("Invalid Github response"))?;
+            .context("Invalid Github response")?;
         Ok(access_token.to_string())
     }
 
@@ -139,8 +139,8 @@ where
         let client = Rc::clone(&self.client);
         async move {
             if let Some(cookie) = req.cookie("token") {
-                let token = cookie.value().to_string();
-                if let Ok(token) = client.verify_user(&token).await {
+                let token = cookie.value();
+                if let Ok(token) = client.verify_user(token).await {
                     req.extensions_mut().insert(token);
                 }
             }

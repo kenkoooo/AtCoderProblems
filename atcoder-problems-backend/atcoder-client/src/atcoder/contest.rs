@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 
 use super::AtCoderContest;
 
@@ -11,57 +11,57 @@ pub(super) fn scrape_normal(html: &str) -> Result<Vec<AtCoderContest>> {
     Html::parse_document(html)
         .select(&Selector::parse("tbody").unwrap())
         .next()
-        .ok_or_else(|| anyhow!("Failed to parse html."))?
+        .context("Failed to parse html.")?
         .select(&Selector::parse("tr").unwrap())
         .map(|tr| {
             let selector = Selector::parse("td").unwrap();
             let mut tds = tr.select(&selector);
             let start = tds
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .text()
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
             let start = DateTime::parse_from_str(start, "%Y-%m-%d %H:%M:%S%z")?;
             let start = start.timestamp() as u64;
 
-            let contest = tds.next().ok_or_else(|| anyhow!("Failed to parse html."))?;
+            let contest = tds.next().context("Failed to parse html.")?;
             let contest_title = contest
                 .select(&Selector::parse("a").unwrap())
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .text()
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
             let contest_link = contest
                 .select(&Selector::parse("a").unwrap())
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .value()
                 .attr("href")
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
             let contest_id = contest_link
                 .rsplit('/')
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
 
             let duration = tds.next().unwrap().text().next().unwrap();
             let mut duration = duration.split(':');
             let hours = duration
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .parse::<u64>()?;
             let minutes = duration
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .parse::<u64>()?;
             let duration = hours * 3600 + minutes * 60;
             let rated = tds
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .text()
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
             Ok(AtCoderContest {
                 id: contest_id.to_owned(),
                 start_epoch_second: start,
@@ -77,41 +77,41 @@ pub(super) fn scrape_permanent(html: &str) -> Result<Vec<AtCoderContest>> {
     Html::parse_document(html)
         .select(&Selector::parse("#contest-table-permanent").unwrap())
         .next()
-        .ok_or_else(|| anyhow!("Failed to parse html."))?
+        .context("Failed to parse html.")?
         .select(&Selector::parse("tbody").unwrap())
         .next()
-        .ok_or_else(|| anyhow!("Failed to parse html."))?
+        .context("Failed to parse html.")?
         .select(&Selector::parse("tr").unwrap())
         .map(|tr| {
             let selector = Selector::parse("td").unwrap();
             let mut tds = tr.select(&selector);
 
-            let contest = tds.next().ok_or_else(|| anyhow!("Failed to parse html."))?;
+            let contest = tds.next().context("Failed to parse html.")?;
             let contest_title = contest
                 .select(&Selector::parse("a").unwrap())
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .text()
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
             let contest_link = contest
                 .select(&Selector::parse("a").unwrap())
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .value()
                 .attr("href")
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
             let contest_id = contest_link
                 .rsplit('/')
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
 
             let rated = tds
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?
+                .context("Failed to parse html.")?
                 .text()
                 .next()
-                .ok_or_else(|| anyhow!("Failed to parse html."))?;
+                .context("Failed to parse html.")?;
             Ok(AtCoderContest {
                 id: contest_id.to_owned(),
                 start_epoch_second: 0,
