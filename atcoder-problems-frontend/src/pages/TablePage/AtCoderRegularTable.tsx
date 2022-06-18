@@ -44,6 +44,9 @@ const getProblemHeaderAlphabet = (problem: MergedProblem, contest: Contest) => {
   ) {
     return "H/Ex";
   }
+  if (problem.problem_index === "Ex") {
+    return "H/Ex";
+  }
   return problem.problem_index;
 };
 
