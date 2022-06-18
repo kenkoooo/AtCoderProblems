@@ -51,7 +51,6 @@ where
 mod tests {
     use super::*;
     use crate::crawler::utils::MockFetcher;
-    use async_std::task::block_on;
     use async_trait::async_trait;
     use sql_client::models::Submission;
     use sql_client::submission_client::SubmissionRequest;
@@ -76,8 +75,8 @@ mod tests {
             unimplemented!()
         }
     }
-    #[test]
-    fn whole_contest_crawler() {
+    #[actix_web::test]
+    async fn whole_contest_crawler() {
         let fetcher = MockFetcher(|_, page| {
             if page == 1 {
                 vec![Submission {
@@ -88,6 +87,6 @@ mod tests {
             }
         });
         let crawler = WholeContestCrawler::new(MockDB, fetcher, "contest-id");
-        assert!(block_on(crawler.crawl()).is_ok());
+        assert!(crawler.crawl().await.is_ok());
     }
 }

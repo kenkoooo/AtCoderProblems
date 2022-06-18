@@ -8,12 +8,11 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sqlx = { version = "0.5.9", features = ["postgres", "runtime-async-std-rustls"] }
-async-trait = "0.1.52"
+sqlx = { version = "0.5.13", features = ["postgres", "runtime-tokio-rustls"] }
+async-trait = "0.1.56"
 serde = { version = "1.0", features = ["derive"] }
-uuid = { version = "0.8", features = ["serde", "v4"] }
-anyhow = "1.0.51"
-async-std = { version = "1.10.0", features = ["attributes"] }
+uuid = { version = "1.1", features = ["serde", "v4"] }
+anyhow = "1.0"
+tokio = { version = "1.16", features = ["macros"] }
 regex = "1"
-futures = "0.3"
 chrono = "0.4"

@@ -52,7 +52,7 @@ async fn setup_contests() -> PgPool {
     pool
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_problem_info_aggrefator() {
     let ignored_submission = vec![Submission {
         id: 0,
@@ -91,7 +91,7 @@ async fn test_problem_info_aggrefator() {
         pool.update_submissions(&ignored_submission).await.unwrap();
         pool.update_submissions_of_problems().await.unwrap();
         let first = get_from(&pool, Table::First).await;
-        assert_eq!(first.len(), 0);
+        assert!(first.is_empty());
 
         pool.update_submissions(&submissions1).await.unwrap();
         pool.update_submissions_of_problems().await.unwrap();

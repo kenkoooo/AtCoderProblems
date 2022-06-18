@@ -1,108 +1,132 @@
-use crate::server::{AppData, CommonResponse};
+use crate::server::MakeCors;
+use actix_web::http::header::CACHE_CONTROL;
+use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::{Deserialize, Serialize};
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
-use tide::http::headers::CACHE_CONTROL;
-use tide::{Request, Response, Result};
+use sql_client::PgPool;
 
 const USER_SUBMISSION_LIMIT: usize = 500;
 
-pub(crate) async fn get_user_submissions<A>(request: Request<AppData<A>>) -> Result<Response> {
-    #[derive(Deserialize, Debug)]
-    struct Query {
-        user: String,
-    }
-    let conn = request.state().pg_pool.clone();
-    let query = request.query::<Query>()?;
+#[derive(Deserialize, Debug)]
+pub(crate) struct GetUserSubmissionQuery {
+    user: String,
+    from_second: Option<i64>,
+    to_second: Option<i64>,
+}
+
+pub(crate) async fn get_user_submissions(
+    _request: HttpRequest,
+    pool: web::Data<PgPool>,
+    query: web::Query<GetUserSubmissionQuery>,
+) -> Result<HttpResponse> {
     let user_id = &query.user;
-    let submissions = conn
+    let submissions = pool
         .get_submissions(SubmissionRequest::UserAll { user_id })
-        .await?;
-    let mut response = Response::json(&submissions)?.make_cors();
-    response.insert_header(CACHE_CONTROL, "max-age=300");
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    let response = HttpResponse::Ok()
+        .make_cors()
+        .insert_header((CACHE_CONTROL, "max-age=300"))
+        .json(&submissions);
     Ok(response)
 }
 
-pub(crate) async fn get_user_submissions_from_time<A>(
-    request: Request<AppData<A>>,
-) -> Result<Response> {
-    #[derive(Deserialize, Debug)]
-    struct Query {
-        user: String,
-        from_second: i64,
+pub(crate) async fn get_user_submissions_from_time(
+    _request: HttpRequest,
+    pool: web::Data<PgPool>,
+    query: web::Query<GetUserSubmissionQuery>,
+) -> Result<HttpResponse> {
+    if let GetUserSubmissionQuery {
+        user: ref user_id,
+        from_second: Some(from_second),
+        ..
+    } = *query
+    {
+        let submissions = pool
+            .get_submissions(SubmissionRequest::FromUserAndTime {
+                user_id,
+                from_second,
+                count: USER_SUBMISSION_LIMIT,
+            })
+            .await
+            .map_err(error::ErrorInternalServerError)?;
+        let response = HttpResponse::Ok().make_cors().json(&submissions);
+        Ok(response)
+    } else {
+        Ok(HttpResponse::BadRequest().finish())
     }
-    let conn = request.state().pg_pool.clone();
-    let query = request.query::<Query>()?;
-    let user_id = &query.user;
-    let submissions = conn
-        .get_submissions(SubmissionRequest::FromUserAndTime {
-            user_id,
-            from_second: query.from_second,
-            count: USER_SUBMISSION_LIMIT,
-        })
-        .await?;
-    let response = Response::json(&submissions)?.make_cors();
-    Ok(response)
 }
 
-pub(crate) async fn get_user_submission_count<A>(request: Request<AppData<A>>) -> Result<Response> {
-    #[derive(Deserialize, Debug)]
-    struct Query {
-        user: String,
-        from_second: i64,
-        to_second: i64,
-    }
+pub(crate) async fn get_user_submission_count(
+    _request: HttpRequest,
+    pool: web::Data<PgPool>,
+    query: web::Query<GetUserSubmissionQuery>,
+) -> Result<HttpResponse> {
+    if let GetUserSubmissionQuery {
+        user: ref user_id,
+        from_second: Some(from_second),
+        to_second: Some(to_second),
+        ..
+    } = *query
+    {
+        let range = from_second..to_second;
+        let count = pool
+            .get_user_submission_count(user_id, range)
+            .await
+            .map_err(error::ErrorInternalServerError)?;
 
-    let conn = request.state().pg_pool.clone();
-    let query = request.query::<Query>()?;
-    let user_id = query.user;
-    let range = query.from_second..query.to_second;
-    let count = conn.get_user_submission_count(&user_id, range).await?;
-
-    #[derive(Serialize, Debug)]
-    struct UserSubmissionCountResponse {
-        count: usize,
+        #[derive(Serialize, Debug)]
+        struct UserSubmissionCountResponse {
+            count: usize,
+        }
+        let response = UserSubmissionCountResponse { count };
+        let response = HttpResponse::Ok().make_cors().json(&response);
+        Ok(response)
+    } else {
+        Ok(HttpResponse::BadRequest().finish())
     }
-    let response = UserSubmissionCountResponse { count };
-    let response = Response::json(&response)?.make_cors();
-    Ok(response)
 }
 
-pub(crate) async fn get_recent_submissions<A>(request: Request<AppData<A>>) -> Result<Response> {
-    let conn = request.state().pg_pool.clone();
-    let submissions = conn
+pub(crate) async fn get_recent_submissions(
+    _request: HttpRequest,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse> {
+    let submissions = pool
         .get_submissions(SubmissionRequest::RecentAll { count: 1000 })
-        .await?;
-    let response = Response::json(&submissions)?;
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    let response = HttpResponse::Ok().json(&submissions);
     Ok(response)
 }
 
-pub(crate) async fn get_users_time_submissions<A>(
-    request: Request<AppData<A>>,
-) -> Result<Response> {
-    #[derive(Deserialize, Debug)]
-    struct Query {
-        users: String,
-        problems: String,
-        from: i64,
-        to: i64,
-    }
+#[derive(Deserialize, Debug)]
+pub(crate) struct GetUsersTimeSubmissionQuery {
+    users: String,
+    problems: String,
+    from: i64,
+    to: i64,
+}
 
-    let conn = request.state().pg_pool.clone();
-    let query = request.query::<Query>()?;
+pub(crate) async fn get_users_time_submissions(
+    _request: HttpRequest,
+    pool: web::Data<PgPool>,
+    query: web::Query<GetUsersTimeSubmissionQuery>,
+) -> Result<HttpResponse> {
     let user_ids = query.users.split(',').map(|s| s.trim()).collect::<Vec<_>>();
     let problem_ids = query
         .problems
         .split(',')
         .map(|s| s.trim())
         .collect::<Vec<_>>();
-    let submissions = conn
+    let submissions = pool
         .get_submissions(SubmissionRequest::UsersProblemsTime {
             user_ids: &user_ids,
             problem_ids: &problem_ids,
             from_second: query.from,
             to_second: query.to,
         })
-        .await?;
-    let response = Response::json(&submissions)?;
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    let response = HttpResponse::Ok().json(&submissions);
     Ok(response)
 }

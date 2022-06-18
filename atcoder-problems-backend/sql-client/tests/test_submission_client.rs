@@ -3,7 +3,7 @@ use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
 
 mod utils;
 
-#[async_std::test]
+#[tokio::test]
 async fn test_submission_client() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     sqlx::query(
@@ -33,11 +33,11 @@ async fn test_submission_client() {
 
     let request = SubmissionRequest::UserAll { user_id: "user3" };
     let submissions = pool.get_submissions(request).await.unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     let request = SubmissionRequest::RecentAccepted { count: 0 };
     let submissions = pool.get_submissions(request).await.unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     let request = SubmissionRequest::RecentAccepted { count: 1 };
     let submissions = pool.get_submissions(request).await.unwrap();
@@ -79,8 +79,8 @@ async fn test_submission_client() {
     };
     let submissions = pool.get_submissions(request).await.unwrap();
     assert_eq!(submissions.len(), 2);
-    assert_eq!(submissions[0].result, "WA".to_owned());
-    assert_eq!(submissions[1].result, "AC".to_owned());
+    assert_eq!(submissions[0].result, "WA");
+    assert_eq!(submissions[1].result, "AC");
 
     let request = SubmissionRequest::FromUserAndTime {
         user_id: "usEr1",
@@ -96,7 +96,7 @@ async fn test_submission_client() {
         count: 1000,
     };
     let submissions = pool.get_submissions(request).await.unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     let request = SubmissionRequest::UsersAccepted {
         user_ids: &["user1", "user2"],
@@ -128,7 +128,7 @@ async fn test_submission_client() {
     assert_eq!(submissions.len(), 1);
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_update_submissions() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     pool.update_submissions(&[Submission {
@@ -149,8 +149,8 @@ async fn test_update_submissions() {
         .await
         .unwrap();
     assert_eq!(submissions.len(), 1);
-    assert_eq!(submissions[0].user_id, "old_user_name".to_owned());
-    assert_eq!(submissions[0].result, "WJ".to_owned());
+    assert_eq!(submissions[0].user_id, "old_user_name");
+    assert_eq!(submissions[0].result, "WJ");
     assert_eq!(submissions[0].point, 0.0);
     assert_eq!(submissions[0].execution_time, None);
 
@@ -160,7 +160,7 @@ async fn test_update_submissions() {
         })
         .await
         .unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     pool.update_submissions(&[Submission {
         id: 0,
@@ -179,7 +179,7 @@ async fn test_update_submissions() {
         })
         .await
         .unwrap();
-    assert_eq!(submissions.len(), 0);
+    assert!(submissions.is_empty());
 
     let submissions = pool
         .get_submissions(SubmissionRequest::UserAll {
@@ -188,8 +188,8 @@ async fn test_update_submissions() {
         .await
         .unwrap();
     assert_eq!(submissions.len(), 1);
-    assert_eq!(submissions[0].user_id, "new_user_name".to_owned());
-    assert_eq!(submissions[0].result, "AC".to_owned());
+    assert_eq!(submissions[0].user_id, "new_user_name");
+    assert_eq!(submissions[0].result, "AC");
     assert_eq!(submissions[0].point, 100.0);
     assert_eq!(submissions[0].execution_time, Some(1));
 }

@@ -52,7 +52,8 @@ export const ResetProgress: React.FC = () => {
                         <ProblemLink
                           problemId={problem.id}
                           contestId={problem.contest_id}
-                          problemTitle={problem.title}
+                          problemIndex={problem.problem_index}
+                          problemName={problem.name}
                         />
                       ) : (
                         item.problem_id

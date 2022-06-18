@@ -26,6 +26,8 @@ DROP TABLE IF EXISTS problems;
 CREATE TABLE problems (
   id            VARCHAR(255) NOT NULL,
   contest_id    VARCHAR(255) NOT NULL,
+  problem_index VARCHAR(255) NOT NULL,
+  name          VARCHAR(255) NOT NULL,
   title         VARCHAR(255) NOT NULL,
   PRIMARY KEY (id)
 );
@@ -112,7 +114,8 @@ DROP TABLE IF EXISTS contest_problem;
 CREATE TABLE contest_problem (
   contest_id            VARCHAR(255) NOT NULL,
   problem_id            VARCHAR(255) NOT NULL,
-  PRIMARY KEY (contest_id, problem_id)
+  problem_index         VARCHAR(255) NOT NULL,
+  PRIMARY KEY (contest_id, problem_id, problem_index)
 );
 
 DROP TABLE IF EXISTS max_streaks;

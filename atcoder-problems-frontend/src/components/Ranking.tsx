@@ -4,6 +4,10 @@ import { BootstrapTable, TableHeaderColumn } from "react-bootstrap-table";
 import { RankingEntry } from "../interfaces/RankingEntry";
 import { useLocalStorage } from "../utils/LocalStorage";
 import { UserNameLabel } from "./UserNameLabel";
+import {
+  ListPaginationPanel,
+  ListPaginationPanelProps,
+} from "./ListPaginationPanel";
 
 interface Props {
   title: React.ReactNode;
@@ -88,6 +92,11 @@ export const Ranking: React.FC<Props> = (props) => {
               value: props.ranking.length,
             },
           ],
+          paginationPanel: function DataFormat(
+            paginationPanelProps: ListPaginationPanelProps
+          ): React.ReactElement {
+            return <ListPaginationPanel {...paginationPanelProps} />;
+          },
         }}
       >
         <TableHeaderColumn dataField="rank">#</TableHeaderColumn>
@@ -213,6 +222,11 @@ export const RemoteRanking: React.FC<RemoteProps> = (props) => {
               value: 200,
             },
           ],
+          paginationPanel: function DataFormat(
+            paginationPanelProps: ListPaginationPanelProps
+          ): React.ReactElement {
+            return <ListPaginationPanel {...paginationPanelProps} />;
+          },
         }}
       >
         <TableHeaderColumn dataField="rank">#</TableHeaderColumn>

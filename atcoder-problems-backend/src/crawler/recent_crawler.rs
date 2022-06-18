@@ -61,14 +61,13 @@ where
 mod tests {
     use super::*;
     use crate::crawler::utils::MockFetcher;
-    use async_std::task::block_on;
     use async_trait::async_trait;
     use sql_client::models::{Contest, Problem, Submission};
     use sql_client::submission_client::SubmissionRequest;
     use std::ops::Range;
 
-    #[test]
-    fn test_recent_crawler() {
+    #[actix_web::test]
+    async fn test_recent_crawler() {
         let fetcher = MockFetcher(|contest_id: &str, page: u32| {
             assert_eq!(contest_id, "contest");
             assert_eq!(page, 1);
@@ -130,6 +129,6 @@ mod tests {
         }
 
         let crawler = RecentCrawler::new(MockDB, fetcher);
-        assert!(block_on(crawler.crawl()).is_ok());
+        assert!(crawler.crawl().await.is_ok());
     }
 }

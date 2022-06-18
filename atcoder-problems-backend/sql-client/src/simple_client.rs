@@ -68,30 +68,36 @@ impl SimpleClient for PgPool {
     }
 
     async fn insert_problems(&self, values: &[Problem]) -> Result<usize> {
-        let (ids, contest_ids, titles) = values.iter().fold(
-            (vec![], vec![], vec![]),
-            |(mut ids, mut contest_ids, mut titles), cur| {
+        let (ids, contest_ids, problem_indexes, names, titles) = values.iter().fold(
+            (vec![], vec![], vec![], vec![], vec![]),
+            |(mut ids, mut contest_ids, mut problem_indexes, mut names, mut titles), cur| {
                 ids.push(cur.id.as_str());
                 contest_ids.push(cur.contest_id.as_str());
+                problem_indexes.push(cur.problem_index.as_str());
+                names.push(cur.name.as_str());
                 titles.push(cur.title.as_str());
-                (ids, contest_ids, titles)
+                (ids, contest_ids, problem_indexes, names, titles)
             },
         );
 
         let result = sqlx::query(
             r"
             INSERT INTO problems
-            (id, contest_id, title)
+            (id, contest_id, problem_index, name, title)
             VALUES (
                 UNNEST($1::VARCHAR(255)[]),
                 UNNEST($2::VARCHAR(255)[]),
-                UNNEST($3::VARCHAR(255)[])
+                UNNEST($3::VARCHAR(255)[]),
+                UNNEST($4::VARCHAR(255)[]),
+                UNNEST($5::VARCHAR(255)[])
             )
             ON CONFLICT DO NOTHING
             ",
         )
         .bind(ids)
         .bind(contest_ids)
+        .bind(problem_indexes)
+        .bind(names)
         .bind(titles)
         .execute(self)
         .await?;
@@ -100,19 +106,24 @@ impl SimpleClient for PgPool {
     }
 
     async fn load_problems(&self) -> Result<Vec<Problem>> {
-        let problems = sqlx::query("SELECT id, contest_id, title FROM problems")
-            .try_map(|row: PgRow| {
-                let id: String = row.try_get("id")?;
-                let contest_id: String = row.try_get("contest_id")?;
-                let title: String = row.try_get("title")?;
-                Ok(Problem {
-                    id,
-                    contest_id,
-                    title,
+        let problems =
+            sqlx::query("SELECT id, contest_id, problem_index, name, title FROM problems")
+                .try_map(|row: PgRow| {
+                    let id: String = row.try_get("id")?;
+                    let contest_id: String = row.try_get("contest_id")?;
+                    let problem_index: String = row.try_get("problem_index")?;
+                    let name: String = row.try_get("name")?;
+                    let title: String = row.try_get("title")?;
+                    Ok(Problem {
+                        id,
+                        contest_id,
+                        problem_index,
+                        name,
+                        title,
+                    })
                 })
-            })
-            .fetch_all(self)
-            .await?;
+                .fetch_all(self)
+                .await?;
         Ok(problems)
     }
 

@@ -7,10 +7,11 @@ fn create_problem(id: i32) -> ContestProblem {
     ContestProblem {
         contest_id: format!("contest{}", id),
         problem_id: format!("problem{}", id),
+        problem_index: format!("{}", id),
     }
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_contest_problem() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     assert!(pool.load_contest_problem().await.unwrap().is_empty());

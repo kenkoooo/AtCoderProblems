@@ -2,20 +2,10 @@
 
 `atcoder-problems-frontend` is a web application written in TypeScript.
 
-## Prerequisites
-
-- [Yarn](https://yarnpkg.com/)
-
-## Install required packages
-
-```bash
-yarn
-```
-
 ## Start the web application on your local machine
 
 ```bash
-yarn start
+docker-compose up -d
 ```
 
 You can see it on <http://localhost:3000/>.
@@ -34,13 +24,13 @@ If you intend to use your own instance of backend, consult the [backend document
 ## Create a production build
 
 ```bash
-yarn build
+docker-compose exec frontend-development yarn build
 ```
 
 ## Run unit test
 
 ```bash
-yarn test
+docker-compose exec frontend-development yarn test
 ```
 
 ## Run end-to-end test

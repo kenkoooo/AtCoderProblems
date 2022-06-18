@@ -162,7 +162,7 @@ export const ListTable: React.FC<Props> = (props) => {
         const problemModel = problemModels?.get(p.id);
         return {
           id: p.id,
-          title: p.title,
+          title: `${p.problem_index}. ${p.name}`,
           contest,
           contestDate,
           contestTitle,
@@ -257,7 +257,7 @@ export const ListTable: React.FC<Props> = (props) => {
             showDifficulty={true}
             isExperimentalDifficulty={row.problemModel?.is_experimental}
             problemId={row.mergedProblem.id}
-            problemTitle={row.title}
+            problemName={row.title}
             contestId={row.mergedProblem.contest_id}
             problemModel={row.problemModel}
             userRatingInfo={userRatingInfo}

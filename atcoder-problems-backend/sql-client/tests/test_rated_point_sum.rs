@@ -13,6 +13,7 @@ const USER_ID2: &str = "user2";
 const USER_ID3: &str = "user3";
 const USER_ID4: &str = "user4";
 const RATED_CONTEST: &str = "rated_contest";
+const HEURISTIC_CONTEST: &str = "heuristic_contest";
 const UNRATED_CONTEST1: &str = "unrated_contest1";
 const UNRATED_CONTEST2: &str = "unrated_contest2";
 
@@ -56,6 +57,13 @@ async fn setup_contests(pool: &PgPool) {
             title: "Unrated New Contest".to_string(),
             rate_change: UNRATED_STATE.to_string(),
         },
+        Contest {
+            id: HEURISTIC_CONTEST.to_string(),
+            start_epoch_second: FIRST_AGC_EPOCH_SECOND,
+            duration_second: 1000,
+            title: "Heuristic Contest".to_string(),
+            rate_change: "All".to_string(),
+        },
     ];
     for contest in contests {
         sqlx::query(
@@ -80,38 +88,60 @@ async fn setup_contest_problems(pool: &PgPool) {
     let problems = vec![
         ContestProblem {
             problem_id: "problem1".to_string(),
+            problem_index: "1".to_string(),
             contest_id: RATED_CONTEST.to_string(),
         },
         ContestProblem {
             problem_id: "problem2".to_string(),
+            problem_index: "2".to_string(),
             contest_id: UNRATED_CONTEST1.to_string(),
         },
         ContestProblem {
             problem_id: "problem3".to_string(),
+            problem_index: "3".to_string(),
             contest_id: UNRATED_CONTEST1.to_string(),
         },
         ContestProblem {
             problem_id: "problem4".to_string(),
+            problem_index: "4".to_string(),
             contest_id: RATED_CONTEST.to_string(),
         },
         ContestProblem {
             problem_id: "problem5".to_string(),
+            problem_index: "5".to_string(),
             contest_id: SAME_CONTEST_RATED.to_string(),
         },
         ContestProblem {
             problem_id: "problem5".to_string(),
+            problem_index: "5".to_string(),
             contest_id: SAME_CONTEST_UNRATED.to_string(),
+        },
+        ContestProblem {
+            problem_id: "problem6".to_string(),
+            problem_index: "6".to_string(),
+            contest_id: SAME_CONTEST_RATED.to_string(),
+        },
+        ContestProblem {
+            problem_id: "problem6".to_string(),
+            problem_index: "6".to_string(),
+            contest_id: SAME_CONTEST_UNRATED.to_string(),
+        },
+        ContestProblem {
+            problem_id: "heuristic-problem".to_string(),
+            problem_index: "1".to_string(),
+            contest_id: HEURISTIC_CONTEST.to_string(),
         },
     ];
 
     for problem in problems {
         sqlx::query(
             r"
-            INSERT INTO contest_problem (problem_id, contest_id)
-            VALUES ($1, $2)
+            INSERT INTO contest_problem (problem_id, problem_index, contest_id)
+            VALUES ($1, $2, $3)
             ",
         )
         .bind(problem.problem_id)
+        .bind(problem.problem_index)
         .bind(problem.contest_id)
         .execute(pool)
         .await
@@ -119,7 +149,7 @@ async fn setup_contest_problems(pool: &PgPool) {
     }
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_update_rated_point_sum() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
 
@@ -175,6 +205,14 @@ async fn test_update_rated_point_sum() {
             contest_id: SAME_CONTEST_UNRATED.to_string(),
             ..Default::default()
         },
+        Submission {
+            id: 6,
+            user_id: USER_ID.to_string(),
+            point: 1000000.0,
+            problem_id: "heuristic-problem".to_string(),
+            contest_id: HEURISTIC_CONTEST.to_string(),
+            ..Default::default()
+        },
     ];
 
     pool.update_rated_point_sum(&submissions).await.unwrap();
@@ -216,7 +254,7 @@ async fn test_update_rated_point_sum() {
     assert!(resp.is_err());
 }
 
-#[async_std::test]
+#[tokio::test]
 async fn test_load_rated_point_sum_in_range() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
 
@@ -311,6 +349,7 @@ async fn test_load_rated_point_sum_in_range() {
     let sums_5th_to_10th = pool.load_rated_point_sum_in_range(4..10).await.unwrap();
     assert!(sums_5th_to_10th.is_empty());
 
+    #[allow(clippy::reversed_empty_ranges)]
     let sums_nonsense = pool.load_rated_point_sum_in_range(5..0).await.unwrap();
     assert!(sums_nonsense.is_empty());
 

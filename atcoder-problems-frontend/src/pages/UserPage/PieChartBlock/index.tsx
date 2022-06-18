@@ -29,8 +29,8 @@ const solvedCountForPieChart = (
   rejected: number;
   solved: number;
 }[] => {
-  const mapProblemPosition = (problemTitle: string): number => {
-    switch (problemTitle.split(".")[0]) {
+  const mapProblemPosition = (problemIndex: string): number => {
+    switch (problemIndex) {
       case "A": {
         return 0;
       }
@@ -59,7 +59,7 @@ const solvedCountForPieChart = (
       }
       default: {
         // tslint:disable-next-line
-        console.error(`Unsupported problemTitle: ${problemTitle}`);
+        console.error(`Unsupported problemIndex: ${problemIndex}`);
         return 0;
       }
     }
@@ -67,7 +67,7 @@ const solvedCountForPieChart = (
 
   const statusCount = contestToProblems
     .map(([, problems]) => {
-      const titleStatus = problems.map((problem) => {
+      const indexStatus = problems.map((problem) => {
         const validSubmissions = submissions
           .get(problem.id)
           ?.filter(
@@ -80,13 +80,13 @@ const solvedCountForPieChart = (
           : validSubmissions?.find((s) => isAccepted(s.result))
           ? SubmissionStatus.ACCEPTED
           : SubmissionStatus.REJECTED;
-        return { title: problem.title, status };
+        return { index: problem.problem_index, status };
       });
-      return { titleStatus };
+      return { indexStatus };
     })
-    .map(({ titleStatus }) =>
-      titleStatus.map(({ title, status }) => ({
-        position: mapProblemPosition(title),
+    .map(({ indexStatus }) =>
+      indexStatus.map(({ index, status }) => ({
+        position: mapProblemPosition(index),
         status,
       }))
     )
@@ -104,11 +104,11 @@ const solvedCountForPieChart = (
     );
   const totalCount = contestToProblems
     .map(([, problems]) => {
-      const problemTitles = problems.map((problem) => problem.title);
-      return { problemTitles };
+      const problemIndices = problems.map((problem) => problem.problem_index);
+      return { problemIndices };
     })
-    .map(({ problemTitles }) =>
-      problemTitles.map((problemTitle) => mapProblemPosition(problemTitle))
+    .map(({ problemIndices }) =>
+      problemIndices.map((problemIndex) => mapProblemPosition(problemIndex))
     )
     .flatMap((list) => list)
     .reduce(

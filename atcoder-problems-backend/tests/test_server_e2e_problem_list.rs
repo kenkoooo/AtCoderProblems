@@ -1,99 +1,76 @@
-use atcoder_problems_backend::server::{run_server, Authentication};
-
-use async_std::future::ready;
-use async_std::prelude::*;
-use async_std::task;
-use async_trait::async_trait;
-use atcoder_problems_backend::server::GitHubUserResponse;
-use rand::Rng;
+use actix_web::{cookie::Cookie, http::StatusCode, test};
+use atcoder_problems_backend::server::middleware::github_auth::{
+    GithubAuthentication, GithubClient, GithubToken,
+};
 use serde_json::{json, Value};
-use std::collections::BTreeMap;
-use tide::Result;
 
 pub mod utils;
 
-#[derive(Clone)]
-struct MockAuth;
+const VALID_CODE: &str = "valid-code";
+const VALID_TOKEN: &str = "valid-token";
 
-const VALID_CODE: &str = "VALID-CODE";
-const VALID_TOKEN: &str = "VALID-TOKEN";
-
-#[async_trait]
-impl Authentication for MockAuth {
-    async fn get_token(&self, code: &str) -> Result<String> {
-        match code {
-            VALID_CODE => Ok(VALID_TOKEN.to_owned()),
-            _ => Err(anyhow::anyhow!("error").into()),
-        }
-    }
-    async fn get_user_id(&self, token: &str) -> Result<GitHubUserResponse> {
-        match token {
-            VALID_TOKEN => Ok(GitHubUserResponse::default()),
-            _ => Err(anyhow::anyhow!("error").into()),
-        }
-    }
-}
-
-fn url(path: &str, port: u16) -> String {
-    format!("http://localhost:{}{}", port, path)
-}
-
-async fn setup() -> u16 {
-    utils::initialize_and_connect_to_test_sql().await;
-    let mut rng = rand::thread_rng();
-    rng.gen::<u16>() % 30000 + 30000
-}
-
-#[async_std::test]
+#[actix_web::test]
 async fn test_list() {
-    let port = setup().await;
-    let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
-    });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
 
-    let response = surf::get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .await
-    .unwrap();
-    let cookie = response.header("set-cookie").unwrap();
-    let token = cookie
-        .as_str()
-        .split(";")
-        .next()
-        .unwrap()
-        .split("=")
-        .skip(1)
-        .next()
-        .unwrap();
-    assert_eq!(token, VALID_TOKEN);
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
 
-    let response = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", format!("token={}", token))
-        .recv_string()
-        .await
-        .unwrap();
-    assert_eq!(&response, "[]");
+    let github =
+        GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
 
-    let mut response = surf::post(url("/internal-api/list/create", port))
-        .header("Cookie", format!("token={}", token))
-        .body(json!({"list_name":"a"}))
-        .await
-        .unwrap();
-    assert!(response.status().is_success(), "{:?}", response);
-    let value: Value = response.body_json().await.unwrap();
-    let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
+    let app = test::init_service(
+        actix_web::App::new()
+            .wrap(GithubAuthentication::new(github.clone()))
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .app_data(actix_web::web::Data::new(github))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
 
-    let response = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", format!("token={}", token))
-        .recv_json::<Value>()
-        .await
+    let response = test::TestRequest::get()
+        .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
+        .send_request(&app)
+        .await;
+
+    assert!(response.status().is_redirection());
+
+    let cookie = response
+        .response()
+        .cookies()
+        .find(|cookie| cookie.name() == "token")
         .unwrap();
+
+    assert_eq!(cookie.value(), VALID_TOKEN);
+
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie.clone())
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
+    assert_eq!(response, json!([]));
+
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/create")
+        .cookie(cookie.clone())
+        .set_json(json!({"list_name":"a"}))
+        .send_request(&app)
+        .await;
+    assert!(response.status().is_success());
+
+    let value: Value = test::read_body_json(response).await;
+
+    let internal_list_id = value["internal_list_id"].as_str().unwrap();
+
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie.clone())
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(
         response,
         json!([
@@ -106,20 +83,24 @@ async fn test_list() {
         ])
     );
 
-    let response = surf::post(url("/internal-api/list/update", port))
-        .header("Cookie", format!("token={}", token))
-        .body(json!({
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/update")
+        .cookie(cookie.clone())
+        .set_json(json!({
             "internal_list_id":internal_list_id,
             "name":"b"
         }))
-        .await
-        .unwrap();
+        .send_request(&app)
+        .await;
+
     assert!(response.status().is_success());
-    let response = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", format!("token={}", token))
-        .recv_json::<Value>()
-        .await
-        .unwrap();
+
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie.clone())
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(
         response,
         json!([
@@ -132,13 +113,11 @@ async fn test_list() {
         ])
     );
 
-    let response = surf::get(url(
-        &format!("/internal-api/list/get/{}", internal_list_id),
-        port,
-    ))
-    .recv_json::<Value>()
-    .await
-    .unwrap();
+    let request = test::TestRequest::get()
+        .uri(&format!("/internal-api/list/get/{}", internal_list_id))
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(
         response,
         json!(
@@ -150,92 +129,123 @@ async fn test_list() {
         })
     );
 
-    let response = surf::post(url("/internal-api/list/delete", port))
-        .header("Cookie", format!("token={}", token))
-        .body(json!({ "internal_list_id": internal_list_id }))
-        .await
-        .unwrap();
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/delete")
+        .cookie(cookie.clone())
+        .set_json(json!({ "internal_list_id": internal_list_id }))
+        .send_request(&app)
+        .await;
+
     assert!(response.status().is_success());
 
-    let response = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", format!("token={}", token))
-        .recv_string()
-        .await
-        .unwrap();
-    assert_eq!(&response, "[]");
-    server.race(ready(())).await;
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie)
+        .to_request();
+    let response: Value = test::call_and_read_body_json(&app, request).await;
+
+    assert_eq!(response, json!([]));
 }
-#[async_std::test]
+#[actix_web::test]
 async fn test_invalid_token() {
-    let port = setup().await;
-    let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
-    });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
 
-    let response = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", "token=invalid-token")
-        .await
-        .unwrap();
+    let github =
+        GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
+
+    let app = test::init_service(
+        actix_web::App::new()
+            .wrap(GithubAuthentication::new(github.clone()))
+            .app_data(actix_web::web::Data::new(github))
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let cookie = Cookie::new("token", "invalid-token");
+
+    let response = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie.clone())
+        .send_request(&app)
+        .await;
+
     assert!(!response.status().is_success());
 
-    let mut map = BTreeMap::new();
-    map.insert("list_name", "a");
-    let response = surf::post(url("/internal-api/list/create", port))
-        .header("Cookie", "token=invalid-token")
-        .await
-        .unwrap();
-    assert!(!response.status().is_success());
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/create")
+        .cookie(cookie)
+        .send_request(&app)
+        .await;
 
-    server.race(ready(())).await;
+    assert!(!response.status().is_success());
 }
 
-#[async_std::test]
+#[actix_web::test]
 async fn test_list_item() {
-    let port = setup().await;
-    let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
-    });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
 
-    surf::get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .await
-    .unwrap();
-    let cookie_header = format!("token={}", VALID_TOKEN);
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
 
-    let mut response = surf::post(url("/internal-api/list/create", port))
-        .header("Cookie", cookie_header.as_str())
-        .body(json!({"list_name":"a"}))
-        .await
-        .unwrap();
-    assert!(response.status().is_success(), "{:?}", response);
-    let value: Value = response.body_json().await.unwrap();
-    let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
+    let github =
+        GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
 
-    let response = surf::post(url("/internal-api/list/item/add", port))
-        .header("Cookie", cookie_header.as_str())
-        .body(json!({
+    let app = test::init_service(
+        actix_web::App::new()
+            .wrap(GithubAuthentication::new(github.clone()))
+            .app_data(actix_web::web::Data::new(github))
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    test::TestRequest::get()
+        .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
+        .send_request(&app)
+        .await;
+
+    let cookie = Cookie::new("token", VALID_TOKEN);
+
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/create")
+        .cookie(cookie.clone())
+        .set_json(json!({"list_name":"a"}))
+        .send_request(&app)
+        .await;
+
+    assert!(response.status().is_success());
+
+    let response: Value = test::read_body_json(response).await;
+
+    let internal_list_id = response["internal_list_id"].as_str().unwrap();
+
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/item/add")
+        .cookie(cookie.clone())
+        .set_json(json!({
             "internal_list_id": internal_list_id,
             "internal_user_id": "0",
             "problem_id": "problem_1"
         }))
-        .await
-        .unwrap();
+        .send_request(&app)
+        .await;
+
     assert!(response.status().is_success(), "{:?}", response);
-    let list = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
-        .await
-        .unwrap();
+
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie.clone())
+        .to_request();
+    let list: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(
         list,
         json!([
@@ -247,23 +257,26 @@ async fn test_list_item() {
             }
         ])
     );
-
-    let response = surf::post(url("/internal-api/list/item/update", port))
-        .header("Cookie", cookie_header.as_str())
-        .body(json!({
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/item/update")
+        .cookie(cookie.clone())
+        .set_json(json!({
             "internal_list_id": internal_list_id,
             "problem_id": "problem_1",
             "internal_user_id": "0",
             "memo": "memo_1"
         }))
-        .await
-        .unwrap();
+        .send_request(&app)
+        .await;
+
     assert!(response.status().is_success(), "{:?}", response);
-    let list = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
-        .await
-        .unwrap();
+
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie.clone())
+        .to_request();
+    let list: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(
         list,
         json!([
@@ -276,20 +289,24 @@ async fn test_list_item() {
         ])
     );
 
-    let response = surf::post(url("/internal-api/list/item/delete", port))
-        .header("Cookie", cookie_header.as_str())
-        .body(json!({
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/item/delete")
+        .cookie(cookie.clone())
+        .set_json(json!({
             "internal_list_id": internal_list_id,
             "problem_id": "problem_1"
         }))
-        .await
-        .unwrap();
+        .send_request(&app)
+        .await;
+
     assert!(response.status().is_success(), "{:?}", response);
-    let list = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
-        .await
-        .unwrap();
+
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie)
+        .to_request();
+    let list: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(
         list,
         json!([
@@ -301,94 +318,117 @@ async fn test_list_item() {
             }
         ])
     );
-
-    server.race(ready(())).await;
 }
 
-#[async_std::test]
+#[actix_web::test]
 async fn test_list_delete() {
-    let port = setup().await;
-    let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
-    });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
 
-    surf::get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .await
-    .unwrap();
-    let cookie_header = format!("token={}", VALID_TOKEN);
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
 
-    let mut response = surf::post(url("/internal-api/list/create", port))
-        .header("Cookie", cookie_header.as_str())
-        .body(json!({"list_name":"a"}))
-        .await
-        .unwrap();
+    let github =
+        GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+
+    let app = test::init_service(
+        actix_web::App::new()
+            .wrap(GithubAuthentication::new(github.clone()))
+            .app_data(actix_web::web::Data::new(github))
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    test::TestRequest::get()
+        .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
+        .send_request(&app)
+        .await;
+
+    let cookie = Cookie::new("token", VALID_TOKEN);
+
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/create")
+        .cookie(cookie.clone())
+        .set_json(json!({"list_name":"a"}))
+        .send_request(&app)
+        .await;
+
+    assert!(response.status().is_success());
+
+    let value: Value = test::read_body_json(response).await;
+
+    let internal_list_id = value["internal_list_id"].as_str().unwrap();
+
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/item/add")
+        .cookie(cookie.clone())
+        .set_json(json!({"internal_list_id":internal_list_id, "problem_id":"problem_1"}))
+        .send_request(&app)
+        .await;
+
     assert!(response.status().is_success(), "{:?}", response);
-    let value: Value = response.body_json().await.unwrap();
-    let internal_list_id = value.get("internal_list_id").unwrap().as_str().unwrap();
 
-    let response = surf::post(url("/internal-api/list/item/add", port))
-        .header("Cookie", cookie_header.as_str())
-        .body(json!({"internal_list_id":internal_list_id, "problem_id":"problem_1"}))
-        .await
-        .unwrap();
-    assert!(response.status().is_success(), "{:?}", response);
-    let list = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
-        .await
-        .unwrap();
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie.clone())
+        .to_request();
+    let list: Value = test::call_and_read_body_json(&app, request).await;
+
     assert_eq!(list[0]["items"][0]["problem_id"], "problem_1", "{:?}", list);
     assert_eq!(list[0]["items"][0]["memo"], "", "{:?}", list);
 
-    let response = surf::post(url("/internal-api/list/delete", port))
-        .header("Cookie", cookie_header.as_str())
-        .body(json!({ "internal_list_id": internal_list_id }))
-        .await
-        .unwrap();
+    let response = test::TestRequest::post()
+        .uri("/internal-api/list/delete")
+        .cookie(cookie.clone())
+        .set_json(json!({ "internal_list_id": internal_list_id }))
+        .send_request(&app)
+        .await;
+
     assert!(response.status().is_success());
 
-    let list = surf::get(url("/internal-api/list/my", port))
-        .header("Cookie", cookie_header.as_str())
-        .recv_json::<Value>()
-        .await
-        .unwrap();
-    assert!(list.as_array().unwrap().is_empty());
+    let request = test::TestRequest::get()
+        .uri("/internal-api/list/my")
+        .cookie(cookie)
+        .to_request();
+    let list: Vec<Value> = test::call_and_read_body_json(&app, request).await;
 
-    server.race(ready(())).await;
+    assert!(list.is_empty());
 }
 
-#[async_std::test]
+#[actix_web::test]
 async fn test_register_twice() {
-    let port = setup().await;
-    let server = task::spawn(async move {
-        let pg_pool = sql_client::initialize_pool(utils::get_sql_url_from_env())
-            .await
-            .unwrap();
-        run_server(pg_pool, MockAuth, port).await.unwrap();
-    });
-    task::sleep(std::time::Duration::from_millis(1000)).await;
+    let mock_server = utils::start_mock_github_server(VALID_TOKEN);
+    let mock_server_base_url = mock_server.base_url();
+    let mock_api_server = utils::start_mock_github_api_server(VALID_TOKEN, GithubToken { id: 0 });
+    let mock_api_server_base_url = mock_api_server.base_url();
 
-    let response = surf::get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .await
-    .unwrap();
-    assert_eq!(response.status(), 302);
+    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
 
-    let response = surf::get(url(
-        &format!("/internal-api/authorize?code={}", VALID_CODE),
-        port,
-    ))
-    .await
-    .unwrap();
-    assert_eq!(response.status(), 302);
-    server.race(ready(())).await;
+    let github =
+        GithubClient::new("", "", &mock_server_base_url, &mock_api_server_base_url).unwrap();
+
+    let app = test::init_service(
+        actix_web::App::new()
+            .wrap(GithubAuthentication::new(github.clone()))
+            .app_data(actix_web::web::Data::new(github))
+            .app_data(actix_web::web::Data::new(pg_pool))
+            .configure(atcoder_problems_backend::server::config_services),
+    )
+    .await;
+
+    let response = test::TestRequest::get()
+        .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
+        .send_request(&app)
+        .await;
+
+    assert_eq!(response.status(), StatusCode::FOUND);
+
+    let response = test::TestRequest::get()
+        .uri(&format!("/internal-api/authorize?code={}", VALID_CODE))
+        .send_request(&app)
+        .await;
+
+    assert_eq!(response.status(), StatusCode::FOUND);
 }

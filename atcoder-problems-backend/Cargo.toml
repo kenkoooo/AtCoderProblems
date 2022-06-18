@@ -8,9 +8,9 @@ publish = false
 [dependencies]
 # Logging
 log = "0.4"
-fern = "0.6.0"
+fern = "0.6.1"
 
-rand = "0.7.3"
+rand = "0.8.4"
 chrono = "0.4"
 regex = "1"
 rust-s3 = { version = "0.27.0-rc4", features = ["no-verify-ssl"] }
@@ -24,17 +24,17 @@ sql-client = { path = "./sql-client" }
 atcoder-client = { path = "./atcoder-client" }
 
 # Web framework
-tide = "0.16"
-cookie = "0.14"
-surf = "2.3"
+actix-web = "4.0.1"
+actix-service = "2.0.2"
+reqwest = { version = "0.11", features = ["json"] }
 
 async-trait = "0.1"
 
-async-std = { version = "1.9.0", features = ["attributes"] }
-anyhow = "1.0.32"
-tokio = { version = "1.15", features = ["rt-multi-thread", "macros"] }
+anyhow = "1.0"
+futures-util = "0.3.21"
 
 [dev-dependencies]
+httpmock = "0.6.6"
 
 [workspace]
 members = ["sql-client", "atcoder-client"]

@@ -38,14 +38,13 @@ interface Props {
 }
 
 const getProblemHeaderAlphabet = (problem: MergedProblem, contest: Contest) => {
-  const list = problem.title.split(".");
-  if (list.length === 0) return "";
   if (
-    (list[0] === "H" || list[0] === "Ex") &&
+    problem.problem_index === "H" &&
     classifyContest(contest).startsWith("ABC")
-  )
+  ) {
     return "H/Ex";
-  return list[0];
+  }
+  return problem.problem_index;
 };
 
 const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
@@ -91,6 +90,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
           return [alphabet, status];
         })
       );
+
       const rowColor = combineTableColorList({
         colorMode,
         colorList: problemStatusList.map(({ cellColor }) => cellColor),
@@ -114,16 +114,13 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
     );
 
   const headerList = props.contests
-    .flatMap((contest) =>
-      (props.contestToProblems.get(contest.id) ?? []).map((problem) =>
-        getProblemHeaderAlphabet(problem, contest)
-      )
-    )
+    .flatMap((contest) => {
+      const problems = props.contestToProblems.get(contest.id) ?? [];
+      return problems.map((p) => getProblemHeaderAlphabet(p, contest));
+    })
     .filter((alphabet) => alphabet.length > 0);
 
-  let header = Array.from(new Set(headerList)).sort();
-  if (header.includes("Ex"))
-    header = header.filter((c) => c != "Ex").concat("Ex");
+  const header = Array.from(new Set(headerList)).sort();
 
   return (
     <Row className="my-4">
@@ -184,7 +181,8 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                       showDifficulty={props.showDifficulty}
                       contestId={contest.id}
                       problemId={problem.problem.id}
-                      problemTitle={problem.problem.title}
+                      problemIndex={problem.problem.problem_index}
+                      problemName={problem.problem.name}
                       problemModel={model}
                       userRatingInfo={userRatingInfo}
                     />

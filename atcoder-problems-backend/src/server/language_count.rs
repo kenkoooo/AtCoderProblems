@@ -1,14 +1,14 @@
-use crate::server::{AppData, CommonResponse};
-use serde::Deserialize;
-use sql_client::language_count::LanguageCountClient;
-use tide::{Request, Response, Result};
+use actix_web::{error, web, HttpRequest, HttpResponse, Result};
+use sql_client::{language_count::LanguageCountClient, PgPool};
 
-pub(crate) async fn get_language_list<A>(request: Request<AppData<A>>) -> Result<Response> {
-    #[derive(Debug, Deserialize)]
-    struct Query {}
-    let conn = request.state().pg_pool.clone();
-    let _ = request.query::<Query>()?;
-    let languages = conn.load_languages().await?;
-    let response = Response::json(&languages)?;
+pub(crate) async fn get_language_list(
+    _request: HttpRequest,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse> {
+    let languages = pool
+        .load_languages()
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    let response = HttpResponse::Ok().json(&languages);
     Ok(response)
 }

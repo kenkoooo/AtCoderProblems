@@ -50,15 +50,11 @@ pub(super) fn scrape(html: &str, contest_id: &str) -> Result<Vec<AtCoderProblem>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::prelude::*;
 
     #[test]
     fn test_scrape() {
-        let mut file = File::open("test_resources/abc107_tasks").unwrap();
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).unwrap();
-        let problems = scrape(&contents, "abc107").unwrap();
+        let contents = include_str!("../../test_resources/abc107_tasks");
+        let problems = scrape(contents, "abc107").unwrap();
         assert_eq!(
             problems,
             vec![
@@ -88,5 +84,34 @@ mod tests {
                 }
             ]
         );
+    }
+
+    #[test]
+    fn test_scrape_atc002() {
+        let contents = include_str!("../../test_resources/atc002_tasks");
+        let problems = scrape(contents, "atc002").unwrap();
+        assert_eq!(
+            problems,
+            vec![
+                AtCoderProblem {
+                    id: "abc007_3".to_owned(),
+                    contest_id: "atc002".to_owned(),
+                    title: "幅優先探索".to_owned(),
+                    position: "A".to_owned(),
+                },
+                AtCoderProblem {
+                    id: "atc002_b".to_owned(),
+                    contest_id: "atc002".to_owned(),
+                    title: "n^p mod m".to_owned(),
+                    position: "B".to_owned(),
+                },
+                AtCoderProblem {
+                    id: "atc002_c".to_owned(),
+                    contest_id: "atc002".to_owned(),
+                    title: "最適二分探索木".to_owned(),
+                    position: "C".to_owned(),
+                },
+            ]
+        )
     }
 }

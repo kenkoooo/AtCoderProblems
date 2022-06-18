@@ -67,7 +67,6 @@ where
 mod tests {
     use super::*;
     use crate::crawler::utils::MockFetcher;
-    use async_std::task::block_on;
     use async_trait::async_trait;
     use sql_client::models::Submission;
     use std::ops::Range;
@@ -115,8 +114,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_fix_crawler_found() {
+    #[actix_web::test]
+    async fn test_fix_crawler_found() {
         let fetcher = MockFetcher(|_, _| {
             vec![Submission {
                 id: 50,
@@ -124,11 +123,11 @@ mod tests {
             }]
         });
         let crawler = FixCrawler::new(MockDB, fetcher, CURRENT_TIME);
-        assert!(block_on(crawler.crawl()).is_ok());
+        assert!(crawler.crawl().await.is_ok());
     }
 
-    #[test]
-    fn test_fix_crawler_all_old() {
+    #[actix_web::test]
+    async fn test_fix_crawler_all_old() {
         let fetcher = MockFetcher(|_, _| {
             vec![Submission {
                 id: 30,
@@ -137,6 +136,6 @@ mod tests {
         });
 
         let crawler = FixCrawler::new(MockDB, fetcher, CURRENT_TIME);
-        assert!(block_on(crawler.crawl()).is_ok());
+        assert!(crawler.crawl().await.is_ok());
     }
 }

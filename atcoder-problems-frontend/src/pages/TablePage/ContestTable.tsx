@@ -25,12 +25,11 @@ interface Props {
   userRatingInfo: RatingInfo;
 }
 
-export const convertProblemTitleForSorting = (
-  title: string
+export const convertProblemIndexForSorting = (
+  problem_index: string
 ): [string, number] => {
-  const idx = title.split(".")[0];
-  const str = idx.replace(/[0-9]/g, "");
-  const num = parseInt(idx.replace(/[^0-9]/g, ""), 10);
+  const str = problem_index.replace(/[0-9]/g, "");
+  const num = parseInt(problem_index.replace(/[^0-9]/g, ""), 10);
   return [str, num];
 };
 
@@ -51,8 +50,8 @@ export const ContestTable: React.FC<Props> = (props) => {
     .map((contest) => ({
       contest,
       problems: (contestToProblems.get(contest.id) ?? []).sort((a, b) => {
-        const [str_a, num_a] = convertProblemTitleForSorting(a.title);
-        const [str_b, num_b] = convertProblemTitleForSorting(b.title);
+        const [str_a, num_a] = convertProblemIndexForSorting(a.problem_index);
+        const [str_b, num_b] = convertProblemIndexForSorting(b.problem_index);
         const cmp = str_a.localeCompare(str_b);
         return cmp === 0 ? num_a - num_b : cmp;
       }),
@@ -115,11 +114,15 @@ export const ContestTable: React.FC<Props> = (props) => {
                             isExperimentalDifficulty={
                               model ? model.is_experimental : false
                             }
-                            showDifficultyUnavailable={isRatedContest(contest)}
+                            showDifficultyUnavailable={isRatedContest(
+                              contest,
+                              problemInfo.length
+                            )}
                             showDifficulty={props.showDifficulty}
                             problemId={problem.id}
-                            problemTitle={problem.title}
                             contestId={problem.contest_id}
+                            problemIndex={problem.problem_index}
+                            problemName={problem.name}
                             problemModel={model}
                             userRatingInfo={userRatingInfo}
                           />

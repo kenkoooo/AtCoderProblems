@@ -9,68 +9,89 @@ env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
   RUST_TEST_THREADS: 1
+  SQL_URL: postgres://db_user:db_pass@localhost:5432/test_db
 
 jobs:
   backend_test:
     name: Run backend tests
     runs-on: ubuntu-latest
-    
+    defaults:
+      run:
+        working-directory: ./atcoder-problems-backend
+
     services:
-      postgres: 
+      postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: pass
-          POSTGRES_USER: kenkoooo
-          POSTGRES_DB: test
-        # Set health checks to wait until postgres has started
+          POSTGRES_USER: db_user
+          POSTGRES_PASSWORD: db_pass
+          POSTGRES_DB: test_db
+          POSTGRES_INITDB_ARGS: "--encoding=UTF8"
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          # Maps tcp port 5432 on service container to the host
           - 5432:5432
-    
+
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache cargo registry
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/git
+          ~/.cargo/registry/cache
+          ~/.cargo/registry/index
+          ./atcoder-problems-backend/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-backend/Cargo.lock') }}
+
+    - name: Setup Postgresql
+      run: psql ${SQL_URL} < ../config/database-definition.sql
+
     - name: Setup
       run: rustup component add rustfmt
+
     - name: Check format
-      working-directory: ./atcoder-problems-backend
       run: cargo fmt --all -- --check
+
     - name: Build
-      working-directory: ./atcoder-problems-backend
       run: cargo build --verbose
+
     - name: Run tests
-      working-directory: ./atcoder-problems-backend
-      env:
-        SQL_URL: postgresql://kenkoooo:pass@localhost:5432/test
       run: cargo test --verbose --workspace -- --test-threads=1
   
   frontend_test:
     name: Run frontend tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./atcoder-problems-frontend
+
     steps:
-    - name: Setup
-      run: sudo apt install libgconf-2-4
     - uses: actions/checkout@v2
     - name: Use Node.js
       uses: actions/setup-node@v1
+
+    - name: Cache node_modules
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/Cypress
+          ./atcoder-problems-frontend/node_modules
+        key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-frontend/yarn.lock') }}
+
     - name: Install dependencies
-      working-directory: ./atcoder-problems-frontend
       run: yarn
     - name: build
-      working-directory: ./atcoder-problems-frontend
       run: yarn build
     - name: test
-      working-directory: ./atcoder-problems-frontend
       run: yarn test
     - name: lint
-      working-directory: ./atcoder-problems-frontend
       run: yarn lint
     - name: Integration test
-      working-directory: ./atcoder-problems-frontend
       run: |
         yarn prepare-ci
         yarn start:ci &
