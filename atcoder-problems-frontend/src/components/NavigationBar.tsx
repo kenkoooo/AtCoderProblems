@@ -94,7 +94,7 @@ export const NavigationBar = () => {
 
             <NavItem>
               <NavLink
-                href="/book/index.html"
+                href="./book/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
               >
