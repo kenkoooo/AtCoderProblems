@@ -140,9 +140,10 @@ export const ListTable: React.FC<Props> = (props) => {
     .map(
       (p: MergedProblem): ProblemRowData => {
         const contest = contestMap?.get(p.contest_id);
-        const contestDate = contest
-          ? formatMomentDate(parseSecond(contest.start_epoch_second))
-          : "";
+        const contestDate =
+          contest && contest.start_epoch_second > 0
+            ? formatMomentDate(parseSecond(contest.start_epoch_second))
+            : "";
         const contestTitle = contest ? contest.title : "";
 
         const status = statusLabelMap.get(p.id) ?? noneStatus();
