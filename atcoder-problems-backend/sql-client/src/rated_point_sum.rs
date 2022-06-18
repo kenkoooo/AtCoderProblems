@@ -2,7 +2,6 @@ use crate::models::{ContestProblem, Submission, UserSum};
 use crate::{PgPool, FIRST_AGC_EPOCH_SECOND, MAX_INSERT_ROWS, UNRATED_STATE};
 use anyhow::Result;
 use async_trait::async_trait;
-use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
@@ -36,22 +35,13 @@ impl RatedPointSumClient for PgPool {
         )
         .bind(FIRST_AGC_EPOCH_SECOND)
         .bind(UNRATED_STATE)
-        .try_map(|row: PgRow| row.try_get::<String, _>("id"))
+        .try_map(|row| row.try_get::<String, _>("id"))
         .fetch_all(self);
 
-        let rated_problem_ids_fut =
-            sqlx::query("SELECT contest_id, problem_id, problem_index FROM contest_problem")
-                .try_map(|row: PgRow| {
-                    let contest_id: String = row.try_get("contest_id")?;
-                    let problem_id: String = row.try_get("problem_id")?;
-                    let problem_index: String = row.try_get("problem_index")?;
-                    Ok(ContestProblem {
-                        contest_id,
-                        problem_id,
-                        problem_index,
-                    })
-                })
-                .fetch_all(self);
+        let rated_problem_ids_fut = sqlx::query_as::<_, ContestProblem>(
+            "SELECT contest_id, problem_id, problem_index FROM contest_problem",
+        )
+        .fetch_all(self);
 
         let (rated_contest_ids, rated_problem_ids) =
             tokio::try_join!(rated_contest_ids_fut, rated_problem_ids_fut)?;
@@ -120,7 +110,7 @@ impl RatedPointSumClient for PgPool {
             ",
         )
         .bind(user_id)
-        .try_map(|row: PgRow| row.try_get::<i64, _>("point_sum"))
+        .try_map(|row| row.try_get::<i64, _>("point_sum"))
         .fetch_one(self)
         .await
         .ok()?;
@@ -130,7 +120,7 @@ impl RatedPointSumClient for PgPool {
     async fn get_rated_point_sum_rank(&self, rated_point_sum: i64) -> Result<i64> {
         let rank = sqlx::query("SELECT COUNT(*) AS rank FROM rated_point_sum WHERE point_sum > $1")
             .bind(rated_point_sum)
-            .try_map(|row: PgRow| row.try_get::<i64, _>("rank"))
+            .try_map(|row| row.try_get::<i64, _>("rank"))
             .fetch_one(self)
             .await?;
         Ok(rank)
@@ -140,7 +130,7 @@ impl RatedPointSumClient for PgPool {
         &self,
         rank_range: Range<usize>,
     ) -> Result<Vec<UserSum>> {
-        let list = sqlx::query(
+        let list = sqlx::query_as(
             r"
             SELECT * FROM rated_point_sum
             ORDER BY point_sum DESC, user_id
@@ -149,11 +139,6 @@ impl RatedPointSumClient for PgPool {
         )
         .bind(rank_range.start as i64)
         .bind(rank_range.len() as i64)
-        .try_map(|row: PgRow| {
-            let user_id: String = row.try_get("user_id")?;
-            let point_sum: i64 = row.try_get("point_sum")?;
-            Ok(UserSum { user_id, point_sum })
-        })
         .fetch_all(self)
         .await?;
         Ok(list)

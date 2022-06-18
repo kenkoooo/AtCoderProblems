@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 
 use serde::de::DeserializeOwned;
 
@@ -30,10 +30,10 @@ pub(crate) async fn get_json<T: DeserializeOwned>(url: &str) -> Result<T> {
         .header("accept", "application/json")
         .send()
         .await
-        .map_err(|_| anyhow!("Failed to get json from {}", url))?
+        .with_context(|| format!("Failed to get json from {}", url))?
         .json::<T>()
         .await
-        .map_err(|_| anyhow!("Failed to parse json from {}", url))
+        .with_context(|| format!("Failed to parse json from {}", url))
 }
 
 pub trait Problem {

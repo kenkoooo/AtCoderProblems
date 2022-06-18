@@ -92,6 +92,16 @@ export const NavigationBar = () => {
               </NavLink>
             </NavItem>
 
+            <NavItem>
+              <NavLink
+                href="/book/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                User Guide
+              </NavLink>
+            </NavItem>
+
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
                 Links

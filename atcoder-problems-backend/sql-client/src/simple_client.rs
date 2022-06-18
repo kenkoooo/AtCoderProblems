@@ -2,8 +2,6 @@ use crate::models::{Contest, Problem};
 use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
-use sqlx::postgres::PgRow;
-use sqlx::Row;
 
 #[async_trait]
 pub trait SimpleClient {
@@ -107,28 +105,14 @@ impl SimpleClient for PgPool {
 
     async fn load_problems(&self) -> Result<Vec<Problem>> {
         let problems =
-            sqlx::query("SELECT id, contest_id, problem_index, name, title FROM problems")
-                .try_map(|row: PgRow| {
-                    let id: String = row.try_get("id")?;
-                    let contest_id: String = row.try_get("contest_id")?;
-                    let problem_index: String = row.try_get("problem_index")?;
-                    let name: String = row.try_get("name")?;
-                    let title: String = row.try_get("title")?;
-                    Ok(Problem {
-                        id,
-                        contest_id,
-                        problem_index,
-                        name,
-                        title,
-                    })
-                })
+            sqlx::query_as("SELECT id, contest_id, problem_index, name, title FROM problems")
                 .fetch_all(self)
                 .await?;
         Ok(problems)
     }
 
     async fn load_contests(&self) -> Result<Vec<Contest>> {
-        let contests = sqlx::query(
+        let contests = sqlx::query_as(
             r"
                  SELECT 
                     id,
@@ -139,20 +123,6 @@ impl SimpleClient for PgPool {
                  FROM contests
                  ",
         )
-        .try_map(|row: PgRow| {
-            let id: String = row.try_get("id")?;
-            let start_epoch_second: i64 = row.try_get("start_epoch_second")?;
-            let duration_second: i64 = row.try_get("duration_second")?;
-            let title: String = row.try_get("title")?;
-            let rate_change: String = row.try_get("rate_change")?;
-            Ok(Contest {
-                id,
-                start_epoch_second,
-                duration_second,
-                title,
-                rate_change,
-            })
-        })
         .fetch_all(self)
         .await?;
         Ok(contests)

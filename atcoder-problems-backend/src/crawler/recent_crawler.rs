@@ -1,10 +1,10 @@
 use crate::crawler::AtCoderFetcher;
+use actix_web::rt::time;
 use anyhow::Result;
-
 use log::info;
 use sql_client::simple_client::SimpleClient;
 use sql_client::submission_client::SubmissionClient;
-use std::{thread, time};
+use std::time::Duration;
 
 pub struct RecentCrawler<C, F> {
     db: C,
@@ -23,7 +23,7 @@ where
     pub async fn crawl(&self) -> Result<()> {
         info!("Started");
         let contests = self.db.load_contests().await?;
-        for contest in contests.into_iter() {
+        for contest in contests {
             for page in 1.. {
                 info!("Crawling {}-{} ...", contest.id, page);
                 let (submissions, max_page) =
@@ -36,7 +36,7 @@ where
                 let min_id = submissions.iter().map(|s| s.id).min().unwrap();
                 let exists = self.db.count_stored_submissions(&[min_id]).await? != 0;
                 self.db.update_submissions(&submissions).await?;
-                thread::sleep(time::Duration::from_millis(200));
+                time::sleep(Duration::from_millis(200)).await;
 
                 if exists {
                     info!("Finished crawling {}", contest.id);

@@ -1,9 +1,10 @@
 use crate::crawler::AtCoderFetcher;
 use anyhow::Result;
 
+use actix_web::rt::time;
 use log::info;
 use sql_client::submission_client::SubmissionClient;
-use std::{thread, time};
+use std::time::Duration;
 
 pub struct WholeContestCrawler<C, F> {
     db: C,
@@ -39,7 +40,7 @@ where
             }
 
             self.db.update_submissions(&submissions).await?;
-            thread::sleep(time::Duration::from_millis(200));
+            time::sleep(Duration::from_millis(200)).await;
         }
 
         info!("Finished");

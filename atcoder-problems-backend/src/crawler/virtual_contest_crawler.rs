@@ -1,4 +1,5 @@
 use crate::crawler::AtCoderFetcher;
+use actix_web::rt::time;
 use anyhow::Result;
 use chrono::Utc;
 use rand::distributions::Uniform;
@@ -7,7 +8,7 @@ use sql_client::contest_problem::ContestProblemClient;
 use sql_client::internal::virtual_contest_manager::VirtualContestManager;
 use sql_client::submission_client::SubmissionClient;
 use std::collections::BTreeSet;
-use std::{thread, time};
+use std::time::Duration;
 
 const CRAWLED_STREAK: usize = 3;
 const CONTEST_LENGTH_LIMIT_SECOND: i64 = 60 * 60 * 5;
@@ -61,7 +62,7 @@ where
             .collect::<BTreeSet<_>>();
         log::info!("Loaded {} contests", contest_set.len());
 
-        for contest in contest_set.into_iter() {
+        for contest in contest_set {
             log::info!("Starting {} ...", contest);
             let mut streak = 0;
             for page in 1.. {
@@ -90,7 +91,7 @@ where
                     break;
                 }
                 log::info!("Sleeping for 200ms");
-                thread::sleep(time::Duration::from_millis(200));
+                time::sleep(Duration::from_millis(200)).await;
             }
             log::info!("Finished {}", contest);
         }

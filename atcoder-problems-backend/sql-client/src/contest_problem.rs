@@ -2,8 +2,6 @@ use crate::models::ContestProblem;
 use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
-use sqlx::postgres::PgRow;
-use sqlx::Row;
 
 #[async_trait]
 pub trait ContestProblemClient {
@@ -49,17 +47,7 @@ impl ContestProblemClient for PgPool {
 
     async fn load_contest_problem(&self) -> Result<Vec<ContestProblem>> {
         let problems =
-            sqlx::query("SELECT contest_id, problem_id, problem_index FROM contest_problem")
-                .try_map(|row: PgRow| {
-                    let contest_id: String = row.try_get("contest_id")?;
-                    let problem_id: String = row.try_get("problem_id")?;
-                    let problem_index: String = row.try_get("problem_index")?;
-                    Ok(ContestProblem {
-                        contest_id,
-                        problem_id,
-                        problem_index,
-                    })
-                })
+            sqlx::query_as("SELECT contest_id, problem_id, problem_index FROM contest_problem")
                 .fetch_all(self)
                 .await?;
 

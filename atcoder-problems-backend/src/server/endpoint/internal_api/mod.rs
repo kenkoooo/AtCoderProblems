@@ -32,10 +32,7 @@ pub async fn get_authorize(
         .await
         .map_internal_server_err()?;
     let cookie = Cookie::build("token", token).path("/").finish();
-    let redirect_fragment = query
-        .redirect_to
-        .clone()
-        .unwrap_or_else(|| "/login/user".to_string());
+    let redirect_fragment = query.redirect_to.as_deref().unwrap_or("/login/user");
     let redirect_url = format!("{}#{}", REDIRECT_URL, redirect_fragment);
     let response = HttpResponse::Found()
         .insert_header((LOCATION, redirect_url))
