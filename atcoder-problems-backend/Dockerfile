@@ -2,34 +2,23 @@ FROM rust:1.57.0 AS development
 RUN rustup component add rustfmt
 RUN rustup component add clippy
 
-FROM rust:1.57.0 AS builder
-
+# Using the official cargo-chef image
+FROM lukemathwalker/cargo-chef:latest-rust-1.61.0 AS chef
 WORKDIR /app
 
-# Configure sql-client
-RUN mkdir -p ./sql-client/src
-RUN touch ./sql-client/src/lib.rs
-ADD ./sql-client/Cargo.toml ./sql-client
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-# Configure atcoder-client
-RUN mkdir -p ./atcoder-client/src
-RUN touch ./atcoder-client/src/lib.rs
-ADD ./atcoder-client/Cargo.toml ./atcoder-client
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
 
-RUN mkdir ./src
-RUN echo "fn main(){}" > ./src/main.rs
-ADD ./Cargo.toml .
-ADD ./Cargo.lock .
-
+COPY . .
 RUN cargo build --release
 
-ADD ./src ./src
-ADD ./sql-client ./sql-client
-ADD ./atcoder-client ./atcoder-client
-RUN cargo clean --release -p atcoder-client -p sql-client
-RUN cargo build --release
-
-FROM rust:1.57.0 AS production
+# プロダクション用の Docker イメージをビルドする
+FROM rust:1.61.0 AS production
 COPY --from=builder /app/target/release/batch_update                /usr/bin/batch_update
 COPY --from=builder /app/target/release/crawl_all_submissions       /usr/bin/crawl_all_submissions
 COPY --from=builder /app/target/release/crawl_for_virtual_contests  /usr/bin/crawl_for_virtual_contests
@@ -41,7 +30,6 @@ COPY --from=builder /app/target/release/delta_update                /usr/bin/del
 COPY --from=builder /app/target/release/dump_json                   /usr/bin/dump_json
 COPY --from=builder /app/target/release/fix_invalid_submissions     /usr/bin/fix_invalid_submissions
 COPY --from=builder /app/target/release/run_server                  /usr/bin/run_server
-
 
 RUN apt-get update && apt-get install -y awscli postgresql-client
 ADD ./scripts/sql-backup.sh /usr/bin/sql-backup.sh
