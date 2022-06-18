@@ -2,13 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
 
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
   RUST_TEST_THREADS: 1
+  CARGO_PROFILE_TEST_DEBUG: 0
   SQL_URL: postgres://db_user:db_pass@localhost:5432/test_db
 
 jobs:
@@ -36,33 +37,31 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Cache cargo registry
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cargo/git
-          ~/.cargo/registry/cache
-          ~/.cargo/registry/index
-          ./atcoder-problems-backend/target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-backend/Cargo.lock') }}
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v1.3.0
+        with:
+          working-directory: ./atcoder-problems-backend
 
-    - name: Setup Postgresql
-      run: psql ${SQL_URL} < ../config/database-definition.sql
+      - name: Setup Postgresql
+        run: psql ${SQL_URL} < ../config/database-definition.sql
 
-    - name: Setup
-      run: rustup component add rustfmt
+      - name: Setup
+        run: rustup component add rustfmt
 
-    - name: Check format
-      run: cargo fmt --all -- --check
+      - name: Check format
+        run: cargo fmt --all -- --check
 
-    - name: Build
-      run: cargo build --verbose
+      - name: Download dependencies
+        run: cargo fetch --locked
 
-    - name: Run tests
-      run: cargo test --verbose --workspace -- --test-threads=1
-  
+      - name: Build
+        run: cargo test --no-run --workspace --locked --verbose
+
+      - name: Run tests
+        run: cargo test --workspace --locked --verbose -- --test-threads=1
+
   frontend_test:
     name: Run frontend tests
     runs-on: ubuntu-latest
@@ -71,40 +70,40 @@ jobs:
         working-directory: ./atcoder-problems-frontend
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js
-      uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
 
-    - name: Cache node_modules
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cache/Cypress
-          ./atcoder-problems-frontend/node_modules
-        key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-frontend/yarn.lock') }}
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/Cypress
+            ./atcoder-problems-frontend/node_modules
+          key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-frontend/yarn.lock') }}
 
-    - name: Cache cargo registry
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cargo/git
-          ~/.cargo/registry/cache
-          ~/.cargo/registry/index
-          ./atcoder-problems-backend/target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-backend/Cargo.lock') }}
+      - name: Cache cargo registry
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/git
+            ~/.cargo/registry/cache
+            ~/.cargo/registry/index
+            ./atcoder-problems-backend/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-backend/Cargo.lock') }}
 
-    - name: Install dependencies
-      run: yarn
-    - name: Setup mdBook
-      run: cargo install mdbook
-    - name: build
-      run: yarn build
-    - name: test
-      run: yarn test
-    - name: lint
-      run: yarn lint
-    - name: Integration test
-      run: |
-        yarn prepare-ci
-        yarn start:ci &
-        yarn cy:run
+      - name: Install dependencies
+        run: yarn
+      - name: Setup mdBook
+        run: cargo install mdbook
+      - name: build
+        run: yarn build
+      - name: test
+        run: yarn test
+      - name: lint
+        run: yarn lint
+      - name: Integration test
+        run: |
+          yarn prepare-ci
+          yarn start:ci &
+          yarn cy:run
