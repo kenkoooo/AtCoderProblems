@@ -16,3 +16,4 @@ anyhow = "1.0"
 tokio = { version = "1.16", features = ["macros"] }
 regex = "1"
 chrono = "0.4"
+lazy_static = "1.4.0"
