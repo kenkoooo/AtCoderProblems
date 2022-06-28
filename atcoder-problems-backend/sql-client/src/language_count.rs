@@ -2,12 +2,17 @@ use crate::models::{Submission, UserLanguageCount, UserLanguageCountRank, UserPr
 use crate::{PgPool, MAX_INSERT_ROWS};
 use anyhow::Result;
 use async_trait::async_trait;
-use lazy_static::lazy_static;
-use regex::Regex;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
+
+macro_rules! regex {
+    ($re:literal $(,)?) => {{
+        static RE: once_cell::sync::OnceCell<regex::Regex> = once_cell::sync::OnceCell::new();
+        RE.get_or_init(|| regex::Regex::new($re).unwrap())
+    }};
+}
 
 #[async_trait]
 pub trait LanguageCountClient {
@@ -191,13 +196,11 @@ impl LanguageCountClient for PgPool {
 }
 
 fn simplify_language(lang: &str) -> String {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"\d*\s*\(.*\)").unwrap();
-    }
+    let re = regex!(r"\d*\s*\(.*\)");
     if lang.starts_with("Perl6") {
         "Raku".to_string()
     } else {
-        RE.replace(lang, "").to_string()
+        re.replace(lang, "").to_string()
     }
 }
 
