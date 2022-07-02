@@ -2,17 +2,11 @@ use crate::models::{Submission, UserLanguageCount, UserLanguageCountRank, UserPr
 use crate::{PgPool, MAX_INSERT_ROWS};
 use anyhow::Result;
 use async_trait::async_trait;
+use regex::Regex;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
-
-macro_rules! regex {
-    ($re:literal $(,)?) => {{
-        static RE: once_cell::sync::OnceCell<regex::Regex> = once_cell::sync::OnceCell::new();
-        RE.get_or_init(|| regex::Regex::new($re).unwrap())
-    }};
-}
 
 #[async_trait]
 pub trait LanguageCountClient {
@@ -42,6 +36,7 @@ impl LanguageCountClient for PgPool {
         submissions: &[Submission],
         current_counts: &[UserLanguageCount],
     ) -> Result<()> {
+        let mut simplified_languages = BTreeMap::new();
         let mut language_count = submissions
             .iter()
             .map(|s| {
@@ -54,8 +49,10 @@ impl LanguageCountClient for PgPool {
             .fold(
                 BTreeMap::new(),
                 |mut map, (user_id, problem_id, language)| {
-                    let simplified_language = simplify_language(language);
-                    map.entry((user_id, simplified_language))
+                    let simplified_language = simplified_languages
+                        .entry(language)
+                        .or_insert_with(|| simplify_language(language));
+                    map.entry((user_id, simplified_language.to_string()))
                         .or_insert_with(BTreeSet::new)
                         .insert(problem_id);
                     map
@@ -196,7 +193,7 @@ impl LanguageCountClient for PgPool {
 }
 
 fn simplify_language(lang: &str) -> String {
-    let re = regex!(r"\d*\s*\(.*\)");
+    let re = Regex::new(r"\d*\s*\(.*\)").unwrap();
     if lang.starts_with("Perl6") {
         "Raku".to_string()
     } else {
