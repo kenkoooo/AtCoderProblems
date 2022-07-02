@@ -24,7 +24,10 @@ import {
   parseDateLabel,
 } from "../../../utils/DateUtil";
 import { useLocalStorage } from "../../../utils/LocalStorage";
-import { countUniqueAcByDate } from "../../../utils/StreakCounter";
+import {
+  countUniqueAcByDate,
+  countTeeByDate,
+} from "../../../utils/StreakCounter";
 import Submission from "../../../interfaces/Submission";
 import { ProblemId } from "../../../interfaces/Status";
 import { DailyEffortBarChart } from "./DailyEffortBarChart";
@@ -32,6 +35,7 @@ import { DailyEffortStackedBarChart } from "./DailyEffortStackedBarChart";
 import { ClimbingLineChart } from "./ClimbingLineChart";
 import { ClimbingAreaChart } from "./ClimbingAreaChart";
 import { FilteringHeatmap } from "./FilteringHeatmap";
+import { TeeChart } from "./TeeChart";
 
 const chartTypes = ["Simple", "Colored"] as const;
 type ChartType = typeof chartTypes[number];
@@ -120,6 +124,18 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
   const dailyCount = countUniqueAcByDate(userSubmissions);
 
   const climbing = dailyCount.reduce((list, { dateLabel, count }) => {
+    const dateSecond = parseDateLabel(dateLabel).unix();
+    const last = list.length === 0 ? undefined : list[list.length - 1];
+    if (last) {
+      list.push({ dateSecond, count: last.count + count });
+    } else {
+      list.push({ dateSecond, count });
+    }
+    return list;
+  }, [] as { dateSecond: number; count: number }[]);
+
+  const dailyTeeCount = countTeeByDate(userSubmissions, problemModels);
+  const teeClimbing = dailyTeeCount.reduce((list, { dateLabel, count }) => {
     const dateSecond = parseDateLabel(dateLabel).unix();
     const last = list.length === 0 ? undefined : list[list.length - 1];
     if (last) {
@@ -255,6 +271,11 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
           reverseColorOrder={reverseColorOrder}
         />
       )}
+
+      <Row className="my-2 border-bottom">
+        <h1>TEE Climbing</h1>
+      </Row>
+      <TeeChart climbingData={teeClimbing} />
 
       <Row className="my-2 border-bottom">
         <h1>Heatmap</h1>
