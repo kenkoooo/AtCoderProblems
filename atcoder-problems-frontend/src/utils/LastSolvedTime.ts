@@ -5,6 +5,8 @@ import { isAccepted } from "./index";
 export const ExcludeOptions = [
   "Exclude",
   "Exclude submitted",
+  "2 Years",
+  "1 Year",
   "6 Months",
   "4 Weeks",
   "2 Weeks",
@@ -23,6 +25,10 @@ export const formatExcludeOption = (excludeOption: ExcludeOption): string => {
       return "Exclude problems solved in last 4 weeks";
     case "6 Months":
       return "Exclude problems solved in last 6 months";
+    case "1 Year":
+      return "Exclude problems solved in last 1 Year";
+    case "2 Years":
+      return "Exclude problems solved in last 2 Years";
     case "Exclude":
       return "Exclude all the solved problems";
     case "Don't exclude":
@@ -50,6 +56,10 @@ export const getMaximumExcludeElapsedSecond = (
       return 3600 * 24 * 28;
     case "6 Months":
       return 3600 * 24 * 180;
+    case "1 Year":
+      return 3600 * 24 * 365;
+    case "2 Years":
+      return 3600 * 24 * 365 * 2;
     case "Don't exclude":
       return 0;
   }

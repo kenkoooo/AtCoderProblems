@@ -37,6 +37,8 @@ export type RecommendOption = typeof RecommendOptions[number];
 const ExcludeOptions = [
   "Exclude",
   "Exclude submitted",
+  "2 Years",
+  "1 Year",
   "6 Months",
   "4 Weeks",
   "2 Weeks",
