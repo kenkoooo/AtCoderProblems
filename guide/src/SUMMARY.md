@@ -2,7 +2,8 @@
 
 
 [はじめに](./index.md)
-- [Japanese](./ja/index.md)
+
+# Japanese
   - [問題を探す](./ja/find_problems.md)
   - [進捗確認](./ja/progress.md)
   - [レコメンド](./ja/recommend.md)
