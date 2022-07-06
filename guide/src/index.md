@@ -1,4 +1,4 @@
-# AtCoder Problems ユーザーガイド（日本語版）
+# AtCoder Problems User Guide
 
 AtCoder Problemsのユーザーガイドです。
 このガイドでは、AtCoder Problemsの持つ様々な機能の使い方について解説します。
