@@ -82,20 +82,14 @@ jobs:
             ./atcoder-problems-frontend/node_modules
           key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-frontend/yarn.lock') }}
 
-      - name: Cache cargo registry
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/git
-            ~/.cargo/registry/cache
-            ~/.cargo/registry/index
-            ./atcoder-problems-backend/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-backend/Cargo.lock') }}
-
       - name: Install dependencies
         run: yarn
+
       - name: Setup mdBook
-        run: cargo install mdbook
+        uses: peaceiris/actions-mdbook@v1.1.13
+        with:
+          mdbook-version: 'latest'
+
       - name: build
         run: yarn build
       - name: test
