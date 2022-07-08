@@ -13,3 +13,13 @@
     - [問題リスト作成](./ja/problem_list.md)
     - [進捗リセット](./ja/reset_progress.md)
   - [開発者向け・Contribution](./ja/for_developer.md)
+
+# English
+  - [Find Problems]()
+  - [Progress]()
+  - [Recommend]()
+  - [Virtual Contests]()
+  - [Others]()
+    - [My Lists]()
+    - [Reset Progress]()
+  - [For Developers, Contribution]()
