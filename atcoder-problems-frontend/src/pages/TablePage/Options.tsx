@@ -14,6 +14,8 @@ import {
 } from "reactstrap";
 import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
 import { ColorMode } from "../../utils/TableColor";
+import { ContestCategory } from "../../utils/ContestClassifier";
+import { getLikeContest } from "../../utils/LikeContestUtils";
 
 interface Props {
   hideCompletedContest: boolean;
@@ -27,9 +29,22 @@ interface Props {
   selectableLanguages: Set<string>;
   selectedLanguages: Set<string>;
   toggleLanguage: (language: string) => void;
+  active: ContestCategory;
+  setSelectedContests: (contest: ContestCategory[]) => void;
+  showableShowLikeContest: boolean;
+  showLikeContest: boolean;
+  setShowLikeContest: (showLikeContest: boolean) => void;
 }
 
 export const Options: React.FC<Props> = (props) => {
+  const changeShowLikeContest = (checked: boolean) => {
+    const likeContest = getLikeContest(props.active);
+    if (checked && likeContest) {
+      props.setSelectedContests([props.active, likeContest]);
+    } else {
+      props.setSelectedContests([props.active]);
+    }
+  };
   return (
     <>
       <Row className="my-4">
@@ -59,6 +74,22 @@ export const Options: React.FC<Props> = (props) => {
             Internal rating to have 50% Solve Probability
           </HelpBadgeTooltip>
         </FormGroup>
+        {props.showableShowLikeContest && (
+          <FormGroup check inline class="my-4">
+            <Label check>
+              <CustomInput
+                type="switch"
+                id="showLikeContest"
+                label="Show Like Contest"
+                checked={props.showLikeContest}
+                onChange={(e) => {
+                  changeShowLikeContest(e.target.checked);
+                  props.setShowLikeContest(!props.showLikeContest);
+                }}
+              />
+            </Label>
+          </FormGroup>
+        )}
         {props.colorMode === ColorMode.ContestResult && (
           <FormGroup check inline>
             <Label check>

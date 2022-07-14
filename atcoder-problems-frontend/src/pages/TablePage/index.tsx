@@ -21,6 +21,7 @@ import {
   classifyContest,
   ContestCategory,
 } from "../../utils/ContestClassifier";
+import { hasLikeContest, getLikeContest } from "../../utils/LikeContestUtils";
 import { TableTabButtons } from "./TableTab";
 import { Options } from "./Options";
 import { ContestTable } from "./ContestTable";
@@ -52,7 +53,17 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     "showPenalties",
     false
   );
+  const [showLikeContest, setShowLikeContest] = useLocalStorage(
+    "showLikeContest",
+    false
+  );
   const [selectedLanguages, setSelectedLanguages] = useState(new Set<string>());
+  const selectContests = [activeTab];
+  const likeContest = getLikeContest(activeTab);
+  if (likeContest && showLikeContest) selectContests.push(likeContest);
+  const [selectedContests, setSelectedContests] = useState<ContestCategory[]>([
+    ...selectContests,
+  ]);
   const userRatingInfo = useRatingInfo(props.userId);
   const contestToProblems =
     useContestToMergedProblems() ?? new Map<ContestId, MergedProblem[]>();
@@ -77,7 +88,8 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     props.userId
   );
   const filteredContests =
-    contests?.filter((c) => classifyContest(c) === activeTab) ?? [];
+    contests?.filter((c) => selectedContests.includes(classifyContest(c))) ??
+    [];
 
   return (
     <div>
@@ -99,8 +111,18 @@ export const TablePage: React.FC<OuterProps> = (props) => {
           newSet.has(language) ? newSet.delete(language) : newSet.add(language);
           setSelectedLanguages(newSet);
         }}
+        active={activeTab}
+        setSelectedContests={setSelectedContests}
+        showableShowLikeContest={hasLikeContest(activeTab)}
+        showLikeContest={showLikeContest}
+        setShowLikeContest={setShowLikeContest}
       />
-      <TableTabButtons active={activeTab} setActive={setActiveTab} />
+      <TableTabButtons
+        active={activeTab}
+        setActive={setActiveTab}
+        setSelectedContests={setSelectedContests}
+        showLikeContest={showLikeContest}
+      />
       {[
         "ABC",
         "ARC",

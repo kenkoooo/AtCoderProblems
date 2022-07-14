@@ -17,6 +17,7 @@ const LocalStorageKeys = [
   "recommendOption",
   "recommendExperimental",
   "recoomendExcludeOption",
+  "showLikeContest",
 ] as const;
 type LocalStorageKey = typeof LocalStorageKeys[number];
 
