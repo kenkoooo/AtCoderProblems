@@ -1,9 +1,9 @@
-FROM rust:1.57.0 AS development
+FROM rust:1.63.0 AS development
 RUN rustup component add rustfmt
 RUN rustup component add clippy
 
 # Using the official cargo-chef image
-FROM lukemathwalker/cargo-chef:latest-rust-1.61.0 AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.63.0 AS chef
 WORKDIR /app
 
 FROM chef AS planner
@@ -18,7 +18,7 @@ COPY . .
 RUN cargo build --release
 
 # プロダクション用の Docker イメージをビルドする
-FROM rust:1.61.0 AS production
+FROM rust:1.63.0 AS production
 COPY --from=builder /app/target/release/batch_update                /usr/bin/batch_update
 COPY --from=builder /app/target/release/crawl_all_submissions       /usr/bin/crawl_all_submissions
 COPY --from=builder /app/target/release/crawl_for_virtual_contests  /usr/bin/crawl_for_virtual_contests
