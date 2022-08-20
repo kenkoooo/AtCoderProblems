@@ -33,14 +33,13 @@ const fetchNewSubmissions = async (
   fromSecond: number
 ): Promise<Submission[]> => {
   const newSubmissions = [] as Submission[];
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  for (;;) {
     const fetched = await fetchPartialUserSubmissions(userId, fromSecond);
     if (fetched.length === 0) {
       break;
     }
     newSubmissions.push(...fetched);
-    newSubmissions.sort((a, b) => a.id - b.id);
+    newSubmissions.sort((a, b) => a.epoch_second - b.epoch_second);
     fromSecond = newSubmissions[newSubmissions.length - 1].epoch_second + 1;
   }
   return newSubmissions;
@@ -57,7 +56,7 @@ export const fetchSubmissionsFromDatabaseAndServer = async (userId: UserId) => {
   const submissions = await loadAllData<Submission[]>(db, OBJECT_STORE);
 
   console.log(`Loaded ${submissions.length} submissions from DB`);
-  submissions.sort((a, b) => a.id - b.id);
+  submissions.sort((a, b) => a.epoch_second - b.epoch_second);
 
   const lastSecond =
     submissions.length > 0
