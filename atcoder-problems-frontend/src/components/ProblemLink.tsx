@@ -51,8 +51,7 @@ export const ProblemLink: React.FC<Props> = (props) => {
   if (
     !showDifficulty ||
     problemModel === undefined ||
-    (difficulty === undefined && !showDifficultyUnavailable) ||
-    /^ahc\d{3}$/g.test(contestId)
+    (difficulty === undefined && !showDifficultyUnavailable)
   ) {
     return link;
   }
