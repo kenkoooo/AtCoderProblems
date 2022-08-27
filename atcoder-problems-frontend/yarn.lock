@@ -2019,6 +2019,7 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-5.1.0.tgz#c3018161691376002f8a22ebb87f341e0dba3219"
   integrity sha512-0RJHq5FqDWo17kdHe+SMDJLfxmLaqHbWnqZ6gNKzDvStUlrmx/eKIY17+ifLS1yybo7X86aUshQMlittDOVNnw==
 
+<<<<<<< HEAD
 "@types/node@*":
   version "18.7.13"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.13.tgz#23e6c5168333480d454243378b69e861ab5c011a"
@@ -2028,6 +2029,12 @@
   version "17.0.39"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.39.tgz#3652d82e2a16b4ea679d5ea3143b816c91b7e113"
   integrity sha512-JDU3YLlnPK3WDao6/DlXLOgSNpG13ct+CwIO17V8q0/9fWJyeMJJ/VyZ1lv8kDprihvZMydzVwf0tQOqGiY2Nw==
+=======
+"@types/node@*", "@types/node@17.0.34":
+  version "17.0.34"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.34.tgz#3b0b6a50ff797280b8d000c6281d229f9c538cef"
+  integrity sha512-XImEz7XwTvDBtzlTnm8YvMqGW/ErMWBsKZ+hMTvnDIjGCKxwK5Xpc+c/oQjOauwq8M4OS11hEkpjX8rrI/eEgA==
+>>>>>>> @{-1}
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
