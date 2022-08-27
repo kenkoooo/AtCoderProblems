@@ -445,7 +445,7 @@ export const ShowContest = (props: Props) => {
               <Button
                 onClick={async () => {
                   await joinContest(props.contestId);
-                  await virtualContestResponse.revalidate();
+                  await virtualContestResponse.mutate();
                 }}
               >
                 Join
@@ -455,7 +455,7 @@ export const ShowContest = (props: Props) => {
               <Button
                 onClick={async () => {
                   await leaveContest(props.contestId);
-                  await virtualContestResponse.revalidate();
+                  await virtualContestResponse.mutate();
                 }}
               >
                 Leave

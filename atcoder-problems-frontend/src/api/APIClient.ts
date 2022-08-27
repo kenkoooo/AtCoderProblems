@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import useSWR from "swr";
 import { fetchSubmissionsFromDatabaseAndServer } from "../database/SubmissionsDB";
 import Contest, { isContest } from "../interfaces/Contest";
 import { isContestParticipation } from "../interfaces/ContestParticipation";
@@ -15,9 +17,9 @@ import { isSubmission } from "../interfaces/Submission";
 import { isUserRankEntry, UserRankEntry } from "../interfaces/UserRankEntry";
 import { clipDifficulty, isValidResult } from "../utils";
 import { toChunks } from "../utils/Chunk";
+import { classifyContest } from "../utils/ContestClassifier";
 import { ratingInfoOf } from "../utils/RatingInfo";
 import { hasPropertyAsType, isString } from "../utils/TypeUtils";
-import { useSWRData } from "./index";
 
 const STATIC_API_BASE_URL = "https://kenkoooo.com/atcoder/resources";
 const PROXY_API_URL = "https://kenkoooo.com/atcoder/proxy";
@@ -65,9 +67,7 @@ function fetchTypedArray<T>(
 }
 
 const useRankingV3 = (url: string) => {
-  return useSWRData(url, (u) =>
-    fetchTypedArray<RankingEntry>(u, isRankingEntry)
-  );
+  return useSWR(url, (u) => fetchTypedArray<RankingEntry>(u, isRankingEntry));
 };
 
 export const useACRanking = (from: number, to: number) => {
@@ -79,7 +79,7 @@ export const useUserACRank = (user: string) => {
   const url = `${ATCODER_API_URL}/v3/user/ac_rank?user=${encodeURIComponent(
     user
   )}`;
-  return useSWRData(url, (url) =>
+  return useSWR(url, (url) =>
     fetchTypedValue<UserRankEntry>(url, isUserRankEntry)
   );
 };
@@ -93,7 +93,7 @@ export const useUserStreakRank = (user: string) => {
   const url = `${ATCODER_API_URL}/v3/user/streak_rank?user=${encodeURIComponent(
     user
   )}`;
-  return useSWRData(url, (url) =>
+  return useSWR(url, (url) =>
     fetchTypedValue<UserRankEntry>(url, isUserRankEntry)
   );
 };
@@ -107,26 +107,40 @@ export const useUserSumRank = (user: string) => {
   const url = `${ATCODER_API_URL}/v3/user/rated_point_sum_rank?user=${encodeURIComponent(
     user
   )}`;
-  return useSWRData(url, (url) =>
+  return useSWR(url, (url) =>
     fetchTypedValue<UserRankEntry>(url, isUserRankEntry)
   );
 };
 
 export const useMergedProblemMap = () => {
+  const fetcher = (url: string) => fetchTypedArray(url, isMergedProblem);
   const url = STATIC_API_BASE_URL + "/merged-problems.json";
-  return useSWRData(url, (url) =>
-    fetchTypedArray(url, isMergedProblem).then((problems) =>
-      problems.reduce((map, problem) => {
+  const problems = useSWR(url, fetcher);
+  const contests = useContestMap();
+
+  const map = useMemo(() => {
+    const map = new Map<ProblemId, MergedProblem>();
+    problems.data?.forEach((problem) => {
+      const contest = contests?.get(problem.contest_id);
+      if (!contest) {
+        return;
+      }
+
+      const contestType = classifyContest(contest);
+      if (contestType === "AHC") {
+        map.set(problem.id, { ...problem, point: undefined });
+      } else {
         map.set(problem.id, problem);
-        return map;
-      }, new Map<ProblemId, MergedProblem>())
-    )
-  );
+      }
+    });
+    return map;
+  }, [contests, problems]);
+  return { data: map };
 };
 
 export const useLangList = () => {
   const url = `${ATCODER_API_URL}/v3/language_list`;
-  return useSWRData(url, (url) => fetchTypedArray(url, isString));
+  return useSWR(url, (url) => fetchTypedArray(url, isString));
 };
 
 export const useOneLangRanking = (
@@ -156,8 +170,8 @@ export const useFirstRanking = () => {
 export const useRatingInfo = (user: string) => {
   const url = `${PROXY_API_URL}/users/${user}/history/json`;
   const history =
-    useSWRData(url, (url) => fetchTypedArray(url, isContestParticipation))
-      ?.data ?? [];
+    useSWR(url, (url) => fetchTypedArray(url, isContestParticipation))?.data ??
+    [];
   return ratingInfoOf(history);
 };
 
@@ -171,26 +185,24 @@ export const useMultipleUserSubmissions = (userIds: UserId[]) => {
     const arrays = await Promise.all(promises);
     return arrays.flat();
   };
-  const users = userIds.join(",");
-  return useSWRData(`multiple-user-submission ${users}`, (s) => {
-    const users = s.split(" ")[1];
-    return fetcher(users.split(","));
-  });
+  return useSWR({ key: "multiple-user-submission", userIds }, ({ userIds }) =>
+    fetcher(userIds)
+  );
 };
 
 export const useContests = () => {
   const url = STATIC_API_BASE_URL + "/contests.json";
-  return useSWRData(url, (url) => fetchTypedArray(url, isContest));
+  return useSWR(url, (url) => fetchTypedArray(url, isContest));
 };
 
 export const useProblems = () => {
   const url = STATIC_API_BASE_URL + "/problems.json";
-  return useSWRData(url, (url) => fetchTypedArray(url, isProblem)).data;
+  return useSWR(url, (url) => fetchTypedArray(url, isProblem)).data;
 };
 
 const useContestProblemList = () => {
   const url = STATIC_API_BASE_URL + "/contest-problem.json";
-  return useSWRData(url, (url) =>
+  return useSWR(url, (url) =>
     fetchTypedArray(
       url,
       (
@@ -258,29 +270,58 @@ export const useProblemMap = () => {
 };
 
 export const useProblemModelMap = () => {
-  const fetcher = (url: string) =>
-    fetch(url)
-      .then((r) => r.json())
-      .then((obj: { [p: string]: unknown }) =>
-        Object.entries(obj)
-          .filter((entry): entry is [string, ProblemModel] =>
-            isProblemModel(entry[1])
-          )
-          .reduce((map, [problemId, problemModel]) => {
-            if (problemModel.difficulty === undefined) {
-              map.set(problemId, problemModel);
-            } else {
-              map.set(problemId, {
-                ...problemModel,
-                difficulty: clipDifficulty(problemModel.difficulty),
-                rawDifficulty: problemModel.difficulty,
-              });
-            }
-            return map;
-          }, new Map<ProblemId, ProblemModel>())
-      );
+  const fetcher = async (url: string) => {
+    const response = await fetch(url);
+    const result: unknown = await response.json();
+    if (typeof result !== "object" || !result) {
+      return [] as { problemId: ProblemId; model: ProblemModel }[];
+    }
+
+    const models = [] as { problemId: ProblemId; model: ProblemModel }[];
+    Object.entries(result).forEach(([key, value]) => {
+      if (isProblemModel(value)) {
+        models.push({ problemId: key, model: value });
+      }
+    });
+    return models;
+  };
+
   const url = STATIC_API_BASE_URL + "/problem-models.json";
-  return useSWRData(url, fetcher).data;
+  const problemModels = useSWR(url, fetcher);
+  const contests = useContestMap();
+  const problems = useProblemMap();
+
+  const modelMap = useMemo(() => {
+    const map = new Map<ProblemId, ProblemModel>();
+    problemModels.data?.forEach(({ problemId, model }) => {
+      const problem = problems?.get(problemId);
+      if (!problem) {
+        return;
+      }
+      const contest = contests?.get(problem.contest_id);
+      if (!contest) {
+        return;
+      }
+      const contestType = classifyContest(contest);
+      if (contestType === "AHC") {
+        return;
+      }
+
+      if (model.difficulty === undefined) {
+        map.set(problemId, model);
+      } else {
+        map.set(problemId, {
+          ...model,
+          difficulty: clipDifficulty(model.difficulty),
+          rawDifficulty: model.difficulty,
+        });
+      }
+    });
+
+    return map;
+  }, [problemModels, problems, contests]);
+
+  return modelMap;
 };
 
 export const useVirtualContestSubmissions = (
@@ -348,10 +389,10 @@ export const useVirtualContestSubmissions = (
     : 1_000_000_000;
 
   const customKey = serialize(users, problems);
-  return useSWRData(customKey, fetcher, { refreshInterval });
+  return useSWR(customKey, fetcher, { refreshInterval });
 };
 
 export const useRecentSubmissions = () => {
   const url = `${ATCODER_API_URL}/v3/recent`;
-  return useSWRData(url, (url) => fetchTypedArray(url, isSubmission));
+  return useSWR(url, (url) => fetchTypedArray(url, isSubmission));
 };
