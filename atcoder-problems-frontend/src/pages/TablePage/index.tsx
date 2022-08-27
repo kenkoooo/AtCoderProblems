@@ -58,13 +58,6 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     false
   );
   const [selectedLanguages, setSelectedLanguages] = useState(new Set<string>());
-
-  const selectedContestCategories = [activeTab];
-  const likeContestCategory = getLikeContestCategory(activeTab);
-  if (likeContestCategory && mergeLikeContest) {
-    selectedContestCategories.push(likeContestCategory);
-  }
-
   const userRatingInfo = useRatingInfo(props.userId);
   const contestToProblems =
     useContestToMergedProblems() ?? new Map<ContestId, MergedProblem[]>();
@@ -88,6 +81,12 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     filteredSubmissions,
     props.userId
   );
+
+  const selectedContestCategories = [activeTab];
+  const likeContestCategory = getLikeContestCategory(activeTab);
+  if (likeContestCategory && mergeLikeContest) {
+    selectedContestCategories.push(likeContestCategory);
+  }
   const filteredContests =
     contests?.filter((c) =>
       selectedContestCategories.includes(classifyContest(c))
