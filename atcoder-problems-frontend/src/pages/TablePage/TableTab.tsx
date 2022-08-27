@@ -4,34 +4,33 @@ import {
   ContestCategories,
   ContestCategory,
 } from "../../utils/ContestClassifier";
-import { getLikeContest } from "../../utils/LikeContestUtils";
+import { LikeContestCategories } from "../../utils/LikeContestUtils";
 
 interface Props {
   active: ContestCategory;
   setActive: (next: ContestCategory) => void;
-  setSelectedContests: (contest: ContestCategory[]) => void;
-  showLikeContest: boolean;
+  mergeLikeContest: boolean;
 }
 
 export const TableTabButtons: React.FC<Props> = (props) => {
-  const { active, setActive, setSelectedContests, showLikeContest } = props;
+  const { active, setActive, mergeLikeContest } = props;
 
-  const resetSelectedContests = (category: ContestCategory) => {
-    const selectContests = [category];
-    const likeContest = getLikeContest(category);
-    if (likeContest && showLikeContest) selectContests.push(likeContest);
-    setSelectedContests(selectContests);
+  const filterLikeContest = (contestCategories: readonly ContestCategory[]) => {
+    if (!mergeLikeContest) return contestCategories;
+
+    return contestCategories.filter(
+      (category) => !LikeContestCategories.includes(category)
+    );
   };
   return (
     <Row>
       <ButtonGroup className="table-tab">
-        {ContestCategories.map((category, i) => (
+        {filterLikeContest(ContestCategories).map((category, i) => (
           <Button
-            key={i}
+            key={String(i)}
             color="secondary"
             onClick={(): void => {
               setActive(category);
-              resetSelectedContests(category);
             }}
             active={active === category}
           >

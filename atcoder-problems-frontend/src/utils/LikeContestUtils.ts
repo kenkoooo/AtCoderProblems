@@ -15,6 +15,8 @@ export const getLikeContest = (
   }
 };
 
-export const hasLikeContest = (contestCategory: ContestCategory): boolean => {
-  return ["ABC", "ARC", "AGC"].includes(contestCategory);
-};
+export const LikeContestCategories: readonly ContestCategory[] = [
+  "ABC-Like",
+  "ARC-Like",
+  "AGC-Like",
+];

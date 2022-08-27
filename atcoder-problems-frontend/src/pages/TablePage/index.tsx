@@ -21,7 +21,7 @@ import {
   classifyContest,
   ContestCategory,
 } from "../../utils/ContestClassifier";
-import { hasLikeContest, getLikeContest } from "../../utils/LikeContestUtils";
+import { getLikeContest } from "../../utils/LikeContestUtils";
 import { TableTabButtons } from "./TableTab";
 import { Options } from "./Options";
 import { ContestTable } from "./ContestTable";
@@ -53,17 +53,16 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     "showPenalties",
     false
   );
-  const [showLikeContest, setShowLikeContest] = useLocalStorage(
-    "showLikeContest",
+  const [mergeLikeContest, setMergeLikeContest] = useLocalStorage(
+    "MergeLikeContest",
     false
   );
   const [selectedLanguages, setSelectedLanguages] = useState(new Set<string>());
-  const selectContests = [activeTab];
+
+  const selectedContests = [activeTab];
   const likeContest = getLikeContest(activeTab);
-  if (likeContest && showLikeContest) selectContests.push(likeContest);
-  const [selectedContests, setSelectedContests] = useState<ContestCategory[]>([
-    ...selectContests,
-  ]);
+  if (likeContest && mergeLikeContest) selectedContests.push(likeContest);
+
   const userRatingInfo = useRatingInfo(props.userId);
   const contestToProblems =
     useContestToMergedProblems() ?? new Map<ContestId, MergedProblem[]>();
@@ -112,16 +111,13 @@ export const TablePage: React.FC<OuterProps> = (props) => {
           setSelectedLanguages(newSet);
         }}
         active={activeTab}
-        setSelectedContests={setSelectedContests}
-        showableShowLikeContest={hasLikeContest(activeTab)}
-        showLikeContest={showLikeContest}
-        setShowLikeContest={setShowLikeContest}
+        mergeLikeContest={mergeLikeContest}
+        setMergeLikeContest={setMergeLikeContest}
       />
       <TableTabButtons
         active={activeTab}
         setActive={setActiveTab}
-        setSelectedContests={setSelectedContests}
-        showLikeContest={showLikeContest}
+        mergeLikeContest={mergeLikeContest}
       />
       {[
         "ABC",
