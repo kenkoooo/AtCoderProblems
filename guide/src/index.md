@@ -1,0 +1,6 @@
+# AtCoder Problems User Guide
+
+AtCoder Problemsのユーザーガイドです。
+このガイドでは、AtCoder Problemsの持つ様々な機能の使い方について解説します。
+
+左側のサイドバー（左上のメニューアイコン）またはページ下部にある矢印ボタンを使用することで、読みたいページに移動できます。
