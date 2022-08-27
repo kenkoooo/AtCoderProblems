@@ -14,7 +14,7 @@ services:
       - "15432:5432"
 
   backend-development:
-    image: rust:1.57
+    image: rust:1.63.0
     environment:
       SQL_URL: postgres://db_user:db_pass@postgresql:5432/test_db
       DATABASE_URL: postgres://db_user:db_pass@postgresql:5432/test_db
