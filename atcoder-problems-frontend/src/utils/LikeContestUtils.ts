@@ -1,6 +1,6 @@
 import { ContestCategory } from "./ContestClassifier";
 
-export const getLikeContest = (
+export const getLikeContestCategory = (
   contestCategory: ContestCategory
 ): ContestCategory | undefined => {
   switch (contestCategory) {

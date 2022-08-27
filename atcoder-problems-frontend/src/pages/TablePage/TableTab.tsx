@@ -15,7 +15,7 @@ interface Props {
 export const TableTabButtons: React.FC<Props> = (props) => {
   const { active, setActive, mergeLikeContest } = props;
 
-  const filterLikeContest = (contestCategories: readonly ContestCategory[]) => {
+  const filterCategories = (contestCategories: readonly ContestCategory[]) => {
     if (!mergeLikeContest) return contestCategories;
 
     return contestCategories.filter(
@@ -25,7 +25,7 @@ export const TableTabButtons: React.FC<Props> = (props) => {
   return (
     <Row>
       <ButtonGroup className="table-tab">
-        {filterLikeContest(ContestCategories).map((category, i) => (
+        {filterCategories(ContestCategories).map((category, i) => (
           <Button
             key={String(i)}
             color="secondary"

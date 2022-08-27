@@ -1,4 +1,4 @@
-import { getLikeContest } from "./LikeContestUtils";
+import { getLikeContestCategory } from "./LikeContestUtils";
 import { ContestCategory } from "./ContestClassifier";
 
 type GetLikeContestTestType = [ContestCategory, ContestCategory | undefined];
@@ -17,5 +17,5 @@ test.each<GetLikeContestTestType>([
   ["Other Sponsored", undefined],
   ["Other Contests", undefined],
 ])("Get Like Contest", (contest, result) => {
-  expect(getLikeContest(contest)).toBe(result);
+  expect(getLikeContestCategory(contest)).toBe(result);
 });

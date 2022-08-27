@@ -30,7 +30,7 @@ interface Props {
   toggleLanguage: (language: string) => void;
   active: ContestCategory;
   mergeLikeContest: boolean;
-  setMergeLikeContest: (showLikeContest: boolean) => void;
+  setMergeLikeContest: (mergeLikeContest: boolean) => void;
 }
 
 export const Options: React.FC<Props> = (props) => {

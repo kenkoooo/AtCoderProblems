@@ -21,7 +21,7 @@ import {
   classifyContest,
   ContestCategory,
 } from "../../utils/ContestClassifier";
-import { getLikeContest } from "../../utils/LikeContestUtils";
+import { getLikeContestCategory } from "../../utils/LikeContestUtils";
 import { TableTabButtons } from "./TableTab";
 import { Options } from "./Options";
 import { ContestTable } from "./ContestTable";
@@ -59,9 +59,11 @@ export const TablePage: React.FC<OuterProps> = (props) => {
   );
   const [selectedLanguages, setSelectedLanguages] = useState(new Set<string>());
 
-  const selectedContests = [activeTab];
-  const likeContest = getLikeContest(activeTab);
-  if (likeContest && mergeLikeContest) selectedContests.push(likeContest);
+  const selectedContestCategories = [activeTab];
+  const likeContestCategory = getLikeContestCategory(activeTab);
+  if (likeContestCategory && mergeLikeContest) {
+    selectedContestCategories.push(likeContestCategory);
+  }
 
   const userRatingInfo = useRatingInfo(props.userId);
   const contestToProblems =
@@ -87,8 +89,9 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     props.userId
   );
   const filteredContests =
-    contests?.filter((c) => selectedContests.includes(classifyContest(c))) ??
-    [];
+    contests?.filter((c) =>
+      selectedContestCategories.includes(classifyContest(c))
+    ) ?? [];
 
   return (
     <div>
