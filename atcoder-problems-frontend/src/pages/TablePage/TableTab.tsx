@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Row, ButtonGroup, Button } from "reactstrap";
 import {
   ContestCategories,
   ContestCategory,
 } from "../../utils/ContestClassifier";
-import { LikeContestCategories } from "../../utils/LikeContestUtils";
+import { isLikeContest } from "../../utils/LikeContestUtils";
 
 interface Props {
   active: ContestCategory;
@@ -15,19 +15,18 @@ interface Props {
 export const TableTabButtons: React.FC<Props> = (props) => {
   const { active, setActive, mergeLikeContest } = props;
 
-  const filterCategories = (contestCategories: readonly ContestCategory[]) => {
-    if (!mergeLikeContest) return contestCategories;
-
-    return contestCategories.filter(
-      (category) => !LikeContestCategories.includes(category)
+  const filteredCategories = useMemo(() => {
+    return ContestCategories.filter(
+      (category) => !mergeLikeContest || !isLikeContest(category)
     );
-  };
+  }, [mergeLikeContest]);
+
   return (
     <Row>
       <ButtonGroup className="table-tab">
-        {filterCategories(ContestCategories).map((category, i) => (
+        {filteredCategories.map((category) => (
           <Button
-            key={String(i)}
+            key={category}
             color="secondary"
             onClick={(): void => {
               setActive(category);

@@ -15,8 +15,11 @@ export const getLikeContestCategory = (
   }
 };
 
-export const LikeContestCategories: readonly ContestCategory[] = [
+const LikeContestCategories: readonly ContestCategory[] = [
   "ABC-Like",
   "ARC-Like",
   "AGC-Like",
 ];
+export const isLikeContest = (category: ContestCategory) => {
+  return LikeContestCategories.includes(category);
+};
