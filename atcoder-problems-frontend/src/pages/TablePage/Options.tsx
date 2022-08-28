@@ -42,7 +42,7 @@ export const Options: React.FC<Props> = (props) => {
             <CustomInput
               type="switch"
               id="hideCompletedContest"
-              label="Hide Completed Contest"
+              label="Hide Completed Contests"
               checked={props.hideCompletedContest}
               onChange={props.toggleHideCompletedContest}
             />
@@ -68,7 +68,7 @@ export const Options: React.FC<Props> = (props) => {
             <CustomInput
               type="switch"
               id="mergeLikeContest"
-              label="Merge Like Contest"
+              label='Merge "-Like" Contests'
               checked={props.mergeLikeContest}
               onChange={() => {
                 props.setMergeLikeContest(!props.mergeLikeContest);
