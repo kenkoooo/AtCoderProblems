@@ -94,7 +94,7 @@ export const NavigationBar = () => {
 
             <NavItem>
               <NavLink
-                href="./book/index.html"
+                href="https://kenkoooo.com/atcoder/book/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
               >
