@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { List } from "immutable";
 import {
   useContests,
@@ -82,15 +82,20 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     props.userId
   );
 
-  const selectedContestCategories = [activeTab];
-  const likeContestCategory = getLikeContestCategory(activeTab);
-  if (likeContestCategory && mergeLikeContest) {
-    selectedContestCategories.push(likeContestCategory);
-  }
-  const filteredContests =
-    contests?.filter((c) =>
-      selectedContestCategories.includes(classifyContest(c))
-    ) ?? [];
+  const filteredContests = useMemo(() => {
+    if (!contests) {
+      return [];
+    }
+    return contests.filter((contest) => {
+      const contestType = classifyContest(contest);
+      if (contestType === activeTab) {
+        return true;
+      }
+      return (
+        mergeLikeContest && getLikeContestCategory(activeTab) === contestType
+      );
+    });
+  }, [contests, activeTab, mergeLikeContest]);
 
   return (
     <div>
