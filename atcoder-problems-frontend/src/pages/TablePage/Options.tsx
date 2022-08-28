@@ -14,6 +14,7 @@ import {
 } from "reactstrap";
 import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
 import { ColorMode } from "../../utils/TableColor";
+import { ContestCategory } from "../../utils/ContestClassifier";
 
 interface Props {
   hideCompletedContest: boolean;
@@ -27,6 +28,9 @@ interface Props {
   selectableLanguages: Set<string>;
   selectedLanguages: Set<string>;
   toggleLanguage: (language: string) => void;
+  active: ContestCategory;
+  mergeLikeContest: boolean;
+  setMergeLikeContest: (mergeLikeContest: boolean) => void;
 }
 
 export const Options: React.FC<Props> = (props) => {
@@ -58,6 +62,19 @@ export const Options: React.FC<Props> = (props) => {
           <HelpBadgeTooltip id="difficulty">
             Internal rating to have 50% Solve Probability
           </HelpBadgeTooltip>
+        </FormGroup>
+        <FormGroup check inline class="my-4">
+          <Label check>
+            <CustomInput
+              type="switch"
+              id="mergeLikeContest"
+              label="Merge Like Contest"
+              checked={props.mergeLikeContest}
+              onChange={() => {
+                props.setMergeLikeContest(!props.mergeLikeContest);
+              }}
+            />
+          </Label>
         </FormGroup>
         {props.colorMode === ColorMode.ContestResult && (
           <FormGroup check inline>

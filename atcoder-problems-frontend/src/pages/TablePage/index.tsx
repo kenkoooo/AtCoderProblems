@@ -21,6 +21,7 @@ import {
   classifyContest,
   ContestCategory,
 } from "../../utils/ContestClassifier";
+import { getLikeContestCategory } from "../../utils/LikeContestUtils";
 import { TableTabButtons } from "./TableTab";
 import { Options } from "./Options";
 import { ContestTable } from "./ContestTable";
@@ -52,6 +53,10 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     "showPenalties",
     false
   );
+  const [mergeLikeContest, setMergeLikeContest] = useLocalStorage(
+    "MergeLikeContest",
+    false
+  );
   const [selectedLanguages, setSelectedLanguages] = useState(new Set<string>());
   const userRatingInfo = useRatingInfo(props.userId);
   const contestToProblems =
@@ -76,8 +81,16 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     filteredSubmissions,
     props.userId
   );
+
+  const selectedContestCategories = [activeTab];
+  const likeContestCategory = getLikeContestCategory(activeTab);
+  if (likeContestCategory && mergeLikeContest) {
+    selectedContestCategories.push(likeContestCategory);
+  }
   const filteredContests =
-    contests?.filter((c) => classifyContest(c) === activeTab) ?? [];
+    contests?.filter((c) =>
+      selectedContestCategories.includes(classifyContest(c))
+    ) ?? [];
 
   return (
     <div>
@@ -99,8 +112,15 @@ export const TablePage: React.FC<OuterProps> = (props) => {
           newSet.has(language) ? newSet.delete(language) : newSet.add(language);
           setSelectedLanguages(newSet);
         }}
+        active={activeTab}
+        mergeLikeContest={mergeLikeContest}
+        setMergeLikeContest={setMergeLikeContest}
       />
-      <TableTabButtons active={activeTab} setActive={setActiveTab} />
+      <TableTabButtons
+        active={activeTab}
+        setActive={setActiveTab}
+        mergeLikeContest={mergeLikeContest}
+      />
       {[
         "ABC",
         "ARC",

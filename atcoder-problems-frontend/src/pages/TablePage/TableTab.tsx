@@ -4,20 +4,30 @@ import {
   ContestCategories,
   ContestCategory,
 } from "../../utils/ContestClassifier";
+import { LikeContestCategories } from "../../utils/LikeContestUtils";
 
 interface Props {
   active: ContestCategory;
   setActive: (next: ContestCategory) => void;
+  mergeLikeContest: boolean;
 }
 
 export const TableTabButtons: React.FC<Props> = (props) => {
-  const { active, setActive } = props;
+  const { active, setActive, mergeLikeContest } = props;
+
+  const filterCategories = (contestCategories: readonly ContestCategory[]) => {
+    if (!mergeLikeContest) return contestCategories;
+
+    return contestCategories.filter(
+      (category) => !LikeContestCategories.includes(category)
+    );
+  };
   return (
     <Row>
       <ButtonGroup className="table-tab">
-        {ContestCategories.map((category, i) => (
+        {filterCategories(ContestCategories).map((category, i) => (
           <Button
-            key={i}
+            key={String(i)}
             color="secondary"
             onClick={(): void => {
               setActive(category);
