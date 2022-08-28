@@ -27,6 +27,8 @@ interface Props {
   selectableLanguages: Set<string>;
   selectedLanguages: Set<string>;
   toggleLanguage: (language: string) => void;
+  mergeLikeContest: boolean;
+  setMergeLikeContest: (mergeLikeContest: boolean) => void;
 }
 
 export const Options: React.FC<Props> = (props) => {
@@ -38,7 +40,7 @@ export const Options: React.FC<Props> = (props) => {
             <CustomInput
               type="switch"
               id="hideCompletedContest"
-              label="Hide Completed Contest"
+              label="Hide Completed Contests"
               checked={props.hideCompletedContest}
               onChange={props.toggleHideCompletedContest}
             />
@@ -58,6 +60,19 @@ export const Options: React.FC<Props> = (props) => {
           <HelpBadgeTooltip id="difficulty">
             Internal rating to have 50% Solve Probability
           </HelpBadgeTooltip>
+        </FormGroup>
+        <FormGroup check inline class="my-4">
+          <Label check>
+            <CustomInput
+              type="switch"
+              id="mergeLikeContest"
+              label='Merge "-Like" Contests'
+              checked={props.mergeLikeContest}
+              onChange={() => {
+                props.setMergeLikeContest(!props.mergeLikeContest);
+              }}
+            />
+          </Label>
         </FormGroup>
         {props.colorMode === ColorMode.ContestResult && (
           <FormGroup check inline>

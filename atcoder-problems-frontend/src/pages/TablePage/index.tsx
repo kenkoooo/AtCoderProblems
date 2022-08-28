@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { List } from "immutable";
 import {
   useContests,
@@ -21,6 +21,7 @@ import {
   classifyContest,
   ContestCategory,
 } from "../../utils/ContestClassifier";
+import { getLikeContestCategory } from "../../utils/LikeContestUtils";
 import { TableTabButtons } from "./TableTab";
 import { Options } from "./Options";
 import { ContestTable } from "./ContestTable";
@@ -52,6 +53,10 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     "showPenalties",
     false
   );
+  const [mergeLikeContest, setMergeLikeContest] = useLocalStorage(
+    "MergeLikeContest",
+    false
+  );
   const [selectedLanguages, setSelectedLanguages] = useState(new Set<string>());
   const userRatingInfo = useRatingInfo(props.userId);
   const contestToProblems =
@@ -76,8 +81,21 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     filteredSubmissions,
     props.userId
   );
-  const filteredContests =
-    contests?.filter((c) => classifyContest(c) === activeTab) ?? [];
+
+  const filteredContests = useMemo(() => {
+    if (!contests) {
+      return [];
+    }
+    return contests.filter((contest) => {
+      const contestType = classifyContest(contest);
+      if (contestType === activeTab) {
+        return true;
+      }
+      return (
+        mergeLikeContest && getLikeContestCategory(activeTab) === contestType
+      );
+    });
+  }, [contests, activeTab, mergeLikeContest]);
 
   return (
     <div>
@@ -99,8 +117,14 @@ export const TablePage: React.FC<OuterProps> = (props) => {
           newSet.has(language) ? newSet.delete(language) : newSet.add(language);
           setSelectedLanguages(newSet);
         }}
+        mergeLikeContest={mergeLikeContest}
+        setMergeLikeContest={setMergeLikeContest}
       />
-      <TableTabButtons active={activeTab} setActive={setActiveTab} />
+      <TableTabButtons
+        active={activeTab}
+        setActive={setActiveTab}
+        mergeLikeContest={mergeLikeContest}
+      />
       {[
         "ABC",
         "ARC",
