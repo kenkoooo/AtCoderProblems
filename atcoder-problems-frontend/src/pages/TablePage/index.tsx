@@ -112,7 +112,6 @@ export const TablePage: React.FC<OuterProps> = (props) => {
           newSet.has(language) ? newSet.delete(language) : newSet.add(language);
           setSelectedLanguages(newSet);
         }}
-        active={activeTab}
         mergeLikeContest={mergeLikeContest}
         setMergeLikeContest={setMergeLikeContest}
       />

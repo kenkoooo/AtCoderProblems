@@ -14,7 +14,6 @@ import {
 } from "reactstrap";
 import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
 import { ColorMode } from "../../utils/TableColor";
-import { ContestCategory } from "../../utils/ContestClassifier";
 
 interface Props {
   hideCompletedContest: boolean;
@@ -28,7 +27,6 @@ interface Props {
   selectableLanguages: Set<string>;
   selectedLanguages: Set<string>;
   toggleLanguage: (language: string) => void;
-  active: ContestCategory;
   mergeLikeContest: boolean;
   setMergeLikeContest: (mergeLikeContest: boolean) => void;
 }
