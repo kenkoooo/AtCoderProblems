@@ -4,7 +4,7 @@ import {
   ContestCategories,
   ContestCategory,
 } from "../../utils/ContestClassifier";
-import { isLikeContest } from "../../utils/LikeContestUtils";
+import { isLikeContestCategory } from "../../utils/LikeContestUtils";
 
 interface Props {
   active: ContestCategory;
@@ -17,7 +17,7 @@ export const TableTabButtons: React.FC<Props> = (props) => {
 
   const filteredCategories = useMemo(() => {
     return ContestCategories.filter(
-      (category) => !mergeLikeContest || !isLikeContest(category)
+      (category) => !mergeLikeContest || !isLikeContestCategory(category)
     );
   }, [mergeLikeContest]);
 

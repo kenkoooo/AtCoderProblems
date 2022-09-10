@@ -20,6 +20,6 @@ const LikeContestCategories: readonly ContestCategory[] = [
   "ARC-Like",
   "AGC-Like",
 ];
-export const isLikeContest = (category: ContestCategory) => {
+export const isLikeContestCategory = (category: ContestCategory) => {
   return LikeContestCategories.includes(category);
 };
