@@ -24,19 +24,20 @@ impl S3Client {
             .bucket
             .get_object(path)
             .await
-            .map(|(data, _)| data)
+            .map(|resp| resp.into())
             .unwrap_or_else(|e| {
                 log::error!("{:?}", e);
                 Vec::new()
             });
+
         if old_data != data {
             log::info!("Uploading new data to {} ...", path);
-            let (data, status) = self
+            let resp = self
                 .bucket
                 .put_object_with_content_type(path, &data, "application/json;charset=utf-8")
                 .await?;
-            log::info!("data={:?}", data);
-            log::info!("status={}", status);
+            log::info!("data={:?}", resp.bytes());
+            log::info!("status={}", resp.status_code());
             Ok(true)
         } else {
             log::info!("No update on {}", path);
