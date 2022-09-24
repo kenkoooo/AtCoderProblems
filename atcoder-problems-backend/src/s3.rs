@@ -36,7 +36,6 @@ impl S3Client {
                 .bucket
                 .put_object_with_content_type(path, &data, "application/json;charset=utf-8")
                 .await?;
-            log::info!("data={:?}", resp.bytes());
             log::info!("status={}", resp.status_code());
             Ok(true)
         } else {
