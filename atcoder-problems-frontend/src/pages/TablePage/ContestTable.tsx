@@ -120,7 +120,7 @@ export const ContestTable: React.FC<Props> = (props) => {
                             )}
                             showDifficulty={props.showDifficulty}
                             problemId={problem.id}
-                            contestId={problem.contest_id}
+                            contestId={contest.id}
                             problemIndex={problem.problem_index}
                             problemName={problem.name}
                             problemModel={model}
