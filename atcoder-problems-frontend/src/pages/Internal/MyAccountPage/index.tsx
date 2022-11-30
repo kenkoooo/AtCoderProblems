@@ -17,20 +17,18 @@ import { updateUserInfo } from "./ApiClient";
 
 export const MyAccountPage = (): JSX.Element => {
   const loginState = useLoginState();
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isValidResponse, setIsValidResponse] = useState<boolean>();
 
   const [userId, setUserId] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isValidResponse, setIsValidResponse] = useState<boolean>();
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
 
   const handleSubmit = async (userId: string) => {
     setIsUpdating(true);
-
     await updateUserInfo(userId).then((response) => {
       setIsValidResponse(response.status === 200);
     });
-
     setIsUpdating(false);
   };
 
@@ -91,7 +89,7 @@ export const MyAccountPage = (): JSX.Element => {
             <UserIdUpdate
               userId={userId}
               setUserId={setUserId}
-              onSubmit={async () => handleSubmit(userId)}
+              onSubmit={() => handleSubmit(userId)}
               status={isUpdating ? "updating" : updated ? "updated" : "open"}
             />
           </Route>
