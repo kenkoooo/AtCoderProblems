@@ -23,8 +23,6 @@ export const MyAccountPage = (): JSX.Element => {
   const [userId, setUserId] = useState("");
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
-  console.log(isUpdating);
-  console.log(isValidResponse);
 
   const handleSubmit = async (userId: string) => {
     setIsUpdating(true);
