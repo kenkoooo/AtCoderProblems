@@ -27,6 +27,7 @@ import { useLocalStorage } from "../../../utils/LocalStorage";
 import {
   countUniqueAcByDate,
   countTeeByDate,
+  countTeeInTheOldDays,
 } from "../../../utils/StreakCounter";
 import Submission from "../../../interfaces/Submission";
 import { ProblemId } from "../../../interfaces/Status";
@@ -145,6 +146,8 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
     }
     return list;
   }, [] as { dateSecond: number; count: number }[]);
+
+  const teeInTheOldDays = countTeeInTheOldDays(dailyTeeCount);
 
   const dateColorCountMap = Array.from(submissionsByProblem.values())
     .map((submissionsOfProblem) => {
@@ -276,6 +279,11 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
         <h1>TEE Climbing</h1>
       </Row>
       <TeeChart climbingData={teeClimbing} />
+
+      <Row className="my-2 border-bottom">
+        <h1>TEE In The Old Days</h1>
+      </Row>
+      <TeeChart climbingData={teeInTheOldDays} />
 
       <Row className="my-2 border-bottom">
         <h1>Heatmap</h1>
