@@ -112,18 +112,24 @@ export const countTeeByDate = (
     .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
 };
 
-export const countTeeInTheOldDays = (
+export const countTeeMovingAverage = (
   dailyTeeCount: {
     dateLabel: string;
     count: number;
   }[]
 ) => {
   const DURATION = 30;
+  if (!Array.isArray(dailyTeeCount) || dailyTeeCount.length === 0) {
+    return [];
+  }
 
   const minDateLabel = dailyTeeCount[0].dateLabel;
   const maxDateLabel = dailyTeeCount[dailyTeeCount.length - 1].dateLabel;
   const dateDelta =
-    (+new Date(maxDateLabel) - +new Date(minDateLabel)) / 1000 / 86400;
+    1 +
+    (new Date(maxDateLabel).getTime() - new Date(minDateLabel).getTime()) /
+      1000 /
+      86400;
 
   const differentiatedTees = Array.from(Array(dateDelta)).map((__, i) => {
     const nextDate = new Date(minDateLabel);
@@ -147,7 +153,7 @@ export const countTeeInTheOldDays = (
       if (!total) {
         return null;
       }
-      return { dateSecond, count: total };
+      return { dateSecond, count: total / DURATION };
     })
-    .filter((data) => !!data) as { dateSecond: number; count: number }[];
+    .filter((data): data is { dateSecond: number; count: number } => !!data);
 };
