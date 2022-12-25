@@ -27,7 +27,7 @@ impl RatedPointSumClient for PgPool {
                 GROUP BY contest_id
             ) AS contest_problem_count
             JOIN contests ON contests.id=contest_problem_count.contest_id
-            WHERE 
+            WHERE
                 contests.start_epoch_second >= $1
                 AND contests.rate_change != $2
                 AND contest_problem_count.problem_count >= 2

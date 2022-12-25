@@ -136,11 +136,11 @@ impl SubmissionClient for PgPool {
             SubmissionRequest::InvalidResult { from_second } => sqlx::query_as(
                 r"
                     SELECT * FROM submissions
-                    WHERE 
+                    WHERE
                         result != ALL(
                             ARRAY['AC', 'WA', 'TLE', 'CE', 'RE', 'MLE', 'OLE', 'QLE', 'IE', 'NG']
                         )
-                    AND 
+                    AND
                         epoch_second >= $1
                     ORDER BY id DESC
                     ",

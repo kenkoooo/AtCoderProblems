@@ -113,7 +113,7 @@ impl LanguageCountClient for PgPool {
     async fn load_language_count(&self) -> Result<Vec<UserLanguageCount>> {
         let count = sqlx::query_as(
             r"
-            SELECT 
+            SELECT
                 user_id,
                 simplified_language,
                 problem_count
