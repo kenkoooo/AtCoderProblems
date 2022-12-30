@@ -14,6 +14,12 @@ import {
 } from "./ListPaginationPanel";
 import { NewTabLink } from "./NewTabLink";
 
+const problemTitle = (
+  problemName: string | undefined,
+  { problemIndex }: { problemIndex?: string }
+): string =>
+  problemIndex ? `${problemIndex}. ${problemName || ""}` : problemName || "";
+
 interface Props {
   submissions: Submission[];
   userRatingInfo?: RatingInfo;
@@ -113,7 +119,7 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
         Date
       </TableHeaderColumn>
       <TableHeaderColumn
-        filterFormatted
+        filterValue={problemTitle}
         dataSort
         dataField="name"
         dataFormat={(
