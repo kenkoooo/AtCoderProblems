@@ -18,7 +18,7 @@ COPY . .
 RUN cargo build --release
 
 # プロダクション用の Docker イメージをビルドする
-FROM rust:1.63.0 AS production
+FROM debian:bullseye AS production
 COPY --from=builder /app/target/release/batch_update                /usr/bin/batch_update
 COPY --from=builder /app/target/release/crawl_all_submissions       /usr/bin/crawl_all_submissions
 COPY --from=builder /app/target/release/crawl_for_virtual_contests  /usr/bin/crawl_for_virtual_contests
