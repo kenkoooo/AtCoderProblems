@@ -79,6 +79,8 @@ CREATE TABLE accepted_count (
   problem_count INT           NOT NULL,
   PRIMARY KEY (user_id)
 );
+CREATE INDEX ON accepted_count (LOWER(user_id));
+CREATE INDEX ON accepted_count (problem_count DESC, user_id);
 
 DROP TABLE IF EXISTS points;
 CREATE TABLE points (
@@ -94,6 +96,8 @@ CREATE TABLE rated_point_sum (
   point_sum       BIGINT NOT NULL,
   PRIMARY KEY (user_id)
 );
+CREATE INDEX ON rated_point_sum (LOWER(user_id));
+CREATE INDEX ON rated_point_sum (point_sum DESC, user_id);
 
 DROP TABLE IF EXISTS language_count;
 CREATE TABLE language_count (
@@ -102,6 +106,8 @@ CREATE TABLE language_count (
   problem_count         INT NOT NULL,
   PRIMARY KEY (user_id, simplified_language)
 );
+CREATE INDEX ON language_count (LOWER(user_id));
+CREATE INDEX ON language_count (simplified_language, problem_count DESC, user_id);
 
 DROP TABLE IF EXISTS predicted_rating;
 CREATE TABLE predicted_rating (
@@ -124,6 +130,8 @@ CREATE TABLE max_streaks (
   streak                BIGINT NOT NULL,
   PRIMARY KEY (user_id)
 );
+CREATE INDEX ON max_streaks (LOWER(user_id));
+CREATE INDEX ON max_streaks (streak DESC, user_id);
 
 -- For internal services:
 DROP TABLE IF EXISTS internal_problem_list_items;
