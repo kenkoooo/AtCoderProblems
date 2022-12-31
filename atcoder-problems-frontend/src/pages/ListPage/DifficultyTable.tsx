@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import Table from "reactstrap/lib/Table";
+import { Table, Button, ButtonGroup } from "reactstrap";
 import { List, Range } from "immutable";
-import { Button, ButtonGroup } from "reactstrap";
+
 import { useMergedProblemMap, useProblemModelMap } from "../../api/APIClient";
 import { isAccepted } from "../../utils";
 import { TableColor } from "../../utils/TableColor";

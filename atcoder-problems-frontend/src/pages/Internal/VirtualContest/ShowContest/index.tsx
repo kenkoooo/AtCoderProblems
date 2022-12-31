@@ -20,7 +20,7 @@ import {
   NavItem,
   NavLink,
 } from "reactstrap";
-import { FcCancel, FcCheckmark } from "react-icons/all";
+import { FcCancel, FcCheckmark } from "react-icons/fc";
 import {
   useMergedProblemMap,
   useVirtualContestSubmissions,
@@ -443,6 +443,7 @@ export const ShowContest = (props: Props) => {
           <ButtonGroup>
             {canJoin && (
               <Button
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 onClick={async () => {
                   await joinContest(props.contestId);
                   await virtualContestResponse.mutate();
@@ -453,6 +454,7 @@ export const ShowContest = (props: Props) => {
             )}
             {canLeave && (
               <Button
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 onClick={async () => {
                   await leaveContest(props.contestId);
                   await virtualContestResponse.mutate();

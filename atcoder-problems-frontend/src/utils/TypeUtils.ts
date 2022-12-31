@@ -1,4 +1,4 @@
-const hasProperty = <X extends unknown, Y extends PropertyKey>(
+const hasProperty = <X, Y extends PropertyKey>(
   obj: X | null | undefined,
   prop: Y
 ): obj is X & Record<Y, unknown> => {
@@ -10,29 +10,21 @@ export const isNumber = (obj: unknown): obj is number =>
   typeof obj === "number";
 export const isBoolean = (obj: unknown): obj is boolean =>
   typeof obj === "boolean";
-export const hasPropertyAsType = <X extends unknown, Y extends PropertyKey, T>(
+export const hasPropertyAsType = <X, Y extends PropertyKey, T>(
   obj: X | null | undefined,
   prop: Y,
   check: { (arg: unknown): arg is T }
 ): obj is X & Record<Y, T> => {
   return hasProperty(obj, prop) && check(obj[prop]);
 };
-export const hasPropertyAsTypeOrNull = <
-  X extends unknown,
-  Y extends PropertyKey,
-  T
->(
+export const hasPropertyAsTypeOrNull = <X, Y extends PropertyKey, T>(
   obj: X | null | undefined,
   prop: Y,
   check: { (arg: unknown): arg is T }
 ): obj is X & Record<Y, T | null> => {
   return hasProperty(obj, prop) && (check(obj[prop]) || obj[prop] === null);
 };
-export const hasPropertyAsTypeOrUndefined = <
-  X extends unknown,
-  Y extends PropertyKey,
-  T
->(
+export const hasPropertyAsTypeOrUndefined = <X, Y extends PropertyKey, T>(
   obj: X | null | undefined,
   prop: Y,
   check: { (arg: unknown): arg is T }

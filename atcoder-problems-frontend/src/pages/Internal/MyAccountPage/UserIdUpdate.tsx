@@ -5,15 +5,16 @@ interface Props {
   userId: string;
   setUserId: (userId: string) => void;
   status: "updating" | "updated" | "open";
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>;
 }
 
 export const UserIdUpdate = (props: Props) => {
   return (
     <form
-      onSubmit={(event): void => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onSubmit={async (event) => {
         event.preventDefault();
-        props.onSubmit();
+        await props.onSubmit();
       }}
     >
       <Row className="my-2">

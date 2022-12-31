@@ -27,7 +27,9 @@ const problemMatch = (text: string, problem: Problem): boolean => {
 
 interface Props {
   problems: Problem[];
-  selectProblem: (problem: Problem) => void;
+  selectProblem:
+    | ((problem: Problem) => void)
+    | ((problem: Problem) => Promise<void>);
 }
 
 export const ProblemSearchBox: React.FC<Props> = (props) => {
@@ -47,14 +49,15 @@ export const ProblemSearchBox: React.FC<Props> = (props) => {
           setProblemSearch(e.target.value);
           setFocusingId(-1);
         }}
-        onKeyDown={(e): void => {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        onKeyDown={async (e) => {
           if (e.key === "Enter") {
             const problem =
               filterProblems.length > focusingId
                 ? filterProblems[focusingId]
                 : undefined;
             if (problem) {
-              props.selectProblem(problem);
+              await props.selectProblem(problem);
               setProblemSearch("");
               setFocusingId(-1);
             }
@@ -70,8 +73,9 @@ export const ProblemSearchBox: React.FC<Props> = (props) => {
           <ListGroupItem
             active={i === focusingId}
             key={problem.id}
-            onClick={(): void => {
-              props.selectProblem(problem);
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onClick={async () => {
+              await props.selectProblem(problem);
               setProblemSearch("");
               setFocusingId(-1);
             }}

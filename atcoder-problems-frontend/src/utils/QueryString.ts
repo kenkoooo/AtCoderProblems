@@ -1,4 +1,6 @@
-import { Location } from "history";
+import { useLocation } from "react-router-dom";
+
+type Location = ReturnType<typeof useLocation>;
 
 export const generatePathWithParams = (
   location: Location,

@@ -181,7 +181,7 @@ export const ListTable: React.FC<Props> = (props) => {
         };
       }
     )
-    .sort((a, b) => {
+    .sort((a, b): number => {
       const dateOrder = b.contestDate.localeCompare(a.contestDate);
       return dateOrder === 0 ? a.title.localeCompare(b.title) : dateOrder;
     });

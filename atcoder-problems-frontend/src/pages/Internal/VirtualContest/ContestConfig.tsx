@@ -362,8 +362,9 @@ export const ContestConfig: React.FC<Props> = (props) => {
           <Button
             disabled={!isValid}
             color={isValid ? "success" : "link"}
-            onClick={(): void =>
-              props.buttonPush({
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onClick={async () =>
+              await props.buttonPush({
                 title,
                 memo,
                 startSecond,
@@ -409,6 +410,6 @@ interface Props {
   initialPublicState: boolean;
   initialPenaltySecond: number;
 
-  buttonPush: (contest: ContestInfo) => void;
+  buttonPush: (contest: ContestInfo) => Promise<void>;
   buttonTitle: string;
 }

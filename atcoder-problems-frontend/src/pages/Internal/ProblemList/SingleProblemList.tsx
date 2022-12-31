@@ -78,7 +78,9 @@ export const SingleProblemList = (props: Props) => {
           <h2>
             <DoubleClickEdit
               modifiable={modifiable}
-              saveText={async (name) => await updateProblemList(name, listId)}
+              saveText={async (name) => {
+                await updateProblemList(name, listId);
+              }}
               initialText={listInfo.internal_list_name}
             />
           </h2>
@@ -123,18 +125,14 @@ export const SingleProblemList = (props: Props) => {
                   key={item.problem_id}
                   item={item}
                   problem={problem}
-                  saveText={async (memo: string) =>
-                    await updateProblemItem(
-                      item.problem_id,
-                      memo,
-                      listId
-                    ).then(() => problemListFetch.mutate())
-                  }
-                  deleteItem={async () =>
-                    await deleteProblemItem(item.problem_id, listId).then(() =>
-                      problemListFetch.mutate()
-                    )
-                  }
+                  saveText={async (memo: string) => {
+                    await updateProblemItem(item.problem_id, memo, listId);
+                    await problemListFetch.mutate();
+                  }}
+                  deleteItem={async () => {
+                    await deleteProblemItem(item.problem_id, listId);
+                    await problemListFetch.mutate();
+                  }}
                 />
               );
             })}
@@ -148,8 +146,8 @@ export const SingleProblemList = (props: Props) => {
 const ProblemEntry: React.FC<{
   item: ProblemListItem;
   problem: Problem | undefined;
-  saveText: (text: string) => void;
-  deleteItem: () => void;
+  saveText: (text: string) => Promise<void>;
+  deleteItem: () => Promise<void>;
   modifiable: boolean;
 }> = (props) => {
   const { item, problem } = props;
@@ -168,9 +166,10 @@ const ProblemEntry: React.FC<{
           {isEdit ? (
             <Button
               color="success"
-              onClick={(): void => {
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              onClick={async () => {
                 setEdit(false);
-                props.saveText(text);
+                await props.saveText(text);
               }}
             >
               Save
@@ -179,7 +178,11 @@ const ProblemEntry: React.FC<{
             <Button onClick={(): void => setEdit(true)}>Edit</Button>
           )}
           {isEdit ? null : (
-            <Button color="danger" onClick={(): void => props.deleteItem()}>
+            <Button
+              color="danger"
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              onClick={async () => await props.deleteItem()}
+            >
               Remove
             </Button>
           )}
@@ -200,10 +203,11 @@ const ProblemEntry: React.FC<{
             type="textarea"
             value={text}
             onChange={(e): void => setText(e.target.value)}
-            onKeyDown={(e): void => {
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onKeyDown={async (e) => {
               if (e.ctrlKey && e.key === "Enter") {
                 setEdit(false);
-                props.saveText(text);
+                await props.saveText(text);
               }
             }}
           />
@@ -216,7 +220,7 @@ const ProblemEntry: React.FC<{
 };
 
 const DoubleClickEdit: React.FC<{
-  saveText: (text: string) => void;
+  saveText: (text: string) => Promise<void>;
   initialText: string;
   modifiable: boolean;
 }> = (props) => {
@@ -231,22 +235,25 @@ const DoubleClickEdit: React.FC<{
             type="text"
             value={text}
             onChange={(e): void => setText(e.target.value)}
-            onBlur={(): void => {
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onBlur={async () => {
               setIsInput(!isInput);
-              props.saveText(text);
+              await props.saveText(text);
             }}
-            onKeyDown={(e): void => {
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onKeyDown={async (e) => {
               if (e.key === "Enter") {
                 setIsInput(!isInput);
-                props.saveText(text);
+                await props.saveText(text);
               }
             }}
           />
           <Button
             color="success"
-            onClick={(): void => {
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            onClick={async () => {
               setIsInput(!isInput);
-              props.saveText(text);
+              await props.saveText(text);
             }}
           >
             Save

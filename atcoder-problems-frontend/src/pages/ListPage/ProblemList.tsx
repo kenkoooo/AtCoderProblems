@@ -9,8 +9,8 @@ import {
   Row,
   UncontrolledButtonDropdown,
   UncontrolledDropdown,
+  ButtonGroup,
 } from "reactstrap";
-import ButtonGroup from "reactstrap/lib/ButtonGroup";
 import Submission from "../../interfaces/Submission";
 import MergedProblem from "../../interfaces/MergedProblem";
 import { ProblemId } from "../../interfaces/Status";

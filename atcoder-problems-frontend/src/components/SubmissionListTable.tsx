@@ -156,7 +156,7 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
         filter={{ type: "SelectFilter", options: verdictOptions }}
         dataField="result"
         dataAlign="center"
-        dataFormat={(result): React.ReactElement =>
+        dataFormat={(result: string): React.ReactElement =>
           isAccepted(result) ? (
             <Badge color="success">{result}</Badge>
           ) : (

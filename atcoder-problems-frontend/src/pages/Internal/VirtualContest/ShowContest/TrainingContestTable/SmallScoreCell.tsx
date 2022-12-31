@@ -1,4 +1,3 @@
-import { isNumber } from "util";
 import React, { useState } from "react";
 import { Popover } from "reactstrap";
 import { ScoreCell } from "../ScoreCell";
@@ -25,12 +24,7 @@ export const SmallScoreCell: React.FC<Props> = (props) => {
 
   const sanitizedId = id.replace(/[ #]/g, "");
   const cellId = `small-score-cell-${sanitizedId}`;
-  const classes =
-    "small-score-cell " +
-    (isNumber(maxPoint) && isNumber(trials) && isNumber(time)
-      ? (maxPoint === 0 && trials > 0 ? "small-score-cell-warning " : "") +
-        (maxPoint > 0 ? "small-score-cell-success" : "")
-      : "");
+  const className = formatCellClassName({ maxPoint, trials, time });
   const problemUrl = problem.contestId
     ? formatProblemUrl(problem.id, problem.contestId)
     : undefined;
@@ -38,7 +32,7 @@ export const SmallScoreCell: React.FC<Props> = (props) => {
   return (
     <NewTabLink href={problemUrl}>
       <div
-        className={classes}
+        className={className}
         id={cellId}
         onMouseOver={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
@@ -63,4 +57,27 @@ export const SmallScoreCell: React.FC<Props> = (props) => {
       </div>
     </NewTabLink>
   );
+};
+
+const formatCellClassName = ({
+  maxPoint,
+  trials,
+  time,
+}: {
+  maxPoint?: number;
+  trials?: number;
+  time?: number;
+}) => {
+  if (isNumber(maxPoint) && isNumber(trials) && isNumber(time)) {
+    if (maxPoint === 0 && trials > 0) {
+      return "small-score-cell small-score-cell-warning";
+    } else if (maxPoint > 0) {
+      return "small-score-cell small-score-cell-success";
+    }
+  }
+  return "small-score-cell";
+};
+
+const isNumber = (x: unknown): x is number => {
+  return typeof x === "number" && isFinite(x);
 };

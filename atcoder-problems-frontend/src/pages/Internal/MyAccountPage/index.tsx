@@ -26,9 +26,8 @@ export const MyAccountPage = (): JSX.Element => {
 
   const handleSubmit = async (userId: string) => {
     setIsUpdating(true);
-    await updateUserInfo(userId).then((response) => {
-      setIsValidResponse(response.status === 200);
-    });
+    const response = await updateUserInfo(userId);
+    setIsValidResponse(response.status === 200);
     setIsUpdating(false);
   };
 
@@ -36,9 +35,7 @@ export const MyAccountPage = (): JSX.Element => {
     if (loginState.data) {
       setUserId(loginState.data.atcoder_user_id ?? "");
     }
-    // We only want to set the userId when the userInfoGet promise is first fulfilled.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!loginState.data]);
+  }, [loginState.data]);
 
   if (loginState.error || isValidResponse === false) {
     return <Redirect to="/" />;
@@ -89,7 +86,7 @@ export const MyAccountPage = (): JSX.Element => {
             <UserIdUpdate
               userId={userId}
               setUserId={setUserId}
-              onSubmit={() => handleSubmit(userId)}
+              onSubmit={async () => await handleSubmit(userId)}
               status={isUpdating ? "updating" : updated ? "updated" : "open"}
             />
           </Route>

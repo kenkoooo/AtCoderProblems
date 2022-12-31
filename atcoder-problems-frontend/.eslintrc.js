@@ -13,10 +13,8 @@ module.exports = {
     "plugin:import/warnings",
     "plugin:import/typescript",
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
     "plugin:prettier/recommended",
-    "prettier/@typescript-eslint",
-    "prettier/react",
+    "prettier",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {

@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { Modal, ModalHeader, ModalBody, Badge, Tooltip } from "reactstrap";
 
 interface Props {
   id: string;
-  children: React.ReactNode;
-  title?: React.ReactNode;
-  tooltipText?: React.ReactNode;
+  children: ReactNode;
+  title: string;
 }
 
 export const HelpBadgeModal = (props: Props): JSX.Element => {
-  const { title, children, id, tooltipText } = props;
+  const { id, title, children } = props;
   const [isModalOpen, setModalOpen] = useState(false);
   const [isTooltipOpen, setTooltipOpen] = useState(false);
 
@@ -33,10 +32,10 @@ export const HelpBadgeModal = (props: Props): JSX.Element => {
         isOpen={isTooltipOpen}
         toggle={(): void => setTooltipOpen(!isTooltipOpen)}
       >
-        {tooltipText ?? "Click to see detailed explanation."}
+        Click to see detailed explanation.
       </Tooltip>
       <Modal isOpen={isModalOpen} toggle={toggleModal}>
-        <ModalHeader toggle={toggleModal}>{title ?? "Help"}</ModalHeader>
+        <ModalHeader toggle={toggleModal}>{title}</ModalHeader>
         <ModalBody>{children}</ModalBody>
       </Modal>
     </>

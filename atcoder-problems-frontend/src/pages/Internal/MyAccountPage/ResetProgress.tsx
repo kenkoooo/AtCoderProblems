@@ -24,11 +24,10 @@ export const ResetProgress: React.FC = () => {
         <Col sm="12">
           <ProblemSearchBox
             problems={problems}
-            selectProblem={async (problem) =>
-              await addResetProgress(problem.id).then(() =>
-                progressResetListFetch.mutate()
-              )
-            }
+            selectProblem={async (problem) => {
+              await addResetProgress(problem.id);
+              await progressResetListFetch.mutate();
+            }}
           />
         </Col>
       </Row>
@@ -67,11 +66,11 @@ export const ResetProgress: React.FC = () => {
                     <td>
                       <Button
                         color="danger"
-                        onClick={async () =>
-                          await deleteResetProgress(item.problem_id).then(() =>
-                            progressResetListFetch.mutate()
-                          )
-                        }
+                        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                        onClick={async () => {
+                          await deleteResetProgress(item.problem_id);
+                          await progressResetListFetch.mutate();
+                        }}
                       >
                         <GoTrashcan />
                       </Button>
