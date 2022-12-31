@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { connect, PromiseState, PropsMapInner } from "react-refetch";
 import { Nav, NavItem, NavLink, Spinner } from "reactstrap";
 import {
   Redirect,
@@ -10,24 +9,28 @@ import {
   useLocation,
 } from "react-router-dom";
 import { useLoginState } from "../../../api/InternalAPIClient";
-import { USER_UPDATE } from "../ApiUrl";
 import { UserProblemListPage } from "../UserProblemListPage";
 import { MyContestList } from "./MyContestList";
 import { ResetProgress } from "./ResetProgress";
 import { UserIdUpdate } from "./UserIdUpdate";
+import { updateUserInfo } from "./ApiClient";
 
-interface InnerProps {
-  updateUserInfo: (atcoderUser: string) => void;
-  updateUserInfoResponse: PromiseState<Record<string, unknown> | null>;
-}
-
-const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
-  const { updateUserInfoResponse } = props;
+export const MyAccountPage = (): JSX.Element => {
   const loginState = useLoginState();
 
   const [userId, setUserId] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isValidResponse, setIsValidResponse] = useState<boolean>();
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
+
+  const handleSubmit = async (userId: string) => {
+    setIsUpdating(true);
+    await updateUserInfo(userId).then((response) => {
+      setIsValidResponse(response.status === 200);
+    });
+    setIsUpdating(false);
+  };
 
   useEffect(() => {
     if (loginState.data) {
@@ -37,16 +40,12 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!loginState.data]);
 
-  if (loginState.error || updateUserInfoResponse.rejected) {
+  if (loginState.error || isValidResponse === false) {
     return <Redirect to="/" />;
   } else if (!loginState.data) {
     return <Spinner style={{ width: "3rem", height: "3rem" }} />;
   } else {
-    const updating = updateUserInfoResponse.refreshing;
-    const updated =
-      !updating &&
-      updateUserInfoResponse.fulfilled &&
-      updateUserInfoResponse.value !== null;
+    const updated = !isUpdating && isValidResponse;
 
     return (
       <>
@@ -90,8 +89,8 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
             <UserIdUpdate
               userId={userId}
               setUserId={setUserId}
-              onSubmit={() => props.updateUserInfo(userId)}
-              status={updating ? "updating" : updated ? "updated" : "open"}
+              onSubmit={() => handleSubmit(userId)}
+              status={isUpdating ? "updating" : updated ? "updated" : "open"}
             />
           </Route>
           <Route exact path={`${path}/contests`}>
@@ -108,20 +107,3 @@ const InnerMyAccountPage = (props: InnerProps): JSX.Element => {
     );
   }
 };
-
-export const MyAccountPage = connect<unknown, InnerProps>(() => ({
-  updateUserInfo: (
-    atcoderUser: string
-  ): PropsMapInner<Pick<InnerProps, "updateUserInfoResponse">> => ({
-    updateUserInfoResponse: {
-      force: true,
-      refreshing: true,
-      url: USER_UPDATE,
-      method: "POST",
-      body: JSON.stringify({ atcoder_user_id: atcoderUser }),
-    },
-  }),
-  updateUserInfoResponse: {
-    value: null,
-  },
-}))(InnerMyAccountPage);
