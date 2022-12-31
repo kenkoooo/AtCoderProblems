@@ -111,3 +111,49 @@ export const countTeeByDate = (
     .map(([dateLabel, count]) => ({ dateLabel, count }))
     .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
 };
+
+export const countTeeMovingAverage = (
+  dailyTeeCount: {
+    dateLabel: string;
+    count: number;
+  }[]
+) => {
+  const DURATION = 30;
+  if (!Array.isArray(dailyTeeCount) || dailyTeeCount.length === 0) {
+    return [];
+  }
+
+  const minDateLabel = dailyTeeCount[0].dateLabel;
+  const maxDateLabel = dailyTeeCount[dailyTeeCount.length - 1].dateLabel;
+  const dateDelta =
+    1 +
+    (new Date(maxDateLabel).getTime() - new Date(minDateLabel).getTime()) /
+      1000 /
+      86400;
+
+  const differentiatedTees = Array.from(Array(dateDelta)).map((__, i) => {
+    const nextDate = new Date(minDateLabel);
+    nextDate.setDate(nextDate.getDate() + i);
+    const nextDateLabel = nextDate.toISOString().substring(0, 10);
+    const found = dailyTeeCount.find((tee) => tee.dateLabel === nextDateLabel);
+    if (found) {
+      return found;
+    } else {
+      return { dateLabel: nextDateLabel, count: 0 };
+    }
+  });
+
+  return differentiatedTees
+    .map(({ dateLabel }, i) => {
+      const dateSecond = parseDateLabel(dateLabel).unix();
+      const begin = Math.max(i - (DURATION - 1), 0);
+      const total = differentiatedTees
+        .slice(begin, i + 1)
+        .reduce((tot, data) => data.count + tot, 0);
+      if (!total) {
+        return null;
+      }
+      return { dateSecond, count: total / DURATION };
+    })
+    .filter((data): data is { dateSecond: number; count: number } => !!data);
+};
