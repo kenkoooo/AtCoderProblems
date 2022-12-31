@@ -121,7 +121,7 @@ impl SubmissionClient for PgPool {
                 r"
                     SELECT * FROM submissions
                     WHERE result = 'AC'
-                    AND user_id = ANY($1)
+                    AND LOWER(user_id) = ANY($1)
                     ",
             )
             .bind(user_ids)
@@ -163,7 +163,7 @@ impl SubmissionClient for PgPool {
             } => sqlx::query_as(
                 r"
                     SELECT * FROM submissions
-                    WHERE user_id = ANY($1)
+                    WHERE LOWER(user_id) = ANY($1)
                     AND problem_id = ANY($2)
                     AND epoch_second >= $3
                     AND epoch_second <= $4
