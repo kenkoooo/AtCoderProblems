@@ -13,6 +13,6 @@ async-trait = "0.1.57"
 serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "1.1", features = ["serde", "v4"] }
 anyhow = "1.0"
-tokio = { version = "1.16", features = ["macros"] }
+tokio = { version = "1.23", features = ["macros"] }
 regex = "1"
 chrono = "0.4"

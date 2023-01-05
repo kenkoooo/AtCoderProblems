@@ -16,4 +16,4 @@ anyhow = "1.0"
 log = "0.4"
 
 [dev-dependencies]
-tokio = { version = "1.16", default-features = false, features = ["macros"] }
+tokio = { version = "1.23", default-features = false, features = ["macros"] }
