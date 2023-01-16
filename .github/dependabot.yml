@@ -13,3 +13,7 @@ updates:
     directory: "atcoder-problems-frontend/"
     schedule:
       interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
