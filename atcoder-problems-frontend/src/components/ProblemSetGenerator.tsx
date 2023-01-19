@@ -101,7 +101,6 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
     ABC_Like: true,
     ARC_Like: true,
     AGC_Like: true,
-    Other_Sponsored: true,
   });
   const [selectedPreset, setSelectedPreset] = useState(ABC_PRESET);
   const problems = useProblems() ?? [];
@@ -115,8 +114,6 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
   const contestTypeKeyToDisplayName = (key: string) => {
     if (key.includes("Like")) {
       return key.replace("_", "-");
-    } else if (key === "Other_Sponsored") {
-      return "Other Sponsored";
     } else {
       return key;
     }
