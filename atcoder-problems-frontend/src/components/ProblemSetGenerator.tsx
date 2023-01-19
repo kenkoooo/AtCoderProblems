@@ -16,11 +16,13 @@ import {
 } from "reactstrap";
 import React, { useState } from "react";
 import {
+  useContests,
   useMultipleUserSubmissions,
   useProblemModelMap,
   useProblems,
 } from "../api/APIClient";
 import Problem from "../interfaces/Problem";
+import Contest from "../interfaces/Contest";
 import { shuffleArray } from "../utils";
 import {
   ExcludeOption,
@@ -30,6 +32,7 @@ import {
   getLastSolvedTimeMap,
   getMaximumExcludeElapsedSecond,
 } from "../utils/LastSolvedTime";
+import { classifyContest } from "../utils/ContestClassifier";
 import { isProblemModelWithDifficultyModel } from "../interfaces/ProblemModel";
 
 interface Props {
@@ -107,6 +110,7 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
     useMultipleUserSubmissions(props.expectedParticipantUserIds).data ?? [];
   const alreadySolvedProblemIds = new Set(submissions.map((s) => s.problem_id));
   const lastSolvedTimeMap = getLastSolvedTimeMap(submissions);
+  const { data: contests } = useContests();
 
   const contestTypeKeyToDisplayName = (key: string) => {
     if (key.includes("Like")) {
@@ -322,6 +326,26 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
                   );
                 });
               }
+
+              let candidateContests: Contest[] = [];
+              Object.keys(contestTypeOption).forEach((contestType) => {
+                if (contestTypeOption[contestType]) {
+                  const filteredContests = contests.filter((contest) => {
+                    return (
+                      contestTypeKeyToDisplayName(contestType) ===
+                      classifyContest(contest)
+                    );
+                  });
+                  candidateContests = candidateContests.concat(
+                    filteredContests
+                  );
+                }
+              });
+              candidateProblems = candidateProblems.filter((p) => {
+                return candidateContests
+                  .map((contest) => contest.id)
+                  .includes(p.problem.contest_id);
+              });
 
               candidateProblems = candidateProblems.filter((p) => {
                 if (excludeOption === "Exclude submitted") {
