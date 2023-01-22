@@ -37,12 +37,12 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.3.0
 
       - name: Cache dependencies
-        uses: Swatinem/rust-cache@v1.3.0
+        uses: Swatinem/rust-cache@v2.2.0
         with:
-          working-directory: ./atcoder-problems-backend
+          workspaces: atcoder-problems-backend -> target
 
       - name: Setup Postgresql
         run: psql ${SQL_URL} < ../config/database-definition.sql
@@ -70,12 +70,15 @@ jobs:
         working-directory: ./atcoder-problems-frontend
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.3.0
+
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: 16
 
       - name: Cache node_modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3.2.3
         with:
           path: |
             ~/.cache/Cypress
@@ -86,9 +89,9 @@ jobs:
         run: yarn
 
       - name: Setup mdBook
-        uses: peaceiris/actions-mdbook@v1.1.13
+        uses: peaceiris/actions-mdbook@v1.2.0
         with:
-          mdbook-version: 'latest'
+          mdbook-version: "latest"
 
       - name: build
         run: yarn build
