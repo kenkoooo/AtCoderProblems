@@ -16,8 +16,6 @@ CREATE TABLE submissions (
   execution_time  INT,
   PRIMARY KEY (id)
 );
-CREATE INDEX ON submissions (user_id);
-CREATE INDEX ON submissions (LOWER(user_id));
 CREATE INDEX ON submissions (epoch_second);
 CREATE INDEX ON submissions (user_id, epoch_second ASC);
 CREATE INDEX ON submissions (LOWER(user_id), epoch_second ASC);
@@ -79,6 +77,8 @@ CREATE TABLE accepted_count (
   problem_count INT           NOT NULL,
   PRIMARY KEY (user_id)
 );
+CREATE INDEX ON accepted_count (LOWER(user_id));
+CREATE INDEX ON accepted_count (problem_count DESC, user_id);
 
 DROP TABLE IF EXISTS points;
 CREATE TABLE points (
@@ -94,6 +94,8 @@ CREATE TABLE rated_point_sum (
   point_sum       BIGINT NOT NULL,
   PRIMARY KEY (user_id)
 );
+CREATE INDEX ON rated_point_sum (LOWER(user_id));
+CREATE INDEX ON rated_point_sum (point_sum DESC, user_id);
 
 DROP TABLE IF EXISTS language_count;
 CREATE TABLE language_count (
@@ -102,6 +104,8 @@ CREATE TABLE language_count (
   problem_count         INT NOT NULL,
   PRIMARY KEY (user_id, simplified_language)
 );
+CREATE INDEX ON language_count (LOWER(user_id));
+CREATE INDEX ON language_count (simplified_language, problem_count DESC, user_id);
 
 DROP TABLE IF EXISTS predicted_rating;
 CREATE TABLE predicted_rating (
@@ -124,6 +128,8 @@ CREATE TABLE max_streaks (
   streak                BIGINT NOT NULL,
   PRIMARY KEY (user_id)
 );
+CREATE INDEX ON max_streaks (LOWER(user_id));
+CREATE INDEX ON max_streaks (streak DESC, user_id);
 
 -- For internal services:
 DROP TABLE IF EXISTS internal_problem_list_items;
@@ -186,7 +192,7 @@ CREATE INDEX ON internal_virtual_contest_items (internal_virtual_contest_id);
 CREATE TABLE internal_virtual_contest_participants (
   internal_virtual_contest_id VARCHAR(255) REFERENCES internal_virtual_contests(id) ON DELETE CASCADE ON UPDATE CASCADE,
   internal_user_id      VARCHAR(255) REFERENCES internal_users ON DELETE CASCADE ON UPDATE CASCADE,
-  PRIMARY KEY (internal_virtual_contest_id, internal_user_id)  
+  PRIMARY KEY (internal_virtual_contest_id, internal_user_id)
 );
 CREATE INDEX ON internal_virtual_contest_participants (internal_user_id);
 

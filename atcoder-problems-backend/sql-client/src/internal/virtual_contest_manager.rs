@@ -157,7 +157,7 @@ impl VirtualContestManager for PgPool {
     async fn get_own_contests(&self, internal_user_id: &str) -> Result<Vec<VirtualContestInfo>> {
         let contests = sqlx::query_as(
             r"
-            SELECT 
+            SELECT
                 id,
                 title,
                 memo,
@@ -184,7 +184,7 @@ impl VirtualContestManager for PgPool {
     ) -> Result<Vec<VirtualContestInfo>> {
         let contests = sqlx::query_as(
             r"
-            SELECT 
+            SELECT
                 a.id,
                 a.title,
                 a.memo,
@@ -234,7 +234,7 @@ impl VirtualContestManager for PgPool {
     async fn get_single_contest_participants(&self, contest_id: &str) -> Result<Vec<String>> {
         let participants = sqlx::query(
             r"
-            SELECT 
+            SELECT
                 b.atcoder_user_id
             FROM (
                 SELECT internal_user_id
@@ -280,7 +280,7 @@ impl VirtualContestManager for PgPool {
     async fn get_recent_contest_info(&self) -> Result<Vec<VirtualContestInfo>> {
         let contests = sqlx::query_as(
             r"
-            SELECT 
+            SELECT
                 id,
                 title,
                 memo,

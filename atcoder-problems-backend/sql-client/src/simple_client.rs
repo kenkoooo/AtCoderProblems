@@ -114,7 +114,7 @@ impl SimpleClient for PgPool {
     async fn load_contests(&self) -> Result<Vec<Contest>> {
         let contests = sqlx::query_as(
             r"
-                 SELECT 
+                 SELECT
                     id,
                     start_epoch_second,
                     duration_second,

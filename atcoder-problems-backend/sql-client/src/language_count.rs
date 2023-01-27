@@ -113,7 +113,7 @@ impl LanguageCountClient for PgPool {
     async fn load_language_count(&self) -> Result<Vec<UserLanguageCount>> {
         let count = sqlx::query_as(
             r"
-            SELECT 
+            SELECT
                 user_id,
                 simplified_language,
                 problem_count
@@ -150,7 +150,7 @@ impl LanguageCountClient for PgPool {
         let count = sqlx::query_as(
             r"
             SELECT user_id, simplified_language, problem_count FROM language_count
-            WHERE user_id = $1
+            WHERE LOWER(user_id) = LOWER($1)
             ORDER BY simplified_language
             ",
         )
@@ -171,7 +171,7 @@ impl LanguageCountClient for PgPool {
                 OVER(PARTITION BY simplified_language ORDER BY problem_count DESC) AS rank
                 FROM language_count
             )
-            AS s2 WHERE user_id = $1
+            AS s2 WHERE LOWER(user_id) = LOWER($1)
             ORDER BY simplified_language
             ",
         )
