@@ -78,7 +78,7 @@ jobs:
           node-version: 16
 
       - name: Cache node_modules
-        uses: actions/cache@v3.2.3
+        uses: actions/cache@v3.2.4
         with:
           path: |
             ~/.cache/Cypress
