@@ -30,7 +30,7 @@ reqwest = { version = "0.11", features = ["json"] }
 async-trait = "0.1"
 
 anyhow = "1.0"
-futures-util = "0.3.25"
+futures-util = "0.3.26"
 
 [dev-dependencies]
 httpmock = "0.6.6"
