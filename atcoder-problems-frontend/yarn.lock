@@ -6818,13 +6818,6 @@ internmap@^1.0.0:
   resolved "https://registry.yarnpkg.com/internmap/-/internmap-1.0.1.tgz#0017cc8a3b99605f0302f2b198d272e015e5df95"
   integrity sha512-lDB5YccMydFBtasVtxnZ3MRBHuaoE8GKsppq+EchKL2U4nK/DmEpPHNH8MZe5HkMtpSiTSOZwfN0tzYjO/lJEw==
 
-invariant@^2.2.4:
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
-  integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
-  dependencies:
-    loose-envify "^1.0.0"
-
 ip-regex@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-2.1.0.tgz#fa78bf5d2e6913c911ce9f819ee5146bb6d844e9"
@@ -10650,15 +10643,6 @@ react-redux@^7.2.0:
     loose-envify "^1.4.0"
     prop-types "^15.7.2"
     react-is "^16.13.1"
-
-react-refetch@4.0.0-0:
-  version "4.0.0-0"
-  resolved "https://registry.yarnpkg.com/react-refetch/-/react-refetch-4.0.0-0.tgz#4bdc6c69f36f84d49be7010deb54bc13c0455aff"
-  integrity sha512-xTzCklbbNURYgDiqK5xF1BeFQT54JCKYl8MP5q+cHqLSLAXjNTfy8P1+XTK4pbAneu+gmFhJ7IM9SZiZ27zPZw==
-  dependencies:
-    hoist-non-react-statics "^3.3.0"
-    invariant "^2.2.4"
-    warning "^4.0.3"
 
 react-refresh@^0.8.3:
   version "0.8.3"
