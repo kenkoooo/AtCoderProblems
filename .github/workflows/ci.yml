@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@v3.3.0
 
       - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2.2.0
+        uses: Swatinem/rust-cache@v2.2.1
         with:
           workspaces: atcoder-problems-backend -> target
 
