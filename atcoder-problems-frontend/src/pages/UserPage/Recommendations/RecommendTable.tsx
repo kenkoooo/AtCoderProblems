@@ -17,7 +17,7 @@ interface Props {
   selectProblemIds: (ids: ProblemId[]) => void;
   deselectProblemIds: (ids: ProblemId[]) => void;
   formatProblemName: (
-    title: string,
+    name: string,
     {
       id,
       contest_id,
@@ -47,7 +47,7 @@ export const RecommendTable = (props: Props) => {
       striped
       selectRow={props.isLoggedIn ? selectRowProps : undefined}
     >
-      <TableHeaderColumn dataField="title" dataFormat={props.formatProblemName}>
+      <TableHeaderColumn dataField="name" dataFormat={props.formatProblemName}>
         Problem
       </TableHeaderColumn>
       <TableHeaderColumn

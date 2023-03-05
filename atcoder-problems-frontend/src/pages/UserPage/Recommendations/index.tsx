@@ -50,7 +50,7 @@ export const Recommendations = (props: Props) => {
     boolean
   >("recommendExperimental", true);
   const [excludeOption, setExcludeOption] = useLocalStorage<ExcludeOption>(
-    "recoomendExcludeOption",
+    "recommendExcludeOption",
     "Exclude"
   );
 
@@ -109,7 +109,7 @@ export const Recommendations = (props: Props) => {
   );
 
   const formatProblemName = (
-    title: string,
+    name: string,
     {
       id,
       contest_id,
@@ -120,7 +120,7 @@ export const Recommendations = (props: Props) => {
       isExperimentalDifficulty={is_experimental}
       showDifficulty={true}
       problemId={id}
-      problemName={title}
+      problemName={name}
       contestId={contest_id}
       problemModel={problemModels?.get(id) ?? null}
       userRatingInfo={userRatingInfo}

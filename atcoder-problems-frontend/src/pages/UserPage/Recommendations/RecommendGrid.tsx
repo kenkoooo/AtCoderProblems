@@ -17,7 +17,7 @@ interface Props {
   selectProblemIds: (ids: ProblemId[]) => void;
   deselectProblemIds: (ids: ProblemId[]) => void;
   formatProblemName: (
-    title: string,
+    name: string,
     {
       id,
       contest_id,
@@ -59,20 +59,20 @@ export const RecommendGrid = (props: Props) => {
                       <ProblemLink
                         problemId={p.id}
                         contestId={p.contest_id}
-                        problemTitle={p.title}
+                        problemName={p.name}
                       />
                     </Label>
                   ) : (
                     <ProblemLink
                       problemId={p.id}
                       contestId={p.contest_id}
-                      problemTitle={p.title}
+                      problemName={p.name}
                     />
                   )}
                   &nbsp;
-                  <HelpBadgeModal id={`ProblemBadge-${p.id}`} title={p.title}>
+                  <HelpBadgeModal id={`ProblemBadge-${p.id}`} title={p.name}>
                     <div className="text-center">
-                      {props.formatProblemName(p.title, p)}
+                      {props.formatProblemName(p.name, p)}
                       <br />
                       {props.formatContestName(p.contest_id, p)}
                       <br />
