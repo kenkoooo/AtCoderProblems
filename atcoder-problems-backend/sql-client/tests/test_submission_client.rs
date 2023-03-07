@@ -193,3 +193,63 @@ async fn test_update_submissions() {
     assert_eq!(submissions[0].point, 100.0);
     assert_eq!(submissions[0].execution_time, Some(1));
 }
+
+#[sqlx::test]
+async fn case_insensitive() {
+    let pool = utils::initialize_and_connect_to_test_sql().await;
+
+    let submission = Submission {
+        id: 0,
+        user_id: "CASE_insensitive".to_owned(),
+        result: "AC".to_owned(),
+        point: 100.0,
+        execution_time: Some(1),
+        problem_id: "test-problem".to_owned(),
+        ..Default::default()
+    };
+
+    pool.update_submissions(&[submission.clone()])
+        .await
+        .unwrap();
+
+    let submissions = pool
+        .get_submissions(SubmissionRequest::FromUserAndTime {
+            user_id: "case_INSENSITIVE",
+            from_second: 0,
+            count: 1,
+        })
+        .await
+        .unwrap();
+
+    assert_eq!(submissions, &[submission.clone()]);
+
+    let submissions = pool
+        .get_submissions(SubmissionRequest::UserAll {
+            user_id: "case_INSENSITIVE",
+        })
+        .await
+        .unwrap();
+
+    assert_eq!(submissions, &[submission.clone()]);
+
+    let submissions = pool
+        .get_submissions(SubmissionRequest::UsersAccepted {
+            user_ids: &["case_INSENSITIVE"],
+        })
+        .await
+        .unwrap();
+
+    assert_eq!(submissions, &[submission.clone()]);
+
+    let submissions = pool
+        .get_submissions(SubmissionRequest::UsersProblemsTime {
+            user_ids: &["case_INSENSITIVE"],
+            problem_ids: &["test-problem"],
+            from_second: 0,
+            to_second: 1,
+        })
+        .await
+        .unwrap();
+
+    assert_eq!(submissions, &[submission.clone()]);
+}

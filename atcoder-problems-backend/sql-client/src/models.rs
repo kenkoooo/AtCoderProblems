@@ -18,7 +18,7 @@ pub struct Problem {
     pub title: String,
 }
 
-#[derive(Debug, Clone, Serialize, Default, Deserialize, sqlx::FromRow)]
+#[derive(Debug, Clone, PartialEq, Serialize, Default, Deserialize, sqlx::FromRow)]
 pub struct Submission {
     pub id: i64,
     pub epoch_second: i64,
