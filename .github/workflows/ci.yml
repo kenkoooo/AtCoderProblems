@@ -37,7 +37,7 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v3.4.0
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2.2.0
@@ -70,7 +70,7 @@ jobs:
         working-directory: ./atcoder-problems-frontend
 
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v3.4.0
 
       - name: Use Node.js
         uses: actions/setup-node@v3.6.0
