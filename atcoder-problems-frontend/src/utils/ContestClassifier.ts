@@ -78,7 +78,9 @@ export const classifyContest = (
     /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
       contest.title
     ) ||
-    /(^future-meets-you-contest|^hokudai-hitachi)/.exec(contest.id) ||
+    /(^future-meets-you-contest|^hokudai-hitachi|^toyota-hc)/.exec(
+      contest.id
+    ) ||
     [
       "genocon2021",
       "stage0-2021",
@@ -97,7 +99,7 @@ export const classifyContest = (
     /(CODE FESTIVAL|^DISCO|日本最強プログラマー学生選手権|全国統一プログラミング王|Indeed)/.exec(
       contest.title
     ) ||
-    /(^Donuts|^dwango|^DigitalArts|^Code Formula|天下一プログラマーコンテスト)/.exec(
+    /(^Donuts|^dwango|^DigitalArts|^Code Formula|天下一プログラマーコンテスト|^Toyota)/.exec(
       contest.title
     )
   ) {
