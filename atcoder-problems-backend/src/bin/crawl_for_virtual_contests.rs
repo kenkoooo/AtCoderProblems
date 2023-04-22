@@ -13,16 +13,17 @@ use std::{
 
 const FIX_RANGE_SECOND: i64 = 10 * 60;
 
-async fn crawl<R: Rng>(url: &str, rng: &mut R, client: AtCoderClient) -> Result<()> {
+async fn crawl<R: Rng>(url: &str, rng: &mut R, username: &str, password: &str) -> Result<()> {
     log::info!("Start crawling...");
     let pg_pool = initialize_pool(&url).await?;
+    let client = AtCoderClient::new(username, password).await?;
     let mut crawler = VirtualContestCrawler::new(pg_pool.clone(), client.clone(), rng);
     crawler.crawl().await?;
     log::info!("Finished crawling");
 
     log::info!("Starting fixing...");
     let cur = Utc::now().timestamp();
-    let crawler = FixCrawler::new(pg_pool, client.clone(), cur - FIX_RANGE_SECOND);
+    let crawler = FixCrawler::new(pg_pool, client, cur - FIX_RANGE_SECOND);
     crawler.crawl().await?;
     log::info!("Finished fixing");
 
@@ -43,15 +44,8 @@ async fn main() {
         log::info!("Start new loop...");
         let now = Instant::now();
 
-        match AtCoderClient::new(&username, &password).await {
-            Ok(client) => {
-                if let Err(e) = crawl(&url, &mut rng, client).await {
-                    log::error!("{:?}", e);
-                }
-            }
-            Err(e) => {
-                log::error!("{:?}", e);
-            }
+        if let Err(e) = crawl(&url, &mut rng, &username, &password).await {
+            log::error!("{:?}", e);
         }
 
         let elapsed_secs = now.elapsed().as_secs();
