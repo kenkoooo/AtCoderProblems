@@ -1,7 +1,3 @@
-FROM rust:1.63.0 AS development
-RUN rustup component add rustfmt
-RUN rustup component add clippy
-
 # Using the official cargo-chef image
 FROM lukemathwalker/cargo-chef:latest-rust-1.63.0 AS chef
 WORKDIR /app

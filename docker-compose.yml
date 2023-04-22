@@ -14,7 +14,9 @@ services:
       - "15432:5432"
 
   backend-development:
-    image: rust:1.63.0
+    build:
+      context: ./atcoder-problems-backend
+      dockerfile: Dockerfile.dev
     environment:
       SQL_URL: postgres://db_user:db_pass@postgresql:5432/test_db
       DATABASE_URL: postgres://db_user:db_pass@postgresql:5432/test_db
@@ -28,7 +30,7 @@ services:
       - cargo-cache:/usr/local/cargo/registry
       - target-cache:/app/atcoder-problems-backend/target
     working_dir: /app/atcoder-problems-backend
-    command: /bin/sh -c "while sleep 1000; do :; done"
+    command: /bin/sh -c "cargo watch -s 'cargo run --bin run_server'"
 
   frontend-development:
     image: node:16
