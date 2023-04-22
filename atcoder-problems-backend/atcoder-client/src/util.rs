@@ -1,11 +1,10 @@
 use anyhow::{anyhow, Context, Result};
 
+use reqwest::Client;
 use serde::de::DeserializeOwned;
 
-pub(crate) async fn get_html(url: &str) -> Result<(String, reqwest::StatusCode)> {
-    let response = reqwest::Client::builder()
-        .gzip(true)
-        .build()?
+pub(crate) async fn get_html(url: &str, client: &Client) -> Result<(String, reqwest::StatusCode)> {
+    let response = client
         .get(url)
         .header("accept", "text/html")
         .send()
@@ -22,10 +21,8 @@ pub(crate) async fn get_html(url: &str) -> Result<(String, reqwest::StatusCode)>
     Ok((body, status))
 }
 
-pub(crate) async fn get_json<T: DeserializeOwned>(url: &str) -> Result<T> {
-    reqwest::Client::builder()
-        .gzip(true)
-        .build()?
+pub(crate) async fn get_json<T: DeserializeOwned>(url: &str, client: &Client) -> Result<T> {
+    client
         .get(url)
         .header("accept", "application/json")
         .send()

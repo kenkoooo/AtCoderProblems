@@ -10,15 +10,16 @@ use std::{env, time::Duration};
 
 const NEW_CONTEST_NUM: usize = 5;
 
-async fn iteration(url: &str) -> Result<()> {
+async fn iteration(url: &str, username: &str, password: &str) -> Result<()> {
     let db = initialize_pool(&url).await?;
+    let client = AtCoderClient::new(username, password).await?;
     let mut contests = db.load_contests().await?;
     contests.sort_by_key(|c| c.start_epoch_second);
     contests.reverse();
 
     for contest in &contests[0..NEW_CONTEST_NUM] {
         info!("Starting {}", contest.id);
-        let crawler = WholeContestCrawler::new(db.clone(), AtCoderClient::default(), &contest.id);
+        let crawler = WholeContestCrawler::new(db.clone(), client.clone(), &contest.id);
         crawler.crawl().await?;
     }
     Ok(())
@@ -29,10 +30,12 @@ async fn main() {
     init_log_config().unwrap();
     info!("Started");
     let url = env::var("SQL_URL").expect("SQL_URL is not set.");
+    let username = env::var("ATCODER_USERNAME").expect("ATCODER_USERNAME is not set.");
+    let password = env::var("ATCODER_PASSWORD").expect("ATCODER_PASSWORD is not set.");
 
     loop {
         info!("Start new loop");
-        if let Err(e) = iteration(&url).await {
+        if let Err(e) = iteration(&url, &username, &password).await {
             log::error!("{:?}", e);
             time::sleep(Duration::from_secs(1)).await;
         }

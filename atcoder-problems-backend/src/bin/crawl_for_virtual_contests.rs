@@ -13,16 +13,17 @@ use std::{
 
 const FIX_RANGE_SECOND: i64 = 10 * 60;
 
-async fn crawl<R: Rng>(url: &str, rng: &mut R) -> Result<()> {
+async fn crawl<R: Rng>(url: &str, rng: &mut R, username: &str, password: &str) -> Result<()> {
     log::info!("Start crawling...");
     let pg_pool = initialize_pool(&url).await?;
-    let mut crawler = VirtualContestCrawler::new(pg_pool.clone(), AtCoderClient::default(), rng);
+    let client = AtCoderClient::new(username, password).await?;
+    let mut crawler = VirtualContestCrawler::new(pg_pool.clone(), client.clone(), rng);
     crawler.crawl().await?;
     log::info!("Finished crawling");
 
     log::info!("Starting fixing...");
     let cur = Utc::now().timestamp();
-    let crawler = FixCrawler::new(pg_pool, AtCoderClient::default(), cur - FIX_RANGE_SECOND);
+    let crawler = FixCrawler::new(pg_pool, client, cur - FIX_RANGE_SECOND);
     crawler.crawl().await?;
     log::info!("Finished fixing");
 
@@ -33,6 +34,8 @@ async fn crawl<R: Rng>(url: &str, rng: &mut R) -> Result<()> {
 async fn main() {
     init_log_config().unwrap();
     let url = env::var("SQL_URL").expect("SQL_URL must be set.");
+    let username = env::var("ATCODER_USERNAME").expect("ATCODER_USERNAME is not set.");
+    let password = env::var("ATCODER_PASSWORD").expect("ATCODER_PASSWORD is not set.");
     log::info!("Started");
 
     let mut rng = thread_rng();
@@ -41,7 +44,7 @@ async fn main() {
         log::info!("Start new loop...");
         let now = Instant::now();
 
-        if let Err(e) = crawl(&url, &mut rng).await {
+        if let Err(e) = crawl(&url, &mut rng, &username, &password).await {
             log::error!("{:?}", e);
         }
 
