@@ -17,9 +17,7 @@ async fn main() -> Result<()> {
         .nth(1)
         .expect("contest_id is not set.\nUsage: cargo run --bin crawl_whole_contest <contest_id>");
     let db = initialize_pool(&url).await?;
-    let client = AtCoderClient::new(&username, &password)
-        .await
-        .expect("AtCoder authentication failure");
+    let client = AtCoderClient::new(&username, &password).await?;
     let crawler = WholeContestCrawler::new(db, client, contest_id);
     crawler.crawl().await?;
     Ok(())
