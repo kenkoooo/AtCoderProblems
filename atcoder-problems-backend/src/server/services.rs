@@ -11,8 +11,7 @@ use crate::server::{
     user_info::get_user_info,
     user_submissions::get_user_submission_count,
     user_submissions::{
-        get_recent_submissions, get_user_submissions, get_user_submissions_from_time,
-        get_users_time_submissions,
+        get_recent_submissions, get_user_submissions_from_time, get_users_time_submissions,
     },
 };
 
@@ -43,7 +42,6 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
         .service(endpoint::internal_api::progress_reset::delete_progress_reset_item)
         .service(
             web::scope("/atcoder-api")
-                .service(web::resource("/results").route(web::get().to(get_user_submissions)))
                 .service(
                     web::scope("/v2")
                         .service(web::resource("/user_info").route(web::get().to(get_user_info))),
