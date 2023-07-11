@@ -87,7 +87,7 @@ async fn test_update_problem_points() {
     let pool = utils::initialize_and_connect_to_test_sql().await;
     pool.insert_contests(&[Contest {
         id: contest_id.to_string(),
-        start_epoch_second: 1468670400,
+        start_epoch_second: 1687608000, // 2023/06/24 21:00:00 JST
         rate_change: "All".to_string(),
 
         duration_second: 0,
@@ -98,33 +98,42 @@ async fn test_update_problem_points() {
 
     assert!(get_points(&pool).await.is_empty());
 
+    // コンテスト開始前の提出
     pool.update_submissions(&[Submission {
         id: 0,
-        point: 0.0,
+        point: 625.0, // コンテスト開始前にwriterが設定することがある仮の得点
         problem_id: problem_id.to_string(),
         contest_id: contest_id.to_string(),
+        epoch_second: 1687208168, // 2023/06/20 05:56:08 JST
         ..Default::default()
     }])
     .await
     .unwrap();
-    pool.update_problem_points().await.unwrap();
-    assert_eq!(
-        get_points(&pool).await,
-        vec![("problem".to_string(), Some(0.0))]
-    );
 
-    pool.update_submissions(&[Submission {
-        id: 1,
-        point: 100.0,
-        problem_id: problem_id.to_string(),
-        contest_id: contest_id.to_string(),
-        ..Default::default()
-    }])
+    // コンテスト開始後の提出
+    pool.update_submissions(&[
+        Submission {
+            id: 1,
+            point: 100.0,
+            problem_id: problem_id.to_string(),
+            contest_id: contest_id.to_string(),
+            epoch_second: 1687608000, // 2023/07/08 21:00:00 JST
+            ..Default::default()
+        },
+        Submission {
+            id: 2,
+            point: 550.0, // こっちが正式な得点
+            problem_id: problem_id.to_string(),
+            contest_id: contest_id.to_string(),
+            epoch_second: 1687608000, // 2023/07/08 21:00:00 JST
+            ..Default::default()
+        },
+    ])
     .await
     .unwrap();
     pool.update_problem_points().await.unwrap();
     assert_eq!(
         get_points(&pool).await,
-        vec![("problem".to_string(), Some(100.0))]
+        vec![("problem".to_string(), Some(550.0))]
     );
 }

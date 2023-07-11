@@ -27,6 +27,16 @@ impl ProblemInfoUpdater for PgPool {
         Ok(())
     }
 
+    /// 各問題の点数を計算して更新する。
+    ///
+    /// ある問題への提出のうち、 __コンテスト開始後の提出__ における最も大きい得点がその問題の点数となる。
+    ///
+    /// コンテスト開始前、writerなどが仮の点数が付けられている問題をACすることがあり、
+    /// 仮の点数がコンテストでの正式な点数より大きかった場合には、仮の点数がAtCoder Problemsでの正式な点数とされてしまう。
+    /// これを防ぐために、コンテスト開始前の提出は点数計算で考慮しないようにしている。
+    ///
+    /// 「コンテスト開始前にwriterがACしているが、コンテスト開始以降に一人もACできていない」場合は点数が
+    /// 計算されないという問題があるが、現時点ではその問題は発生していないため対応は保留されている。
     async fn update_problem_points(&self) -> Result<()> {
         sqlx::query(
             r"
@@ -35,6 +45,7 @@ impl ProblemInfoUpdater for PgPool {
                     FROM submissions
                     INNER JOIN contests ON contests.id = submissions.contest_id
                     WHERE contests.start_epoch_second >= $1
+                    AND submissions.epoch_second >= contests.start_epoch_second
                     AND contests.rate_change != '-'
                     GROUP BY submissions.problem_id
                 ON CONFLICT (problem_id) DO UPDATE
