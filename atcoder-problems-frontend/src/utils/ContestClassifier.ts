@@ -56,7 +56,10 @@ export const classifyContest = (
   if (/^agc\d{3}$/.exec(contest.id)) {
     return "AGC";
   }
-  if (/^ahc\d{3}$/.exec(contest.id)) {
+  if (
+    /^ahc\d{3}$/.exec(contest.id) ||
+    ["toyota2023summer-final"].includes(contest.id)
+  ) {
     return "AHC";
   }
 
@@ -82,6 +85,7 @@ export const classifyContest = (
       contest.id
     ) ||
     [
+      "toyota2023summer-final-open",
       "genocon2021",
       "stage0-2021",
       "caddi2019",

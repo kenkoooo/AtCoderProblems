@@ -127,7 +127,7 @@ export const useMergedProblemMap = () => {
       }
 
       const contestType = classifyContest(contest);
-      if (contestType === "AHC") {
+      if (contestType === "AHC" || contestType === "Marathon") {
         map.set(problem.id, { ...problem, point: undefined });
       } else {
         map.set(problem.id, problem);
@@ -303,7 +303,7 @@ export const useProblemModelMap = () => {
         return;
       }
       const contestType = classifyContest(contest);
-      if (contestType === "AHC") {
+      if (contestType === "AHC" || contestType === "Marathon") {
         return;
       }
 
