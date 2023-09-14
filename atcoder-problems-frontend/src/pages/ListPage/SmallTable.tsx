@@ -1,5 +1,5 @@
-import React from "react";
-import { Table } from "reactstrap";
+import React, { useState } from "react";
+import { Table, Button, ButtonGroup } from "reactstrap";
 import { ProblemId } from "../../interfaces/Status";
 import { isAccepted } from "../../utils";
 import { countBy, groupBy } from "../../utils/GroupBy";
@@ -47,52 +47,129 @@ export const getUserPointCounts = (
 };
 
 export const SmallTable: React.FC<Props> = ({ submissions, setFilterFunc }) => {
+  const [grouped, setGrouped] = useState(true);
   const mergedProblemMap =
     useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
   const userPointCountMap = getUserPointCounts(mergedProblemMap, submissions);
   const totalCount = getTotalCount(mergedProblemMap);
+  const totalCountBy100 = totalCount.reduce(
+    (
+      ret: { point: number; count: number }[],
+      current: { point: number; count: number }
+    ) => {
+      const roundedPoint = Math.floor(current.point / 100) * 100;
+      const prev = ret.find((entry) => entry.point === roundedPoint);
+      if (prev) {
+        prev.count += current.count;
+      } else {
+        ret.push({ point: roundedPoint, count: current.count });
+      }
+      return ret;
+    },
+    []
+  );
+
+  const binarySearch = (
+    arr: { point: number; count: number }[],
+    target: number
+  ) => {
+    let left = 0;
+    let right = arr.length;
+    while (right - left > 1) {
+      const mid = Math.floor((left + right) / 2);
+      if (arr[mid].point <= target) {
+        left = mid;
+      } else {
+        right = mid;
+      }
+    }
+    return left;
+  };
+
+  const getUserPointCountInArea = (
+    countByPoint: Map<number | null | undefined, number>,
+    pointStart: number,
+    pointEnd: number
+  ) => {
+    let ret = 0;
+    for (
+      let i = binarySearch(totalCount, pointStart);
+      i < totalCount.length;
+      i++
+    ) {
+      if (totalCount[i].point >= pointEnd) {
+        break;
+      }
+      ret += countByPoint.get(totalCount[i].point) ?? 0;
+    }
+    return ret;
+  };
+
   return (
-    <Table striped bordered hover responsive>
-      <thead>
-        <tr>
-          <th>Point</th>
-          {totalCount.map(({ point }) => (
-            <th key={point}>
-              <a
-                href={window.location.hash}
-                onClick={(): void => setFilterFunc(point)}
-              >
-                {point}
-              </a>
-            </th>
-          ))}
-        </tr>
-        <tr>
-          <th>Total</th>
-          {totalCount.map(({ point, count }) => (
-            <th key={point}>{count}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {userPointCountMap.map(({ userId, countByPoint }) => (
-          <tr key={userId}>
-            <td>{userId}</td>
-            {totalCount.map(({ point, count }) => (
-              <td
-                key={point}
-                className={
-                  countByPoint.get(point) === count
-                    ? TableColor.Success
-                    : TableColor.None
-                }
-              >
-                {countByPoint.get(point) ?? 0}
-              </td>
+    <>
+      <ButtonGroup className="mb-2">
+        <Button onClick={(): void => setGrouped(!grouped)}>
+          {grouped ? "Grouped" : "All"}
+        </Button>
+      </ButtonGroup>
+      <Table striped bordered hover responsive>
+        <thead>
+          <tr>
+            <th>Point</th>
+            {(grouped ? totalCountBy100 : totalCount).map(({ point }) => (
+              <th key={point}>
+                <a
+                  href={window.location.hash}
+                  onClick={(): void => setFilterFunc(point)}
+                >
+                  {grouped ? `${point}-` : point}
+                </a>
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </Table>
+          <tr>
+            <th>Total</th>
+            {(grouped ? totalCountBy100 : totalCount).map(
+              ({ point, count }) => (
+                <th key={point}>{count}</th>
+              )
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {userPointCountMap.map(({ userId, countByPoint }) => (
+            <tr key={userId}>
+              <td>{userId}</td>
+              {(grouped ? totalCountBy100 : totalCount).map(
+                ({ point, count }) => (
+                  <td
+                    key={point}
+                    className={
+                      (grouped
+                        ? getUserPointCountInArea(
+                            countByPoint,
+                            point,
+                            point + 100
+                          )
+                        : countByPoint.get(point)) === count
+                        ? TableColor.Success
+                        : TableColor.None
+                    }
+                  >
+                    {(grouped
+                      ? getUserPointCountInArea(
+                          countByPoint,
+                          point,
+                          point + 100
+                        )
+                      : countByPoint.get(point)) ?? 0}
+                  </td>
+                )
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </>
   );
 };
