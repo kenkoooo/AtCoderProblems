@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Table, Button, ButtonGroup } from "reactstrap";
+import React from "react";
+import { Table } from "reactstrap";
 import { ProblemId } from "../../interfaces/Status";
 import { isAccepted } from "../../utils";
 import { countBy, groupBy } from "../../utils/GroupBy";
@@ -47,7 +47,6 @@ export const getUserPointCounts = (
 };
 
 export const SmallTable: React.FC<Props> = ({ submissions, setFilterFunc }) => {
-  const [grouped, setGrouped] = useState(true);
   const mergedProblemMap =
     useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
   const userPointCountMap = getUserPointCounts(mergedProblemMap, submissions);
@@ -88,70 +87,48 @@ export const SmallTable: React.FC<Props> = ({ submissions, setFilterFunc }) => {
   };
 
   return (
-    <>
-      <ButtonGroup className="mb-2">
-        <Button onClick={(): void => setGrouped(!grouped)}>
-          {grouped ? "Grouped" : "All"}
-        </Button>
-      </ButtonGroup>
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Point</th>
-            {(grouped ? totalCountBy100 : totalCount).map(({ point }) => (
-              <th key={point}>
-                <a
-                  href={window.location.hash}
-                  onClick={(): void => setFilterFunc(point)}
-                >
-                  {grouped ? `${point}-` : point}
-                </a>
-              </th>
+    <Table striped bordered hover responsive>
+      <thead>
+        <tr>
+          <th>Point</th>
+          {totalCountBy100.map(({ point }) => (
+            <th key={point}>
+              <a
+                href={window.location.hash}
+                onClick={(): void => setFilterFunc(point)}
+              >
+                {`${point}-`}
+              </a>
+            </th>
+          ))}
+        </tr>
+        <tr>
+          <th>Total</th>
+          {totalCountBy100.map(({ point, count }) => (
+            <th key={point}>{count}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {userPointCountMap.map(({ userId, countByPoint }) => (
+          <tr key={userId}>
+            <td>{userId}</td>
+            {totalCountBy100.map(({ point, count }) => (
+              <td
+                key={point}
+                className={
+                  getUserPointCountInArea(countByPoint, point, point + 100) ===
+                  count
+                    ? TableColor.Success
+                    : TableColor.None
+                }
+              >
+                {getUserPointCountInArea(countByPoint, point, point + 100) ?? 0}
+              </td>
             ))}
           </tr>
-          <tr>
-            <th>Total</th>
-            {(grouped ? totalCountBy100 : totalCount).map(
-              ({ point, count }) => (
-                <th key={point}>{count}</th>
-              )
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {userPointCountMap.map(({ userId, countByPoint }) => (
-            <tr key={userId}>
-              <td>{userId}</td>
-              {(grouped ? totalCountBy100 : totalCount).map(
-                ({ point, count }) => (
-                  <td
-                    key={point}
-                    className={
-                      (grouped
-                        ? getUserPointCountInArea(
-                            countByPoint,
-                            point,
-                            point + 100
-                          )
-                        : countByPoint.get(point)) === count
-                        ? TableColor.Success
-                        : TableColor.None
-                    }
-                  >
-                    {(grouped
-                      ? getUserPointCountInArea(
-                          countByPoint,
-                          point,
-                          point + 100
-                        )
-                      : countByPoint.get(point)) ?? 0}
-                  </td>
-                )
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-    </>
+        ))}
+      </tbody>
+    </Table>
   );
 };
