@@ -2,7 +2,6 @@ use crate::models::{Submission, UserLanguageCount, UserLanguageCountRank, UserPr
 use crate::{PgPool, MAX_INSERT_ROWS};
 use anyhow::Result;
 use async_trait::async_trait;
-use regex::Regex;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
@@ -192,12 +191,33 @@ impl LanguageCountClient for PgPool {
     }
 }
 
+const MAPPING: [(&str, &str); 9] = [
+    ("PyPy", "Python"),
+    ("Python (Cython", "Cython"),
+    ("Assembly x64", "Assembly x64"),
+    ("Awk", "AWK"),
+    ("IOI-Style", "C++"),
+    ("LuaJIT", "Lua"),
+    ("Seed7", "Seed7"),
+    ("Perl6", "Raku"),
+    ("Objective-C", "Objective-C"),
+];
+
 fn simplify_language(lang: &str) -> String {
-    let re = Regex::new(r"\d*\s*\(.*\)").unwrap();
-    if lang.starts_with("Perl6") {
-        "Raku".to_string()
-    } else {
-        re.replace(lang, "").to_string()
+    for (beginning, simplified) in MAPPING {
+        if lang.starts_with(beginning) {
+            return simplified.to_string();
+        }
+    }
+
+    let simplified = lang
+        .chars()
+        .take_while(|&c| !c.is_numeric() && c != '(' && c != '-')
+        .collect::<String>();
+
+    match simplified.len() {
+        0 => lang.to_string(),
+        _ => simplified.trim().to_string(),
     }
 }
 
@@ -207,12 +227,31 @@ mod tests {
 
     #[test]
     fn test_simplify_language() {
-        assert_eq!(simplify_language("language1"), "language1");
+        assert_eq!(simplify_language("language1"), "language");
         assert_eq!(simplify_language("Perl (5)"), "Perl");
         assert_eq!(simplify_language("Perl6"), "Raku");
         assert_eq!(simplify_language("Fortran(GNU Fortran 9.2.1)"), "Fortran");
         assert_eq!(simplify_language("Ada2012 (GNAT 9.2.1)"), "Ada");
-        assert_eq!(simplify_language("PyPy2 (7.3.0)"), "PyPy");
-        assert_eq!(simplify_language("Haxe (4.0.3); js"), "Haxe; js");
+        assert_eq!(simplify_language("Haxe (4.0.3); js"), "Haxe");
+        assert_eq!(simplify_language("C++11 (Clang++ 3.4)"), "C++");
+        assert_eq!(simplify_language("C++ 20 (gcc 12.2)"), "C++");
+        assert_eq!(simplify_language("C# 11.0 (.NET 7.0.7)"), "C#");
+        assert_eq!(simplify_language("C# 11.0 AOT (.NET 7.0.7)"), "C#");
+        assert_eq!(simplify_language("Visual Basic 16.9 (...)"), "Visual Basic");
+        assert_eq!(simplify_language("><> (fishr 0.1.0)"), "><>");
+        assert_eq!(simplify_language("プロデル (...)"), "プロデル");
+
+        // mapped individually
+        assert_eq!(simplify_language("Assembly x64"), "Assembly x64");
+        assert_eq!(simplify_language("Awk (GNU Awk 4.1.4)"), "AWK");
+        assert_eq!(simplify_language("IOI-Style C++ (GCC 5.4.1)"), "C++");
+        assert_eq!(simplify_language("LuaJIT (2.0.4)"), "Lua");
+        assert_eq!(simplify_language("Objective-C (Clang3.8.0)"), "Objective-C");
+        assert_eq!(simplify_language("PyPy2 (7.3.0)"), "Python");
+        assert_eq!(simplify_language("Python (Cython 0.29.34)"), "Cython");
+        assert_eq!(simplify_language("Cython (0.29.16)"), "Cython");
+        assert_eq!(simplify_language("Seed7 (Seed7 3.2.1)"), "Seed7");
+
+        assert_eq!(simplify_language("1234"), "1234");
     }
 }
