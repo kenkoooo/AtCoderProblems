@@ -69,34 +69,16 @@ export const SmallTable: React.FC<Props> = ({ submissions, setFilterFunc }) => {
     []
   );
 
-  const binarySearch = (
-    arr: { point: number; count: number }[],
-    target: number
-  ) => {
-    let left = 0;
-    let right = arr.length;
-    while (right - left > 1) {
-      const mid = Math.floor((left + right) / 2);
-      if (arr[mid].point <= target) {
-        left = mid;
-      } else {
-        right = mid;
-      }
-    }
-    return left;
-  };
-
   const getUserPointCountInArea = (
     countByPoint: Map<number | null | undefined, number>,
     pointStart: number,
     pointEnd: number
   ) => {
     let ret = 0;
-    for (
-      let i = binarySearch(totalCount, pointStart);
-      i < totalCount.length;
-      i++
-    ) {
+    for (let i = 0; i < totalCount.length; i++) {
+      if (totalCount[i].point < pointStart) {
+        continue;
+      }
       if (totalCount[i].point >= pointEnd) {
         break;
       }
