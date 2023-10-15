@@ -1,5 +1,4 @@
 use crate::server::MakeCors;
-use actix_web::http::header::CACHE_CONTROL;
 use actix_web::{error, web, HttpRequest, HttpResponse, Result};
 use serde::{Deserialize, Serialize};
 use sql_client::submission_client::{SubmissionClient, SubmissionRequest};
@@ -12,23 +11,6 @@ pub(crate) struct GetUserSubmissionQuery {
     user: String,
     from_second: Option<i64>,
     to_second: Option<i64>,
-}
-
-pub(crate) async fn get_user_submissions(
-    _request: HttpRequest,
-    pool: web::Data<PgPool>,
-    query: web::Query<GetUserSubmissionQuery>,
-) -> Result<HttpResponse> {
-    let user_id = &query.user;
-    let submissions = pool
-        .get_submissions(SubmissionRequest::UserAll { user_id })
-        .await
-        .map_err(error::ErrorInternalServerError)?;
-    let response = HttpResponse::Ok()
-        .make_cors()
-        .insert_header((CACHE_CONTROL, "max-age=300"))
-        .json(&submissions);
-    Ok(response)
 }
 
 pub(crate) async fn get_user_submissions_from_time(

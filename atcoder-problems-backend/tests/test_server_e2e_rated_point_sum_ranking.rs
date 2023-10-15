@@ -34,9 +34,9 @@ async fn test_rated_point_sum_ranking() {
     assert_eq!(
         response,
         json!([
-            {"user_id":"u2","point_sum":2,"count":2},
-            {"user_id":"u1","point_sum":1,"count":1},
-            {"user_id":"u3","point_sum":1,"count":1}
+            {"user_id":"u2","count":2},
+            {"user_id":"u1","count":1},
+            {"user_id":"u3","count":1}
         ])
     );
 
@@ -48,8 +48,8 @@ async fn test_rated_point_sum_ranking() {
     assert_eq!(
         response,
         json!([
-            {"user_id":"u1","point_sum":1,"count":1},
-            {"user_id":"u3","point_sum":1,"count":1}
+            {"user_id":"u1","count":1},
+            {"user_id":"u3","count":1}
         ])
     );
 
@@ -61,7 +61,7 @@ async fn test_rated_point_sum_ranking() {
     assert_eq!(
         response,
         json!([
-            {"user_id":"u2","point_sum":2,"count":2}
+            {"user_id":"u2","count":2}
         ])
     );
 

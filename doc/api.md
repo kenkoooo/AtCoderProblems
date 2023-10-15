@@ -36,19 +36,14 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/ac_ranking?from=0&to=10
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/ac_rank?user=kenkoooo
 ```
 
-Deprecated ~~https://kenkoooo.com/atcoder/resources/ac.json~~ This old API will be removed soon. You can see more detail about the plan ([#989](https://github.com/kenkoooo/AtCoderProblems/issues/989)).
-
 ### Rated Point Sum
 
 #### Example
-
 
 ```
 https://kenkoooo.com/atcoder/atcoder-api/v3/rated_point_sum_ranking?from=0&to=10
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/rated_point_sum_rank?user=kenkoooo
 ```
-
-Deprecated ~~https://kenkoooo.com/atcoder/resources/sums.json~~ This old API will be removed soon. You can see more detail about the plan ([#1031](https://github.com/kenkoooo/AtCoderProblems/issues/1031)).
 
 ### Longest Streak (JST) Count
 
@@ -58,8 +53,6 @@ Deprecated ~~https://kenkoooo.com/atcoder/resources/sums.json~~ This old API wil
 https://kenkoooo.com/atcoder/atcoder-api/v3/streak_ranking?from=0&to=10
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/streak_rank?user=kenkoooo
 ```
-
-Deprecated ~~https://kenkoooo.com/atcoder/resources/streaks.json~~ This old API will be removed soon. You can see more detail about the plan ([#981](https://github.com/kenkoooo/AtCoderProblems/issues/981)).
 
 ### Language List
 
@@ -77,8 +70,6 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/language_list
 https://kenkoooo.com/atcoder/atcoder-api/v3/language_ranking?from=0&to=10&language=Rust
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/language_rank?user=kenkoooo
 ```
-
-Deprecated ~~https://kenkoooo.com/atcoder/resources/lang.json~~ This old API will be removed soon. You can see more detail about the plan ([#1002](https://github.com/kenkoooo/AtCoderProblems/issues/1002)).
 
 ## Submission API
 
@@ -99,16 +90,6 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user={user_id}&from
 https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=chokudai&from_second=1560046356
 ```
 
-### [Deprecated] ~~User Submissions~~
-
-This API is deprecated. Please use `/v3/user/submissions` instead. You can see more detail about the deprecation plan ([#961](https://github.com/kenkoooo/AtCoderProblems/issues/961)).
-
-#### Interface
-
-```
-https://kenkoooo.com/atcoder/atcoder-api/results?user={user_id}
-```
-
 ### Submissions at the time
 
 #### Interface
@@ -123,8 +104,13 @@ https://kenkoooo.com/atcoder/atcoder-api/v3/from/{unix_time_second}
 
 ## Deprecated
 
-- `/v2/user_info`
-- `/atcoder/atcoder-api/info/*`
+- `/atcoder-api/v2/user_info`
+- `/atcoder-api/info/*`
+- `/atcoder-api/results`
+- `/resources/ac.json`
+- `/resources/lang.json`
+- `/resources/streaks.json`
+- `/resources/sums.json`
 
 ## Datasets
 

@@ -1,5 +1,4 @@
 use actix_web::{http::StatusCode, test, App};
-use atcoder_problems_backend::server::config_services;
 use serde_json::Value;
 use sql_client::models::Submission;
 use sql_client::PgPool;
@@ -34,35 +33,6 @@ async fn prepare_data_set(conn: &PgPool) {
     .execute(conn)
     .await
     .unwrap();
-}
-
-#[actix_web::test]
-async fn test_user_submissions() {
-    let pg_pool = utils::initialize_and_connect_to_test_sql().await;
-    prepare_data_set(&pg_pool).await;
-
-    let app = test::init_service(
-        App::new()
-            .app_data(actix_web::web::Data::new(pg_pool))
-            .configure(config_services),
-    )
-    .await;
-
-    let request = test::TestRequest::get()
-        .uri("/atcoder-api/results?user=u1")
-        .to_request();
-    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, request).await;
-
-    assert_eq!(submissions.len(), 5);
-    assert!(submissions.iter().all(|s| s.user_id == "u1"));
-
-    let response = test::TestRequest::get()
-        .uri("/atcoder-api/results?user=u2")
-        .to_request();
-    let submissions: Vec<Submission> = test::call_and_read_body_json(&app, response).await;
-
-    assert_eq!(submissions.len(), 5);
-    assert!(submissions.iter().all(|s| s.user_id == "u2"));
 }
 
 #[actix_web::test]
@@ -186,7 +156,7 @@ async fn test_invalid_path() {
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
     let response = test::TestRequest::get()
-        .uri("/atcoder-api/results")
+        .uri("/atcoder-api/v3/user/submissions")
         .send_request(&app)
         .await;
 
@@ -256,7 +226,7 @@ async fn test_cors() {
     );
 
     let response = test::TestRequest::get()
-        .uri("/atcoder-api/results?user=u1")
+        .uri("/atcoder-api/v3/user/submissions?user=u1&from_second=0")
         .send_request(&app)
         .await;
 

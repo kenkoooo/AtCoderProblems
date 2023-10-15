@@ -1,31 +1,18 @@
 use super::{
-    RankingRequest, RankingRequestFormat, RankingResponseFormat, RankingSelector, UserRankRequest,
+    RankingRequest, RankingRequestFormat, RankingResponse, RankingSelector, UserRankRequest,
     UserRankResponse, UserRankSelector,
 };
 
 use actix_web::{error, web, Result};
 use async_trait::async_trait;
-use serde::Serialize;
 use sql_client::{rated_point_sum::RatedPointSumClient, PgPool};
-
-#[deprecated(
-    note = "this special Response type is deprecated and will be replaced with super::RankingResponse"
-)]
-#[derive(Debug, Serialize)]
-pub(crate) struct RPSRankingResponse {
-    user_id: String,
-    count: i64,
-    point_sum: i64,
-}
-
-impl RankingResponseFormat for RPSRankingResponse {}
 
 pub(crate) struct RatedPointSumRanking;
 
 #[async_trait(?Send)]
 impl RankingSelector for RatedPointSumRanking {
     type Request = RankingRequest;
-    type Response = RPSRankingResponse;
+    type Response = RankingResponse;
     async fn fetch(pool: web::Data<PgPool>, query: Self::Request) -> Result<Vec<Self::Response>> {
         let ranking = pool
             .load_rated_point_sum_in_range(query.range())
@@ -33,10 +20,9 @@ impl RankingSelector for RatedPointSumRanking {
             .map_err(error::ErrorInternalServerError)?;
         Ok(ranking
             .into_iter()
-            .map(|entry| RPSRankingResponse {
+            .map(|entry| RankingResponse {
                 user_id: entry.user_id,
                 count: entry.point_sum,
-                point_sum: entry.point_sum,
             })
             .collect())
     }
