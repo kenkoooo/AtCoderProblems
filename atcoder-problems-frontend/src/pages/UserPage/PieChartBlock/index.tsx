@@ -1,8 +1,9 @@
-import { Col, Row } from "reactstrap";
-import React from "react";
+import { Col, Row, Button, ButtonGroup } from "reactstrap";
+import React, { useState } from "react";
 import {
   useContestToProblems,
   useUserSubmission,
+  useContestMap,
 } from "../../../api/APIClient";
 import Problem from "../../../interfaces/Problem";
 import Submission from "../../../interfaces/Submission";
@@ -12,6 +13,7 @@ import {
   isAccepted,
   isValidResult,
 } from "../../../utils";
+import { isRatedContest } from "../../../utils/ContestClassifier";
 import { SmallPieChart } from "./SmallPieChart";
 
 enum SubmissionStatus {
@@ -143,18 +145,26 @@ export const PieChartBlock = (props: Props) => {
   );
   const contestToProblems =
     useContestToProblems() ?? new Map<ContestId, Problem[]>();
+  const [onlyRated, setOnlyRated] = useState(true);
+  const contestMap = useContestMap();
 
   const abcSolved = solvedCountForPieChart(
-    Array.from(contestToProblems).filter(([contestId]) =>
-      contestId.startsWith("abc")
-    ),
+    Array.from(contestToProblems)
+      .filter(([contestId]) => contestId.startsWith("abc"))
+      .filter(
+        ([contestId]) =>
+          isRatedContest(contestMap.get(contestId), 2) || !onlyRated
+      ),
     submissionsMap,
     props.userId
   );
   const arcSolved = solvedCountForPieChart(
-    Array.from(contestToProblems).filter(([contestId]) =>
-      contestId.startsWith("arc")
-    ),
+    Array.from(contestToProblems)
+      .filter(([contestId]) => contestId.startsWith("arc"))
+      .filter(
+        ([contestId]) =>
+          isRatedContest(contestMap.get(contestId), 2) || !onlyRated
+      ),
     submissionsMap,
     props.userId
   );
@@ -167,9 +177,24 @@ export const PieChartBlock = (props: Props) => {
   );
   return (
     <>
-      <PieCharts problems={abcSolved} title="AtCoder Beginner Contest" />
-      <PieCharts problems={arcSolved} title="AtCoder Regular Contest" />
-      <PieCharts problems={agcSolved} title="AtCoder Grand Contest" />
+      <PieCharts
+        problems={abcSolved}
+        title="AtCoder Beginner Contest"
+        setOnlyRated={setOnlyRated}
+        onlyRated={onlyRated}
+      />
+      <PieCharts
+        problems={arcSolved}
+        title="AtCoder Regular Contest"
+        setOnlyRated={setOnlyRated}
+        onlyRated={onlyRated}
+      />
+      <PieCharts
+        problems={agcSolved}
+        title="AtCoder Grand Contest"
+        setOnlyRated={setOnlyRated}
+        onlyRated={onlyRated}
+      />
     </>
   );
 };
@@ -177,13 +202,25 @@ export const PieChartBlock = (props: Props) => {
 interface PieChartsProps {
   problems: { total: number; solved: number; rejected: number }[];
   title: string;
+  setOnlyRated: (onlyRated: boolean) => void;
+  onlyRated: boolean;
 }
 
-const PieCharts: React.FC<PieChartsProps> = ({ problems, title }) => (
+const PieCharts: React.FC<PieChartsProps> = ({
+  problems,
+  title,
+  setOnlyRated,
+  onlyRated,
+}) => (
   <div>
     <Row className="my-2 border-bottom">
       <h1>{title}</h1>
     </Row>
+    <ButtonGroup className="mb-2">
+      <Button onClick={(): void => setOnlyRated(!onlyRated)}>
+        {onlyRated ? "Only Rated Contests" : "All Contests"}
+      </Button>
+    </ButtonGroup>
     <Row className="my-3">
       {problems.map(({ solved, rejected, total }, i) => {
         const key = i <= 6 ? "ABCDEFG".charAt(i) : "H/Ex";

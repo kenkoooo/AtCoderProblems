@@ -1,5 +1,5 @@
-import React from "react";
-import { Row, Col } from "reactstrap";
+import React, { useState } from "react";
+import { Row, Col, Button, ButtonGroup } from "reactstrap";
 import {
   useContestToProblems,
   useUserSubmission,
@@ -15,6 +15,7 @@ import {
 } from "../../../utils";
 import { SmallPieChart } from "../PieChartBlock/SmallPieChart";
 import {
+  isRatedContest,
   classifyContest,
   ContestCategories,
   ContestCategory,
@@ -72,7 +73,8 @@ export const makeCategoryCounts = (
   contestsData: Contest[],
   contestToProblemsData: Map<string, Problem[]>,
   userSubmissionsData: Submission[],
-  userId: string
+  userId: string,
+  onlyRated: boolean
 ) => {
   const contestMap = new Map<string, Contest>(
     contestsData.map((contest) => [contest.id, contest])
@@ -118,8 +120,12 @@ export const makeCategoryCounts = (
     const category = classifyContest(statusByContest.contest);
     statusByContest.problemStatuses.forEach((problemStatus) => {
       const formerCount = counts.get(category);
+      const isRated = isRatedContest(
+        statusByContest.contest,
+        contestToProblemsData.get(statusByContest.contest.id)?.length ?? 0
+      );
       if (formerCount === undefined) return;
-
+      if (!isRated && onlyRated) return;
       statusCounter(formerCount, problemStatus.status);
     });
     return counts;
@@ -132,16 +138,23 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
   const contestToProblems =
     useContestToProblems() ?? new Map<ContestId, Problem[]>();
   const userSubmissions = useUserSubmission(props.userId) ?? [];
+  const [onlyRated, setOnlyRated] = useState(true);
 
   const categoryCounts = makeCategoryCounts(
     contests,
     contestToProblems,
     userSubmissions,
-    props.userId
+    props.userId,
+    onlyRated
   );
 
   return (
     <div>
+      <ButtonGroup className="mb-2">
+        <Button onClick={(): void => setOnlyRated(!onlyRated)}>
+          {onlyRated ? "Only Rated Contests" : "All Contests"}
+        </Button>
+      </ButtonGroup>
       <Row className="my-3">
         {ContestCategories.map((category) => {
           const count = categoryCounts.get(category);
