@@ -56,7 +56,10 @@ export const classifyContest = (
   if (/^agc\d{3}$/.exec(contest.id)) {
     return "AGC";
   }
-  if (/^ahc\d{3}$/.exec(contest.id)) {
+  if (
+    /^ahc\d{3}$/.exec(contest.id) ||
+    ["toyota2023summer-final"].includes(contest.id)
+  ) {
     return "AHC";
   }
 
@@ -78,8 +81,11 @@ export const classifyContest = (
     /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
       contest.title
     ) ||
-    /(^future-meets-you-contest|^hokudai-hitachi)/.exec(contest.id) ||
+    /(^future-meets-you-contest|^hokudai-hitachi|^toyota-hc)/.exec(
+      contest.id
+    ) ||
     [
+      "toyota2023summer-final-open",
       "genocon2021",
       "stage0-2021",
       "caddi2019",
@@ -97,7 +103,7 @@ export const classifyContest = (
     /(CODE FESTIVAL|^DISCO|日本最強プログラマー学生選手権|全国統一プログラミング王|Indeed)/.exec(
       contest.title
     ) ||
-    /(^Donuts|^dwango|^DigitalArts|^Code Formula|天下一プログラマーコンテスト)/.exec(
+    /(^Donuts|^dwango|^DigitalArts|^Code Formula|天下一プログラマーコンテスト|^Toyota)/.exec(
       contest.title
     )
   ) {
