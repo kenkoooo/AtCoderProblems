@@ -1,4 +1,4 @@
-const mapping: [beginning: string, normalized: string][] = [
+const mapping: [string, string][] = [
   ["PyPy", "Python"],
   ["Python (Cython", "Cython"],
   ["Assembly x64", "Assembly x64"],
@@ -17,5 +17,5 @@ export const normalizeLanguage = (language: string): string => {
     }
   }
 
-  return language.replace(/\s*[\d(\-].*/, "") || "Unknown";
+  return language.replace(/\s*[\d(-].*/, "") || "Unknown";
 };
