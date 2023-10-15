@@ -45,7 +45,7 @@ async fn setup_contests(pool: &PgPool) {
             id: SAME_CONTEST_RATED.to_string(),
             start_epoch_second: FIRST_AGC_EPOCH_SECOND,
             duration_second: 1000,
-            title: "Unrated New Contest".to_string(),
+            title: "Rated New Contest".to_string(),
             rate_change: "All".to_string(),
         },
         Contest {
@@ -128,6 +128,16 @@ async fn setup_contest_problems(pool: &PgPool) {
             problem_id: "heuristic-problem".to_string(),
             problem_index: "1".to_string(),
             contest_id: HEURISTIC_CONTEST.to_string(),
+        },
+        ContestProblem {
+            problem_id: "problem7".to_string(),
+            problem_index: "7".to_string(),
+            contest_id: RATED_CONTEST.to_string(),
+        },
+        ContestProblem {
+            problem_id: "problem8".to_string(),
+            problem_index: "8".to_string(),
+            contest_id: SAME_CONTEST_RATED.to_string(),
         },
     ];
 
