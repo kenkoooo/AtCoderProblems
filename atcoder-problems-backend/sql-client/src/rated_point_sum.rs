@@ -30,7 +30,7 @@ impl RatedPointSumClient for PgPool {
             WHERE
                 contests.start_epoch_second >= $1
                 AND contests.rate_change != $2
-                AND contest_problem_count.problem_count >= 2
+                AND contest_problem_count.problem_count >= 3
             ",
         )
         .bind(FIRST_AGC_EPOCH_SECOND)
