@@ -11,35 +11,35 @@ async fn test_language_count() {
             id: 1,
             problem_id: "problem1".to_owned(),
             user_id: "user1".to_owned(),
-            language: "language1".to_owned(),
+            language: "language x".to_owned(),
             ..Default::default()
         },
         Submission {
             id: 2,
             problem_id: "problem2".to_owned(),
             user_id: "user1".to_owned(),
-            language: "language1".to_owned(),
+            language: "language x".to_owned(),
             ..Default::default()
         },
         Submission {
             id: 3,
             problem_id: "problem1".to_owned(),
             user_id: "user1".to_owned(),
-            language: "language1".to_owned(),
+            language: "language x".to_owned(),
             ..Default::default()
         },
         Submission {
             id: 4,
             problem_id: "problem1".to_owned(),
             user_id: "user1".to_owned(),
-            language: "language2".to_owned(),
+            language: "language y".to_owned(),
             ..Default::default()
         },
         Submission {
             id: 5,
             problem_id: "problem1".to_owned(),
             user_id: "user2".to_owned(),
-            language: "language1".to_owned(),
+            language: "language x".to_owned(),
             ..Default::default()
         },
         Submission {
@@ -65,17 +65,17 @@ async fn test_language_count() {
         vec![
             UserLanguageCount {
                 user_id: "user1".to_owned(),
-                simplified_language: "language1".to_owned(),
+                simplified_language: "language x".to_owned(),
                 problem_count: 2
             },
             UserLanguageCount {
                 user_id: "user1".to_owned(),
-                simplified_language: "language2".to_owned(),
+                simplified_language: "language y".to_owned(),
                 problem_count: 1
             },
             UserLanguageCount {
                 user_id: "user2".to_owned(),
-                simplified_language: "language1".to_owned(),
+                simplified_language: "language x".to_owned(),
                 problem_count: 1
             },
             UserLanguageCount {
@@ -106,17 +106,17 @@ async fn test_language_count() {
         vec![
             UserLanguageCount {
                 user_id: "user1".to_owned(),
-                simplified_language: "language1".to_owned(),
+                simplified_language: "language x".to_owned(),
                 problem_count: 2
             },
             UserLanguageCount {
                 user_id: "user1".to_owned(),
-                simplified_language: "language2".to_owned(),
+                simplified_language: "language y".to_owned(),
                 problem_count: 1
             },
             UserLanguageCount {
                 user_id: "user2".to_owned(),
-                simplified_language: "language1".to_owned(),
+                simplified_language: "language x".to_owned(),
                 problem_count: 1
             },
             UserLanguageCount {
@@ -133,7 +133,7 @@ async fn test_language_count() {
     );
 
     let language_count_1st_to_2nd = pool
-        .load_language_count_in_range("language1", 0..2)
+        .load_language_count_in_range("language x", 0..2)
         .await
         .unwrap();
     assert_eq!(
@@ -151,7 +151,7 @@ async fn test_language_count() {
     );
 
     let language_count_2nd_to_2nd = pool
-        .load_language_count_in_range("language1", 1..2)
+        .load_language_count_in_range("language x", 1..2)
         .await
         .unwrap();
     assert_eq!(
@@ -163,7 +163,7 @@ async fn test_language_count() {
     );
 
     assert_eq!(
-        pool.load_language_count_in_range("language1", 0..10)
+        pool.load_language_count_in_range("language x", 0..10)
             .await
             .unwrap()
             .len(),
@@ -176,12 +176,12 @@ async fn test_language_count() {
         vec![
             UserLanguageCount {
                 user_id: "user1".to_owned(),
-                simplified_language: "language1".to_owned(),
+                simplified_language: "language x".to_owned(),
                 problem_count: 2,
             },
             UserLanguageCount {
                 user_id: "user1".to_owned(),
-                simplified_language: "language2".to_owned(),
+                simplified_language: "language y".to_owned(),
                 problem_count: 1,
             },
         ]
@@ -192,12 +192,12 @@ async fn test_language_count() {
         vec![
             UserLanguageCountRank {
                 user_id: "user1".to_owned(),
-                simplified_language: "language1".to_owned(),
+                simplified_language: "language x".to_owned(),
                 rank: 1,
             },
             UserLanguageCountRank {
                 user_id: "user1".to_owned(),
-                simplified_language: "language2".to_owned(),
+                simplified_language: "language y".to_owned(),
                 rank: 1,
             },
         ]
@@ -208,7 +208,7 @@ async fn test_language_count() {
         language_count,
         vec![UserLanguageCount {
             user_id: "user2".to_owned(),
-            simplified_language: "language1".to_owned(),
+            simplified_language: "language x".to_owned(),
             problem_count: 1,
         },]
     );
@@ -217,7 +217,7 @@ async fn test_language_count() {
         language_count_rank,
         vec![UserLanguageCountRank {
             user_id: "user2".to_owned(),
-            simplified_language: "language1".to_owned(),
+            simplified_language: "language x".to_owned(),
             rank: 2,
         },]
     );
@@ -255,5 +255,5 @@ async fn test_language_count() {
         ]
     );
     let languages = pool.load_languages().await.unwrap();
-    assert_eq!(languages, ["language1", "language2", "Perl", "Raku"]);
+    assert_eq!(languages, ["language x", "language y", "Perl", "Raku"]);
 }

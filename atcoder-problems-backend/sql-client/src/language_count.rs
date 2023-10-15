@@ -2,7 +2,6 @@ use crate::models::{Submission, UserLanguageCount, UserLanguageCountRank, UserPr
 use crate::{PgPool, MAX_INSERT_ROWS};
 use anyhow::Result;
 use async_trait::async_trait;
-use regex::Regex;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
@@ -211,14 +210,14 @@ fn simplify_language(lang: &str) -> String {
         }
     }
 
-    let simplified = Regex::new(r"\s*[\d(\-].*")
-        .unwrap()
-        .replace(lang, "")
-        .to_string();
+    let simplified = lang
+        .chars()
+        .take_while(|&c| !c.is_numeric() && c != '(' && c != '-')
+        .collect::<String>();
 
     match simplified.len() {
-        0 => String::from("Unknown"),
-        _ => simplified,
+        0 => lang.to_string(),
+        _ => simplified.trim().to_string(),
     }
 }
 
@@ -253,6 +252,6 @@ mod tests {
         assert_eq!(simplify_language("Cython (0.29.16)"), "Cython");
         assert_eq!(simplify_language("Seed7 (Seed7 3.2.1)"), "Seed7");
 
-        assert_eq!(simplify_language("1234"), "Unknown");
+        assert_eq!(simplify_language("1234"), "1234");
     }
 }
