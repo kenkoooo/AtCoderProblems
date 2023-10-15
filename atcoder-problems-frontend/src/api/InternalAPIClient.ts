@@ -52,3 +52,9 @@ export const useRecentContests = () => {
     typeCastFetcher<VirtualContestInfo[]>(url)
   );
 };
+
+export const useMyList = () => {
+  return useSWRData(`${BASE_URL}/list/my`, (url) =>
+    typeCastFetcher<ProblemList[]>(url)
+  );
+};
