@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonGroup,
   Col,
   DropdownItem,
   DropdownMenu,
@@ -15,11 +16,13 @@ import {
 } from "reactstrap";
 import React, { useState } from "react";
 import {
+  useContests,
   useMultipleUserSubmissions,
   useProblemModelMap,
   useProblems,
 } from "../api/APIClient";
 import Problem from "../interfaces/Problem";
+import Contest from "../interfaces/Contest";
 import { shuffleArray } from "../utils";
 import {
   ExcludeOption,
@@ -29,6 +32,7 @@ import {
   getLastSolvedTimeMap,
   getMaximumExcludeElapsedSecond,
 } from "../utils/LastSolvedTime";
+import { classifyContest } from "../utils/ContestClassifier";
 import { isProblemModelWithDifficultyModel } from "../interfaces/ProblemModel";
 
 interface Props {
@@ -90,6 +94,14 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
   );
   const [excludeExperimental, setExcludeExperimental] = useState(false);
   const [excludeOption, setExcludeOption] = useState<ExcludeOption>("Exclude");
+  const [contestTypeOption, setContestTypeOption] = useState({
+    ABC: true,
+    ARC: true,
+    AGC: true,
+    ABC_Like: true,
+    ARC_Like: true,
+    AGC_Like: true,
+  });
   const [selectedPreset, setSelectedPreset] = useState(ABC_PRESET);
   const problems = useProblems() ?? [];
   const problemModels = useProblemModelMap();
@@ -97,6 +109,15 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
     useMultipleUserSubmissions(props.expectedParticipantUserIds).data ?? [];
   const alreadySolvedProblemIds = new Set(submissions.map((s) => s.problem_id));
   const lastSolvedTimeMap = getLastSolvedTimeMap(submissions);
+  const { data: contests } = useContests();
+
+  const contestTypeKeyToDisplayName = (key: string) => {
+    if (key.includes("Like")) {
+      return key.replace("_", "-");
+    } else {
+      return key;
+    }
+  };
 
   return (
     <Form className={"w-100"}>
@@ -139,6 +160,31 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
                 ))}
               </DropdownMenu>
             </UncontrolledDropdown>
+          </InputGroup>
+        </Col>
+      </FormGroup>
+      <FormGroup row>
+        <Col sm={6}>
+          <Label>Include / Exclude Contest Types</Label>
+          <InputGroup>
+            <ButtonGroup>
+              {Object.keys(contestTypeOption).map((contestType) => {
+                return (
+                  <Button
+                    key={contestType}
+                    active={contestTypeOption[contestType] as boolean}
+                    onClick={(): void => {
+                      setContestTypeOption({
+                        ...contestTypeOption,
+                        [contestType]: !contestTypeOption[contestType],
+                      });
+                    }}
+                  >
+                    {contestTypeKeyToDisplayName(contestType)}
+                  </Button>
+                );
+              })}
+            </ButtonGroup>
           </InputGroup>
         </Col>
       </FormGroup>
@@ -277,6 +323,26 @@ export const ProblemSetGenerator: React.FC<Props> = (props) => {
                   );
                 });
               }
+
+              let candidateContests: Contest[] = [];
+              Object.keys(contestTypeOption).forEach((contestType) => {
+                if (contestTypeOption[contestType]) {
+                  const filteredContests = contests.filter((contest) => {
+                    return (
+                      contestTypeKeyToDisplayName(contestType) ===
+                      classifyContest(contest)
+                    );
+                  });
+                  candidateContests = candidateContests.concat(
+                    filteredContests
+                  );
+                }
+              });
+              candidateProblems = candidateProblems.filter((p) => {
+                return candidateContests
+                  .map((contest) => contest.id)
+                  .includes(p.problem.contest_id);
+              });
 
               candidateProblems = candidateProblems.filter((p) => {
                 if (excludeOption === "Exclude submitted") {
