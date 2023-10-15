@@ -10,7 +10,7 @@ import { useMergedProblemMap } from "../../api/APIClient";
 
 interface Props {
   submissions: Submission[];
-  setFilterFunc: (point: number) => void;
+  setFilterFunc: (from: number, to: number) => void;
 }
 
 export const getTotalCount = (
@@ -95,7 +95,7 @@ export const SmallTable: React.FC<Props> = ({ submissions, setFilterFunc }) => {
             <th key={point}>
               <a
                 href={window.location.hash}
-                onClick={(): void => setFilterFunc(point)}
+                onClick={(): void => setFilterFunc(point, point + 99)}
               >
                 {`${point}-`}
               </a>
