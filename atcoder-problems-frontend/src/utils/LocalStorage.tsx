@@ -9,6 +9,7 @@ const LocalStorageKeys = [
   "showPenalties",
   "hideCompletedContest",
   "dailyEffortBarChartActiveTab",
+  "dailyEffortXRange",
   "dailyEffortYRange",
   "climbingLineChartActiveTab",
   "climbingLineChartReverseColorOrder",

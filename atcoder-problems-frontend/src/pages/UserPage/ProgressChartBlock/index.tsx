@@ -64,6 +64,49 @@ const ChartTypeTabButtons: React.FC<ChartTypeTabProps> = (props) => {
   );
 };
 
+type XRanges = (number | "dataMin")[];
+interface XRangeTabProps {
+  active: XRanges;
+  setActive: (next: XRanges) => void;
+}
+const XRangeTabButtons: React.FC<XRangeTabProps> = (props) => {
+  const { active, setActive } = props;
+  const yearToSeconds = 365 * 24 * 60 * 60;
+  const nowUnixTime = new Date().getTime() / 1000;
+  const RANGES: XRanges[] = [
+    [nowUnixTime - 1 * yearToSeconds, nowUnixTime],
+    [nowUnixTime - 2 * yearToSeconds, nowUnixTime],
+    [nowUnixTime - 5 * yearToSeconds, nowUnixTime],
+    [nowUnixTime - 10 * yearToSeconds, nowUnixTime],
+    ["dataMin", nowUnixTime],
+  ];
+  const RANGENAMES = [
+    "in last 1 year",
+    "in last 2 years",
+    "in last 5 years",
+    "in last 10 years",
+    "all time",
+  ];
+  return (
+    <ButtonGroup>
+      <UncontrolledDropdown>
+        <DropdownToggle caret>{"X-Range"}</DropdownToggle>
+        <DropdownMenu>
+          {RANGES.map((range, idx) => (
+            <DropdownItem
+              key={range}
+              onClick={(): void => setActive(range)}
+              active={active === range}
+            >
+              {RANGENAMES[idx]}
+            </DropdownItem>
+          ))}
+        </DropdownMenu>
+      </UncontrolledDropdown>
+    </ButtonGroup>
+  );
+};
+
 type YRanges = number | "auto";
 interface YRangeTabProps {
   active: YRanges;
@@ -101,6 +144,11 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
     dailyEffortBarChartActiveTab,
     setDailyEffortBarChartActiveTab,
   ] = useLocalStorage<ChartType>("dailyEffortBarChartActiveTab", "Simple");
+  const nowUnixTime = new Date().getTime() / 1000;
+  const [dailyEffortXRange, setDailyEffortXRange] = useLocalStorage<XRanges>(
+    "dailyEffortXRange",
+    ["dataMin", nowUnixTime]
+  );
   const [dailyEffortYRange, setDailyEffortYRange] = useLocalStorage<YRanges>(
     "dailyEffortYRange",
     "auto"
@@ -224,6 +272,10 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
           active={dailyEffortBarChartActiveTab}
           setActive={setDailyEffortBarChartActiveTab}
         />
+        <XRangeTabButtons
+          active={dailyEffortXRange}
+          setActive={setDailyEffortXRange}
+        />
         <YRangeTabButtons
           active={dailyEffortYRange}
           setActive={setDailyEffortYRange}
@@ -235,11 +287,13 @@ export const ProgressChartBlock: React.FC<Props> = (props) => {
             dateSecond: parseDateLabel(dateLabel).unix(),
             count,
           }))}
+          xRange={dailyEffortXRange}
           yRange={dailyEffortYRange}
         />
       ) : (
         <DailyEffortStackedBarChart
           dailyColorCount={dailyColorCount}
+          xRange={dailyEffortXRange}
           yRange={dailyEffortYRange}
         />
       )}
