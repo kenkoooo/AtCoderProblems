@@ -132,6 +132,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         "ABC-Like",
         "ARC-Like",
         "AGC-Like",
+        "ADT",
         "PAST",
       ].includes(activeTab) ? (
         <AtCoderRegularTable
@@ -146,6 +147,8 @@ export const TablePage: React.FC<OuterProps> = (props) => {
               ? "AtCoder Regular Contest"
               : activeTab === "AGC"
               ? "AtCoder Grand Contest"
+              : activeTab === "ADT"
+              ? "AtCoder Daily Training"
               : activeTab === "PAST"
               ? "PAST"
               : `${activeTab} Contest`
