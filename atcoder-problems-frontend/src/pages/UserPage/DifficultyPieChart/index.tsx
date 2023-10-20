@@ -41,10 +41,15 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
   const problemModels = useProblemModelMap();
   const colorCount = new Map<RatingColor, number>();
   const allSubmissions = useUserSubmission(props.userId) ?? [];
-  const submissions = allSubmissions.filter(
-    (submission) =>
-      isRatedContest(contestMap.get(submission.contest_id), 2) || !onlyRated
-  );
+  const submissions = allSubmissions.filter((submission) => {
+    if (!onlyRated) {
+      return true;
+    }
+    if (contestMap === undefined) {
+      return false;
+    }
+    return isRatedContest(contestMap.get(submission.contest_id), 2);
+  });
   Array.from(problemModels?.keys() ?? []).forEach((problemId) => {
     const problem = problemMap?.get(problemId);
     const contest = contestMap?.get(problem?.contest_id);
