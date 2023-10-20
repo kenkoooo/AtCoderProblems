@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Row, Col, Button, ButtonGroup } from "reactstrap";
 import {
+  useProblemMap,
   useProblemModelMap,
   useUserSubmission,
   useContestMap,
@@ -36,6 +37,7 @@ const getPieChartTitle = (ratingColor: RatingColor): string => {
 export const DifficultyPieChart: React.FC<Props> = (props) => {
   const [onlyRated, setOnlyRated] = useState(true);
   const contestMap = useContestMap();
+  const problemMap = useProblemMap();
   const problemModels = useProblemModelMap();
   const colorCount = new Map<RatingColor, number>();
   const allSubmissions = useUserSubmission(props.userId) ?? [];
@@ -43,7 +45,13 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
     (submission) =>
       isRatedContest(contestMap.get(submission.contest_id), 2) || !onlyRated
   );
-  Array.from(problemModels?.values() ?? []).forEach((model) => {
+  Array.from(problemModels?.keys() ?? []).forEach((problemId) => {
+    const problem = problemMap?.get(problemId);
+    const contest = contestMap?.get(problem?.contest_id);
+    if (onlyRated && (contest === undefined || !isRatedContest(contest, 2))) {
+      return;
+    }
+    const model = problemModels?.get(problemId);
     if (model.difficulty !== undefined) {
       const color = getRatingColor(model.difficulty);
       const curCount = colorCount.get(color) ?? 0;
