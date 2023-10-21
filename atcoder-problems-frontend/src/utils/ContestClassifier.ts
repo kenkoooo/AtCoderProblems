@@ -78,7 +78,7 @@ export const classifyContest = (
   }
 
   if (
-    /(^Chokudai Contest|ハーフマラソン|^HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
+    /(^Chokudai Contest|ハーフマラソン|HACK TO THE FUTURE|Asprova|Heuristics Contest)/.exec(
       contest.title
     ) ||
     /(^future-meets-you-contest|^hokudai-hitachi|^toyota-hc)/.exec(
@@ -97,15 +97,16 @@ export const classifyContest = (
     return "Marathon";
   }
   if (
-    /(ドワンゴ|^Mujin|SoundHound|^codeFlyer|^COLOCON|みんなのプロコン|CODE THANKS FESTIVAL)/.exec(
+    /(ドワンゴ|^Mujin|SoundHound|^codeFlyer|^COLOCON|みんなのプロコン|CODE THANKS FESTIVAL)/i.exec(
       contest.title
     ) ||
-    /(CODE FESTIVAL|^DISCO|日本最強プログラマー学生選手権|全国統一プログラミング王|Indeed)/.exec(
+    /(CODE FESTIVAL|^DISCO|日本最強プログラマー学生選手権|全国統一プログラミング王|Indeed)/i.exec(
       contest.title
     ) ||
-    /(^Donuts|^dwango|^DigitalArts|^Code Formula|天下一プログラマーコンテスト|^Toyota)/.exec(
+    /(^Donuts|^dwango|^DigitalArts|^Code Formula|天下一プログラマーコンテスト|^Toyota)/i.exec(
       contest.title
-    )
+    ) ||
+    /(^Recruit|^CodeQUEEN)/i.exec(contest.title)
   ) {
     return "Other Sponsored";
   }
