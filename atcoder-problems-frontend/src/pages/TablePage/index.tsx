@@ -132,7 +132,6 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         "ABC-Like",
         "ARC-Like",
         "AGC-Like",
-        "ADT",
         "PAST",
       ].includes(activeTab) ? (
         <AtCoderRegularTable
@@ -153,6 +152,21 @@ export const TablePage: React.FC<OuterProps> = (props) => {
               ? "PAST"
               : `${activeTab} Contest`
           }
+          contestToProblems={contestToProblems}
+          statusLabelMap={statusLabelMap}
+          showPenalties={showPenalties}
+          selectedLanguages={selectedLanguages}
+          userRatingInfo={userRatingInfo}
+        />
+      ) : activeTab === "ADT" ? (
+        <AtCoderRegularTable
+          showDifficulty={showDifficulty}
+          hideCompletedContest={hideCompletedContest}
+          colorMode={colorMode}
+          contests={filteredContests.filter((contest) => {
+            return /^adt_all/g.test(contest.id);
+          })}
+          title="AtCoder Daily Training"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
           showPenalties={showPenalties}
