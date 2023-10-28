@@ -2,11 +2,10 @@ use crate::models::{Submission, UserStreak};
 use crate::{PgPool, MAX_INSERT_ROWS};
 use anyhow::Result;
 use async_trait::async_trait;
-
-use sqlx::Row;
-
 use chrono::Duration;
 use chrono::{DateTime, Datelike, FixedOffset, TimeZone, Utc};
+use sqlx::postgres::PgRow;
+use sqlx::Row;
 use std::cmp;
 use std::collections::BTreeMap;
 use std::ops::Range;
@@ -49,7 +48,7 @@ impl StreakClient for PgPool {
             ",
         )
         .bind(user_id)
-        .try_map(|row| row.try_get::<i64, _>("streak"))
+        .try_map(|row: PgRow| row.try_get::<i64, _>("streak"))
         .fetch_one(self)
         .await
         .ok()?;
@@ -66,7 +65,7 @@ impl StreakClient for PgPool {
             ",
         )
         .bind(streak_count)
-        .try_map(|row| row.try_get::<i64, _>("rank"))
+        .try_map(|row: PgRow| row.try_get::<i64, _>("rank"))
         .fetch_one(self)
         .await?;
 

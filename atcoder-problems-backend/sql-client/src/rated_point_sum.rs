@@ -2,6 +2,7 @@ use crate::models::{ContestProblem, Submission, UserSum};
 use crate::{PgPool, FIRST_AGC_EPOCH_SECOND, MAX_INSERT_ROWS, UNRATED_STATE};
 use anyhow::Result;
 use async_trait::async_trait;
+use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
@@ -35,7 +36,7 @@ impl RatedPointSumClient for PgPool {
         )
         .bind(FIRST_AGC_EPOCH_SECOND)
         .bind(UNRATED_STATE)
-        .try_map(|row| row.try_get::<String, _>("id"))
+        .try_map(|row: PgRow| row.try_get::<String, _>("id"))
         .fetch_all(self);
 
         let rated_problem_ids_fut = sqlx::query_as::<_, ContestProblem>(
@@ -110,7 +111,7 @@ impl RatedPointSumClient for PgPool {
             ",
         )
         .bind(user_id)
-        .try_map(|row| row.try_get::<i64, _>("point_sum"))
+        .try_map(|row: PgRow| row.try_get::<i64, _>("point_sum"))
         .fetch_one(self)
         .await
         .ok()?;
@@ -120,7 +121,7 @@ impl RatedPointSumClient for PgPool {
     async fn get_rated_point_sum_rank(&self, rated_point_sum: i64) -> Result<i64> {
         let rank = sqlx::query("SELECT COUNT(*) AS rank FROM rated_point_sum WHERE point_sum > $1")
             .bind(rated_point_sum)
-            .try_map(|row| row.try_get::<i64, _>("rank"))
+            .try_map(|row: PgRow| row.try_get::<i64, _>("rank"))
             .fetch_one(self)
             .await?;
         Ok(rank)

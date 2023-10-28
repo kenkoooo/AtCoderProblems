@@ -2,6 +2,7 @@ use crate::models::{Submission, UserProblemCount};
 use crate::{PgPool, MAX_INSERT_ROWS};
 use anyhow::Result;
 use async_trait::async_trait;
+use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
@@ -60,7 +61,7 @@ impl AcceptedCountClient for PgPool {
             ",
         )
         .bind(user_id)
-        .try_map(|row| row.try_get::<i32, _>("problem_count"))
+        .try_map(|row: PgRow| row.try_get::<i32, _>("problem_count"))
         .fetch_one(self)
         .await
         .ok()?;
@@ -76,7 +77,7 @@ impl AcceptedCountClient for PgPool {
             ",
         )
         .bind(accepted_count)
-        .try_map(|row| row.try_get::<i64, _>("rank"))
+        .try_map(|row: PgRow| row.try_get::<i64, _>("rank"))
         .fetch_one(self)
         .await?;
 

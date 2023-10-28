@@ -2,6 +2,7 @@ use crate::models::Submission;
 use crate::PgPool;
 use anyhow::Result;
 use async_trait::async_trait;
+use sqlx::postgres::PgRow;
 use sqlx::Row;
 use std::ops::Range;
 
@@ -306,7 +307,7 @@ impl SubmissionClient for PgPool {
         .bind(user_id)
         .bind(range.start)
         .bind(range.end)
-        .try_map(|row| row.try_get::<i64, _>("c"))
+        .try_map(|row: PgRow| row.try_get::<i64, _>("c"))
         .fetch_one(self)
         .await?;
         Ok(count as usize)

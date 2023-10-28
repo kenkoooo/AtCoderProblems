@@ -2,6 +2,7 @@ use sql_client::models::Submission;
 use sql_client::problems_submissions::ProblemsSubmissionUpdater;
 use sql_client::submission_client::SubmissionClient;
 use sql_client::PgPool;
+use sqlx::postgres::PgRow;
 use sqlx::Row;
 
 mod utils;
@@ -25,7 +26,7 @@ async fn get_from(pool: &PgPool, table: Table) -> Vec<(String, String, i64)> {
 
     sqlx::query(&query)
         .bind(table)
-        .map(|row| {
+        .map(|row: PgRow| {
             let contest_id: String = row.get("contest_id");
             let problem_id: String = row.get("problem_id");
             let submission_id: i64 = row.get("submission_id");
