@@ -34,7 +34,7 @@ const getPieChartTitle = (ratingColor: RatingColor): string => {
 };
 
 export const DifficultyPieChart: React.FC<Props> = (props) => {
-  const [onlyRated, setOnlyRated] = useState(true);
+  const [onlyRated, setOnlyRated] = useState(false);
   const contestMap = useContestMap();
   const problemModels = useProblemModelMap();
   const colorCount = new Map<RatingColor, number>();

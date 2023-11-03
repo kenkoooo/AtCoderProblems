@@ -138,7 +138,7 @@ export const CategoryPieChart: React.FC<Props> = (props) => {
   const contestToProblems =
     useContestToProblems() ?? new Map<ContestId, Problem[]>();
   const userSubmissions = useUserSubmission(props.userId) ?? [];
-  const [onlyRated, setOnlyRated] = useState(true);
+  const [onlyRated, setOnlyRated] = useState(false);
 
   const categoryCounts = makeCategoryCounts(
     contests,
