@@ -156,6 +156,21 @@ export const TablePage: React.FC<OuterProps> = (props) => {
           selectedLanguages={selectedLanguages}
           userRatingInfo={userRatingInfo}
         />
+      ) : activeTab === "ADT" ? (
+        <AtCoderRegularTable
+          showDifficulty={showDifficulty}
+          hideCompletedContest={hideCompletedContest}
+          colorMode={colorMode}
+          contests={filteredContests.filter((contest) => {
+            return /^adt_all/g.test(contest.id);
+          })}
+          title="AtCoder Daily Training"
+          contestToProblems={contestToProblems}
+          statusLabelMap={statusLabelMap}
+          showPenalties={showPenalties}
+          selectedLanguages={selectedLanguages}
+          userRatingInfo={userRatingInfo}
+        />
       ) : (
         <ContestTable
           showDifficulty={showDifficulty}
