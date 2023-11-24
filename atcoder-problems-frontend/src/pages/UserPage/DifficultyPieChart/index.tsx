@@ -1,10 +1,6 @@
-import React, { useState } from "react";
-import { Row, Col, Button, ButtonGroup } from "reactstrap";
-import {
-  useProblemModelMap,
-  useUserSubmission,
-  useContestMap,
-} from "../../../api/APIClient";
+import React from "react";
+import { Row, Col } from "reactstrap";
+import { useProblemModelMap, useUserSubmission } from "../../../api/APIClient";
 import {
   getRatingColor,
   getRatingColorCode,
@@ -16,7 +12,6 @@ import {
   rejectedProblemIdsFromArray,
   solvedProblemIdsFromArray,
 } from "../UserUtils";
-import { isRatedContest } from "../../../utils/ContestClassifier";
 
 interface Props {
   userId: string;
@@ -34,15 +29,9 @@ const getPieChartTitle = (ratingColor: RatingColor): string => {
 };
 
 export const DifficultyPieChart: React.FC<Props> = (props) => {
-  const [onlyRated, setOnlyRated] = useState(true);
-  const contestMap = useContestMap();
+  const submissions = useUserSubmission(props.userId) ?? [];
   const problemModels = useProblemModelMap();
   const colorCount = new Map<RatingColor, number>();
-  const allSubmissions = useUserSubmission(props.userId) ?? [];
-  const submissions = allSubmissions.filter(
-    (submission) =>
-      isRatedContest(contestMap.get(submission.contest_id), 2) || !onlyRated
-  );
   Array.from(problemModels?.values() ?? []).forEach((model) => {
     if (model.difficulty !== undefined) {
       const color = getRatingColor(model.difficulty);
@@ -89,11 +78,6 @@ export const DifficultyPieChart: React.FC<Props> = (props) => {
 
   return (
     <div>
-      <ButtonGroup className="mb-2">
-        <Button onClick={(): void => setOnlyRated(!onlyRated)}>
-          {onlyRated ? "Only Rated Contests" : "All Contests"}
-        </Button>
-      </ButtonGroup>
       <Row className="my-3">
         {data
           .filter((e) => e.totalCount > 0)
