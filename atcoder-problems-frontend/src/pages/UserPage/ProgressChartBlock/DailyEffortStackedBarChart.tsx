@@ -23,11 +23,12 @@ interface Props {
     dateSecond: number;
     countMap: Map<RatingColor, number>;
   }[];
+  xRange: (number | "dataMin" | "dataMax")[];
   yRange: number | "auto";
 }
 
 export const DailyEffortStackedBarChart: React.FC<Props> = (props) => {
-  const { dailyColorCount, yRange } = props;
+  const { dailyColorCount, xRange, yRange } = props;
 
   const dailyCount = dailyColorCount.map(({ dateSecond, countMap }) => {
     return { ...mapToObject(countMap), dateSecond };
@@ -49,7 +50,8 @@ export const DailyEffortStackedBarChart: React.FC<Props> = (props) => {
           <XAxis
             dataKey="dateSecond"
             type="number"
-            domain={["dataMin", "dataMax"]}
+            domain={xRange}
+            allowDataOverflow={true}
             tickFormatter={(dateSecond: number): string =>
               formatMomentDate(parseSecond(dateSecond))
             }
