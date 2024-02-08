@@ -27,7 +27,7 @@ export const isRatedContest = (
   return (
     contest.rate_change !== "-" &&
     contest.start_epoch_second >= AGC_001_START &&
-    problemCount >= 2
+    problemCount >= 3
   );
 };
 
