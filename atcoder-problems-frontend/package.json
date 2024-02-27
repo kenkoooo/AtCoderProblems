@@ -46,7 +46,6 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@types/react-beautiful-dnd": "13.0.0",
     "bootstrap": "4.3.1",
     "immutable": "4.0.0-rc.12",
     "moment": "2.29.4",
@@ -70,6 +69,7 @@
     "@types/node": "17.0.39",
     "@types/random": "2.1.1",
     "@types/react": "17.0.0",
+    "@types/react-beautiful-dnd": "13.0.0",
     "@types/react-bootstrap-table": "4.3.11",
     "@types/react-dom": "17.0.25",
     "@types/react-helmet": "6.0.0",
