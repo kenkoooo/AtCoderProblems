@@ -8,8 +8,8 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
-  RUST_TEST_THREADS: 1
   CARGO_PROFILE_TEST_DEBUG: 0
+  RUST_TEST_THREADS: 1
   SQL_URL: postgres://db_user:db_pass@localhost:5432/test_db
 
 jobs:
@@ -37,10 +37,10 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v4.1.1
 
       - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2.2.0
+        uses: Swatinem/rust-cache@v2.7.3
         with:
           workspaces: atcoder-problems-backend -> target
 
@@ -70,31 +70,35 @@ jobs:
         working-directory: ./atcoder-problems-frontend
 
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v4.1.1
 
       - name: Use Node.js
-        uses: actions/setup-node@v3.6.0
+        uses: actions/setup-node@v4.0.2
         with:
-          node-version: 16
+          node-version: 20
 
-      - name: Cache node_modules
-        uses: actions/cache@v3.2.3
+      - name: Cache dependencies
+        uses: actions/cache@v4.0.1
         with:
           path: |
             ~/.cache/Cypress
-            ./atcoder-problems-frontend/node_modules
-          key: ${{ runner.os }}-cargo-${{ hashFiles('atcoder-problems-frontend/yarn.lock') }}
+            atcoder-problems-frontend/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('atcoder-problems-frontend/yarn.lock') }}
 
       - name: Install dependencies
         run: yarn
 
       - name: Setup mdBook
-        uses: peaceiris/actions-mdbook@v1.2.0
+        uses: peaceiris/actions-mdbook@v2.0.0
         with:
           mdbook-version: "latest"
 
+      # Node 17でOpenSSLがデフォルトでMD4ハッシュを提供しなくなり、
+      # これに依存していたwebpackに依存するreact-scripts 4.x系でのビルドができなくなってしまった。
+      # --openssl-legacy-providerをオプションとして渡すことで、Node 17以降でもビルドができる。
+      # react-scripts 4.x系から移行したら、このオプションは不要になる。
       - name: build
-        run: yarn build
+        run: export NODE_OPTIONS=--openssl-legacy-provider && yarn build
       - name: test
         run: yarn test
       - name: lint
