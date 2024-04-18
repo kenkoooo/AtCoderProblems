@@ -38,7 +38,7 @@ export const ProblemLink: React.FC<Props> = (props) => {
     ? `${problemIndex}. ${problemName}`
     : problemName;
 
-  const link = (
+  const simpleLink = (
     <NewTabLink
       href={Url.formatProblemUrl(problemId, contestId)}
       className={props.className}
@@ -49,11 +49,11 @@ export const ProblemLink: React.FC<Props> = (props) => {
 
   const difficulty = problemModel?.difficulty;
   if (
-    !showDifficulty ||
+    showDifficulty === undefined ||
     problemModel === undefined ||
     (difficulty === undefined && !showDifficultyUnavailable)
   ) {
-    return link;
+    return simpleLink;
   }
 
   const uniqueId = problemId + "-" + contestId;
@@ -61,44 +61,61 @@ export const ProblemLink: React.FC<Props> = (props) => {
   const ratingColorClass =
     difficulty === undefined ? undefined : getRatingColorClass(difficulty);
 
-  return (
+  const explicitDifficultyCircle = (
+    <DifficultyCircle
+      id={uniqueId}
+      problemModel={problemModel}
+      userRatingInfo={userRatingInfo}
+    />
+  );
+  const experimentalDifficultySymbol = (
     <>
-      <DifficultyCircle
-        id={uniqueId}
-        problemModel={problemModel}
-        userRatingInfo={userRatingInfo}
-      />
-      {isExperimentalDifficulty ? (
-        <>
-          <span id={experimentalIconId} role="img" aria-label="experimental">
-            🧪
-          </span>
-          <Tooltip
-            placement="top"
-            target={experimentalIconId}
-            isOpen={tooltipOpen}
-            toggle={(): void => setTooltipOpen(!tooltipOpen)}
-          >
-            This estimate is experimental.
-          </Tooltip>
-        </>
-      ) : null}
-      {
-        // Don't add rel="noreferrer" to AtCoder links
-        // to allow AtCoder get the referral information.
-        // eslint-disable-next-line react/jsx-no-target-blank
-        <a
-          href={Url.formatProblemUrl(problemId, contestId)}
-          // Don't add rel="noreferrer" to AtCoder links
-          // to allow AtCoder get the referral information.
-          // eslint-disable-next-line react/jsx-no-target-blank
-          target="_blank"
-          rel="noopener"
-          className={ratingColorClass}
-        >
-          {problemTitle}
-        </a>
-      }
+      <span id={experimentalIconId} role="img" aria-label="experimental">
+        🧪
+      </span>
+      <Tooltip
+        placement="top"
+        target={experimentalIconId}
+        isOpen={tooltipOpen}
+        toggle={(): void => setTooltipOpen(!tooltipOpen)}
+      >
+        This estimate is experimental.
+      </Tooltip>
     </>
   );
+  const difficultyColoredLink = (
+    // Don't add rel="noreferrer" to AtCoder links
+    // to allow AtCoder get the referral information.
+    // eslint-disable-next-line react/jsx-no-target-blank
+    <a
+      href={Url.formatProblemUrl(problemId, contestId)}
+      // Don't add rel="noreferrer" to AtCoder links
+      // to allow AtCoder get the referral information.
+      // eslint-disable-next-line react/jsx-no-target-blank
+      target="_blank"
+      rel="noopener"
+      className={ratingColorClass}
+    >
+      {problemTitle}
+    </a>
+  );
+
+  if (showDifficulty) {
+    return (
+      <>
+        {explicitDifficultyCircle}
+        {isExperimentalDifficulty ? experimentalDifficultySymbol : null}
+        {difficultyColoredLink}
+      </>
+    );
+  } else {
+    return (
+      <>
+        {/* ここを、implicitにすればok */}
+        {explicitDifficultyCircle}
+        {isExperimentalDifficulty ? experimentalDifficultySymbol : null}
+        {simpleLink}
+      </>
+    );
+  }
 };
