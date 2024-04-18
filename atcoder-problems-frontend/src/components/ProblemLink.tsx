@@ -21,7 +21,17 @@ interface Props {
 }
 
 export const ProblemLink: React.FC<Props> = (props) => {
-  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [
+    experimentalDifficultyTooltipOpen,
+    setExperimentalDifficultyTooltipOpen,
+  ] = useState(false);
+  const [implicitDifficultyClicked, setImplicitDifficultyClicked] = useState(
+    false
+  );
+  const [
+    implicitDifficultyTooltipOpen,
+    setImplicitDifficultyTooltipOpen,
+  ] = useState(false);
 
   const {
     contestId,
@@ -58,16 +68,10 @@ export const ProblemLink: React.FC<Props> = (props) => {
 
   const uniqueId = problemId + "-" + contestId;
   const experimentalIconId = "experimental-" + uniqueId;
+  const implicitDifficultyIconId = "implicit-difficulty-" + uniqueId;
   const ratingColorClass =
     difficulty === undefined ? undefined : getRatingColorClass(difficulty);
 
-  const explicitDifficultyCircle = (
-    <DifficultyCircle
-      id={uniqueId}
-      problemModel={problemModel}
-      userRatingInfo={userRatingInfo}
-    />
-  );
   const experimentalDifficultySymbol = (
     <>
       <span id={experimentalIconId} role="img" aria-label="experimental">
@@ -76,13 +80,42 @@ export const ProblemLink: React.FC<Props> = (props) => {
       <Tooltip
         placement="top"
         target={experimentalIconId}
-        isOpen={tooltipOpen}
-        toggle={(): void => setTooltipOpen(!tooltipOpen)}
+        isOpen={experimentalDifficultyTooltipOpen}
+        toggle={(): void =>
+          setExperimentalDifficultyTooltipOpen(
+            !experimentalDifficultyTooltipOpen
+          )
+        }
       >
         This estimate is experimental.
       </Tooltip>
     </>
   );
+  const implicitDifficultySymbol = (
+    <>
+      <span
+        id={implicitDifficultyIconId}
+        role="img"
+        aria-label="implicit-difficulty"
+        onClick={(): void =>
+          setImplicitDifficultyClicked(!implicitDifficultyClicked)
+        }
+      >
+        {"👉 "}
+      </span>
+      <Tooltip
+        placement="top"
+        target={implicitDifficultyIconId}
+        isOpen={implicitDifficultyTooltipOpen}
+        toggle={(): void =>
+          setImplicitDifficultyTooltipOpen(!implicitDifficultyTooltipOpen)
+        }
+      >
+        Show Difficulty.
+      </Tooltip>
+    </>
+  );
+
   const difficultyColoredLink = (
     // Don't add rel="noreferrer" to AtCoder links
     // to allow AtCoder get the referral information.
@@ -99,22 +132,30 @@ export const ProblemLink: React.FC<Props> = (props) => {
       {problemTitle}
     </a>
   );
+  const difficultySymbol = (
+    <>
+      <DifficultyCircle
+        id={uniqueId}
+        problemModel={problemModel}
+        userRatingInfo={userRatingInfo}
+      />
+      {isExperimentalDifficulty ? experimentalDifficultySymbol : null}
+    </>
+  );
 
   if (showDifficulty) {
     return (
       <>
-        {explicitDifficultyCircle}
-        {isExperimentalDifficulty ? experimentalDifficultySymbol : null}
+        {difficultySymbol}
         {difficultyColoredLink}
       </>
     );
   } else {
     return (
       <>
-        {/* ここを、implicitにすればok */}
-        {explicitDifficultyCircle}
-        {isExperimentalDifficulty ? experimentalDifficultySymbol : null}
-        {simpleLink}
+        {implicitDifficultySymbol}
+        {implicitDifficultyClicked ? difficultySymbol : null}
+        {implicitDifficultyClicked ? difficultyColoredLink : simpleLink}
       </>
     );
   }
