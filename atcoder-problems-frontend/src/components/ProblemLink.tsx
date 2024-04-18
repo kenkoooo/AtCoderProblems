@@ -25,12 +25,12 @@ export const ProblemLink: React.FC<Props> = (props) => {
     experimentalDifficultyTooltipOpen,
     setExperimentalDifficultyTooltipOpen,
   ] = useState(false);
-  const [implicitDifficultyClicked, setImplicitDifficultyClicked] = useState(
+  const [showDifficultySubClicked, setshowDifficultySubClicked] = useState(
     false
   );
   const [
-    implicitDifficultyTooltipOpen,
-    setImplicitDifficultyTooltipOpen,
+    showDifficultySubTooltipOpen,
+    setShowDifficultySubTooltipOpen,
   ] = useState(false);
 
   const {
@@ -68,7 +68,7 @@ export const ProblemLink: React.FC<Props> = (props) => {
 
   const uniqueId = problemId + "-" + contestId;
   const experimentalIconId = "experimental-" + uniqueId;
-  const implicitDifficultyIconId = "implicit-difficulty-" + uniqueId;
+  const showDifficultySubIconId = "show-difficulty-sub-" + uniqueId;
   const ratingColorClass =
     difficulty === undefined ? undefined : getRatingColorClass(difficulty);
 
@@ -91,24 +91,24 @@ export const ProblemLink: React.FC<Props> = (props) => {
       </Tooltip>
     </>
   );
-  const implicitDifficultySymbol = (
+  const showDifficultySubSymbol = (
     <>
       <span
-        id={implicitDifficultyIconId}
+        id={showDifficultySubIconId}
         role="img"
-        aria-label="implicit-difficulty"
+        aria-label="show-difficulty-sub"
         onClick={(): void =>
-          setImplicitDifficultyClicked(!implicitDifficultyClicked)
+          setshowDifficultySubClicked(!showDifficultySubClicked)
         }
       >
         {"👉 "}
       </span>
       <Tooltip
         placement="top"
-        target={implicitDifficultyIconId}
-        isOpen={implicitDifficultyTooltipOpen}
+        target={showDifficultySubIconId}
+        isOpen={showDifficultySubTooltipOpen}
         toggle={(): void =>
-          setImplicitDifficultyTooltipOpen(!implicitDifficultyTooltipOpen)
+          setShowDifficultySubTooltipOpen(!showDifficultySubTooltipOpen)
         }
       >
         Show Difficulty.
@@ -153,9 +153,9 @@ export const ProblemLink: React.FC<Props> = (props) => {
   } else {
     return (
       <>
-        {implicitDifficultySymbol}
-        {implicitDifficultyClicked ? difficultySymbol : null}
-        {implicitDifficultyClicked ? difficultyColoredLink : simpleLink}
+        {showDifficultySubSymbol}
+        {showDifficultySubClicked ? difficultySymbol : null}
+        {showDifficultySubClicked ? difficultyColoredLink : simpleLink}
       </>
     );
   }
