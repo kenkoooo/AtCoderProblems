@@ -22,10 +22,7 @@ interface Props {
 }
 
 export const ProblemLink: React.FC<Props> = (props) => {
-  const [
-    experimentalDifficultyTooltipOpen,
-    setExperimentalDifficultyTooltipOpen,
-  ] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
   const [showDifficultySubClicked, setshowDifficultySubClicked] = useState(
     false
   );
@@ -76,12 +73,8 @@ export const ProblemLink: React.FC<Props> = (props) => {
       <Tooltip
         placement="top"
         target={experimentalIconId}
-        isOpen={experimentalDifficultyTooltipOpen}
-        toggle={(): void =>
-          setExperimentalDifficultyTooltipOpen(
-            !experimentalDifficultyTooltipOpen
-          )
-        }
+        isOpen={tooltipOpen}
+        toggle={(): void => setTooltipOpen(!tooltipOpen)}
       >
         This estimate is experimental.
       </Tooltip>
