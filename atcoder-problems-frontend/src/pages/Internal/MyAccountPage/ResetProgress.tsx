@@ -6,6 +6,7 @@ import { ProblemSearchBox } from "../../../components/ProblemSearchBox";
 import { ProblemLink } from "../../../components/ProblemLink";
 import { formatMomentDateTime, parseSecond } from "../../../utils/DateUtil";
 import { useProgressResetList } from "../../../api/InternalAPIClient";
+import { ShowDifficultyMode } from "../../../utils/ShowDifficultyMode";
 import { addResetProgress, deleteResetProgress } from "./ApiClient";
 
 export const ResetProgress: React.FC = () => {
@@ -50,6 +51,7 @@ export const ResetProgress: React.FC = () => {
                     <td>
                       {problem ? (
                         <ProblemLink
+                          showDifficultyMode={ShowDifficultyMode.None}
                           problemId={problem.id}
                           contestId={problem.contest_id}
                           problemIndex={problem.problem_index}

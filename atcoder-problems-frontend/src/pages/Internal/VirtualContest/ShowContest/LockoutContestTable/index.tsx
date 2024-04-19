@@ -6,6 +6,7 @@ import { UserNameLabel } from "../../../../../components/UserNameLabel";
 import { ProblemId, UserId } from "../../../../../interfaces/Status";
 import { isAccepted } from "../../../../../utils";
 import { VirtualContestProblem } from "../../../types";
+import { ShowDifficultyMode } from "../../../../../utils/ShowDifficultyMode";
 
 const CARD_COLORS = ["success", "danger", "warning", "info", "primary"];
 
@@ -119,6 +120,7 @@ export const LockoutContestTable: React.FC<Props> = (props) => {
                     <CardHeader tag="h3">
                       {problem.title && problem.contestId ? (
                         <ProblemLink
+                          showDifficultyMode={ShowDifficultyMode.None}
                           problemId={problem.item.id}
                           contestId={problem.contestId}
                           problemName={problem.title}

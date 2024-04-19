@@ -3,6 +3,7 @@ import { ProblemLink } from "../../../../components/ProblemLink";
 import Problem from "../../../../interfaces/Problem";
 import ProblemModel from "../../../../interfaces/ProblemModel";
 import { ProblemId } from "../../../../interfaces/Status";
+import { ShowDifficultyMode } from "../../../../utils/ShowDifficultyMode";
 
 interface ProblemCellProps {
   problemId: ProblemId;
@@ -24,7 +25,7 @@ export const ProblemCell: React.FC<ProblemCellProps> = ({
           contestId={problem.contest_id}
           problemIndex={problem.problem_index}
           problemName={problem.name}
-          showDifficulty={true}
+          showDifficultyMode={ShowDifficultyMode.Full}
           problemModel={problemModel}
           isExperimentalDifficulty={problemModel?.is_experimental}
         />

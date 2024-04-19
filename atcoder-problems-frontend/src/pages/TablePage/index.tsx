@@ -22,6 +22,7 @@ import {
   ContestCategory,
 } from "../../utils/ContestClassifier";
 import { getLikeContestCategory } from "../../utils/LikeContestUtils";
+import { ShowDifficultyMode } from "../../utils/ShowDifficultyMode";
 import { TableTabButtons } from "./TableTab";
 import { Options } from "./Options";
 import { ContestTable } from "./ContestTable";
@@ -41,9 +42,9 @@ export const TablePage: React.FC<OuterProps> = (props) => {
     "hideCompletedContest",
     false
   );
-  const [showDifficulty, setShowDifficulty] = useLocalStorage(
-    "showDifficulty",
-    true
+  const [showDifficultyMode, setShowDifficultyMode] = useLocalStorage(
+    "showDifficultyMode",
+    ShowDifficultyMode.None
   );
   const [colorMode, setColorMode] = useLocalStorage(
     "colorMode",
@@ -104,8 +105,8 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         toggleHideCompletedContest={(): void =>
           setHideCompletedContest(!hideCompletedContest)
         }
-        showDifficulties={showDifficulty}
-        toggleShowDifficulties={(): void => setShowDifficulty(!showDifficulty)}
+        showDifficultyMode={showDifficultyMode}
+        setShowDifficultyMode={setShowDifficultyMode}
         colorMode={colorMode}
         setColorMode={setColorMode}
         showPenalties={showPenalties}
@@ -135,7 +136,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         "PAST",
       ].includes(activeTab) ? (
         <AtCoderRegularTable
-          showDifficulty={showDifficulty}
+          showDifficultyMode={showDifficultyMode}
           hideCompletedContest={hideCompletedContest}
           colorMode={colorMode}
           contests={filteredContests}
@@ -158,7 +159,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         />
       ) : (
         <ContestTable
-          showDifficulty={showDifficulty}
+          showDifficultyMode={showDifficultyMode}
           contests={filteredContests}
           title={activeTab}
           contestToProblems={contestToProblems}

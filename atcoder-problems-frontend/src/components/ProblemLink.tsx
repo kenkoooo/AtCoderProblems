@@ -4,6 +4,7 @@ import * as Url from "../utils/Url";
 import { getRatingColorClass } from "../utils";
 import ProblemModel from "../interfaces/ProblemModel";
 import { RatingInfo } from "../utils/RatingInfo";
+import { ShowDifficultyMode } from "../utils/ShowDifficultyMode";
 import { DifficultyCircle } from "./DifficultyCircle";
 import { NewTabLink } from "./NewTabLink";
 
@@ -13,7 +14,7 @@ interface Props {
   contestId: string;
   problemIndex?: string;
   problemName: string;
-  showDifficulty?: boolean;
+  showDifficultyMode: ShowDifficultyMode;
   isExperimentalDifficulty?: boolean;
   showDifficultyUnavailable?: boolean;
   problemModel?: ProblemModel | null;
@@ -28,17 +29,13 @@ export const ProblemLink: React.FC<Props> = (props) => {
   const [showDifficultySubClicked, setshowDifficultySubClicked] = useState(
     false
   );
-  const [
-    showDifficultySubTooltipOpen,
-    setShowDifficultySubTooltipOpen,
-  ] = useState(false);
 
   const {
     contestId,
     problemId,
     problemIndex,
     problemName,
-    showDifficulty,
+    showDifficultyMode,
     isExperimentalDifficulty,
     showDifficultyUnavailable,
     problemModel,
@@ -59,7 +56,6 @@ export const ProblemLink: React.FC<Props> = (props) => {
 
   const difficulty = problemModel?.difficulty;
   if (
-    showDifficulty === undefined ||
     problemModel === undefined ||
     (difficulty === undefined && !showDifficultyUnavailable)
   ) {
@@ -93,26 +89,20 @@ export const ProblemLink: React.FC<Props> = (props) => {
   );
   const showDifficultySubSymbol = (
     <>
-      <span
+      <button
         id={showDifficultySubIconId}
         role="img"
         aria-label="show-difficulty-sub"
         onClick={(): void =>
           setshowDifficultySubClicked(!showDifficultySubClicked)
         }
+        style={{
+          border: "none",
+          background: "transparent",
+        }}
       >
         {"👉 "}
-      </span>
-      <Tooltip
-        placement="top"
-        target={showDifficultySubIconId}
-        isOpen={showDifficultySubTooltipOpen}
-        toggle={(): void =>
-          setShowDifficultySubTooltipOpen(!showDifficultySubTooltipOpen)
-        }
-      >
-        Show Difficulty.
-      </Tooltip>
+      </button>
     </>
   );
 
@@ -143,20 +133,23 @@ export const ProblemLink: React.FC<Props> = (props) => {
     </>
   );
 
-  if (showDifficulty) {
-    return (
-      <>
-        {difficultySymbol}
-        {difficultyColoredLink}
-      </>
-    );
-  } else {
-    return (
-      <>
-        {showDifficultySubSymbol}
-        {showDifficultySubClicked ? difficultySymbol : null}
-        {showDifficultySubClicked ? difficultyColoredLink : simpleLink}
-      </>
-    );
+  switch (showDifficultyMode) {
+    case ShowDifficultyMode.None:
+      return <>{simpleLink}</>;
+    case ShowDifficultyMode.Full:
+      return (
+        <>
+          {difficultySymbol}
+          {difficultyColoredLink}
+        </>
+      );
+    case ShowDifficultyMode.Sub:
+      return (
+        <>
+          {showDifficultySubSymbol}
+          {showDifficultySubClicked ? difficultySymbol : null}
+          {showDifficultySubClicked ? difficultyColoredLink : simpleLink}
+        </>
+      );
   }
 };

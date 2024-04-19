@@ -7,6 +7,7 @@ import { formatMomentDateTime, parseSecond } from "../utils/DateUtil";
 import { isAccepted } from "../utils";
 import * as Url from "../utils/Url";
 import { RatingInfo } from "../utils/RatingInfo";
+import { ShowDifficultyMode } from "../utils/ShowDifficultyMode";
 import { ProblemLink } from "./ProblemLink";
 import {
   ListPaginationPanel,
@@ -130,7 +131,7 @@ export const SubmissionListTable: React.FC<Props> = (props) => {
             isExperimentalDifficulty={
               problemModels?.get(problem_id)?.is_experimental
             }
-            showDifficulty={true}
+            showDifficultyMode={ShowDifficultyMode.Full}
             problemId={problem_id}
             problemIndex={problemIndexMap.get(problem_id) || ""}
             problemName={name || ""}

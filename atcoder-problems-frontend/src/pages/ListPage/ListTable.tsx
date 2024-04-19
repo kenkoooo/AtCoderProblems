@@ -42,6 +42,7 @@ import {
   useProblemModelMap,
   useRatingInfo,
 } from "../../api/APIClient";
+import { ShowDifficultyMode } from "../../utils/ShowDifficultyMode";
 
 export const INF_POINT = 1e18;
 
@@ -255,7 +256,7 @@ export const ListTable: React.FC<Props> = (props) => {
       dataFormat: function DataFormat(_, row): React.ReactElement {
         return (
           <ProblemLink
-            showDifficulty={true}
+            showDifficultyMode={ShowDifficultyMode.Full}
             isExperimentalDifficulty={row.problemModel?.is_experimental}
             problemId={row.mergedProblem.id}
             problemName={row.title}

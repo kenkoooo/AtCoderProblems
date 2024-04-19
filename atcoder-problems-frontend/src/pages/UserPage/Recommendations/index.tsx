@@ -34,6 +34,7 @@ import {
   getLastSolvedTimeMap,
   getMaximumExcludeElapsedSecond,
 } from "../../../utils/LastSolvedTime";
+import { ShowDifficultyMode } from "../../../utils/ShowDifficultyMode";
 import { recommendProblems } from "./RecommendProblems";
 import { RecommendController, RecommendOption } from "./RecommendController";
 
@@ -162,7 +163,7 @@ export const Recommendations = (props: Props) => {
             ): React.ReactElement => (
               <ProblemLink
                 isExperimentalDifficulty={is_experimental}
-                showDifficulty={true}
+                showDifficultyMode={ShowDifficultyMode.Full}
                 problemId={id}
                 problemName={name}
                 contestId={contest_id}

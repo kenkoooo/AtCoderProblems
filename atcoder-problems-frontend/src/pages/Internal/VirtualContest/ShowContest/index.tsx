@@ -50,6 +50,7 @@ import { ProblemLink } from "../../../../components/ProblemLink";
 import { joinContest, leaveContest } from "../ApiClient";
 import { GoogleCalendarButton } from "../../../../components/GoogleCalendarButton";
 import { ProblemId, UserId } from "../../../../interfaces/Status";
+import { ShowDifficultyMode } from "../../../../utils/ShowDifficultyMode";
 import { constructPointOverrideMap, ContestTable } from "./ContestTable";
 import { LockoutContestTable } from "./LockoutContestTable";
 import { TrainingContestTable } from "./TrainingContestTable";
@@ -131,6 +132,7 @@ const Problems = (props: {
                   <th className="text-center">
                     {p.contestId && p.title ? (
                       <ProblemLink
+                        showDifficultyMode={ShowDifficultyMode.None}
                         problemId={p.id}
                         contestId={p.contestId}
                         problemName={`${i + 1}`}
@@ -142,6 +144,7 @@ const Problems = (props: {
                   <td>
                     {p.contestId && p.title ? (
                       <ProblemLink
+                        showDifficultyMode={ShowDifficultyMode.None}
                         problemId={p.id}
                         contestId={p.contestId}
                         problemName={p.title}

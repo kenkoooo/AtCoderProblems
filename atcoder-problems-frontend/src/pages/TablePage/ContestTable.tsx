@@ -11,12 +11,13 @@ import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { isRatedContest } from "../../utils/ContestClassifier";
 import { ProblemPoint } from "../../components/Problempoint";
+import { ShowDifficultyMode } from "../../utils/ShowDifficultyMode";
 
 interface Props {
   contests: Contest[];
   contestToProblems: Map<string, MergedProblem[]>;
   hideCompletedContest: boolean;
-  showDifficulty: boolean;
+  showDifficultyMode: ShowDifficultyMode;
   colorMode: ColorMode;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
   showPenalties: boolean;
@@ -118,7 +119,7 @@ export const ContestTable: React.FC<Props> = (props) => {
                               contest,
                               problemInfo.length
                             )}
-                            showDifficulty={props.showDifficulty}
+                            showDifficultyMode={props.showDifficultyMode}
                             problemId={problem.id}
                             contestId={contest.id}
                             problemIndex={problem.problem_index}
