@@ -83,9 +83,7 @@ export const Options: React.FC<Props> = (props) => {
           </DropdownMenu>
         </UncontrolledDropdown>
         <FormGroup check inline>
-          &nbsp;
-          <span>Show Difficulty</span>
-          &nbsp;
+          &nbsp; Show Difficulty &nbsp;
           <HelpBadgeTooltip id="difficulty">
             Internal rating to have 50% Solve Probability
           </HelpBadgeTooltip>
