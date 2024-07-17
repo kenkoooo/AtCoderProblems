@@ -55,6 +55,14 @@ export const ThemeSelector: React.FC = () => {
         <DropdownItem
           tag="a"
           style={{ cursor: "pointer" }}
+          onClick={(): void => setThemeId("orange")}
+        >
+          <CheckMark isVisible={themeId === "orange"} />
+          Orange
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          style={{ cursor: "pointer" }}
           onClick={(): void => setThemeId("auto")}
         >
           <CheckMark isVisible={themeId == "auto"} />

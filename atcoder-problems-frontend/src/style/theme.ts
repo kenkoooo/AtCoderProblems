@@ -24,5 +24,5 @@ export const ThemeDark: typeof ThemeLight = {
 };
 
 export const ThemePurple = ThemeLight;
-
+export const ThemeOrange = ThemeLight;
 export type Theme = typeof ThemeLight;

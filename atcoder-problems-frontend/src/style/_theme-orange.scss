@@ -1,0 +1,142 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 SparkMonitor
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+// This file is modified from pulse 4.5.0 by Bootswatch
+
+//
+// Color system
+//
+
+$white: #fff !default;
+$gray-100: #fafafa !default;
+$gray-200: #f9f8fc !default;
+$gray-300: #ededed !default;
+$gray-400: #cbc8d0 !default;
+$gray-500: #adb5bd !default;
+$gray-600: #868e96 !default;
+$gray-700: #444 !default;
+$gray-800: #343a40 !default;
+$gray-900: #17141f !default;
+$black: #000 !default;
+
+$blue: #007bff !default;
+$indigo: #6610f2 !default;
+$purple: #593196 !default;
+$pink: #e83e8c !default;
+$red: #fc3939 !default;
+$orange: #fd7e14 !default;
+$yellow: #efa31d !default;
+$green: #13b955 !default;
+$teal: #20c997 !default;
+$cyan: #009cdc !default;
+
+$my-orange1: #fff5e6 !default;
+$my-orange2: #fad7b3 !default;
+$my-orange3: #ff8533 !default;
+
+$primary: $orange !default;
+$secondary: #fad7b3 !default;
+$success: $my-orange3 !default;
+$info: $cyan !default;
+$warning: $yellow !default;
+$danger: $red !default;
+$light: $gray-200 !default;
+$dark: $gray-900 !default;
+
+// Body
+
+$body-bg: $my-orange1 !default;
+$body-color: $gray-700 !default;
+
+// Links
+
+$link-hover-color: $primary !default;
+
+// Tables
+
+$table-border-color: rgba(0, 0, 0, 0.05) !default;
+
+// Forms
+
+$input-focus-border-color: $primary !default;
+
+// Dropdowns
+
+$dropdown-bg: $my-orange2 !default;
+$dropdown-divider-bg: $my-orange3 !default;
+
+$dropdown-link-color: $gray-700 !default;
+$dropdown-link-hover-color: $white !default;
+$dropdown-link-hover-bg: $primary !default;
+
+// Navs
+
+$nav-tabs-border-color: $gray-300 !default;
+$nav-tabs-link-hover-border-color: $primary !default;
+
+// Navbar
+.navbar .nav-link {
+  color: $white; /* Text color for links */
+}
+
+.navbar .nav-link:hover {
+  color: $my-orange3; /* Hover color for links */
+}
+
+.navbar-toggler-icon {
+  background-color: $white; /* Color of the hamburger icon */
+}
+
+.navbar.bg-dark {
+  background-color: $orange !important; /* Background color of the navbar */
+}
+
+$navbar-dark-hover-color: rgba($white, 0.9) !default;
+$navbar-dark-active-color: rgba($white, 0.9) !default;
+
+$navbar-light-color: rgba($black, 0.4) !default;
+$navbar-light-active-color: rgba($black, 0.7) !default;
+$navbar-light-disabled-color: rgba($black, 0.2) !default;
+
+// Progress bars
+
+$progress-bg: $gray-300 !default;
+$progress-bar-bg: $primary !default;
+
+// List group
+
+$list-group-bg: $my-orange1 !default;
+$list-group-hover-bg: $my-orange2 !default;
+
+// Navbar Color Override
+.navbar.bg-dark {
+  background-color: $orange !important;
+}
+
+$success-bg-color: $my-orange2;
+$success-hover-bg-color: darken($success-bg-color, 5%);
+
+$success-intime-bg-color: darken($success-bg-color, 5%);
+$success-intime-hover-bg-color: darken($success-intime-bg-color, 5%);
+
+@import "common";
