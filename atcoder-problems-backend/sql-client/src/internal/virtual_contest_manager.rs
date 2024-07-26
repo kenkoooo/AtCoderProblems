@@ -2,6 +2,7 @@ use crate::PgPool;
 use anyhow::{ensure, Context, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use sqlx::postgres::PgRow;
 use sqlx::Row;
 use uuid::Uuid;
 
@@ -248,7 +249,7 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(contest_id)
-        .try_map(|row| row.try_get::<Option<String>, _>("atcoder_user_id"))
+        .try_map(|row: PgRow| row.try_get::<Option<String>, _>("atcoder_user_id"))
         .fetch_all(self)
         .await?
         .into_iter()
@@ -315,7 +316,7 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(time)
-        .try_map(|row| {
+        .try_map(|row: PgRow| {
             let problem_id: String = row.try_get("problem_id")?;
             let end_second: i64 = row.try_get("end_second")?;
             Ok((problem_id, end_second))
@@ -348,7 +349,7 @@ impl VirtualContestManager for PgPool {
         )
         .bind(user_id)
         .bind(contest_id)
-        .try_map(|row| row.try_get::<String, _>("id"))
+        .try_map(|row: PgRow| row.try_get::<String, _>("id"))
         .fetch_one(self)
         .await
         .context("The target contest does not exist.")?;
@@ -373,7 +374,7 @@ impl VirtualContestManager for PgPool {
             ",
         )
         .bind(contest_id)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
         // The following is a trick for bulk-inserting.
@@ -394,7 +395,7 @@ impl VirtualContestManager for PgPool {
         .bind(problem_ids)
         .bind(points)
         .bind(orders)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
         tx.commit().await?;
