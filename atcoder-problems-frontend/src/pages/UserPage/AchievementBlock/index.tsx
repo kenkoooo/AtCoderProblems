@@ -2,8 +2,6 @@ import React from "react";
 import { Badge, Col, Row, UncontrolledTooltip } from "reactstrap";
 import {
   useUserACRank,
-  useContests,
-  useContestToProblems,
   useFastRanking,
   useFirstRanking,
   useProblemModelMap,
@@ -12,22 +10,16 @@ import {
   useUserSumRank,
   useUserSubmission,
 } from "../../../api/APIClient";
-import {
-  caseInsensitiveUserId,
-  isAccepted,
-  ordinalSuffixOf,
-} from "../../../utils";
+import { caseInsensitiveUserId, ordinalSuffixOf } from "../../../utils";
 import { formatMomentDate, getToday } from "../../../utils/DateUtil";
 import { RankingEntry } from "../../../interfaces/RankingEntry";
-import { ContestId, ProblemId } from "../../../interfaces/Status";
+import { ProblemId } from "../../../interfaces/Status";
 import ProblemModel, {
   isProblemModelWithTimeModel,
 } from "../../../interfaces/ProblemModel";
 import { calculateTopPlayerEquivalentEffort } from "../../../utils/ProblemModelUtil";
-import Problem from "../../../interfaces/Problem";
 import * as UserUtils from "../UserUtils";
 import { calcStreak, countUniqueAcByDate } from "../../../utils/StreakCounter";
-import { isRatedContest } from "../../../utils/ContestClassifier";
 
 const findFromRanking = (
   ranking: RankingEntry[],
@@ -53,9 +45,6 @@ interface Props {
 }
 
 export const AchievementBlock: React.FC<Props> = (props) => {
-  const contests = useContests().data ?? [];
-  const contestToProblems =
-    useContestToProblems() ?? new Map<ContestId, Problem[]>();
   const userSubmissions = useUserSubmission(props.userId) ?? [];
   const problemModels = useProblemModelMap();
   const dailyCount = countUniqueAcByDate(userSubmissions);
@@ -74,29 +63,9 @@ export const AchievementBlock: React.FC<Props> = (props) => {
   const firstRank = findFromRanking(firstRanking, props.userId);
   const fastRank = findFromRanking(fastRanking, props.userId);
 
-  const ratedProblemIds = new Set(
-    contests
-      .flatMap((contest) => {
-        const contestProblems = contestToProblems.get(contest.id);
-        const isRated = isRatedContest(contest, contestProblems?.length ?? 0);
-        return isRated && contestProblems ? contestProblems : [];
-      })
-      .map((problem) => problem.id)
-  );
-  const acceptedRatedSubmissions = userSubmissions
-    .filter((s) => isAccepted(s.result))
-    .filter((s) => ratedProblemIds.has(s.problem_id));
-  acceptedRatedSubmissions.sort((a, b) => a.id - b.id);
-  const ratedPointMap = new Map<ProblemId, number>();
-  acceptedRatedSubmissions.forEach((s) => {
-    ratedPointMap.set(s.problem_id, s.point);
-  });
-  const ratedPointSum = Array.from(ratedPointMap.values()).reduce(
-    (sum, point) => sum + point,
-    0
-  );
   const sumRankEntry = useUserSumRank(props.userId);
   const sumRank = sumRankEntry.data?.rank;
+  const ratedPointSum = sumRankEntry.data?.count;
 
   const achievements = [
     {
