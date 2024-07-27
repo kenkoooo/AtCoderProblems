@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { List } from "immutable";
+import { Collapse, Button, CardBody, Card } from "reactstrap";
 import {
   useContests,
   useContestToMergedProblems,
@@ -33,6 +34,10 @@ interface OuterProps {
 }
 
 export const TablePage: React.FC<OuterProps> = (props) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggle = () => setIsOpen(!isOpen);
+
   const [activeTab, setActiveTab] = useLocalStorage<ContestCategory>(
     "contestTableTab",
     "ABC"
@@ -99,6 +104,48 @@ export const TablePage: React.FC<OuterProps> = (props) => {
 
   return (
     <div>
+      <Button color="primary" onClick={toggle} style={{ marginBottom: "1rem" }}>
+        Info
+      </Button>
+      <Collapse isOpen={isOpen}>
+        <Card>
+          <CardBody>
+            <p>
+              By Default, User ID takes the AtCoder User ID of the logged in
+              user. If the user is not logged in or we want to compare two
+              different users, then we can specify AtCoder User ID of a user and
+              a list of User IDs in Rivals.
+            </p>
+            <p>
+              After adding the User IDs, the grid below shows cells in 3
+              different colors.
+            </p>
+            <ol>
+              <li>Green</li>
+              <li>Yellow</li>
+              <li>Red</li>
+            </ol>
+            Lets say User ID of user = abcd, and User ID of Rivals = [acde,
+            tourist]
+            <ul>
+              <li>
+                A cell is colored Green when user with User ID = abcd has solved
+                that Problem
+              </li>
+              <li>
+                A cell is colored Red when user with User ID = abcd have not
+                solved the problem but the Rivals have solved the problem. could
+                not solve it and someone from the Rival list has solved that
+                problem.
+              </li>
+              <li>
+                A cell is colored Yello when the person with User ID = abcd has
+                tried but could not solve the problem
+              </li>
+            </ul>
+          </CardBody>
+        </Card>
+      </Collapse>
       <Options
         hideCompletedContest={hideCompletedContest}
         toggleHideCompletedContest={(): void =>
