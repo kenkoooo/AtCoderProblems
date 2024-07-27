@@ -25,12 +25,13 @@ export const ListPage: React.FC<Props> = (props) => {
   const submissions = useMultipleUserSubmissions(users).data ?? [];
   const progressReset = useProgressResetList().data;
 
-  const setExactPointFilter = (point: number): void => {
+  const setPointFilter = (from: number, to: number): void => {
     const params = new URLSearchParams(location.search);
-    params.set(FilterParams.FromPoint, point.toString());
-    params.set(FilterParams.ToPoint, point.toString());
+    params.set(FilterParams.FromPoint, from.toString());
+    params.set(FilterParams.ToPoint, to.toString());
     history.push({ ...location, search: params.toString() });
   };
+
   const setDifficultyFilter = (from: number, to: number): void => {
     const params = new URLSearchParams(location.search);
     params.set(FilterParams.FromDifficulty, from.toString());
@@ -53,7 +54,7 @@ export const ListPage: React.FC<Props> = (props) => {
       <Row>
         <SmallTable
           submissions={filteredSubmissions}
-          setFilterFunc={setExactPointFilter}
+          setFilterFunc={setPointFilter}
         />
       </Row>
 

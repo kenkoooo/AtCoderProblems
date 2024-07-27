@@ -10,7 +10,7 @@ import { useMergedProblemMap } from "../../api/APIClient";
 
 interface Props {
   submissions: Submission[];
-  setFilterFunc: (point: number) => void;
+  setFilterFunc: (from: number, to: number) => void;
 }
 
 export const getTotalCount = (
@@ -51,25 +51,60 @@ export const SmallTable: React.FC<Props> = ({ submissions, setFilterFunc }) => {
     useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
   const userPointCountMap = getUserPointCounts(mergedProblemMap, submissions);
   const totalCount = getTotalCount(mergedProblemMap);
+  const totalCountBy100 = totalCount.reduce(
+    (
+      ret: { point: number; count: number }[],
+      current: { point: number; count: number }
+    ) => {
+      const roundedPoint = Math.floor(current.point / 100) * 100;
+      const prev = ret.find((entry) => entry.point === roundedPoint);
+      if (prev) {
+        prev.count += current.count;
+      } else {
+        ret.push({ point: roundedPoint, count: current.count });
+      }
+      return ret;
+    },
+    []
+  );
+
+  const getUserPointCountInArea = (
+    countByPoint: Map<number | null | undefined, number>,
+    pointStart: number,
+    pointEnd: number
+  ) => {
+    let ret = 0;
+    for (let i = 0; i < totalCount.length; i++) {
+      if (totalCount[i].point < pointStart) {
+        continue;
+      }
+      if (totalCount[i].point >= pointEnd) {
+        break;
+      }
+      ret += countByPoint.get(totalCount[i].point) ?? 0;
+    }
+    return ret;
+  };
+
   return (
     <Table striped bordered hover responsive>
       <thead>
         <tr>
           <th>Point</th>
-          {totalCount.map(({ point }) => (
+          {totalCountBy100.map(({ point }) => (
             <th key={point}>
               <a
                 href={window.location.hash}
-                onClick={(): void => setFilterFunc(point)}
+                onClick={(): void => setFilterFunc(point, point + 99)}
               >
-                {point}
+                {`${point}-`}
               </a>
             </th>
           ))}
         </tr>
         <tr>
           <th>Total</th>
-          {totalCount.map(({ point, count }) => (
+          {totalCountBy100.map(({ point, count }) => (
             <th key={point}>{count}</th>
           ))}
         </tr>
@@ -78,16 +113,17 @@ export const SmallTable: React.FC<Props> = ({ submissions, setFilterFunc }) => {
         {userPointCountMap.map(({ userId, countByPoint }) => (
           <tr key={userId}>
             <td>{userId}</td>
-            {totalCount.map(({ point, count }) => (
+            {totalCountBy100.map(({ point, count }) => (
               <td
                 key={point}
                 className={
-                  countByPoint.get(point) === count
+                  getUserPointCountInArea(countByPoint, point, point + 100) ===
+                  count
                     ? TableColor.Success
                     : TableColor.None
                 }
               >
-                {countByPoint.get(point) ?? 0}
+                {getUserPointCountInArea(countByPoint, point, point + 100) ?? 0}
               </td>
             ))}
           </tr>
