@@ -5,6 +5,7 @@ import { ScoreCell } from "../ScoreCell";
 import { ProblemLink } from "../../../../../components/ProblemLink";
 import { formatProblemUrl } from "../../../../../utils/Url";
 import { NewTabLink } from "../../../../../components/NewTabLink";
+import { ShowDifficultyMode } from "../../../../../utils/ShowDifficultyMode";
 
 interface Props {
   problem: {
@@ -47,6 +48,7 @@ export const SmallScoreCell: React.FC<Props> = (props) => {
           <div className="small-score-cell-tooltip">
             {problem.contestId && problem.title ? (
               <ProblemLink
+                showDifficultyMode={ShowDifficultyMode.None}
                 problemId={problem.id}
                 contestId={problem.contestId}
                 problemName={problem.title}

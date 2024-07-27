@@ -4,6 +4,7 @@ import * as Url from "../utils/Url";
 import { getRatingColorClass } from "../utils";
 import ProblemModel from "../interfaces/ProblemModel";
 import { RatingInfo } from "../utils/RatingInfo";
+import { ShowDifficultyMode } from "../utils/ShowDifficultyMode";
 import { DifficultyCircle } from "./DifficultyCircle";
 import { NewTabLink } from "./NewTabLink";
 
@@ -13,7 +14,7 @@ interface Props {
   contestId: string;
   problemIndex?: string;
   problemName: string;
-  showDifficulty?: boolean;
+  showDifficultyMode: ShowDifficultyMode;
   isExperimentalDifficulty?: boolean;
   showDifficultyUnavailable?: boolean;
   problemModel?: ProblemModel | null;
@@ -22,13 +23,16 @@ interface Props {
 
 export const ProblemLink: React.FC<Props> = (props) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [showDifficultySubClicked, setshowDifficultySubClicked] = useState(
+    false
+  );
 
   const {
     contestId,
     problemId,
     problemIndex,
     problemName,
-    showDifficulty,
+    showDifficultyMode,
     isExperimentalDifficulty,
     showDifficultyUnavailable,
     problemModel,
@@ -38,7 +42,7 @@ export const ProblemLink: React.FC<Props> = (props) => {
     ? `${problemIndex}. ${problemName}`
     : problemName;
 
-  const link = (
+  const simpleLink = (
     <NewTabLink
       href={Url.formatProblemUrl(problemId, contestId)}
       className={props.className}
@@ -49,56 +53,96 @@ export const ProblemLink: React.FC<Props> = (props) => {
 
   const difficulty = problemModel?.difficulty;
   if (
-    !showDifficulty ||
     problemModel === undefined ||
     (difficulty === undefined && !showDifficultyUnavailable)
   ) {
-    return link;
+    return simpleLink;
   }
 
   const uniqueId = problemId + "-" + contestId;
   const experimentalIconId = "experimental-" + uniqueId;
+  const showDifficultySubIconId = "show-difficulty-sub-" + uniqueId;
   const ratingColorClass =
     difficulty === undefined ? undefined : getRatingColorClass(difficulty);
 
-  return (
+  const experimentalDifficultySymbol = (
+    <>
+      <span id={experimentalIconId} role="img" aria-label="experimental">
+        🧪
+      </span>
+      <Tooltip
+        placement="top"
+        target={experimentalIconId}
+        isOpen={tooltipOpen}
+        toggle={(): void => setTooltipOpen(!tooltipOpen)}
+      >
+        This estimate is experimental.
+      </Tooltip>
+    </>
+  );
+  const showDifficultySubSymbol = (
+    <>
+      <button
+        id={showDifficultySubIconId}
+        role="img"
+        aria-label="show-difficulty-sub"
+        onClick={(): void =>
+          setshowDifficultySubClicked(!showDifficultySubClicked)
+        }
+        style={{
+          border: "none",
+          background: "transparent",
+        }}
+      >
+        {"👉 "}
+      </button>
+    </>
+  );
+
+  const difficultyColoredLink = (
+    // Don't add rel="noreferrer" to AtCoder links
+    // to allow AtCoder get the referral information.
+    // eslint-disable-next-line react/jsx-no-target-blank
+    <a
+      href={Url.formatProblemUrl(problemId, contestId)}
+      // Don't add rel="noreferrer" to AtCoder links
+      // to allow AtCoder get the referral information.
+      // eslint-disable-next-line react/jsx-no-target-blank
+      target="_blank"
+      rel="noopener"
+      className={ratingColorClass}
+    >
+      {problemTitle}
+    </a>
+  );
+  const difficultySymbol = (
     <>
       <DifficultyCircle
         id={uniqueId}
         problemModel={problemModel}
         userRatingInfo={userRatingInfo}
       />
-      {isExperimentalDifficulty ? (
-        <>
-          <span id={experimentalIconId} role="img" aria-label="experimental">
-            🧪
-          </span>
-          <Tooltip
-            placement="top"
-            target={experimentalIconId}
-            isOpen={tooltipOpen}
-            toggle={(): void => setTooltipOpen(!tooltipOpen)}
-          >
-            This estimate is experimental.
-          </Tooltip>
-        </>
-      ) : null}
-      {
-        // Don't add rel="noreferrer" to AtCoder links
-        // to allow AtCoder get the referral information.
-        // eslint-disable-next-line react/jsx-no-target-blank
-        <a
-          href={Url.formatProblemUrl(problemId, contestId)}
-          // Don't add rel="noreferrer" to AtCoder links
-          // to allow AtCoder get the referral information.
-          // eslint-disable-next-line react/jsx-no-target-blank
-          target="_blank"
-          rel="noopener"
-          className={ratingColorClass}
-        >
-          {problemTitle}
-        </a>
-      }
+      {isExperimentalDifficulty ? experimentalDifficultySymbol : null}
     </>
   );
+
+  switch (showDifficultyMode) {
+    case ShowDifficultyMode.None:
+      return <>{simpleLink}</>;
+    case ShowDifficultyMode.Full:
+      return (
+        <>
+          {difficultySymbol}
+          {difficultyColoredLink}
+        </>
+      );
+    case ShowDifficultyMode.Sub:
+      return (
+        <>
+          {showDifficultySubSymbol}
+          {showDifficultySubClicked ? difficultySymbol : null}
+          {showDifficultySubClicked ? difficultyColoredLink : simpleLink}
+        </>
+      );
+  }
 };

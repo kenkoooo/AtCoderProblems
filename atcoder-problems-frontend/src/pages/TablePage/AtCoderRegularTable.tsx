@@ -23,12 +23,13 @@ import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { ProblemPoint } from "../../components/Problempoint";
 import { classifyContest } from "../../utils/ContestClassifier";
+import { ShowDifficultyMode } from "../../utils/ShowDifficultyMode";
 
 interface Props {
   contests: Contest[];
   contestToProblems: Map<string, MergedProblem[]>;
   hideCompletedContest: boolean;
-  showDifficulty: boolean;
+  showDifficultyMode: ShowDifficultyMode;
   colorMode: ColorMode;
   title: string;
   statusLabelMap: Map<ProblemId, ProblemStatus>;
@@ -181,7 +182,7 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
                         !!model && model.is_experimental
                       }
                       showDifficultyUnavailable
-                      showDifficulty={props.showDifficulty}
+                      showDifficultyMode={props.showDifficultyMode}
                       contestId={contest.id}
                       problemId={problem.problem.id}
                       problemIndex={problem.problem.problem_index}

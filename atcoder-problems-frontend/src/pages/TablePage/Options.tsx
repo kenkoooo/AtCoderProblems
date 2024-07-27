@@ -14,12 +14,13 @@ import {
 } from "reactstrap";
 import { HelpBadgeTooltip } from "../../components/HelpBadgeTooltip";
 import { ColorMode } from "../../utils/TableColor";
+import { ShowDifficultyMode } from "../../utils/ShowDifficultyMode";
 
 interface Props {
   hideCompletedContest: boolean;
   toggleHideCompletedContest: () => void;
-  showDifficulties: boolean;
-  toggleShowDifficulties: () => void;
+  showDifficultyMode: ShowDifficultyMode;
+  setShowDifficultyMode: (showDifficultyMode: ShowDifficultyMode) => void;
   colorMode: ColorMode;
   setColorMode: (colorMode: ColorMode) => void;
   showPenalties: boolean;
@@ -46,17 +47,43 @@ export const Options: React.FC<Props> = (props) => {
             />
           </Label>
         </FormGroup>
+        <UncontrolledDropdown>
+          <DropdownToggle caret>
+            {
+              {
+                [ShowDifficultyMode.None]: "None",
+                [ShowDifficultyMode.Full]: "Full",
+                [ShowDifficultyMode.Sub]: "Sub",
+              }[props.showDifficultyMode]
+            }
+          </DropdownToggle>
+          <DropdownMenu>
+            <DropdownItem header>Show Difficulty Mode</DropdownItem>
+            <DropdownItem
+              onClick={(): void =>
+                props.setShowDifficultyMode(ShowDifficultyMode.None)
+              }
+            >
+              None
+            </DropdownItem>
+            <DropdownItem
+              onClick={(): void =>
+                props.setShowDifficultyMode(ShowDifficultyMode.Full)
+              }
+            >
+              Full
+            </DropdownItem>
+            <DropdownItem
+              onClick={(): void =>
+                props.setShowDifficultyMode(ShowDifficultyMode.Sub)
+              }
+            >
+              Sub
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
         <FormGroup check inline>
-          <Label check>
-            <CustomInput
-              type="switch"
-              id="showDifficulties"
-              label="Show Difficulty"
-              checked={props.showDifficulties}
-              onChange={props.toggleShowDifficulties}
-            />
-          </Label>
-          &nbsp;
+          &nbsp; Show Difficulty &nbsp;
           <HelpBadgeTooltip id="difficulty">
             Internal rating to have 50% Solve Probability
           </HelpBadgeTooltip>

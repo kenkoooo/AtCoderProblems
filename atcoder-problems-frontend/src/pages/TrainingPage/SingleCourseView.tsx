@@ -11,6 +11,7 @@ import { NewTabLink } from "../../components/NewTabLink";
 import * as Url from "../../utils/Url";
 import { ProblemLink } from "../../components/ProblemLink";
 import { SinglePieChart } from "../../components/SinglePieChart";
+import { ShowDifficultyMode } from "../../utils/ShowDifficultyMode";
 
 interface ProblemTableProps {
   problems: Problem[];
@@ -56,7 +57,11 @@ const ProblemTable: React.FC<ProblemTableProps> = (props) => {
                   contestId={problem.contest_id}
                   problemModel={model}
                   isExperimentalDifficulty={!!model && model.is_experimental}
-                  showDifficulty={submission !== undefined}
+                  showDifficultyMode={
+                    submission !== undefined
+                      ? ShowDifficultyMode.Full
+                      : ShowDifficultyMode.None
+                  }
                   showDifficultyUnavailable
                 />
               </td>

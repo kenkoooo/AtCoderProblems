@@ -23,6 +23,7 @@ import {
   makeBotRunners,
 } from "../../../../utils/RatingSystem";
 import { VirtualContestItem, VirtualContestProblem } from "../../types";
+import { ShowDifficultyMode } from "../../../../utils/ShowDifficultyMode";
 import { ContestTableRow } from "./ContestTableRow";
 import { FirstAcceptanceRow } from "./FirstAcceptanceRow";
 import {
@@ -260,6 +261,7 @@ export const ContestTable = (props: Props) => {
               <th key={i}>
                 {p.contestId && p.title ? (
                   <ProblemLink
+                    showDifficultyMode={ShowDifficultyMode.None}
                     problemId={p.id}
                     contestId={p.contestId}
                     problemName={`${i + 1}`}
