@@ -12,15 +12,15 @@ interface Props {
 export const LoginAdvice: React.FC<Props> = (props) => {
   const loginLink = useLoginLink();
 
-  if (props.loading) {
-    return <Alert color="primary">Loading user info...</Alert>;
-  }
   if (!props.user) {
     return (
       <Alert color="danger">
         <a href={loginLink}>Login</a> to record your progress.
       </Alert>
     );
+  }
+  if (props.loading) {
+    return <Alert color="primary">Loading user info...</Alert>;
   }
   if (!props.user.atcoder_user_id) {
     return (
