@@ -13,6 +13,7 @@ import { formatMomentDate, parseSecond } from "../../../utils/DateUtil";
 
 interface Props {
   dailyData: { dateSecond: number; count: number }[];
+  xRange: (number | "dataMin" | "dataMax")[];
   yRange: number | "auto";
 }
 
@@ -32,7 +33,8 @@ export const DailyEffortBarChart: React.FC<Props> = (props) => (
         <XAxis
           dataKey="dateSecond"
           type="number"
-          domain={["dataMin", "dataMax"]}
+          domain={props.xRange}
+          allowDataOverflow={true}
           tickFormatter={(dateSecond: number): string =>
             formatMomentDate(parseSecond(dateSecond))
           }
