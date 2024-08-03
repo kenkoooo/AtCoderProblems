@@ -8,6 +8,7 @@ export const ContestCategories = [
   "ABC-Like",
   "ARC-Like",
   "AGC-Like",
+  "ADT",
   "PAST",
   "JOI",
   "JAG",
@@ -67,6 +68,9 @@ export const classifyContest = (
     return classifyOtherRatedContest(contest);
   }
 
+  if (contest.id.startsWith("adt")) {
+    return "ADT";
+  }
   if (contest.id.startsWith("past")) {
     return "PAST";
   }
