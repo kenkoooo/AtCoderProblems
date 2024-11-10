@@ -4,6 +4,7 @@ import moment from "moment";
 import { useProblemModelMap } from "../../../api/APIClient";
 import { ProblemId } from "../../../interfaces/Status";
 import Submission from "../../../interfaces/Submission";
+import { calculateTopPlayerEquivalentEffort } from "../../../utils/ProblemModelUtil";
 import { getRatingColor, getRatingColorCode, isAccepted } from "../../../utils";
 import { CalendarHeatmap } from "../../../components/CalendarHeatmap";
 import {
@@ -12,13 +13,26 @@ import {
   getToday,
   parseSecond,
 } from "../../../utils/DateUtil";
-import ProblemModel from "../../../interfaces/ProblemModel";
+import {
+  default as ProblemModel,
+  isProblemModelWithTimeModel,
+} from "../../../interfaces/ProblemModel";
 
-type ShowMode = "AC" | "Submissions" | "Unique AC" | "Max Difficulty";
+type ShowMode = "AC" | "Submissions" | "Unique AC" | "Max Difficulty" | "TEE";
 
 const COLORS_COUNT = ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"];
+const COLORS_TEE = [
+  "#ebedf0",
+  "#c6e48b",
+  "#7bc96f",
+  "#239a3b",
+  "#196127",
+  "#0f3a17",
+];
 const WEEKDAY = 7;
 const WEEKS = 53;
+const TEE_DIGIT = 2;
+const TEE_COLOR_RATIO = 180;
 
 const createTableData = (
   filteredSubmissions: Submission[],
@@ -53,6 +67,26 @@ const createTableData = (
       } else {
         tableData.push({ date });
       }
+    } else if (showMode === "TEE") {
+      const submissions = submissionsByDate.get(date) ?? [];
+      const tees = submissions.map((s) => {
+        const detail = problemModels?.get(s.problem_id);
+        if (isProblemModelWithTimeModel(detail)) {
+          return calculateTopPlayerEquivalentEffort(detail);
+        } else {
+          return 0;
+        }
+      });
+      if (tees.length > 0) {
+        const value = tees.reduce((teesum, tee) => teesum + tee, 0);
+        if (value > 0) {
+          tableData.push({ date, value });
+        } else {
+          tableData.push({ date });
+        }
+      } else {
+        tableData.push({ date });
+      }
     } else {
       const value = submissionsByDate.get(date)?.length;
       tableData.push({ date, value });
@@ -75,7 +109,8 @@ export const filterSubmissions = (
     case "AC":
     case "Max Difficulty":
       return submissions.filter((s) => isAccepted(s.result));
-    case "Unique AC": {
+    case "Unique AC":
+    case "TEE": {
       const submissionByDate = submissions
         .filter((s) => isAccepted(s.result))
         .sort((a, b) => b.id - a.id)
@@ -115,18 +150,32 @@ export const FilteringHeatmap: React.FC<Props> = (props) => {
     problemModels
   );
 
-  const formatTooltip =
-    showMode === "Max Difficulty"
-      ? (date: string, difficulty: number): string =>
-          `${date} Max Difficulty: ${difficulty >= 0 ? difficulty : "-"}`
-      : (date: string, count: number): string =>
-          formatCountTooltip(date, count, showMode);
-  const getColor =
-    showMode === "Max Difficulty"
-      ? (date: string, difficulty: number): string =>
-          getRatingColorCode(getRatingColor(difficulty))
-      : (date: string, count: number): string =>
-          COLORS_COUNT[Math.min(count, COLORS_COUNT.length - 1)];
+  const formatTooltip = (() => {
+    if (showMode === "Max Difficulty") {
+      return (date: string, difficulty: number): string =>
+        `${date} Max Difficulty: ${difficulty >= 0 ? difficulty : "-"}`;
+    } else if (showMode === "TEE") {
+      return (date: string, tee: number): string =>
+        `${date} TEE: ${tee.toFixed(TEE_DIGIT)}`;
+    } else {
+      return (date: string, count: number): string =>
+        formatCountTooltip(date, count, showMode);
+    }
+  })();
+  const getColor = (() => {
+    if (showMode === "Max Difficulty") {
+      return (date: string, difficulty: number): string =>
+        getRatingColorCode(getRatingColor(difficulty));
+    } else if (showMode === "TEE") {
+      return (date: string, tee: number): string =>
+        COLORS_TEE[
+          Math.min(Math.floor(tee / TEE_COLOR_RATIO) + 1, COLORS_TEE.length - 1)
+        ];
+    } else {
+      return (date: string, count: number): string =>
+        COLORS_COUNT[Math.min(count, COLORS_COUNT.length - 1)];
+    }
+  })();
 
   return (
     <div>
@@ -155,6 +204,12 @@ export const FilteringHeatmap: React.FC<Props> = (props) => {
             active={showMode === "Max Difficulty"}
           >
             Max Difficulty
+          </Button>
+          <Button
+            onClick={(): void => setShowMode("TEE")}
+            active={showMode === "TEE"}
+          >
+            TEE
           </Button>
         </ButtonGroup>
       </Row>
