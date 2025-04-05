@@ -1,7 +1,21 @@
+[package]
+name = "atcoder-problems-backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+crawler = { path = "./crawler" }
+sea-orm = { workspace = true, features = [
+    "sqlx-postgres",
+    "runtime-tokio-native-tls",
+] }
+
 [workspace]
-members = ["crawler"]
+members = ["crawler", "sql-entities"]
 
 [workspace.dependencies]
 reqwest = "0.12"
 scraper = "0.23"
 thiserror = "2.0"
+sea-orm = "1.1"
+tokio = "1.44"
