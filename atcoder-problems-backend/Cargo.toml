@@ -11,8 +11,8 @@ sea-orm = { workspace = true, features = [
 sql-entities.workspace = true
 crawler.workspace = true
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["json", "env-filter"] }
 
 [workspace]
 members = ["crawler", "sql-entities"]
@@ -23,6 +23,9 @@ scraper = "0.23"
 thiserror = "2.0"
 sea-orm = "1.1"
 tokio = "1.44"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+chrono = "0.4"
 
 crawler = { path = "./crawler" }
 sql-entities = { path = "./sql-entities" }

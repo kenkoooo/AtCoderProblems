@@ -165,7 +165,7 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
         let code_length = if let Some(code_length_elem) = code_length_element {
             let text = code_length_elem.text().collect::<String>();
             // Remove " Byte" from the end and parse as u32
-            text.trim_end_matches(" Byte").parse::<u32>().map_err(|e| {
+            text.trim_end_matches(" Byte").parse().map_err(|e| {
                 CrawlerError::ParseError(format!("Failed to parse code length: {}", e))
             })?
         } else {
@@ -188,16 +188,10 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
             .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
         let execution_time_element = row.select(&execution_time_selector).next();
 
-        let execution_time = if let Some(execution_time_elem) = execution_time_element {
-            let text = execution_time_elem.text().collect::<String>();
-            // Remove " ms" from the end and parse as i32
-            text.trim_end_matches(" ms")
-                .parse::<i32>()
-                .map(Some)
-                .unwrap_or(None)
-        } else {
-            None
-        };
+        let execution_time = execution_time_element.and_then(|e| {
+            let text = e.text().collect::<String>();
+            text.trim_end_matches(" ms").parse::<i32>().ok()
+        });
 
         // Get the URL from the details link
         let url = if let Some(details_elem) = details_element {

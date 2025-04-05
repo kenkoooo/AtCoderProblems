@@ -27,7 +27,7 @@ pub struct Submission {
     /// The score obtained
     pub score: String,
     /// The code length in bytes
-    pub code_length: u32,
+    pub code_length: i32,
     /// The result of the submission (e.g., "AC", "WA", "TLE")
     pub result: String,
     /// The execution time in milliseconds (None if not available)

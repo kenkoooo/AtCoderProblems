@@ -1,10 +1,10 @@
 [package]
 name = "crawler"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-reqwest = { workspace = true }
-scraper = "0.17"
-thiserror = "1.0"
-chrono = "0.4"
+reqwest = { workspace = true, features = ["gzip"] }
+scraper.workspace = true
+thiserror.workspace = true
+chrono.workspace = true
