@@ -1,1 +1,0 @@
-# AtCoder Problems User Guide
