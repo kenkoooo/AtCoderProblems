@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-reqwest.workspace = true
-tokio.workspace = true
+reqwest = { workspace = true, features = ["gzip"] }
 scraper.workspace = true
 thiserror.workspace = true
