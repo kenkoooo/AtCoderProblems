@@ -1,0 +1,8 @@
+[package]
+name = "crawler"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+scraper = "0.17.1"
+thiserror = "1.0"
