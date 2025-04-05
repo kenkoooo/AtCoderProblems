@@ -1,3 +1,4 @@
+use chrono::{DateTime, FixedOffset, TimeZone, Utc};
 use scraper::{Html, Selector};
 
 use crate::error::CrawlerError;
@@ -97,8 +98,12 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
             .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
         let date_element = row.select(&date_selector).next();
 
-        let date = if let Some(date_elem) = date_element {
-            date_elem.text().collect::<String>()
+        let epoch_second = if let Some(date_elem) = date_element {
+            let date_str = date_elem.text().collect::<String>();
+            // Parse the date string (e.g., "2024-04-05 12:34:56+0900")
+            let datetime = DateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S%z")
+                .map_err(|e| CrawlerError::ParseError(format!("Failed to parse date: {}", e)))?;
+            datetime.timestamp()
         } else {
             continue; // Skip if no date is found
         };
@@ -209,7 +214,7 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
 
         submissions.push(Submission {
             id,
-            date,
+            epoch_second,
             problem_id: problem,
             contest_id,
             user,

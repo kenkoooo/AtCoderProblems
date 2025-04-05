@@ -14,8 +14,8 @@ pub struct Problem {
 pub struct Submission {
     /// The submission ID
     pub id: i64,
-    /// The submission date and time
-    pub date: String,
+    /// The submission date and time in epoch seconds
+    pub epoch_second: i64,
     /// The problem the submission is for
     pub problem_id: String,
     /// The contest ID (e.g., "abc399")
