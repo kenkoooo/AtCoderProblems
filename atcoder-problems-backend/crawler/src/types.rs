@@ -30,8 +30,8 @@ pub struct Submission {
     pub code_length: u32,
     /// The result of the submission (e.g., "AC", "WA", "TLE")
     pub result: String,
-    /// The execution time in milliseconds
-    pub execution_time: String,
+    /// The execution time in milliseconds (None if not available)
+    pub execution_time: Option<i32>,
     /// The URL of the submission
     pub url: String,
 }

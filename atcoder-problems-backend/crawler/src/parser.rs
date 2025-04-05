@@ -1,4 +1,4 @@
-use chrono::{DateTime, FixedOffset, TimeZone, Utc};
+use chrono::DateTime;
 use scraper::{Html, Selector};
 
 use crate::error::CrawlerError;
@@ -189,9 +189,14 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
         let execution_time_element = row.select(&execution_time_selector).next();
 
         let execution_time = if let Some(execution_time_elem) = execution_time_element {
-            execution_time_elem.text().collect::<String>()
+            let text = execution_time_elem.text().collect::<String>();
+            // Remove " ms" from the end and parse as i32
+            text.trim_end_matches(" ms")
+                .parse::<i32>()
+                .map(Some)
+                .unwrap_or(None)
         } else {
-            continue; // Skip if no execution time is found
+            None
         };
 
         // Get the URL from the details link
