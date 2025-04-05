@@ -78,7 +78,13 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
         let id = if let Some(details_elem) = details_element {
             if let Some(href) = details_elem.value().attr("href") {
                 // Extract ID from the URL (e.g., "/contests/abc399/submissions/64188418" -> "64188418")
-                href.split('/').last().unwrap_or("").to_string()
+                href.split('/')
+                    .last()
+                    .unwrap_or("")
+                    .parse::<i64>()
+                    .map_err(|e| {
+                        CrawlerError::ParseError(format!("Failed to parse submission ID: {}", e))
+                    })?
             } else {
                 continue; // Skip if no URL is found
             }

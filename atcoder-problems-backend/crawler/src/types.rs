@@ -13,7 +13,7 @@ pub struct Problem {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Submission {
     /// The submission ID
-    pub id: String,
+    pub id: i64,
     /// The submission date and time
     pub date: String,
     /// The problem the submission is for
