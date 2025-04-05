@@ -64,14 +64,14 @@ fn test_parse_submissions_html() {
     let first_submission = &submissions[0];
     assert_eq!(first_submission.id, "64188418");
     assert_eq!(first_submission.date, "2025-03-25 23:32:36+0900");
-    assert_eq!(first_submission.problem, "G - Colorful Spanning Tree");
+    assert_eq!(first_submission.problem_id, "abc399_g");
+    assert_eq!(first_submission.contest_id, "abc399");
     assert_eq!(first_submission.user, "sounansya");
     assert_eq!(first_submission.language, "C++ 23 (gcc 12.2)");
     assert_eq!(first_submission.score, "675");
     assert_eq!(first_submission.code_length, 4211);
     assert_eq!(first_submission.result, "AC");
     assert_eq!(first_submission.execution_time, "3086 ms");
-    assert_eq!(first_submission.memory_usage, "605208 KB");
     assert_eq!(
         first_submission.url,
         "/contests/abc399/submissions/64188418"
@@ -81,14 +81,14 @@ fn test_parse_submissions_html() {
     let last_submission = &submissions[19];
     assert_eq!(last_submission.id, "64269896");
     assert_eq!(last_submission.date, "2025-03-29 17:48:33+0900");
-    assert_eq!(last_submission.problem, "F - Range Power Sum");
+    assert_eq!(last_submission.problem_id, "abc399_f");
+    assert_eq!(last_submission.contest_id, "abc399");
     assert_eq!(last_submission.user, "sounansya");
     assert_eq!(last_submission.language, "C++ 23 (gcc 12.2)");
     assert_eq!(last_submission.score, "550");
     assert_eq!(last_submission.code_length, 805);
     assert_eq!(last_submission.result, "AC");
     assert_eq!(last_submission.execution_time, "23 ms");
-    assert_eq!(last_submission.memory_usage, "13376 KB");
     assert_eq!(last_submission.url, "/contests/abc399/submissions/64269896");
 
     // Verify all submissions have the expected format
@@ -102,8 +102,12 @@ fn test_parse_submissions_html() {
             "Submission date should not be empty"
         );
         assert!(
-            !submission.problem.is_empty(),
+            !submission.problem_id.is_empty(),
             "Submission problem should not be empty"
+        );
+        assert!(
+            !submission.contest_id.is_empty(),
+            "Submission contest ID should not be empty"
         );
         assert!(
             !submission.user.is_empty(),
@@ -128,10 +132,6 @@ fn test_parse_submissions_html() {
         assert!(
             !submission.execution_time.is_empty(),
             "Submission execution time should not be empty"
-        );
-        assert!(
-            !submission.memory_usage.is_empty(),
-            "Submission memory usage should not be empty"
         );
         assert!(
             !submission.url.is_empty(),

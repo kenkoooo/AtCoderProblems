@@ -103,7 +103,12 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
         let problem_element = row.select(&problem_selector).next();
 
         let problem = if let Some(problem_elem) = problem_element {
-            problem_elem.text().collect::<String>()
+            // Extract problem ID from the URL (e.g., "/contests/abc399/tasks/abc399_a" -> "abc399_a")
+            if let Some(href) = problem_elem.value().attr("href") {
+                href.split('/').last().unwrap_or("").to_string()
+            } else {
+                continue; // Skip if no URL is found
+            }
         } else {
             continue; // Skip if no problem is found
         };
@@ -178,17 +183,6 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
             continue; // Skip if no execution time is found
         };
 
-        // Extract memory usage
-        let memory_usage_selector = Selector::parse("td:nth-child(9)")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let memory_usage_element = row.select(&memory_usage_selector).next();
-
-        let memory_usage = if let Some(memory_usage_elem) = memory_usage_element {
-            memory_usage_elem.text().collect::<String>()
-        } else {
-            continue; // Skip if no memory usage is found
-        };
-
         // Get the URL from the details link
         let url = if let Some(details_elem) = details_element {
             if let Some(href) = details_elem.value().attr("href") {
@@ -200,17 +194,24 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
             continue; // Skip if no details link is found
         };
 
+        // Extract contest ID from the URL (e.g., "/contests/abc399/submissions/64188418" -> "abc399")
+        let contest_id = url
+            .split('/')
+            .nth(2) // Get the third component after splitting
+            .unwrap_or("")
+            .to_string();
+
         submissions.push(Submission {
             id,
             date,
-            problem,
+            problem_id: problem,
+            contest_id,
             user,
             language,
             score,
             code_length,
             result,
             execution_time,
-            memory_usage,
             url,
         });
     }

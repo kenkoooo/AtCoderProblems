@@ -17,7 +17,9 @@ pub struct Submission {
     /// The submission date and time
     pub date: String,
     /// The problem the submission is for
-    pub problem: String,
+    pub problem_id: String,
+    /// The contest ID (e.g., "abc399")
+    pub contest_id: String,
     /// The user who made the submission
     pub user: String,
     /// The programming language used
@@ -30,8 +32,6 @@ pub struct Submission {
     pub result: String,
     /// The execution time in milliseconds
     pub execution_time: String,
-    /// The memory usage in KB
-    pub memory_usage: String,
-    /// The URL to the submission details
+    /// The URL of the submission
     pub url: String,
 }
