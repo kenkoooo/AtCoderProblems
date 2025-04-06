@@ -5,7 +5,10 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::fmt::fmt().json().init();
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .json()
+        .init();
     let db = setup_db().await?;
     let crawler = setup_crawler()?;
 
