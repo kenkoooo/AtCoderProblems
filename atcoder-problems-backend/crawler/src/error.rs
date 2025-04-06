@@ -12,6 +12,9 @@ pub enum CrawlerError {
     #[error("Failed to make request: {0}")]
     RequestError(#[from] reqwest::Error),
 
+    #[error("HTTP error: {0}")]
+    HttpError(String),
+
     #[error("Invalid header value: {0}")]
     InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
 }

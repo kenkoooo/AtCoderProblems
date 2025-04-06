@@ -1,5 +1,5 @@
-use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::Client;
+use reqwest::header::{HeaderMap, HeaderValue};
 
 use crate::error::CrawlerError;
 use crate::parser::{parse_submissions_html, parse_tasks_html};
@@ -28,6 +28,9 @@ impl CrawlerClient {
         let url = format!("https://atcoder.jp/contests/{}/tasks", contest_id);
         let request = self.client.get(&url);
         let response = request.send().await?;
+        if !response.status().is_success() {
+            return Err(CrawlerError::HttpError(response.text().await?));
+        }
         let html = response.text().await?;
         parse_tasks_html(&html)
     }
@@ -43,6 +46,9 @@ impl CrawlerClient {
         );
         let request = self.client.get(&url);
         let response = request.send().await?;
+        if !response.status().is_success() {
+            return Err(CrawlerError::HttpError(response.text().await?));
+        }
         let html = response.text().await?;
         parse_submissions_html(&html)
     }
