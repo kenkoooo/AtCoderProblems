@@ -4,15 +4,18 @@ use sea_orm::{Database, DatabaseConnection, EntityTrait, Set, sea_query::OnConfl
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .json()
         .init();
-    let db = setup_db().await?;
-    let crawler = setup_crawler()?;
+    let db = setup_db().await.expect("Failed to connect to database");
+    let crawler = setup_crawler().expect("Failed to create crawler");
 
-    let contests = sql_entities::contests::Entity::find().all(&db).await?;
+    let contests = sql_entities::contests::Entity::find()
+        .all(&db)
+        .await
+        .expect("Failed to load contests");
     for contest in contests {
         tracing::info!("Fetching submissions for contest {}", contest.id);
         for page in 1.. {
@@ -21,7 +24,10 @@ async fn main() -> Result<()> {
                 contest.id,
                 page
             );
-            let submissions = crawler.fetch_submissions(&contest.id, page).await?;
+            let submissions = crawler
+                .fetch_submissions(&contest.id, page)
+                .await
+                .expect("Failed to fetch submissions");
             if submissions.is_empty() {
                 tracing::info!("No more submissions for contest {}", contest.id);
                 break;
@@ -36,7 +42,7 @@ async fn main() -> Result<()> {
                     contest_id: Set(submission.contest_id),
                     user_id: Set(submission.user),
                     language: Set(submission.language),
-                    point: Set(submission.score.parse()?),
+                    point: Set(submission.score.parse().expect("Failed to parse score")),
                     length: Set(submission.code_length),
                     result: Set(submission.result),
                     execution_time: Set(submission.execution_time),
@@ -58,7 +64,8 @@ async fn main() -> Result<()> {
                             .to_owned(),
                     )
                     .exec(&db)
-                    .await?;
+                    .await
+                    .expect("Failed to insert submissions");
             }
 
             tokio::time::sleep(std::time::Duration::from_millis(100)).await;
@@ -66,8 +73,6 @@ async fn main() -> Result<()> {
 
         tracing::info!("Finished fetching submissions for contest {}", contest.id);
     }
-
-    Ok(())
 }
 
 async fn setup_db() -> Result<DatabaseConnection> {
