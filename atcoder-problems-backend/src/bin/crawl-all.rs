@@ -77,9 +77,9 @@ async fn fetch_submissions(
     contest_id: &str,
     page: i32,
 ) -> Vec<Submission> {
-    const MAX_RETRIES: u32 = 8;
+    const MAX_RETRIES: u32 = 10;
     let mut retry_count = 0;
-    let mut retry_delay = 100;
+    let mut retry_delay = 2000;
 
     while retry_count < MAX_RETRIES {
         match crawler.fetch_submissions(contest_id, page).await {
