@@ -72,10 +72,6 @@ fn test_parse_submissions_html() {
     assert_eq!(first_submission.code_length, 4211);
     assert_eq!(first_submission.result, "AC");
     assert_eq!(first_submission.execution_time, Some(3086));
-    assert_eq!(
-        first_submission.url,
-        "/contests/abc399/submissions/64188418"
-    );
 
     // Verify the last submission
     let last_submission = &submissions[19];
@@ -89,7 +85,6 @@ fn test_parse_submissions_html() {
     assert_eq!(last_submission.code_length, 805);
     assert_eq!(last_submission.result, "AC");
     assert_eq!(last_submission.execution_time, Some(23));
-    assert_eq!(last_submission.url, "/contests/abc399/submissions/64269896");
 
     // Verify all submissions have the expected format
     for submission in &submissions {
@@ -129,14 +124,6 @@ fn test_parse_submissions_html() {
         assert!(
             submission.execution_time.is_some(),
             "Submission execution time should be Some"
-        );
-        assert!(
-            !submission.url.is_empty(),
-            "Submission URL should not be empty"
-        );
-        assert!(
-            submission.url.starts_with("/contests/"),
-            "Submission URL should start with /contests/"
         );
     }
 }

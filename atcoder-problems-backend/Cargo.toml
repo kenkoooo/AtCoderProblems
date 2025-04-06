@@ -13,6 +13,7 @@ crawler.workspace = true
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tracing.workspace = true
 tracing-subscriber = { workspace = true, features = ["json", "env-filter"] }
+chrono.workspace = true
 
 [workspace]
 members = ["crawler", "sql-entities"]

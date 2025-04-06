@@ -222,7 +222,6 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
             code_length,
             result,
             execution_time,
-            url,
         });
     }
 

@@ -120,6 +120,7 @@ dependencies = [
 name = "atcoder-problems-backend"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "crawler",
  "sea-orm",
  "sql-entities",

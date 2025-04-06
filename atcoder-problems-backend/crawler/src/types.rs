@@ -32,6 +32,4 @@ pub struct Submission {
     pub result: String,
     /// The execution time in milliseconds (None if not available)
     pub execution_time: Option<i32>,
-    /// The URL of the submission
-    pub url: String,
 }
