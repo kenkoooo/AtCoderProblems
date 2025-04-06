@@ -1,4 +1,4 @@
-use crawler::CrawlerClient;
+use crawler::{CrawlerClient, Submission};
 use sea_orm::{Database, DatabaseConnection, EntityTrait, Set, sea_query::OnConflict};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -24,10 +24,7 @@ async fn main() {
                 contest.id,
                 page
             );
-            let submissions = crawler
-                .fetch_submissions(&contest.id, page)
-                .await
-                .expect("Failed to fetch submissions");
+            let submissions = fetch_submissions(&crawler, &contest.id, page).await;
             if submissions.is_empty() {
                 tracing::info!("No more submissions for contest {}", contest.id);
                 break;
@@ -75,35 +72,36 @@ async fn main() {
     }
 }
 
-async fn fetch_submissions(crawler: &CrawlerClient, contest_id: &str, page: i32) {
+async fn fetch_submissions(
+    crawler: &CrawlerClient,
+    contest_id: &str,
+    page: i32,
+) -> Vec<Submission> {
     const MAX_RETRIES: u32 = 3;
     let mut retry_count = 0;
+    let mut retry_delay = 100;
 
-    loop {
+    while retry_count < MAX_RETRIES {
         match crawler.fetch_submissions(contest_id, page).await {
             Ok(submissions) => {
-                retry_count = 0;
+                return submissions;
             }
             Err(e) => {
                 retry_count += 1;
-                if retry_count >= MAX_RETRIES {
-                    tracing::error!(
-                        "Failed to fetch submissions after {} retries: {}",
-                        MAX_RETRIES,
-                        e
-                    );
-                    break;
-                }
                 tracing::warn!(
                     "Failed to fetch submissions (attempt {}/{}): {}",
                     retry_count,
                     MAX_RETRIES,
                     e
                 );
-                tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                tokio::time::sleep(std::time::Duration::from_millis(retry_delay)).await;
+                retry_delay *= 2;
             }
         }
     }
+
+    tracing::error!("Failed to fetch submissions after {} retries", MAX_RETRIES);
+    vec![]
 }
 
 async fn setup_db() -> Result<DatabaseConnection> {
