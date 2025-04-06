@@ -152,7 +152,11 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
         let score_element = row.select(&score_selector).next();
 
         let score = if let Some(score_elem) = score_element {
-            score_elem.text().collect::<String>()
+            score_elem
+                .text()
+                .collect::<String>()
+                .parse::<f64>()
+                .map_err(|e| CrawlerError::ParseError(format!("Failed to parse score: {}", e)))?
         } else {
             continue; // Skip if no score is found
         };

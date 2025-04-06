@@ -10,7 +10,7 @@ pub struct Problem {
 }
 
 /// Represents a submission from AtCoder
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Submission {
     /// The submission ID
     pub id: i64,
@@ -25,7 +25,7 @@ pub struct Submission {
     /// The programming language used
     pub language: String,
     /// The score obtained
-    pub score: String,
+    pub score: f64,
     /// The code length in bytes
     pub code_length: i32,
     /// The result of the submission (e.g., "AC", "WA", "TLE")

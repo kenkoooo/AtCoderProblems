@@ -68,7 +68,7 @@ fn test_parse_submissions_html() {
     assert_eq!(first_submission.contest_id, "abc399");
     assert_eq!(first_submission.user, "sounansya");
     assert_eq!(first_submission.language, "C++ 23 (gcc 12.2)");
-    assert_eq!(first_submission.score, "675");
+    assert_eq!(first_submission.score, 675.);
     assert_eq!(first_submission.code_length, 4211);
     assert_eq!(first_submission.result, "AC");
     assert_eq!(first_submission.execution_time, Some(3086));
@@ -81,7 +81,7 @@ fn test_parse_submissions_html() {
     assert_eq!(last_submission.contest_id, "abc399");
     assert_eq!(last_submission.user, "sounansya");
     assert_eq!(last_submission.language, "C++ 23 (gcc 12.2)");
-    assert_eq!(last_submission.score, "550");
+    assert_eq!(last_submission.score, 550.);
     assert_eq!(last_submission.code_length, 805);
     assert_eq!(last_submission.result, "AC");
     assert_eq!(last_submission.execution_time, Some(23));
@@ -109,10 +109,7 @@ fn test_parse_submissions_html() {
             !submission.language.is_empty(),
             "Submission language should not be empty"
         );
-        assert!(
-            !submission.score.is_empty(),
-            "Submission score should not be empty"
-        );
+        assert!(submission.score > 0., "Submission score should be positive");
         assert!(
             submission.code_length > 0,
             "Submission code length should be positive"
