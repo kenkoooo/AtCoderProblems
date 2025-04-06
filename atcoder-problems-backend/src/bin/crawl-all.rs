@@ -77,7 +77,7 @@ async fn fetch_submissions(
     contest_id: &str,
     page: i32,
 ) -> Vec<Submission> {
-    const MAX_RETRIES: u32 = 3;
+    const MAX_RETRIES: u32 = 8;
     let mut retry_count = 0;
     let mut retry_delay = 100;
 
