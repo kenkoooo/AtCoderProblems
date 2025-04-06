@@ -75,6 +75,37 @@ async fn main() {
     }
 }
 
+async fn fetch_submissions(crawler: &CrawlerClient, contest_id: &str, page: i32) {
+    const MAX_RETRIES: u32 = 3;
+    let mut retry_count = 0;
+
+    loop {
+        match crawler.fetch_submissions(contest_id, page).await {
+            Ok(submissions) => {
+                retry_count = 0;
+            }
+            Err(e) => {
+                retry_count += 1;
+                if retry_count >= MAX_RETRIES {
+                    tracing::error!(
+                        "Failed to fetch submissions after {} retries: {}",
+                        MAX_RETRIES,
+                        e
+                    );
+                    break;
+                }
+                tracing::warn!(
+                    "Failed to fetch submissions (attempt {}/{}): {}",
+                    retry_count,
+                    MAX_RETRIES,
+                    e
+                );
+                tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+            }
+        }
+    }
+}
+
 async fn setup_db() -> Result<DatabaseConnection> {
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let db = Database::connect(&database_url).await?;
