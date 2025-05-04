@@ -130,7 +130,15 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
         let user_element = row.select(&user_selector).next();
 
         let user = if let Some(user_elem) = user_element {
-            user_elem.text().collect::<String>()
+            if let Some(href) = user_elem.value().attr("href") {
+                // Extract user_id from the URL path like "/users/{user_id}"
+                href.split('/')
+                    .nth(2) // Get the third component after splitting (index 2)
+                    .unwrap_or("")
+                    .to_string()
+            } else {
+                continue; // Skip if no href is found
+            }
         } else {
             continue; // Skip if no user is found
         };
