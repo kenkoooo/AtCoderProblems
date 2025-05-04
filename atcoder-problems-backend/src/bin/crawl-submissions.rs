@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use atcoder_problems_backend::crawler_utils;
 use crawler::{CrawlerClient, CrawlerError};
+use rand::seq::SliceRandom;
 use sea_orm::{
     ColumnTrait, Database, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder, QuerySelect,
 };
@@ -19,10 +20,14 @@ async fn main() {
     let crawler = setup_crawler().expect("Failed to create crawler");
 
     let contests = match mode {
-        Mode::All | Mode::New => sql_entities::contests::Entity::find()
-            .all(&db)
-            .await
-            .expect("Failed to load contests"),
+        Mode::All | Mode::New => {
+            let mut contests = sql_entities::contests::Entity::find()
+                .all(&db)
+                .await
+                .expect("Failed to load contests");
+            contests.shuffle(&mut rand::rng());
+            contests
+        }
         Mode::Recent => {
             let current_time = chrono::Utc::now().timestamp();
             sql_entities::contests::Entity::find()
