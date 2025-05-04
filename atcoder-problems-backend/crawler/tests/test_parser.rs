@@ -62,29 +62,32 @@ fn test_parse_submissions_html() {
 
     // Verify the first submission
     let first_submission = &submissions[0];
-    assert_eq!(first_submission.id, 64188418);
-    assert_eq!(first_submission.epoch_second, 1742913156);
-    assert_eq!(first_submission.problem_id, "abc399_g");
-    assert_eq!(first_submission.contest_id, "abc399");
-    assert_eq!(first_submission.user, "sounansya");
-    assert_eq!(first_submission.language, "C++ 23 (gcc 12.2)");
-    assert_eq!(first_submission.score, 675.);
-    assert_eq!(first_submission.code_length, 4211);
-    assert_eq!(first_submission.result, "AC");
-    assert_eq!(first_submission.execution_time, Some(3086));
+    assert_eq!(first_submission.id, 65165333);
+    assert_eq!(first_submission.epoch_second, 1745489734);
+    assert_eq!(first_submission.problem_id, "tenka1_2012_9");
+    assert_eq!(first_submission.contest_id, "tenka1-2012-qualC");
+    assert_eq!(first_submission.user, "Sky_Thunder");
+    assert_eq!(first_submission.language, "Python (CPython 3.11.4)");
+    assert_eq!(first_submission.score, 0.);
+    assert_eq!(first_submission.code_length, 265);
+    assert_eq!(first_submission.result, "RE");
+    assert_eq!(first_submission.execution_time, Some(13));
+
+    let screenamed_submission = &submissions[17];
+    assert_eq!(screenamed_submission.user, "The_Bouningeeeen");
 
     // Verify the last submission
     let last_submission = &submissions[19];
-    assert_eq!(last_submission.id, 64269896);
-    assert_eq!(last_submission.epoch_second, 1743238113);
-    assert_eq!(last_submission.problem_id, "abc399_f");
-    assert_eq!(last_submission.contest_id, "abc399");
-    assert_eq!(last_submission.user, "sounansya");
-    assert_eq!(last_submission.language, "C++ 23 (gcc 12.2)");
-    assert_eq!(last_submission.score, 550.);
-    assert_eq!(last_submission.code_length, 805);
+    assert_eq!(last_submission.id, 64467929);
+    assert_eq!(last_submission.epoch_second, 1743719670);
+    assert_eq!(last_submission.problem_id, "tenka1_2012_9");
+    assert_eq!(last_submission.contest_id, "tenka1-2012-qualC");
+    assert_eq!(last_submission.user, "yamate11");
+    assert_eq!(last_submission.language, "C++ 20 (gcc 12.2)");
+    assert_eq!(last_submission.score, 100.);
+    assert_eq!(last_submission.code_length, 21215);
     assert_eq!(last_submission.result, "AC");
-    assert_eq!(last_submission.execution_time, Some(23));
+    assert_eq!(last_submission.execution_time, Some(17));
 
     // Verify all submissions have the expected format
     for submission in &submissions {
@@ -109,7 +112,6 @@ fn test_parse_submissions_html() {
             !submission.language.is_empty(),
             "Submission language should not be empty"
         );
-        assert!(submission.score > 0., "Submission score should be positive");
         assert!(
             submission.code_length > 0,
             "Submission code length should be positive"
