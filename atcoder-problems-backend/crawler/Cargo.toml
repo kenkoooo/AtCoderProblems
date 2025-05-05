@@ -8,3 +8,4 @@ reqwest = { workspace = true, features = ["gzip"] }
 scraper.workspace = true
 thiserror.workspace = true
 chrono.workspace = true
+serde_json.workspace = true

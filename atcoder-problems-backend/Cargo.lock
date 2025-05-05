@@ -123,8 +123,11 @@ dependencies = [
  "chrono",
  "crawler",
  "rand 0.9.1",
+ "s3",
  "sea-orm",
+ "serde_json",
  "sql-entities",
+ "thiserror",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -954,6 +957,7 @@ dependencies = [
  "chrono",
  "reqwest",
  "scraper",
+ "serde_json",
  "thiserror",
 ]
 
