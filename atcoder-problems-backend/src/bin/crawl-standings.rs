@@ -41,6 +41,13 @@ async fn main() {
             .fetch_standings(&contest.id)
             .await
             .expect("Failed to fetch standings");
+        let standings = match standings {
+            Some(standings) => standings,
+            None => {
+                tracing::warn!("Standings for contest {} not found", contest.id);
+                continue;
+            }
+        };
         let json = serde_json::to_vec(&standings).expect("Failed to serialize standings");
         s3.put_object(&key, json)
             .await

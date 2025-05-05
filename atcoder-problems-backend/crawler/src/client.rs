@@ -54,14 +54,20 @@ impl CrawlerClient {
         parse_submissions_html(&html)
     }
 
-    pub async fn fetch_standings(&self, contest_id: &str) -> Result<Value, CrawlerError> {
+    pub async fn fetch_standings(&self, contest_id: &str) -> Result<Option<Value>, CrawlerError> {
         let url = format!("https://atcoder.jp/contests/{}/standings/json", contest_id);
         let request = self.client.get(&url);
         let response = request.send().await?;
+        if response.status() == 404 {
+            tracing::warn!("Standings for contest {} not found", contest_id);
+            return Ok(None);
+        }
         if !response.status().is_success() {
             return Err(CrawlerError::HttpError(response.text().await?));
         }
         let text = response.text().await?;
-        serde_json::from_str(&text).map_err(|_| CrawlerError::JsonParseError { body: text })
+        let value: Value =
+            serde_json::from_str(&text).map_err(|_| CrawlerError::JsonParseError { body: text })?;
+        Ok(Some(value))
     }
 }

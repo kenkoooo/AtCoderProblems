@@ -959,6 +959,7 @@ dependencies = [
  "scraper",
  "serde_json",
  "thiserror",
+ "tracing",
 ]
 
 [[package]]
