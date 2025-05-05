@@ -17,18 +17,24 @@ chrono.workspace = true
 rand.workspace = true
 
 [workspace]
-members = ["crawler", "sql-entities"]
+members = ["crawler", "sql-entities", "s3"]
 
 [workspace.dependencies]
+aws-config = "1.6"
+aws-sdk-s3 = "1.83"
+bytes = "1.10"
+chrono = "0.4"
+rand = "0.9"
 reqwest = "0.12"
 scraper = "0.23"
-thiserror = "2.0"
 sea-orm = "1.1"
+testcontainers-modules = "0.11"
+thiserror = "2.0"
 tokio = "1.44"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-chrono = "0.4"
-rand = "0.9"
 
+# Workspace crates
 crawler = { path = "./crawler" }
 sql-entities = { path = "./sql-entities" }
+s3 = { path = "./s3" }

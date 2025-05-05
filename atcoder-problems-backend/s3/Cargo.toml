@@ -1,0 +1,13 @@
+[package]
+name = "s3"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aws-sdk-s3.workspace = true
+aws-config.workspace = true
+thiserror.workspace = true
+bytes.workspace = true
+[dev-dependencies]
+testcontainers-modules = { workspace = true, features = ["localstack"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
