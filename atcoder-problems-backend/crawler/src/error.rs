@@ -17,4 +17,7 @@ pub enum CrawlerError {
 
     #[error("Invalid header value: {0}")]
     InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
+
+    #[error("Failed to parse JSON: {body}")]
+    JsonParseError { body: String },
 }
