@@ -1,0 +1,26 @@
+name: Rust backend test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  backend-test:
+    name: Run backend tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./atcoder-problems-backend
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "atcoder-problems-backend"
+          workspaces: "./atcoder-problems-backend -> target"
+      - run: cargo test --workspace -- --test-threads=4 # Since testcontainers is used, limit the number of containers that can be started at the same time
