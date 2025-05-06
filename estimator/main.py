@@ -561,7 +561,7 @@ def main():
     results = run(target_contest_ids=target_contest_ids, overwrite=args.overwrite)
     ta = TypeAdapter(dict[str, ProblemModel])
     s3.Object("kenkoooo.com", "resources/problem-models.json").put(
-        Body=ta.dump_json(results)
+        Body=ta.dump_json(results), ContentType="application/json"
     )
 
 
