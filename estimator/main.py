@@ -559,8 +559,9 @@ def main():
     args = parse_args()
     target_contest_ids = args.target.split(",") if args.target else None
     results = run(target_contest_ids=target_contest_ids, overwrite=args.overwrite)
+    ta = TypeAdapter(dict[str, ProblemModel])
     s3.Object("kenkoooo.com", "resources/problem-models.json").put(
-        Body=json.dumps(results).encode("utf-8")
+        Body=ta.dump_json(results)
     )
 
 
