@@ -413,7 +413,12 @@ def infer_contest_type(contest: Contest) -> ContestType:
         or contest.rate_change == "2000 ~ "
     ):
         return ContestType.AGC
-    elif contest.rate_change == " ~ 2799" or contest.rate_change == "1200 ~ 2799":
+    elif (
+        contest.rate_change == " ~ 2799"
+        or contest.rate_change == "1200 ~ 2799"
+        or contest.rate_change == "1200 ~ 2399"
+        or contest.rate_change == "1600 ~ 2999"
+    ):
         return ContestType.NEW_ARC
     elif contest.rate_change == " ~ 1999":
         return ContestType.NEW_ABC
@@ -487,6 +492,7 @@ def run(target_contest_ids: list[str] | None, overwrite: bool):
     last_nonzero_rating: dict[str, int] = defaultdict(int)
     experimental_problems = set()
     for contest, contest_type in target:
+        logger.info(f"Estimating models of contest {contest}")
         problems = set(contest_problems.get(contest, []))
         if not overwrite and existing_problems & problems == problems:
             logger.info(
@@ -498,7 +504,6 @@ def run(target_contest_ids: list[str] | None, overwrite: bool):
             contest, contest_type, existing_problems, not recompute_history
         )
         for problem, data_points in user_results_by_problem.items():
-            logger.info(f"Estimating time model of {problem}")
             if recompute_history:
                 # overwrite competition history, and rating if necessary
                 if is_old_contest:
@@ -554,6 +559,9 @@ def main():
     args = parse_args()
     target_contest_ids = args.target.split(",") if args.target else None
     results = run(target_contest_ids=target_contest_ids, overwrite=args.overwrite)
+    s3.Object("kenkoooo.com", "resources/problem-models.json").put(
+        Body=json.dumps(results).encode("utf-8")
+    )
 
 
 if __name__ == "__main__":
