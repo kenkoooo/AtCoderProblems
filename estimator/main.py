@@ -324,6 +324,9 @@ def fetch_dataset_for_contest(
     except json.JSONDecodeError as e:
         logger.error(f"Failed to decode standings of {contest_name}: {e}")
         return {}, []
+    except Exception as e:
+        logger.error(f"Failed to fetch standings of {contest_name}: {e}")
+        return {}, []
     task_names = {task.TaskScreenName: task.TaskName for task in results.TaskInfo}
 
     user_results: list[dict] = []
