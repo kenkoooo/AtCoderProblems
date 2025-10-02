@@ -48,6 +48,13 @@ async fn main() {
                 continue;
             }
         };
+
+        let fixed = standings["Fixed"].as_bool().unwrap_or(false);
+        if !fixed {
+            tracing::warn!("Standings for contest {} is not fixed", contest.id);
+            continue;
+        }
+
         let json = serde_json::to_vec(&standings).expect("Failed to serialize standings");
         s3.put_object(&key, json)
             .await
