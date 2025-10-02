@@ -1,4 +1,7 @@
-use std::{collections::HashSet, str::FromStr};
+use std::{
+    collections::{HashMap, HashSet},
+    str::FromStr,
+};
 
 use atcoder_problems_backend::crawler_utils;
 use crawler::CrawlerClient;
@@ -26,6 +29,7 @@ async fn main() {
         .await
         .expect("Failed to extract contest ids");
 
+    tracing::info!("Extracted {} contest ids", contest_ids.len());
     for contest_id in contest_ids {
         tracing::info!("Fetching submissions for contest {}", contest_id);
 
@@ -64,6 +68,8 @@ async fn main() {
 
         tracing::info!("Finished fetching submissions for contest {}", contest_id);
     }
+
+    tracing::info!("Finished fetching submissions");
 }
 
 async fn setup_db() -> Result<DatabaseConnection> {
@@ -124,7 +130,7 @@ async fn extract_contest_ids(db: &DatabaseConnection, mode: Mode) -> Result<Hash
                 contest_problem, internal_virtual_contest_items, internal_virtual_contests,
             };
             let current_time = chrono::Utc::now().timestamp();
-            let internal_virtual_contest_ids = internal_virtual_contests::Entity::find()
+            let virtual_contests = internal_virtual_contests::Entity::find()
                 .filter(
                     Expr::col(internal_virtual_contests::Column::StartEpochSecond)
                         .add(Expr::col(internal_virtual_contests::Column::DurationSecond))
@@ -136,27 +142,71 @@ async fn extract_contest_ids(db: &DatabaseConnection, mode: Mode) -> Result<Hash
                 )
                 .order_by_desc(internal_virtual_contests::Column::StartEpochSecond)
                 .all(db)
-                .await?
-                .into_iter()
-                .map(|contest| contest.id);
-            let internal_virtual_contest_problem_ids =
-                internal_virtual_contest_items::Entity::find()
-                    .filter(
-                        internal_virtual_contest_items::Column::InternalVirtualContestId
-                            .is_in(internal_virtual_contest_ids),
-                    )
-                    .all(db)
-                    .await?
-                    .into_iter()
-                    .map(|item| item.problem_id);
-            contest_problem::Entity::find()
+                .await?;
+            let internal_virtual_contest_ids =
+                virtual_contests.iter().map(|contest| contest.id.as_str());
+            let virtual_contest_problems = internal_virtual_contest_items::Entity::find()
                 .filter(
-                    contest_problem::Column::ProblemId.is_in(internal_virtual_contest_problem_ids),
+                    internal_virtual_contest_items::Column::InternalVirtualContestId
+                        .is_in(internal_virtual_contest_ids),
                 )
                 .all(db)
-                .await?
+                .await?;
+            let problem_ids = virtual_contest_problems
+                .iter()
+                .map(|item| item.problem_id.as_str());
+            let contest_problems = contest_problem::Entity::find()
+                .filter(contest_problem::Column::ProblemId.is_in(problem_ids))
+                .all(db)
+                .await?;
+
+            let virtual_contest_by_id = virtual_contests
                 .into_iter()
-                .map(|contest_problem| contest_problem.contest_id)
+                .map(|contest| (contest.id.clone(), contest))
+                .collect::<HashMap<_, _>>();
+
+            let mut virtual_contest_ids_by_problem_id = HashMap::new();
+            for problem in virtual_contest_problems {
+                virtual_contest_ids_by_problem_id
+                    .entry(problem.problem_id)
+                    .or_insert_with(HashSet::new)
+                    .insert(problem.internal_virtual_contest_id);
+            }
+
+            let mut min_remaining_by_contest_id = HashMap::new();
+            for contest_problem in contest_problems {
+                let contest_id = contest_problem.contest_id;
+                let problem_id = contest_problem.problem_id;
+                let virtual_contest_ids = virtual_contest_ids_by_problem_id.get(&problem_id);
+                let Some(virtual_contest_ids) = virtual_contest_ids else {
+                    continue;
+                };
+                for virtual_contest_id in virtual_contest_ids {
+                    let Some(virtual_contest) = virtual_contest_by_id.get(virtual_contest_id)
+                    else {
+                        continue;
+                    };
+
+                    let remaining = virtual_contest.start_epoch_second
+                        + virtual_contest.duration_second
+                        - current_time;
+
+                    let min_remaining = min_remaining_by_contest_id
+                        .entry(contest_id.clone())
+                        .or_insert(remaining);
+                    *min_remaining = remaining.min(*min_remaining);
+                }
+            }
+
+            let mut min_remainings = min_remaining_by_contest_id
+                .into_iter()
+                .map(|(contest_id, remaining)| (contest_id, remaining))
+                .collect::<Vec<_>>();
+            min_remainings.sort_by_key(|(_, remaining)| *remaining);
+            min_remainings
+                .into_iter()
+                .take(50)
+                .map(|(contest_id, _)| contest_id)
                 .collect()
         }
     };
