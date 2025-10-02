@@ -205,7 +205,7 @@ async fn extract_contest_ids(db: &DatabaseConnection, mode: Mode) -> Result<Hash
             min_remainings.sort_by_key(|(_, remaining)| *remaining);
             min_remainings
                 .into_iter()
-                .take(50)
+                .take(200)
                 .map(|(contest_id, _)| contest_id)
                 .collect()
         }
