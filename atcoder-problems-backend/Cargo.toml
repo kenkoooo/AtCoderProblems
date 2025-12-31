@@ -19,6 +19,12 @@ tracing.workspace = true
 thiserror.workspace = true
 serde_json.workspace = true
 
+[dev-dependencies]
+sea-orm = { workspace = true, features = [
+    "sqlx-sqlite",
+    "runtime-tokio-native-tls",
+] }
+
 [workspace]
 members = ["crawler", "sql-entities", "s3"]
 

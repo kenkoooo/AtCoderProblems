@@ -33,7 +33,7 @@ impl CrawlerClient {
             return Err(CrawlerError::HttpError(response.text().await?));
         }
         let html = response.text().await?;
-        parse_tasks_html(&html)
+        parse_tasks_html(&html, contest_id)
     }
 
     pub async fn fetch_submissions(

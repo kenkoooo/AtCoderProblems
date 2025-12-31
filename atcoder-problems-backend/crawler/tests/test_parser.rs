@@ -6,7 +6,7 @@ fn test_parse_tasks_html() {
     let html_content = include_str!("assets/tasks.html");
 
     // Parse the HTML content
-    let problems = parse_tasks_html(html_content).expect("Failed to parse tasks HTML");
+    let problems = parse_tasks_html(html_content, "abc399").expect("Failed to parse tasks HTML");
 
     // Verify that we found the expected number of problems
     assert_eq!(
@@ -18,27 +18,35 @@ fn test_parse_tasks_html() {
 
     // Verify the first problem
     let first_problem = &problems[0];
-    assert_eq!(first_problem.prefix, "A");
+    assert_eq!(first_problem.id, "abc399_a");
+    assert_eq!(first_problem.contest_id, "abc399");
+    assert_eq!(first_problem.problem_index, "A");
     assert_eq!(first_problem.name, "Hamming Distance");
-    assert_eq!(first_problem.url, "/contests/abc399/tasks/abc399_a");
+    assert_eq!(first_problem.title(), "A. Hamming Distance");
 
     // Verify the last problem
     let last_problem = &problems[6];
-    assert_eq!(last_problem.prefix, "G");
+    assert_eq!(last_problem.id, "abc399_g");
+    assert_eq!(last_problem.contest_id, "abc399");
+    assert_eq!(last_problem.problem_index, "G");
     assert_eq!(last_problem.name, "Colorful Spanning Tree");
-    assert_eq!(last_problem.url, "/contests/abc399/tasks/abc399_g");
+    assert_eq!(last_problem.title(), "G. Colorful Spanning Tree");
 
     // Verify all problems have the expected format
     for problem in &problems {
+        assert!(!problem.id.is_empty(), "Problem ID should not be empty");
         assert!(
-            !problem.prefix.is_empty(),
-            "Problem prefix should not be empty"
+            !problem.contest_id.is_empty(),
+            "Problem contest_id should not be empty"
+        );
+        assert!(
+            !problem.problem_index.is_empty(),
+            "Problem index should not be empty"
         );
         assert!(!problem.name.is_empty(), "Problem name should not be empty");
-        assert!(!problem.url.is_empty(), "Problem URL should not be empty");
         assert!(
-            problem.url.starts_with("/contests/"),
-            "Problem URL should start with /contests/"
+            !problem.title().is_empty(),
+            "Problem title should not be empty"
         );
     }
 }
@@ -125,4 +133,82 @@ fn test_parse_submissions_html() {
             "Submission execution time should be Some"
         );
     }
+}
+
+#[test]
+fn test_parse_tasks_html_abc308() {
+    // Load the test HTML file
+    let html_content = include_str!("assets/tasks_abc308.html");
+
+    // Parse the HTML content
+    let problems = parse_tasks_html(html_content, "abc308").expect("Failed to parse tasks HTML");
+
+    // Verify that we found the expected number of problems
+    assert_eq!(
+        problems.len(),
+        8,
+        "Expected 8 problems, found {}",
+        problems.len()
+    );
+
+    // Verify the first problem
+    let first_problem = &problems[0];
+    assert_eq!(first_problem.id, "abc308_a");
+    assert_eq!(first_problem.contest_id, "abc308");
+    assert_eq!(first_problem.problem_index, "A");
+    assert_eq!(first_problem.name, "New Scheme");
+    assert_eq!(first_problem.title(), "A. New Scheme");
+
+    // Verify the last problem (Ex)
+    let last_problem = &problems[7];
+    assert_eq!(last_problem.id, "abc308_h");
+    assert_eq!(last_problem.contest_id, "abc308");
+    assert_eq!(last_problem.problem_index, "Ex");
+    assert_eq!(last_problem.name, "Make Q");
+    assert_eq!(last_problem.title(), "Ex. Make Q");
+}
+
+#[test]
+fn test_parse_tasks_html_codequeen2023() {
+    // Load the test HTML file
+    let html_content = include_str!("assets/tasks_codequeen2023.html");
+
+    // Parse the HTML content
+    let problems = parse_tasks_html(html_content, "codequeen2023-final-open")
+        .expect("Failed to parse tasks HTML");
+
+    // Verify that we found the expected number of problems
+    assert_eq!(
+        problems.len(),
+        6,
+        "Expected 6 problems, found {}",
+        problems.len()
+    );
+
+    // Verify the first problem
+    let first_problem = &problems[0];
+    assert_eq!(first_problem.id, "codequeen2023_final_a");
+    assert_eq!(first_problem.contest_id, "codequeen2023-final-open");
+    assert_eq!(first_problem.problem_index, "A");
+    assert_eq!(first_problem.name, "QUEN");
+    assert_eq!(first_problem.title(), "A. QUEN");
+
+    // Verify a middle problem
+    let middle_problem = &problems[1];
+    assert_eq!(middle_problem.id, "codequeen2023_final_b");
+    assert_eq!(middle_problem.contest_id, "codequeen2023-final-open");
+    assert_eq!(middle_problem.problem_index, "B");
+    assert_eq!(middle_problem.name, "N-Queens Problem");
+    assert_eq!(middle_problem.title(), "B. N-Queens Problem");
+
+    // Verify the last problem
+    let last_problem = &problems[5];
+    assert_eq!(last_problem.id, "codequeen2023_final_f");
+    assert_eq!(last_problem.contest_id, "codequeen2023-final-open");
+    assert_eq!(last_problem.problem_index, "F");
+    // Note: HTML entities like &#39; are decoded to apostrophe
+    assert!(
+        last_problem.name.contains("Queen"),
+        "Last problem name should contain 'Queen'"
+    );
 }

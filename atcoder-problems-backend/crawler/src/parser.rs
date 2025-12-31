@@ -9,11 +9,12 @@ use crate::types::{Problem, Submission};
 /// # Arguments
 ///
 /// * `html_content` - The HTML content of the tasks page
+/// * `contest_id` - The contest ID (e.g., "abc399")
 ///
 /// # Returns
 ///
 /// A Result containing a vector of Problem structs or a CrawlerError
-pub fn parse_tasks_html(html_content: &str) -> Result<Vec<Problem>, CrawlerError> {
+pub fn parse_tasks_html(html_content: &str, contest_id: &str) -> Result<Vec<Problem>, CrawlerError> {
     let document = Html::parse_document(html_content);
 
     // Selector for the table rows containing problem information
@@ -23,29 +24,33 @@ pub fn parse_tasks_html(html_content: &str) -> Result<Vec<Problem>, CrawlerError
     let mut problems = Vec::new();
 
     for row in document.select(&row_selector) {
-        // Extract the problem prefix (A, B, C, etc.)
-        let prefix_selector = Selector::parse("td.text-center.no-break a")
+        // Extract the problem index (A, B, C, etc.)
+        let index_selector = Selector::parse("td.text-center.no-break a")
             .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let prefix_element = row.select(&prefix_selector).next();
+        let index_element = row.select(&index_selector).next();
 
         // Extract the problem name and URL
         let name_selector = Selector::parse("td:nth-child(2) a")
             .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
         let name_element = row.select(&name_selector).next();
 
-        if let (Some(prefix_elem), Some(name_elem)) = (prefix_element, name_element) {
-            let prefix = prefix_elem.text().collect::<String>();
+        if let (Some(index_elem), Some(name_elem)) = (index_element, name_element) {
+            let problem_index = index_elem.text().collect::<String>();
             let name = name_elem.text().collect::<String>();
 
-            // Get the URL from the href attribute
-            let url = if let Some(href) = name_elem.value().attr("href") {
-                // Return the relative URL as is
-                href.to_string()
+            // Extract problem ID from URL (e.g., "/contests/abc399/tasks/abc399_a" -> "abc399_a")
+            let id = if let Some(href) = name_elem.value().attr("href") {
+                href.split('/').last().unwrap_or("").to_string()
             } else {
                 continue; // Skip if no URL is found
             };
 
-            problems.push(Problem { prefix, name, url });
+            problems.push(Problem {
+                id,
+                contest_id: contest_id.to_string(),
+                problem_index,
+                name,
+            });
         }
     }
 
