@@ -13,6 +13,8 @@ async fn main() {
         .json()
         .init();
 
+    tracing::info!("Starting dump-json...");
+
     let db = setup_db().await.expect("Failed to connect to database");
     let s3 = setup_s3().await;
 
@@ -39,8 +41,17 @@ async fn setup_s3() -> S3Client {
     S3Client::new(&bucket_name).await
 }
 
+async fn upload(s3: &S3Client, path: &str, data: Vec<u8>) {
+    tracing::info!("Checking {}...", path);
+    let updated = s3.update(path, data).await.expect("Failed to upload");
+    if updated {
+        tracing::info!("Updated {}", path);
+    } else {
+        tracing::info!("No update on {}", path);
+    }
+}
+
 async fn dump_contests(db: &DatabaseConnection, s3: &S3Client) {
-    tracing::info!("Dumping contests...");
     let contests: Vec<Contest> = sql_entities::contests::Entity::find()
         .order_by_asc(sql_entities::contests::Column::Id)
         .into_model()
@@ -49,13 +60,10 @@ async fn dump_contests(db: &DatabaseConnection, s3: &S3Client) {
         .expect("Failed to load contests");
 
     let json = serde_json::to_vec(&contests).expect("Failed to serialize contests");
-    s3.put_object("resources/contests.json", json)
-        .await
-        .expect("Failed to put contests");
+    upload(s3, "/resources/contests.json", json).await;
 }
 
 async fn dump_problems(db: &DatabaseConnection, s3: &S3Client) {
-    tracing::info!("Dumping problems...");
     let problems: Vec<Problem> = sql_entities::problems::Entity::find()
         .order_by_asc(sql_entities::problems::Column::Id)
         .into_model()
@@ -64,13 +72,10 @@ async fn dump_problems(db: &DatabaseConnection, s3: &S3Client) {
         .expect("Failed to load problems");
 
     let json = serde_json::to_vec(&problems).expect("Failed to serialize problems");
-    s3.put_object("resources/problems.json", json)
-        .await
-        .expect("Failed to put problems");
+    upload(s3, "/resources/problems.json", json).await;
 }
 
 async fn dump_contest_problem(db: &DatabaseConnection, s3: &S3Client) {
-    tracing::info!("Dumping contest_problem...");
     let contest_problem: Vec<ContestProblem> = sql_entities::contest_problem::Entity::find()
         .order_by_asc(sql_entities::contest_problem::Column::ContestId)
         .order_by_asc(sql_entities::contest_problem::Column::ProblemId)
@@ -80,13 +85,10 @@ async fn dump_contest_problem(db: &DatabaseConnection, s3: &S3Client) {
         .expect("Failed to load contest_problem");
 
     let json = serde_json::to_vec(&contest_problem).expect("Failed to serialize contest_problem");
-    s3.put_object("resources/contest-problem.json", json)
-        .await
-        .expect("Failed to put contest_problem");
+    upload(s3, "/resources/contest-problem.json", json).await;
 }
 
 async fn dump_accepted_count(db: &DatabaseConnection, s3: &S3Client) {
-    tracing::info!("Dumping accepted_count...");
     let accepted_count: Vec<AcceptedCount> = sql_entities::accepted_count::Entity::find()
         .order_by_asc(sql_entities::accepted_count::Column::UserId)
         .into_model()
@@ -95,13 +97,10 @@ async fn dump_accepted_count(db: &DatabaseConnection, s3: &S3Client) {
         .expect("Failed to load accepted_count");
 
     let json = serde_json::to_vec(&accepted_count).expect("Failed to serialize accepted_count");
-    s3.put_object("resources/ac.json", json)
-        .await
-        .expect("Failed to put accepted_count");
+    upload(s3, "/resources/ac.json", json).await;
 }
 
 async fn dump_rated_point_sum(db: &DatabaseConnection, s3: &S3Client) {
-    tracing::info!("Dumping rated_point_sum...");
     let sums: Vec<UserSum> = sql_entities::rated_point_sum::Entity::find()
         .order_by_asc(sql_entities::rated_point_sum::Column::UserId)
         .into_model()
@@ -110,13 +109,10 @@ async fn dump_rated_point_sum(db: &DatabaseConnection, s3: &S3Client) {
         .expect("Failed to load rated_point_sum");
 
     let json = serde_json::to_vec(&sums).expect("Failed to serialize rated_point_sum");
-    s3.put_object("resources/sums.json", json)
-        .await
-        .expect("Failed to put rated_point_sum");
+    upload(s3, "/resources/sums.json", json).await;
 }
 
 async fn dump_language_count(db: &DatabaseConnection, s3: &S3Client) {
-    tracing::info!("Dumping language_count...");
     let language_count: Vec<LanguageCount> = sql_entities::language_count::Entity::find()
         .all(db)
         .await
@@ -152,13 +148,10 @@ async fn dump_language_count(db: &DatabaseConnection, s3: &S3Client) {
     });
 
     let json = serde_json::to_vec(&language_count).expect("Failed to serialize language_count");
-    s3.put_object("resources/lang.json", json)
-        .await
-        .expect("Failed to put language_count");
+    upload(s3, "/resources/lang.json", json).await;
 }
 
 async fn dump_max_streaks(db: &DatabaseConnection, s3: &S3Client) {
-    tracing::info!("Dumping max_streaks...");
     let streaks: Vec<UserStreak> = sql_entities::max_streaks::Entity::find()
         .order_by_asc(sql_entities::max_streaks::Column::UserId)
         .into_model()
@@ -167,14 +160,10 @@ async fn dump_max_streaks(db: &DatabaseConnection, s3: &S3Client) {
         .expect("Failed to load max_streaks");
 
     let json = serde_json::to_vec(&streaks).expect("Failed to serialize max_streaks");
-    s3.put_object("resources/streaks.json", json)
-        .await
-        .expect("Failed to put max_streaks");
+    upload(s3, "/resources/streaks.json", json).await;
 }
 
 async fn dump_merged_problems(db: &DatabaseConnection, s3: &S3Client) {
-    tracing::info!("Dumping merged_problems...");
-
     let merged_problems: Vec<MergedProblem> = MergedProblem::find_by_statement(
         sea_orm::Statement::from_string(
             sea_orm::DatabaseBackend::Postgres,
@@ -221,9 +210,7 @@ async fn dump_merged_problems(db: &DatabaseConnection, s3: &S3Client) {
     .expect("Failed to load merged_problems");
 
     let json = serde_json::to_vec(&merged_problems).expect("Failed to serialize merged_problems");
-    s3.put_object("resources/merged-problems.json", json)
-        .await
-        .expect("Failed to put merged_problems");
+    upload(s3, "/resources/merged-problems.json", json).await;
 }
 
 #[derive(Serialize, FromQueryResult)]
