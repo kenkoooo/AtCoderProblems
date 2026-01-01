@@ -65,7 +65,7 @@ async fn dump_contests(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
         })
         .collect();
 
-    upload(s3, "/resources/contests.json", serde_json::to_vec(&output)?).await
+    upload(s3, "resources/contests.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_problems(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
@@ -85,7 +85,7 @@ async fn dump_problems(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
         })
         .collect();
 
-    upload(s3, "/resources/problems.json", serde_json::to_vec(&output)?).await
+    upload(s3, "resources/problems.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_contest_problem(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
@@ -106,7 +106,7 @@ async fn dump_contest_problem(db: &DatabaseConnection, s3: &S3Client) -> Result<
 
     upload(
         s3,
-        "/resources/contest-problem.json",
+        "resources/contest-problem.json",
         serde_json::to_vec(&output)?,
     )
     .await
@@ -126,7 +126,7 @@ async fn dump_accepted_count(db: &DatabaseConnection, s3: &S3Client) -> Result<(
         })
         .collect();
 
-    upload(s3, "/resources/ac.json", serde_json::to_vec(&output)?).await
+    upload(s3, "resources/ac.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_rated_point_sum(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
@@ -143,7 +143,7 @@ async fn dump_rated_point_sum(db: &DatabaseConnection, s3: &S3Client) -> Result<
         })
         .collect();
 
-    upload(s3, "/resources/sums.json", serde_json::to_vec(&output)?).await
+    upload(s3, "resources/sums.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_language_count(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
@@ -178,7 +178,7 @@ async fn dump_language_count(db: &DatabaseConnection, s3: &S3Client) -> Result<(
             .then_with(|| a.simplified_language.cmp(&b.simplified_language))
     });
 
-    upload(s3, "/resources/lang.json", serde_json::to_vec(&output)?).await
+    upload(s3, "resources/lang.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_max_streaks(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
@@ -195,7 +195,7 @@ async fn dump_max_streaks(db: &DatabaseConnection, s3: &S3Client) -> Result<()> 
         })
         .collect();
 
-    upload(s3, "/resources/streaks.json", serde_json::to_vec(&output)?).await
+    upload(s3, "resources/streaks.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_merged_problems(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
@@ -230,7 +230,7 @@ async fn dump_merged_problems(db: &DatabaseConnection, s3: &S3Client) -> Result<
 
     upload(
         s3,
-        "/resources/merged-problems.json",
+        "resources/merged-problems.json",
         serde_json::to_vec(&output)?,
     )
     .await
