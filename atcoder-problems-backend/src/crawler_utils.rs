@@ -131,10 +131,10 @@ pub async fn crawl_problems(
         .map(|c| c.id)
         .collect();
 
-    // Get contest IDs that already have problems
-    let contest_ids_with_problems: HashSet<_> = sql_entities::problems::Entity::find()
+    // Get contest IDs that already have problems (from contest_problem table)
+    let contest_ids_with_problems: HashSet<_> = sql_entities::contest_problem::Entity::find()
         .select_only()
-        .column(sql_entities::problems::Column::ContestId)
+        .column(sql_entities::contest_problem::Column::ContestId)
         .distinct()
         .into_tuple::<String>()
         .all(db)
@@ -217,6 +217,7 @@ async fn upsert_problems(
     new_problems: Vec<Problem>,
 ) -> Result<usize, DbErr> {
     for problem in &new_problems {
+        // Insert into problems table
         let title = problem.title();
         let model = sql_entities::problems::ActiveModel {
             id: Set(problem.id.clone()),
@@ -238,6 +239,26 @@ async fn upsert_problems(
             )
             .exec(db)
             .await?;
+
+        // Insert into contest_problem table
+        let contest_problem = sql_entities::contest_problem::ActiveModel {
+            contest_id: Set(problem.contest_id.clone()),
+            problem_id: Set(problem.id.clone()),
+            problem_index: Set(problem.problem_index.clone()),
+        };
+        sql_entities::contest_problem::Entity::insert(contest_problem)
+            .on_conflict(
+                OnConflict::columns([
+                    sql_entities::contest_problem::Column::ContestId,
+                    sql_entities::contest_problem::Column::ProblemId,
+                    sql_entities::contest_problem::Column::ProblemIndex,
+                ])
+                .do_nothing()
+                .to_owned(),
+            )
+            .exec(db)
+            .await
+            .ok(); // Ignore duplicate key errors
     }
     Ok(new_problems.len())
 }

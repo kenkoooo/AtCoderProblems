@@ -25,6 +25,10 @@ async fn setup_db() -> Result<DatabaseConnection, DbErr> {
     let stmt = schema.create_table_from_entity(sql_entities::problems::Entity);
     db.execute(builder.build(&stmt)).await?;
 
+    // Create contest_problem table
+    let stmt = schema.create_table_from_entity(sql_entities::contest_problem::Entity);
+    db.execute(builder.build(&stmt)).await?;
+
     Ok(db)
 }
 
@@ -53,6 +57,16 @@ async fn test_crawl_problems_inserts_problems_for_contests_without_problems() {
         problem_index: Set("A".to_string()),
         name: Set("Existing Problem".to_string()),
         title: Set("A. Existing Problem".to_string()),
+    })
+    .exec(&db)
+    .await
+    .unwrap();
+
+    // Insert into contest_problem for abc001
+    sql_entities::contest_problem::Entity::insert(sql_entities::contest_problem::ActiveModel {
+        contest_id: Set("abc001".to_string()),
+        problem_id: Set("abc001_a".to_string()),
+        problem_index: Set("A".to_string()),
     })
     .exec(&db)
     .await
@@ -103,6 +117,7 @@ async fn test_crawl_problems_inserts_problems_for_contests_without_problems() {
     // Verify results
     assert_eq!(inserted, 3); // 2 from abc002 + 1 from abc003
 
+    // Check problems table
     let all_problems = sql_entities::problems::Entity::find()
         .all(&db)
         .await
@@ -113,6 +128,26 @@ async fn test_crawl_problems_inserts_problems_for_contests_without_problems() {
     assert!(all_problems.iter().any(|p| p.id == "abc002_a"));
     assert!(all_problems.iter().any(|p| p.id == "abc002_b"));
     assert!(all_problems.iter().any(|p| p.id == "abc003_a"));
+
+    // Check contest_problem table
+    let all_contest_problems = sql_entities::contest_problem::Entity::find()
+        .all(&db)
+        .await
+        .unwrap();
+
+    assert_eq!(all_contest_problems.len(), 4); // 1 existing + 3 new
+    assert!(all_contest_problems
+        .iter()
+        .any(|cp| cp.contest_id == "abc001" && cp.problem_id == "abc001_a"));
+    assert!(all_contest_problems
+        .iter()
+        .any(|cp| cp.contest_id == "abc002" && cp.problem_id == "abc002_a"));
+    assert!(all_contest_problems
+        .iter()
+        .any(|cp| cp.contest_id == "abc002" && cp.problem_id == "abc002_b"));
+    assert!(all_contest_problems
+        .iter()
+        .any(|cp| cp.contest_id == "abc003" && cp.problem_id == "abc003_a"));
 }
 
 #[tokio::test]
@@ -137,6 +172,16 @@ async fn test_crawl_problems_skips_contests_with_existing_problems() {
         problem_index: Set("A".to_string()),
         name: Set("Existing Problem".to_string()),
         title: Set("A. Existing Problem".to_string()),
+    })
+    .exec(&db)
+    .await
+    .unwrap();
+
+    // Insert into contest_problem (this is what we check now)
+    sql_entities::contest_problem::Entity::insert(sql_entities::contest_problem::ActiveModel {
+        contest_id: Set("abc001".to_string()),
+        problem_id: Set("abc001_a".to_string()),
+        problem_index: Set("A".to_string()),
     })
     .exec(&db)
     .await
@@ -236,4 +281,17 @@ async fn test_crawl_problems_generates_correct_title() {
         .unwrap();
 
     assert_eq!(problem.title, "A. Test Problem");
+
+    // Verify contest_problem was also inserted
+    let contest_problem = sql_entities::contest_problem::Entity::find()
+        .all(&db)
+        .await
+        .unwrap()
+        .into_iter()
+        .next()
+        .unwrap();
+
+    assert_eq!(contest_problem.contest_id, "abc001");
+    assert_eq!(contest_problem.problem_id, "abc001_a");
+    assert_eq!(contest_problem.problem_index, "A");
 }
