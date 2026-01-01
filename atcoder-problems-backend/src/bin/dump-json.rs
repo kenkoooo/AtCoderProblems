@@ -3,11 +3,30 @@ use sea_orm::{Database, DatabaseConnection, EntityTrait, FromQueryResult, QueryO
 use serde::Serialize;
 use std::cmp::Reverse;
 use std::collections::BTreeMap;
+use thiserror::Error;
+use tokio::try_join;
 
 const LANGUAGE_COUNT_LIMIT: usize = 1000;
 
+#[derive(Error, Debug)]
+enum DumpError {
+    #[error("Database error: {0}")]
+    Database(#[from] sea_orm::DbErr),
+
+    #[error("S3 error: {0}")]
+    S3(#[from] s3::S3Error),
+
+    #[error("JSON serialization error: {0}")]
+    Json(#[from] serde_json::Error),
+
+    #[error("Environment variable error: {0}")]
+    EnvVar(#[from] std::env::VarError),
+}
+
+type Result<T> = std::result::Result<T, DumpError>;
+
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .json()
@@ -15,202 +34,187 @@ async fn main() {
 
     tracing::info!("Starting dump-json...");
 
-    let db = setup_db().await.expect("Failed to connect to database");
-    let s3 = setup_s3().await;
+    let database_url = std::env::var("DATABASE_URL")?;
+    let bucket_name = std::env::var("S3_BUCKET_NAME")?;
 
-    dump_contests(&db, &s3).await;
-    dump_problems(&db, &s3).await;
-    dump_contest_problem(&db, &s3).await;
-    dump_accepted_count(&db, &s3).await;
-    dump_rated_point_sum(&db, &s3).await;
-    dump_language_count(&db, &s3).await;
-    dump_max_streaks(&db, &s3).await;
-    dump_merged_problems(&db, &s3).await;
+    let db = Database::connect(&database_url).await?;
+    let s3 = S3Client::new(&bucket_name).await;
+
+    // Run all dumps in parallel
+    try_join!(
+        dump_contests(&db, &s3),
+        dump_problems(&db, &s3),
+        dump_contest_problem(&db, &s3),
+        dump_accepted_count(&db, &s3),
+        dump_rated_point_sum(&db, &s3),
+        dump_language_count(&db, &s3),
+        dump_max_streaks(&db, &s3),
+        dump_merged_problems(&db, &s3),
+    )?;
 
     tracing::info!("Done.");
+    Ok(())
 }
 
-async fn setup_db() -> Result<DatabaseConnection, sea_orm::DbErr> {
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let db = Database::connect(&database_url).await?;
-    Ok(db)
-}
-
-async fn setup_s3() -> S3Client {
-    let bucket_name = std::env::var("S3_BUCKET_NAME").expect("S3_BUCKET_NAME must be set");
-    S3Client::new(&bucket_name).await
-}
-
-async fn upload(s3: &S3Client, path: &str, data: Vec<u8>) {
+async fn upload(s3: &S3Client, path: &str, data: Vec<u8>) -> Result<()> {
     tracing::info!("Checking {}...", path);
-    let updated = s3.update(path, data).await.expect("Failed to upload");
+    let updated = s3.update(path, data).await?;
     if updated {
         tracing::info!("Updated {}", path);
     } else {
         tracing::info!("No update on {}", path);
     }
+    Ok(())
 }
 
-async fn dump_contests(db: &DatabaseConnection, s3: &S3Client) {
+async fn dump_contests(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
     let contests: Vec<Contest> = sql_entities::contests::Entity::find()
         .order_by_asc(sql_entities::contests::Column::Id)
         .into_model()
         .all(db)
-        .await
-        .expect("Failed to load contests");
+        .await?;
 
-    let json = serde_json::to_vec(&contests).expect("Failed to serialize contests");
-    upload(s3, "/resources/contests.json", json).await;
+    upload(s3, "/resources/contests.json", serde_json::to_vec(&contests)?).await
 }
 
-async fn dump_problems(db: &DatabaseConnection, s3: &S3Client) {
+async fn dump_problems(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
     let problems: Vec<Problem> = sql_entities::problems::Entity::find()
         .order_by_asc(sql_entities::problems::Column::Id)
         .into_model()
         .all(db)
-        .await
-        .expect("Failed to load problems");
+        .await?;
 
-    let json = serde_json::to_vec(&problems).expect("Failed to serialize problems");
-    upload(s3, "/resources/problems.json", json).await;
+    upload(s3, "/resources/problems.json", serde_json::to_vec(&problems)?).await
 }
 
-async fn dump_contest_problem(db: &DatabaseConnection, s3: &S3Client) {
+async fn dump_contest_problem(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
     let contest_problem: Vec<ContestProblem> = sql_entities::contest_problem::Entity::find()
         .order_by_asc(sql_entities::contest_problem::Column::ContestId)
         .order_by_asc(sql_entities::contest_problem::Column::ProblemId)
         .into_model()
         .all(db)
-        .await
-        .expect("Failed to load contest_problem");
+        .await?;
 
-    let json = serde_json::to_vec(&contest_problem).expect("Failed to serialize contest_problem");
-    upload(s3, "/resources/contest-problem.json", json).await;
+    upload(
+        s3,
+        "/resources/contest-problem.json",
+        serde_json::to_vec(&contest_problem)?,
+    )
+    .await
 }
 
-async fn dump_accepted_count(db: &DatabaseConnection, s3: &S3Client) {
+async fn dump_accepted_count(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
     let accepted_count: Vec<AcceptedCount> = sql_entities::accepted_count::Entity::find()
         .order_by_asc(sql_entities::accepted_count::Column::UserId)
         .into_model()
         .all(db)
-        .await
-        .expect("Failed to load accepted_count");
+        .await?;
 
-    let json = serde_json::to_vec(&accepted_count).expect("Failed to serialize accepted_count");
-    upload(s3, "/resources/ac.json", json).await;
+    upload(s3, "/resources/ac.json", serde_json::to_vec(&accepted_count)?).await
 }
 
-async fn dump_rated_point_sum(db: &DatabaseConnection, s3: &S3Client) {
+async fn dump_rated_point_sum(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
     let sums: Vec<UserSum> = sql_entities::rated_point_sum::Entity::find()
         .order_by_asc(sql_entities::rated_point_sum::Column::UserId)
         .into_model()
         .all(db)
-        .await
-        .expect("Failed to load rated_point_sum");
+        .await?;
 
-    let json = serde_json::to_vec(&sums).expect("Failed to serialize rated_point_sum");
-    upload(s3, "/resources/sums.json", json).await;
+    upload(s3, "/resources/sums.json", serde_json::to_vec(&sums)?).await
 }
 
-async fn dump_language_count(db: &DatabaseConnection, s3: &S3Client) {
-    let language_count: Vec<LanguageCount> = sql_entities::language_count::Entity::find()
-        .all(db)
-        .await
-        .expect("Failed to load language_count")
-        .into_iter()
-        .map(|m| LanguageCount {
-            user_id: m.user_id,
-            simplified_language: m.simplified_language,
-            problem_count: m.problem_count,
-        })
-        .collect();
+async fn dump_language_count(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
+    let all_counts: Vec<sql_entities::language_count::Model> =
+        sql_entities::language_count::Entity::find().all(db).await?;
 
-    // Keep only top LANGUAGE_COUNT_LIMIT per language
-    let mut reduced: BTreeMap<String, Vec<LanguageCount>> = BTreeMap::new();
-    for entry in language_count {
-        reduced
-            .entry(entry.simplified_language.clone())
+    // Group by language and keep top LANGUAGE_COUNT_LIMIT per language
+    let mut by_language: BTreeMap<&str, Vec<&sql_entities::language_count::Model>> =
+        BTreeMap::new();
+    for entry in &all_counts {
+        by_language
+            .entry(&entry.simplified_language)
             .or_default()
             .push(entry);
     }
 
-    for vec in reduced.values_mut() {
-        vec.sort_by_key(|e| Reverse(e.problem_count));
-        vec.truncate(LANGUAGE_COUNT_LIMIT);
-    }
+    let mut language_count: Vec<LanguageCount> = by_language
+        .into_values()
+        .flat_map(|mut entries| {
+            entries.sort_by_key(|e| Reverse(e.problem_count));
+            entries.truncate(LANGUAGE_COUNT_LIMIT);
+            entries.into_iter().map(|e| LanguageCount {
+                user_id: e.user_id.clone(),
+                simplified_language: e.simplified_language.clone(),
+                problem_count: e.problem_count,
+            })
+        })
+        .collect();
 
-    let mut language_count: Vec<LanguageCount> =
-        reduced.into_values().flatten().collect::<Vec<_>>();
     language_count.sort_by(|a, b| {
         a.user_id
             .cmp(&b.user_id)
             .then_with(|| a.simplified_language.cmp(&b.simplified_language))
     });
 
-    let json = serde_json::to_vec(&language_count).expect("Failed to serialize language_count");
-    upload(s3, "/resources/lang.json", json).await;
+    upload(s3, "/resources/lang.json", serde_json::to_vec(&language_count)?).await
 }
 
-async fn dump_max_streaks(db: &DatabaseConnection, s3: &S3Client) {
+async fn dump_max_streaks(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
     let streaks: Vec<UserStreak> = sql_entities::max_streaks::Entity::find()
         .order_by_asc(sql_entities::max_streaks::Column::UserId)
         .into_model()
         .all(db)
-        .await
-        .expect("Failed to load max_streaks");
+        .await?;
 
-    let json = serde_json::to_vec(&streaks).expect("Failed to serialize max_streaks");
-    upload(s3, "/resources/streaks.json", json).await;
+    upload(s3, "/resources/streaks.json", serde_json::to_vec(&streaks)?).await
 }
 
-async fn dump_merged_problems(db: &DatabaseConnection, s3: &S3Client) {
+async fn dump_merged_problems(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
     let merged_problems: Vec<MergedProblem> = MergedProblem::find_by_statement(
         sea_orm::Statement::from_string(
             sea_orm::DatabaseBackend::Postgres,
             r#"
             SELECT
-                problems.id AS id,
-                problems.contest_id AS contest_id,
-                problems.problem_index AS problem_index,
-                problems.name AS name,
-                problems.title AS title,
-
-                shortest.submission_id AS shortest_submission_id,
-                shortest.contest_id AS shortest_contest_id,
-                shortest_submissions.user_id AS shortest_user_id,
-
-                fastest.submission_id AS fastest_submission_id,
-                fastest.contest_id AS fastest_contest_id,
-                fastest_submissions.user_id AS fastest_user_id,
-
-                first.submission_id AS first_submission_id,
-                first.contest_id AS first_contest_id,
-                first_submissions.user_id AS first_user_id,
-
-                shortest_submissions.length AS source_code_length,
-                fastest_submissions.execution_time AS execution_time,
-                points.point,
-                solver.user_count AS solver_count
-            FROM
-                problems
-                LEFT JOIN shortest ON shortest.problem_id = problems.id
-                LEFT JOIN fastest ON fastest.problem_id = problems.id
-                LEFT JOIN first ON first.problem_id = problems.id
-                LEFT JOIN submissions AS shortest_submissions ON shortest.submission_id = shortest_submissions.id
-                LEFT JOIN submissions AS fastest_submissions ON fastest.submission_id = fastest_submissions.id
-                LEFT JOIN submissions AS first_submissions ON first.submission_id = first_submissions.id
-                LEFT JOIN points ON points.problem_id = problems.id
-                LEFT JOIN solver ON solver.problem_id = problems.id
-            ORDER BY problems.id
+                p.id,
+                p.contest_id,
+                p.problem_index,
+                p.name,
+                p.title,
+                sh.submission_id AS shortest_submission_id,
+                sh.contest_id AS shortest_contest_id,
+                sh_sub.user_id AS shortest_user_id,
+                fa.submission_id AS fastest_submission_id,
+                fa.contest_id AS fastest_contest_id,
+                fa_sub.user_id AS fastest_user_id,
+                fi.submission_id AS first_submission_id,
+                fi.contest_id AS first_contest_id,
+                fi_sub.user_id AS first_user_id,
+                sh_sub.length AS source_code_length,
+                fa_sub.execution_time,
+                pt.point,
+                so.user_count AS solver_count
+            FROM problems p
+            LEFT JOIN shortest sh ON sh.problem_id = p.id
+            LEFT JOIN fastest fa ON fa.problem_id = p.id
+            LEFT JOIN first fi ON fi.problem_id = p.id
+            LEFT JOIN submissions sh_sub ON sh.submission_id = sh_sub.id
+            LEFT JOIN submissions fa_sub ON fa.submission_id = fa_sub.id
+            LEFT JOIN submissions fi_sub ON fi.submission_id = fi_sub.id
+            LEFT JOIN points pt ON pt.problem_id = p.id
+            LEFT JOIN solver so ON so.problem_id = p.id
+            ORDER BY p.id
             "#,
         ),
     )
     .all(db)
-    .await
-    .expect("Failed to load merged_problems");
+    .await?;
 
-    let json = serde_json::to_vec(&merged_problems).expect("Failed to serialize merged_problems");
-    upload(s3, "/resources/merged-problems.json", json).await;
+    upload(
+        s3,
+        "/resources/merged-problems.json",
+        serde_json::to_vec(&merged_problems)?,
+    )
+    .await
 }
 
 #[derive(Serialize, FromQueryResult)]
@@ -250,7 +254,7 @@ struct UserSum {
     point_sum: i64,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize)]
 struct LanguageCount {
     user_id: String,
     simplified_language: String,
