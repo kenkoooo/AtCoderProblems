@@ -1,28 +1,11 @@
+use anyhow::Result;
 use s3::S3Client;
 use sea_orm::{Database, DatabaseConnection, EntityTrait, QueryOrder};
 use serde::Serialize;
 use std::cmp::Reverse;
 use std::collections::{BTreeMap, HashMap};
-use thiserror::Error;
 
 const LANGUAGE_COUNT_LIMIT: usize = 1000;
-
-#[derive(Error, Debug)]
-enum DumpError {
-    #[error("Database error: {0}")]
-    Database(#[from] sea_orm::DbErr),
-
-    #[error("S3 error: {0}")]
-    S3(#[from] s3::S3Error),
-
-    #[error("JSON serialization error: {0}")]
-    Json(#[from] serde_json::Error),
-
-    #[error("Environment variable error: {0}")]
-    EnvVar(#[from] std::env::VarError),
-}
-
-type Result<T> = std::result::Result<T, DumpError>;
 
 #[tokio::main]
 async fn main() -> Result<()> {

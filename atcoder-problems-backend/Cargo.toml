@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow.workspace = true
 chrono.workspace = true
 crawler.workspace = true
 rand.workspace = true
@@ -32,6 +33,7 @@ sea-orm = { workspace = true, features = [
 members = ["crawler", "sql-entities", "s3"]
 
 [workspace.dependencies]
+anyhow = "1.0"
 aws-config = "1.6"
 aws-sdk-s3 = "1.83"
 bytes = "1.10"
