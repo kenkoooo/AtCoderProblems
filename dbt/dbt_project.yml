@@ -1,0 +1,21 @@
+name: 'atcoder_problems'
+version: '1.0.0'
+
+profile: 'atcoder_problems'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+analysis-paths: ["analyses"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  atcoder_problems:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

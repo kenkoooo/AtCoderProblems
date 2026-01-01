@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: stg_contests
+    description: "Staged contests with additional computed fields"
+    columns:
+      - name: contest_id
+        description: "Contest ID"
+      - name: start_epoch_second
+        description: "Contest start time in epoch seconds"
+      - name: duration_second
+        description: "Contest duration in seconds"
+      - name: title
+        description: "Contest title"
+      - name: rate_change
+        description: "Rate change category"
+      - name: is_rated
+        description: "Whether the contest is rated"
+
+  - name: stg_problems
+    description: "Staged problems"
+    columns:
+      - name: problem_id
+        description: "Problem ID"
+      - name: contest_id
+        description: "Contest ID"
+      - name: problem_index
+        description: "Problem index (A, B, C, etc.)"
+      - name: name
+        description: "Problem name"
+      - name: title
+        description: "Problem title"
+
+  - name: stg_contest_problem
+    description: "Staged contest-problem mapping"
+    columns:
+      - name: contest_id
+        description: "Contest ID"
+      - name: problem_id
+        description: "Problem ID"
+      - name: problem_index
+        description: "Problem index"
+
+  - name: stg_submissions
+    description: "Staged submissions with bot users filtered out"
+    columns:
+      - name: submission_id
+        description: "Submission ID"
+      - name: epoch_second
+        description: "Submission time in epoch seconds"
+      - name: problem_id
+        description: "Problem ID"
+      - name: contest_id
+        description: "Contest ID"
+      - name: user_id
+        description: "User ID"
+      - name: language
+        description: "Programming language"
+      - name: point
+        description: "Points earned"
+      - name: length
+        description: "Code length in bytes"
+      - name: result
+        description: "Submission result"
+      - name: execution_time
+        description: "Execution time in milliseconds"
+      - name: is_accepted
+        description: "Whether the submission was accepted"

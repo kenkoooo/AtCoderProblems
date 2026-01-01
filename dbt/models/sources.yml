@@ -1,0 +1,67 @@
+version: 2
+
+sources:
+  - name: atcoder
+    schema: public
+    tables:
+      - name: contests
+        description: "AtCoder contests"
+        columns:
+          - name: id
+            description: "Contest ID (e.g., abc001)"
+          - name: start_epoch_second
+            description: "Contest start time in epoch seconds"
+          - name: duration_second
+            description: "Contest duration in seconds"
+          - name: title
+            description: "Contest title"
+          - name: rate_change
+            description: "Rate change category (e.g., '-', 'All', '~ 1199')"
+
+      - name: problems
+        description: "AtCoder problems"
+        columns:
+          - name: id
+            description: "Problem ID (e.g., abc001_a)"
+          - name: contest_id
+            description: "Contest ID"
+          - name: problem_index
+            description: "Problem index (e.g., A, B, C)"
+          - name: name
+            description: "Problem name"
+          - name: title
+            description: "Problem title (e.g., 'A. Problem Name')"
+
+      - name: contest_problem
+        description: "Mapping between contests and problems"
+        columns:
+          - name: contest_id
+            description: "Contest ID"
+          - name: problem_id
+            description: "Problem ID"
+          - name: problem_index
+            description: "Problem index"
+
+      - name: submissions
+        description: "User submissions to AtCoder problems"
+        columns:
+          - name: id
+            description: "Submission ID"
+          - name: epoch_second
+            description: "Submission time in epoch seconds"
+          - name: problem_id
+            description: "Problem ID"
+          - name: contest_id
+            description: "Contest ID"
+          - name: user_id
+            description: "User ID"
+          - name: language
+            description: "Programming language"
+          - name: point
+            description: "Points earned"
+          - name: length
+            description: "Code length in bytes"
+          - name: result
+            description: "Submission result (e.g., AC, WA, TLE)"
+          - name: execution_time
+            description: "Execution time in milliseconds"
