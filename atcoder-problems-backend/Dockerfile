@@ -15,3 +15,4 @@ RUN cargo build --workspace --release
 FROM gcr.io/distroless/cc-debian12 AS production
 COPY --from=builder /app/target/release/crawl-submissions /usr/bin
 COPY --from=builder /app/target/release/crawl-standings /usr/bin
+COPY --from=builder /app/target/release/crawl-problems /usr/bin
