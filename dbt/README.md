@@ -23,15 +23,13 @@ Data pipeline for aggregating AtCoder Problems statistics.
 
 ## Usage
 
-```bash
-# Set environment variables
-export POSTGRES_HOST=localhost
-export POSTGRES_PORT=5432
-export POSTGRES_USER=postgres
-export POSTGRES_PASSWORD=postgres
-export POSTGRES_DB=atcoder
+Run from the repository root:
 
-# Run with docker compose
+```bash
+# Start postgres
+docker compose up -d postgres
+
+# Run dbt
 docker compose run --rm dbt seed   # Load excluded_users seed
 docker compose run --rm dbt run    # Run all models
 docker compose run --rm dbt test   # Run tests
