@@ -4,14 +4,27 @@ use reqwest::header::{HeaderMap, HeaderValue};
 use serde_json::Value;
 
 use crate::error::CrawlerError;
-use crate::parser::{parse_submissions_html, parse_tasks_html};
-use crate::types::{Problem, Submission};
+use crate::parser::{
+    parse_contests_archive_html, parse_permanent_contests_html, parse_submissions_html,
+    parse_tasks_html,
+};
+use crate::types::{Contest, Problem, Submission};
 
 /// Trait for fetching problems from AtCoder.
 #[cfg_attr(test, mockall::automock)]
 #[async_trait]
 pub trait ProblemFetcher: Send + Sync {
     async fn fetch_problems(&self, contest_id: &str) -> Result<Vec<Problem>, CrawlerError>;
+}
+
+/// Trait for fetching contests from AtCoder.
+#[cfg_attr(test, mockall::automock)]
+#[async_trait]
+pub trait ContestFetcher: Send + Sync {
+    /// Fetch contests from the archive page
+    async fn fetch_contests(&self, page: u32) -> Result<Vec<Contest>, CrawlerError>;
+    /// Fetch permanent contests (e.g., practice, APG4b)
+    async fn fetch_permanent_contests(&self) -> Result<Vec<Contest>, CrawlerError>;
 }
 
 pub struct CrawlerClient {
@@ -45,6 +58,34 @@ impl ProblemFetcher for CrawlerClient {
         }
         let html = response.text().await?;
         parse_tasks_html(&html, contest_id)
+    }
+}
+
+#[async_trait]
+impl ContestFetcher for CrawlerClient {
+    async fn fetch_contests(&self, page: u32) -> Result<Vec<Contest>, CrawlerError> {
+        let url = format!(
+            "https://atcoder.jp/contests/archive?lang=ja&page={}",
+            page
+        );
+        let request = self.client.get(&url);
+        let response = request.send().await?;
+        if !response.status().is_success() {
+            return Err(CrawlerError::HttpError(response.text().await?));
+        }
+        let html = response.text().await?;
+        parse_contests_archive_html(&html)
+    }
+
+    async fn fetch_permanent_contests(&self) -> Result<Vec<Contest>, CrawlerError> {
+        let url = "https://atcoder.jp/contests/?lang=ja";
+        let request = self.client.get(url);
+        let response = request.send().await?;
+        if !response.status().is_success() {
+            return Err(CrawlerError::HttpError(response.text().await?));
+        }
+        let html = response.text().await?;
+        parse_permanent_contests_html(&html)
     }
 }
 

@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 
-use crawler::{CrawlerClient, ProblemFetcher, Problem, Submission};
+use crawler::{Contest, ContestFetcher, CrawlerClient, Problem, ProblemFetcher, Submission};
 use sea_orm::{
-    ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, Set,
-    sea_query::OnConflict,
+    sea_query::OnConflict, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, Set,
 };
 
 pub async fn fetch_submissions(
@@ -258,4 +257,143 @@ async fn upsert_problems(
             .ok(); // Ignore duplicate key errors
     }
     Ok(new_problems.len())
+}
+
+/// Crawls contests from AtCoder and upserts them into the database.
+///
+/// This function:
+/// 1. Fetches permanent contests (practice, APG4b, etc.)
+/// 2. Fetches contests from archive pages (paginated)
+/// 3. Upserts all contests into the database
+///
+/// Returns the total number of contests inserted/updated.
+pub async fn crawl_contests(
+    fetcher: &dyn ContestFetcher,
+    db: &DatabaseConnection,
+) -> Result<usize, DbErr> {
+    let mut all_contests: Vec<Contest> = Vec::new();
+
+    // Fetch permanent contests
+    tracing::info!("Fetching permanent contests...");
+    let permanent_contests = fetch_permanent_contests_with_retry(fetcher).await;
+    tracing::info!("Fetched {} permanent contests", permanent_contests.len());
+    all_contests.extend(permanent_contests);
+
+    // Fetch contests from archive pages
+    // We fetch pages until we get an empty page or the contests start overlapping with existing ones
+    let mut page = 1;
+    loop {
+        tracing::info!("Fetching contests from archive page {}...", page);
+        let contests = fetch_contests_with_retry(fetcher, page).await;
+
+        if contests.is_empty() {
+            tracing::info!("No more contests found on page {}", page);
+            break;
+        }
+
+        tracing::info!("Fetched {} contests from page {}", contests.len(), page);
+        all_contests.extend(contests);
+        page += 1;
+
+        // Rate limiting
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+    }
+
+    tracing::info!("Total contests fetched: {}", all_contests.len());
+
+    // Upsert contests
+    let inserted = upsert_contests(db, all_contests).await?;
+    tracing::info!("Finished crawling contests, total inserted: {}", inserted);
+
+    Ok(inserted)
+}
+
+async fn fetch_permanent_contests_with_retry(fetcher: &dyn ContestFetcher) -> Vec<Contest> {
+    const MAX_RETRIES: u32 = 10;
+    let mut retry_count = 0;
+    let mut retry_delay = 2000;
+
+    while retry_count < MAX_RETRIES {
+        match fetcher.fetch_permanent_contests().await {
+            Ok(contests) => {
+                return contests;
+            }
+            Err(e) => {
+                retry_count += 1;
+                tracing::warn!(
+                    "Failed to fetch permanent contests (attempt {}/{}): {}",
+                    retry_count,
+                    MAX_RETRIES,
+                    e
+                );
+                tokio::time::sleep(std::time::Duration::from_millis(retry_delay)).await;
+                retry_delay *= 2;
+            }
+        }
+    }
+
+    tracing::error!(
+        "Failed to fetch permanent contests after {} retries",
+        MAX_RETRIES
+    );
+    vec![]
+}
+
+async fn fetch_contests_with_retry(fetcher: &dyn ContestFetcher, page: u32) -> Vec<Contest> {
+    const MAX_RETRIES: u32 = 10;
+    let mut retry_count = 0;
+    let mut retry_delay = 2000;
+
+    while retry_count < MAX_RETRIES {
+        match fetcher.fetch_contests(page).await {
+            Ok(contests) => {
+                return contests;
+            }
+            Err(e) => {
+                retry_count += 1;
+                tracing::warn!(
+                    "Failed to fetch contests page {} (attempt {}/{}): {}",
+                    page,
+                    retry_count,
+                    MAX_RETRIES,
+                    e
+                );
+                tokio::time::sleep(std::time::Duration::from_millis(retry_delay)).await;
+                retry_delay *= 2;
+            }
+        }
+    }
+
+    tracing::error!(
+        "Failed to fetch contests page {} after {} retries",
+        page,
+        MAX_RETRIES
+    );
+    vec![]
+}
+
+async fn upsert_contests(db: &DatabaseConnection, contests: Vec<Contest>) -> Result<usize, DbErr> {
+    for contest in &contests {
+        let model = sql_entities::contests::ActiveModel {
+            id: Set(contest.id.clone()),
+            start_epoch_second: Set(contest.start_epoch_second),
+            duration_second: Set(contest.duration_second),
+            title: Set(contest.title.clone()),
+            rate_change: Set(contest.rate_change.clone()),
+        };
+        sql_entities::contests::Entity::insert(model)
+            .on_conflict(
+                OnConflict::column(sql_entities::contests::Column::Id)
+                    .update_columns([
+                        sql_entities::contests::Column::StartEpochSecond,
+                        sql_entities::contests::Column::DurationSecond,
+                        sql_entities::contests::Column::Title,
+                        sql_entities::contests::Column::RateChange,
+                    ])
+                    .to_owned(),
+            )
+            .exec(db)
+            .await?;
+    }
+    Ok(contests.len())
 }
