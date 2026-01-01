@@ -1,0 +1,33 @@
+//! `SeaORM` Entity for merged_problems table
+
+use sea_orm::entity::prelude::*;
+
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
+#[sea_orm(table_name = "merged_problems")]
+pub struct Model {
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub id: String,
+    pub contest_id: String,
+    pub problem_index: String,
+    pub name: String,
+    pub title: String,
+    pub shortest_submission_id: Option<i64>,
+    pub shortest_contest_id: Option<String>,
+    pub shortest_user_id: Option<String>,
+    pub fastest_submission_id: Option<i64>,
+    pub fastest_contest_id: Option<String>,
+    pub fastest_user_id: Option<String>,
+    pub first_submission_id: Option<i64>,
+    pub first_contest_id: Option<String>,
+    pub first_user_id: Option<String>,
+    pub source_code_length: Option<i32>,
+    pub execution_time: Option<i32>,
+    #[sea_orm(column_type = "Double", nullable)]
+    pub point: Option<f64>,
+    pub solver_count: Option<i32>,
+}
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+pub enum Relation {}
+
+impl ActiveModelBehavior for ActiveModel {}

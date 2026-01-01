@@ -2,7 +2,7 @@ use s3::S3Client;
 use sea_orm::{Database, DatabaseConnection, EntityTrait, QueryOrder};
 use serde::Serialize;
 use std::cmp::Reverse;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::error::Error;
 
 const LANGUAGE_COUNT_LIMIT: usize = 1000;
@@ -199,88 +199,32 @@ async fn dump_max_streaks(db: &DatabaseConnection, s3: &S3Client) -> Result<()> 
 }
 
 async fn dump_merged_problems(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
-    // Fetch all required data
-    let problems = sql_entities::problems::Entity::find()
-        .order_by_asc(sql_entities::problems::Column::Id)
+    let merged: Vec<_> = sql_entities::merged_problems::Entity::find()
+        .order_by_asc(sql_entities::merged_problems::Column::Id)
         .all(db)
         .await?;
 
-    let shortest: HashMap<_, _> = sql_entities::shortest::Entity::find()
-        .all(db)
-        .await?
+    let output: Vec<_> = merged
         .into_iter()
-        .map(|s| (s.problem_id.clone(), s))
-        .collect();
-
-    let fastest: HashMap<_, _> = sql_entities::fastest::Entity::find()
-        .all(db)
-        .await?
-        .into_iter()
-        .map(|f| (f.problem_id.clone(), f))
-        .collect();
-
-    let first: HashMap<_, _> = sql_entities::first::Entity::find()
-        .all(db)
-        .await?
-        .into_iter()
-        .map(|f| (f.problem_id.clone(), f))
-        .collect();
-
-    let points: HashMap<_, _> = sql_entities::points::Entity::find()
-        .all(db)
-        .await?
-        .into_iter()
-        .map(|p| (p.problem_id.clone(), p))
-        .collect();
-
-    let solver: HashMap<_, _> = sql_entities::solver::Entity::find()
-        .all(db)
-        .await?
-        .into_iter()
-        .map(|s| (s.problem_id.clone(), s))
-        .collect();
-
-    let submissions: HashMap<_, _> = sql_entities::submissions::Entity::find()
-        .all(db)
-        .await?
-        .into_iter()
-        .map(|s| (s.id, s))
-        .collect();
-
-    // Merge data
-    let output: Vec<_> = problems
-        .into_iter()
-        .map(|p| {
-            let sh = shortest.get(&p.id);
-            let fa = fastest.get(&p.id);
-            let fi = first.get(&p.id);
-            let pt = points.get(&p.id);
-            let so = solver.get(&p.id);
-
-            let sh_sub = sh.and_then(|s| submissions.get(&s.submission_id));
-            let fa_sub = fa.and_then(|f| submissions.get(&f.submission_id));
-            let fi_sub = fi.and_then(|f| submissions.get(&f.submission_id));
-
-            MergedProblem {
-                id: p.id,
-                contest_id: p.contest_id,
-                problem_index: p.problem_index,
-                name: p.name,
-                title: p.title,
-                shortest_submission_id: sh.map(|s| s.submission_id),
-                shortest_contest_id: sh.map(|s| s.contest_id.clone()),
-                shortest_user_id: sh_sub.map(|s| s.user_id.clone()),
-                fastest_submission_id: fa.map(|f| f.submission_id),
-                fastest_contest_id: fa.map(|f| f.contest_id.clone()),
-                fastest_user_id: fa_sub.map(|s| s.user_id.clone()),
-                first_submission_id: fi.map(|f| f.submission_id),
-                first_contest_id: fi.map(|f| f.contest_id.clone()),
-                first_user_id: fi_sub.map(|s| s.user_id.clone()),
-                source_code_length: sh_sub.map(|s| s.length),
-                execution_time: fa_sub.and_then(|s| s.execution_time),
-                point: pt.and_then(|p| p.point),
-                solver_count: so.map(|s| s.user_count),
-            }
+        .map(|m| MergedProblem {
+            id: m.id,
+            contest_id: m.contest_id,
+            problem_index: m.problem_index,
+            name: m.name,
+            title: m.title,
+            shortest_submission_id: m.shortest_submission_id,
+            shortest_contest_id: m.shortest_contest_id,
+            shortest_user_id: m.shortest_user_id,
+            fastest_submission_id: m.fastest_submission_id,
+            fastest_contest_id: m.fastest_contest_id,
+            fastest_user_id: m.fastest_user_id,
+            first_submission_id: m.first_submission_id,
+            first_contest_id: m.first_contest_id,
+            first_user_id: m.first_user_id,
+            source_code_length: m.source_code_length,
+            execution_time: m.execution_time,
+            point: m.point,
+            solver_count: m.solver_count,
         })
         .collect();
 

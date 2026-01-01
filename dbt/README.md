@@ -20,6 +20,7 @@ Data pipeline for aggregating AtCoder Problems statistics.
 - `fastest` - Fastest AC submission per problem
 - `shortest` - Shortest AC submission per problem
 - `first` - First AC submission per problem
+- `merged_problems` - Combined problem data with fastest/shortest/first submissions, points, and solver counts
 
 ## Usage
 
