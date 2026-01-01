@@ -1,12 +1,21 @@
-/// Represents a problem from AtCoder
+/// Represents a problem from AtCoder (matches the DB schema)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Problem {
-    /// The problem prefix (e.g., "A", "B", "C")
-    pub prefix: String,
-    /// The problem name
+    /// The problem ID (e.g., "abc399_a")
+    pub id: String,
+    /// The contest ID (e.g., "abc399")
+    pub contest_id: String,
+    /// The problem index (e.g., "A", "B", "C")
+    pub problem_index: String,
+    /// The problem name (e.g., "Hamming Distance")
     pub name: String,
-    /// The URL to the problem
-    pub url: String,
+}
+
+impl Problem {
+    /// Returns the problem title (e.g., "A. Hamming Distance")
+    pub fn title(&self) -> String {
+        format!("{}. {}", self.problem_index, self.name)
+    }
 }
 
 /// Represents a submission from AtCoder
