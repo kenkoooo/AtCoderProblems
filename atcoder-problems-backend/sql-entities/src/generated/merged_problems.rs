@@ -24,7 +24,7 @@ pub struct Model {
     pub execution_time: Option<i32>,
     #[sea_orm(column_type = "Double", nullable)]
     pub point: Option<f64>,
-    pub solver_count: Option<i32>,
+    pub solver_count: Option<i64>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
