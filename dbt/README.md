@@ -29,8 +29,16 @@ Run from the repository root:
 # Start postgres
 docker compose up -d postgres
 
-# Run dbt
+# Run dbt (seed → run → test in dependency order)
+docker compose run --rm dbt build
+```
+
+Individual commands:
+
+```bash
 docker compose run --rm dbt seed   # Load excluded_users seed
 docker compose run --rm dbt run    # Run all models
 docker compose run --rm dbt test   # Run tests
 ```
+
+**Note:** `dbt seed` must be run before `dbt run` because `stg_submissions` depends on `excluded_users`.
