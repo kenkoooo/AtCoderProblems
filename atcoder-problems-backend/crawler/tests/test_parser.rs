@@ -1,4 +1,7 @@
-use crawler::{parse_submissions_html, parse_tasks_html};
+use crawler::{
+    parse_contests_archive_html, parse_permanent_contests_html, parse_submissions_html,
+    parse_tasks_html,
+};
 
 #[test]
 fn test_parse_tasks_html() {
@@ -211,4 +214,87 @@ fn test_parse_tasks_html_codequeen2023() {
         last_problem.name.contains("Queen"),
         "Last problem name should contain 'Queen'"
     );
+}
+
+#[test]
+fn test_parse_contests_archive_html() {
+    // Load the test HTML file
+    let html_content = include_str!("assets/contests_archive.html");
+
+    // Parse the HTML content
+    let contests =
+        parse_contests_archive_html(html_content).expect("Failed to parse contests archive HTML");
+
+    // Verify that we found the expected number of contests
+    assert_eq!(
+        contests.len(),
+        3,
+        "Expected 3 contests, found {}",
+        contests.len()
+    );
+
+    // Verify the first contest
+    let first_contest = &contests[0];
+    assert_eq!(first_contest.id, "kupc2019");
+    assert_eq!(first_contest.start_epoch_second, 1570939200);
+    assert_eq!(first_contest.duration_second, 5 * 3600);
+    assert_eq!(first_contest.title, "Kyoto University Programming Contest 2019");
+    assert_eq!(first_contest.rate_change, "-");
+
+    // Verify the second contest
+    let second_contest = &contests[1];
+    assert_eq!(second_contest.id, "agc039");
+    assert_eq!(second_contest.start_epoch_second, 1570276800);
+    assert_eq!(second_contest.duration_second, 2 * 3600 + 30 * 60);
+    assert_eq!(second_contest.title, "AtCoder Grand Contest 039");
+    assert_eq!(second_contest.rate_change, "All");
+
+    // Verify the third contest
+    let third_contest = &contests[2];
+    assert_eq!(third_contest.id, "abc142");
+    assert_eq!(third_contest.start_epoch_second, 1569672000);
+    assert_eq!(third_contest.duration_second, 1 * 3600 + 40 * 60);
+    assert_eq!(third_contest.title, "AtCoder Beginner Contest 142");
+    assert_eq!(third_contest.rate_change, "~ 1999");
+}
+
+#[test]
+fn test_parse_permanent_contests_html() {
+    // Load the test HTML file
+    let html_content = include_str!("assets/contests_permanent.html");
+
+    // Parse the HTML content
+    let contests =
+        parse_permanent_contests_html(html_content).expect("Failed to parse permanent contests HTML");
+
+    // Verify that we found the expected number of contests
+    assert_eq!(
+        contests.len(),
+        4,
+        "Expected 4 contests, found {}",
+        contests.len()
+    );
+
+    // Verify the first contest
+    let first_contest = &contests[0];
+    assert_eq!(first_contest.id, "practice");
+    assert_eq!(first_contest.start_epoch_second, 0);
+    assert_eq!(first_contest.duration_second, 100 * 365 * 24 * 3600);
+    assert_eq!(first_contest.title, "practice contest");
+    assert_eq!(first_contest.rate_change, "-");
+
+    // Verify the second contest
+    let second_contest = &contests[1];
+    assert_eq!(second_contest.id, "APG4b");
+    assert!(second_contest.title.contains("APG4b"));
+
+    // Verify the third contest
+    let third_contest = &contests[2];
+    assert_eq!(third_contest.id, "abs");
+    assert_eq!(third_contest.title, "AtCoder Beginners Selection");
+
+    // Verify the fourth contest
+    let fourth_contest = &contests[3];
+    assert_eq!(fourth_contest.id, "practice2");
+    assert_eq!(fourth_contest.title, "AtCoder Library Practice Contest");
 }

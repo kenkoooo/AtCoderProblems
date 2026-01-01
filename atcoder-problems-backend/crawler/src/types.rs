@@ -18,6 +18,21 @@ impl Problem {
     }
 }
 
+/// Represents a contest from AtCoder (matches the DB schema)
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Contest {
+    /// The contest ID (e.g., "abc399")
+    pub id: String,
+    /// The start time in epoch seconds
+    pub start_epoch_second: i64,
+    /// The duration in seconds
+    pub duration_second: i64,
+    /// The contest title (e.g., "AtCoder Beginner Contest 399")
+    pub title: String,
+    /// The rating change description (e.g., "~ 1999", "All", "-")
+    pub rate_change: String,
+}
+
 /// Represents a submission from AtCoder
 #[derive(Debug, Clone, PartialEq)]
 pub struct Submission {
