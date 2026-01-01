@@ -1,8 +1,8 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crawler::{CrawlerClient, ProblemFetcher, Problem, Submission};
 use sea_orm::{
-    ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, QuerySelect, Set,
+    ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, Set,
     sea_query::OnConflict,
 };
 
@@ -113,39 +113,36 @@ pub async fn upsert_submissions(
 /// Crawls problems for all contests that don't have problems yet.
 ///
 /// This function:
-/// 1. Fetches all contest IDs from the database
-/// 2. Finds contests that don't have any problems
-/// 3. Crawls problems for each contest
-/// 4. Upserts the problems into the database
+/// 1. Fetches all contest_problem entries and builds a map
+/// 2. Fetches all contests
+/// 3. Finds contests that don't have any problems
+/// 4. Crawls problems for each contest
+/// 5. Upserts the problems into the database
 ///
 /// Returns the total number of problems inserted/updated.
 pub async fn crawl_problems(
     fetcher: &dyn ProblemFetcher,
     db: &DatabaseConnection,
 ) -> Result<usize, DbErr> {
-    // Get all contest IDs
-    let all_contest_ids: HashSet<_> = sql_entities::contests::Entity::find()
-        .all(db)
-        .await?
-        .into_iter()
-        .map(|c| c.id)
-        .collect();
+    // Build a map of contest_id -> problem_ids from contest_problem table
+    let contest_problems: HashMap<String, Vec<String>> =
+        sql_entities::contest_problem::Entity::find()
+            .all(db)
+            .await?
+            .into_iter()
+            .fold(HashMap::new(), |mut map, cp| {
+                map.entry(cp.contest_id).or_default().push(cp.problem_id);
+                map
+            });
 
-    // Get contest IDs that already have problems (from contest_problem table)
-    let contest_ids_with_problems: HashSet<_> = sql_entities::contest_problem::Entity::find()
-        .select_only()
-        .column(sql_entities::contest_problem::Column::ContestId)
-        .distinct()
-        .into_tuple::<String>()
-        .all(db)
-        .await?
-        .into_iter()
-        .collect();
+    // Get all contests
+    let all_contests = sql_entities::contests::Entity::find().all(db).await?;
 
     // Find contests without problems
-    let contests_without_problems: Vec<_> = all_contest_ids
-        .difference(&contest_ids_with_problems)
-        .cloned()
+    let contests_without_problems: Vec<_> = all_contests
+        .into_iter()
+        .filter(|c| !contest_problems.contains_key(&c.id))
+        .map(|c| c.id)
         .collect();
 
     tracing::info!(
