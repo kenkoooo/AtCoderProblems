@@ -32,7 +32,6 @@ sea-orm = { workspace = true, features = [
 members = ["crawler", "sql-entities", "s3"]
 
 [workspace.dependencies]
-anyhow = "1.0"
 aws-config = "1.6"
 aws-sdk-s3 = "1.83"
 bytes = "1.10"
