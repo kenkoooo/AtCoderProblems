@@ -43,7 +43,7 @@ CREATE TABLE contests (
 DROP TABLE IF EXISTS solver;
 CREATE TABLE solver (
   problem_id            VARCHAR(255)  NOT NULL,
-  user_count               INT NOT NULL,
+  user_count            BIGINT NOT NULL,
   PRIMARY KEY (problem_id)
 );
 
@@ -74,7 +74,7 @@ CREATE TABLE first (
 DROP TABLE IF EXISTS accepted_count;
 CREATE TABLE accepted_count (
   user_id       VARCHAR(255)  NOT NULL,
-  problem_count INT           NOT NULL,
+  problem_count BIGINT        NOT NULL,
   PRIMARY KEY (user_id)
 );
 CREATE INDEX ON accepted_count (LOWER(user_id));
@@ -101,7 +101,7 @@ DROP TABLE IF EXISTS language_count;
 CREATE TABLE language_count (
   user_id               VARCHAR(255) NOT NULL,
   simplified_language   VARCHAR(255) NOT NULL,
-  problem_count         INT NOT NULL,
+  problem_count         BIGINT NOT NULL,
   PRIMARY KEY (user_id, simplified_language)
 );
 CREATE INDEX ON language_count (LOWER(user_id));
@@ -224,6 +224,6 @@ CREATE TABLE merged_problems (
   source_code_length      INT,
   execution_time          INT,
   point                   DOUBLE PRECISION,
-  solver_count            INT,
+  solver_count            BIGINT,
   PRIMARY KEY (id)
 );
