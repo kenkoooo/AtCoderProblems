@@ -203,3 +203,27 @@ CREATE TABLE internal_progress_reset (
   PRIMARY KEY (internal_user_id, problem_id)
 );
 CREATE INDEX ON internal_progress_reset (internal_user_id);
+
+-- Merged problems for API export (populated by dbt)
+DROP TABLE IF EXISTS merged_problems;
+CREATE TABLE merged_problems (
+  id                      VARCHAR(255) NOT NULL,
+  contest_id              VARCHAR(255) NOT NULL,
+  problem_index           VARCHAR(255) NOT NULL,
+  name                    VARCHAR(255) NOT NULL,
+  title                   VARCHAR(255) NOT NULL,
+  shortest_submission_id  BIGINT,
+  shortest_contest_id     VARCHAR(255),
+  shortest_user_id        VARCHAR(255),
+  fastest_submission_id   BIGINT,
+  fastest_contest_id      VARCHAR(255),
+  fastest_user_id         VARCHAR(255),
+  first_submission_id     BIGINT,
+  first_contest_id        VARCHAR(255),
+  first_user_id           VARCHAR(255),
+  source_code_length      INT,
+  execution_time          INT,
+  point                   DOUBLE PRECISION,
+  solver_count            INT,
+  PRIMARY KEY (id)
+);
