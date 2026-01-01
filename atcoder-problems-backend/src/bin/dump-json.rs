@@ -1,11 +1,13 @@
-use anyhow::Result;
 use s3::S3Client;
 use sea_orm::{Database, DatabaseConnection, EntityTrait, QueryOrder};
 use serde::Serialize;
 use std::cmp::Reverse;
 use std::collections::{BTreeMap, HashMap};
+use std::error::Error;
 
 const LANGUAGE_COUNT_LIMIT: usize = 1000;
+
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 #[tokio::main]
 async fn main() -> Result<()> {
