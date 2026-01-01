@@ -298,3 +298,26 @@ fn test_parse_permanent_contests_html() {
     assert_eq!(fourth_contest.id, "practice2");
     assert_eq!(fourth_contest.title, "AtCoder Library Practice Contest");
 }
+
+#[test]
+fn test_parse_contests_archive_html_empty_page() {
+    // Test with an empty page (no tbody)
+    let html_content = r#"
+        <!DOCTYPE html>
+        <html>
+        <head><title>Past Contests - AtCoder</title></head>
+        <body>
+        <div id="main-container">
+            <div class="panel panel-default">
+                <p>No contests found.</p>
+            </div>
+        </div>
+        </body>
+        </html>
+    "#;
+
+    let contests =
+        parse_contests_archive_html(html_content).expect("Should handle empty page gracefully");
+
+    assert_eq!(contests.len(), 0, "Expected 0 contests for empty page");
+}

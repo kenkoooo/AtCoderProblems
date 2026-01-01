@@ -28,10 +28,10 @@ pub fn parse_contests_archive_html(html_content: &str) -> Result<Vec<Contest>, C
     let a_selector =
         Selector::parse("a").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
 
-    let tbody = document
-        .select(&tbody_selector)
-        .next()
-        .ok_or_else(|| CrawlerError::ParseError("No tbody found".to_string()))?;
+    let tbody = match document.select(&tbody_selector).next() {
+        Some(tbody) => tbody,
+        None => return Ok(Vec::new()), // Empty page, no contests
+    };
 
     let mut contests = Vec::new();
     for tr in tbody.select(&tr_selector) {
