@@ -57,6 +57,37 @@ impl S3Client {
         Ok(())
     }
 
+    pub async fn put_object_with_content_type(
+        &self,
+        key: &str,
+        data: impl Into<Bytes>,
+        content_type: &str,
+    ) -> Result<()> {
+        self.client
+            .put_object()
+            .bucket(&self.bucket)
+            .key(key)
+            .content_type(content_type)
+            .body(data.into().into())
+            .send()
+            .await?;
+
+        Ok(())
+    }
+
+    /// Update object only if data has changed
+    pub async fn update(&self, key: &str, data: Vec<u8>) -> Result<bool> {
+        let old_data = self.get_object(key).await?.map(|b| b.to_vec());
+
+        if old_data.as_ref() != Some(&data) {
+            self.put_object_with_content_type(key, data, "application/json;charset=utf-8")
+                .await?;
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
+
     pub async fn get_object(&self, key: &str) -> Result<Option<Bytes>> {
         let response = match self
             .client

@@ -133,6 +133,7 @@ dependencies = [
  "rand 0.9.1",
  "s3",
  "sea-orm",
+ "serde",
  "serde_json",
  "sql-entities",
  "thiserror",

@@ -17,6 +17,7 @@ tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tracing-subscriber = { workspace = true, features = ["json", "env-filter"] }
 tracing.workspace = true
 thiserror.workspace = true
+serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 
 [dev-dependencies]
@@ -39,6 +40,7 @@ rand = "0.9"
 reqwest = "0.12"
 scraper = "0.23"
 sea-orm = "1.1"
+serde = "1.0"
 serde_json = "1.0"
 testcontainers-modules = "0.11"
 thiserror = "2.0"
