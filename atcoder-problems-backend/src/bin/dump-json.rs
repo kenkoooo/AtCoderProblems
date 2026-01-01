@@ -1,10 +1,9 @@
 use s3::S3Client;
-use sea_orm::{Database, DatabaseConnection, EntityTrait, FromQueryResult, QueryOrder};
+use sea_orm::{Database, DatabaseConnection, EntityTrait, QueryOrder};
 use serde::Serialize;
 use std::cmp::Reverse;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use thiserror::Error;
-use tokio::try_join;
 
 const LANGUAGE_COUNT_LIMIT: usize = 1000;
 
@@ -40,17 +39,14 @@ async fn main() -> Result<()> {
     let db = Database::connect(&database_url).await?;
     let s3 = S3Client::new(&bucket_name).await;
 
-    // Run all dumps in parallel
-    try_join!(
-        dump_contests(&db, &s3),
-        dump_problems(&db, &s3),
-        dump_contest_problem(&db, &s3),
-        dump_accepted_count(&db, &s3),
-        dump_rated_point_sum(&db, &s3),
-        dump_language_count(&db, &s3),
-        dump_max_streaks(&db, &s3),
-        dump_merged_problems(&db, &s3),
-    )?;
+    dump_contests(&db, &s3).await?;
+    dump_problems(&db, &s3).await?;
+    dump_contest_problem(&db, &s3).await?;
+    dump_accepted_count(&db, &s3).await?;
+    dump_rated_point_sum(&db, &s3).await?;
+    dump_language_count(&db, &s3).await?;
+    dump_max_streaks(&db, &s3).await?;
+    dump_merged_problems(&db, &s3).await?;
 
     tracing::info!("Done.");
     Ok(())
@@ -68,64 +64,105 @@ async fn upload(s3: &S3Client, path: &str, data: Vec<u8>) -> Result<()> {
 }
 
 async fn dump_contests(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
-    let contests: Vec<Contest> = sql_entities::contests::Entity::find()
+    let contests: Vec<_> = sql_entities::contests::Entity::find()
         .order_by_asc(sql_entities::contests::Column::Id)
-        .into_model()
         .all(db)
         .await?;
 
-    upload(s3, "/resources/contests.json", serde_json::to_vec(&contests)?).await
+    let output: Vec<_> = contests
+        .into_iter()
+        .map(|c| Contest {
+            id: c.id,
+            start_epoch_second: c.start_epoch_second,
+            duration_second: c.duration_second,
+            title: c.title,
+            rate_change: c.rate_change,
+        })
+        .collect();
+
+    upload(s3, "/resources/contests.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_problems(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
-    let problems: Vec<Problem> = sql_entities::problems::Entity::find()
+    let problems: Vec<_> = sql_entities::problems::Entity::find()
         .order_by_asc(sql_entities::problems::Column::Id)
-        .into_model()
         .all(db)
         .await?;
 
-    upload(s3, "/resources/problems.json", serde_json::to_vec(&problems)?).await
+    let output: Vec<_> = problems
+        .into_iter()
+        .map(|p| Problem {
+            id: p.id,
+            contest_id: p.contest_id,
+            problem_index: p.problem_index,
+            name: p.name,
+            title: p.title,
+        })
+        .collect();
+
+    upload(s3, "/resources/problems.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_contest_problem(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
-    let contest_problem: Vec<ContestProblem> = sql_entities::contest_problem::Entity::find()
+    let contest_problem: Vec<_> = sql_entities::contest_problem::Entity::find()
         .order_by_asc(sql_entities::contest_problem::Column::ContestId)
         .order_by_asc(sql_entities::contest_problem::Column::ProblemId)
-        .into_model()
         .all(db)
         .await?;
+
+    let output: Vec<_> = contest_problem
+        .into_iter()
+        .map(|cp| ContestProblem {
+            contest_id: cp.contest_id,
+            problem_id: cp.problem_id,
+            problem_index: cp.problem_index,
+        })
+        .collect();
 
     upload(
         s3,
         "/resources/contest-problem.json",
-        serde_json::to_vec(&contest_problem)?,
+        serde_json::to_vec(&output)?,
     )
     .await
 }
 
 async fn dump_accepted_count(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
-    let accepted_count: Vec<AcceptedCount> = sql_entities::accepted_count::Entity::find()
+    let accepted_count: Vec<_> = sql_entities::accepted_count::Entity::find()
         .order_by_asc(sql_entities::accepted_count::Column::UserId)
-        .into_model()
         .all(db)
         .await?;
 
-    upload(s3, "/resources/ac.json", serde_json::to_vec(&accepted_count)?).await
+    let output: Vec<_> = accepted_count
+        .into_iter()
+        .map(|ac| AcceptedCount {
+            user_id: ac.user_id,
+            problem_count: ac.problem_count,
+        })
+        .collect();
+
+    upload(s3, "/resources/ac.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_rated_point_sum(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
-    let sums: Vec<UserSum> = sql_entities::rated_point_sum::Entity::find()
+    let sums: Vec<_> = sql_entities::rated_point_sum::Entity::find()
         .order_by_asc(sql_entities::rated_point_sum::Column::UserId)
-        .into_model()
         .all(db)
         .await?;
 
-    upload(s3, "/resources/sums.json", serde_json::to_vec(&sums)?).await
+    let output: Vec<_> = sums
+        .into_iter()
+        .map(|s| UserSum {
+            user_id: s.user_id,
+            point_sum: s.point_sum,
+        })
+        .collect();
+
+    upload(s3, "/resources/sums.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_language_count(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
-    let all_counts: Vec<sql_entities::language_count::Model> =
-        sql_entities::language_count::Entity::find().all(db).await?;
+    let all_counts: Vec<_> = sql_entities::language_count::Entity::find().all(db).await?;
 
     // Group by language and keep top LANGUAGE_COUNT_LIMIT per language
     let mut by_language: BTreeMap<&str, Vec<&sql_entities::language_count::Model>> =
@@ -137,7 +174,7 @@ async fn dump_language_count(db: &DatabaseConnection, s3: &S3Client) -> Result<(
             .push(entry);
     }
 
-    let mut language_count: Vec<LanguageCount> = by_language
+    let mut output: Vec<LanguageCount> = by_language
         .into_values()
         .flat_map(|mut entries| {
             entries.sort_by_key(|e| Reverse(e.problem_count));
@@ -150,74 +187,127 @@ async fn dump_language_count(db: &DatabaseConnection, s3: &S3Client) -> Result<(
         })
         .collect();
 
-    language_count.sort_by(|a, b| {
+    output.sort_by(|a, b| {
         a.user_id
             .cmp(&b.user_id)
             .then_with(|| a.simplified_language.cmp(&b.simplified_language))
     });
 
-    upload(s3, "/resources/lang.json", serde_json::to_vec(&language_count)?).await
+    upload(s3, "/resources/lang.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_max_streaks(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
-    let streaks: Vec<UserStreak> = sql_entities::max_streaks::Entity::find()
+    let streaks: Vec<_> = sql_entities::max_streaks::Entity::find()
         .order_by_asc(sql_entities::max_streaks::Column::UserId)
-        .into_model()
         .all(db)
         .await?;
 
-    upload(s3, "/resources/streaks.json", serde_json::to_vec(&streaks)?).await
+    let output: Vec<_> = streaks
+        .into_iter()
+        .map(|s| UserStreak {
+            user_id: s.user_id,
+            streak: s.streak,
+        })
+        .collect();
+
+    upload(s3, "/resources/streaks.json", serde_json::to_vec(&output)?).await
 }
 
 async fn dump_merged_problems(db: &DatabaseConnection, s3: &S3Client) -> Result<()> {
-    let merged_problems: Vec<MergedProblem> = MergedProblem::find_by_statement(
-        sea_orm::Statement::from_string(
-            sea_orm::DatabaseBackend::Postgres,
-            r#"
-            SELECT
-                p.id,
-                p.contest_id,
-                p.problem_index,
-                p.name,
-                p.title,
-                sh.submission_id AS shortest_submission_id,
-                sh.contest_id AS shortest_contest_id,
-                sh_sub.user_id AS shortest_user_id,
-                fa.submission_id AS fastest_submission_id,
-                fa.contest_id AS fastest_contest_id,
-                fa_sub.user_id AS fastest_user_id,
-                fi.submission_id AS first_submission_id,
-                fi.contest_id AS first_contest_id,
-                fi_sub.user_id AS first_user_id,
-                sh_sub.length AS source_code_length,
-                fa_sub.execution_time,
-                pt.point,
-                so.user_count AS solver_count
-            FROM problems p
-            LEFT JOIN shortest sh ON sh.problem_id = p.id
-            LEFT JOIN fastest fa ON fa.problem_id = p.id
-            LEFT JOIN first fi ON fi.problem_id = p.id
-            LEFT JOIN submissions sh_sub ON sh.submission_id = sh_sub.id
-            LEFT JOIN submissions fa_sub ON fa.submission_id = fa_sub.id
-            LEFT JOIN submissions fi_sub ON fi.submission_id = fi_sub.id
-            LEFT JOIN points pt ON pt.problem_id = p.id
-            LEFT JOIN solver so ON so.problem_id = p.id
-            ORDER BY p.id
-            "#,
-        ),
-    )
-    .all(db)
-    .await?;
+    // Fetch all required data
+    let problems = sql_entities::problems::Entity::find()
+        .order_by_asc(sql_entities::problems::Column::Id)
+        .all(db)
+        .await?;
+
+    let shortest: HashMap<_, _> = sql_entities::shortest::Entity::find()
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|s| (s.problem_id.clone(), s))
+        .collect();
+
+    let fastest: HashMap<_, _> = sql_entities::fastest::Entity::find()
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|f| (f.problem_id.clone(), f))
+        .collect();
+
+    let first: HashMap<_, _> = sql_entities::first::Entity::find()
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|f| (f.problem_id.clone(), f))
+        .collect();
+
+    let points: HashMap<_, _> = sql_entities::points::Entity::find()
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|p| (p.problem_id.clone(), p))
+        .collect();
+
+    let solver: HashMap<_, _> = sql_entities::solver::Entity::find()
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|s| (s.problem_id.clone(), s))
+        .collect();
+
+    let submissions: HashMap<_, _> = sql_entities::submissions::Entity::find()
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|s| (s.id, s))
+        .collect();
+
+    // Merge data
+    let output: Vec<_> = problems
+        .into_iter()
+        .map(|p| {
+            let sh = shortest.get(&p.id);
+            let fa = fastest.get(&p.id);
+            let fi = first.get(&p.id);
+            let pt = points.get(&p.id);
+            let so = solver.get(&p.id);
+
+            let sh_sub = sh.and_then(|s| submissions.get(&s.submission_id));
+            let fa_sub = fa.and_then(|f| submissions.get(&f.submission_id));
+            let fi_sub = fi.and_then(|f| submissions.get(&f.submission_id));
+
+            MergedProblem {
+                id: p.id,
+                contest_id: p.contest_id,
+                problem_index: p.problem_index,
+                name: p.name,
+                title: p.title,
+                shortest_submission_id: sh.map(|s| s.submission_id),
+                shortest_contest_id: sh.map(|s| s.contest_id.clone()),
+                shortest_user_id: sh_sub.map(|s| s.user_id.clone()),
+                fastest_submission_id: fa.map(|f| f.submission_id),
+                fastest_contest_id: fa.map(|f| f.contest_id.clone()),
+                fastest_user_id: fa_sub.map(|s| s.user_id.clone()),
+                first_submission_id: fi.map(|f| f.submission_id),
+                first_contest_id: fi.map(|f| f.contest_id.clone()),
+                first_user_id: fi_sub.map(|s| s.user_id.clone()),
+                source_code_length: sh_sub.map(|s| s.length),
+                execution_time: fa_sub.and_then(|s| s.execution_time),
+                point: pt.and_then(|p| p.point),
+                solver_count: so.map(|s| s.user_count),
+            }
+        })
+        .collect();
 
     upload(
         s3,
         "/resources/merged-problems.json",
-        serde_json::to_vec(&merged_problems)?,
+        serde_json::to_vec(&output)?,
     )
     .await
 }
 
-#[derive(Serialize, FromQueryResult)]
+#[derive(Serialize)]
 struct Contest {
     id: String,
     start_epoch_second: i64,
@@ -226,7 +316,7 @@ struct Contest {
     rate_change: String,
 }
 
-#[derive(Serialize, FromQueryResult)]
+#[derive(Serialize)]
 struct Problem {
     id: String,
     contest_id: String,
@@ -235,20 +325,20 @@ struct Problem {
     title: String,
 }
 
-#[derive(Serialize, FromQueryResult)]
+#[derive(Serialize)]
 struct ContestProblem {
     contest_id: String,
     problem_id: String,
     problem_index: String,
 }
 
-#[derive(Serialize, FromQueryResult)]
+#[derive(Serialize)]
 struct AcceptedCount {
     user_id: String,
     problem_count: i32,
 }
 
-#[derive(Serialize, FromQueryResult)]
+#[derive(Serialize)]
 struct UserSum {
     user_id: String,
     point_sum: i64,
@@ -261,13 +351,13 @@ struct LanguageCount {
     problem_count: i32,
 }
 
-#[derive(Serialize, FromQueryResult)]
+#[derive(Serialize)]
 struct UserStreak {
     user_id: String,
     streak: i64,
 }
 
-#[derive(Serialize, FromQueryResult)]
+#[derive(Serialize)]
 struct MergedProblem {
     id: String,
     contest_id: String,
