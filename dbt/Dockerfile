@@ -8,4 +8,4 @@ RUN uv sync --frozen
 COPY . .
 
 ENTRYPOINT ["uv", "run", "dbt"]
-CMD ["run"]
+CMD ["build"]
