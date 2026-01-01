@@ -1,5 +1,16 @@
-use crawler::Problem;
+use async_trait::async_trait;
+use crawler::{CrawlerError, Problem, ProblemFetcher};
+use mockall::mock;
 use sea_orm::{ConnectionTrait, Database, DatabaseConnection, DbErr, EntityTrait, Schema, Set};
+
+mock! {
+    pub ProblemFetcher {}
+
+    #[async_trait]
+    impl ProblemFetcher for ProblemFetcher {
+        async fn fetch_problems(&self, contest_id: &str) -> Result<Vec<Problem>, CrawlerError>;
+    }
+}
 
 async fn setup_db() -> Result<DatabaseConnection, DbErr> {
     let db = Database::connect("sqlite::memory:").await?;
@@ -18,132 +29,11 @@ async fn setup_db() -> Result<DatabaseConnection, DbErr> {
 }
 
 #[tokio::test]
-async fn test_get_all_contest_ids() {
-    let db = setup_db().await.unwrap();
-
-    // Insert test data
-    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
-        id: Set("abc001".to_string()),
-        start_epoch_second: Set(0),
-        duration_second: Set(0),
-        title: Set("Test Contest".to_string()),
-        rate_change: Set("-".to_string()),
-    })
-    .exec(&db)
-    .await
-    .unwrap();
-
-    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
-        id: Set("abc002".to_string()),
-        start_epoch_second: Set(0),
-        duration_second: Set(0),
-        title: Set("Test Contest".to_string()),
-        rate_change: Set("-".to_string()),
-    })
-    .exec(&db)
-    .await
-    .unwrap();
-
-    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
-        id: Set("abc003".to_string()),
-        start_epoch_second: Set(0),
-        duration_second: Set(0),
-        title: Set("Test Contest".to_string()),
-        rate_change: Set("-".to_string()),
-    })
-    .exec(&db)
-    .await
-    .unwrap();
-
-    // Test
-    let contest_ids = atcoder_problems_backend::crawler_utils::get_all_contest_ids(&db)
-        .await
-        .unwrap();
-
-    assert_eq!(contest_ids.len(), 3);
-    assert!(contest_ids.contains("abc001"));
-    assert!(contest_ids.contains("abc002"));
-    assert!(contest_ids.contains("abc003"));
-}
-
-#[tokio::test]
-async fn test_get_contest_ids_with_problems() {
+async fn test_crawl_problems_inserts_problems_for_contests_without_problems() {
     let db = setup_db().await.unwrap();
 
     // Insert contests
-    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
-        id: Set("abc001".to_string()),
-        start_epoch_second: Set(0),
-        duration_second: Set(0),
-        title: Set("Test Contest".to_string()),
-        rate_change: Set("-".to_string()),
-    })
-    .exec(&db)
-    .await
-    .unwrap();
-
-    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
-        id: Set("abc002".to_string()),
-        start_epoch_second: Set(0),
-        duration_second: Set(0),
-        title: Set("Test Contest".to_string()),
-        rate_change: Set("-".to_string()),
-    })
-    .exec(&db)
-    .await
-    .unwrap();
-
-    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
-        id: Set("abc003".to_string()),
-        start_epoch_second: Set(0),
-        duration_second: Set(0),
-        title: Set("Test Contest".to_string()),
-        rate_change: Set("-".to_string()),
-    })
-    .exec(&db)
-    .await
-    .unwrap();
-
-    // Insert problems only for abc001 and abc003
-    sql_entities::problems::Entity::insert(sql_entities::problems::ActiveModel {
-        id: Set("abc001_a".to_string()),
-        contest_id: Set("abc001".to_string()),
-        problem_index: Set("A".to_string()),
-        name: Set("Test Problem".to_string()),
-        title: Set("A. Test Problem".to_string()),
-    })
-    .exec(&db)
-    .await
-    .unwrap();
-
-    sql_entities::problems::Entity::insert(sql_entities::problems::ActiveModel {
-        id: Set("abc003_a".to_string()),
-        contest_id: Set("abc003".to_string()),
-        problem_index: Set("A".to_string()),
-        name: Set("Test Problem".to_string()),
-        title: Set("A. Test Problem".to_string()),
-    })
-    .exec(&db)
-    .await
-    .unwrap();
-
-    // Test
-    let contest_ids = atcoder_problems_backend::crawler_utils::get_contest_ids_with_problems(&db)
-        .await
-        .unwrap();
-
-    assert_eq!(contest_ids.len(), 2);
-    assert!(contest_ids.contains("abc001"));
-    assert!(contest_ids.contains("abc003"));
-    assert!(!contest_ids.contains("abc002"));
-}
-
-#[tokio::test]
-async fn test_find_contests_without_problems() {
-    let db = setup_db().await.unwrap();
-
-    // Insert contests
-    for id in ["abc001", "abc002", "abc003", "abc004"] {
+    for id in ["abc001", "abc002", "abc003"] {
         sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
             id: Set(id.to_string()),
             start_epoch_second: Set(0),
@@ -156,125 +46,194 @@ async fn test_find_contests_without_problems() {
         .unwrap();
     }
 
-    // Insert problems only for abc001 and abc003
+    // Insert problems only for abc001 (so abc002 and abc003 need crawling)
     sql_entities::problems::Entity::insert(sql_entities::problems::ActiveModel {
         id: Set("abc001_a".to_string()),
         contest_id: Set("abc001".to_string()),
         problem_index: Set("A".to_string()),
-        name: Set("Test Problem".to_string()),
-        title: Set("A. Test Problem".to_string()),
+        name: Set("Existing Problem".to_string()),
+        title: Set("A. Existing Problem".to_string()),
+    })
+    .exec(&db)
+    .await
+    .unwrap();
+
+    // Setup mock
+    let mut mock_fetcher = MockProblemFetcher::new();
+
+    mock_fetcher
+        .expect_fetch_problems()
+        .withf(|contest_id| contest_id == "abc002")
+        .times(1)
+        .returning(|_| {
+            Ok(vec![
+                Problem {
+                    id: "abc002_a".to_string(),
+                    contest_id: "abc002".to_string(),
+                    problem_index: "A".to_string(),
+                    name: "Problem A".to_string(),
+                },
+                Problem {
+                    id: "abc002_b".to_string(),
+                    contest_id: "abc002".to_string(),
+                    problem_index: "B".to_string(),
+                    name: "Problem B".to_string(),
+                },
+            ])
+        });
+
+    mock_fetcher
+        .expect_fetch_problems()
+        .withf(|contest_id| contest_id == "abc003")
+        .times(1)
+        .returning(|_| {
+            Ok(vec![Problem {
+                id: "abc003_a".to_string(),
+                contest_id: "abc003".to_string(),
+                problem_index: "A".to_string(),
+                name: "Problem A".to_string(),
+            }])
+        });
+
+    // Run the crawl
+    let inserted = atcoder_problems_backend::crawler_utils::crawl_problems(&mock_fetcher, &db)
+        .await
+        .unwrap();
+
+    // Verify results
+    assert_eq!(inserted, 3); // 2 from abc002 + 1 from abc003
+
+    let all_problems = sql_entities::problems::Entity::find()
+        .all(&db)
+        .await
+        .unwrap();
+
+    assert_eq!(all_problems.len(), 4); // 1 existing + 3 new
+    assert!(all_problems.iter().any(|p| p.id == "abc001_a"));
+    assert!(all_problems.iter().any(|p| p.id == "abc002_a"));
+    assert!(all_problems.iter().any(|p| p.id == "abc002_b"));
+    assert!(all_problems.iter().any(|p| p.id == "abc003_a"));
+}
+
+#[tokio::test]
+async fn test_crawl_problems_skips_contests_with_existing_problems() {
+    let db = setup_db().await.unwrap();
+
+    // Insert a contest that already has problems
+    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
+        id: Set("abc001".to_string()),
+        start_epoch_second: Set(0),
+        duration_second: Set(0),
+        title: Set("Test Contest".to_string()),
+        rate_change: Set("-".to_string()),
     })
     .exec(&db)
     .await
     .unwrap();
 
     sql_entities::problems::Entity::insert(sql_entities::problems::ActiveModel {
-        id: Set("abc003_a".to_string()),
-        contest_id: Set("abc003".to_string()),
+        id: Set("abc001_a".to_string()),
+        contest_id: Set("abc001".to_string()),
         problem_index: Set("A".to_string()),
-        name: Set("Test Problem".to_string()),
-        title: Set("A. Test Problem".to_string()),
+        name: Set("Existing Problem".to_string()),
+        title: Set("A. Existing Problem".to_string()),
     })
     .exec(&db)
     .await
     .unwrap();
 
-    // Get contest IDs using functions under test
-    let all_contest_ids = atcoder_problems_backend::crawler_utils::get_all_contest_ids(&db)
+    // Setup mock - should not be called since all contests have problems
+    let mock_fetcher = MockProblemFetcher::new();
+
+    // Run the crawl
+    let inserted = atcoder_problems_backend::crawler_utils::crawl_problems(&mock_fetcher, &db)
         .await
         .unwrap();
-    let contest_ids_with_problems =
-        atcoder_problems_backend::crawler_utils::get_contest_ids_with_problems(&db)
-            .await
-            .unwrap();
 
-    // Find contests without problems
-    let mut contests_without_problems =
-        atcoder_problems_backend::crawler_utils::find_contests_without_problems(
-            all_contest_ids,
-            contest_ids_with_problems,
-        );
-    contests_without_problems.sort();
-
-    assert_eq!(contests_without_problems, vec!["abc002", "abc004"]);
+    assert_eq!(inserted, 0);
 }
 
 #[tokio::test]
-async fn test_upsert_problems() {
+async fn test_crawl_problems_handles_empty_response() {
     let db = setup_db().await.unwrap();
 
-    // Create problems to insert
-    let problems = vec![
-        Problem {
-            id: "abc001_a".to_string(),
-            contest_id: "abc001".to_string(),
-            problem_index: "A".to_string(),
-            name: "First Problem".to_string(),
-        },
-        Problem {
-            id: "abc001_b".to_string(),
-            contest_id: "abc001".to_string(),
-            problem_index: "B".to_string(),
-            name: "Second Problem".to_string(),
-        },
-    ];
+    // Insert a contest without problems
+    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
+        id: Set("abc001".to_string()),
+        start_epoch_second: Set(0),
+        duration_second: Set(0),
+        title: Set("Test Contest".to_string()),
+        rate_change: Set("-".to_string()),
+    })
+    .exec(&db)
+    .await
+    .unwrap();
 
-    // Insert problems
-    let inserted = atcoder_problems_backend::crawler_utils::upsert_problems(&db, problems)
+    // Setup mock to return empty vec
+    let mut mock_fetcher = MockProblemFetcher::new();
+    mock_fetcher
+        .expect_fetch_problems()
+        .times(1)
+        .returning(|_| Ok(vec![]));
+
+    // Run the crawl
+    let inserted = atcoder_problems_backend::crawler_utils::crawl_problems(&mock_fetcher, &db)
         .await
         .unwrap();
 
-    assert_eq!(inserted, 2);
+    assert_eq!(inserted, 0);
 
-    // Verify data in DB directly
     let all_problems = sql_entities::problems::Entity::find()
         .all(&db)
         .await
         .unwrap();
 
-    assert_eq!(all_problems.len(), 2);
-    assert!(all_problems.iter().any(|p| p.id == "abc001_a"));
-    assert!(all_problems.iter().any(|p| p.id == "abc001_b"));
+    assert_eq!(all_problems.len(), 0);
 }
 
 #[tokio::test]
-async fn test_upsert_problems_updates_existing() {
+async fn test_crawl_problems_generates_correct_title() {
     let db = setup_db().await.unwrap();
 
-    // Insert initial problem
-    let problems = vec![Problem {
-        id: "abc001_a".to_string(),
-        contest_id: "abc001".to_string(),
-        problem_index: "A".to_string(),
-        name: "Original Name".to_string(),
-    }];
+    // Insert a contest without problems
+    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
+        id: Set("abc001".to_string()),
+        start_epoch_second: Set(0),
+        duration_second: Set(0),
+        title: Set("Test Contest".to_string()),
+        rate_change: Set("-".to_string()),
+    })
+    .exec(&db)
+    .await
+    .unwrap();
 
-    atcoder_problems_backend::crawler_utils::upsert_problems(&db, problems)
+    // Setup mock
+    let mut mock_fetcher = MockProblemFetcher::new();
+    mock_fetcher
+        .expect_fetch_problems()
+        .times(1)
+        .returning(|_| {
+            Ok(vec![Problem {
+                id: "abc001_a".to_string(),
+                contest_id: "abc001".to_string(),
+                problem_index: "A".to_string(),
+                name: "Test Problem".to_string(),
+            }])
+        });
+
+    // Run the crawl
+    atcoder_problems_backend::crawler_utils::crawl_problems(&mock_fetcher, &db)
         .await
         .unwrap();
 
-    // Update problem with same ID
-    let updated_problems = vec![Problem {
-        id: "abc001_a".to_string(),
-        contest_id: "abc001".to_string(),
-        problem_index: "A".to_string(),
-        name: "Updated Name".to_string(),
-    }];
-
-    let inserted = atcoder_problems_backend::crawler_utils::upsert_problems(&db, updated_problems)
-        .await
-        .unwrap();
-
-    assert_eq!(inserted, 1);
-
-    // Verify only one problem exists and it's updated
-    let all_problems = sql_entities::problems::Entity::find()
+    // Verify the title was generated correctly
+    let problem = sql_entities::problems::Entity::find()
         .all(&db)
         .await
+        .unwrap()
+        .into_iter()
+        .next()
         .unwrap();
 
-    assert_eq!(all_problems.len(), 1);
-    assert_eq!(all_problems[0].id, "abc001_a");
-    assert_eq!(all_problems[0].name, "Updated Name");
-    assert_eq!(all_problems[0].title, "A. Updated Name");
+    assert_eq!(problem.title, "A. Test Problem");
 }

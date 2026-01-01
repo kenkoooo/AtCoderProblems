@@ -20,6 +20,8 @@ thiserror.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
+async-trait = "0.1"
+mockall = "0.13"
 sea-orm = { workspace = true, features = [
     "sqlx-sqlite",
     "runtime-tokio-native-tls",

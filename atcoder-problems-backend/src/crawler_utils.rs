@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crawler::{CrawlerClient, Problem, Submission};
+use crawler::{CrawlerClient, ProblemFetcher, Problem, Submission};
 use sea_orm::{
     ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, QuerySelect, Set,
     sea_query::OnConflict,
@@ -110,13 +110,87 @@ pub async fn upsert_submissions(
     Ok(inserted_submissions)
 }
 
-pub async fn fetch_problems(crawler: &CrawlerClient, contest_id: &str) -> Vec<Problem> {
+/// Crawls problems for all contests that don't have problems yet.
+///
+/// This function:
+/// 1. Fetches all contest IDs from the database
+/// 2. Finds contests that don't have any problems
+/// 3. Crawls problems for each contest
+/// 4. Upserts the problems into the database
+///
+/// Returns the total number of problems inserted/updated.
+pub async fn crawl_problems(
+    fetcher: &dyn ProblemFetcher,
+    db: &DatabaseConnection,
+) -> Result<usize, DbErr> {
+    // Get all contest IDs
+    let all_contest_ids: HashSet<_> = sql_entities::contests::Entity::find()
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|c| c.id)
+        .collect();
+
+    // Get contest IDs that already have problems
+    let contest_ids_with_problems: HashSet<_> = sql_entities::problems::Entity::find()
+        .select_only()
+        .column(sql_entities::problems::Column::ContestId)
+        .distinct()
+        .into_tuple::<String>()
+        .all(db)
+        .await?
+        .into_iter()
+        .collect();
+
+    // Find contests without problems
+    let contests_without_problems: Vec<_> = all_contest_ids
+        .difference(&contest_ids_with_problems)
+        .cloned()
+        .collect();
+
+    tracing::info!(
+        "Found {} contests without problems",
+        contests_without_problems.len()
+    );
+
+    let mut total_inserted = 0;
+
+    for contest_id in contests_without_problems {
+        tracing::info!("Fetching problems for contest {}", contest_id);
+
+        let problems = fetch_problems_with_retry(fetcher, &contest_id).await;
+
+        if problems.is_empty() {
+            tracing::warn!("No problems found for contest {}", contest_id);
+            continue;
+        }
+
+        tracing::info!(
+            "Inserting {} problems for contest {}",
+            problems.len(),
+            contest_id
+        );
+
+        let inserted = upsert_problems(db, problems).await?;
+        tracing::info!("Inserted {} problems for contest {}", inserted, contest_id);
+        total_inserted += inserted;
+
+        // Rate limiting
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+    }
+
+    tracing::info!("Finished crawling problems, total inserted: {}", total_inserted);
+
+    Ok(total_inserted)
+}
+
+async fn fetch_problems_with_retry(fetcher: &dyn ProblemFetcher, contest_id: &str) -> Vec<Problem> {
     const MAX_RETRIES: u32 = 10;
     let mut retry_count = 0;
     let mut retry_delay = 2000;
 
     while retry_count < MAX_RETRIES {
-        match crawler.fetch_problems(contest_id).await {
+        match fetcher.fetch_problems(contest_id).await {
             Ok(problems) => {
                 return problems;
             }
@@ -138,18 +212,17 @@ pub async fn fetch_problems(crawler: &CrawlerClient, contest_id: &str) -> Vec<Pr
     vec![]
 }
 
-pub async fn upsert_problems(
+async fn upsert_problems(
     db: &DatabaseConnection,
     new_problems: Vec<Problem>,
 ) -> Result<usize, DbErr> {
-    let mut inserted_count = 0;
-    for problem in new_problems {
+    for problem in &new_problems {
         let title = problem.title();
         let model = sql_entities::problems::ActiveModel {
-            id: Set(problem.id),
-            contest_id: Set(problem.contest_id),
-            problem_index: Set(problem.problem_index),
-            name: Set(problem.name),
+            id: Set(problem.id.clone()),
+            contest_id: Set(problem.contest_id.clone()),
+            problem_index: Set(problem.problem_index.clone()),
+            name: Set(problem.name.clone()),
             title: Set(title),
         };
         sql_entities::problems::Entity::insert(model)
@@ -165,41 +238,6 @@ pub async fn upsert_problems(
             )
             .exec(db)
             .await?;
-        inserted_count += 1;
     }
-    Ok(inserted_count)
-}
-
-/// Finds contest IDs that have no problems associated with them.
-///
-/// This function takes all contest IDs and all problem contest IDs,
-/// and returns the contest IDs that don't have any problems.
-pub fn find_contests_without_problems(
-    all_contest_ids: HashSet<String>,
-    problem_contest_ids: HashSet<String>,
-) -> Vec<String> {
-    all_contest_ids
-        .difference(&problem_contest_ids)
-        .cloned()
-        .collect()
-}
-
-/// Fetches all contest IDs from the database.
-pub async fn get_all_contest_ids(db: &DatabaseConnection) -> Result<HashSet<String>, DbErr> {
-    let contests = sql_entities::contests::Entity::find().all(db).await?;
-    Ok(contests.into_iter().map(|c| c.id).collect())
-}
-
-/// Fetches all distinct contest IDs that have problems in the database.
-pub async fn get_contest_ids_with_problems(
-    db: &DatabaseConnection,
-) -> Result<HashSet<String>, DbErr> {
-    let problems = sql_entities::problems::Entity::find()
-        .select_only()
-        .column(sql_entities::problems::Column::ContestId)
-        .distinct()
-        .into_tuple::<String>()
-        .all(db)
-        .await?;
-    Ok(problems.into_iter().collect())
+    Ok(new_problems.len())
 }

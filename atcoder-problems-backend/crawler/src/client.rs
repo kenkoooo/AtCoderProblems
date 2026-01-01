@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use reqwest::Client;
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde_json::Value;
@@ -5,6 +6,13 @@ use serde_json::Value;
 use crate::error::CrawlerError;
 use crate::parser::{parse_submissions_html, parse_tasks_html};
 use crate::types::{Problem, Submission};
+
+/// Trait for fetching problems from AtCoder.
+#[cfg_attr(test, mockall::automock)]
+#[async_trait]
+pub trait ProblemFetcher: Send + Sync {
+    async fn fetch_problems(&self, contest_id: &str) -> Result<Vec<Problem>, CrawlerError>;
+}
 
 pub struct CrawlerClient {
     client: Client,
@@ -24,8 +32,11 @@ impl CrawlerClient {
                 .build()?,
         })
     }
+}
 
-    pub async fn fetch_problems(&self, contest_id: &str) -> Result<Vec<Problem>, CrawlerError> {
+#[async_trait]
+impl ProblemFetcher for CrawlerClient {
+    async fn fetch_problems(&self, contest_id: &str) -> Result<Vec<Problem>, CrawlerError> {
         let url = format!("https://atcoder.jp/contests/{}/tasks", contest_id);
         let request = self.client.get(&url);
         let response = request.send().await?;
@@ -35,7 +46,9 @@ impl CrawlerClient {
         let html = response.text().await?;
         parse_tasks_html(&html, contest_id)
     }
+}
 
+impl CrawlerClient {
     pub async fn fetch_submissions(
         &self,
         contest_id: &str,
