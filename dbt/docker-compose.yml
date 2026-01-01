@@ -1,0 +1,13 @@
+services:
+  dbt:
+    build: .
+    environment:
+      - DBT_PROFILES_DIR=/dbt
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-atcoder}
+    volumes:
+      - .:/dbt
+    working_dir: /dbt
