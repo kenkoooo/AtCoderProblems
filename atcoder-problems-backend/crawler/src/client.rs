@@ -53,6 +53,9 @@ impl ProblemFetcher for CrawlerClient {
         let url = format!("https://atcoder.jp/contests/{}/tasks", contest_id);
         let request = self.client.get(&url);
         let response = request.send().await?;
+        if response.status() == 404 {
+            return Err(CrawlerError::NotFound);
+        }
         if !response.status().is_success() {
             return Err(CrawlerError::HttpError(response.text().await?));
         }

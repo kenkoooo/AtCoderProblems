@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use crawler::{Contest, ContestFetcher, CrawlerClient, Problem, ProblemFetcher, Submission};
+use crawler::{
+    Contest, ContestFetcher, CrawlerClient, CrawlerError, Problem, ProblemFetcher, Submission,
+};
 use sea_orm::{
     sea_query::OnConflict, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, Set,
 };
@@ -189,6 +191,13 @@ async fn fetch_problems_with_retry(fetcher: &dyn ProblemFetcher, contest_id: &st
         match fetcher.fetch_problems(contest_id).await {
             Ok(problems) => {
                 return problems;
+            }
+            Err(CrawlerError::NotFound) => {
+                tracing::warn!(
+                    "Tasks page not found for contest {} (404), skipping",
+                    contest_id
+                );
+                return vec![];
             }
             Err(e) => {
                 retry_count += 1;
