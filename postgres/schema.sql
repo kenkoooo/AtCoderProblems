@@ -119,7 +119,7 @@ CREATE TABLE contest_problem (
   contest_id            VARCHAR(255) NOT NULL,
   problem_id            VARCHAR(255) NOT NULL,
   problem_index         VARCHAR(255) NOT NULL,
-  PRIMARY KEY (contest_id, problem_id, problem_index)
+  PRIMARY KEY (contest_id, problem_id)
 );
 
 DROP TABLE IF EXISTS max_streaks;

@@ -9,7 +9,6 @@ pub struct Model {
     pub contest_id: String,
     #[sea_orm(primary_key, auto_increment = false)]
     pub problem_id: String,
-    #[sea_orm(primary_key, auto_increment = false)]
     pub problem_index: String,
 }
 
