@@ -15,6 +15,9 @@ pub enum CrawlerError {
     #[error("HTTP error: {0}")]
     HttpError(String),
 
+    #[error("Resource not found (404)")]
+    NotFound,
+
     #[error("Invalid header value: {0}")]
     InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
 
