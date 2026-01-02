@@ -2,6 +2,5 @@
 select
     problem_id,
     count(distinct user_id) as user_count
-from {{ ref('stg_submissions') }}
-where is_accepted
+from {{ ref('int_accepted_submissions') }}
 group by problem_id
