@@ -8,10 +8,9 @@ with valid_ac_submissions as (
         s.problem_id,
         s.contest_id,
         s.length
-    from {{ ref('stg_submissions') }} s
+    from {{ ref('int_accepted_submissions') }} s
     inner join {{ ref('stg_contests') }} c on s.contest_id = c.contest_id
-    where s.is_accepted
-      and s.epoch_second > c.start_epoch_second
+    where s.epoch_second > c.start_epoch_second
 ),
 
 min_length_per_problem as (

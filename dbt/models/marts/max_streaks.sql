@@ -7,8 +7,7 @@ with first_ac_per_problem as (
         user_id,
         problem_id,
         min(epoch_second) as first_ac_epoch
-    from {{ ref('stg_submissions') }}
-    where is_accepted
+    from {{ ref('int_accepted_submissions') }}
     group by user_id, problem_id
 ),
 

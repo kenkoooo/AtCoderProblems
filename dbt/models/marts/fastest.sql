@@ -8,10 +8,9 @@ with valid_ac_submissions as (
         s.problem_id,
         s.contest_id,
         s.execution_time
-    from {{ ref('stg_submissions') }} s
+    from {{ ref('int_accepted_submissions') }} s
     inner join {{ ref('stg_contests') }} c on s.contest_id = c.contest_id
-    where s.is_accepted
-      and s.execution_time is not null
+    where s.execution_time is not null
       and s.epoch_second > c.start_epoch_second
 ),
 

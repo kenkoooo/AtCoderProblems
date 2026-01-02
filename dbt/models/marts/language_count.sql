@@ -10,8 +10,7 @@ with simplified_submissions as (
             when language like 'Perl6%' then 'Raku'
             else regexp_replace(language, '\d*\s*\(.*\)', '', 'g')
         end as simplified_language
-    from {{ ref('stg_submissions') }}
-    where is_accepted
+    from {{ ref('int_accepted_submissions') }}
 )
 
 select
