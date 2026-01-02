@@ -251,7 +251,7 @@ async fn upsert_problems(
             problem_id: Set(problem.id.clone()),
             problem_index: Set(problem.problem_index.clone()),
         };
-        sql_entities::contest_problem::Entity::insert(contest_problem)
+        if let Err(e) = sql_entities::contest_problem::Entity::insert(contest_problem)
             .on_conflict(
                 OnConflict::columns([
                     sql_entities::contest_problem::Column::ContestId,
@@ -263,7 +263,13 @@ async fn upsert_problems(
             )
             .exec(db)
             .await
-            .ok(); // Ignore duplicate key errors
+        {
+            tracing::warn!(
+                "Failed to insert contest_problem for problem {}: {}",
+                problem.id,
+                e
+            );
+        }
     }
     Ok(new_problems.len())
 }
