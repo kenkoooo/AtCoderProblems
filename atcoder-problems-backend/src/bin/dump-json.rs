@@ -264,7 +264,7 @@ struct ContestProblem {
 #[derive(Serialize)]
 struct AcceptedCount {
     user_id: String,
-    problem_count: i64,
+    problem_count: i32,
 }
 
 #[derive(Serialize)]
@@ -277,7 +277,7 @@ struct UserSum {
 struct LanguageCount {
     user_id: String,
     simplified_language: String,
-    problem_count: i64,
+    problem_count: i32,
 }
 
 #[derive(Serialize)]
@@ -305,5 +305,5 @@ struct MergedProblem {
     source_code_length: Option<i32>,
     execution_time: Option<i32>,
     point: Option<f64>,
-    solver_count: Option<i64>,
+    solver_count: Option<i32>,
 }

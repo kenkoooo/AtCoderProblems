@@ -16,6 +16,6 @@ with simplified_submissions as (
 select
     user_id,
     simplified_language,
-    count(distinct problem_id) as problem_count
+    count(distinct problem_id)::int as problem_count
 from simplified_submissions
 group by user_id, simplified_language
