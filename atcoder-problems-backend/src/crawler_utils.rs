@@ -256,9 +256,8 @@ async fn upsert_problems(
                 OnConflict::columns([
                     sql_entities::contest_problem::Column::ContestId,
                     sql_entities::contest_problem::Column::ProblemId,
-                    sql_entities::contest_problem::Column::ProblemIndex,
                 ])
-                .do_nothing()
+                .update_column(sql_entities::contest_problem::Column::ProblemIndex)
                 .to_owned(),
             )
             .exec(db)
