@@ -6,10 +6,10 @@ with simplified_submissions as (
         user_id,
         problem_id,
         -- Simplify language names by removing version info like "(5.0)" or "(GNU 9.2.1)"
-        case
+        trim(case
             when language like 'Perl6%' then 'Raku'
             else regexp_replace(language, '\d*\s*\(.*\)', '', 'g')
-        end as simplified_language
+        end) as simplified_language
     from {{ ref('int_accepted_submissions') }}
 )
 
