@@ -14,6 +14,7 @@ with rated_contests as (
     where c.start_epoch_second >= 1468670400
       and c.is_rated
       and cp.problem_count >= 2
+      and c.contest_id not in ('future-contest-2022-qual', 'rcl-contest-2021-long')
 ),
 
 user_problem_max_points as (
