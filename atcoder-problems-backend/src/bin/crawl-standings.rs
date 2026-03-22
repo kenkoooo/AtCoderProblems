@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use crawler::{CrawlerClient, CrawlerError};
 use s3::S3Client;
 use sea_orm::{Database, DatabaseConnection, EntityTrait};
+use serde_json::Value;
 
 #[tokio::main]
 async fn main() {
@@ -37,14 +38,9 @@ async fn main() {
             tracing::info!("Standings for contest {} already exists", contest.id);
             continue;
         }
-        let standings = crawler
-            .fetch_standings(&contest.id)
-            .await
-            .expect("Failed to fetch standings");
-        let standings = match standings {
+        let standings = match fetch_standings_with_retry(&crawler, &contest.id).await {
             Some(standings) => standings,
             None => {
-                tracing::warn!("Standings for contest {} not found", contest.id);
                 continue;
             }
         };
@@ -59,7 +55,45 @@ async fn main() {
         s3.put_object(&key, json)
             .await
             .expect("Failed to put object");
+
+        // Rate limiting
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
     }
+}
+
+async fn fetch_standings_with_retry(crawler: &CrawlerClient, contest_id: &str) -> Option<Value> {
+    const MAX_RETRIES: u32 = 10;
+    let mut retry_count = 0;
+    let mut retry_delay = 2000;
+
+    while retry_count < MAX_RETRIES {
+        match crawler.fetch_standings(contest_id).await {
+            Ok(Some(standings)) => return Some(standings),
+            Ok(None) => {
+                tracing::warn!("Standings for contest {} not found", contest_id);
+                return None;
+            }
+            Err(e) => {
+                retry_count += 1;
+                tracing::warn!(
+                    "Failed to fetch standings for {} (attempt {}/{}): {}",
+                    contest_id,
+                    retry_count,
+                    MAX_RETRIES,
+                    e
+                );
+                tokio::time::sleep(std::time::Duration::from_millis(retry_delay)).await;
+                retry_delay *= 2;
+            }
+        }
+    }
+
+    tracing::error!(
+        "Failed to fetch standings for {} after {} retries, skipping",
+        contest_id,
+        MAX_RETRIES
+    );
+    None
 }
 
 async fn setup_db() -> Result<DatabaseConnection, sea_orm::DbErr> {
