@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use crawler::{
     parse_contests_archive_html, parse_permanent_contests_html, parse_submissions_html,
     parse_tasks_html,
@@ -238,7 +240,10 @@ fn test_parse_contests_archive_html() {
     assert_eq!(first_contest.id, "kupc2019");
     assert_eq!(first_contest.start_epoch_second, 1570939200);
     assert_eq!(first_contest.duration_second, 5 * 3600);
-    assert_eq!(first_contest.title, "Kyoto University Programming Contest 2019");
+    assert_eq!(
+        first_contest.title,
+        "Kyoto University Programming Contest 2019"
+    );
     assert_eq!(first_contest.rate_change, "-");
 
     // Verify the second contest
@@ -253,7 +258,7 @@ fn test_parse_contests_archive_html() {
     let third_contest = &contests[2];
     assert_eq!(third_contest.id, "abc142");
     assert_eq!(third_contest.start_epoch_second, 1569672000);
-    assert_eq!(third_contest.duration_second, 1 * 3600 + 40 * 60);
+    assert_eq!(third_contest.duration_second, 3600 + 40 * 60);
     assert_eq!(third_contest.title, "AtCoder Beginner Contest 142");
     assert_eq!(third_contest.rate_change, "~ 1999");
 }
@@ -264,8 +269,8 @@ fn test_parse_permanent_contests_html() {
     let html_content = include_str!("assets/contests_permanent.html");
 
     // Parse the HTML content
-    let contests =
-        parse_permanent_contests_html(html_content).expect("Failed to parse permanent contests HTML");
+    let contests = parse_permanent_contests_html(html_content)
+        .expect("Failed to parse permanent contests HTML");
 
     // Verify that we found the expected number of contests
     assert_eq!(

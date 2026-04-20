@@ -11,10 +11,10 @@ async fn main() -> Result<()> {
         .json()
         .init();
 
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = std::env::var("DATABASE_URL").map_err(|_| "DATABASE_URL must be set")?;
     let db = Database::connect(&database_url).await?;
 
-    let revel_session = std::env::var("REVEL_SESSION").expect("REVEL_SESSION must be set");
+    let revel_session = std::env::var("REVEL_SESSION").map_err(|_| "REVEL_SESSION must be set")?;
     let crawler = CrawlerClient::new(revel_session)?;
 
     crawler_utils::crawl_contests(&crawler, &db).await?;

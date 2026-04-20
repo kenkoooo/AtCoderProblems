@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use async_trait::async_trait;
 use crawler::{CrawlerError, Problem, ProblemFetcher};
 use mockall::mock;
@@ -136,18 +138,26 @@ async fn test_crawl_problems_inserts_problems_for_contests_without_problems() {
         .unwrap();
 
     assert_eq!(all_contest_problems.len(), 4); // 1 existing + 3 new
-    assert!(all_contest_problems
-        .iter()
-        .any(|cp| cp.contest_id == "abc001" && cp.problem_id == "abc001_a"));
-    assert!(all_contest_problems
-        .iter()
-        .any(|cp| cp.contest_id == "abc002" && cp.problem_id == "abc002_a"));
-    assert!(all_contest_problems
-        .iter()
-        .any(|cp| cp.contest_id == "abc002" && cp.problem_id == "abc002_b"));
-    assert!(all_contest_problems
-        .iter()
-        .any(|cp| cp.contest_id == "abc003" && cp.problem_id == "abc003_a"));
+    assert!(
+        all_contest_problems
+            .iter()
+            .any(|cp| cp.contest_id == "abc001" && cp.problem_id == "abc001_a")
+    );
+    assert!(
+        all_contest_problems
+            .iter()
+            .any(|cp| cp.contest_id == "abc002" && cp.problem_id == "abc002_a")
+    );
+    assert!(
+        all_contest_problems
+            .iter()
+            .any(|cp| cp.contest_id == "abc002" && cp.problem_id == "abc002_b")
+    );
+    assert!(
+        all_contest_problems
+            .iter()
+            .any(|cp| cp.contest_id == "abc003" && cp.problem_id == "abc003_a")
+    );
 }
 
 #[tokio::test]

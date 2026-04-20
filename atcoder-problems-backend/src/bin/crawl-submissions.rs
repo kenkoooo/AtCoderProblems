@@ -14,20 +14,19 @@ use sea_orm::{
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .json()
         .init();
     let args: Vec<String> = std::env::args().collect();
-    let mode = Mode::from_str(&args[1]).expect("Invalid mode");
+    let mode_arg = args.get(1).ok_or("mode argument is required")?;
+    let mode = Mode::from_str(mode_arg)?;
 
-    let db = setup_db().await.expect("Failed to connect to database");
-    let crawler = setup_crawler().expect("Failed to create crawler");
+    let db = setup_db().await?;
+    let crawler = setup_crawler()?;
 
-    let contest_ids = extract_contest_ids(&db, mode)
-        .await
-        .expect("Failed to extract contest ids");
+    let contest_ids = extract_contest_ids(&db, mode).await?;
 
     tracing::info!("Extracted {} contest ids", contest_ids.len());
     for contest_id in contest_ids {
@@ -47,9 +46,7 @@ async fn main() {
             }
 
             tracing::info!("Inserting {} submissions", submissions.len());
-            let inserted = crawler_utils::upsert_submissions(&db, submissions)
-                .await
-                .expect("Failed to insert submissions");
+            let inserted = crawler_utils::upsert_submissions(&db, submissions).await?;
             tracing::info!("Inserted {} submissions", inserted);
 
             if inserted > 0 {
@@ -70,16 +67,17 @@ async fn main() {
     }
 
     tracing::info!("Finished fetching submissions");
+    Ok(())
 }
 
 async fn setup_db() -> Result<DatabaseConnection> {
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = std::env::var("DATABASE_URL").map_err(|_| "DATABASE_URL must be set")?;
     let db = Database::connect(&database_url).await?;
     Ok(db)
 }
 
 fn setup_crawler() -> Result<CrawlerClient> {
-    let revel_session = std::env::var("REVEL_SESSION").expect("REVEL_SESSION must be set");
+    let revel_session = std::env::var("REVEL_SESSION").map_err(|_| "REVEL_SESSION must be set")?;
     let crawler = CrawlerClient::new(revel_session)?;
     Ok(crawler)
 }
@@ -198,10 +196,7 @@ async fn extract_contest_ids(db: &DatabaseConnection, mode: Mode) -> Result<Hash
                 }
             }
 
-            let mut min_remainings = min_remaining_by_contest_id
-                .into_iter()
-                .map(|(contest_id, remaining)| (contest_id, remaining))
-                .collect::<Vec<_>>();
+            let mut min_remainings = min_remaining_by_contest_id.into_iter().collect::<Vec<_>>();
             min_remainings.sort_by_key(|(_, remaining)| *remaining);
             min_remainings
                 .into_iter()

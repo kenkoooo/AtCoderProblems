@@ -99,10 +99,10 @@ impl S3Client {
         {
             Ok(resp) => resp,
             Err(err) => {
-                if let aws_sdk_s3::error::SdkError::ServiceError(service_err) = &err {
-                    if service_err.err().is_no_such_key() {
-                        return Ok(None);
-                    }
+                if let aws_sdk_s3::error::SdkError::ServiceError(service_err) = &err
+                    && service_err.err().is_no_such_key()
+                {
+                    return Ok(None);
                 }
                 return Err(S3Error::GetObject(err));
             }
@@ -114,6 +114,7 @@ impl S3Client {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
     use aws_config::Region;
@@ -165,12 +166,12 @@ mod tests {
         let test_data = "Hello, S3!";
 
         client
-            .put_object(&test_key, test_data.as_bytes())
+            .put_object(test_key, test_data.as_bytes())
             .await
             .unwrap();
 
         // Assert
-        let result = client.get_object(&test_key).await.unwrap();
+        let result = client.get_object(test_key).await.unwrap();
         assert!(result.is_some());
 
         let data = result.unwrap();

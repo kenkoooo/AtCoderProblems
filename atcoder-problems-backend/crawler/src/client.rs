@@ -67,10 +67,7 @@ impl ProblemFetcher for CrawlerClient {
 #[async_trait]
 impl ContestFetcher for CrawlerClient {
     async fn fetch_contests(&self, page: u32) -> Result<Vec<Contest>, CrawlerError> {
-        let url = format!(
-            "https://atcoder.jp/contests/archive?lang=ja&page={}",
-            page
-        );
+        let url = format!("https://atcoder.jp/contests/archive?lang=ja&page={}", page);
         let request = self.client.get(&url);
         let response = request.send().await?;
         if !response.status().is_success() {

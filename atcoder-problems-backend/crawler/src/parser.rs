@@ -19,8 +19,8 @@ const PERMANENT_CONTEST_DURATION_SECOND: i64 = 100 * 365 * 24 * 3600;
 pub fn parse_contests_archive_html(html_content: &str) -> Result<Vec<Contest>, CrawlerError> {
     let document = Html::parse_document(html_content);
 
-    let tbody_selector = Selector::parse("tbody")
-        .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
+    let tbody_selector =
+        Selector::parse("tbody").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
     let tr_selector =
         Selector::parse("tr").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
     let td_selector =
@@ -117,8 +117,8 @@ pub fn parse_permanent_contests_html(html_content: &str) -> Result<Vec<Contest>,
 
     let permanent_selector = Selector::parse("#contest-table-permanent")
         .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-    let tbody_selector = Selector::parse("tbody")
-        .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
+    let tbody_selector =
+        Selector::parse("tbody").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
     let tr_selector =
         Selector::parse("tr").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
     let td_selector =
@@ -187,7 +187,10 @@ pub fn parse_permanent_contests_html(html_content: &str) -> Result<Vec<Contest>,
 /// # Returns
 ///
 /// A Result containing a vector of Problem structs or a CrawlerError
-pub fn parse_tasks_html(html_content: &str, contest_id: &str) -> Result<Vec<Problem>, CrawlerError> {
+pub fn parse_tasks_html(
+    html_content: &str,
+    contest_id: &str,
+) -> Result<Vec<Problem>, CrawlerError> {
     let document = Html::parse_document(html_content);
 
     // Selector for the table rows containing problem information
@@ -213,7 +216,7 @@ pub fn parse_tasks_html(html_content: &str, contest_id: &str) -> Result<Vec<Prob
 
             // Extract problem ID from URL (e.g., "/contests/abc399/tasks/abc399_a" -> "abc399_a")
             let id = if let Some(href) = name_elem.value().attr("href") {
-                href.split('/').last().unwrap_or("").to_string()
+                href.split('/').next_back().unwrap_or("").to_string()
             } else {
                 continue; // Skip if no URL is found
             };
@@ -258,7 +261,7 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
             if let Some(href) = details_elem.value().attr("href") {
                 // Extract ID from the URL (e.g., "/contests/abc399/submissions/64188418" -> "64188418")
                 href.split('/')
-                    .last()
+                    .next_back()
                     .unwrap_or("")
                     .parse::<i64>()
                     .map_err(|e| {
@@ -294,7 +297,7 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
         let problem = if let Some(problem_elem) = problem_element {
             // Extract problem ID from the URL (e.g., "/contests/abc399/tasks/abc399_a" -> "abc399_a")
             if let Some(href) = problem_elem.value().attr("href") {
-                href.split('/').last().unwrap_or("").to_string()
+                href.split('/').next_back().unwrap_or("").to_string()
             } else {
                 continue; // Skip if no URL is found
             }

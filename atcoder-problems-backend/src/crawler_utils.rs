@@ -4,7 +4,7 @@ use crawler::{
     Contest, ContestFetcher, CrawlerClient, CrawlerError, Problem, ProblemFetcher, Submission,
 };
 use sea_orm::{
-    sea_query::OnConflict, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, Set,
+    ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, Set, sea_query::OnConflict,
 };
 
 pub async fn fetch_submissions(
@@ -70,10 +70,10 @@ pub async fn upsert_submissions(
     let mut inserted_submissions = 0;
     for new_submission in new_submissions {
         let existing_submission = existing_submissions.get(&new_submission.id);
-        if let Some(existing_submission) = existing_submission {
-            if existing_submission == &new_submission {
-                continue;
-            }
+        if let Some(existing_submission) = existing_submission
+            && existing_submission == &new_submission
+        {
+            continue;
         }
 
         let submission = sql_entities::submissions::ActiveModel {
@@ -177,7 +177,10 @@ pub async fn crawl_problems(
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
     }
 
-    tracing::info!("Finished crawling problems, total inserted: {}", total_inserted);
+    tracing::info!(
+        "Finished crawling problems, total inserted: {}",
+        total_inserted
+    );
 
     Ok(total_inserted)
 }

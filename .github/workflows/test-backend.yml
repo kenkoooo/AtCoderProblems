@@ -23,4 +23,6 @@ jobs:
         with:
           shared-key: "atcoder-problems-backend"
           workspaces: "./atcoder-problems-backend -> target"
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace -- --test-threads=4 # Since testcontainers is used, limit the number of containers that can be started at the same time

@@ -3,33 +3,50 @@ name = "atcoder-problems-backend"
 version = "0.1.0"
 edition = "2024"
 
+[lints]
+workspace = true
+
 [dependencies]
+async-trait = "0.1"
+axum = "0.8"
+axum-extra = { version = "0.10", features = ["cookie"] }
+cookie = "0.18"
 chrono.workspace = true
 crawler.workspace = true
 rand.workspace = true
+reqwest = { workspace = true, features = ["json"] }
 s3.workspace = true
 sea-orm = { workspace = true, features = [
     "sqlx-postgres",
     "runtime-tokio-native-tls",
 ] }
-sql-entities.workspace = true
-tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
-tracing-subscriber = { workspace = true, features = ["json", "env-filter"] }
-tracing.workspace = true
-thiserror.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
+server-db.workspace = true
+sql-entities.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors"] }
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["json", "env-filter"] }
+uuid = { version = "1", features = ["v4"] }
 
 [dev-dependencies]
-async-trait = "0.1"
+http-body-util = "0.1"
 mockall = "0.13"
 sea-orm = { workspace = true, features = [
     "sqlx-sqlite",
     "runtime-tokio-native-tls",
 ] }
+tower = { version = "0.5", features = ["util"] }
 
 [workspace]
-members = ["crawler", "sql-entities", "s3"]
+members = ["crawler", "server-db", "sql-entities", "s3"]
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
 
 [workspace.dependencies]
 aws-config = "1.6"
@@ -50,5 +67,6 @@ tracing-subscriber = "0.3"
 
 # Workspace crates
 crawler = { path = "./crawler" }
+server-db = { path = "./server-db" }
 sql-entities = { path = "./sql-entities" }
 s3 = { path = "./s3" }
