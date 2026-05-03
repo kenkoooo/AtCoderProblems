@@ -165,11 +165,19 @@ export const PieChartBlock = (props: Props) => {
     submissionsMap,
     props.userId
   );
+  const awcSolved = solvedCountForPieChart(
+    Array.from(contestToProblems).filter(([contestId]) =>
+      contestId.startsWith("awc")
+    ),
+    submissionsMap,
+    props.userId
+  );
   return (
     <>
       <PieCharts problems={abcSolved} title="AtCoder Beginner Contest" />
       <PieCharts problems={arcSolved} title="AtCoder Regular Contest" />
       <PieCharts problems={agcSolved} title="AtCoder Grand Contest" />
+      <PieCharts problems={awcSolved} title="AtCoder Weekday Contest" />
     </>
   );
 };
