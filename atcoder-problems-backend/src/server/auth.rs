@@ -122,11 +122,13 @@ pub(crate) struct AuthRejection;
 
 impl IntoResponse for AuthRejection {
     fn into_response(self) -> Response {
-        (
-            StatusCode::UNAUTHORIZED,
-            axum::Json(json!({ "error": "unauthorized" })),
-        )
-            .into_response()
+        // Return an empty body (no JSON) on purpose. The frontend's login-state
+        // fetcher calls `response.json()` unconditionally and relies on it
+        // *throwing* to detect a logged-out user (see atcoder-problems-frontend
+        // `InternalAPIClient` / `UserState.isLoggedIn`). A parseable JSON error
+        // body would instead resolve to a truthy non-`UserResponse` object and
+        // crash the UI, so we keep the status code but omit the body.
+        StatusCode::UNAUTHORIZED.into_response()
     }
 }
 
