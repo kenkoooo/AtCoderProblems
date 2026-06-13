@@ -7,6 +7,8 @@ use sea_orm::{
     ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, Set, sea_query::OnConflict,
 };
 
+const ATCODER_WEEKDAY_CONTEST_CATEGORY: u32 = 20;
+
 pub async fn fetch_submissions(
     crawler: &CrawlerClient,
     contest_id: &str,
@@ -281,7 +283,8 @@ async fn upsert_problems(
 /// This function:
 /// 1. Fetches permanent contests (practice, APG4b, etc.)
 /// 2. Fetches contests from archive pages (paginated)
-/// 3. Upserts all contests into the database
+/// 3. Fetches AtCoder Weekday Contests from their category archive
+/// 4. Upserts all contests into the database
 ///
 /// Returns the total number of contests inserted/updated.
 pub async fn crawl_contests(
@@ -313,6 +316,36 @@ pub async fn crawl_contests(
         page += 1;
 
         // Rate limiting
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+    }
+
+    // AtCoder excludes Weekday Contests from the unfiltered archive.
+    let mut page = 1;
+    loop {
+        tracing::info!(
+            "Fetching AtCoder Weekday Contests from archive page {}...",
+            page
+        );
+        let contests = fetch_contests_in_category_with_retry(
+            fetcher,
+            page,
+            ATCODER_WEEKDAY_CONTEST_CATEGORY,
+        )
+        .await;
+
+        if contests.is_empty() {
+            tracing::info!("No more AtCoder Weekday Contests found on page {}", page);
+            break;
+        }
+
+        tracing::info!(
+            "Fetched {} AtCoder Weekday Contests from page {}",
+            contests.len(),
+            page
+        );
+        all_contests.extend(contests);
+        page += 1;
+
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
     }
 
@@ -383,6 +416,45 @@ async fn fetch_contests_with_retry(fetcher: &dyn ContestFetcher, page: u32) -> V
 
     tracing::error!(
         "Failed to fetch contests page {} after {} retries",
+        page,
+        MAX_RETRIES
+    );
+    vec![]
+}
+
+async fn fetch_contests_in_category_with_retry(
+    fetcher: &dyn ContestFetcher,
+    page: u32,
+    category: u32,
+) -> Vec<Contest> {
+    const MAX_RETRIES: u32 = 10;
+    let mut retry_count = 0;
+    let mut retry_delay = 2000;
+
+    while retry_count < MAX_RETRIES {
+        match fetcher.fetch_contests_in_category(page, category).await {
+            Ok(contests) => {
+                return contests;
+            }
+            Err(e) => {
+                retry_count += 1;
+                tracing::warn!(
+                    "Failed to fetch contests category {} page {} (attempt {}/{}): {}",
+                    category,
+                    page,
+                    retry_count,
+                    MAX_RETRIES,
+                    e
+                );
+                tokio::time::sleep(std::time::Duration::from_millis(retry_delay)).await;
+                retry_delay *= 2;
+            }
+        }
+    }
+
+    tracing::error!(
+        "Failed to fetch contests category {} page {} after {} retries",
+        category,
         page,
         MAX_RETRIES
     );
