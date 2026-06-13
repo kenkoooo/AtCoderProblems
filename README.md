@@ -1,8 +1,5 @@
 # AtCoder Problems
 
-[![Rust backend test](https://github.com/kenkoooo/atcoder-problems-2/actions/workflows/test-backend.yml/badge.svg)](https://github.com/kenkoooo/atcoder-problems-2/actions/workflows/test-backend.yml)
-[![Frontend build](https://github.com/kenkoooo/atcoder-problems-2/actions/workflows/test-frontend.yml/badge.svg)](https://github.com/kenkoooo/atcoder-problems-2/actions/workflows/test-frontend.yml)
-
 [AtCoder Problems](https://kenkoooo.com/atcoder/) is a web application to help AtCoder users to solve problems and manage progress more efficiently.
 
 ![screenshot](./screenshot.png)
