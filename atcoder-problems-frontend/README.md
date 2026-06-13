@@ -21,7 +21,7 @@ To log in on your local instance for developing features related to logged in us
 
 If you intend to use your own instance of backend, consult the [backend documentation](../atcoder-problems-backend/README.md).
 
-This project uses [pnpm](https://pnpm.io/) as its package manager (Node.js 16).
+This project uses [pnpm](https://pnpm.io/) as its package manager (Node.js 24; see `.nvmrc`).
 
 ```bash
 pnpm install
