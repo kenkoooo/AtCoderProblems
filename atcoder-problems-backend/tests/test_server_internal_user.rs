@@ -22,6 +22,20 @@ async fn test_get_user_without_cookie_is_401() {
 }
 
 #[tokio::test]
+async fn test_unauthorized_response_has_empty_body() {
+    // The frontend's login-state fetcher calls `response.json()` unconditionally
+    // and relies on it throwing to detect a logged-out user. A parseable JSON
+    // error body would resolve to a truthy non-`UserResponse` object and crash
+    // the UI, so the unauthorized response must keep an empty body.
+    let db = common::setup_db().await;
+    let app = common::build_app(db, common::MockGithubAuthenticator::new());
+    let resp = common::get(&app, "/internal-api/user/get").await;
+    assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
+    let body = common::read_text(resp).await;
+    assert!(body.is_empty(), "expected empty body, got: {body:?}");
+}
+
+#[tokio::test]
 async fn test_get_user_returns_info() {
     let db = common::setup_db().await;
     internal_users::Entity::insert(internal_users::ActiveModel {
