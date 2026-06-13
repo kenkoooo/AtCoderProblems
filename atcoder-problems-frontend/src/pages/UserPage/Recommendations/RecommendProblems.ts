@@ -3,7 +3,7 @@ import ProblemModel, {
   isProblemModelWithDifficultyModel,
   isProblemModelWithTimeModel,
 } from "../../../interfaces/ProblemModel";
-import { ProblemId } from "../../../interfaces/Status";
+import { ContestId, ProblemId } from "../../../interfaces/Status";
 import {
   predictSolveProbability,
   predictSolveTime,
@@ -58,6 +58,7 @@ const getRecommendProbabilityRange = (
 export const recommendProblems = (
   problems: Problem[],
   isIncluded: (problemId: ProblemId) => boolean,
+  isIncludedContestCategory: (contestId: ContestId) => boolean,
   getProblemModel: (problemId: ProblemId) => ProblemModel | undefined,
   recommendExperimental: boolean,
   internalRating: number | null,
@@ -68,6 +69,7 @@ export const recommendProblems = (
   const recommendRange = getRecommendProbabilityRange(recommendOption);
   return problems
     .filter((p) => isIncluded(p.id))
+    .filter((p) => isIncludedContestCategory(p.contest_id))
     .map((p) => ({
       ...p,
       difficulty: getProblemModel(p.id)?.difficulty,
