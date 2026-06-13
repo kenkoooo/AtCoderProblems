@@ -1,0 +1,38 @@
+[
+  {
+    "id": 4272642,
+    "epoch_second": 1550253178,
+    "problem_id": "arc101_b",
+    "contest_id": "abc107",
+    "user_id": "user",
+    "language": "Rust (1.15.1)",
+    "point": 700.0,
+    "length": 3532,
+    "result": "AC",
+    "execution_time": 981
+  },
+  {
+    "id": 430162,
+    "epoch_second": 1434880327,
+    "problem_id": "abc018_4",
+    "contest_id": "abc018",
+    "user_id": "user",
+    "language": "Java (OpenJDK 1.7.0)",
+    "point": 0.0,
+    "length": 1552,
+    "result": "WA",
+    "execution_time": 1780
+  },
+  {
+    "id": 430153,
+    "epoch_second": 1434878942,
+    "problem_id": "abc018_2",
+    "contest_id": "abc018",
+    "user_id": "user",
+    "language": "Java (OpenJDK 1.7.0)",
+    "point": 100.0,
+    "length": 699,
+    "result": "AC",
+    "execution_time": 400
+  }
+]
