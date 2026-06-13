@@ -8,7 +8,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build && pnpm run md:build",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "eject": "react-scripts eject",

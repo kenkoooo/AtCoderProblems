@@ -27,6 +27,9 @@ jobs:
           node-version: 24
           cache: pnpm
           cache-dependency-path: ./atcoder-problems-frontend/pnpm-lock.yaml
+      - uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: "0.4.40"
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       - run: pnpm run lint
