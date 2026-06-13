@@ -1,0 +1,16 @@
+annotated-types==0.7.0
+boto3==1.38.9
+botocore==1.38.9
+certifi==2025.4.26
+charset-normalizer==3.4.2
+idna==3.10
+jmespath==1.0.1
+pydantic==2.11.4
+pydantic-core==2.33.2
+python-dateutil==2.9.0.post0
+requests==2.32.3
+s3transfer==0.12.0
+six==1.17.0
+typing-extensions==4.13.2
+typing-inspection==0.4.0
+urllib3==2.4.0

@@ -21,26 +21,32 @@ To log in on your local instance for developing features related to logged in us
 
 If you intend to use your own instance of backend, consult the [backend documentation](../atcoder-problems-backend/README.md).
 
+This project uses [pnpm](https://pnpm.io/) as its package manager (Node.js 24; see `.nvmrc`).
+
+```bash
+pnpm install
+```
+
 ## Create a production build
 
 ```bash
-docker-compose exec frontend-development yarn build
+pnpm run build
 ```
 
 ## Run unit test
 
 ```bash
-docker-compose exec frontend-development yarn test
+pnpm test
 ```
 
 ## Run end-to-end test
 
 ```bash
-yarn cy:run
+pnpm run cy:run
 ```
 
 ## Open Cypress Test Runner
 
 ```bash
-yarn cy:open
+pnpm run cy:open
 ```

@@ -14,7 +14,13 @@ production backend server, you don't need to run the backend applications in mos
    Keep the **client ID** and the **client secret**.
    - Remember to set the "User authorization callback URL" to
      `http://localhost:8080/internal-api/authorize`.
-1. Launch an instance of [**PostgreSQL**](https://www.postgresql.org/) database on your machine.
+1. A [**PostgreSQL**](https://www.postgresql.org/) database. The easiest way is to
+   start the one defined in the repository's `compose.yaml`, which loads
+   `postgres/schema.sql` automatically:
+
+   ```bash
+   docker compose up -d postgres
+   ```
 
 ## Modifying Files
 
@@ -25,7 +31,7 @@ production backend server, you don't need to run the backend applications in mos
 
 Below are the list of files you need to modify:
 
-- `atcoder-problems-backend/src/server/endpoint/internal_api/mod.rs`: change `REDIRECT_URL` to `http://localhost:3000/atcoder/`
+- `atcoder-problems-backend/src/server/handlers/authorize.rs`: change `REDIRECT_URL` to `http://localhost:3000/atcoder/`
   for your backend to redirect to your frontend web app after logging in.
 - `atcoder-problems-frontend/src/setupProxy.js`: change `target` to `http://localhost:8080`
   **and** remove the `pathRewrite` section for your frontend web app to use your
@@ -37,50 +43,55 @@ Below are the list of files you need to modify:
 
 ## Build
 
+The backend is built with Rust 1.96.0 (see the CI workflow). Build it locally with Cargo:
+
 ```bash
-docker-compose up -d
-docker-compose exec backend-development cargo build
+cargo build --workspace
 ```
 
 ## Run
 
+Each application is a separate binary under `src/bin/`. Set the environment
+variables it needs, then run it with `cargo run --bin <name>`.
+
 ```bash
-export SQL_URL=... # Connection URL of PostgreSQL
-export CLIENT_ID=... # GitHub client_id, which is required to use the login function.
-export CLIENT_SECRET=... # GitHub client_secret, which is required to use the login function.
+export DATABASE_URL=...   # Connection URL of PostgreSQL (required by every binary)
+export CLIENT_ID=...      # GitHub client_id, required by run-server for the login function
+export CLIENT_SECRET=...  # GitHub client_secret, required by run-server for the login function
+export PORT=8080          # Port for run-server
+export REVEL_SESSION=...  # AtCoder `REVEL_SESSION` cookie, required by the crawlers
+export S3_BUCKET_NAME=... # Destination bucket, required by dump-json
 
-# Run backend server
-cargo run --bin run_server
+# Run the API server
+cargo run --bin run-server
 
-# Run crawlers
-cargo run --bin crawl_all_submissions
-cargo run --bin crawl_for_virtual_contests
-cargo run --bin crawl_from_new_contests
-cargo run --bin crawl_problems
-cargo run --bin crawl_recent_submissions
-cargo run --bin crawl_whole_contest <contest_id>
+# Crawlers (require DATABASE_URL and REVEL_SESSION)
+cargo run --bin crawl-contests
+cargo run --bin crawl-problems
+cargo run --bin crawl-standings
+cargo run --bin crawl-submissions <mode>   # mode: all | recent | new | virtual-contests
 
-# Run other tools
-cargo run --bin batch_update
-cargo run --bin delta_update
-cargo run --bin dump_json
-cargo run --bin fix_invalid_submissions
+# Dump datasets as JSON to S3 (requires DATABASE_URL and S3_BUCKET_NAME)
+cargo run --bin dump-json
 ```
 
 ## Test
 
+The tests use [testcontainers](https://github.com/testcontainers/testcontainers-rs),
+so a running Docker daemon is required; each test spins up its own PostgreSQL
+container. Limit the number of test threads to avoid starting too many containers
+at once:
+
 ```bash
-docker-compose up -d
-docker-compose exec backend-development cargo test --workspace -- --test-threads=1
+cargo test --workspace -- --test-threads=4
 ```
 
-## Format
+## Format & Lint
 
-GitHub Action will check if the code base is formatted by `rustfmt`.
-Please make sure that your change is formatted before sending a pull request.
-You can format the code base with `cargo fmt` like the following:
+CI checks that the code base is formatted with `rustfmt` and passes `clippy`
+with no warnings. Please make sure your change is clean before sending a pull request:
 
 ```bash
-docker-compose up -d
-docker-compose exec backend-development cargo fmt
+cargo fmt --all
+cargo clippy --workspace --all-targets -- -D warnings
 ```

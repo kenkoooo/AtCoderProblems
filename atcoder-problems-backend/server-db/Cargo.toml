@@ -1,0 +1,16 @@
+[package]
+name = "server-db"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sea-orm = { workspace = true, features = [
+    "sqlx-postgres",
+    "runtime-tokio-native-tls",
+] }
+serde = { workspace = true, features = ["derive"] }
+sql-entities.workspace = true
+uuid = { version = "1", features = ["v4"] }
+
+[lints]
+workspace = true

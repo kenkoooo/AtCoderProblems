@@ -1,0 +1,894 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>すべての提出 - 天下一プログラマーコンテスト2012 予選C</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Language" content="ja">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="google-site-verification" content="nXGC_JxO0yoP1qBzMnYD_xgufO6leSLw1kyNo2HZltM" />
+
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-RC512FD18N"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('set', 'user_properties', {
+			
+				'login_status': 'logged_in',
+			
+		});
+		gtag('config', 'G-RC512FD18N');
+	</script>
+
+	
+	<meta name="description" content="プログラミング初級者から上級者まで楽しめる、競技プログラミングコンテストサイト「AtCoder」。オンラインで毎週開催プログラミングコンテストを開催しています。競技プログラミングを用いて、客観的に自分のスキルを計ることのできるサービスです。">
+	<meta name="author" content="AtCoder Inc.">
+
+	<meta property="og:site_name" content="AtCoder">
+	
+	<meta property="og:title" content="すべての提出 - 天下一プログラマーコンテスト2012 予選C" />
+	<meta property="og:description" content="プログラミング初級者から上級者まで楽しめる、競技プログラミングコンテストサイト「AtCoder」。オンラインで毎週開催プログラミングコンテストを開催しています。競技プログラミングを用いて、客観的に自分のスキルを計ることのできるサービスです。" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://atcoder.jp/contests/tenka1-2012-qualC/submissions?page=2" />
+	<meta property="og:image" content="https://img.atcoder.jp/assets/atcoder.png" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:site" content="@atcoder" />
+	
+	<meta property="twitter:title" content="すべての提出 - 天下一プログラマーコンテスト2012 予選C" />
+
+	<link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="//img.atcoder.jp/public/d49c595/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="//img.atcoder.jp/public/d49c595/css/base.css">
+	<link rel="shortcut icon" type="image/png" href="//img.atcoder.jp/assets/favicon.png">
+	<link rel="apple-touch-icon" href="//img.atcoder.jp/assets/atcoder.png">
+	<script src="//img.atcoder.jp/public/d49c595/js/lib/jquery-1.9.1.min.js"></script>
+	<script src="//img.atcoder.jp/public/d49c595/js/lib/bootstrap.min.js"></script>
+	<script src="//img.atcoder.jp/public/d49c595/js/cdn/js.cookie.min.js"></script>
+	<script src="//img.atcoder.jp/public/d49c595/js/cdn/moment.min.js"></script>
+	<script src="//img.atcoder.jp/public/d49c595/js/cdn/moment_js-ja.js"></script>
+	<script>
+		var LANG = "ja";
+		var userScreenName = "kenkoooo";
+		var csrfToken = "coTi46dYz1xibFGjA3hwJuXNGZdQq2iAzo0PtWm6Ds8="
+	</script>
+	<script src="//img.atcoder.jp/public/d49c595/js/utils.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/d49c595/js/contest.js"></script>
+		<link href="//img.atcoder.jp/public/d49c595/css/contest.css" rel="stylesheet" />
+		<script>
+			var contestScreenName = "tenka1-2012-qualC";
+			var remainingText = "残り時間";
+			var countDownText = "開始まであと";
+			var startTime = moment("2012-08-29T18:00:00+09:00");
+			var endTime = moment("2012-08-29T20:00:00+09:00");
+		</script>
+		<style></style>
+	
+	
+		<link href="//img.atcoder.jp/public/d49c595/css/cdn/select2.min.css" rel="stylesheet" />
+		<link href="//img.atcoder.jp/public/d49c595/css/cdn/select2-bootstrap.min.css" rel="stylesheet" />
+		<script src="//img.atcoder.jp/public/d49c595/js/lib/select2.min.js"></script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<script src="//img.atcoder.jp/public/d49c595/js/base.js"></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+	var __pParams = __pParams || [];
+	__pParams.push({client_id: '468', c_1: 'atcodercontest', c_2: 'ClientSite'});
+</script>
+<script type="text/javascript" src="https://cdn.d2-apps.net/js/tr.js" async></script>
+
+
+<div id="modal-contest-start" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">コンテスト開始</h4>
+			</div>
+			<div class="modal-body">
+				<p>天下一プログラマーコンテスト2012 予選Cが開始されました。</p>
+			</div>
+			<div class="modal-footer">
+				
+					<button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+				
+			</div>
+		</div>
+	</div>
+</div>
+<div id="modal-contest-end" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">コンテスト終了</h4>
+			</div>
+			<div class="modal-body">
+				<p>天下一プログラマーコンテスト2012 予選Cは終了しました。</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="main-div" class="float-container">
+
+
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+					<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/home"></a>
+			</div>
+			<div class="collapse navbar-collapse" id="navbar-collapse">
+				<ul class="nav navbar-nav">
+				
+					<li><a class="contest-title" href="/contests/tenka1-2012-qualC">天下一プログラマーコンテスト2012 予選C</a></li>
+				
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+							<img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'> 日本語 <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href="/contests/tenka1-2012-qualC/submissions?lang=ja&amp;page=2"><img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'> 日本語</a></li>
+							<li><a href="/contests/tenka1-2012-qualC/submissions?lang=en&amp;page=2"><img src='//img.atcoder.jp/assets/top/img/flag-lang/en.png'> English</a></li>
+						</ul>
+					</li>
+					
+					
+						<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+								<span class="glyphicon glyphicon-cog" aria-hidden="true"></span> kenkoooo (Guest) <span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="/users/kenkoooo"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> マイプロフィール</a></li>
+								<li class="divider"></li>
+								<li><a href="/settings"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> 基本設定</a></li>
+								<li><a href="/settings/icon"><span class="glyphicon glyphicon-picture" aria-hidden="true"></span> アイコン設定</a></li>
+								<li><a href="/settings/password"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> パスワードの変更</a></li>
+								<li><a href="/settings/fav"><span class="glyphicon glyphicon-star" aria-hidden="true"></span> お気に入り管理</a></li>
+								
+								
+								
+								<li class="divider"></li>
+								<li><a href="javascript:void(form_logout.submit())"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> ログアウト</a></li>
+							</ul>
+						</li>
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<form method="POST" name="form_logout" action="/logout?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Ftenka1-2012-qualC%2Fsubmissions%3Fpage%3D2">
+		<input type="hidden" name="csrf_token" value="coTi46dYz1xibFGjA3hwJuXNGZdQq2iAzo0PtWm6Ds8=" />
+	</form>
+	<div id="main-container" class="container"
+		 	style="padding-top:50px;">
+		
+
+
+<div class="row">
+	<div id="contest-nav-tabs" class="col-sm-12 mb-2 cnvtb-fixed">
+	<div>
+		<small class="contest-duration">
+			
+				コンテスト時間:
+				<a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=20120829T1800&p1=248' target='blank'><time class='fixtime fixtime-full'>2012-08-29 18:00:00+0900</time></a> ~ <a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=20120829T2000&p1=248' target='blank'><time class='fixtime fixtime-full'>2012-08-29 20:00:00+0900</time></a> 
+				(120分)
+			
+		</small>
+		<small class="back-to-home pull-right"><a href="/home">AtCoderホームへ戻る</a></small>
+	</div>
+	<ul class="nav nav-tabs">
+		<li><a href="/contests/tenka1-2012-qualC"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> トップ</a></li>
+		
+			<li><a href="/contests/tenka1-2012-qualC/tasks"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> 問題</a></li>
+		
+
+		
+			<li><a href="/contests/tenka1-2012-qualC/clarifications"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> 質問 <span id="clar-badge" class="badge" ></span></a></li>
+		
+
+		
+			<li><a href="/contests/tenka1-2012-qualC/submit"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> 提出</a></li>
+		
+
+		
+			<li class="active">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> 提出結果<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="/contests/tenka1-2012-qualC/submissions"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> すべての提出</a></li>
+					
+						<li><a href="/contests/tenka1-2012-qualC/submissions/me"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> 自分の提出</a></li>
+						
+						
+							<li class="divider"></li>
+							<li><a href="/contests/tenka1-2012-qualC/score"><span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span> 自分の得点状況</a></li>
+						
+					
+				</ul>
+			</li>
+		
+
+		
+			
+				
+					<li><a href="/contests/tenka1-2012-qualC/standings"><span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span> 順位表</a></li>
+				
+			
+				
+					<li><a href="/contests/tenka1-2012-qualC/standings/virtual"><span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span> バーチャル順位表</a></li>
+				
+			
+		
+
+		
+			<li><a href="/contests/tenka1-2012-qualC/custom_test"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> コードテスト</a></li>
+		
+
+		
+			<li><a href="/contests/tenka1-2012-qualC/editorial"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> 解説</a></li>
+		
+		
+
+		<li class="pull-right"><a id="fix-cnvtb" href="javascript:void(0)"><span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span></a></li>
+	</ul>
+</div>
+	<div class="col-sm-12">
+	<ul class="nav nav-pills small">
+		
+			<li class="active"><a href="/contests/tenka1-2012-qualC/submissions">すべての提出</a></li>
+		
+		
+			<li ><a href="/contests/tenka1-2012-qualC/submissions/me">自分の提出</a></li>
+			
+			
+				<li ><a href="/contests/tenka1-2012-qualC/score">自分の得点状況</a></li>
+			
+		
+	</ul>
+</div>
+
+	<div class="col-sm-12">
+		<h2>すべての提出</h2>
+		<hr>
+		<script>var submissionAPI = "/contests/tenka1-2012-qualC/submissions/status/json";</script>
+		
+<nav>
+	<ul class="pager">
+		
+		<li><a href="/contests/tenka1-2012-qualC/submissions?page=1">&lt; Prev</a></li>
+		
+		
+		<li><a href="/contests/tenka1-2012-qualC/submissions?page=3">Next &gt;</a></li>
+		
+	</ul>
+</nav>
+
+
+<div class="panel panel-default panel-submission">
+	<div class="panel-heading">
+		<form class="form-inline form-filter" action="/contests/tenka1-2012-qualC/submissions">
+			
+			<div class="form-group form-group-sm">
+				<label for="select-task">問題: </label>
+				<select id="select-task" class="form-control" style="width:240px" data-placeholder="-" data-allow-clear="true" name="f.Task">
+					<option></option>
+					
+						<option value="tenka1_2012_9">A - 与えられた数より小さい素数の個数について</option>
+					
+						<option value="tenka1_2012_10">B - ロイヤルストレートフラッシュ</option>
+					
+						<option value="tenka1_2012_11">C - 席替え</option>
+					
+						<option value="tenka1_2012_12">D - ゆうびんやさんのお花畑</option>
+					
+				</select>
+			</div>
+			
+			
+				
+				<div class="form-group form-group-sm">
+					<label for="select-language">言語: </label>
+					<select id="select-language" class="form-control" data-placeholder="-" data-allow-clear="true" name="f.LanguageName">
+						<option></option>
+						
+							<option value="&gt;&lt;&gt;">&gt;&lt;&gt;</option>
+						
+							<option value="AWK">AWK</option>
+						
+							<option value="Ada">Ada</option>
+						
+							<option value="Assembly x64">Assembly x64</option>
+						
+							<option value="Bash">Bash</option>
+						
+							<option value="Brainfuck">Brainfuck</option>
+						
+							<option value="C">C</option>
+						
+							<option value="C#">C#</option>
+						
+							<option value="C&#43;&#43;">C&#43;&#43;</option>
+						
+							<option value="COBOL">COBOL</option>
+						
+							<option value="Carp">Carp</option>
+						
+							<option value="Clojure">Clojure</option>
+						
+							<option value="Common Lisp">Common Lisp</option>
+						
+							<option value="Crystal">Crystal</option>
+						
+							<option value="Cyber">Cyber</option>
+						
+							<option value="D">D</option>
+						
+							<option value="Dart">Dart</option>
+						
+							<option value="ECLiPSe">ECLiPSe</option>
+						
+							<option value="Elixir">Elixir</option>
+						
+							<option value="Emacs Lisp">Emacs Lisp</option>
+						
+							<option value="Erlang">Erlang</option>
+						
+							<option value="F#">F#</option>
+						
+							<option value="Factor">Factor</option>
+						
+							<option value="Forth">Forth</option>
+						
+							<option value="Fortran">Fortran</option>
+						
+							<option value="Go">Go</option>
+						
+							<option value="Haskell">Haskell</option>
+						
+							<option value="Haxe">Haxe</option>
+						
+							<option value="Java">Java</option>
+						
+							<option value="JavaScript">JavaScript</option>
+						
+							<option value="Julia">Julia</option>
+						
+							<option value="Koka">Koka</option>
+						
+							<option value="Kotlin">Kotlin</option>
+						
+							<option value="LLVM IR">LLVM IR</option>
+						
+							<option value="Lua">Lua</option>
+						
+							<option value="Mercury">Mercury</option>
+						
+							<option value="Nibbles">Nibbles</option>
+						
+							<option value="Nim">Nim</option>
+						
+							<option value="OCaml">OCaml</option>
+						
+							<option value="Octave">Octave</option>
+						
+							<option value="PHP">PHP</option>
+						
+							<option value="Pascal">Pascal</option>
+						
+							<option value="Perl">Perl</option>
+						
+							<option value="PowerShell">PowerShell</option>
+						
+							<option value="Prolog">Prolog</option>
+						
+							<option value="Python">Python</option>
+						
+							<option value="R">R</option>
+						
+							<option value="Raku">Raku</option>
+						
+							<option value="ReasonML">ReasonML</option>
+						
+							<option value="Ruby">Ruby</option>
+						
+							<option value="Rust">Rust</option>
+						
+							<option value="SageMath">SageMath</option>
+						
+							<option value="Scala">Scala</option>
+						
+							<option value="Scheme">Scheme</option>
+						
+							<option value="Sed">Sed</option>
+						
+							<option value="Seed7">Seed7</option>
+						
+							<option value="Swift">Swift</option>
+						
+							<option value="Text">Text</option>
+						
+							<option value="TypeScript">TypeScript</option>
+						
+							<option value="Unison">Unison</option>
+						
+							<option value="V">V</option>
+						
+							<option value="Vim">Vim</option>
+						
+							<option value="Visual Basic">Visual Basic</option>
+						
+							<option value="Whitespace">Whitespace</option>
+						
+							<option value="Zig">Zig</option>
+						
+							<option value="Zsh">Zsh</option>
+						
+							<option value="bc">bc</option>
+						
+							<option value="dc">dc</option>
+						
+							<option value="jq">jq</option>
+						
+							<option value="なでしこ">なでしこ</option>
+						
+							<option value="プロデル">プロデル</option>
+						
+					</select>
+				</div>
+				
+			
+			
+			<div class="form-group form-group-sm">
+				<label for="select-status">結果: </label>
+				<select id="select-status" class="form-control" style="width:80px;" data-placeholder="-" data-allow-clear="true" name="f.Status">
+					<option></option>
+					
+						<option value="AC">AC</option>
+					
+						<option value="WA">WA</option>
+					
+						<option value="TLE">TLE</option>
+					
+						<option value="MLE">MLE</option>
+					
+						<option value="RE">RE</option>
+					
+						<option value="CE">CE</option>
+					
+						<option value="QLE">QLE</option>
+					
+						<option value="OLE">OLE</option>
+					
+						<option value="IE">IE</option>
+					
+						<option value="WJ">WJ</option>
+					
+						<option value="WR">WR</option>
+					
+						<option value="Judging">Judging</option>
+					
+				</select>
+			</div>
+			
+			
+			<div class="form-group form-group-sm">
+				<label for="input-user">ユーザ: </label>
+				<input type="text" id="input-user" class="form-control" name="f.User" value="">
+			</div>
+			
+			<div class="form-group">
+				<div>
+					<a class="btn btn-link btn-xs" href="/contests/tenka1-2012-qualC/submissions">リセット</a>
+					<button type="submit" class="btn btn-primary btn-sm">検索</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	
+		<div class="table-responsive">
+			<table class="table table-bordered table-striped small th-center">
+				<thead>
+				<tr>
+					
+					<th width="12%"><a href="/contests/tenka1-2012-qualC/submissions?desc=true&amp;orderBy=created&amp;page=2">提出日時</a></th>
+					<th>問題</th>
+					<th>ユーザ</th>
+					<th>言語</th>
+					<th width="5%"><a href="/contests/tenka1-2012-qualC/submissions?desc=true&amp;orderBy=score&amp;page=2">得点</a></th>
+					<th width="9%"><a href="/contests/tenka1-2012-qualC/submissions?orderBy=source_length&amp;page=2">コード長</a></th>
+					<th width="5%">結果</th>
+					<th width="7%"><a href="/contests/tenka1-2012-qualC/submissions?orderBy=time_consumption&amp;page=2">実行時間</a></th>
+					<th width="8%"><a href="/contests/tenka1-2012-qualC/submissions?orderBy=memory_consumption&amp;page=2">メモリ</a></th>
+					<th width="5%"></th>
+				</tr>
+				</thead>
+				<tbody>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-24 19:15:34+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_9">A - 与えられた数より小さい素数の個数について</a></td>
+						<td><a href="/users/Sky_Thunder">Sky_Thunder</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=Sky_Thunder'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='Sky_Thunderさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65165333">0</td>
+						<td class="text-right">265 Byte</td>
+						<td class='text-center'><span class='label label-warning' data-toggle='tooltip' data-placement='top' title="実行時エラー">RE</span></td><td class='text-right'>13 ms</td><td class='text-right'>8948 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65165333" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-23 07:29:45+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/alex_a">alex_a</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=alex_a'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='alex_aさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65126373">100</td>
+						<td class="text-right">1694 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>10 ms</td><td class='text-right'>8932 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65126373" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-23 07:19:39+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/Fig47f28lt343">Fig47f28lt343</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=Fig47f28lt343'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='Fig47f28lt343さんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65126302">100</td>
+						<td class="text-right">1694 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>10 ms</td><td class='text-right'>8896 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65126302" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-23 06:35:29+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/car_78934093">car_78934093</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=car_78934093'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='car_78934093さんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65125956">100</td>
+						<td class="text-right">1694 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>9 ms</td><td class='text-right'>8796 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65125956" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-23 05:01:53+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/Chinchilla914z">Chinchilla914z</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=Chinchilla914z'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='Chinchilla914zさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65125298">100</td>
+						<td class="text-right">1694 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>10 ms</td><td class='text-right'>8904 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65125298" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-23 03:18:16+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/lalalala3224">lalalala3224</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=lalalala3224'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='lalalala3224さんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65124413">100</td>
+						<td class="text-right">1694 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>11 ms</td><td class='text-right'>8920 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65124413" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-22 18:05:20+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/Proud89io661">Proud89io661</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=Proud89io661'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='Proud89io661さんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65111811">100</td>
+						<td class="text-right">1460 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>10 ms</td><td class='text-right'>8936 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65111811" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-22 16:04:17+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/AmeliaT7xYz7">AmeliaT7xYz7</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=AmeliaT7xYz7'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='AmeliaT7xYz7さんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65107941">100</td>
+						<td class="text-right">1428 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>10 ms</td><td class='text-right'>8676 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65107941" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-22 09:40:26+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/AnalystY3tR41">AnalystY3tR41</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=AnalystY3tR41'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='AnalystY3tR41さんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65099447">100</td>
+						<td class="text-right">1175 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>11 ms</td><td class='text-right'>8960 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65099447" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-22 09:27:47+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/Therapist41x">Therapist41x</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=Therapist41x'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='Therapist41xさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65099193">100</td>
+						<td class="text-right">1408 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>11 ms</td><td class='text-right'>8856 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65099193" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-22 06:59:51+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/Seaotter95y0kt9">Seaotter95y0kt9</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=Seaotter95y0kt9'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='Seaotter95y0kt9さんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65096920">100</td>
+						<td class="text-right">1408 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>11 ms</td><td class='text-right'>8888 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65096920" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-22 02:38:04+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/Chloe26pf7hiyk8g">Chloe26pf7hiyk8g</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=Chloe26pf7hiyk8g'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='Chloe26pf7hiyk8gさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="65094017">100</td>
+						<td class="text-right">1460 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>11 ms</td><td class='text-right'>8832 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/65094017" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-19 15:56:46+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_9">A - 与えられた数より小さい素数の個数について</a></td>
+						<td><a href="/users/uparupaaa">uparupaaa</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=uparupaaa'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='uparupaaaさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5078&amp;page=2">Python (PyPy 3.10-v7.3.12)</a></td>
+						<td class="text-right submission-score" data-id="64984309">0</td>
+						<td class="text-right">178 Byte</td>
+						<td class='text-center'><span class='label label-warning' data-toggle='tooltip' data-placement='top' title="メモリ制限超過">MLE</span></td><td class='text-right'>61 ms</td><td class='text-right'>81744 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/64984309" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-16 12:20:20+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_9">A - 与えられた数より小さい素数の個数について</a></td>
+						<td><a href="/users/suakii">suakii</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=suakii'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='suakiiさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5001&amp;page=2">C&#43;&#43; 20 (gcc 12.2)</a></td>
+						<td class="text-right submission-score" data-id="64881578">100</td>
+						<td class="text-right">564 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>2 ms</td><td class='text-right'>3624 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/64881578" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-16 12:10:27+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_9">A - 与えられた数より小さい素数の個数について</a></td>
+						<td><a href="/users/suakii">suakii</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=suakii'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='suakiiさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5001&amp;page=2">C&#43;&#43; 20 (gcc 12.2)</a></td>
+						<td class="text-right submission-score" data-id="64881471">100</td>
+						<td class="text-right">564 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>2 ms</td><td class='text-right'>3624 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/64881471" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-11 03:03:50+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/Riley502o6e4jgu">Riley502o6e4jgu</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=Riley502o6e4jgu'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='Riley502o6e4jguさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="64684933">100</td>
+						<td class="text-right">2624 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>10 ms</td><td class='text-right'>8896 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/64684933" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-11 01:17:07+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/Avery44zlgudjvfy">Avery44zlgudjvfy</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=Avery44zlgudjvfy'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='Avery44zlgudjvfyさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5055&amp;page=2">Python (CPython 3.11.4)</a></td>
+						<td class="text-right submission-score" data-id="64681792">100</td>
+						<td class="text-right">2624 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>10 ms</td><td class='text-right'>8932 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/64681792" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-10 21:57:15+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_10">B - ロイヤルストレートフラッシュ</a></td>
+						<td><a href="/users/The_Bouningeeeen">\ (^o^) /</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=The_Bouningeeeen'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='\ (^o^) /さんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5054&amp;page=2">Rust (rustc 1.70.0)</a></td>
+						<td class="text-right submission-score" data-id="64675897">100</td>
+						<td class="text-right">1960 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>1 ms</td><td class='text-right'>2156 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/64675897" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-04 07:34:31+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_9">A - 与えられた数より小さい素数の個数について</a></td>
+						<td><a href="/users/hamamu">hamamu</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=hamamu'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='hamamuさんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5001&amp;page=2">C&#43;&#43; 20 (gcc 12.2)</a></td>
+						<td class="text-right submission-score" data-id="64467930">100</td>
+						<td class="text-right">43239 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>3 ms</td><td class='text-right'>3748 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/64467930" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+					<tr>
+						
+						<td class="no-break"><time class='fixtime fixtime-second'>2025-04-04 07:34:30+0900</time></td>
+						<td><a href="/contests/tenka1-2012-qualC/tasks/tenka1_2012_9">A - 与えられた数より小さい素数の個数について</a></td>
+						<td><a href="/users/yamate11">yamate11</a> <a href='/contests/tenka1-2012-qualC/submissions?f.User=yamate11'><span class='glyphicon glyphicon-search black' aria-hidden='true' data-toggle='tooltip' title='yamate11さんの提出を見る'></span></a></td>
+						<td><a href="/contests/tenka1-2012-qualC/submissions?f.Language=5001&amp;page=2">C&#43;&#43; 20 (gcc 12.2)</a></td>
+						<td class="text-right submission-score" data-id="64467929">100</td>
+						<td class="text-right">21215 Byte</td>
+						<td class='text-center'><span class='label label-success' data-toggle='tooltip' data-placement='top' title="正解">AC</span></td><td class='text-right'>17 ms</td><td class='text-right'>3648 KB</td>
+						<td class="text-center">
+							<a href="/contests/tenka1-2012-qualC/submissions/64467929" class="submission-details-link">詳細</a>
+						</td>
+					</tr>
+				
+				</tbody>
+			</table>
+		</div>
+	
+</div>
+
+<nav>
+	<ul class="pager">
+		
+		<li><a href="/contests/tenka1-2012-qualC/submissions?page=1">&lt; Prev</a></li>
+		
+		
+		<li><a href="/contests/tenka1-2012-qualC/submissions?page=3">Next &gt;</a></li>
+		
+	</ul>
+</nav>
+
+<script>var reloadInterval =  5000 ;</script>
+
+	</div>
+</div>
+
+
+
+
+		
+			<hr>
+			
+			
+			
+<div class="a2a_kit a2a_kit_size_20 a2a_default_style pull-right" data-a2a-url="https://atcoder.jp/contests/tenka1-2012-qualC/submissions?lang=ja&amp;page=2" data-a2a-title="すべての提出 - 天下一プログラマーコンテスト2012 予選C">
+	<a class="a2a_button_facebook"></a>
+	<a class="a2a_button_twitter"></a>
+	
+		<a class="a2a_button_hatena"></a>
+	
+	<a class="a2a_dd" href="https://www.addtoany.com/share"></a>
+</div>
+
+		
+		<script async src="//static.addtoany.com/menu/page.js"></script>
+		
+	</div> 
+	<hr>
+</div> 
+
+	<div class="container" style="margin-bottom: 80px;">
+			<footer class="footer">
+			
+				<ul>
+					<li><a href="/contests/tenka1-2012-qualC/rules">ルール</a></li>
+					<li><a href="/contests/tenka1-2012-qualC/glossary">用語集</a></li>
+					
+				</ul>
+			
+			<ul>
+				<li><a href="/tos">利用規約</a></li>
+				<li><a href="/privacy">プライバシーポリシー</a></li>
+				<li><a href="/personal">個人情報保護方針</a></li>
+				<li><a href="/company">企業情報</a></li>
+				<li><a href="/faq">よくある質問</a></li>
+				<li><a href="/contact">お問い合わせ</a></li>
+				<li><a href="/documents/request">資料請求</a></li>
+			</ul>
+			<div class="text-center">
+					<small id="copyright">Copyright Since 2012 &copy;<a href="http://atcoder.co.jp">AtCoder Inc.</a> All rights reserved.</small>
+			</div>
+			</footer>
+	</div>
+	<p id="fixed-server-timer" class="contest-timer"></p>
+	<div id="scroll-page-top" style="display:none;"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> ページトップ</div>
+
+</body>
+</html>
+
+

@@ -1,39 +1,72 @@
 [package]
 name = "atcoder-problems-backend"
 version = "0.1.0"
-authors = ["kenkoooo <kenkou.n@gmail.com>"]
-edition = "2021"
-publish = false
+edition = "2024"
+
+[lints]
+workspace = true
 
 [dependencies]
-# Logging
-log = "0.4"
-fern = "0.6.1"
-
-rand = "0.8.5"
-chrono = "0.4"
-rust-s3 = { version = "0.32.3", features = ["no-verify-ssl"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-
-# SQL
-sql-client = { path = "./sql-client" }
-
-# Scraping
-atcoder-client = { path = "./atcoder-client" }
-
-# Web framework
-actix-web = "4.2.1"
-actix-service = "2.0.2"
-reqwest = { version = "0.11", features = ["json"] }
-
 async-trait = "0.1"
-
-anyhow = "1.0"
-futures-util = "0.3.25"
+axum = "0.8"
+axum-extra = { version = "0.10", features = ["cookie"] }
+cookie = "0.18"
+chrono.workspace = true
+crawler.workspace = true
+rand.workspace = true
+reqwest = { workspace = true, features = ["json"] }
+s3.workspace = true
+sea-orm = { workspace = true, features = [
+    "sqlx-postgres",
+    "runtime-tokio-native-tls",
+] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+server-db.workspace = true
+sql-entities.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors"] }
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["json", "env-filter"] }
+uuid = { version = "1", features = ["v4"] }
 
 [dev-dependencies]
-httpmock = "0.6.6"
+http-body-util = "0.1"
+mockall = "0.13"
+sea-orm = { workspace = true, features = [
+    "sqlx-sqlite",
+    "runtime-tokio-native-tls",
+] }
+tower = { version = "0.5", features = ["util"] }
 
 [workspace]
-members = ["sql-client", "atcoder-client"]
+members = ["crawler", "server-db", "sql-entities", "s3"]
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+
+[workspace.dependencies]
+aws-config = "1.6"
+aws-sdk-s3 = "1.83"
+bytes = "1.10"
+chrono = "0.4"
+rand = "0.9"
+reqwest = "0.12"
+scraper = "0.23"
+sea-orm = "1.1"
+serde = "1.0"
+serde_json = "1.0"
+testcontainers-modules = "0.11"
+thiserror = "2.0"
+tokio = "1.44"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Workspace crates
+crawler = { path = "./crawler" }
+server-db = { path = "./server-db" }
+sql-entities = { path = "./sql-entities" }
+s3 = { path = "./s3" }

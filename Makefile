@@ -1,15 +1,12 @@
-.PHONY: help
-help:
-	@awk -F ':|##' '/^[^\t].+?:.*?##/ { printf "\033[36m%-22s\033[0m %s\n", $$1, $$NF }' $(MAKEFILE_LIST)
+.PHONY: build build-backend build-estimator build-dbt
 
-.PHONY: up
-up:
-	docker compose up
+build: build-backend build-estimator build-dbt
 
-.PHONY: down
-down:
-	docker compose down
+build-backend:
+	docker build -t atcoder-problems-2025-backend:latest ./atcoder-problems-backend
 
-.PHONY: test/backend
-test/backend:
-	docker compose exec backend-development cargo test --workspace --no-fail-fast -- --test-threads=1
+build-estimator:
+	docker build -t atcoder-problems-2025-estimator:latest ./estimator
+
+build-dbt:
+	docker build -t atcoder-problems-2025-dbt:latest ./dbt

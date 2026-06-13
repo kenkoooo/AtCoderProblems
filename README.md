@@ -1,7 +1,5 @@
 # AtCoder Problems
 
-![CI](https://github.com/kenkoooo/AtCoderProblems/workflows/CI/badge.svg)
-
 [AtCoder Problems](https://kenkoooo.com/atcoder/) is a web application to help AtCoder users to solve problems and manage progress more efficiently.
 
 ![screenshot](./screenshot.png)

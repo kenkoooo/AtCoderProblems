@@ -1,0 +1,19 @@
+[package]
+name = "crawler"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-trait = "0.1"
+reqwest = { workspace = true, features = ["gzip"] }
+scraper.workspace = true
+thiserror.workspace = true
+chrono.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+mockall = "0.13"
+
+[lints]
+workspace = true

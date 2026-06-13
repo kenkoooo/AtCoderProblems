@@ -1,5 +1,4 @@
-# Using the official cargo-chef image
-FROM lukemathwalker/cargo-chef:latest-rust-1.69.0 AS chef
+FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.96 AS chef
 WORKDIR /app
 
 FROM chef AS planner
@@ -11,21 +10,12 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
-RUN cargo build --release
+RUN cargo build --workspace --release
 
-# プロダクション用の Docker イメージをビルドする
-FROM debian:bullseye AS production
-COPY --from=builder /app/target/release/batch_update                /usr/bin/batch_update
-COPY --from=builder /app/target/release/crawl_all_submissions       /usr/bin/crawl_all_submissions
-COPY --from=builder /app/target/release/crawl_for_virtual_contests  /usr/bin/crawl_for_virtual_contests
-COPY --from=builder /app/target/release/crawl_from_new_contests     /usr/bin/crawl_from_new_contests
-COPY --from=builder /app/target/release/crawl_problems              /usr/bin/crawl_problems
-COPY --from=builder /app/target/release/crawl_recent_submissions    /usr/bin/crawl_recent_submissions
-COPY --from=builder /app/target/release/crawl_whole_contest         /usr/bin/crawl_whole_contest
-COPY --from=builder /app/target/release/delta_update                /usr/bin/delta_update
-COPY --from=builder /app/target/release/dump_json                   /usr/bin/dump_json
-COPY --from=builder /app/target/release/fix_invalid_submissions     /usr/bin/fix_invalid_submissions
-COPY --from=builder /app/target/release/run_server                  /usr/bin/run_server
-
-RUN apt-get update && apt-get install -y awscli postgresql-client
-ADD ./scripts/sql-backup.sh /usr/bin/sql-backup.sh
+FROM gcr.io/distroless/cc-debian13 AS production
+COPY --from=builder /app/target/release/crawl-contests /usr/bin
+COPY --from=builder /app/target/release/crawl-submissions /usr/bin
+COPY --from=builder /app/target/release/crawl-standings /usr/bin
+COPY --from=builder /app/target/release/crawl-problems /usr/bin
+COPY --from=builder /app/target/release/dump-json /usr/bin
+COPY --from=builder /app/target/release/run-server /usr/bin

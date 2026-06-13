@@ -1,0 +1,108 @@
+version: 2
+
+models:
+  - name: accepted_count
+    description: "Count of distinct problems accepted by each user"
+    columns:
+      - name: user_id
+        description: "User ID"
+        tests:
+          - unique
+          - not_null
+      - name: problem_count
+        description: "Number of distinct problems solved"
+
+  - name: solver
+    description: "Count of distinct users who solved each problem"
+    columns:
+      - name: problem_id
+        description: "Problem ID"
+        tests:
+          - unique
+          - not_null
+      - name: user_count
+        description: "Number of distinct users who solved the problem"
+
+  - name: points
+    description: "Maximum points for each problem from rated contests"
+    columns:
+      - name: problem_id
+        description: "Problem ID"
+        tests:
+          - unique
+          - not_null
+      - name: point
+        description: "Maximum points for the problem"
+      - name: predict
+        description: "Predicted difficulty (placeholder)"
+
+  - name: rated_point_sum
+    description: "Sum of rated points earned by each user"
+    columns:
+      - name: user_id
+        description: "User ID"
+        tests:
+          - unique
+          - not_null
+      - name: point_sum
+        description: "Total rated points"
+
+  - name: language_count
+    description: "Count of problems solved per language per user"
+    columns:
+      - name: user_id
+        description: "User ID"
+      - name: simplified_language
+        description: "Simplified language name"
+      - name: problem_count
+        description: "Number of problems solved with this language"
+
+  - name: max_streaks
+    description: "Maximum consecutive days with at least one AC per user"
+    columns:
+      - name: user_id
+        description: "User ID"
+        tests:
+          - unique
+          - not_null
+      - name: streak
+        description: "Maximum streak length in days"
+
+  - name: fastest
+    description: "Fastest AC submission for each problem"
+    columns:
+      - name: problem_id
+        description: "Problem ID"
+        tests:
+          - unique
+          - not_null
+      - name: contest_id
+        description: "Contest ID"
+      - name: submission_id
+        description: "Submission ID of the fastest AC"
+
+  - name: shortest
+    description: "Shortest AC submission for each problem"
+    columns:
+      - name: problem_id
+        description: "Problem ID"
+        tests:
+          - unique
+          - not_null
+      - name: contest_id
+        description: "Contest ID"
+      - name: submission_id
+        description: "Submission ID of the shortest AC"
+
+  - name: first
+    description: "First AC submission for each problem"
+    columns:
+      - name: problem_id
+        description: "Problem ID"
+        tests:
+          - unique
+          - not_null
+      - name: contest_id
+        description: "Contest ID"
+      - name: submission_id
+        description: "Submission ID of the first AC"
