@@ -1,4 +1,4 @@
-FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.86 AS chef
+FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.96 AS chef
 WORKDIR /app
 
 FROM chef AS planner
