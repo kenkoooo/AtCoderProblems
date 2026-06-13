@@ -5,6 +5,7 @@ export const ContestCategories = [
   "ABC",
   "ARC",
   "AGC",
+  "AWC",
   "ABC-Like",
   "ARC-Like",
   "AGC-Like",
@@ -55,6 +56,9 @@ export const classifyContest = (
   }
   if (/^agc\d{3}$/.exec(contest.id)) {
     return "AGC";
+  }
+  if (/^awc\d{4}$/.exec(contest.id)) {
+    return "AWC";
   }
   if (
     /^ahc\d{3}$/.exec(contest.id) ||

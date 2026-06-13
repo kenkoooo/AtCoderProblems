@@ -129,6 +129,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         "ABC",
         "ARC",
         "AGC",
+        "AWC",
         "ABC-Like",
         "ARC-Like",
         "AGC-Like",
@@ -146,6 +147,8 @@ export const TablePage: React.FC<OuterProps> = (props) => {
               ? "AtCoder Regular Contest"
               : activeTab === "AGC"
               ? "AtCoder Grand Contest"
+              : activeTab === "AWC"
+              ? "AtCoder Weekday Contest"
               : activeTab === "PAST"
               ? "PAST"
               : `${activeTab} Contest`
