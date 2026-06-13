@@ -1,0 +1,5 @@
+{
+  "arrowParens": "always",
+  "trailingComma": "es5",
+  "endOfLine": "auto"
+}

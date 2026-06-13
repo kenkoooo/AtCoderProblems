@@ -1,0 +1,277 @@
+/**
+The MIT License (MIT)
+
+Copyright (c) 2013 Thomas Park
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
+// This file is modified from Cyborg 4.5.0 by Bootswatch
+
+//
+// Color system
+//
+
+$white: #fff !default;
+$gray-100: #f8f9fa !default;
+$gray-200: #e9ecef !default;
+$gray-300: #dee2e6 !default;
+$gray-400: #adafae !default;
+$gray-500: #888 !default;
+$gray-600: #555 !default;
+$gray-700: #282828 !default;
+$gray-800: #222 !default;
+$gray-900: #212529 !default;
+$black: #000 !default;
+
+$blue: #0e7aac !default;
+$indigo: #5805dd !default;
+$purple: #5b28bb !default;
+$pink: #d61e74 !default;
+$red: #b40000 !default;
+$orange: #ff7809 !default;
+$yellow: #fdd90a !default;
+$green: #4b7000 !default;
+$teal: #0b9c71 !default;
+$cyan: #9933cc !default;
+
+$link-color: #36aae0 !default;
+
+$primary: $blue !default;
+$secondary: $gray-600 !default;
+$success: $green !default;
+$info: $cyan !default;
+$warning: $yellow !default;
+$danger: $red !default;
+$light: $gray-800 !default;
+$dark: $gray-400 !default;
+
+$yiq-contrasted-threshold: 175 !default;
+
+// Body
+
+$body-bg: #121212 !default;
+$body-color: $gray-400 !default;
+
+// Fonts
+
+// $font-family-sans-serif: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
+//   Roboto, "Helvetica Neue", Arial, sans-serif !default;
+
+// $font-size-base: 0.875rem !default;
+
+// $h1-font-size: 4rem !default;
+// $h2-font-size: 3rem !default;
+// $h3-font-size: 2.5rem !default;
+// $h4-font-size: 2rem !default;
+// $h5-font-size: 1.5rem !default;
+
+$headings-color: $white !default;
+
+// Tables
+
+$table-color: $white !default;
+$table-accent-bg: rgba($white, 0.05) !default;
+$table-hover-bg: rgba($white, 0.075) !default;
+
+$table-border-color: $gray-700 !default;
+
+$table-dark-bg: $gray-500 !default;
+$table-dark-border-color: darken($gray-500, 7.5%) !default;
+
+// Buttons
+
+// $input-btn-padding-x: 1rem !default;
+
+// Forms
+
+$input-disabled-bg: $gray-400 !default;
+
+$input-border-color: $white !default;
+
+$input-group-addon-color: $white !default;
+$input-group-addon-bg: $gray-700 !default;
+$input-group-addon-border-color: transparent !default;
+
+$custom-file-color: $white !default;
+$custom-file-border-color: $gray-700 !default;
+
+// Dropdowns
+
+$dropdown-bg: $gray-700 !default;
+$dropdown-divider-bg: $gray-800 !default;
+
+$dropdown-link-color: $white !default;
+$dropdown-link-hover-color: $white !default;
+$dropdown-link-hover-bg: $primary !default;
+
+// Navs
+
+$nav-tabs-border-color: $table-border-color !default;
+$nav-tabs-link-hover-border-color: $nav-tabs-border-color !default;
+$nav-tabs-link-active-color: $white !default;
+$nav-tabs-link-active-bg: $nav-tabs-border-color !default;
+$nav-tabs-link-active-border-color: $nav-tabs-border-color !default;
+
+// Navbar
+
+$navbar-dark-hover-color: $white !default;
+
+// Pagination
+
+$pagination-color: $white !default;
+$pagination-bg: $gray-700 !default;
+$pagination-border-color: transparent !default;
+
+$pagination-hover-color: $white !default;
+$pagination-hover-bg: $primary !default;
+$pagination-hover-border-color: $pagination-border-color !default;
+
+$pagination-disabled-bg: $pagination-bg !default;
+$pagination-disabled-border-color: $pagination-border-color !default;
+
+// Jumbotron
+
+$jumbotron-bg: $gray-700 !default;
+
+// Alerts
+
+$alert-bg-level: 4 !default;
+$alert-border-level: -9 !default;
+$alert-color-level: -10 !default;
+
+// Cards
+
+$card-bg: $gray-700 !default;
+
+// Tooltips
+
+$tooltip-bg: $gray-700 !default;
+$tooltip-opacity: 1 !default;
+
+// Popovers
+
+$popover-bg: $gray-700 !default;
+
+// Toasts
+
+$toast-color: $white !default;
+$toast-background-color: $gray-800 !default;
+$toast-border-color: $gray-700 !default;
+
+$toast-header-color: $body-color !default;
+$toast-header-background-color: $toast-background-color !default;
+$toast-header-border-color: $toast-border-color !default;
+
+// Modals
+
+$modal-content-bg: $gray-800 !default;
+
+$modal-header-border-color: $gray-700 !default;
+
+// Progress bars
+
+$progress-bg: $gray-700 !default;
+
+// List group
+
+$list-group-bg: $gray-800 !default;
+$list-group-border-color: $gray-700 !default;
+
+$list-group-hover-bg: $primary !default;
+
+$list-group-disabled-bg: $gray-700 !default;
+
+$list-group-action-color: $white !default;
+$list-group-action-active-bg: $primary !default;
+
+// Breadcrumbs
+
+$breadcrumb-bg: $gray-700 !default;
+
+// Close
+
+$close-color: $white !default;
+$close-text-shadow: none !default;
+
+// Code
+
+$pre-color: inherit !default;
+
+// React Bootstrap Table Custom
+
+$react-bs-table-border-color: $gray-700;
+
+// Navbar Color Override
+
+.navbar.bg-dark {
+  background-color: $gray-900 !important;
+}
+
+// AtCoder Problems Color Override
+
+// Variables to make the auto generated color for tables sane.
+$table-bg-level: 7;
+$table-border-level: -10;
+
+$difficulty-grey-color: #c0c0c0 !default;
+$difficulty-brown-color: #b08c56 !default;
+$difficulty-green-color: #3faf3f !default;
+$difficulty-cyan-color: #42e0e0 !default;
+$difficulty-blue-color: #8888ff !default;
+$difficulty-yellow-color: #ffff56 !default;
+$difficulty-orange-color: #ffb836 !default;
+$difficulty-red-color: #ff6767 !default;
+
+$success-bg-color: #005c08;
+$success-hover-bg-color: darken($success-bg-color, 5%);
+
+$success-intime-bg-color: darken($success-bg-color, 5%);
+$success-intime-hover-bg-color: darken($success-intime-bg-color, 5%);
+
+$warning-bg-color: #5d3e00;
+$warning-hover-bg-color: darken($warning-bg-color, 5%);
+
+$warning-intime-bg-color: darken($warning-bg-color, 5%);
+$warning-intime-hover-bg-color: darken($warning-intime-bg-color, 5%);
+
+$success-before-contest-bg-color: #002a55;
+$success-before-contest-hover-bg-color: darken(
+  $success-before-contest-bg-color,
+  5%
+);
+
+$danger-bg-color: #4b0000;
+$danger-hover-bg-color: darken($danger-bg-color, 5%);
+
+$penalties-color: #d61e74;
+
+table.table-bordered,
+table.table-bordered th,
+table.table-bordered td {
+  border-color: #484848 !important;
+}
+
+$small-score-cell-border: $white;
+
+.pie-chart-summary text {
+  fill: $gray-400 !important;
+}
+
+@import "common";
