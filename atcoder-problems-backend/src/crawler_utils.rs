@@ -23,6 +23,14 @@ pub async fn fetch_submissions(
             Ok(submissions) => {
                 return submissions;
             }
+            Err(CrawlerError::NotFound) => {
+                tracing::warn!(
+                    "Submissions page not found for contest {} page {} (404), skipping",
+                    contest_id,
+                    page
+                );
+                return vec![];
+            }
             Err(e) => {
                 retry_count += 1;
                 tracing::warn!(
