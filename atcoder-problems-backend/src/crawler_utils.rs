@@ -326,12 +326,9 @@ pub async fn crawl_contests(
             "Fetching AtCoder Weekday Contests from archive page {}...",
             page
         );
-        let contests = fetch_contests_in_category_with_retry(
-            fetcher,
-            page,
-            ATCODER_WEEKDAY_CONTEST_CATEGORY,
-        )
-        .await;
+        let contests =
+            fetch_contests_in_category_with_retry(fetcher, page, ATCODER_WEEKDAY_CONTEST_CATEGORY)
+                .await;
 
         if contests.is_empty() {
             tracing::info!("No more AtCoder Weekday Contests found on page {}", page);
