@@ -1,5 +1,5 @@
 import { Range } from "immutable";
-import { React, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import {
   Button,
@@ -122,7 +122,8 @@ export const ProblemList: React.FC<Props> = (props: Props) => {
     searchParams.get(FilterParams.ToDifficulty) || INF_POINT.toString(),
     10
   );
-  const [mergeLikeContest, setMergeLikeContest] = useState(true);
+  const mergeLikeContest =
+    searchParams.get(FilterParams.mergeLikeContest) !== "false";
   const mergedProblemMap =
     useMergedProblemMap().data ?? new Map<ProblemId, MergedProblem>();
   const points = Array.from(
@@ -250,7 +251,12 @@ export const ProblemList: React.FC<Props> = (props: Props) => {
               ))}
             </DropdownMenu>
           </UncontrolledDropdown>
-          <Button onClick={(): void => setMergeLikeContest(!mergeLikeContest)}>
+          <Button
+            tag={Link}
+            to={generatePathWithParams(location, {
+              [FilterParams.mergeLikeContest]: (!mergeLikeContest).toString(),
+            })}
+          >
             {mergeLikeContest
               ? 'Merging "-Like" Contest'
               : 'Unmerging "-Like" Contest'}

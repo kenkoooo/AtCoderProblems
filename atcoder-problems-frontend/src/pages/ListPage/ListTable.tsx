@@ -636,8 +636,7 @@ export const ListTable: React.FC<Props> = (props) => {
         .filter((row): boolean => {
           if (props.contestCategoryFilterState === "All") return true;
           if (!row.contest) return false;
-          const contest = contestMap?.get(row.contest.id);
-          const contestCategory = classifyContest(contest);
+          const contestCategory = classifyContest(row.contest);
           return (
             props.contestCategoryFilterState === contestCategory ||
             (props.mergeLikeContest &&

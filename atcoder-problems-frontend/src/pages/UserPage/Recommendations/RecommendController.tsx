@@ -1,4 +1,4 @@
-import { React, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   Button,
   ButtonGroup,
@@ -10,6 +10,8 @@ import {
 } from "reactstrap";
 import { formatExcludeOption } from "../../../utils/LastSolvedTime";
 import { isLikeContestCategory } from "../../../utils/LikeContestUtils";
+import { ContestCategories } from "../../../utils/ContestClassifier";
+
 const RECOMMEND_NUM_OPTIONS = [
   {
     text: "10",
@@ -47,16 +49,7 @@ const ExcludeOptions = [
 ] as const;
 export type ExcludeOption = typeof ExcludeOptions[number];
 
-const CategoryOptions = [
-  "All",
-  "ABC",
-  "ARC",
-  "AGC",
-  "ABC-Like",
-  "ARC-Like",
-  "AGC-Like",
-  "Other Sponsored",
-] as const;
+const CategoryOptions = ["All", ...ContestCategories] as const;
 export type CategoryOption = typeof CategoryOptions[number];
 
 interface Props {
