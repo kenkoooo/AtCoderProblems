@@ -23,6 +23,12 @@ pub trait ProblemFetcher: Send + Sync {
 pub trait ContestFetcher: Send + Sync {
     /// Fetch contests from the archive page
     async fn fetch_contests(&self, page: u32) -> Result<Vec<Contest>, CrawlerError>;
+    /// Fetch contests from a category-filtered archive page
+    async fn fetch_contests_in_category(
+        &self,
+        page: u32,
+        category: u32,
+    ) -> Result<Vec<Contest>, CrawlerError>;
     /// Fetch permanent contests (e.g., practice, APG4b)
     async fn fetch_permanent_contests(&self) -> Result<Vec<Contest>, CrawlerError>;
 }
@@ -68,6 +74,24 @@ impl ProblemFetcher for CrawlerClient {
 impl ContestFetcher for CrawlerClient {
     async fn fetch_contests(&self, page: u32) -> Result<Vec<Contest>, CrawlerError> {
         let url = format!("https://atcoder.jp/contests/archive?lang=ja&page={}", page);
+        let request = self.client.get(&url);
+        let response = request.send().await?;
+        if !response.status().is_success() {
+            return Err(CrawlerError::HttpError(response.text().await?));
+        }
+        let html = response.text().await?;
+        parse_contests_archive_html(&html)
+    }
+
+    async fn fetch_contests_in_category(
+        &self,
+        page: u32,
+        category: u32,
+    ) -> Result<Vec<Contest>, CrawlerError> {
+        let url = format!(
+            "https://atcoder.jp/contests/archive?lang=ja&category={}&page={}",
+            category, page
+        );
         let request = self.client.get(&url);
         let response = request.send().await?;
         if !response.status().is_success() {
