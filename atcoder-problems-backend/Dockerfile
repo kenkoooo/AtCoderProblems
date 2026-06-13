@@ -1,4 +1,4 @@
-FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.86 AS chef
+FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.96 AS chef
 WORKDIR /app
 
 FROM chef AS planner
@@ -12,7 +12,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --workspace --release
 
-FROM gcr.io/distroless/cc-debian12 AS production
+FROM gcr.io/distroless/cc-debian13 AS production
 COPY --from=builder /app/target/release/crawl-contests /usr/bin
 COPY --from=builder /app/target/release/crawl-submissions /usr/bin
 COPY --from=builder /app/target/release/crawl-standings /usr/bin
