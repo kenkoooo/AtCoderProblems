@@ -8,6 +8,15 @@ use sea_orm::{
 };
 
 const ATCODER_WEEKDAY_CONTEST_CATEGORY: u32 = 20;
+const ATCODER_DAILY_TRAINING_CATEGORY: u32 = 60;
+
+/// Contest categories that AtCoder excludes from the unfiltered archive and
+/// must therefore be crawled from their category-filtered archive pages.
+/// Each entry is `(category id, human-readable label for logging)`.
+const FILTERED_ARCHIVE_CATEGORIES: &[(u32, &str)] = &[
+    (ATCODER_WEEKDAY_CONTEST_CATEGORY, "AtCoder Weekday Contest"),
+    (ATCODER_DAILY_TRAINING_CATEGORY, "AtCoder Daily Training"),
+];
 
 pub async fn fetch_submissions(
     crawler: &CrawlerClient,
@@ -319,31 +328,26 @@ pub async fn crawl_contests(
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
     }
 
-    // AtCoder excludes Weekday Contests from the unfiltered archive.
-    let mut page = 1;
-    loop {
-        tracing::info!(
-            "Fetching AtCoder Weekday Contests from archive page {}...",
-            page
-        );
-        let contests =
-            fetch_contests_in_category_with_retry(fetcher, page, ATCODER_WEEKDAY_CONTEST_CATEGORY)
-                .await;
+    // AtCoder excludes some contest categories (e.g. Weekday Contests and
+    // Daily Training) from the unfiltered archive, so crawl them from their
+    // category-filtered archive pages.
+    for &(category, label) in FILTERED_ARCHIVE_CATEGORIES {
+        let mut page = 1;
+        loop {
+            tracing::info!("Fetching {} from archive page {}...", label, page);
+            let contests = fetch_contests_in_category_with_retry(fetcher, page, category).await;
 
-        if contests.is_empty() {
-            tracing::info!("No more AtCoder Weekday Contests found on page {}", page);
-            break;
+            if contests.is_empty() {
+                tracing::info!("No more {} found on page {}", label, page);
+                break;
+            }
+
+            tracing::info!("Fetched {} {} from page {}", contests.len(), label, page);
+            all_contests.extend(contests);
+            page += 1;
+
+            tokio::time::sleep(std::time::Duration::from_millis(500)).await;
         }
-
-        tracing::info!(
-            "Fetched {} AtCoder Weekday Contests from page {}",
-            contests.len(),
-            page
-        );
-        all_contests.extend(contests);
-        page += 1;
-
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
     }
 
     tracing::info!("Total contests fetched: {}", all_contests.len());
