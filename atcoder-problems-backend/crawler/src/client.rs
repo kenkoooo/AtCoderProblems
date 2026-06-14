@@ -125,6 +125,9 @@ impl CrawlerClient {
         );
         let request = self.client.get(&url);
         let response = request.send().await?;
+        if response.status() == 404 {
+            return Err(CrawlerError::NotFound);
+        }
         if !response.status().is_success() {
             return Err(CrawlerError::HttpError(response.text().await?));
         }
