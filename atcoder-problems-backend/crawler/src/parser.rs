@@ -251,158 +251,124 @@ pub fn parse_submissions_html(html_content: &str) -> Result<Vec<Submission>, Cra
 
     let mut submissions = Vec::new();
 
-    for row in document.select(&row_selector) {
-        // Extract submission ID from the details link
-        let details_selector = Selector::parse("td:last-child a.submission-details-link")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let details_element = row.select(&details_selector).next();
+    let td_selector =
+        Selector::parse("td").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
+    let input_selector =
+        Selector::parse("input").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
+    let time_selector =
+        Selector::parse("time").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
+    let a_selector =
+        Selector::parse("a").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
+    let span_selector =
+        Selector::parse("span").map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
+    let details_selector = Selector::parse("a.submission-details-link")
+        .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
 
-        let id = if let Some(details_elem) = details_element {
-            if let Some(href) = details_elem.value().attr("href") {
-                // Extract ID from the URL (e.g., "/contests/abc399/submissions/64188418" -> "64188418")
-                href.split('/')
-                    .next_back()
-                    .unwrap_or("")
-                    .parse::<i64>()
-                    .map_err(|e| {
-                        CrawlerError::ParseError(format!("Failed to parse submission ID: {}", e))
-                    })?
-            } else {
-                continue; // Skip if no URL is found
-            }
-        } else {
-            continue; // Skip if no details link is found
+    for row in document.select(&row_selector) {
+        let tds = row.select(&td_selector).collect::<Vec<_>>();
+
+        // Contests where the crawler's account has rejudge privileges (e.g. an ABC
+        // held jointly with another contest the account staffs) render an extra
+        // leading checkbox column, shifting every other column right by one.
+        // Detect that column so the offsets below stay correct.
+        let offset = match tds.first() {
+            Some(first) if first.select(&input_selector).next().is_some() => 1,
+            _ => 0,
         };
 
-        // Extract submission date
-        let date_selector = Selector::parse("td:first-child time")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let date_element = row.select(&date_selector).next();
+        // Columns after the offset: date, problem, user, language, score,
+        // code length, result, execution time.
+        if tds.len() < offset + 8 {
+            continue; // Not a submission row
+        }
 
-        let epoch_second = if let Some(date_elem) = date_element {
-            let date_str = date_elem.text().collect::<String>();
-            // Parse the date string (e.g., "2024-04-05 12:34:56+0900")
-            let datetime = DateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S%z")
-                .map_err(|e| CrawlerError::ParseError(format!("Failed to parse date: {}", e)))?;
-            datetime.timestamp()
-        } else {
+        // Submission ID and detail URL come from the details link, located by
+        // class so it is independent of the column offset.
+        let Some(href) = row
+            .select(&details_selector)
+            .next()
+            .and_then(|e| e.value().attr("href"))
+        else {
+            continue; // Skip rows without a submission details link
+        };
+        // Extract ID from the URL (e.g. "/contests/abc399/submissions/64188418" -> "64188418")
+        let id = href
+            .split('/')
+            .next_back()
+            .unwrap_or("")
+            .parse::<i64>()
+            .map_err(|e| {
+                CrawlerError::ParseError(format!("Failed to parse submission ID: {}", e))
+            })?;
+        // Extract contest ID from the URL (e.g. "/contests/abc399/submissions/64188418" -> "abc399")
+        let contest_id = href.split('/').nth(2).unwrap_or("").to_string();
+
+        // Submission date
+        let Some(date_elem) = tds[offset].select(&time_selector).next() else {
             continue; // Skip if no date is found
         };
+        let date_str = date_elem.text().collect::<String>();
+        // Parse the date string (e.g. "2024-04-05 12:34:56+0900")
+        let epoch_second = DateTime::parse_from_str(date_str.trim(), "%Y-%m-%d %H:%M:%S%z")
+            .map_err(|e| CrawlerError::ParseError(format!("Failed to parse date: {}", e)))?
+            .timestamp();
 
-        // Extract problem
-        let problem_selector = Selector::parse("td:nth-child(2) a")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let problem_element = row.select(&problem_selector).next();
-
-        let problem = if let Some(problem_elem) = problem_element {
-            // Extract problem ID from the URL (e.g., "/contests/abc399/tasks/abc399_a" -> "abc399_a")
-            if let Some(href) = problem_elem.value().attr("href") {
-                href.split('/').next_back().unwrap_or("").to_string()
-            } else {
-                continue; // Skip if no URL is found
-            }
-        } else {
-            continue; // Skip if no problem is found
+        // Problem ID from the task link (e.g. "/contests/abc399/tasks/abc399_a" -> "abc399_a")
+        let problem = match tds[offset + 1]
+            .select(&a_selector)
+            .next()
+            .and_then(|a| a.value().attr("href"))
+        {
+            Some(href) => href.split('/').next_back().unwrap_or("").to_string(),
+            None => continue, // Skip if no problem is found
         };
 
-        // Extract user
-        let user_selector = Selector::parse("td:nth-child(3) a:first-child")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let user_element = row.select(&user_selector).next();
-
-        let user = if let Some(user_elem) = user_element {
-            if let Some(href) = user_elem.value().attr("href") {
-                // Extract user_id from the URL path like "/users/{user_id}"
-                href.split('/')
-                    .nth(2) // Get the third component after splitting (index 2)
-                    .unwrap_or("")
-                    .to_string()
-            } else {
-                continue; // Skip if no href is found
-            }
-        } else {
-            continue; // Skip if no user is found
+        // User ID from the first link in the cell (e.g. "/users/{user_id}")
+        let user = match tds[offset + 2]
+            .select(&a_selector)
+            .next()
+            .and_then(|a| a.value().attr("href"))
+        {
+            Some(href) => href.split('/').nth(2).unwrap_or("").to_string(),
+            None => continue, // Skip if no user is found
         };
 
-        // Extract language
-        let language_selector = Selector::parse("td:nth-child(4) a")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let language_element = row.select(&language_selector).next();
-
-        let language = if let Some(language_elem) = language_element {
-            language_elem.text().collect::<String>()
-        } else {
+        // Language
+        let Some(language_elem) = tds[offset + 3].select(&a_selector).next() else {
             continue; // Skip if no language is found
         };
+        let language = language_elem.text().collect::<String>();
 
-        // Extract score
-        let score_selector = Selector::parse("td:nth-child(5)")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let score_element = row.select(&score_selector).next();
+        // Score
+        let score = tds[offset + 4]
+            .text()
+            .collect::<String>()
+            .trim()
+            .parse::<f64>()
+            .map_err(|e| CrawlerError::ParseError(format!("Failed to parse score: {}", e)))?;
 
-        let score = if let Some(score_elem) = score_element {
-            score_elem
-                .text()
-                .collect::<String>()
-                .parse::<f64>()
-                .map_err(|e| CrawlerError::ParseError(format!("Failed to parse score: {}", e)))?
-        } else {
-            continue; // Skip if no score is found
-        };
-
-        // Extract code length
-        let code_length_selector = Selector::parse("td:nth-child(6)")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let code_length_element = row.select(&code_length_selector).next();
-
-        let code_length = if let Some(code_length_elem) = code_length_element {
-            let text = code_length_elem.text().collect::<String>();
-            // Remove " Byte" from the end and parse as u32
-            text.trim_end_matches(" Byte").parse().map_err(|e| {
+        // Code length (e.g. "656 Byte")
+        let code_length = tds[offset + 5]
+            .text()
+            .collect::<String>()
+            .trim()
+            .trim_end_matches(" Byte")
+            .parse()
+            .map_err(|e| {
                 CrawlerError::ParseError(format!("Failed to parse code length: {}", e))
-            })?
-        } else {
-            continue; // Skip if no code length is found
-        };
+            })?;
 
-        // Extract result
-        let result_selector = Selector::parse("td:nth-child(7) span")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let result_element = row.select(&result_selector).next();
-
-        let result = if let Some(result_elem) = result_element {
-            result_elem.text().collect::<String>()
-        } else {
+        // Result (e.g. "AC")
+        let Some(result_elem) = tds[offset + 6].select(&span_selector).next() else {
             continue; // Skip if no result is found
         };
+        let result = result_elem.text().collect::<String>();
 
-        // Extract execution time
-        let execution_time_selector = Selector::parse("td:nth-child(8)")
-            .map_err(|e| CrawlerError::SelectorError(e.to_string()))?;
-        let execution_time_element = row.select(&execution_time_selector).next();
-
-        let execution_time = execution_time_element.and_then(|e| {
-            let text = e.text().collect::<String>();
-            text.trim_end_matches(" ms").parse::<i32>().ok()
-        });
-
-        // Get the URL from the details link
-        let url = if let Some(details_elem) = details_element {
-            if let Some(href) = details_elem.value().attr("href") {
-                href.to_string()
-            } else {
-                continue; // Skip if no URL is found
-            }
-        } else {
-            continue; // Skip if no details link is found
+        // Execution time (e.g. "479 ms"); absent for some results
+        let execution_time = {
+            let text = tds[offset + 7].text().collect::<String>();
+            text.trim().trim_end_matches(" ms").parse::<i32>().ok()
         };
-
-        // Extract contest ID from the URL (e.g., "/contests/abc399/submissions/64188418" -> "abc399")
-        let contest_id = url
-            .split('/')
-            .nth(2) // Get the third component after splitting
-            .unwrap_or("")
-            .to_string();
 
         submissions.push(Submission {
             id,

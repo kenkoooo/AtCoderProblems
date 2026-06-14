@@ -141,6 +141,50 @@ fn test_parse_submissions_html() {
 }
 
 #[test]
+fn test_parse_submissions_html_with_rejudge_column() {
+    // Contests the crawler account can rejudge (e.g. abc308, held jointly with a
+    // CodeQUEEN qualifier) render an extra leading checkbox column that shifts
+    // every other column. The parser must still extract every submission.
+    let html_content = include_str!("assets/submissions_rejudge.html");
+
+    let submissions =
+        parse_submissions_html(html_content).expect("Failed to parse submissions HTML");
+
+    assert_eq!(
+        submissions.len(),
+        20,
+        "Expected 20 submissions, found {}",
+        submissions.len()
+    );
+
+    let first = &submissions[0];
+    assert_eq!(first.id, 76670520);
+    assert_eq!(first.contest_id, "abc308");
+    assert_eq!(first.problem_id, "abc308_h");
+    assert_eq!(first.user, "osakanishi");
+    assert_eq!(first.language, "Python (PyPy 3.11-v7.3.20)");
+    assert_eq!(first.score, 625.);
+    assert_eq!(first.code_length, 2810);
+    assert_eq!(first.result, "AC");
+
+    let last = &submissions[19];
+    assert_eq!(last.id, 76603243);
+    assert_eq!(last.problem_id, "abc308_c");
+    assert_eq!(last.user, "restofwaterimp");
+    assert_eq!(last.result, "WA");
+
+    for submission in &submissions {
+        assert!(submission.id > 0);
+        assert!(submission.epoch_second > 0);
+        assert_eq!(submission.contest_id, "abc308");
+        assert!(!submission.problem_id.is_empty());
+        assert!(!submission.user.is_empty());
+        assert!(!submission.language.is_empty());
+        assert!(!submission.result.is_empty());
+    }
+}
+
+#[test]
 fn test_parse_tasks_html_abc308() {
     // Load the test HTML file
     let html_content = include_str!("assets/tasks_abc308.html");
