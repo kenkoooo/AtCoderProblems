@@ -292,7 +292,8 @@ async fn upsert_problems(
 /// This function:
 /// 1. Fetches permanent contests (practice, APG4b, etc.)
 /// 2. Fetches contests from archive pages (paginated)
-/// 3. Fetches AtCoder Weekday Contests from their category archive
+/// 3. Fetches category-filtered contests (Weekday Contests, Daily Training)
+///    from their category archives
 /// 4. Upserts all contests into the database
 ///
 /// Returns the total number of contests inserted/updated.
