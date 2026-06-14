@@ -6,7 +6,7 @@ export const ContestCategories = [
   "ARC",
   "AGC",
   "AWC",
-  "Daily Training",
+  "ADT",
   "ABC-Like",
   "ARC-Like",
   "AGC-Like",
@@ -62,7 +62,7 @@ export const classifyContest = (
     return "AWC";
   }
   if (/^adt_/.exec(contest.id)) {
-    return "Daily Training";
+    return "ADT";
   }
   if (
     /^ahc\d{3}$/.exec(contest.id) ||

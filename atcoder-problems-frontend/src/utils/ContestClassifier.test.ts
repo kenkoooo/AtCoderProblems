@@ -52,17 +52,15 @@ describe("test function classifyContest", () => {
     expect(classifyContest(abcContest)).toBe("ABC" as ContestCategory);
   });
 
-  it("when Daily Training", () => {
-    const dailyTrainingContest: Contest = {
+  it("when ADT", () => {
+    const adtContest: Contest = {
       duration_second: 6000,
       id: "adt_all_20260612_2",
       rate_change: "-",
       start_epoch_second: 1781260800,
       title: "AtCoder Daily Training 2026/06/12 All",
     };
-    expect(classifyContest(dailyTrainingContest)).toBe(
-      "Daily Training" as ContestCategory
-    );
+    expect(classifyContest(adtContest)).toBe("ADT" as ContestCategory);
   });
 
   it("when ABC-like", () => {
