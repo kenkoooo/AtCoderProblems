@@ -322,7 +322,7 @@ async fn test_crawl_problems_generates_correct_title() {
 }
 
 #[tokio::test]
-async fn test_crawl_contests_fetches_atcoder_weekday_contest_category() {
+async fn test_crawl_contests_fetches_filtered_archive_categories() {
     let db = setup_db().await.unwrap();
     let mut mock_fetcher = MockContestFetcher::new();
 
@@ -366,16 +366,39 @@ async fn test_crawl_contests_fetches_atcoder_weekday_contest_category() {
         .with(mockall::predicate::eq(2), mockall::predicate::eq(20))
         .times(1)
         .returning(|_, _| Ok(vec![]));
+    mock_fetcher
+        .expect_fetch_contests_in_category()
+        .with(mockall::predicate::eq(1), mockall::predicate::eq(60))
+        .times(1)
+        .returning(|_, _| {
+            Ok(vec![Contest {
+                id: "adt_all_20260612_2".to_string(),
+                start_epoch_second: 1_781_260_800,
+                duration_second: 6_000,
+                title: "AtCoder Daily Training 2026/06/12 All".to_string(),
+                rate_change: "-".to_string(),
+            }])
+        });
+    mock_fetcher
+        .expect_fetch_contests_in_category()
+        .with(mockall::predicate::eq(2), mockall::predicate::eq(60))
+        .times(1)
+        .returning(|_, _| Ok(vec![]));
 
     let inserted = atcoder_problems_backend::crawler_utils::crawl_contests(&mock_fetcher, &db)
         .await
         .unwrap();
 
-    assert_eq!(inserted, 2);
+    assert_eq!(inserted, 3);
     let contests = sql_entities::contests::Entity::find()
         .all(&db)
         .await
         .unwrap();
     assert!(contests.iter().any(|contest| contest.id == "abc461"));
     assert!(contests.iter().any(|contest| contest.id == "awc0090"));
+    assert!(
+        contests
+            .iter()
+            .any(|contest| contest.id == "adt_all_20260612_2")
+    );
 }

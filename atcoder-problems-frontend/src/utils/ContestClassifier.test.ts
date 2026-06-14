@@ -52,6 +52,17 @@ describe("test function classifyContest", () => {
     expect(classifyContest(abcContest)).toBe("ABC" as ContestCategory);
   });
 
+  it("when ADT", () => {
+    const adtContest: Contest = {
+      duration_second: 6000,
+      id: "adt_all_20260612_2",
+      rate_change: "-",
+      start_epoch_second: 1781260800,
+      title: "AtCoder Daily Training 2026/06/12 All",
+    };
+    expect(classifyContest(adtContest)).toBe("ADT" as ContestCategory);
+  });
+
   it("when ABC-like", () => {
     const abcLikeContest: Contest = {
       duration_second: 6000,
