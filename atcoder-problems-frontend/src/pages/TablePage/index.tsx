@@ -130,6 +130,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         "ARC",
         "AGC",
         "AWC",
+        "ADT",
         "ABC-Like",
         "ARC-Like",
         "AGC-Like",
@@ -149,25 +150,12 @@ export const TablePage: React.FC<OuterProps> = (props) => {
               ? "AtCoder Grand Contest"
               : activeTab === "AWC"
               ? "AtCoder Weekday Contest"
+              : activeTab === "ADT"
+              ? "AtCoder Daily Training"
               : activeTab === "PAST"
               ? "PAST"
               : `${activeTab} Contest`
           }
-          contestToProblems={contestToProblems}
-          statusLabelMap={statusLabelMap}
-          showPenalties={showPenalties}
-          selectedLanguages={selectedLanguages}
-          userRatingInfo={userRatingInfo}
-        />
-      ) : activeTab === "ADT" ? (
-        <AtCoderRegularTable
-          showDifficulty={showDifficulty}
-          hideCompletedContest={hideCompletedContest}
-          colorMode={colorMode}
-          contests={filteredContests.filter((contest) => {
-            return /^adt_(?!top$)/g.test(contest.id);
-          })}
-          title="AtCoder Daily Training"
           contestToProblems={contestToProblems}
           statusLabelMap={statusLabelMap}
           showPenalties={showPenalties}
