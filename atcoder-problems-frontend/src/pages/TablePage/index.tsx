@@ -165,7 +165,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
           hideCompletedContest={hideCompletedContest}
           colorMode={colorMode}
           contests={filteredContests.filter((contest) => {
-            return /^adt_all/g.test(contest.id);
+            return /^adt_(?!top$)/g.test(contest.id);
           })}
           title="AtCoder Daily Training"
           contestToProblems={contestToProblems}
