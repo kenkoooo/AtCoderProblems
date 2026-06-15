@@ -29,7 +29,10 @@ export function getRatedTarget(contest: Contest): RatedTarget {
     case "All":
       return RatedTargetType.All;
     default: {
-      const range = contest.rate_change.split("~").map((r) => r.trim());
+      // AtCoder switched the rated-range separator from "~" (e.g. " ~ 1999",
+      // "1200 ~") to "-" (e.g. " - 1999", "2000 -") in late 2025, so accept
+      // both. The unrated "-" is already handled by the case above.
+      const range = contest.rate_change.split(/[-~]/).map((r) => r.trim());
       if (range.length !== 2) {
         return RatedTargetType.Unrated;
       }
