@@ -22,6 +22,11 @@ export type ContestCategory = typeof ContestCategories[number];
 
 export const AGC_001_START = 1468670400;
 
+// `adt_top` is the ADT top page, not an actual daily training round, so it
+// should be hidden from contest listings.
+export const isHiddenContest = (contest: Contest): boolean =>
+  contest.id === "adt_top";
+
 export const isRatedContest = (
   contest: Contest,
   problemCount: number
@@ -61,7 +66,7 @@ export const classifyContest = (
   if (/^awc\d{4}$/.exec(contest.id)) {
     return "AWC";
   }
-  if (/^adt_/.exec(contest.id)) {
+  if (/^adt_/.exec(contest.id) && !isHiddenContest(contest)) {
     return "ADT";
   }
   if (

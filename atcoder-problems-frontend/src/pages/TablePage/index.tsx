@@ -20,6 +20,7 @@ import { loggedInUserId } from "../../utils/UserState";
 import {
   classifyContest,
   ContestCategory,
+  isHiddenContest,
 } from "../../utils/ContestClassifier";
 import { getLikeContestCategory } from "../../utils/LikeContestUtils";
 import { TableTabButtons } from "./TableTab";
@@ -87,6 +88,9 @@ export const TablePage: React.FC<OuterProps> = (props) => {
       return [];
     }
     return contests.filter((contest) => {
+      if (isHiddenContest(contest)) {
+        return false;
+      }
       const contestType = classifyContest(contest);
       if (contestType === activeTab) {
         return true;
@@ -130,6 +134,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         "ARC",
         "AGC",
         "AWC",
+        "ADT",
         "ABC-Like",
         "ARC-Like",
         "AGC-Like",
@@ -149,6 +154,8 @@ export const TablePage: React.FC<OuterProps> = (props) => {
               ? "AtCoder Grand Contest"
               : activeTab === "AWC"
               ? "AtCoder Weekday Contest"
+              : activeTab === "ADT"
+              ? "AtCoder Daily Training"
               : activeTab === "PAST"
               ? "PAST"
               : `${activeTab} Contest`

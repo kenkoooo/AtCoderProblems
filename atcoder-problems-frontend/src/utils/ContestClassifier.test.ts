@@ -2,6 +2,7 @@ import Contest from "../interfaces/Contest";
 import {
   isRatedContest,
   classifyContest,
+  isHiddenContest,
   ContestCategory,
 } from "./ContestClassifier";
 
@@ -63,6 +64,17 @@ describe("test function classifyContest", () => {
     expect(classifyContest(adtContest)).toBe("ADT" as ContestCategory);
   });
 
+  it("when adt_top is not classified as ADT", () => {
+    const adtTopContest: Contest = {
+      duration_second: 0,
+      id: "adt_top",
+      rate_change: "-",
+      start_epoch_second: 0,
+      title: "AtCoder Daily Training",
+    };
+    expect(classifyContest(adtTopContest)).not.toBe("ADT" as ContestCategory);
+  });
+
   it("when ABC-like", () => {
     const abcLikeContest: Contest = {
       duration_second: 6000,
@@ -98,5 +110,29 @@ describe("test function classifyContest", () => {
     expect(classifyContest(otherContest)).toBe(
       "Other Contests" as ContestCategory
     );
+  });
+});
+
+describe("test function isHiddenContest", () => {
+  it("when adt_top is hidden", () => {
+    const adtTopContest: Contest = {
+      duration_second: 0,
+      id: "adt_top",
+      rate_change: "-",
+      start_epoch_second: 0,
+      title: "AtCoder Daily Training",
+    };
+    expect(isHiddenContest(adtTopContest)).toBe(true);
+  });
+
+  it("when a normal ADT contest is not hidden", () => {
+    const adtContest: Contest = {
+      duration_second: 6000,
+      id: "adt_all_20260612_2",
+      rate_change: "-",
+      start_epoch_second: 1781260800,
+      title: "AtCoder Daily Training 2026/06/12 All",
+    };
+    expect(isHiddenContest(adtContest)).toBe(false);
   });
 });
