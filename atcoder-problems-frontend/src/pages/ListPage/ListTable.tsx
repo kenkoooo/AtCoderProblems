@@ -356,7 +356,7 @@ export const ListTable: React.FC<Props> = (props) => {
         if (point >= INF_POINT) {
           return <p>-</p>;
         } else {
-          if (point % 100 === 0) {
+          if (point % 1 === 0) {
             return <p>{point}</p>;
           } else {
             return <p>{point.toFixed(2)}</p>;
