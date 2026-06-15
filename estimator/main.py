@@ -3,6 +3,7 @@ import itertools
 import json
 import logging
 import math
+import re
 import statistics
 from collections import defaultdict
 
@@ -409,26 +410,46 @@ def get_current_models() -> dict[str, ProblemModel]:
         return {}
 
 
+def _parse_rated_range(rate_change: str) -> tuple[int, int | None] | None:
+    """Parse AtCoder's "rated range" label into (lower, upper) rating bounds.
+
+    AtCoder used to render the range with a "~" separator (e.g. " ~ 1999",
+    "1200 ~ "), but switched to "-" (e.g. " - 1999", "1200 - ") in late 2025.
+    Both separators are accepted here so contest classification keeps working
+    across the format change. An open upper bound (rated for "X and above",
+    e.g. "2000 -" or "All") is represented by ``None``.
+
+    Returns ``None`` for unrated contests ("-") or unrecognized labels.
+    """
+    text = rate_change.strip()
+    if text in ("", "-"):
+        return None
+    if text == "All":
+        return (0, None)
+    match = re.fullmatch(r"\s*(\d*)\s*[-~]\s*(\d*)\s*", text)
+    if match is None:
+        return None
+    lower = int(match.group(1)) if match.group(1) else 0
+    upper = int(match.group(2)) if match.group(2) else None
+    return (lower, upper)
+
+
 def infer_contest_type(contest: Contest) -> ContestType:
-    if (
-        contest.rate_change == "All"
-        or contest.rate_change == "1200 ~ "
-        or contest.rate_change == "2000 ~ "
-    ):
-        return ContestType.AGC
-    elif (
-        contest.rate_change == " ~ 2799"
-        or contest.rate_change == "1200 ~ 2799"
-        or contest.rate_change == "1200 ~ 2399"
-        or contest.rate_change == "1600 ~ 2999"
-    ):
-        return ContestType.NEW_ARC
-    elif contest.rate_change == " ~ 1999":
-        return ContestType.NEW_ABC
-    elif contest.rate_change == " ~ 1199":
-        return ContestType.OLD_ABC
-    # rate_change == "-"
-    elif contest.id.startswith("arc"):
+    rated_range = _parse_rated_range(contest.rate_change)
+    if rated_range is not None:
+        _lower, upper = rated_range
+        if upper is None:
+            # Rated for "X and above" (or "All") -> AGC
+            return ContestType.AGC
+        elif upper >= 2000:
+            return ContestType.NEW_ARC
+        elif upper >= 1200:
+            return ContestType.NEW_ABC
+        else:
+            return ContestType.OLD_ABC
+    # rate_change == "-" (unrated by AtCoder). Fall back to id-based rules
+    # for contests held before the official rating system started.
+    if contest.id.startswith("arc"):
         return ContestType.OLD_UNRATED_ARC
     elif contest.id.startswith("abc"):
         return ContestType.OLD_UNRATED_ABC
@@ -563,8 +584,12 @@ def main():
     target_contest_ids = args.target.split(",") if args.target else None
     results = run(target_contest_ids=target_contest_ids, overwrite=args.overwrite)
     ta = TypeAdapter(dict[str, ProblemModel])
+    # Omit fields that were not estimated (None) instead of serializing them as
+    # `null`. The frontend treats a missing key as "not available" but rejects a
+    # model that carries an explicit `null` (e.g. a problem with a difficulty but
+    # no time model), which would otherwise hide its difficulty.
     s3.Object("kenkoooo.com", "resources/problem-models.json").put(
-        Body=ta.dump_json(results), ContentType="application/json"
+        Body=ta.dump_json(results, exclude_none=True), ContentType="application/json"
     )
 
 
