@@ -51,6 +51,30 @@ describe("Infer rating change of contests", () => {
 
     expect(getRatedTarget(contest)).toBe(RatedTargetType.All);
   });
+  it("ARC level (hyphen separator)", () => {
+    const contest = {
+      ...DEFAULT_CONTEST,
+      rate_change: "1200 - 2799",
+    };
+
+    expect(getRatedTarget(contest)).toBe(2799);
+  });
+  it("new ABC level (hyphen separator)", () => {
+    const contest = {
+      ...DEFAULT_CONTEST,
+      rate_change: " - 1999",
+    };
+
+    expect(getRatedTarget(contest)).toBe(1999);
+  });
+  it("new AGC level (hyphen separator)", () => {
+    const contest = {
+      ...DEFAULT_CONTEST,
+      rate_change: "2000 -",
+    };
+
+    expect(getRatedTarget(contest)).toBe(RatedTargetType.All);
+  });
   it("buggy unrated", () => {
     const contest = {
       ...DEFAULT_CONTEST,
