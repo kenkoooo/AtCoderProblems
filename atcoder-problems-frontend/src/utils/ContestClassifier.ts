@@ -61,9 +61,7 @@ export const classifyContest = (
   if (/^awc\d{4}$/.exec(contest.id)) {
     return "AWC";
   }
-  if (
-    /^adt_/.exec(contest.id) &&
-    !["adt_top"].includes(contest.id)) {
+  if (/^adt_/.exec(contest.id) && !["adt_top"].includes(contest.id)) {
     return "ADT";
   }
   if (
