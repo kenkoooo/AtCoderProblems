@@ -253,19 +253,25 @@ async fn upsert_problems(
             name: Set(problem.name.clone()),
             title: Set(title),
         };
-        sql_entities::problems::Entity::insert(model)
-            .on_conflict(
-                OnConflict::column(sql_entities::problems::Column::Id)
-                    .update_columns([
-                        sql_entities::problems::Column::ContestId,
-                        sql_entities::problems::Column::ProblemIndex,
-                        sql_entities::problems::Column::Name,
-                        sql_entities::problems::Column::Title,
-                    ])
-                    .to_owned(),
-            )
-            .exec(db)
-            .await?;
+
+        // ADTの問題は全てABCで既出であり、これらは同一視したい。
+        // そのまま通すと問題情報がABCからADTに上書きされてしまうので、ADTの問題はproblemsには入れないようにする。
+        // （ただしcontest_problemには入れる）
+        if !problem.contest_id.starts_with("adt") {
+            sql_entities::problems::Entity::insert(model)
+                .on_conflict(
+                    OnConflict::column(sql_entities::problems::Column::Id)
+                        .update_columns([
+                            sql_entities::problems::Column::ContestId,
+                            sql_entities::problems::Column::ProblemIndex,
+                            sql_entities::problems::Column::Name,
+                            sql_entities::problems::Column::Title,
+                        ])
+                        .to_owned(),
+                )
+                .exec(db)
+                .await?;
+        }
 
         // Insert into contest_problem table
         let contest_problem = sql_entities::contest_problem::ActiveModel {
