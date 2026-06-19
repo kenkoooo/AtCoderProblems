@@ -402,3 +402,93 @@ async fn test_crawl_contests_fetches_filtered_archive_categories() {
             .any(|contest| contest.id == "adt_all_20260612_2")
     );
 }
+
+#[tokio::test]
+async fn test_crawl_adt_problems() {
+    let db = setup_db().await.unwrap();
+
+    // 1. ABCのコンテスト、問題がクロールされる
+    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
+        id: Set("abc001".to_string()),
+        start_epoch_second: Set(0),
+        duration_second: Set(0),
+        title: Set("AtCoder Beginner Contest 001".to_string()),
+        rate_change: Set("?".to_string()),
+    })
+    .exec(&db)
+    .await
+    .unwrap();
+
+    let mut abc_fetcher = MockProblemFetcher::new();
+    abc_fetcher
+        .expect_fetch_problems()
+        .withf(|contest_id| contest_id == "abc001")
+        .times(1)
+        .returning(|_| {
+            Ok(vec![Problem {
+                id: "abc001_a".to_string(),
+                contest_id: "abc001".to_string(),
+                problem_index: "A".to_string(),
+                name: "Problem A".to_string(),
+            }])
+        });
+
+    atcoder_problems_backend::crawler_utils::crawl_problems(&abc_fetcher, &db)
+        .await
+        .unwrap();
+
+    // 2. 次に、ADTのコンテスト、問題がクロールされる
+    sql_entities::contests::Entity::insert(sql_entities::contests::ActiveModel {
+        id: Set("adt_all_20260612".to_string()),
+        start_epoch_second: Set(0),
+        duration_second: Set(0),
+        title: Set("AtCoder Daily Training 2026/06/12 All".to_string()),
+        rate_change: Set("-".to_string()),
+    })
+    .exec(&db)
+    .await
+    .unwrap();
+
+    let mut adt_fetcher = MockProblemFetcher::new();
+    adt_fetcher
+        .expect_fetch_problems()
+        .withf(|contest_id| contest_id == "adt_all_20260612")
+        .times(1)
+        .returning(|_| {
+            Ok(vec![Problem {
+                id: "abc001_a".to_string(),
+                contest_id: "adt_all_20260612".to_string(),
+                problem_index: "C".to_string(),
+                name: "Problem C".to_string(),
+            }])
+        });
+
+    atcoder_problems_backend::crawler_utils::crawl_problems(&adt_fetcher, &db)
+        .await
+        .unwrap();
+
+    // 3. abc001_aがabc001とadt_all_20260612の両方に紐づいていることを確認する
+    let problems_after_adt = sql_entities::problems::Entity::find()
+        .all(&db)
+        .await
+        .unwrap();
+    assert_eq!(problems_after_adt.len(), 1);
+    assert_eq!(problems_after_adt[0].id, "abc001_a");
+    assert_eq!(problems_after_adt[0].contest_id, "abc001");
+
+    let contest_problems = sql_entities::contest_problem::Entity::find()
+        .all(&db)
+        .await
+        .unwrap();
+    assert_eq!(contest_problems.len(), 2);
+    assert!(contest_problems.iter().any(|cp| cp.contest_id == "abc001"
+        && cp.problem_id == "abc001_a"
+        && cp.problem_index == "A"));
+    assert!(
+        contest_problems
+            .iter()
+            .any(|cp| cp.contest_id == "adt_all_20260612"
+                && cp.problem_id == "abc001_a"
+                && cp.problem_index == "C")
+    );
+}
