@@ -15,7 +15,7 @@ daily_solves as (
     -- Convert to JST date (epoch + 9 hours, then truncate to day)
     select distinct
         user_id,
-        (to_timestamp(first_ac_epoch) at time zone 'UTC' at time zone 'Asia/Tokyo')::date as solve_date
+        (to_timestamp(first_ac_epoch) at time zone 'Asia/Tokyo')::date as solve_date
     from first_ac_per_problem
 ),
 
