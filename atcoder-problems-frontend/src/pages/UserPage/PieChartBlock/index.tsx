@@ -14,117 +14,97 @@ import {
 } from "../../../utils";
 import { SmallPieChart } from "./SmallPieChart";
 
-enum SubmissionStatus {
-  TRYING,
-  REJECTED,
-  ACCEPTED,
-}
+const PROBLEM_KEYS = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+] as const;
+
+type ProblemKey = typeof PROBLEM_KEYS[number];
+
+type PieChartProblemCount = {
+  key: ProblemKey;
+  total: number;
+  rejected: number;
+  solved: number;
+};
+
+const PROBLEM_POSITION: Partial<Record<string, number>> = {
+  A: 0,
+  B: 1,
+  C: 2,
+  D: 3,
+  E: 4,
+  F: 5,
+  F2: 5,
+  G: 6,
+  H: 7,
+  Ex: 7,
+  I: 8,
+  J: 9,
+  K: 10,
+  L: 11,
+  M: 12,
+  N: 13,
+  O: 14,
+};
 
 const solvedCountForPieChart = (
   contestToProblems: [string, Problem[]][],
   submissions: Map<string, Submission[]>,
   userId: string
-): {
-  total: number;
-  rejected: number;
-  solved: number;
-}[] => {
-  const mapProblemPosition = (problemIndex: string): number => {
-    switch (problemIndex) {
-      case "A": {
-        return 0;
-      }
-      case "B": {
-        return 1;
-      }
-      case "C": {
-        return 2;
-      }
-      case "D": {
-        return 3;
-      }
-      case "E": {
-        return 4;
-      }
-      case "F":
-      case "F2": {
-        return 5;
-      }
-      case "G": {
-        return 6;
-      }
-      case "H":
-      case "Ex": {
-        return 7;
-      }
-      default: {
-        // tslint:disable-next-line
-        console.error(`Unsupported problemIndex: ${problemIndex}`);
-        return 0;
-      }
-    }
-  };
+): PieChartProblemCount[] => {
+  const counts: PieChartProblemCount[] = PROBLEM_KEYS.map((key) => ({
+    key,
+    total: 0,
+    rejected: 0,
+    solved: 0,
+  }));
 
-  const statusCount = contestToProblems
-    .map(([, problems]) => {
-      const indexStatus = problems.map((problem) => {
-        const validSubmissions = submissions
-          .get(problem.id)
-          ?.filter(
-            (s) =>
-              caseInsensitiveUserId(s.user_id) === userId &&
-              isValidResult(s.result)
-          );
-        const status = !validSubmissions
-          ? SubmissionStatus.TRYING
-          : validSubmissions?.find((s) => isAccepted(s.result))
-          ? SubmissionStatus.ACCEPTED
-          : SubmissionStatus.REJECTED;
-        return { index: problem.problem_index, status };
-      });
-      return { indexStatus };
-    })
-    .map(({ indexStatus }) =>
-      indexStatus.map(({ index, status }) => ({
-        position: mapProblemPosition(index),
-        status,
-      }))
-    )
-    .flatMap((list) => list)
-    .reduce(
-      (count, { position, status }) => {
-        count[status][position] += 1;
-        return count;
-      },
-      {
-        [SubmissionStatus.TRYING]: [0, 0, 0, 0, 0, 0, 0, 0],
-        [SubmissionStatus.REJECTED]: [0, 0, 0, 0, 0, 0, 0, 0],
-        [SubmissionStatus.ACCEPTED]: [0, 0, 0, 0, 0, 0, 0, 0],
+  contestToProblems.forEach(([, problems]) => {
+    problems.forEach((problem) => {
+      const position = PROBLEM_POSITION[problem.problem_index];
+
+      if (position === undefined) {
+        // tslint:disable-next-line:no-console
+        console.error(`Unsupported problemIndex: ${problem.problem_index}`);
+        return;
       }
-    );
-  const totalCount = contestToProblems
-    .map(([, problems]) => {
-      const problemIndices = problems.map((problem) => problem.problem_index);
-      return { problemIndices };
-    })
-    .map(({ problemIndices }) =>
-      problemIndices.map((problemIndex) => mapProblemPosition(problemIndex))
-    )
-    .flatMap((list) => list)
-    .reduce(
-      (count, position) => {
-        count[position] += 1;
-        return count;
-      },
-      [0, 0, 0, 0, 0, 0, 0, 0]
-    );
-  return totalCount
-    .map((total, index) => ({
-      total,
-      rejected: statusCount[SubmissionStatus.REJECTED][index],
-      solved: statusCount[SubmissionStatus.ACCEPTED][index],
-    }))
-    .filter((x) => x.total > 0);
+
+      const validSubmissions = submissions
+        .get(problem.id)
+        ?.filter(
+          (submission) =>
+            caseInsensitiveUserId(submission.user_id) === userId &&
+            isValidResult(submission.result)
+        );
+
+      const count = counts[position];
+      count.total++;
+
+      if (
+        validSubmissions?.some((submission) => isAccepted(submission.result))
+      ) {
+        count.solved++;
+      } else if (validSubmissions !== undefined) {
+        count.rejected++;
+      }
+    });
+  });
+
+  return counts.filter(({ total }) => total > 0);
 };
 
 interface Props {
@@ -174,7 +154,11 @@ export const PieChartBlock = (props: Props) => {
   );
   return (
     <>
-      <PieCharts problems={abcSolved} title="AtCoder Beginner Contest" />
+      <PieCharts
+        problems={abcSolved}
+        title="AtCoder Beginner Contest"
+        problemHLabel="H/Ex"
+      />
       <PieCharts problems={arcSolved} title="AtCoder Regular Contest" />
       <PieCharts problems={agcSolved} title="AtCoder Grand Contest" />
       <PieCharts problems={awcSolved} title="AtCoder Weekday Contest" />
@@ -183,30 +167,37 @@ export const PieChartBlock = (props: Props) => {
 };
 
 interface PieChartsProps {
-  problems: { total: number; solved: number; rejected: number }[];
+  problems: PieChartProblemCount[];
   title: string;
+  problemHLabel?: "H" | "H/Ex";
 }
 
-const PieCharts: React.FC<PieChartsProps> = ({ problems, title }) => (
+const PieCharts: React.FC<PieChartsProps> = ({
+  problems,
+  title,
+  problemHLabel = "H",
+}) => (
   <div>
     <Row className="my-2 border-bottom">
       <h1>{title}</h1>
     </Row>
+
     <Row className="my-3">
-      {problems.map(({ solved, rejected, total }, i) => {
-        const key = i <= 6 ? "ABCDEFG".charAt(i) : "H/Ex";
+      {problems.map(({ key, solved, rejected, total }) => {
+        const displayKey = key === "H" ? problemHLabel : key;
+
         return (
           <Col
             key={key}
             className="text-center"
             xs="6"
-            md={Math.ceil(12 / problems.length)}
+            md={Math.max(2, Math.ceil(12 / problems.length))}
           >
             <SmallPieChart
               accepted={solved}
               rejected={rejected}
               trying={total - solved - rejected}
-              title={`Problem ${key}`}
+              title={`Problem ${displayKey}`}
             />
           </Col>
         );
