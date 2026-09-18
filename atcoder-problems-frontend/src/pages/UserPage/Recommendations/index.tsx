@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 import { Button, ButtonGroup, Row } from "reactstrap";
 import {
   useContestMap,
+  useContestToProblems,
   useMergedProblemMap,
   useProblemModelMap,
   useRatingInfo,
@@ -37,6 +38,7 @@ import {
 import { classifyContest } from "../../../utils/ContestClassifier";
 import { getLikeContestCategory } from "../../../utils/LikeContestUtils";
 import { recommendProblems } from "./RecommendProblems";
+import { restoreOriginalContest } from "./OriginalContest";
 import {
   CategoryOption,
   RecommendController,
@@ -80,8 +82,11 @@ export const Recommendations = (props: Props) => {
 
   const userSubmissions = useUserSubmission(props.userId) ?? [];
   const { data: mergedProblemsMap } = useMergedProblemMap();
+  const contestToProblems = useContestToProblems();
   const problems = mergedProblemsMap
-    ? Array.from(mergedProblemsMap.values())
+    ? Array.from(mergedProblemsMap.values()).map((problem) =>
+        restoreOriginalContest(problem, contestToProblems)
+      )
     : [];
   const contestMap = useContestMap();
   const problemModels = useProblemModelMap();
@@ -183,20 +188,22 @@ export const Recommendations = (props: Props) => {
           selectRow={isLoggedIn ? selectRowProps : undefined}
         >
           <TableHeaderColumn
-            dataField="title"
+            dataField="name"
             dataFormat={(
               name: string,
               {
                 id,
                 contest_id,
+                problem_index,
                 is_experimental,
-              }: { id: string; contest_id: string; is_experimental: boolean }
+              }: Problem & { is_experimental: boolean }
             ): React.ReactElement => (
               <ProblemLink
                 isExperimentalDifficulty={is_experimental}
                 showDifficulty={true}
                 problemId={id}
                 problemName={name}
+                problemIndex={problem_index}
                 contestId={contest_id}
                 problemModel={problemModels?.get(id) ?? null}
                 userRatingInfo={userRatingInfo}
