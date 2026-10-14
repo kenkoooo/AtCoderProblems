@@ -39,7 +39,6 @@ interface Props {
   showPenalties: boolean;
   selectedLanguages: Set<string>;
   userRatingInfo: RatingInfo;
-  paginate?: boolean;
 }
 
 const getProblemHeaderAlphabet = (problem: MergedProblem, contest: Contest) => {
@@ -135,14 +134,15 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
       <h2>{props.title}</h2>
       <BootstrapTable
         data={contests}
-        pagination={props.paginate}
+        pagination
         options={{
           paginationPosition: "top",
-          sizePerPage: 50,
+          sizePerPage: 20,
           sizePerPageList: [
-            { text: "25", value: 25 },
+            { text: "20", value: 20 },
             { text: "50", value: 50 },
             { text: "100", value: 100 },
+            { text: "200", value: 200 },
           ],
           paginationPanel: function DataFormat(
             paginationPanelProps: ListPaginationPanelProps
