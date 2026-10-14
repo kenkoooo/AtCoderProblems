@@ -141,6 +141,7 @@ export const TablePage: React.FC<OuterProps> = (props) => {
         "PAST",
       ].includes(activeTab) ? (
         <AtCoderRegularTable
+          key={activeTab}
           showDifficulty={showDifficulty}
           hideCompletedContest={hideCompletedContest}
           colorMode={colorMode}

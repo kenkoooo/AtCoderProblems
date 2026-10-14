@@ -23,6 +23,10 @@ import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { ProblemPoint } from "../../components/Problempoint";
 import { classifyContest } from "../../utils/ContestClassifier";
+import {
+  ListPaginationPanel,
+  ListPaginationPanelProps,
+} from "../../components/ListPaginationPanel";
 
 interface Props {
   contests: Contest[];
@@ -130,6 +134,22 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
       <h2>{props.title}</h2>
       <BootstrapTable
         data={contests}
+        pagination
+        options={{
+          paginationPosition: "top",
+          sizePerPage: 20,
+          sizePerPageList: [
+            { text: "20", value: 20 },
+            { text: "50", value: 50 },
+            { text: "100", value: 100 },
+            { text: "200", value: 200 },
+          ],
+          paginationPanel: function DataFormat(
+            paginationPanelProps: ListPaginationPanelProps
+          ): React.ReactElement {
+            return <ListPaginationPanel {...paginationPanelProps} />;
+          },
+        }}
         tableContainerClass="contest-table-responsive contest-regular-table-responsive"
       >
         <TableHeaderColumn
