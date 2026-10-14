@@ -23,6 +23,10 @@ import { SubmitTimespan } from "../../components/SubmitTimespan";
 import { RatingInfo } from "../../utils/RatingInfo";
 import { ProblemPoint } from "../../components/Problempoint";
 import { classifyContest } from "../../utils/ContestClassifier";
+import {
+  ListPaginationPanel,
+  ListPaginationPanelProps,
+} from "../../components/ListPaginationPanel";
 
 interface Props {
   contests: Contest[];
@@ -35,6 +39,7 @@ interface Props {
   showPenalties: boolean;
   selectedLanguages: Set<string>;
   userRatingInfo: RatingInfo;
+  paginate?: boolean;
 }
 
 const getProblemHeaderAlphabet = (problem: MergedProblem, contest: Contest) => {
@@ -130,6 +135,21 @@ const AtCoderRegularTableSFC: React.FC<Props> = (props) => {
       <h2>{props.title}</h2>
       <BootstrapTable
         data={contests}
+        pagination={props.paginate}
+        options={{
+          paginationPosition: "top",
+          sizePerPage: 50,
+          sizePerPageList: [
+            { text: "25", value: 25 },
+            { text: "50", value: 50 },
+            { text: "100", value: 100 },
+          ],
+          paginationPanel: function DataFormat(
+            paginationPanelProps: ListPaginationPanelProps
+          ): React.ReactElement {
+            return <ListPaginationPanel {...paginationPanelProps} />;
+          },
+        }}
         tableContainerClass="contest-table-responsive contest-regular-table-responsive"
       >
         <TableHeaderColumn
